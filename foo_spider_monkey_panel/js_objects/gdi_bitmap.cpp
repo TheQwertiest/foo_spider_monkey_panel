@@ -1,24 +1,24 @@
 #include <stdafx.h>
+
 #include "gdi_bitmap.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/gdi_graphics.h>
 #include <js_objects/gdi_raw_bitmap.h>
-#include <utils/gdi_error_helpers.h>
-#include <utils/scope_helpers.h>
-#include <utils/image_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-
-#include <utils/stackblur.h>
+#include <utils/array_x.h>
+#include <utils/gdi_error_helpers.h>
+#include <utils/image_helpers.h>
 #include <utils/kmeans.h>
+#include <utils/scope_helpers.h>
+#include <utils/stackblur.h>
 
 #include <nlohmann/json.hpp>
-
 #include <nonstd/span.hpp>
 
-#include <map>
 #include <cmath>
+#include <map>
 
 // range-v3 0.5.0 compatibility fix.
 // remove after updating to the latest version
@@ -64,30 +64,28 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( RotateFlip, JsGdiBitmap::RotateFlip )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SaveAs, JsGdiBitmap::SaveAs, JsGdiBitmap::SaveAsWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( StackBlur, JsGdiBitmap::StackBlur )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "ApplyAlpha", ApplyAlpha, 1, DefaultPropsFlags() ),
-    JS_FN( "ApplyMask", ApplyMask, 1, DefaultPropsFlags() ),
-    JS_FN( "Clone", Clone, 4, DefaultPropsFlags() ),
-    JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, DefaultPropsFlags() ),
-    JS_FN( "GetColourScheme", GetColourScheme, 1, DefaultPropsFlags() ),
-    JS_FN( "GetColourSchemeJSON", GetColourSchemeJSON, 1, DefaultPropsFlags() ),
-    JS_FN( "GetGraphics", GetGraphics, 0, DefaultPropsFlags() ),
-    JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, DefaultPropsFlags() ),
-    JS_FN( "Resize", Resize, 2, DefaultPropsFlags() ),
-    JS_FN( "RotateFlip", RotateFlip, 1, DefaultPropsFlags() ),
-    JS_FN( "SaveAs", SaveAs, 1, DefaultPropsFlags() ),
-    JS_FN( "StackBlur", StackBlur, 1, DefaultPropsFlags() ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "ApplyAlpha", ApplyAlpha, 1, DefaultPropsFlags() ),
+      JS_FN( "ApplyMask", ApplyMask, 1, DefaultPropsFlags() ),
+      JS_FN( "Clone", Clone, 4, DefaultPropsFlags() ),
+      JS_FN( "CreateRawBitmap", CreateRawBitmap, 0, DefaultPropsFlags() ),
+      JS_FN( "GetColourScheme", GetColourScheme, 1, DefaultPropsFlags() ),
+      JS_FN( "GetColourSchemeJSON", GetColourSchemeJSON, 1, DefaultPropsFlags() ),
+      JS_FN( "GetGraphics", GetGraphics, 0, DefaultPropsFlags() ),
+      JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, DefaultPropsFlags() ),
+      JS_FN( "Resize", Resize, 2, DefaultPropsFlags() ),
+      JS_FN( "RotateFlip", RotateFlip, 1, DefaultPropsFlags() ),
+      JS_FN( "SaveAs", SaveAs, 1, DefaultPropsFlags() ),
+      JS_FN( "StackBlur", StackBlur, 1, DefaultPropsFlags() ),
+      JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiBitmap::get_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiBitmap::get_Width )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-    JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
+      JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
+      JS_PS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( GdiBitmap_Constructor, JsGdiBitmap::Constructor )
 
@@ -101,7 +99,7 @@ std::unique_ptr<Gdiplus::Bitmap> CreateDownsizedImage( Gdiplus::Bitmap& srcImg, 
     const auto [imgWidth, imgHeight] = [&srcImg, maxPixelCount] {
         if ( srcImg.GetWidth() * srcImg.GetHeight() > maxPixelCount )
         {
-            const double ratio = (double)srcImg.GetWidth() / srcImg.GetHeight();
+            const double ratio = static_cast<double>( srcImg.GetWidth() ) / srcImg.GetHeight();
             const auto imgHeight = static_cast<uint32_t>( std::round( std::sqrt( maxPixelCount / ratio ) ) );
             const auto imgWidth = static_cast<uint32_t>( std::round( imgHeight * ratio ) );
 
@@ -133,8 +131,8 @@ namespace mozjs
 {
 
 const JSClass JsGdiBitmap::JsClass = jsClass;
-const JSFunctionSpec* JsGdiBitmap::JsFunctions = jsFunctions;
-const JSPropertySpec* JsGdiBitmap::JsProperties = jsProperties;
+const JSFunctionSpec* JsGdiBitmap::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsGdiBitmap::JsProperties = jsProperties.data();
 const JsPrototypeId JsGdiBitmap::PrototypeId = JsPrototypeId::GdiBitmap;
 const JSNative JsGdiBitmap::JsConstructor = ::GdiBitmap_Constructor;
 
@@ -240,7 +238,7 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
     gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &dstBmpData );
     smp::error::CheckGdi( gdiRet, "dst::LockBits" );
 
-    utils::final_action autoDstBits( [& pGdi = pGdi_, &dstBmpData] {
+    utils::final_action autoDstBits( [&pGdi = pGdi_, &dstBmpData] {
         pGdi->UnlockBits( &dstBmpData );
     } );
 
@@ -442,7 +440,7 @@ JSObject* JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMod
     smp::error::CheckGdiPlusObject( bitmap );
 
     Gdiplus::Graphics g( bitmap.get() );
-    Gdiplus::Status gdiRet = g.SetInterpolationMode( (Gdiplus::InterpolationMode)interpolationMode );
+    Gdiplus::Status gdiRet = g.SetInterpolationMode( static_cast<Gdiplus::InterpolationMode>( interpolationMode ) );
     smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
 
     gdiRet = g.DrawImage( pGdi_.get(), 0, 0, w, h );
@@ -466,7 +464,7 @@ JSObject* JsGdiBitmap::ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h
 
 void JsGdiBitmap::RotateFlip( uint32_t mode )
 {
-    Gdiplus::Status gdiRet = pGdi_->RotateFlip( (Gdiplus::RotateFlipType)mode );
+    Gdiplus::Status gdiRet = pGdi_->RotateFlip( static_cast<Gdiplus::RotateFlipType>( mode ) );
     smp::error::CheckGdi( gdiRet, "RotateFlip" );
 }
 

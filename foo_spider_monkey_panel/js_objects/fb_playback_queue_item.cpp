@@ -6,6 +6,7 @@
 #include <js_objects/fb_metadb_handle.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 
 namespace
 {
@@ -36,16 +37,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Handle, JsFbPlaybackQueueItem::get_Handle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlaybackQueueItem::get_PlaylistIndex )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlaybackQueueItem::get_PlaylistItemIndex )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Handle", get_Handle, DefaultPropsFlags() ),
-    JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
-    JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "Handle", get_Handle, DefaultPropsFlags() ),
+      JS_PSG( "PlaylistIndex", get_PlaylistIndex, DefaultPropsFlags() ),
+      JS_PSG( "PlaylistItemIndex", get_PlaylistItemIndex, DefaultPropsFlags() ),
+      JS_PS_END } );
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FS_END } );
 
 } // namespace
 
@@ -53,8 +52,8 @@ namespace mozjs
 {
 
 const JSClass JsFbPlaybackQueueItem::JsClass = jsClass;
-const JSFunctionSpec* JsFbPlaybackQueueItem::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbPlaybackQueueItem::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbPlaybackQueueItem::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbPlaybackQueueItem::JsProperties = jsProperties.data();
 const JsPrototypeId JsFbPlaybackQueueItem::PrototypeId = JsPrototypeId::FbPlaybackQueueItem;
 
 JsFbPlaybackQueueItem::JsFbPlaybackQueueItem( JSContext* cx, const t_playback_queue_item& playbackQueueItem )

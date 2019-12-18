@@ -46,7 +46,7 @@ LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
         CAxWindow wndIE = hIE;
 
         IObjectWithSitePtr pOWS = nullptr;
-        HRESULT hr = wndIE.QueryHost( IID_IObjectWithSite, (void**)&pOWS );
+        HRESULT hr = wndIE.QueryHost( IID_IObjectWithSite, reinterpret_cast<void**>( &pOWS ) );
         smp::error::CheckHR( hr, "QueryHost" );
 
         hr = pOWS->SetSite( static_cast<IServiceProvider*>( this ) );
@@ -100,7 +100,7 @@ LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
             } );
 
             VARIANT* pSaVar = nullptr;
-            hr = SafeArrayAccessData( pSaStrings, (LPVOID*)&pSaVar );
+            hr = SafeArrayAccessData( pSaStrings, reinterpret_cast<void**>( &pSaVar ) );
             smp::error::CheckHR( hr, "SafeArrayAccessData" );
 
             _bstr_t bstr( htmlCodeOrPath_.c_str() );
@@ -166,7 +166,7 @@ void CDialogHtml::OnClose()
     OnCloseCmd( 0, IDCANCEL, nullptr );
 }
 
-void CDialogHtml::OnCloseCmd( WORD, WORD wID, HWND hWndCtl )
+void CDialogHtml::OnCloseCmd( WORD, WORD wID, HWND )
 {
     if ( !isClosing_ )
     { // e.g. pressed RETURN

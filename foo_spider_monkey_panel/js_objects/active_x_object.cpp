@@ -1,28 +1,30 @@
 /// Code based on from wrap_com.cpp from JSDB by Shanti Rao (see http://jsdb.org)
 
 #include <stdafx.h>
+
 #include "active_x_object.h"
 
+#include <com_objects/com_interface.h>
+#include <com_objects/com_tools.h>
+#include <convert/com.h>
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
-#include <convert/com.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_prototype_helpers.h>
+#include <utils/array_x.h>
 #include <utils/com_error_helpers.h>
 #include <utils/scope_helpers.h>
-#include <utils/winapi_error_helpers.h>
 #include <utils/string_helpers.h>
-#include <com_objects/com_interface.h>
-#include <com_objects/com_tools.h>
+#include <utils/winapi_error_helpers.h>
 
-#include <smp_exception.h>
 #include <com_message_scope.h>
+#include <smp_exception.h>
 
-#include <vector>
 #include <string>
+#include <vector>
 
 // TODO: cleanup the code
 
@@ -43,7 +45,7 @@ void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
 
     if ( pNative->pUnknown_ && !pNative->pDispatch_ )
     {
-        HRESULT hresult = pNative->pUnknown_->QueryInterface( IID_IDispatch, (void**)&pNative->pDispatch_ );
+        HRESULT hresult = pNative->pUnknown_->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pNative->pDispatch_ ) );
         if ( FAILED( hresult ) )
         {
             pNative->pDispatch_ = nullptr;
@@ -283,16 +285,14 @@ MJS_DEFINE_JS_FN( ActiveX_Get, ActiveX_Get_Impl )
 MJS_DEFINE_JS_FN( ActiveX_Set, ActiveX_Set_Impl )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ToString, ActiveXObject::ToString )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "toString", ToString, 0, DefaultPropsFlags() ),
-    JS_FN( "ActiveX_Get", ActiveX_Get, 1, DefaultPropsFlags() ),
-    JS_FN( "ActiveX_Set", ActiveX_Set, 1, DefaultPropsFlags() ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "toString", ToString, 0, DefaultPropsFlags() ),
+      JS_FN( "ActiveX_Get", ActiveX_Get, 1, DefaultPropsFlags() ),
+      JS_FN( "ActiveX_Set", ActiveX_Set, 1, DefaultPropsFlags() ),
+      JS_FS_END } );
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveXObject_Constructor, ActiveXObject::Constructor )
 
@@ -302,8 +302,8 @@ namespace mozjs
 {
 
 const JSClass ActiveXObject::JsClass = jsClass;
-const JSFunctionSpec* ActiveXObject::JsFunctions = jsFunctions;
-const JSPropertySpec* ActiveXObject::JsProperties = jsProperties;
+const JSFunctionSpec* ActiveXObject::JsFunctions = jsFunctions.data();
+const JSPropertySpec* ActiveXObject::JsProperties = jsProperties.data();
 const JsPrototypeId ActiveXObject::PrototypeId = JsPrototypeId::ActiveX;
 const JSNative ActiveXObject::JsConstructor = ::ActiveXObject_Constructor;
 const js::BaseProxyHandler& ActiveXObject::JsProxy = ActiveXObjectProxyHandler::singleton;
@@ -328,7 +328,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
     {
         return;
     }
-    
+
     if ( addref )
     {
         pDispatch_->AddRef();
@@ -356,7 +356,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
         pUnknown_->AddRef();
     }
 
-    HRESULT hresult = pUnknown_->QueryInterface( IID_IDispatch, (void**)&pDispatch_ );
+    HRESULT hresult = pUnknown_->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pDispatch_ ) );
     if ( FAILED( hresult ) )
     {
         pDispatch_ = nullptr;
@@ -374,14 +374,14 @@ ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
 ActiveXObject::ActiveXObject( JSContext* cx, CLSID& clsid )
     : pJsCtx_( cx )
 {
-    HRESULT hresult = CoCreateInstance( clsid, nullptr, CLSCTX_INPROC_SERVER, IID_IUnknown, (void**)&pUnknown_ );
+    HRESULT hresult = CoCreateInstance( clsid, nullptr, CLSCTX_INPROC_SERVER, IID_IUnknown, reinterpret_cast<void**>( &pUnknown_ ) );
     if ( FAILED( hresult ) )
     {
         pUnknown_ = nullptr;
         return;
     }
 
-    hresult = pUnknown_->QueryInterface( IID_IDispatch, (void**)&pDispatch_ );
+    hresult = pUnknown_->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pDispatch_ ) );
     //maybe I don't know what to do with it, but it might get passed to
     //another COM function
     if ( FAILED( hresult ) )
@@ -438,13 +438,13 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
     hresult = GetActiveObject( clsid, nullptr, &unk );
     if ( SUCCEEDED( hresult ) && unk )
     {
-        nativeObject.reset( new ActiveXObject( cx, unk ) );
+        nativeObject = std::make_unique<ActiveXObject>( cx, unk );
         SmpException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via IUnknown: {}", name );
     }
 
     if ( !nativeObject )
     {
-        nativeObject.reset( new ActiveXObject( cx, clsid ) );
+        nativeObject = std::make_unique<ActiveXObject>( cx, clsid );
         SmpException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via CLSID: {}", name );
     }
 
@@ -805,7 +805,7 @@ void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
 
     if ( !pDispatch_ )
     {
-        HRESULT hr = pUnknown_->QueryInterface( IID_IDispatch, (void**)&pDispatch_ );
+        HRESULT hr = pUnknown_->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pDispatch_ ) );
         smp::error::CheckHR( hr, "QueryInterface" );
     }
 

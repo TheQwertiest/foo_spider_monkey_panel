@@ -1,27 +1,27 @@
 #include <stdafx.h>
+
 #include "utils.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
+#include <js_utils/js_art_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <js_utils/js_art_helpers.h>
-#include <utils/gdi_error_helpers.h>
-#include <utils/winapi_error_helpers.h>
-#include <utils/art_helpers.h>
-#include <utils/file_helpers.h>
-#include <utils/scope_helpers.h>
-#include <utils/colour_helpers.h>
-
-#include <ui/ui_input_box.h>
 #include <ui/ui_html.h>
+#include <ui/ui_input_box.h>
+#include <utils/array_x.h>
+#include <utils/art_helpers.h>
+#include <utils/colour_helpers.h>
+#include <utils/file_helpers.h>
+#include <utils/gdi_error_helpers.h>
+#include <utils/scope_helpers.h>
+#include <utils/winapi_error_helpers.h>
 
 // StringCchCopy, StringCchCopyN
 #include <StrSafe.h>
-
-#include <io.h>
 #include <fcntl.h>
+#include <io.h>
 
 #include <filesystem>
 
@@ -75,38 +75,36 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ShowHtmlDialog, JsUtils::ShowHtmlDialog, 
 MJS_DEFINE_JS_FN_FROM_NATIVE( WriteINI, JsUtils::WriteINI );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( WriteTextFile, JsUtils::WriteTextFile, JsUtils::WriteTextFileWithOpt, 1 );
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "CheckComponent", CheckComponent, 1, DefaultPropsFlags() ),
-    JS_FN( "CheckFont", CheckFont, 1, DefaultPropsFlags() ),
-    JS_FN( "ColourPicker", ColourPicker, 2, DefaultPropsFlags() ),
-    JS_FN( "FileTest", FileTest, 2, DefaultPropsFlags() ),
-    JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
-    JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),
-    JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 2, DefaultPropsFlags() ),
-    JS_FN( "GetAlbumArtAsyncV2", GetAlbumArtAsyncV2, 2, DefaultPropsFlags() ),
-    JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, DefaultPropsFlags() ),
-    JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, DefaultPropsFlags() ),
-    JS_FN( "GetSysColour", GetSysColour, 1, DefaultPropsFlags() ),
-    JS_FN( "GetSystemMetrics", GetSystemMetrics, 1, DefaultPropsFlags() ),
-    JS_FN( "Glob", Glob, 1, DefaultPropsFlags() ),
-    JS_FN( "InputBox", InputBox, 3, DefaultPropsFlags() ),
-    JS_FN( "IsKeyPressed", IsKeyPressed, 1, DefaultPropsFlags() ),
-    JS_FN( "MapString", MapString, 3, DefaultPropsFlags() ),
-    JS_FN( "PathWildcardMatch", PathWildcardMatch, 2, DefaultPropsFlags() ),
-    JS_FN( "ReadINI", ReadINI, 3, DefaultPropsFlags() ),
-    JS_FN( "ReadTextFile", ReadTextFile, 1, DefaultPropsFlags() ),
-    JS_FN( "ShowHtmlDialog", ShowHtmlDialog, 3, DefaultPropsFlags() ),
-    JS_FN( "WriteINI", WriteINI, 4, DefaultPropsFlags() ),
-    JS_FN( "WriteTextFile", WriteTextFile, 2, DefaultPropsFlags() ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "CheckComponent", CheckComponent, 1, DefaultPropsFlags() ),
+      JS_FN( "CheckFont", CheckFont, 1, DefaultPropsFlags() ),
+      JS_FN( "ColourPicker", ColourPicker, 2, DefaultPropsFlags() ),
+      JS_FN( "FileTest", FileTest, 2, DefaultPropsFlags() ),
+      JS_FN( "FormatDuration", FormatDuration, 1, DefaultPropsFlags() ),
+      JS_FN( "FormatFileSize", FormatFileSize, 1, DefaultPropsFlags() ),
+      JS_FN( "GetAlbumArtAsync", GetAlbumArtAsync, 2, DefaultPropsFlags() ),
+      JS_FN( "GetAlbumArtAsyncV2", GetAlbumArtAsyncV2, 2, DefaultPropsFlags() ),
+      JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, DefaultPropsFlags() ),
+      JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, DefaultPropsFlags() ),
+      JS_FN( "GetSysColour", GetSysColour, 1, DefaultPropsFlags() ),
+      JS_FN( "GetSystemMetrics", GetSystemMetrics, 1, DefaultPropsFlags() ),
+      JS_FN( "Glob", Glob, 1, DefaultPropsFlags() ),
+      JS_FN( "InputBox", InputBox, 3, DefaultPropsFlags() ),
+      JS_FN( "IsKeyPressed", IsKeyPressed, 1, DefaultPropsFlags() ),
+      JS_FN( "MapString", MapString, 3, DefaultPropsFlags() ),
+      JS_FN( "PathWildcardMatch", PathWildcardMatch, 2, DefaultPropsFlags() ),
+      JS_FN( "ReadINI", ReadINI, 3, DefaultPropsFlags() ),
+      JS_FN( "ReadTextFile", ReadTextFile, 1, DefaultPropsFlags() ),
+      JS_FN( "ShowHtmlDialog", ShowHtmlDialog, 3, DefaultPropsFlags() ),
+      JS_FN( "WriteINI", WriteINI, 4, DefaultPropsFlags() ),
+      JS_FN( "WriteTextFile", WriteTextFile, 2, DefaultPropsFlags() ),
+      JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Version, JsUtils::get_Version )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Version", get_Version, DefaultPropsFlags() ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "Version", get_Version, DefaultPropsFlags() ),
+      JS_PS_END } );
 
 } // namespace
 
@@ -114,8 +112,8 @@ namespace mozjs
 {
 
 const JSClass JsUtils::JsClass = jsClass;
-const JSFunctionSpec* JsUtils::JsFunctions = jsFunctions;
-const JSPropertySpec* JsUtils::JsProperties = jsProperties;
+const JSFunctionSpec* JsUtils::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsUtils::JsProperties = jsProperties.data();
 
 JsUtils::JsUtils( JSContext* cx )
     : pJsCtx_( cx )
@@ -181,17 +179,17 @@ bool JsUtils::CheckFont( const std::wstring& name )
     smp::error::CheckGdi( gdiRet, "GetFamilies" );
     SmpException::ExpectTrue( recv == count, "Internal error: GetFamilies numSought != numFound" );
 
-    WCHAR family_name_eng[LF_FACESIZE] = { 0 };
-    WCHAR family_name_loc[LF_FACESIZE] = { 0 };
+    std::array<wchar_t, LF_FACESIZE> family_name_eng{};
+    std::array<wchar_t, LF_FACESIZE> family_name_loc{};
     const auto it = ranges::find_if( font_families, [&family_name_eng, &family_name_loc, &name]( const auto& fontFamily ) {
-        Gdiplus::Status gdiRet = fontFamily.GetFamilyName( family_name_eng, MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
+        Gdiplus::Status gdiRet = fontFamily.GetFamilyName( family_name_eng.data(), MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
         smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 
-        gdiRet = fontFamily.GetFamilyName( family_name_loc );
+        gdiRet = fontFamily.GetFamilyName( family_name_loc.data() );
         smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 
-        return ( !_wcsicmp( name.c_str(), family_name_loc )
-                 || !_wcsicmp( name.c_str(), family_name_eng ) );
+        return ( !_wcsicmp( name.c_str(), family_name_loc.data() )
+                 || !_wcsicmp( name.c_str(), family_name_eng.data() ) );
     } );
 
     return ( it != font_families.cend() );
@@ -200,9 +198,9 @@ bool JsUtils::CheckFont( const std::wstring& name )
 uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
 {
     COLORREF colour{};
-    COLORREF dummy[16] = { 0 };
+    std::array<COLORREF, 16> dummy{};
     // Such cast will work only on x86
-    if ( !uChooseColor( &colour, reinterpret_cast<HWND>( hWindow ), dummy ) )
+    if ( !uChooseColor( &colour, reinterpret_cast<HWND>( hWindow ), dummy.data() ) )
     {
         colour = smp::colour::convert_argb_to_colorref( default_colour );
     }
@@ -613,7 +611,7 @@ JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, 
         modal_dialog_scope scope( reinterpret_cast<HWND>( hWnd ) );
 
         smp::ui::CDialogHtml dlg( pJsCtx_, htmlCode, options );
-        int iRet = (int)dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
+        int iRet = dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
         if ( -1 == iRet || IDABORT == iRet )
         {
             if ( JS_IsExceptionPending( pJsCtx_ ) )

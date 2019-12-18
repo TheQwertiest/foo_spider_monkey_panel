@@ -1,10 +1,12 @@
 #include <stdafx.h>
+
 #include "fb_ui_selection_holder.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 
 using namespace smp;
 
@@ -37,16 +39,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistSelectionTracking, JsFbUiSelectionHolde
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistTracking, JsFbUiSelectionHolder::SetPlaylistTracking )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetSelection, JsFbUiSelectionHolder::SetSelection )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "SetPlaylistSelectionTracking", SetPlaylistSelectionTracking, 0, DefaultPropsFlags() ),
-    JS_FN( "SetPlaylistTracking", SetPlaylistTracking, 0, DefaultPropsFlags() ),
-    JS_FN( "SetSelection", SetSelection, 1, DefaultPropsFlags() ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "SetPlaylistSelectionTracking", SetPlaylistSelectionTracking, 0, DefaultPropsFlags() ),
+      JS_FN( "SetPlaylistTracking", SetPlaylistTracking, 0, DefaultPropsFlags() ),
+      JS_FN( "SetSelection", SetSelection, 1, DefaultPropsFlags() ),
+      JS_FS_END } );
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PS_END } );
 
 } // namespace
 
@@ -54,8 +54,8 @@ namespace mozjs
 {
 
 const JSClass JsFbUiSelectionHolder::JsClass = jsClass;
-const JSFunctionSpec* JsFbUiSelectionHolder::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbUiSelectionHolder::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbUiSelectionHolder::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbUiSelectionHolder::JsProperties = jsProperties.data();
 const JsPrototypeId JsFbUiSelectionHolder::PrototypeId = JsPrototypeId::FbUiSelectionHolder;
 
 JsFbUiSelectionHolder::JsFbUiSelectionHolder( JSContext* cx, const ui_selection_holder::ptr& holder )

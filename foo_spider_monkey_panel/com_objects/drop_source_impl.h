@@ -34,8 +34,8 @@ private:
     DWORD m_dwLastEffect = DROPEFFECT_NONE;
 
     BEGIN_COM_QI_IMPL()
-    COM_QI_ENTRY_MULTI( IUnknown, IDropSource )
-    COM_QI_ENTRY( IDropSource )
+        COM_QI_ENTRY_MULTI( IUnknown, IDropSource )
+        COM_QI_ENTRY( IDropSource )
     END_COM_QI_IMPL()
 };
 

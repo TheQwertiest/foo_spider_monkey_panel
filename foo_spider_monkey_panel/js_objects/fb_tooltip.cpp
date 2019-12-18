@@ -1,11 +1,13 @@
 #include <stdafx.h>
+
 #include "fb_tooltip.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/winapi_error_helpers.h>
+#include <utils/array_x.h>
 #include <utils/scope_helpers.h>
+#include <utils/winapi_error_helpers.h>
 
 using namespace smp;
 
@@ -41,25 +43,23 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetDelayTime, JsFbTooltip::SetDelayTime )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetMaxWidth, JsFbTooltip::SetMaxWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( TrackPosition, JsFbTooltip::TrackPosition )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Activate", Activate, 0, DefaultPropsFlags() ),
-    JS_FN( "Deactivate", Deactivate, 0, DefaultPropsFlags() ),
-    JS_FN( "GetDelayTime", GetDelayTime, 1, DefaultPropsFlags() ),
-    JS_FN( "SetDelayTime", SetDelayTime, 2, DefaultPropsFlags() ),
-    JS_FN( "SetMaxWidth", SetMaxWidth, 1, DefaultPropsFlags() ),
-    JS_FN( "TrackPosition", TrackPosition, 2, DefaultPropsFlags() ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "Activate", Activate, 0, DefaultPropsFlags() ),
+      JS_FN( "Deactivate", Deactivate, 0, DefaultPropsFlags() ),
+      JS_FN( "GetDelayTime", GetDelayTime, 1, DefaultPropsFlags() ),
+      JS_FN( "SetDelayTime", SetDelayTime, 2, DefaultPropsFlags() ),
+      JS_FN( "SetMaxWidth", SetMaxWidth, 1, DefaultPropsFlags() ),
+      JS_FN( "TrackPosition", TrackPosition, 2, DefaultPropsFlags() ),
+      JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Text, JsFbTooltip::get_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Text, JsFbTooltip::put_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_TrackActivate, JsFbTooltip::put_TrackActivate )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSGS( "Text", get_Text, put_Text, DefaultPropsFlags() ),
-    JS_PSGS( "TrackActivate", DummyGetter, put_TrackActivate, DefaultPropsFlags() ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSGS( "Text", get_Text, put_Text, DefaultPropsFlags() ),
+      JS_PSGS( "TrackActivate", DummyGetter, put_TrackActivate, DefaultPropsFlags() ),
+      JS_PS_END } );
 
 } // namespace
 
@@ -67,8 +67,8 @@ namespace mozjs
 {
 
 const JSClass JsFbTooltip::JsClass = jsClass;
-const JSFunctionSpec* JsFbTooltip::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbTooltip::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbTooltip::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbTooltip::JsProperties = jsProperties.data();
 const JsPrototypeId JsFbTooltip::PrototypeId = JsPrototypeId::FbTooltip;
 
 JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelTooltipParam& p_param_ptr )
@@ -103,7 +103,7 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelToolt
     // Original position
     SetWindowPos( hTooltipWnd_, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 
-    toolInfo_.reset( new TOOLINFO );
+    toolInfo_ = std::make_unique<TOOLINFO>();
     // Set up tooltip information.
     memset( toolInfo_.get(), 0, sizeof( TOOLINFO ) );
 
@@ -112,10 +112,12 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelToolt
     toolInfo_->hinst = core_api::get_my_instance();
     toolInfo_->hwnd = hParentWnd;
     toolInfo_->uId = (UINT_PTR)hParentWnd;
-    toolInfo_->lpszText = (wchar_t*)tipBuffer_.c_str(); // we need to have text here, otherwise tooltip will glitch out
+    toolInfo_->lpszText = const_cast<wchar_t*>( tipBuffer_.c_str() ); // we need to have text here, otherwise tooltip will glitch out
 
     pFont_.reset( CreateFont(
-        -(INT)panelTooltipParam_.fontSize,
+        // from msdn: "< 0, The font mapper transforms this value into device units
+        //             and matches its absolute value against the character height of the available fonts." 
+        -static_cast<int>( panelTooltipParam_.fontSize ),
         0,
         0,
         0,
@@ -185,7 +187,7 @@ void JsFbTooltip::SetDelayTime( uint32_t type, int32_t time )
 {
     SmpException::ExpectTrue( type >= TTDT_AUTOMATIC && type <= TTDT_INITIAL, "Invalid delay type: {}", type );
 
-    SendMessage( hTooltipWnd_, TTM_SETDELAYTIME, type, ( LPARAM )(INT)MAKELONG( time, 0 ) );
+    SendMessage( hTooltipWnd_, TTM_SETDELAYTIME, type, static_cast<LPARAM>( static_cast<int>( MAKELONG( time, 0 ) ) ) );
 }
 
 void JsFbTooltip::SetMaxWidth( uint32_t width )
@@ -208,7 +210,7 @@ std::wstring JsFbTooltip::get_Text()
 void JsFbTooltip::put_Text( const std::wstring& text )
 {
     tipBuffer_ = text;
-    toolInfo_->lpszText = (LPWSTR)tipBuffer_.c_str();
+    toolInfo_->lpszText = tipBuffer_.data();
     SendMessage( hTooltipWnd_, TTM_SETTOOLINFO, 0, (LPARAM)toolInfo_.get() );
 }
 

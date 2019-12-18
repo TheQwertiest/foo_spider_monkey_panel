@@ -156,7 +156,7 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
         return false;
     }
 
-    if ( !JS::CreateError( cx, (JSExnType)pReport->exnType, excnStack, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, &newExcn ) )
+    if ( !JS::CreateError( cx, static_cast<JSExnType>( pReport->exnType ), excnStack, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, &newExcn ) )
     {
         return false;
     }
@@ -188,25 +188,31 @@ AutoJsReport::~AutoJsReport()
         return;
     }
 
-    std::u8string errorText = JsErrorToText( cx );
-    JS_ClearPendingException( cx );
-
-    JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
-    if ( !global )
+    try
     {
-        assert( 0 );
-        return;
-    }
+        std::u8string errorText = JsErrorToText( cx );
+        JS_ClearPendingException( cx );
 
-    auto globalCtx = static_cast<JsGlobalObject*>( JS_GetPrivate( global ) );
-    if ( !globalCtx )
+        JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
+        if ( !global )
+        {
+            assert( 0 );
+            return;
+        }
+
+        auto globalCtx = static_cast<JsGlobalObject*>( JS_GetPrivate( global ) );
+        if ( !globalCtx )
+        {
+            assert( 0 );
+            return;
+        }
+
+        globalCtx->Fail( errorText );
+        JS_ClearPendingException( cx );
+    }
+    catch ( const std::exception& )
     {
-        assert( 0 );
-        return;
     }
-
-    globalCtx->Fail( errorText );
-    JS_ClearPendingException( cx );
 }
 
 void AutoJsReport::Disable()

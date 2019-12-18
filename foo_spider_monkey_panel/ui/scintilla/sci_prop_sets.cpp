@@ -1,6 +1,8 @@
 #include <stdafx.h>
+
 #include "sci_prop_sets.h"
 
+#include <utils/array_x.h>
 #include <utils/file_helpers.h>
 #include <utils/string_helpers.h>
 
@@ -9,30 +11,29 @@ using namespace scintilla;
 namespace
 {
 
-const ScintillaCfg::DefaultPropValue DefaultProps[] = {
-    { "style.default", "font:Courier New,size:10" },
-    { "style.comment", "fore:#008000" },
-    { "style.keyword", "bold,fore:#0000ff" },
-    { "style.indentifier", "$(style.default)" },
-    { "style.string", "fore:#ff0000" },
-    { "style.number", "fore:#ff0000" },
-    { "style.operator", "$(style.default)" },
-    { "style.linenumber", "font:Courier New,size:8,fore:#2b91af" },
-    { "style.bracelight", "bold,fore:#000000,back:#ffee62" },
-    { "style.bracebad", "bold,fore:#ff0000" },
-    { "style.selection.fore", "" },
-    { "style.selection.back", "" },
-    { "style.selection.alpha", "256" }, // 256 - SC_ALPHA_NOALPHA
-    { "style.caret.fore", "" },
-    { "style.caret.width", "1" },
-    { "style.caret.line.back", "" },
-    { "style.caret.line.back.alpha", "256" },
-    { "style.wrap.mode", "0" },                 // SC_WRAP_NONE
-    { "style.wrap.visualflags", "1" },          // SC_WRAPVISUALFLAG_END
-    { "style.wrap.visualflags.location", "0" }, // SC_WRAPVISUALFLAGLOC_DEFAULT
-    { "style.wrap.indentmode", "0" },           // SC_WRAPINDENT_FIXED
-    { "api.jscript", "$(dir.component)jscript.api;$(dir.component)interface.api" }
-};
+constexpr auto DefaultProps = smp::to_array<ScintillaCfg::DefaultPropValue>(
+    { { "style.default", "font:Courier New,size:10" },
+      { "style.comment", "fore:#008000" },
+      { "style.keyword", "bold,fore:#0000ff" },
+      { "style.indentifier", "$(style.default)" },
+      { "style.string", "fore:#ff0000" },
+      { "style.number", "fore:#ff0000" },
+      { "style.operator", "$(style.default)" },
+      { "style.linenumber", "font:Courier New,size:8,fore:#2b91af" },
+      { "style.bracelight", "bold,fore:#000000,back:#ffee62" },
+      { "style.bracebad", "bold,fore:#ff0000" },
+      { "style.selection.fore", "" },
+      { "style.selection.back", "" },
+      { "style.selection.alpha", "256" }, // 256 - SC_ALPHA_NOALPHA
+      { "style.caret.fore", "" },
+      { "style.caret.width", "1" },
+      { "style.caret.line.back", "" },
+      { "style.caret.line.back.alpha", "256" },
+      { "style.wrap.mode", "0" },                 // SC_WRAP_NONE
+      { "style.wrap.visualflags", "1" },          // SC_WRAPVISUALFLAG_END
+      { "style.wrap.visualflags.location", "0" }, // SC_WRAPVISUALFLAGLOC_DEFAULT
+      { "style.wrap.indentmode", "0" },           // SC_WRAPINDENT_FIXED
+      { "api.jscript", "$(dir.component)jscript.api;$(dir.component)interface.api" } } );
 
 } // namespace
 

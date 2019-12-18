@@ -76,14 +76,14 @@ namespace smp::com::drag
 
 HRESULT SetDefaultImage( IDataObject* pdtobj )
 {
-    static const auto cfRet = (CLIPFORMAT)RegisterClipboardFormat( L"UsingDefaultDragImage" );
+    static const auto cfRet = static_cast<CLIPFORMAT>( RegisterClipboardFormat( L"UsingDefaultDragImage" ) );
     const BOOL blobValue = TRUE;
     return SetDataBlob( pdtobj, cfRet, &blobValue, sizeof( blobValue ) );
 }
 
 HRESULT SetDropText( IDataObject* pdtobj, DROPIMAGETYPE dit, const wchar_t* msg, const wchar_t* insert )
 {
-    static const auto cfRet = (CLIPFORMAT)RegisterClipboardFormat( CFSTR_DROPDESCRIPTION );
+    static const auto cfRet = static_cast<CLIPFORMAT>( RegisterClipboardFormat( CFSTR_DROPDESCRIPTION ) );
 
     DROPDESCRIPTION dd_prev;
     memset( &dd_prev, 0, sizeof( dd_prev ) );
@@ -134,20 +134,20 @@ bool RenderDragImage( HWND hWnd, size_t itemCount, bool isThemed, bool showText,
 
 HRESULT GetDragWindow( IDataObject* pDataObj, HWND& p_wnd )
 {
-    static const auto cfRet = (CLIPFORMAT)RegisterClipboardFormat( L"DragWindow" );
+    static const auto cfRet = static_cast<CLIPFORMAT>( RegisterClipboardFormat( L"DragWindow" ) );
     DWORD dw;
     if ( HRESULT hr = GetDataObjectDataSimple( pDataObj, cfRet, dw ); FAILED( hr ) )
     {
         return hr;
     }
 
-    p_wnd = (HWND)ULongToHandle( dw );
+    p_wnd = static_cast<HWND>( ULongToHandle( dw ) );
     return S_OK;
 }
 
 HRESULT GetIsShowingLayered( IDataObject* pDataObj, BOOL& p_out )
 {
-    static const auto cfRet = (CLIPFORMAT)RegisterClipboardFormat( L"IsShowingLayered" );
+    static const auto cfRet = static_cast<CLIPFORMAT>( RegisterClipboardFormat( L"IsShowingLayered" ) );
     return GetDataObjectDataSimple( pDataObj, cfRet, p_out );
 }
 

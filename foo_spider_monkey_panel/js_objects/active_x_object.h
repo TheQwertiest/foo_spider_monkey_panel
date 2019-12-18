@@ -9,14 +9,14 @@
 
 #include <oleauto.h>
 
-#include <optional>
 #include <map>
+#include <optional>
 
 namespace mozjs
 {
 
 /// @details Takes ownership, calls Release() at the end
-class ActiveXObject 
+class ActiveXObject
     : public JsObjectBase<ActiveXObject>
 {
 public:
@@ -34,14 +34,14 @@ public:
 
 public:
     ActiveXObject( JSContext* cx, CLSID& clsid );
-    ActiveXObject( JSContext* cx, IUnknown *obj, bool addref = false );
-    ActiveXObject( JSContext* cx, IDispatch *obj, bool addref = false );
+    ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref = false );
+    ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref = false );
     ActiveXObject( JSContext* cx, VARIANTARG& var );
     ~ActiveXObject() override;
 
     ActiveXObject( const ActiveXObject& ) = delete;
     ActiveXObject& operator=( const ActiveXObject& ) = delete;
-    
+
     static std::unique_ptr<ActiveXObject> CreateNative( JSContext* cx, const std::wstring& name );
     static size_t GetInternalSize( const std::wstring& name );
     static void PostCreate( JSContext* cx, JS::HandleObject self );
@@ -80,12 +80,12 @@ private:
     std::optional<DISPID> GetDispId( const std::wstring& name, bool reportError = true );
 
     void SetupMembers( JS::HandleObject jsObject );
-    static void ParseTypeInfoRecursive( JSContext * cx, ITypeInfo * pTypeInfo, MemberMap& members );
-    static void ParseTypeInfo( ITypeInfo * pTypeInfo, MemberMap& members );
+    static void ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo, MemberMap& members );
+    static void ParseTypeInfo( ITypeInfo* pTypeInfo, MemberMap& members );
     void SetupMembers_Impl( JS::HandleObject jsObject );
 
 private:
-    JSContext * pJsCtx_ = nullptr;
+    JSContext* pJsCtx_ = nullptr;
     bool areMembersSetup_ = false;
 
     MemberMap members_;
@@ -98,4 +98,4 @@ public:
     bool hasVariant_ = false;
 };
 
-}
+} // namespace mozjs

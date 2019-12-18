@@ -52,10 +52,10 @@ void InitializeSubsystems( HINSTANCE ins )
     }
 
     {
-        wchar_t path[MAX_PATH];
-        (void)GetModuleFileName( ins, path, _countof( path ) ); // NULL-terminated in OS newer than WinXP
+        std::array<wchar_t, MAX_PATH> path;
+        (void)GetModuleFileName( ins, path.data(), path.size() ); // NULL-terminated in OS newer than WinXP
 
-        if ( HRESULT hr = LoadTypeLibEx( path, REGKIND_NONE, &g_typelib );
+        if ( HRESULT hr = LoadTypeLibEx( path.data(), REGKIND_NONE, &g_typelib );
              FAILED( hr ) )
         {
             g_subsystem_failures[SMP_TYPELIB] = { "LoadTypeLibEx failed", static_cast<uint32_t>( hr ) };

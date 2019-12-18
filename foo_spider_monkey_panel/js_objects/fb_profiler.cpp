@@ -5,6 +5,8 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
+
 #include <smp_exception.h>
 
 using namespace smp;
@@ -37,18 +39,16 @@ JSClass jsClass = {
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Print, JsFbProfiler::Print, JsFbProfiler::PrintWithOpt, 2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Reset, JsFbProfiler::Reset )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "Print", Print, 0, DefaultPropsFlags() ),
-    JS_FN( "Reset", Reset, 0, DefaultPropsFlags() ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "Print", Print, 0, DefaultPropsFlags() ),
+      JS_FN( "Reset", Reset, 0, DefaultPropsFlags() ),
+      JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Time, JsFbProfiler::get_Time )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Time", get_Time, DefaultPropsFlags() ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "Time", get_Time, DefaultPropsFlags() ),
+      JS_PS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( FbProfiler_Constructor, JsFbProfiler::Constructor, JsFbProfiler::ConstructorWithOpt, 1 )
 
@@ -58,8 +58,8 @@ namespace mozjs
 {
 
 const JSClass JsFbProfiler::JsClass = jsClass;
-const JSFunctionSpec* JsFbProfiler::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbProfiler::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbProfiler::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbProfiler::JsProperties = jsProperties.data();
 const JsPrototypeId JsFbProfiler::PrototypeId = JsPrototypeId::FbProfiler;
 const JSNative JsFbProfiler::JsConstructor = ::FbProfiler_Constructor;
 

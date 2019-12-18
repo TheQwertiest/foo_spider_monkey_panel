@@ -5,6 +5,7 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 
 using namespace smp;
 
@@ -41,25 +42,23 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( MetaName, JsFbFileInfo::MetaName );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MetaValue, JsFbFileInfo::MetaValue );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MetaValueCount, JsFbFileInfo::MetaValueCount );
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "InfoFind", InfoFind, 1, DefaultPropsFlags() ),
-    JS_FN( "InfoName", InfoName, 1, DefaultPropsFlags() ),
-    JS_FN( "InfoValue", InfoValue, 1, DefaultPropsFlags() ),
-    JS_FN( "MetaFind", MetaFind, 1, DefaultPropsFlags() ),
-    JS_FN( "MetaName", MetaName, 1, DefaultPropsFlags() ),
-    JS_FN( "MetaValue", MetaValue, 2, DefaultPropsFlags() ),
-    JS_FN( "MetaValueCount", MetaValueCount, 1, DefaultPropsFlags() ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "InfoFind", InfoFind, 1, DefaultPropsFlags() ),
+      JS_FN( "InfoName", InfoName, 1, DefaultPropsFlags() ),
+      JS_FN( "InfoValue", InfoValue, 1, DefaultPropsFlags() ),
+      JS_FN( "MetaFind", MetaFind, 1, DefaultPropsFlags() ),
+      JS_FN( "MetaName", MetaName, 1, DefaultPropsFlags() ),
+      JS_FN( "MetaValue", MetaValue, 2, DefaultPropsFlags() ),
+      JS_FN( "MetaValueCount", MetaValueCount, 1, DefaultPropsFlags() ),
+      JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_InfoCount, JsFbFileInfo::get_InfoCount );
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MetaCount, JsFbFileInfo::get_MetaCount );
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "InfoCount", get_InfoCount, DefaultPropsFlags() ),
-    JS_PSG( "MetaCount", get_MetaCount, DefaultPropsFlags() ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "InfoCount", get_InfoCount, DefaultPropsFlags() ),
+      JS_PSG( "MetaCount", get_MetaCount, DefaultPropsFlags() ),
+      JS_PS_END } );
 
 } // namespace
 
@@ -67,8 +66,8 @@ namespace mozjs
 {
 
 const JSClass JsFbFileInfo::JsClass = jsClass;
-const JSFunctionSpec* JsFbFileInfo::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbFileInfo::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbFileInfo::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbFileInfo::JsProperties = jsProperties.data();
 const JsPrototypeId JsFbFileInfo::PrototypeId = JsPrototypeId::FbFileInfo;
 
 JsFbFileInfo::JsFbFileInfo( JSContext* cx, metadb_info_container::ptr containerInfo )

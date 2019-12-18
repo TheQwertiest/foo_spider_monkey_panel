@@ -2,6 +2,7 @@
 
 #include "ui_conf.h"
 
+#include <utils/array_x.h>
 #include <utils/file_helpers.h>
 #include <utils/scope_helpers.h>
 
@@ -16,11 +17,12 @@ namespace
 constexpr int k_Features_MenuPosition = 2;
 constexpr int k_EdgeStyle_MenuPosition = 0;
 
-constexpr COMDLG_FILTERSPEC k_DialogExtFilter[3] = {
-    { L"JavaScript files", L"*.js" },
-    { L"Text files", L"*.txt" },
-    { L"All files", L"*.*" },
-};
+constexpr auto k_DialogExtFilter = smp::to_array<COMDLG_FILTERSPEC>(
+    {
+        { L"JavaScript files", L"*.js" },
+        { L"Text files", L"*.txt" },
+        { L"All files", L"*.*" },
+    } );
 
 } // namespace
 
@@ -203,7 +205,7 @@ LRESULT CDialogConf::OnNotify( int, LPNMHDR pnmh )
 
 LRESULT CDialogConf::OnUwmKeyDown( UINT, WPARAM wParam, LPARAM, BOOL& bHandled )
 {
-    const auto vk = (uint32_t)wParam;
+    const auto vk = static_cast<uint32_t>( wParam );
     bHandled = BOOL( ProcessKey( vk ) || sciEditor_.ProcessKey( vk ) );
     return ( bHandled ? 0 : 1 );
 }

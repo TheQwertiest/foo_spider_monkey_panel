@@ -33,12 +33,12 @@ public:
 
 public:
     int32_t InfoFind( const std::u8string& name );
-    std::u8string InfoName( uint32_t idx );
-    std::u8string InfoValue( uint32_t idx );
+    std::u8string InfoName( uint32_t index );
+    std::u8string InfoValue( uint32_t index );
     int32_t MetaFind( const std::u8string& name );
-    std::u8string MetaName( uint32_t idx );
-    std::u8string MetaValue( uint32_t idx, uint32_t vidx );
-    uint32_t MetaValueCount( uint32_t idx );
+    std::u8string MetaName( uint32_t index );
+    std::u8string MetaValue( uint32_t index, uint32_t valueIndex );
+    uint32_t MetaValueCount( uint32_t index );
 
 public:
     uint32_t get_InfoCount();

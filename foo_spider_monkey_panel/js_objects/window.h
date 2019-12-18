@@ -50,8 +50,8 @@ public: // methods
     void ClearTimeout( uint32_t timeoutId );
     JSObject* CreatePopupMenu();
     JSObject* CreateThemeManager( const std::wstring& classid );
-    JSObject* CreateTooltip( const std::wstring& name = L"Segoe UI", float pxSize = 12, uint32_t style = 0 );
-    JSObject* CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, float pxSize, uint32_t style );
+    JSObject* CreateTooltip( const std::wstring& name = L"Segoe UI", uint32_t pxSize = 12, uint32_t style = 0 );
+    JSObject* CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style );
     void DefinePanel( const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     void DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     uint32_t GetColourCUI( uint32_t type, const std::wstring& guidstr = L"" );

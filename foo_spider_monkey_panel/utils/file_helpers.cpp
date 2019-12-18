@@ -204,7 +204,7 @@ FileReader::FileReader( const std::u8string& inPath, bool checkFileExistense )
         fileSize_ = GetFileSize( hFile_, nullptr );
         SmpException::ExpectTrue( fileSize_ != INVALID_FILE_SIZE, "Internal error: failed to read file size of `{}`", u8path );
 
-        pFileView_ = (LPCBYTE)MapViewOfFile( hFileMapping_, FILE_MAP_READ, 0, 0, 0 );
+        pFileView_ = static_cast<LPCBYTE>( MapViewOfFile( hFileMapping_, FILE_MAP_READ, 0, 0, 0 ) );
         smp::error::CheckWinApi( pFileView_, "MapViewOfFile" );
 
         utils::final_action autoAddress( [pFileView = pFileView_] {
@@ -290,7 +290,7 @@ bool WriteFile( const wchar_t* path, const std::u8string& content, bool write_bo
         CloseHandle( hFileMapping );
     } );
 
-    auto pFileView = (PBYTE)MapViewOfFile( hFileMapping, FILE_MAP_WRITE, 0, 0, 0 );
+    auto pFileView = static_cast<LPBYTE>( MapViewOfFile( hFileMapping, FILE_MAP_WRITE, 0, 0, 0 ) );
     if ( !pFileView )
     {
         return false;
@@ -362,7 +362,7 @@ std::wstring FileDialog( const std::wstring& title,
         const auto path = smp::unicode::ToWide( smp::get_fb2k_component_path() );
 
         IShellItemPtr pFolder;
-        hr = SHCreateItemFromParsingName( path.c_str(), nullptr, IShellItemPtr::GetIID(), (void**)&pFolder );
+        hr = SHCreateItemFromParsingName( path.c_str(), nullptr, IShellItemPtr::GetIID(), reinterpret_cast<void**>( &pFolder ) );
         smp::error::CheckHR( hr, "SHCreateItemFromParsingName" );
 
         hr = pfd->SetDefaultFolder( pFolder );

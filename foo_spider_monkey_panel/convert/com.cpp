@@ -198,12 +198,12 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     SmpException::ExpectTrue( SafeArrayGetDim( src.parray ) == 1, "Multi-dimensional array are not supported failed" );
 
     // Get the upper bound;
-    long ubound;
+    long ubound; // NOLINT (google-runtime-int)
     HRESULT hr = SafeArrayGetUBound( src.parray, 1, &ubound );
     smp::error::CheckHR( hr, "SafeArrayGetUBound" );
 
     // Get the lower bound
-    long lbound;
+    long lbound; // NOLINT (google-runtime-int)
     hr = SafeArrayGetLBound( src.parray, 1, &lbound );
     smp::error::CheckHR( hr, "SafeArrayGetLBound" );
 
@@ -224,7 +224,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     }
 
     JS::RootedValue jsVal( cx );
-    for ( long i = lbound; i <= ubound; ++i )
+    for ( long i = lbound; i <= ubound; ++i ) // NOLINT (google-runtime-int)
     {
         HRESULT hr;
         _variant_t var;
@@ -314,7 +314,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
 
     case VT_BSTR:
     {
-        JS::RootedString jsString( cx, JS_NewUCStringCopyN( cx, (char16_t*)FETCH( bstrVal ), SysStringLen( FETCH( bstrVal ) ) ) );
+        JS::RootedString jsString( cx, JS_NewUCStringCopyN( cx, reinterpret_cast<const char16_t*>( FETCH( bstrVal ) ), SysStringLen( FETCH( bstrVal ) ) ) );
         JsException::ExpectTrue( jsString );
 
         rval.setString( jsString );

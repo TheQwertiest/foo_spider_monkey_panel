@@ -3,17 +3,18 @@
 #include "gdi_graphics.h"
 
 #include <js_engine/js_to_native_invoker.h>
-#include <js_objects/gdi_font.h>
 #include <js_objects/gdi_bitmap.h>
+#include <js_objects/gdi_font.h>
 #include <js_objects/gdi_raw_bitmap.h>
 #include <js_objects/measure_string_info.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
+#include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
-#include <utils/winapi_error_helpers.h>
 #include <utils/scope_helpers.h>
 #include <utils/text_helpers.h>
-#include <utils/colour_helpers.h>
+#include <utils/winapi_error_helpers.h>
 
 using namespace smp;
 
@@ -65,35 +66,33 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetInterpolationMode, JsGdiGraphics::SetI
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetSmoothingMode, JsGdiGraphics::SetSmoothingMode, JsGdiGraphics::SetSmoothingModeWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetTextRenderingHint, JsGdiGraphics::SetTextRenderingHint, JsGdiGraphics::SetTextRenderingHintWithOpt, 1 )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "CalcTextHeight", CalcTextHeight, 2, DefaultPropsFlags() ),
-    JS_FN( "CalcTextWidth", CalcTextWidth, 2, DefaultPropsFlags() ),
-    JS_FN( "DrawEllipse", DrawEllipse, 6, DefaultPropsFlags() ),
-    JS_FN( "DrawImage", DrawImage, 9, DefaultPropsFlags() ),
-    JS_FN( "DrawLine", DrawLine, 6, DefaultPropsFlags() ),
-    JS_FN( "DrawPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
-    JS_FN( "DrawRect", DrawRect, 6, DefaultPropsFlags() ),
-    JS_FN( "DrawRoundRect", DrawRoundRect, 8, DefaultPropsFlags() ),
-    JS_FN( "DrawString", DrawString, 7, DefaultPropsFlags() ),
-    JS_FN( "EstimateLineWrap", EstimateLineWrap, 3, DefaultPropsFlags() ),
-    JS_FN( "FillEllipse", FillEllipse, 5, DefaultPropsFlags() ),
-    JS_FN( "FillGradRect", FillGradRect, 7, DefaultPropsFlags() ),
-    JS_FN( "FillPolygon", FillPolygon, 3, DefaultPropsFlags() ),
-    JS_FN( "FillRoundRect", FillRoundRect, 7, DefaultPropsFlags() ),
-    JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
-    JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 9, DefaultPropsFlags() ),
-    JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, DefaultPropsFlags() ),
-    JS_FN( "GdiDrawText", GdiDrawText, 7, DefaultPropsFlags() ),
-    JS_FN( "MeasureString", MeasureString, 6, DefaultPropsFlags() ),
-    JS_FN( "SetInterpolationMode", SetInterpolationMode, 0, DefaultPropsFlags() ),
-    JS_FN( "SetSmoothingMode", SetSmoothingMode, 0, DefaultPropsFlags() ),
-    JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 0, DefaultPropsFlags() ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "CalcTextHeight", CalcTextHeight, 2, DefaultPropsFlags() ),
+      JS_FN( "CalcTextWidth", CalcTextWidth, 2, DefaultPropsFlags() ),
+      JS_FN( "DrawEllipse", DrawEllipse, 6, DefaultPropsFlags() ),
+      JS_FN( "DrawImage", DrawImage, 9, DefaultPropsFlags() ),
+      JS_FN( "DrawLine", DrawLine, 6, DefaultPropsFlags() ),
+      JS_FN( "DrawPolygon", DrawPolygon, 3, DefaultPropsFlags() ),
+      JS_FN( "DrawRect", DrawRect, 6, DefaultPropsFlags() ),
+      JS_FN( "DrawRoundRect", DrawRoundRect, 8, DefaultPropsFlags() ),
+      JS_FN( "DrawString", DrawString, 7, DefaultPropsFlags() ),
+      JS_FN( "EstimateLineWrap", EstimateLineWrap, 3, DefaultPropsFlags() ),
+      JS_FN( "FillEllipse", FillEllipse, 5, DefaultPropsFlags() ),
+      JS_FN( "FillGradRect", FillGradRect, 7, DefaultPropsFlags() ),
+      JS_FN( "FillPolygon", FillPolygon, 3, DefaultPropsFlags() ),
+      JS_FN( "FillRoundRect", FillRoundRect, 7, DefaultPropsFlags() ),
+      JS_FN( "FillSolidRect", FillSolidRect, 5, DefaultPropsFlags() ),
+      JS_FN( "GdiAlphaBlend", GdiAlphaBlend, 9, DefaultPropsFlags() ),
+      JS_FN( "GdiDrawBitmap", GdiDrawBitmap, 9, DefaultPropsFlags() ),
+      JS_FN( "GdiDrawText", GdiDrawText, 7, DefaultPropsFlags() ),
+      JS_FN( "MeasureString", MeasureString, 6, DefaultPropsFlags() ),
+      JS_FN( "SetInterpolationMode", SetInterpolationMode, 0, DefaultPropsFlags() ),
+      JS_FN( "SetSmoothingMode", SetSmoothingMode, 0, DefaultPropsFlags() ),
+      JS_FN( "SetTextRenderingHint", SetTextRenderingHint, 0, DefaultPropsFlags() ),
+      JS_FS_END } );
 
-const JSPropertySpec jsProperties[] = {
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PS_END } );
 
 } // namespace
 
@@ -101,8 +100,8 @@ namespace mozjs
 {
 
 const JSClass JsGdiGraphics::JsClass = jsClass;
-const JSFunctionSpec* JsGdiGraphics::JsFunctions = jsFunctions;
-const JSPropertySpec* JsGdiGraphics::JsProperties = jsProperties;
+const JSFunctionSpec* JsGdiGraphics::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsGdiGraphics::JsProperties = jsProperties.data();
 const JsPrototypeId JsGdiGraphics::PrototypeId = JsPrototypeId::GdiGraphics;
 
 JsGdiGraphics::JsGdiGraphics( JSContext* cx )
@@ -297,16 +296,16 @@ void JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32
 
     if ( flags != 0 )
     {
-        Gdiplus::Status gdiRet = fmt.SetAlignment( ( Gdiplus::StringAlignment )( ( flags >> 28 ) & 0x3 ) ); //0xf0000000
+        Gdiplus::Status gdiRet = fmt.SetAlignment( static_cast<Gdiplus::StringAlignment>( ( flags >> 28 ) & 0x3 ) ); //0xf0000000
         smp::error::CheckGdi( gdiRet, "SetAlignment" );
 
-        gdiRet = fmt.SetLineAlignment( ( Gdiplus::StringAlignment )( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
+        gdiRet = fmt.SetLineAlignment( static_cast<Gdiplus::StringAlignment>( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
         smp::error::CheckGdi( gdiRet, "SetLineAlignment" );
 
-        gdiRet = fmt.SetTrimming( ( Gdiplus::StringTrimming )( ( flags >> 20 ) & 0x7 ) ); //0x00f00000
+        gdiRet = fmt.SetTrimming( static_cast<Gdiplus::StringTrimming>( ( flags >> 20 ) & 0x7 ) ); //0x00f00000
         smp::error::CheckGdi( gdiRet, "SetTrimming" );
 
-        gdiRet = fmt.SetFormatFlags( ( Gdiplus::StringFormatFlags )( flags & 0x7FFF ) ); //0x0000ffff
+        gdiRet = fmt.SetFormatFlags( static_cast<Gdiplus::StringAlignment>( flags & 0x7FFF ) ); //0x0000ffff
         smp::error::CheckGdi( gdiRet, "SetFormatFlags" );
     }
 
@@ -410,7 +409,7 @@ void JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleV
     ParsePoints( points, gdiPoints );
 
     Gdiplus::SolidBrush br( colour );
-    Gdiplus::Status gdiRet = pGdi_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), (Gdiplus::FillMode)fillmode );
+    Gdiplus::Status gdiRet = pGdi_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), static_cast<Gdiplus::FillMode>( fillmode ) );
     smp::error::CheckGdi( gdiRet, "FillPolygon" );
 }
 
@@ -582,15 +581,15 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font
     Gdiplus::StringFormat fmt = Gdiplus::StringFormat::GenericTypographic();
     if ( flags != 0 )
     {
-        fmt.SetAlignment( ( Gdiplus::StringAlignment )( ( flags >> 28 ) & 0x3 ) );     //0xf0000000
-        fmt.SetLineAlignment( ( Gdiplus::StringAlignment )( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
-        fmt.SetTrimming( ( Gdiplus::StringTrimming )( ( flags >> 20 ) & 0x7 ) );       //0x00f00000
-        fmt.SetFormatFlags( ( Gdiplus::StringFormatFlags )( flags & 0x7FFF ) );        //0x0000ffff
+        fmt.SetAlignment( static_cast<Gdiplus::StringAlignment>( ( flags >> 28 ) & 0x3 ) );     //0xf0000000
+        fmt.SetLineAlignment( static_cast<Gdiplus::StringAlignment>( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
+        fmt.SetTrimming( static_cast<Gdiplus::StringTrimming>( ( flags >> 20 ) & 0x7 ) );       //0x00f00000
+        fmt.SetFormatFlags( static_cast<Gdiplus::StringFormatFlags>( flags & 0x7FFF ) );        //0x0000ffff
     }
 
     Gdiplus::RectF bound;
-    int chars, lines;
-
+    int chars;
+    int lines;
     Gdiplus::Status gdiRet = pGdi_->MeasureString( str.c_str(), -1, fn, Gdiplus::RectF( x, y, w, h ), &fmt, &bound, &chars, &lines );
     smp::error::CheckGdi( gdiRet, "MeasureString" );
 
@@ -616,7 +615,7 @@ void JsGdiGraphics::SetInterpolationMode( uint32_t mode )
 {
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
-    Gdiplus::Status gdiRet = pGdi_->SetInterpolationMode( (Gdiplus::InterpolationMode)mode );
+    Gdiplus::Status gdiRet = pGdi_->SetInterpolationMode( static_cast<Gdiplus::InterpolationMode>( mode ) );
     smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
 }
 
@@ -637,7 +636,7 @@ void JsGdiGraphics::SetSmoothingMode( uint32_t mode )
 {
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
-    Gdiplus::Status gdiRet = pGdi_->SetSmoothingMode( (Gdiplus::SmoothingMode)mode );
+    Gdiplus::Status gdiRet = pGdi_->SetSmoothingMode( static_cast<Gdiplus::SmoothingMode>( mode ) );
     smp::error::CheckGdi( gdiRet, "SetSmoothingMode" );
 }
 
@@ -658,7 +657,7 @@ void JsGdiGraphics::SetTextRenderingHint( uint32_t mode )
 {
     SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
-    Gdiplus::Status gdiRet = pGdi_->SetTextRenderingHint( (Gdiplus::TextRenderingHint)mode );
+    Gdiplus::Status gdiRet = pGdi_->SetTextRenderingHint( static_cast<Gdiplus::TextRenderingHint>( mode ) );
     smp::error::CheckGdi( gdiRet, "SetTextRenderingHint" );
 }
 

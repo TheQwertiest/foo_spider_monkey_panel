@@ -1,10 +1,12 @@
 #include <stdafx.h>
+
 #include "fb_window.h"
 
 #include <js_engine/js_to_native_invoker.h>
-#include <utils/winapi_error_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
+#include <utils/winapi_error_helpers.h>
 
 namespace
 {
@@ -31,9 +33,8 @@ JSClass jsClass = {
     &jsOps
 };
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Aero, JsFbWindow::get_Aero )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_BlockMaximize, JsFbWindow::get_BlockMaximize )
@@ -49,17 +50,16 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_FullScreen, JsFbWindow::put_FullScreen )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_MainWindowState, JsFbWindow::put_MainWindowState )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Sizing, JsFbWindow::put_Sizing )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Aero", get_Aero, DefaultPropsFlags() ),
-    JS_PSGS( "BlockMaximize", get_BlockMaximize, put_BlockMaximize, DefaultPropsFlags() ),
-    JS_PSG( "FoobarCpuUsage", get_FoobarCpuUsage, DefaultPropsFlags() ),
-    JS_PSGS( "FrameStyle", get_FrameStyle, put_FrameStyle, DefaultPropsFlags() ),
-    JS_PSGS( "FullScreen", get_FullScreen, put_FullScreen, DefaultPropsFlags() ),
-    JS_PSGS( "MainWindowState", get_MainWindowState, put_MainWindowState, DefaultPropsFlags() ),
-    JS_PSGS( "Sizing", get_Sizing, put_Sizing, DefaultPropsFlags() ),
-    JS_PSG( "SystemCpuUsage", get_SystemCpuUsage, DefaultPropsFlags() ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "Aero", get_Aero, DefaultPropsFlags() ),
+      JS_PSGS( "BlockMaximize", get_BlockMaximize, put_BlockMaximize, DefaultPropsFlags() ),
+      JS_PSG( "FoobarCpuUsage", get_FoobarCpuUsage, DefaultPropsFlags() ),
+      JS_PSGS( "FrameStyle", get_FrameStyle, put_FrameStyle, DefaultPropsFlags() ),
+      JS_PSGS( "FullScreen", get_FullScreen, put_FullScreen, DefaultPropsFlags() ),
+      JS_PSGS( "MainWindowState", get_MainWindowState, put_MainWindowState, DefaultPropsFlags() ),
+      JS_PSGS( "Sizing", get_Sizing, put_Sizing, DefaultPropsFlags() ),
+      JS_PSG( "SystemCpuUsage", get_SystemCpuUsage, DefaultPropsFlags() ),
+      JS_PS_END } );
 
 } // namespace
 
@@ -67,8 +67,8 @@ namespace mozjs
 {
 
 const JSClass JsFbWindow::JsClass = jsClass;
-const JSFunctionSpec* JsFbWindow::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbWindow::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbWindow::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbWindow::JsProperties = jsProperties.data();
 
 JsFbWindow::JsFbWindow( JSContext* cx, HWND hFbWnd )
     : pJsCtx_( cx )
@@ -134,7 +134,7 @@ float JsFbWindow::get_FoobarCpuUsage()
         cpuUsageStats = newStats;
     }
 
-    return timeDiff ? ( ( procTime * 100 ) / timeDiff ) : 0.0f;
+    return ( timeDiff ? procTime * 100.0f / timeDiff : 0.0f );
 }
 
 uint8_t JsFbWindow::get_FrameStyle()

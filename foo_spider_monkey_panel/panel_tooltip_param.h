@@ -12,7 +12,7 @@ struct PanelTooltipParam
     SIZE tooltipSize{};
 
     std::wstring fontName;
-    float fontSize{};
+    uint32_t fontSize{};
     uint32_t fontStyle{};
 };
 

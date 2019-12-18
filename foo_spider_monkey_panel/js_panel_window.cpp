@@ -842,7 +842,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
         }
     }
 
-    CRect rc_child{ 0, 0, (LONG)width_, (LONG)height_ };
+    CRect rc_child{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
     CRgn rgn_child{ CreateRectRgnIndirect( &rc_child ) };
     {
         CRgn rgn{ CreateRectRgnIndirect( &updateRc ) };
@@ -1400,7 +1400,7 @@ void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
         }
         else
         {
-            CRect rc{ 0, 0, (LONG)width_, (LONG)height_ };
+            CRect rc{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
             memDc.FillRect( &rc, ( HBRUSH )( COLOR_WINDOW + 1 ) );
         }
 
@@ -1434,7 +1434,7 @@ void js_panel_window::on_paint_error( HDC memdc )
     CBrush brush;
     brush.CreateBrushIndirect( &lbBack );
 
-    CRect rc{ 0, 0, (LONG)width_, (LONG)height_ };
+    CRect rc{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
     cdc.FillRect( &rc, brush );
     cdc.SetBkMode( TRANSPARENT );
 

@@ -1,13 +1,15 @@
 #include <stdafx.h>
+
 #include "gdi_raw_bitmap.h"
 
 #include <js_engine/js_to_native_invoker.h>
-#include <utils/gdi_error_helpers.h>
-#include <utils/gdi_helpers.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/winapi_error_helpers.h>
+#include <utils/array_x.h>
+#include <utils/gdi_error_helpers.h>
+#include <utils/gdi_helpers.h>
 #include <utils/scope_helpers.h>
+#include <utils/winapi_error_helpers.h>
 
 using namespace smp;
 
@@ -36,18 +38,18 @@ JSClass jsClass = {
     &jsOps
 };
 
-const JSFunctionSpec jsFunctions[] = {
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+{
     JS_FS_END
-};
+});
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiRawBitmap::get_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiRawBitmap::get_Width )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
-    JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "Height", get_Height, DefaultPropsFlags() ),
+      JS_PSG( "Width", get_Width, DefaultPropsFlags() ),
+      JS_PS_END } );
 
 } // namespace
 
@@ -55,8 +57,8 @@ namespace mozjs
 {
 
 const JSClass JsGdiRawBitmap::JsClass = jsClass;
-const JSFunctionSpec* JsGdiRawBitmap::JsFunctions = jsFunctions;
-const JSPropertySpec* JsGdiRawBitmap::JsProperties = jsProperties;
+const JSFunctionSpec* JsGdiRawBitmap::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsGdiRawBitmap::JsProperties = jsProperties.data();
 const JsPrototypeId JsGdiRawBitmap::PrototypeId = JsPrototypeId::GdiRawBitmap;
 
 JsGdiRawBitmap::JsGdiRawBitmap( JSContext* cx,
@@ -94,7 +96,8 @@ size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
 }
 
 __notnull
-HDC JsGdiRawBitmap::GetHDC() const
+    HDC
+    JsGdiRawBitmap::GetHDC() const
 {
     return pDc_.get();
 }

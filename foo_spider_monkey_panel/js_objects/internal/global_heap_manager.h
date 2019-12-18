@@ -1,9 +1,8 @@
 #pragma once
 
-#include <shared_mutex>
 #include <optional>
 #include <set>
-
+#include <shared_mutex>
 
 class ActiveX;
 
@@ -24,10 +23,10 @@ class GlobalHeapManager
 public:
     /// @remark No need to cleanup JS here, since it must be performed manually beforehand anyway
     ~GlobalHeapManager() = default;
-    GlobalHeapManager(const GlobalHeapManager& ) = delete;
+    GlobalHeapManager( const GlobalHeapManager& ) = delete;
     GlobalHeapManager& operator=( const GlobalHeapManager& ) = delete;
 
-    static std::unique_ptr<GlobalHeapManager> Create( JSContext * cx );
+    static std::unique_ptr<GlobalHeapManager> Create( JSContext* cx );
 
 public:
     void RegisterUser( IHeapUser* heapUser );
@@ -43,10 +42,10 @@ public:
     void PrepareForGc();
 
 private:
-    GlobalHeapManager( JSContext * cx );
+    GlobalHeapManager( JSContext* cx );
 
-private: 
-    JSContext * pJsCtx_ = nullptr;
+private:
+    JSContext* pJsCtx_ = nullptr;
 
     uint32_t currentHeapId_ = 0;
 
@@ -60,4 +59,4 @@ private:
     std::unordered_map<IHeapUser*, IHeapUser*> heapUsers_;
 };
 
-}
+} // namespace mozjs

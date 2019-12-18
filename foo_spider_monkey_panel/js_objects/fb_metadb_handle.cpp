@@ -6,6 +6,7 @@
 #include <js_objects/fb_file_info.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <utils/array_x.h>
 
 #include <stats.h>
 
@@ -46,18 +47,17 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetLoved, JsFbMetadbHandle::SetLoved )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaycount, JsFbMetadbHandle::SetPlaycount )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetRating, JsFbMetadbHandle::SetRating )
 
-const JSFunctionSpec jsFunctions[] = {
-    JS_FN( "ClearStats", ClearStats, 0, DefaultPropsFlags() ),
-    JS_FN( "Compare", Compare, 1, DefaultPropsFlags() ),
-    JS_FN( "GetFileInfo", GetFileInfo, 0, DefaultPropsFlags() ),
-    JS_FN( "RefreshStats", RefreshStats, 0, DefaultPropsFlags() ),
-    JS_FN( "SetFirstPlayed", SetFirstPlayed, 1, DefaultPropsFlags() ),
-    JS_FN( "SetLastPlayed", SetLastPlayed, 1, DefaultPropsFlags() ),
-    JS_FN( "SetLoved", SetLoved, 1, DefaultPropsFlags() ),
-    JS_FN( "SetPlaycount", SetPlaycount, 1, DefaultPropsFlags() ),
-    JS_FN( "SetRating", SetRating, 1, DefaultPropsFlags() ),
-    JS_FS_END
-};
+constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+    { JS_FN( "ClearStats", ClearStats, 0, DefaultPropsFlags() ),
+      JS_FN( "Compare", Compare, 1, DefaultPropsFlags() ),
+      JS_FN( "GetFileInfo", GetFileInfo, 0, DefaultPropsFlags() ),
+      JS_FN( "RefreshStats", RefreshStats, 0, DefaultPropsFlags() ),
+      JS_FN( "SetFirstPlayed", SetFirstPlayed, 1, DefaultPropsFlags() ),
+      JS_FN( "SetLastPlayed", SetLastPlayed, 1, DefaultPropsFlags() ),
+      JS_FN( "SetLoved", SetLoved, 1, DefaultPropsFlags() ),
+      JS_FN( "SetPlaycount", SetPlaycount, 1, DefaultPropsFlags() ),
+      JS_FN( "SetRating", SetRating, 1, DefaultPropsFlags() ),
+      JS_FS_END } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_FileSize, JsFbMetadbHandle::get_FileSize )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Length, JsFbMetadbHandle::get_Length )
@@ -65,14 +65,13 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Path, JsFbMetadbHandle::get_Path )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_RawPath, JsFbMetadbHandle::get_RawPath )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_SubSong, JsFbMetadbHandle::get_SubSong )
 
-const JSPropertySpec jsProperties[] = {
-    JS_PSG( "FileSize", get_FileSize, DefaultPropsFlags() ),
-    JS_PSG( "Length", get_Length, DefaultPropsFlags() ),
-    JS_PSG( "Path", get_Path, DefaultPropsFlags() ),
-    JS_PSG( "RawPath", get_RawPath, DefaultPropsFlags() ),
-    JS_PSG( "SubSong", get_SubSong, DefaultPropsFlags() ),
-    JS_PS_END
-};
+constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+    { JS_PSG( "FileSize", get_FileSize, DefaultPropsFlags() ),
+      JS_PSG( "Length", get_Length, DefaultPropsFlags() ),
+      JS_PSG( "Path", get_Path, DefaultPropsFlags() ),
+      JS_PSG( "RawPath", get_RawPath, DefaultPropsFlags() ),
+      JS_PSG( "SubSong", get_SubSong, DefaultPropsFlags() ),
+      JS_PS_END } );
 
 } // namespace
 
@@ -80,8 +79,8 @@ namespace mozjs
 {
 
 const JSClass JsFbMetadbHandle::JsClass = jsClass;
-const JSFunctionSpec* JsFbMetadbHandle::JsFunctions = jsFunctions;
-const JSPropertySpec* JsFbMetadbHandle::JsProperties = jsProperties;
+const JSFunctionSpec* JsFbMetadbHandle::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsFbMetadbHandle::JsProperties = jsProperties.data();
 const JsPrototypeId JsFbMetadbHandle::PrototypeId = JsPrototypeId::FbMetadbHandle;
 
 JsFbMetadbHandle::JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& handle )
