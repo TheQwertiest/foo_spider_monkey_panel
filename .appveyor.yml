@@ -81,6 +81,7 @@ build:
 
 # scripts to run before build
 before_build:
+  - nuget restore
 
 # to run your custom scripts instead of automatic MSBuild
 build_script:
