@@ -2,7 +2,7 @@
 setlocal
 
 rem Parse repo name instead of using hard coded value
-call py generate_source_link.py
+call py %CUR_DIR%generate_source_link.py
 if errorlevel 1 goto fail
 
 echo Source link configuration file was successfully generated!
