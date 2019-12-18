@@ -30,11 +30,13 @@ def generate_config( base_dir: PathLike,
     
     with open(output_file, 'w') as output:
         json.dump(data, output)
+    
+    print(f"Generated config file: {output_file}")
 
 if __name__ == '__main__':
     cur_dir = Path(__file__).parent.absolute()
     root_dir = cur_dir.parent
-    output_dir = cur_dir/"_result"/"AllPlatforms"/"generated"
+    output_dir = root_dir/"_result"/"AllPlatforms"/"generated"
     commit_hash = subprocess.check_output("git rev-parse --short HEAD", shell=True).decode('ascii')
 
     parser = argparse.ArgumentParser(description='Generate source link configuration file')
