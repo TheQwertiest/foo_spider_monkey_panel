@@ -20,6 +20,8 @@ def configure():
         if (os.path.basename(lexer) != "LexCPP.cxx" ):
             os.remove(lexer)
     
+    subprocess.check_call("py LexGen.py", cwd=scintilla_dir/"scripts", shell=True)
+    
     shutil.copy2(cur_dir/"additional_files"/"scintilla.vcxproj", str(scintilla_dir/"win32") + '/')
 
 if __name__ == '__main__':
