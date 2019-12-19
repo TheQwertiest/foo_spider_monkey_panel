@@ -82,10 +82,6 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 // range v3
 #include <range/v3/all.hpp>
 
-// span
-// nonstd::span uses (signed) std::ptrdiff_t by default, which is incorrect
-#define span_CONFIG_INDEX_TYPE size_t
-
 // Some macros defined by windowsx.h should be removed
 #ifdef _INC_WINDOWSX
 #undef SubclassWindow
