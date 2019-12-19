@@ -1,8 +1,6 @@
 @echo off
 setlocal
 
-set ROOT_DIR=%~dp0..\
-
 echo Installing npm packages
 
 call npm install -g jsdoc tui-jsdoc-template

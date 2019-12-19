@@ -57,7 +57,7 @@ cache:
 # scripts that run after cloning repository
 install:
   - scripts\install_jsdoc.bat %cd%\
-  - scripts\setup.bat %cd%\
+  - cmd: py scripts\setup.py
 
 #---------------------------------#
 #       build configuration       #
