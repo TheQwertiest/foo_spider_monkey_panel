@@ -12,6 +12,7 @@ exclude:
   - Gemfile
   - Gemfile.lock
   - assets/generated_files/samples/readme.md
+  - build_scripts
 
 markdown: kramdown
 kramdown: 
