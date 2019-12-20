@@ -1,5 +1,5 @@
 {
     "opts": {
-         "template": "C:/Users/appveyor/AppData/Roaming/npm/node_modules/tui-jsdoc-template"
+         "template": "C:/projects/foo-spider-monkey-panel/node_modules/tui-jsdoc-template"
     }
 }

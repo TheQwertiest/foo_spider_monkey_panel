@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "jsdoc": "latest",
+    "tui-jsdoc-template": "latest"
+  }
+}

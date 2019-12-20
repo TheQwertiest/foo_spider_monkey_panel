@@ -17,8 +17,8 @@ skip_commits:
   # Default `skip` messages are applied even on tag builds with APPVEYOR_IGNORE_COMMIT_FILTERING_ON_TAG==true 
   message: /\[_skip ci_\]|\[_ci skip_\]/
   files:
-     - README.md
-     - THIRD_PARTY_NOTICES.md
+    - README.md
+    - THIRD_PARTY_NOTICES.md
 #    - docs/*
 #    - '**/*.png'
 #    - '**/*.jpg'
@@ -42,22 +42,34 @@ image: Visual Studio 2019
 # environment variables
 environment:
   APPVEYOR_IGNORE_COMMIT_FILTERING_ON_TAG: true
+  git_user_email: qwertiest@mail.ru
+  git_user_name: TheQwertiest
+  GITHUB_ACCESS_TOKEN:
+    secure: gBfHQnRcGcTS0yQXWOHhKfDkTZfIBwPIDjTsCQOGmOSPkRqs1QPYBX47BjCvJKim
 
 # this is how to allow failing jobs in the matrix
 matrix:
   fast_finish: true     # set this flag to immediately finish build once one of the jobs fails.
 
+for:
+  -
+    matrix:
+      only:
+        - configuration: Release
+    cache:
+      - node_modules                    # local npm modules
+      - workspaces\packages -> **\packages.config
+      - _result\Win32_Release\bin\foo_spider_monkey_panel.ipdb
+      - _result\Win32_Release\bin\foo_spider_monkey_panel.iobj
+
 cache:
   - node_modules                    # local npm modules
   - workspaces\packages -> **\packages.config
-  - '%APPDATA%\npm\node_modules'    # global npm modules
-  - '%APPDATA%\npm-cache'           # npm cache
-  - '%USERPROFILE%\.nuget\packages -> **\packages.config'
 
 # scripts that run after cloning repository
 install:
-  - npm install -g jsdoc tui-jsdoc-template
-  - cmd: py scripts\setup.py
+  - npm install
+  - py scripts\setup.py
 
 #---------------------------------#
 #       build configuration       #
@@ -95,13 +107,11 @@ after_build:
 before_package:
   - py scripts\generate_docs.py
   - if '%configuration%' == 'Debug' (
-      py scripts\pack_component.py --debug
+      py scripts\pack_component.py --debug &&
+      ren "_result\%platform%_%configuration%\foo_spider_monkey_panel.fb2k-component" "foo_spider_monkey_panel.fb2k-component_debug"
     )
     else (
       py scripts\pack_component.py
-    )
-  - if '%configuration%' == 'Debug' (
-      ren "_result\%platform%_%configuration%\foo_spider_monkey_panel.fb2k-component" "foo_spider_monkey_panel.fb2k-component_debug"
     )
 
 # to disable automatic builds
@@ -129,8 +139,7 @@ artifacts:
 deploy:
   description: 'Dummy description'
   provider: GitHub
-  auth_token:
-    secure: gBfHQnRcGcTS0yQXWOHhKfDkTZfIBwPIDjTsCQOGmOSPkRqs1QPYBX47BjCvJKim # your encrypted token from GitHub
+  auth_token: $(GITHUB_ACCESS_TOKEN)
   artifact: /foo_spider_monkey_panel.*/           # upload all NuGet packages to release assets
   prerelease: true
   on:
@@ -156,6 +165,22 @@ deploy_script:
 
 # on successful build
 on_success:
+  # gh-pages
+  - ps: |
+        If ($env:APPVEYOR_REPO_TAG -eq $true -and $env:CONFIGURATION -eq "Release")
+        {
+          git config --global credential.helper store
+          Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:GITHUB_ACCESS_TOKEN):x-oauth-basic@github.com`n"
+          git config --global user.email $env:git_user_email
+          git config --global user.name $env:git_user_name
+          git clone -q --depth=1 -b gh-pages https://github.com/$($env:APPVEYOR_REPO_NAME).git gh-pages
+          py scripts\update_gh_pages.py
+          cd gh-pages
+          git add -A 2>&1
+          git commit -q -m "Updated documentation: $env:APPVEYOR_REPO_TAG_NAME ($env:APPVEYOR_REPO_COMMIT)"
+          git push -q origin gh-pages
+          cd $env:APPVEYOR_BUILD_FOLDER
+        }
 
 # on build failure
 on_failure:
