@@ -17,7 +17,6 @@
 - [1.0.2](#102---2018-10-05)
 - [1.0.1](#101---2018-10-05)
 - [1.0.0](#100---2018-10-01)
-
 ___
 
 ## [Unreleased][]
@@ -41,7 +40,7 @@ ___
   - Fixed an occasional fb2k crash.
   - Added proper shortcut handling (e.g. CTRL-C, CTRL-V).
   - Fixed `enter` key always closing the dialog.
-  - Fixed incorrect handling of some keyboard events (e.g. space and tab keys).
+  - Fixed incorect handling of some keyboard events (e.g. space and tab keys).
 - Fixed `FbUiSelectionHolder.SetPlaylistSelectionTracking` not working.
 - Fixed fb2k crash when there is an error in a cached script.
 - Fixed slow script handler triggering wrongly with some modal dialogs.
