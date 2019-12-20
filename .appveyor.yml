@@ -56,7 +56,7 @@ cache:
 
 # scripts that run after cloning repository
 install:
-  - scripts\install_jsdoc.bat %cd%\
+  - npm install -g jsdoc tui-jsdoc-template
   - cmd: py scripts\setup.py
 
 #---------------------------------#
