@@ -21,7 +21,7 @@ def generate(is_debug = False):
     conf = cur_dir/"doc"/"conf.json"
     readme = cur_dir/"doc"/"README.md"
     
-    subprocess.check_call(f"jsdoc -t {conf} --readme {readme} {' '.join(jsdocs)} -d {output_dir}", cwd=root_dir, shell=True)
+    subprocess.check_call(f"jsdoc -c {conf} --readme {readme} {' '.join(jsdocs)} -d {output_dir}", cwd=root_dir, shell=True)
     print(f"Generated docs: {output_dir}")
 
 if __name__ == '__main__':
