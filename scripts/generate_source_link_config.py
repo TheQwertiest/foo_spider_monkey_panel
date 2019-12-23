@@ -17,7 +17,7 @@ def generate_config_custom( base_dir: PathLike,
                             repo: str = "theqwertiest/foo_spider_monkey_panel",
                             commit_hash: str = ""):
     if (not len(commit_hash)):
-        commit_hash = subprocess.check_output("git rev-parse --short HEAD", shell=True).decode('ascii')
+        commit_hash = subprocess.check_output("git rev-parse --short HEAD", shell=True).decode('ascii').strip()
     
     base_dir = Path(base_dir).resolve()
     assert(base_dir.exists() and base_dir.is_dir())
@@ -49,7 +49,6 @@ if __name__ == '__main__':
     cur_dir = Path(__file__).parent.absolute()
     root_dir = cur_dir.parent
     output_dir = root_dir/"_result"/"AllPlatforms"/"generated"
-    commit_hash = subprocess.check_output("git rev-parse --short HEAD", shell=True).decode('ascii')
 
     parser = argparse.ArgumentParser(description='Generate source link configuration file')
     parser.add_argument('--base_dir', default=root_dir)
