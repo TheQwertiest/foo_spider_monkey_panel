@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import glob
-import os
 import shutil
 import subprocess
 from pathlib import Path
@@ -15,10 +13,9 @@ def configure():
     assert(scintilla_dir.exists() and scintilla_dir.is_dir())
     lexers_dir = scintilla_dir/"lexers"
     
-    lexers = glob.glob(f"{str(lexers_dir)}/*")
-    for lexer in lexers:
-        if (os.path.basename(lexer) != "LexCPP.cxx" ):
-            os.remove(lexer)
+    for lexer in lexers_dir.glob("*"):
+        if (lexer.name != "LexCPP.cxx" ):
+            lexer.unlink()
     
     subprocess.check_call("py LexGen.py", cwd=scintilla_dir/"scripts", shell=True)
     

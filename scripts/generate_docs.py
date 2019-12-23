@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 import subprocess
 from pathlib import Path
 from shutil import rmtree
@@ -16,7 +15,7 @@ def generate(is_debug = False):
     output_dir = root_dir/"_result"/"html"
     if (output_dir.exists()):
         rmtree(output_dir)
-        os.makedirs(output_dir)
+        output_dir.mkdir(parents=True)
     
     jsdocs = [str(root_dir/"component"/"docs"/f) for f in ["js/foo_spider_monkey_panel.js","Callbacks.js"]]
     conf = cur_dir/"doc"/"conf.json"

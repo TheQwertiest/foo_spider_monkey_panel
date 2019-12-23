@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import json
-import os
 import subprocess
 from pathlib import Path
 
@@ -11,12 +10,10 @@ def generate():
     cur_dir = Path(__file__).parent.absolute()
     root_dir = cur_dir.parent
     output_dir = root_dir/"_result"/"AllPlatforms"/"generated"
-    if (not output_dir.exists()):
-        os.makedirs(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     output_file = output_dir/'doc_package_info.json'
-    if (output_file.exists()):
-        os.remove(output_file)
+    output_file.unlink(missing_ok=True)
     
     tag = subprocess.check_output("git describe --tags", shell=True).decode('ascii').strip()
     if (tag.startswith('v')):

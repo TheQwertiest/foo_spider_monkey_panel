@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import os
 import subprocess
 from pathlib import Path
 
@@ -23,8 +22,8 @@ def update():
     
     subprocess.check_call("git submodule sync", cwd=root_dir, shell=True)
     
-    for subdir in os.listdir(root_dir/"submodules"):
-        update_submodule(root_dir, subdir)
+    for subdir in [f for f in (root_dir/"submodules").iterdir() if f.is_dir()]:
+        update_submodule(root_dir, subdir.name)
 
 if __name__ == '__main__':
     call_wrapper.final_call_decorator(

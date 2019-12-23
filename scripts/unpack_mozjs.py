@@ -1,7 +1,5 @@
 #!/usr/bin/env python3
 
-import glob
-import os
 import zipfile
 from pathlib import Path
 from shutil import rmtree
@@ -18,10 +16,10 @@ def unpack():
     output_dir = root_dir/"mozjs"
     if (output_dir.exists()):
         rmtree(output_dir)
-        os.makedirs(output_dir)
+        output_dir.mkdir(parents=True)
     
-    zips = glob.glob(f"{str(zip_dir)}/*.zip")
-    assert(len(zips))
+    zips = list(zip_dir.glob("*.zip"))
+    assert(len(zips) == 1)
     zip = Path(zips[0])
     assert(zipfile.is_zipfile(zip))
     

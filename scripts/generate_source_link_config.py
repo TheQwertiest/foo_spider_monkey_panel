@@ -2,7 +2,6 @@
 
 import argparse
 import json
-import os
 import subprocess
 from pathlib import Path
 from pathlib import PureWindowsPath
@@ -23,12 +22,10 @@ def generate_config_custom( base_dir: PathLike,
     assert(base_dir.exists() and base_dir.is_dir())
     
     output_dir = Path(output_dir).resolve()
-    if (not output_dir.exists()):
-        os.makedirs(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     output_file = output_dir/'source_link.json'
-    if (output_file.exists()):
-        os.remove(output_file)
+    output_file.unlink(missing_ok=True)
     
     data = {}
     data['documents'] = { f'{PureWindowsPath(base_dir)}*': f'https://raw.githubusercontent.com/{repo}/{commit_hash}/*' }

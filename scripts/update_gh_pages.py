@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import os
 import shutil
 from pathlib import Path
 from typing import Union
@@ -20,7 +19,7 @@ def update(gh_pages_dir: PathLike):
     ghp_gen_dir = gh_pages_dir/"assets"/"generated_files"
     if (ghp_gen_dir.exists()):
         shutil.rmtree(ghp_gen_dir)
-        os.makedirs(ghp_gen_dir)
+        ghp_gen_dir.mkdir(parents=True)
 
     shutil.copytree(root_dir/"component"/"licenses", ghp_gen_dir/"licenses", dirs_exist_ok=True)
     shutil.copytree(root_dir/"component"/"samples", ghp_gen_dir/"samples", dirs_exist_ok=True)
@@ -29,8 +28,7 @@ def update(gh_pages_dir: PathLike):
     shutil.copytree(root_dir/"_result"/"html", ghp_gen_dir/"docs"/"html", dirs_exist_ok=True)
     
     ghp_inc_dir = gh_pages_dir/"_includes"
-    if (not ghp_inc_dir.exists()):
-        os.makedirs(ghp_inc_dir)
+    ghp_inc_dir.mkdir(parents=True, exist_ok=True)
     
     shutil.copy2(root_dir/"CHANGELOG.md", gh_pages_dir/"_includes"/"CHANGELOG.md")
     shutil.copy2(root_dir/"component"/"samples"/"readme.md", gh_pages_dir/"_includes"/"samples_readme.md")
