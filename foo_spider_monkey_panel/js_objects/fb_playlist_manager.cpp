@@ -216,7 +216,7 @@ void JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue 
         nullptr,
         nullptr,
         nullptr,
-        fb2k::service_new<smp::utils::js_process_locations>( playlistIndex, base, select ) );
+        fb2k::service_new<smp::utils::OnProcessLocationsNotify_InsertHandles>( playlistIndex, base, select ) );
 }
 
 void JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t playlistIndex, JS::HandleValue locations, bool select )

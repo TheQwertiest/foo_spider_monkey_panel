@@ -5,31 +5,33 @@
 namespace smp::utils
 {
 
-js_process_locations::js_process_locations( int playlist_idx, UINT base, bool to_select )
-    : m_playlist_idx( playlist_idx )
-    , m_base( base )
-    , m_to_select( to_select )
+OnProcessLocationsNotify_InsertHandles::OnProcessLocationsNotify_InsertHandles( int playlistIdx, UINT baseIdx, bool shouldSelect )
+    : playlistIdx_( playlistIdx )
+    , baseIdx_( baseIdx )
+    , shouldSelect_( shouldSelect )
 {
 }
 
-void js_process_locations::on_completion( metadb_handle_list_cref p_items )
+void OnProcessLocationsNotify_InsertHandles::on_completion( metadb_handle_list_cref items )
 {
-    pfc::bit_array_val selection( m_to_select );
     auto api = playlist_manager::get();
-    t_size playlist = m_playlist_idx == -1 ? api->get_active_playlist() : m_playlist_idx;
-
-    if ( playlist < api->get_playlist_count() && !api->playlist_lock_is_present( playlist ) )
+    const size_t adjustedPlIdx = ( playlistIdx_ == -1 ? api->get_active_playlist() : playlistIdx_ );
+    if ( adjustedPlIdx >= api->get_playlist_count() 
+        || ( api->playlist_lock_get_filter_mask( adjustedPlIdx ) & playlist_lock::filter_add ) )
     {
-        api->playlist_insert_items( playlist, m_base, p_items, selection );
-        if ( m_to_select )
-        {
-            api->set_active_playlist( playlist );
-            api->playlist_set_focus_item( playlist, m_base );
-        }
+        return;
+    }
+
+    pfc::bit_array_val selection( shouldSelect_ );
+    api->playlist_insert_items( adjustedPlIdx, baseIdx_, items, selection );
+    if ( shouldSelect_ )
+    {
+        api->set_active_playlist( adjustedPlIdx );
+        api->playlist_set_focus_item( adjustedPlIdx, baseIdx_ );
     }
 }
 
-void js_process_locations::on_aborted()
+void OnProcessLocationsNotify_InsertHandles::on_aborted()
 {
 }
 

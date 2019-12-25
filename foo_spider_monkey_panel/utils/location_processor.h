@@ -3,18 +3,19 @@
 namespace smp::utils
 {
 
-class js_process_locations : public process_locations_notify
+class OnProcessLocationsNotify_InsertHandles
+    : public process_locations_notify
 {
 public:
-    js_process_locations( int playlist_idx, UINT base, bool to_select );
+    OnProcessLocationsNotify_InsertHandles( int playlistIdx, UINT baseIdx, bool shouldSelect );
 
-    void on_completion( metadb_handle_list_cref p_items ) override;
+    void on_completion( metadb_handle_list_cref items ) override;
     void on_aborted() override;
 
 private:
-    int m_playlist_idx;
-    size_t m_base;
-    bool m_to_select;
+    int playlistIdx_;
+    size_t baseIdx_;
+    bool shouldSelect_;
 };
 
 } // namespace smp::utils
