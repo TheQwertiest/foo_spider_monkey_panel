@@ -18,12 +18,17 @@ markdown: kramdown
 kramdown: 
   parse_block_html: true
 
-baseurl: "/foo_spider_monkey_panel" 
+baseurl: "/foo_spider_monkey_panel/" 
 url: "https://theqwertiest.github.io"
 
 permalink: pretty
 
 title: Spider Monkey Panel
+
+collections_dir: collections
+collections:
+  - showcase_sample
+  - showcase_user
 
 aux_links:
   "View on GitHub":
