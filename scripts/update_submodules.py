@@ -14,7 +14,7 @@ def update_submodule(root_dir, submodule_name):
         # Shallow copy does not honour default branch config
         subprocess.check_call("git config --add remote.origin.fetch +refs/heads/*:refs/remotes/origin/*", cwd=submodule_path, shell=True)
         subprocess.check_call("git fetch --all", cwd=submodule_path, shell=True)
-        subprocess.check_call(f"git submodule update --init --recursive --remote -- submodules/{submodule_name}", cwd=root_dir, shell=True)
+        subprocess.check_call(f"git submodule update --init --force --recursive --remote -- submodules/{submodule_name}", cwd=root_dir, shell=True)
 
 def update():
     cur_dir = Path(__file__).parent.absolute()
