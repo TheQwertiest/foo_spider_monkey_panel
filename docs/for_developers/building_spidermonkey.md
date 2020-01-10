@@ -34,7 +34,7 @@ mkdir _build
 cd _build
 
 # Add `--enable-debug` if you want to make a binary for debug build of SMP
-../configure --enable-nspr-build --disable-jemalloc --disable-js-shell --disable-tests` 
+../configure --enable-nspr-build --disable-jemalloc --disable-js-shell --disable-tests
 mozmake
 ~~~
 Build artifacts will be located in the following paths:
