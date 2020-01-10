@@ -70,18 +70,6 @@ index 1ab7853..19de646 100644
        <EnableEnhancedInstructionSet>NoExtensions</EnableEnhancedInstructionSet>
        <AdditionalOptions>/d2notypeopt %(AdditionalOptions)</AdditionalOptions>
        <TreatSpecificWarningsAsErrors>4715</TreatSpecificWarningsAsErrors>
-diff --git a/submodules/foobar2000/SDK/service.h b/submodules/foobar2000/SDK/service.h
-index b476eb3..1053113 100644
---- a/submodules/foobar2000/SDK/service.h
-+++ b/submodules/foobar2000/SDK/service.h
-@@ -3,6 +3,7 @@
- #include <utility> // std::forward
- 
- typedef const void* service_class_ref;
-+class service_factory_base;
- 
- PFC_DECLARE_EXCEPTION(exception_service_not_found,pfc::exception,"Service not found");
- PFC_DECLARE_EXCEPTION(exception_service_extension_not_found,pfc::exception,"Service extension not found");
 diff --git a/submodules/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj b/submodules/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
 index 1805416..6dca16e 100644
 --- a/submodules/foobar2000/foobar2000_component_client/foobar2000_component_client.vcxproj
