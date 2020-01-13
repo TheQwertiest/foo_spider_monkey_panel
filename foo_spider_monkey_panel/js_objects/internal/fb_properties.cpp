@@ -43,7 +43,7 @@ void FbProperties::PrepareForGc()
 
 JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue )
 {
-    std::wstring trimmedPropName( smp::string::Trim<wchar_t>( propName ) );
+    const std::wstring trimmedPropName( smp::string::Trim<wchar_t>( propName ) );
 
     bool hasProperty = false;
     if ( properties_.count( trimmedPropName ) )
@@ -54,7 +54,7 @@ JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleVal
     {
         auto& panelPropertyValues = parentPanel_.GetSettings().properties.values;
 
-        auto it = panelPropertyValues.find( propName );
+        auto it = panelPropertyValues.find( trimmedPropName );
         if ( it != panelPropertyValues.end() )
         {
             hasProperty = true;
@@ -80,7 +80,7 @@ JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleVal
 
 void FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue propValue )
 {
-    std::wstring trimmedPropName( smp::string::Trim<wchar_t>( propName ) );
+    const std::wstring trimmedPropName( smp::string::Trim<wchar_t>( propName ) );
 
     auto& panelPropertyValues = parentPanel_.GetSettings().properties.values;
 
