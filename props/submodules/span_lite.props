@@ -8,5 +8,4 @@
   <PropertyGroup>
     <IncludePath>$(SubmodulesDirectory)span-lite\include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <ItemGroup />
 </Project>

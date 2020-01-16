@@ -2,6 +2,8 @@
 
 #include <resource.h>
 
+#include <Scintilla.h>
+
 namespace scintilla
 {
 

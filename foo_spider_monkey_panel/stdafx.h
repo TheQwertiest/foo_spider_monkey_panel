@@ -48,10 +48,6 @@ using std::max;
 #include <atltypes.h>
 #include <atlwin.h>
 
-// Scintilla
-#include <Scintilla.h>
-#include <SciLexer.h>
-
 // foobar2000 SDK
 #pragma warning( push, 0 )
 #   include <foobar2000/SDK/foobar2000.h>

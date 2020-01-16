@@ -557,7 +557,7 @@ void CScriptEditorCtrl::SetJScript()
 
     RestoreDefaultStyle();
 
-    SetLexer( SCLEX_CPP );
+    SetILexer( CreateLexer( "cpp" ) );
     SetKeyWords( 0, keywords_str.c_str() );
     LoadStyleFromProperties();
     Colourise( 0, std::numeric_limits<unsigned int>::max() );

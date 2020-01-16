@@ -9,6 +9,8 @@
 #include <message_manager.h>
 #include <user_message.h>
 
+#include <Scintilla.h>
+
 #include <map>
 
 DECLARE_COMPONENT_VERSION( SMP_NAME, SMP_VERSION, SMP_ABOUT );

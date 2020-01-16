@@ -10,9 +10,8 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <Link>
-      <AdditionalLibraryDirectories>$(Fb2kSdkDirectory)shared\;$(Fb2kSdkDirectory)SDK\$(Platform)\$(Configuration)\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>      
+      <AdditionalLibraryDirectories>$(Fb2kSdkDirectory)shared\;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>      
       <AdditionalDependencies>shared.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup />
 </Project>

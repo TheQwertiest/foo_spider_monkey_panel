@@ -374,6 +374,9 @@
     <ProjectReference Include="..\submodules\pfc\pfc.vcxproj">
       <Project>{ebfffb4e-261d-44d3-b89c-957b31a0bf9c}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\submodules\scintilla\lexilla\src\lexilla.vcxproj">
+      <Project>{7ca4bbc9-83ca-42be-84bb-8a98368fabab}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\submodules\scintilla\win32\scintilla.vcxproj">
       <Project>{10b2a7ef-9089-4352-ba26-7e9aef50987d}</Project>
       <Private>false</Private>

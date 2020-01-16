@@ -36,6 +36,11 @@ Gilad Novik (Web: http://gilad.gsetup.com,Email: gilad@gsetup.com)
 
 #pragma once
 
+#include <ILexer.h>
+#include <Lexilla.h>
+#include <SciLexer.h>
+#include <Scintilla.h>
+
 template <class T, class TBase = CWindow, class TWinTraits = CControlWinTraits>
 class CScintillaImpl : public CWindowImpl<T, TBase, TWinTraits>
 {
@@ -1852,6 +1857,12 @@ public:
     {
         ATLASSERT( ::IsWindow( this->m_hWnd ) );
         ::SendMessage( this->m_hWnd, SCI_SETLEXER, nLexer, 0L );
+    }
+
+    void SetILexer( Scintilla::ILexer5* pLexer )
+    {
+        ATLASSERT( ::IsWindow( this->m_hWnd ) );
+        ::SendMessage( this->m_hWnd, SCI_SETILEXER, 0, (LPARAM)pLexer );
     }
 
     void Colourise( unsigned int nStart, unsigned int nEnd )

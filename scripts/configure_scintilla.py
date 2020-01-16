@@ -18,7 +18,9 @@ def configure():
             lexer.unlink()
     
     subprocess.check_call("py LexGen.py", cwd=scintilla_dir/"scripts", shell=True)
+    subprocess.check_call("py LexillaGen.py", cwd=scintilla_dir/"lexilla"/"scripts", shell=True)
     
+    shutil.copy2(cur_dir/"additional_files"/"lexilla.vcxproj", str(scintilla_dir/"lexilla"/"src") + '/')
     shutil.copy2(cur_dir/"additional_files"/"scintilla.vcxproj", str(scintilla_dir/"win32") + '/')
 
 if __name__ == '__main__':

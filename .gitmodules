@@ -12,7 +12,7 @@
 	url = https://github.com/marc2k3/smp_2003.git
 [submodule "submodules/scintilla"]
 	path = submodules/scintilla
-	url = https://github.com/mirror/scintilla.git
+	url = https://github.com/theqwertiest/scintilla.git
 [submodule "submodules/pfc"]
 	path = submodules/pfc
 	url = https://github.com/TheQwertiest/pfc.git

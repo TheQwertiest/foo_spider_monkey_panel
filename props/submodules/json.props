@@ -8,5 +8,4 @@
   <PropertyGroup>
     <IncludePath>$(SubmodulesDirectory)json\single_include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <ItemGroup />
 </Project>

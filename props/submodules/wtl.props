@@ -8,5 +8,4 @@
   <PropertyGroup>
     <IncludePath>$(SubmodulesDirectory)wtl\Include\;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <ItemGroup />
 </Project>

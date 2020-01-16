@@ -10,13 +10,6 @@
     <ScintillaResultDirectory>$(ScintillaDirectory)bin\</ScintillaResultDirectory>
   </PropertyGroup>
   <PropertyGroup>
-    <IncludePath>$(ScintillaDirectory)include\;$(IncludePath)</IncludePath>
+    <IncludePath>$(ScintillaDirectory)include\;$(ScintillaDirectory)lexilla\src\;$(IncludePath)</IncludePath>
   </PropertyGroup>
-  <ItemDefinitionGroup>
-    <Link>
-      <AdditionalLibraryDirectories>$(ScintillaResultDirectory);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>libscintilla.lib;%(AdditionalDependencies)</AdditionalDependencies>
-    </Link>
-  </ItemDefinitionGroup>
-  <ItemGroup />
 </Project>
