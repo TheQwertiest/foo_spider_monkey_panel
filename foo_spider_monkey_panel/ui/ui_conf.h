@@ -78,7 +78,7 @@ public:
 private:
     smp::panel::js_panel_window* m_parent = nullptr;
 
-    scintilla::CScriptEditorCtrl sciEditor_;
+    smp::ui::sci::CScriptEditorCtrl sciEditor_;
     CMenu menu;
 
     std::u8string m_caption;

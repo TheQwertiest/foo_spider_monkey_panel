@@ -14,7 +14,7 @@
 #include <charconv>
 #include <optional>
 
-using namespace scintilla;
+using namespace smp::ui::sci;
 
 namespace
 {
@@ -246,7 +246,7 @@ bool StartsWith_CaseInsensitive( const std::u8string_view& a, const std::u8strin
 
 } // namespace
 
-namespace scintilla
+namespace smp::ui::sci
 {
 
 bool CScriptEditorCtrl::KeyWordComparator::operator()( const std::u8string& a, const std::u8string& b ) const

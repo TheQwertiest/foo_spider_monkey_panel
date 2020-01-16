@@ -11,7 +11,7 @@
 
 namespace fs = std::filesystem;
 
-using namespace scintilla;
+using namespace smp::ui::sci;
 
 namespace
 {

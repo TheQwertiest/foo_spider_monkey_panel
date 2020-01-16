@@ -3,6 +3,7 @@ be distributed under licenses different than the Spider Monkey Panel software.
 
 The linked notices are provided for information only.
 
+- [AtlScintilla - zlib](component/licenses/AtlScintilla.txt)
 - [Columns UI SDK - other](component/licenses/Columns_UI_SDK.txt)
 - [CPropertyList - other](component/licenses/CPropertyList.txt)
 - [DispatchPtr - BSD](component/licenses/DispatchPtr.txt)

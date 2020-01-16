@@ -4,7 +4,7 @@
 
 #include <utils/hook_handler.h>
 
-namespace scintilla
+namespace smp::ui::sci
 {
 
 bool FindReplaceState::operator!=( const FindReplaceState& other ) const

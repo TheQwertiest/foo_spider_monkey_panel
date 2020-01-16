@@ -1,6 +1,8 @@
-//-----------------------------------------------------------------------------
-// Copyright (c) 2000-04 Mike Morearty <mike@morearty.com>
 // Original source and docs: http://www.morearty.com/code/dispatch
+// Copyright (c) 2000-2004 Mike Morearty <mike@morearty.com>
+// See THIRD_PARTY_NOTICES.md for full license text.
+
+//-----------------------------------------------------------------------------
 //
 // CDispatchPtr helper class
 //

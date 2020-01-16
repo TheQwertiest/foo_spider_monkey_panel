@@ -6,7 +6,7 @@
 #include <utils/file_helpers.h>
 #include <utils/string_helpers.h>
 
-using namespace scintilla;
+using namespace smp::ui::sci;
 
 namespace
 {
@@ -37,7 +37,7 @@ constexpr auto DefaultProps = smp::to_array<ScintillaCfg::DefaultPropValue>(
 
 } // namespace
 
-namespace scintilla
+namespace smp::ui::sci
 {
 
 ScintillaCfg::ScintillaCfg( const GUID& p_guid, nonstd::span<const DefaultPropValue> p_default )

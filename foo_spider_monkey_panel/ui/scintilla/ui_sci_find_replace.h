@@ -4,7 +4,7 @@
 
 #include <Scintilla.h>
 
-namespace scintilla
+namespace smp::ui::sci
 {
 
 class CScriptEditorCtrl;
@@ -91,7 +91,7 @@ protected:
     END_MSG_MAP()
 
 public:
-    CScintillaFindReplaceImpl( scintilla::CScriptEditorCtrl& sciEditor )
+    CScintillaFindReplaceImpl( smp::ui::sci::CScriptEditorCtrl& sciEditor )
         : sciEditor_( sciEditor )
     {
     }
@@ -351,7 +351,7 @@ private:
     }
 
 private:
-    scintilla::CScriptEditorCtrl& sciEditor_;
+    smp::ui::sci::CScriptEditorCtrl& sciEditor_;
     HWND hEdit_ = nullptr;
 
     bool isFindOnlyDialog_ = true;
@@ -362,6 +362,6 @@ private:
 };
 
 template <typename T>
-scintilla::FindReplaceState CScintillaFindReplaceImpl<T>::lastState_;
+smp::ui::sci::FindReplaceState CScintillaFindReplaceImpl<T>::lastState_;
 
 } // namespace scintilla

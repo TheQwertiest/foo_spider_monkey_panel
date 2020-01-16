@@ -2,7 +2,7 @@
 
 #include <resource.h>
 
-namespace scintilla
+namespace smp::ui::sci
 {
 
 class CScriptEditorCtrl;

@@ -14,7 +14,7 @@
 #include <optional>
 #include <set>
 
-namespace scintilla
+namespace smp::ui::sci
 {
 
 // forward declaration

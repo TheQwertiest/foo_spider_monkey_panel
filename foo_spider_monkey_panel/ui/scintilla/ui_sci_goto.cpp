@@ -17,7 +17,7 @@ enum class GotoMsg : uint32_t
 
 }
 
-namespace scintilla
+namespace smp::ui::sci
 {
 
 CDialogGoto::CDialogGoto( HWND hParent, int curLineNumber )
