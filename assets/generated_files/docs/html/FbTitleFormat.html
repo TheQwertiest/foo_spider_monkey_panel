@@ -26,7 +26,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Spider Monkey Panel</a></h1>
         
-            <span class="version">v1.2.2-preview</span>
+            <span class="version">v1.2.3</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -68,7 +68,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2522">line 2522</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2525">line 2525</a></code>
             </div>
             
         </h4>
@@ -80,7 +80,9 @@
 
     
     <div class="description">
-        Performance note: if you use the same query frequently, try caching FbTitleFormat object (by storing it somewhere),instead of creating it every time.
+        Performance note: if you use the same query frequently, 
+try caching FbTitleFormat object (by storing it somewhere),
+instead of creating it every time.
     </div>
     
 
@@ -228,7 +230,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2536">line 2536</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2539">line 2539</a></code>
             </div>
             
         </h4>
@@ -240,7 +242,8 @@
 
     
     <div class="description">
-        Always use Eval when you want dynamic info such as %playback_time%, %bitrate% etc.<br><a href="FbTitleFormat.html#EvalWithMetadb">FbTitleFormat#EvalWithMetadb</a>(fb.GetNowplaying()) will not give the results you want.
+        Always use Eval when you want dynamic info such as %playback_time%, %bitrate% etc.<br>
+<a href="FbTitleFormat.html#EvalWithMetadb">FbTitleFormat#EvalWithMetadb</a>(fb.GetNowplaying()) will not give the results you want.
     </div>
     
 
@@ -312,7 +315,9 @@
                 </td>
             
 
-            <td class="description last">If true, you can process text that doesn't contain    title formatting even when foobar2000 isn't playing. When playing, you    should always get a result.</td>
+            <td class="description last">If true, you can process text that doesn't contain
+    title formatting even when foobar2000 isn't playing. When playing, you
+    should always get a result.</td>
         </tr>
 
     
@@ -393,7 +398,8 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let tfo = fb.TitleFormat("%artist%");console.log(tfo.Eval());</code></pre>
+    <pre class="prettyprint"><code>let tfo = fb.TitleFormat("%artist%");
+console.log(tfo.Eval());</code></pre>
 
     
 
@@ -411,7 +417,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2546">line 2546</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2549">line 2549</a></code>
             </div>
             
         </h4>
@@ -552,7 +558,8 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let tfo = fb.TitleFormat("%artist%");console.log(tfo.EvalWithMetadb(fb.GetFocusItem()));</code></pre>
+    <pre class="prettyprint"><code>let tfo = fb.TitleFormat("%artist%");
+console.log(tfo.EvalWithMetadb(fb.GetFocusItem()));</code></pre>
 
     
 
@@ -570,7 +577,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2558">line 2558</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2561">line 2561</a></code>
             </div>
             
         </h4>
@@ -711,7 +718,10 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let tfo = fb.TitleFormat("%artist%");let handle_list = fb.GetLibraryItems();let artists = tfo.EvalWithMetadbs(handle_list);console.log(handle_list.Count === artists.length); // should always be true!</code></pre>
+    <pre class="prettyprint"><code>let tfo = fb.TitleFormat("%artist%");
+let handle_list = fb.GetLibraryItems();
+let artists = tfo.EvalWithMetadbs(handle_list);
+console.log(handle_list.Count === artists.length); // should always be true!</code></pre>
 
     
 

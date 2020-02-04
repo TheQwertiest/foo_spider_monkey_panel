@@ -26,7 +26,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Spider Monkey Panel</a></h1>
         
-            <span class="version">v1.2.2-preview</span>
+            <span class="version">v1.2.3</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -68,7 +68,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2481">line 2481</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2484">line 2484</a></code>
             </div>
             
         </h4>
@@ -190,7 +190,10 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let test = new FbProfiler('test');// do something time consumingconsole.log(test.Time); // Outputs bare time in ms like "789"test.Print(); // Outputs component name/version/assigned name like "Spider Monkey Panel v1.0.0: profiler (test): 789 ms"</code></pre>
+    <pre class="prettyprint"><code>let test = new FbProfiler('test');
+// do something time consuming
+console.log(test.Time); // Outputs bare time in ms like "789"
+test.Print(); // Outputs component name/version/assigned name like "Spider Monkey Panel v1.0.0: profiler (test): 789 ms"</code></pre>
 
     
 
@@ -224,7 +227,7 @@
     
     <div class="container-source members">
         <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-        <code><a href="js_foo_spider_monkey_panel.js.html#line2487">line 2487</a></code>
+        <code><a href="js_foo_spider_monkey_panel.js.html#line2490">line 2490</a></code>
     </div>
     
 </h4>
@@ -308,7 +311,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2511">line 2511</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2514">line 2514</a></code>
             </div>
             
         </h4>
@@ -489,7 +492,19 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let test = new FbProfiler('Group #1');// Do smth #1test.Print('\nTask #1:', false);// Do smth #2test.Print('\nTask #2:', false);// Do smthtest.Print();// Output:// profiler (Group #1): // Task #1: 789 ms"// profiler (Group #1):// Task #2: 1530 ms"// Spider Monkey Panel v1.0.0: profiler (Group #1): 3541 ms"</code></pre>
+    <pre class="prettyprint"><code>let test = new FbProfiler('Group #1');
+// Do smth #1
+test.Print('\nTask #1:', false);
+// Do smth #2
+test.Print('\nTask #2:', false);
+// Do smth
+test.Print();
+// Output:
+// profiler (Group #1): 
+// Task #1: 789 ms"
+// profiler (Group #1):
+// Task #2: 1530 ms"
+// Spider Monkey Panel v1.0.0: profiler (Group #1): 3541 ms"</code></pre>
 
     
 
@@ -507,7 +522,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2490">line 2490</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2493">line 2493</a></code>
             </div>
             
         </h4>

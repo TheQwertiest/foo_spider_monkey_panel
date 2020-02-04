@@ -670,7 +670,10 @@ let gdi = {
     CreateImage: function (w, h) { }, // (GdiBitmap)
 
     /**
-     * Performance note: avoid using inside `on_paint`.
+     * Performance note: avoid using inside `on_paint`.<br>
+     * Performance note II: try caching and reusing `GdiFont` objects,
+     * since the maximum amount of such objects is hard-limited by Windows.
+     * `GdiFont` creation will fail after reaching this limit.
      *
      * @param {string} name
      * @param {number} size_px See Helper.js > Point2Pixel function for conversions
@@ -2823,7 +2826,11 @@ function GdiBitmap(arg) {
 }
 
 /**
- * Constructor may fail if font is not present.
+ * Constructor may fail if font is not present.<br>
+ * 
+ * Performance note: try caching and reusing `GdiFont` objects, 
+ * since the maximum amount of such objects is hard-limited by Windows.
+ * `GdiFont` creation will fail after reaching this limit.
  * 
  * @constructor
  * @param {string} name
@@ -3083,8 +3090,11 @@ function GdiGraphics() {
      * this will result in visual artifacts caused by ClearType hinting.<br>
      * Use {@link GdiGraphics#DrawString} instead in such cases.<br>
      * <br>
-     * To calculate text dimensions use {@link GdiGraphics#CalcTextHeight}, {@link GdiGraphics#CalcTextWidth} or DT_CALCRECT flag.
-     *
+     * To calculate text dimensions use {@link GdiGraphics#CalcTextHeight}, {@link GdiGraphics#CalcTextWidth} or DT_CALCRECT flag.<br>
+     * <br>
+     * Note: uses special rules for `&` character by default, which consumes the `&` and causes the next character to be underscored.
+     * This behaviour can be changed (or disabled) via `format` parameter.
+     * 
      * @param {string} str
      * @param {GdiFont} font
      * @param {number} colour

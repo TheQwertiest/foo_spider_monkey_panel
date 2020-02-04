@@ -26,7 +26,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Spider Monkey Panel</a></h1>
         
-            <span class="version">v1.2.2-preview</span>
+            <span class="version">v1.2.3</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -68,7 +68,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2694">line 2694</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2697">line 2697</a></code>
             </div>
             
         </h4>
@@ -219,7 +219,7 @@
     
     <div class="container-source members">
         <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-        <code><a href="js_foo_spider_monkey_panel.js.html#line2700">line 2700</a></code>
+        <code><a href="js_foo_spider_monkey_panel.js.html#line2703">line 2703</a></code>
     </div>
     
 </h4>
@@ -294,7 +294,7 @@
     
     <div class="container-source members">
         <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-        <code><a href="js_foo_spider_monkey_panel.js.html#line2706">line 2706</a></code>
+        <code><a href="js_foo_spider_monkey_panel.js.html#line2709">line 2709</a></code>
     </div>
     
 </h4>
@@ -378,7 +378,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2712">line 2712</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2715">line 2715</a></code>
             </div>
             
         </h4>
@@ -532,7 +532,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2722">line 2722</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2725">line 2725</a></code>
             </div>
             
         </h4>
@@ -658,7 +658,8 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>&lt;caption>Blur image&lt;caption>// samples\basic\Apply Mask.txt</code></pre>
+    <pre class="prettyprint"><code>&lt;caption>Blur image&lt;caption>
+// samples\basic\Apply Mask.txt</code></pre>
 
     
 
@@ -676,7 +677,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2731">line 2731</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2734">line 2734</a></code>
             </div>
             
         </h4>
@@ -899,7 +900,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2738">line 2738</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2741">line 2741</a></code>
             </div>
             
         </h4>
@@ -1007,7 +1008,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2744">line 2744</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2747">line 2747</a></code>
             </div>
             
         </h4>
@@ -1161,7 +1162,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2764">line 2764</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2767">line 2767</a></code>
             </div>
             
         </h4>
@@ -1173,7 +1174,11 @@
 
     
     <div class="description">
-        Returns a JSON array in string form so you need to use JSON.parse() on the result.<br>Each entry in the array is an object which contains colour and frequency values.<br>Uses a different method for calculating colours than <a href="GdiBitmap.html#GetColourScheme">GdiBitmap#GetColourScheme</a>.<br>Image is automatically resized during processing for performance reasons so there's noneed to resize before calling the method.
+        Returns a JSON array in string form so you need to use JSON.parse() on the result.<br>
+Each entry in the array is an object which contains colour and frequency values.<br>
+Uses a different method for calculating colours than <a href="GdiBitmap.html#GetColourScheme">GdiBitmap#GetColourScheme</a>.<br>
+Image is automatically resized during processing for performance reasons so there's no
+need to resize before calling the method.
     </div>
     
 
@@ -1306,7 +1311,12 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>// See docs\Helpers.js for "toRGB" function.img = ... // use utils.GetAlbumArtV2 / gdi.Image / etccolours = JSON.parse(img.GetColourSchemeJSON(5));console.log(colours[0].col); // -4194304console.log(colours[0].freq); // 0.34console.log(toRGB(colours[0].col)); // [192, 0, 0]</code></pre>
+    <pre class="prettyprint"><code>// See docs\Helpers.js for "toRGB" function.
+img = ... // use utils.GetAlbumArtV2 / gdi.Image / etc
+colours = JSON.parse(img.GetColourSchemeJSON(5));
+console.log(colours[0].col); // -4194304
+console.log(colours[0].freq); // 0.34
+console.log(toRGB(colours[0].col)); // [192, 0, 0]</code></pre>
 
     
 
@@ -1324,7 +1334,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2771">line 2771</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2774">line 2774</a></code>
             </div>
             
         </h4>
@@ -1432,7 +1442,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2776">line 2776</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2779">line 2779</a></code>
             </div>
             
         </h4>
@@ -1567,7 +1577,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2784">line 2784</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2787">line 2787</a></code>
             </div>
             
         </h4>
@@ -1811,7 +1821,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2791">line 2791</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2794">line 2794</a></code>
             </div>
             
         </h4>
@@ -1950,7 +1960,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2809">line 2809</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2812">line 2812</a></code>
             </div>
             
         </h4>
@@ -2065,7 +2075,11 @@
                 </td>
             
 
-            <td class="description last">"image/png"<br>     "image/bmp"<br>     "image/jpeg"<br>     "image/gif"<br>     "image/tiff"</td>
+            <td class="description last">"image/png"<br>
+     "image/bmp"<br>
+     "image/jpeg"<br>
+     "image/gif"<br>
+     "image/tiff"</td>
         </tr>
 
     
@@ -2146,7 +2160,10 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let img = utils.GetAlbumArtEmbedded(fb.GetFocusItem().RawPath, 0);if (img) {    img.SaveAs("D:\\export.jpg", "image/jpeg");}</code></pre>
+    <pre class="prettyprint"><code>let img = utils.GetAlbumArtEmbedded(fb.GetFocusItem().RawPath, 0);
+if (img) {
+    img.SaveAs("D:\\export.jpg", "image/jpeg");
+}</code></pre>
 
     
 
@@ -2164,7 +2181,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2822">line 2822</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2825">line 2825</a></code>
             </div>
             
         </h4>
@@ -2290,9 +2307,11 @@
     
         <h5>Examples</h5>
         
-    <pre class="prettyprint"><code>&lt;caption>Blur image&lt;caption>// samples\basic\StackBlur (image).txt</code></pre>
+    <pre class="prettyprint"><code>&lt;caption>Blur image&lt;caption>
+// samples\basic\StackBlur (image).txt</code></pre>
 
-    <pre class="prettyprint"><code>&lt;caption>Blur text&lt;caption>// samples\basic\StackBlur (text).txt</code></pre>
+    <pre class="prettyprint"><code>&lt;caption>Blur text&lt;caption>
+// samples\basic\StackBlur (text).txt</code></pre>
 
     
 

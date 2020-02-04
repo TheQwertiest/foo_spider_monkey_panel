@@ -26,7 +26,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Spider Monkey Panel</a></h1>
         
-            <span class="version">v1.2.2-preview</span>
+            <span class="version">v1.2.3</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -127,7 +127,7 @@
     
     <div class="container-source members">
         <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-        <code><a href="js_foo_spider_monkey_panel.js.html#line1237">line 1237</a></code>
+        <code><a href="js_foo_spider_monkey_panel.js.html#line1240">line 1240</a></code>
     </div>
     
 </h4>
@@ -137,7 +137,9 @@
 <dd>
     
     <div class="description">
-        A string corresponding to the version.Component uses semantic versioning (see <a href="https://semver.org">https://semver.org</a>).
+        A string corresponding to the version.
+
+Component uses semantic versioning (see <a href="https://semver.org">https://semver.org</a>).
     </div>
     
 
@@ -197,7 +199,26 @@
     
     <h5>Example</h5>
     
-    <pre class="prettyprint"><code>function is_compatible(requiredVersionStr) {    let requiredVersion = requiredVersionStr.split('.');    let currentVersion = utils.Version.split('.'); // e.g. 0.1.0-alpha.2    if (currentVersion.length > 3) {        currentVersion.length = 3; // We need only numbers    }    for(let i = 0; i&lt; currentVersion.length; ++i) {      if (currentVersion[i] != requiredVersion[i]) {          return currentVersion[i] > requiredVersion[i];      }    }    return true;}let requiredVersionStr = '1.0.0';if (!is_compatible(requiredVersionStr)) {    fb.ShowPopupMessage(`This script requires v${requiredVersionStr}. Current component version is v${utils.Version}.`);}</code></pre>
+    <pre class="prettyprint"><code>function is_compatible(requiredVersionStr) {
+    let requiredVersion = requiredVersionStr.split('.');
+    let currentVersion = utils.Version.split('.'); // e.g. 0.1.0-alpha.2
+    if (currentVersion.length > 3) {
+        currentVersion.length = 3; // We need only numbers
+    }
+
+    for(let i = 0; i&lt; currentVersion.length; ++i) {
+      if (currentVersion[i] != requiredVersion[i]) {
+          return currentVersion[i] > requiredVersion[i];
+      }
+    }
+
+    return true;
+}
+
+let requiredVersionStr = '1.0.0';
+if (!is_compatible(requiredVersionStr)) {
+    fb.ShowPopupMessage(`This script requires v${requiredVersionStr}. Current component version is v${utils.Version}.`);
+}</code></pre>
 
     
 </dd>
@@ -220,7 +241,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1249">line 1249</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1252">line 1252</a></code>
             </div>
             
         </h4>
@@ -438,7 +459,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1258">line 1258</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1261">line 1261</a></code>
             </div>
             
         </h4>
@@ -450,7 +471,8 @@
 
     
     <div class="description">
-        Check if the font is installed.<br>Note: it cannot detect fonts loaded by `foo_ui_hacks`. However, <a href="gdi.html#.Font">gdi.Font</a> can use those fonts.
+        Check if the font is installed.<br>
+Note: it cannot detect fonts loaded by `foo_ui_hacks`. However, <a href="gdi.html#.Font">gdi.Font</a> can use those fonts.
     </div>
     
 
@@ -596,7 +618,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1271">line 1271</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1274">line 1274</a></code>
             </div>
             
         </h4>
@@ -764,7 +786,8 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));// See docs\Helper.js for RGB function.</code></pre>
+    <pre class="prettyprint"><code>let colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
+// See docs\Helper.js for RGB function.</code></pre>
 
     
 
@@ -782,7 +805,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1291">line 1291</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1294">line 1294</a></code>
             </div>
             
         </h4>
@@ -869,7 +892,11 @@
 
             
 
-            <td class="description last">"chardet" - Detects the codepage of the given file. Returns a corresponding codepage number on success, 0 if codepage detection failed.<br>    "e" - If file path exists, returns true.<br>    "s" - Retrieves file size, in bytes.<br>    "d" - If path is a directory, returns true.<br>    "split" - Returns an array of [directory, filename, filename_extension].</td>
+            <td class="description last">"chardet" - Detects the codepage of the given file. Returns a corresponding codepage number on success, 0 if codepage detection failed.<br>
+    "e" - If file path exists, returns true.<br>
+    "s" - Retrieves file size, in bytes.<br>
+    "d" - If path is a directory, returns true.<br>
+    "split" - Returns an array of [directory, filename, filename_extension].</td>
         </tr>
 
     
@@ -950,7 +977,10 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let arr = utils.FileTest("D:\\Somedir\\Somefile.txt", "split");// arr[0] &lt;= "D:\\Somedir\\" (always includes backslash at the end)// arr[1] &lt;= "Somefile"// arr[2] &lt;= ".txt"</code></pre>
+    <pre class="prettyprint"><code>let arr = utils.FileTest("D:\\Somedir\\Somefile.txt", "split");
+// arr[0] &lt;= "D:\\Somedir\\" (always includes backslash at the end)
+// arr[1] &lt;= "Somefile"
+// arr[2] &lt;= ".txt"</code></pre>
 
     
 
@@ -968,7 +998,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1300">line 1300</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1303">line 1303</a></code>
             </div>
             
         </h4>
@@ -1127,7 +1157,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1309">line 1309</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1312">line 1312</a></code>
             </div>
             
         </h4>
@@ -1286,7 +1316,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1327">line 1327</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1330">line 1330</a></code>
             </div>
             
         </h4>
@@ -1298,7 +1328,10 @@
 
     
     <div class="description">
-        Load art image for the track asynchronously.<br><br>Performance note: consider using <a href="gdi.html#.LoadImageAsync">gdi.LoadImageAsync</a> or <a href="gdi.html#.LoadImageAsyncV2">gdi.LoadImageAsyncV2</a> if there are a lot of images to loador if the image is big.
+        Load art image for the track asynchronously.<br>
+<br>
+Performance note: consider using <a href="gdi.html#.LoadImageAsync">gdi.LoadImageAsync</a> or <a href="gdi.html#.LoadImageAsyncV2">gdi.LoadImageAsyncV2</a> if there are a lot of images to load
+or if the image is big.
     </div>
     
 
@@ -1637,7 +1670,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1350">line 1350</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1353">line 1353</a></code>
             </div>
             
         </h4>
@@ -1649,7 +1682,8 @@
 
     
     <div class="description">
-        Load art image for the track asynchronously.<br>Returns a `Promise` object, which will be resolved when art loading is done.
+        Load art image for the track asynchronously.<br>
+Returns a `Promise` object, which will be resolved when art loading is done.
     </div>
     
 
@@ -2007,7 +2041,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1364">line 1364</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1367">line 1367</a></code>
             </div>
             
         </h4>
@@ -2019,7 +2053,9 @@
 
     
     <div class="description">
-        Load embedded art image for the track.<br><br>Performance note: consider using fb.GetAlbumArtAsync or fb.GetAlbumArtAsyncV2 if there are a lot of images to load.
+        Load embedded art image for the track.<br>
+<br>
+Performance note: consider using fb.GetAlbumArtAsync or fb.GetAlbumArtAsyncV2 if there are a lot of images to load.
     </div>
     
 
@@ -2225,7 +2261,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1379">line 1379</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1382">line 1382</a></code>
             </div>
             
         </h4>
@@ -2237,7 +2273,9 @@
 
     
     <div class="description">
-        Load art image for the track.<br><br>Performance note: consider using fb.GetAlbumArtAsync or fb.GetAlbumArtAsyncV2 if there are a lot of images to load.
+        Load art image for the track.<br>
+<br>
+Performance note: consider using fb.GetAlbumArtAsync or fb.GetAlbumArtAsyncV2 if there are a lot of images to load.
     </div>
     
 
@@ -2482,7 +2520,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1388">line 1388</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1391">line 1391</a></code>
             </div>
             
         </h4>
@@ -2643,7 +2681,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1394">line 1394</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1397">line 1397</a></code>
             </div>
             
         </h4>
@@ -2799,7 +2837,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1407">line 1407</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1410">line 1410</a></code>
             </div>
             
         </h4>
@@ -3056,7 +3094,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1433">line 1433</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1436">line 1436</a></code>
             </div>
             
         </h4>
@@ -3361,9 +3399,19 @@
     
         <h5>Examples</h5>
         
-    <pre class="prettyprint"><code>// With "error_on_cancel" not set (or set to false), cancelling the dialog will return "default_val".let username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "");</code></pre>
+    <pre class="prettyprint"><code>// With "error_on_cancel" not set (or set to false), cancelling the dialog will return "default_val".
+let username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "");</code></pre>
 
-    <pre class="prettyprint"><code>// Using Example1, you can't tell if OK or Cancel was pressed if the return value is the same// as "default_val". If you need to know, set "error_on_cancel" to true which throws a script error// when Cancel is pressed.let username = "";try {   username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "", true);   // OK was pressed.} catch(e) {    // Dialog was closed by pressing Esc, Cancel or the Close button.}</code></pre>
+    <pre class="prettyprint"><code>// Using Example1, you can't tell if OK or Cancel was pressed if the return value is the same
+// as "default_val". If you need to know, set "error_on_cancel" to true which throws a script error
+// when Cancel is pressed.
+let username = "";
+try {
+   username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "", true);
+   // OK was pressed.
+} catch(e) {
+    // Dialog was closed by pressing Esc, Cancel or the Close button.
+}</code></pre>
 
     
 
@@ -3381,7 +3429,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1439">line 1439</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1442">line 1442</a></code>
             </div>
             
         </h4>
@@ -3535,7 +3583,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1449">line 1449</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1452">line 1452</a></code>
             </div>
             
         </h4>
@@ -3739,7 +3787,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1459">line 1459</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1462">line 1462</a></code>
             </div>
             
         </h4>
@@ -3751,7 +3799,8 @@
 
     
     <div class="description">
-        Check if the supplied string matches the pattern.<br>Using Microsoft MS-DOS wildcards match type. eg "*.txt", "abc?.tx?"
+        Check if the supplied string matches the pattern.<br>
+Using Microsoft MS-DOS wildcards match type. eg "*.txt", "abc?.tx?"
     </div>
     
 
@@ -3920,7 +3969,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1485">line 1485</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1488">line 1488</a></code>
             </div>
             
         </h4>
@@ -4188,7 +4237,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1471">line 1471</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1474">line 1474</a></code>
             </div>
             
         </h4>
@@ -4406,7 +4455,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1525">line 1525</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1528">line 1528</a></code>
             </div>
             
         </h4>
@@ -4418,7 +4467,21 @@
 
     
     <div class="description">
-        Displays an html dialog, rendered by IE engine.<br>Utilizes the latest non-Edge IE that you have on your system.<br>Dialog is modal (blocks input to the parent window while open).<br><br>Html code must be IE compatible, meaning:<br>- JavaScript features are limited by IE (see <a href="https://www.w3schools.com/js/js_versions.asp">https://www.w3schools.com/js/js_versions.asp</a>).<br>- Objects passed to `data` are limited to standard JavaScript objects:<br>  - No extensions from Spider Monkey Panel (e.g. no FbMetadbHandle or GdiBitmap).<br><br>There are also additional limitations:<br>- options.data may contain only the following types:<br>  - Basic types: number, string, boolean, null, undefined.<br>  - Objects as string: the only way to pass objects is to convert them to string and back with `JSON.stringify()` and `JSON.parse()`.<br>  - Arrays: must be cast via `.toArray()` inside html. Each element has same type limitations as options.data.<br>  - Functions: with maximum of 7 arguments. Each argument has same type limitations as options.data.
+        Displays an html dialog, rendered by IE engine.<br>
+Utilizes the latest non-Edge IE that you have on your system.<br>
+Dialog is modal (blocks input to the parent window while open).<br>
+<br>
+Html code must be IE compatible, meaning:<br>
+- JavaScript features are limited by IE (see <a href="https://www.w3schools.com/js/js_versions.asp">https://www.w3schools.com/js/js_versions.asp</a>).<br>
+- Objects passed to `data` are limited to standard JavaScript objects:<br>
+  - No extensions from Spider Monkey Panel (e.g. no FbMetadbHandle or GdiBitmap).<br>
+<br>
+There are also additional limitations:<br>
+- options.data may contain only the following types:<br>
+  - Basic types: number, string, boolean, null, undefined.<br>
+  - Objects as string: the only way to pass objects is to convert them to string and back with `JSON.stringify()` and `JSON.parse()`.<br>
+  - Arrays: must be cast via `.toArray()` inside html. Each element has same type limitations as options.data.<br>
+  - Functions: with maximum of 7 arguments. Each argument has same type limitations as options.data.
     </div>
     
 
@@ -4954,7 +5017,8 @@
                 </td>
             
 
-            <td class="description last">Will be saved in `window.external.dialogArguments` and can be accessed from JavaScript executed inside HTML window.                                     This data is read-only and should not be modified. Has type limitations (see above).</td>
+            <td class="description last">Will be saved in `window.external.dialogArguments` and can be accessed from JavaScript executed inside HTML window.
+                                     This data is read-only and should not be modified. Has type limitations (see above).</td>
         </tr>
 
     
@@ -5047,7 +5111,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1537">line 1537</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1540">line 1540</a></code>
             </div>
             
         </h4>
@@ -5275,7 +5339,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line1558">line 1558</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line1561">line 1561</a></code>
             </div>
             
         </h4>
@@ -5287,7 +5351,8 @@
 
     
     <div class="description">
-        Note: the parent folder must already exist.Note2: the file is written with UTF8 encoding.
+        Note: the parent folder must already exist.
+Note2: the file is written with UTF8 encoding.
     </div>
     
 
@@ -5512,7 +5577,8 @@
         
         <p class="code-caption">Default encoding</p>
     
-    <pre class="prettyprint"><code>// write_bom missing but defaults to true, resulting file is UTF8-BOMutils.WriteTextFile("z:\\1.txt", "test");</code></pre>
+    <pre class="prettyprint"><code>// write_bom missing but defaults to true, resulting file is UTF8-BOM
+utils.WriteTextFile("z:\\1.txt", "test");</code></pre>
 
         <p class="code-caption">UTF8 with BOM</p>
     

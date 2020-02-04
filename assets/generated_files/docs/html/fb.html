@@ -26,7 +26,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Spider Monkey Panel</a></h1>
         
-            <span class="version">v1.2.2-preview</span>
+            <span class="version">v1.2.3</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -909,7 +909,10 @@
 <dd>
     
     <div class="description">
-        0 - None<br>1 - Track<br>2 - Album<br>3 - Track/Album by Playback Order (only available in foobar2000 v1.3.8 and later)
+        0 - None<br>
+1 - Track<br>
+2 - Album<br>
+3 - Track/Album by Playback Order (only available in foobar2000 v1.3.8 and later)
     </div>
     
 
@@ -1433,7 +1436,8 @@
 
     
     <div class="description">
-        Checks Clipboard contents are handles or a file selection from Windows Explorer. Use in conjunctionwith <a href="fb.html#.GetClipboardContents">fb.GetClipboardContents</a>.
+        Checks Clipboard contents are handles or a file selection from Windows Explorer. Use in conjunction
+with <a href="fb.html#.GetClipboardContents">fb.GetClipboardContents</a>.
     </div>
     
 
@@ -1541,7 +1545,8 @@
 
     
     <div class="description">
-        Clears active playlist.<br>If you wish to clear a specific playlist, use <a href="plman.html#.ClearPlaylist">plman.ClearPlaylist</a>(playlistIndex).
+        Clears active playlist.<br>
+If you wish to clear a specific playlist, use <a href="plman.html#.ClearPlaylist">plman.ClearPlaylist</a>(playlistIndex).
     </div>
     
 
@@ -1765,11 +1770,19 @@
         
         <p class="code-caption">Copy playlist items</p>
     
-    <pre class="prettyprint"><code>let handle_list = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);fb.CopyHandleListToClipboard(handle_list);</code></pre>
+    <pre class="prettyprint"><code>let handle_list = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
+fb.CopyHandleListToClipboard(handle_list);</code></pre>
 
         <p class="code-caption">cut playlist items</p>
     
-    <pre class="prettyprint"><code>let ap = plman.ActivePlaylist;if (!plman.IsPlaylistLocked(ap)) {   let handle_list = plman.GetPlaylistSelectedItems(ap);   if (fb.CopyHandleListToClipboard(handle_list)) {       plman.UndoBackup(ap);       plman.RemovePlaylistSelection(ap);   } }</code></pre>
+    <pre class="prettyprint"><code>let ap = plman.ActivePlaylist;
+if (!plman.IsPlaylistLocked(ap)) {
+   let handle_list = plman.GetPlaylistSelectedItems(ap);
+   if (fb.CopyHandleListToClipboard(handle_list)) {
+       plman.UndoBackup(ap);
+       plman.RemovePlaylistSelection(ap);
+   }
+ }</code></pre>
 
     
 
@@ -1908,7 +1921,8 @@
 
     
     <div class="description">
-        Returns an empty handle list.<br>Deprecated: use <a href="FbMetadbHandleList.html">FbMetadbHandleList</a> constructor instead.
+        Returns an empty handle list.<br>
+Deprecated: use <a href="FbMetadbHandleList.html">FbMetadbHandleList</a> constructor instead.
     </div>
     
 
@@ -2301,7 +2315,25 @@
 
     
     <div class="description">
-        Invokes drag-n-drop operation (see <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx">https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx</a>).<br><br>Quick tips:<br>- If you need only to drag from your panel with copy (i.e. without physically moving them):     use only fb.DoDragDrop(handles, DROPEFFECT_COPY | DROPEFFECT_LINK).<br>- If you need only to receive drop to your panel with copy:     handle on_drop_* callbacks, while setting action.effect argument to (DROPEFFECT_COPY | DROPEFFECT_LINK).<br><br>Full drag-n-drop interface description:<br>- Drag-n-drop interface is based on Microsoft IDropSource and IDropTarget interfaces, so a lot of info (including examples) could be gathered from MSDN (IDropSource, IDropTarget, DoDragDrop, DROPEFFECT).<br>- Drag operation is started with DoDragDrop (whether it is called by your panel, or externally) with okEffects argument supplied.<br>- DoDragDrop blocks code execution until the drag operation is finished (callbacks will be called properly though). It returns effect from Action.Effect from on_drag_drop after completion.<br>- (Spider Monkey Panel specific) Drag operation is canceled when any mouse button is pressed.<br>- (Spider Monkey Panel specific) All mouse callbacks are suppressed during drag operation (including on_mouse_lbtn_up, but excluding on_mouse_mbtn_up and on_mouse_rbtn_up).<br>- Every drag callback receives Action argument. Action.Effect contains okEffects from DoDragDrop call. Action.Effect should be changed to the desired effect in the callback.  If the returned Action.Effect was not in okEffects or is equal to DROPEFFECT_NONE (=== 0), then drop will be denied:  cursor icon will be changed, on_drag_drop won't be called after releasing lmbtn, on_drag_leave will be called instead.<br>- DROPEFFECT_LINK should be used as fallback in case effect argument does not have DROPEFFECT_COPY (===1), since some external drops only allow DROPEFFECT_LINK effect.<br>- Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see example here: https://github.com/TheQwertiest/CaTRoX_QWR/blob/ab1aa4c7fc19e08d3ccff84d5959779ba46bf704/theme/Scripts/Panel_Playlist.js#L2512 .<br>
+        Invokes drag-n-drop operation (see <a href="https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx">https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx</a>).<br>
+<br>
+Quick tips:<br>
+- If you need only to drag from your panel with copy (i.e. without physically moving them):
+     use only fb.DoDragDrop(handles, DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
+- If you need only to receive drop to your panel with copy:
+     handle on_drop_* callbacks, while setting action.effect argument to (DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
+<br>
+Full drag-n-drop interface description:<br>
+- Drag-n-drop interface is based on Microsoft IDropSource and IDropTarget interfaces, so a lot of info (including examples) could be gathered from MSDN (IDropSource, IDropTarget, DoDragDrop, DROPEFFECT).<br>
+- Drag operation is started with DoDragDrop (whether it is called by your panel, or externally) with okEffects argument supplied.<br>
+- DoDragDrop blocks code execution until the drag operation is finished (callbacks will be called properly though). It returns effect from Action.Effect from on_drag_drop after completion.<br>
+- (Spider Monkey Panel specific) Drag operation is canceled when any mouse button is pressed.<br>
+- (Spider Monkey Panel specific) All mouse callbacks are suppressed during drag operation (including on_mouse_lbtn_up, but excluding on_mouse_mbtn_up and on_mouse_rbtn_up).<br>
+- Every drag callback receives Action argument. Action.Effect contains okEffects from DoDragDrop call. Action.Effect should be changed to the desired effect in the callback.
+  If the returned Action.Effect was not in okEffects or is equal to DROPEFFECT_NONE (=== 0), then drop will be denied:
+  cursor icon will be changed, on_drag_drop won't be called after releasing lmbtn, on_drag_leave will be called instead.<br>
+- DROPEFFECT_LINK should be used as fallback in case effect argument does not have DROPEFFECT_COPY (===1), since some external drops only allow DROPEFFECT_LINK effect.<br>
+- Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see example here: https://github.com/TheQwertiest/CaTRoX_QWR/blob/ab1aa4c7fc19e08d3ccff84d5959779ba46bf704/theme/Scripts/Panel_Playlist.js#L2512 .<br>
     </div>
     
 
@@ -2841,7 +2873,10 @@
 
     
     <div class="description">
-        Note: clipboard contents can be handles copied to the clipboard in other components,from <a href="fb.html#.CopyHandleListToClipboard">fb.CopyHandleListToClipboard</a> or a file selection, from Windows Explorer and etc.<br><br>Performance note: validate clipboard content with <a href="fb.html#.CheckClipboardContents">fb.CheckClipboardContents</a> before calling this method.
+        Note: clipboard contents can be handles copied to the clipboard in other components,
+from <a href="fb.html#.CopyHandleListToClipboard">fb.CopyHandleListToClipboard</a> or a file selection, from Windows Explorer and etc.<br>
+<br>
+Performance note: validate clipboard content with <a href="fb.html#.CheckClipboardContents">fb.CheckClipboardContents</a> before calling this method.
     </div>
     
 
@@ -2974,7 +3009,17 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>function on_mouse_rbtn_up(x, y) {   let ap = plman.ActivePlaylist;   let menu = window.CreatePopupMenu();   menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) &amp;&amp; fb.CheckClipboardContents() ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.js for MF_* definitions   let idx = menu.TrackPopupMenu(x, y);   if (idx == 1) {       let handle_list  = fb.GetClipboardContents(window.ID);       plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), handle_list );   }   return true;}</code></pre>
+    <pre class="prettyprint"><code>function on_mouse_rbtn_up(x, y) {
+   let ap = plman.ActivePlaylist;
+   let menu = window.CreatePopupMenu();
+   menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) &amp;&amp; fb.CheckClipboardContents() ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.js for MF_* definitions
+   let idx = menu.TrackPopupMenu(x, y);
+   if (idx == 1) {
+       let handle_list  = fb.GetClipboardContents(window.ID);
+       plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), handle_list );
+   }
+   return true;
+}</code></pre>
 
     
 
@@ -3286,7 +3331,9 @@
 
     
     <div class="description">
-        Note: do not use this while looping through a handle list. Use <a href="FbMetadbHandleList.html#GetLibraryRelativePaths">FbMetadbHandleList#GetLibraryRelativePaths</a> instead. <br><br>Returns an empty string when used on track not in Media Library
+        Note: do not use this while looping through a handle list. Use <a href="FbMetadbHandleList.html#GetLibraryRelativePaths">FbMetadbHandleList#GetLibraryRelativePaths</a> instead. <br>
+<br>
+Returns an empty string when used on track not in Media Library
     </div>
     
 
@@ -3419,7 +3466,10 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>// The foobar2000 Media Library is configured to watch "D:\Music" and the// path of the now playing item is "D:\Music\Albums\Artist\Some Album\Some Song.flac"let handle = fb.GetNowPlaying();console.log(fb.GetLibraryRelativePath(handle)); // Albums\Artist\Some Album\Some Song.flac*</code></pre>
+    <pre class="prettyprint"><code>// The foobar2000 Media Library is configured to watch "D:\Music" and the
+// path of the now playing item is "D:\Music\Albums\Artist\Some Album\Some Song.flac"
+let handle = fb.GetNowPlaying();
+console.log(fb.GetLibraryRelativePath(handle)); // Albums\Artist\Some Album\Some Song.flac*</code></pre>
 
     
 
@@ -3559,7 +3609,8 @@
 
     
     <div class="description">
-        Available only in foobar2000 v1.4 and above. Throws a script error on v1.3. * <br>Returns a JSON array in string form so you need to use JSON.parse() on the result.
+        Available only in foobar2000 v1.4 and above. Throws a script error on v1.3. * <br>
+Returns a JSON array in string form so you need to use JSON.parse() on the result.
     </div>
     
 
@@ -3642,7 +3693,44 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let str = fb.GetOutputDevices();let arr = JSON.parse(str);console.log(JSON.stringify(arr, null, 4));// [//     {//         "active": false,//         "device_id": "{5243F9AD-C84F-4723-8194-0788FC021BCC}",//         "name": "Null Output",//         "output_id": "{EEEB07DE-C2C8-44C2-985C-C85856D96DA1}"//     },//     {//         "active": true,//         "device_id": "{00000000-0000-0000-0000-000000000000}",//         "name": "Primary Sound Driver",//         "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"//     },//     {//         "active": false,//         "device_id": "{1C4EC038-97DB-48E7-9C9A-05FDED46847B}",//         "name": "Speakers (Sound Blaster Z)",//         "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"//     },//     {//         "active": false,//         "device_id": "{41B86272-3D6C-4A5A-8907-4FE7EBE39E7E}",//         "name": "SPDIF-Out (Sound Blaster Z)",//         "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"//     },//     {//         "active": false,//         "device_id": "{9CDC0FAE-2870-4AFA-8287-E86099D69076}",//         "name": "3 - BenQ BL3200 (AMD High Definition Audio Device)",//         "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"//     }// ]// As you can see, only one of the items in the array has "active"// set to true so that is the device you'd want to display the name of// or mark as selected in a menu.</code></pre>
+    <pre class="prettyprint"><code>let str = fb.GetOutputDevices();
+let arr = JSON.parse(str);
+console.log(JSON.stringify(arr, null, 4));
+// [
+//     {
+//         "active": false,
+//         "device_id": "{5243F9AD-C84F-4723-8194-0788FC021BCC}",
+//         "name": "Null Output",
+//         "output_id": "{EEEB07DE-C2C8-44C2-985C-C85856D96DA1}"
+//     },
+//     {
+//         "active": true,
+//         "device_id": "{00000000-0000-0000-0000-000000000000}",
+//         "name": "Primary Sound Driver",
+//         "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+//     },
+//     {
+//         "active": false,
+//         "device_id": "{1C4EC038-97DB-48E7-9C9A-05FDED46847B}",
+//         "name": "Speakers (Sound Blaster Z)",
+//         "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+//     },
+//     {
+//         "active": false,
+//         "device_id": "{41B86272-3D6C-4A5A-8907-4FE7EBE39E7E}",
+//         "name": "SPDIF-Out (Sound Blaster Z)",
+//         "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+//     },
+//     {
+//         "active": false,
+//         "device_id": "{9CDC0FAE-2870-4AFA-8287-E86099D69076}",
+//         "name": "3 - BenQ BL3200 (AMD High Definition Audio Device)",
+//         "output_id": "{D41D2423-FBB0-4635-B233-7054F79814AB}"
+//     }
+// ]
+// As you can see, only one of the items in the array has "active"
+// set to true so that is the device you'd want to display the name of
+// or mark as selected in a menu.</code></pre>
 
     
 
@@ -3672,7 +3760,8 @@
 
     
     <div class="description">
-        Note: use try/catch to handle invalid queries. An empty handle list will be returned if the queryis valid but there are no results.
+        Note: use try/catch to handle invalid queries. An empty handle list will be returned if the query
+is valid but there are no results.
     </div>
     
 
@@ -4184,7 +4273,13 @@
 
 
 
-- 0 - undefined (no item)<br>    1 - active_playlist_selection<br>    2 - caller_active_playlist<br>    3 - playlist_manager<br>    4 - now_playing<br>    5 - keyboard_shortcut_list<br>    6 - media_library_viewer
+- 0 - undefined (no item)<br>
+    1 - active_playlist_selection<br>
+    2 - caller_active_playlist<br>
+    3 - playlist_manager<br>
+    4 - now_playing<br>
+    5 - keyboard_shortcut_list<br>
+    6 - media_library_viewer
 
 
 
@@ -4656,7 +4751,8 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>let np = fb.GetNowplaying();console.log(fb.IsMetadbInMediaLibrary(np)); // If false, playing track is not in Media Library.</code></pre>
+    <pre class="prettyprint"><code>let np = fb.GetNowplaying();
+console.log(fb.IsMetadbInMediaLibrary(np)); // If false, playing track is not in Media Library.</code></pre>
 
     
 
@@ -5392,7 +5488,10 @@
                 </td>
             
 
-            <td class="description last">0 - default (depends on whether SHIFT key is pressed, flag_view_reduced or flag_view_full is selected)<br>    4 - flag_view_reduced<br>    8 - flag_view_full. This can be useful if you need to run context commands the user may have hidden        using File>Preferences>Display>Context Menu<br></td>
+            <td class="description last">0 - default (depends on whether SHIFT key is pressed, flag_view_reduced or flag_view_full is selected)<br>
+    4 - flag_view_reduced<br>
+    8 - flag_view_full. This can be useful if you need to run context commands the user may have hidden
+        using File>Preferences>Display>Context Menu<br></td>
         </tr>
 
     
@@ -5982,7 +6081,8 @@
 
     
     <div class="description">
-        Available only in foobar2000 v1.4 and above. Throws a script error on v1.3.<br>See <a href="fb.html#.GetOutputDevices">fb.GetOutputDevices</a>.
+        Available only in foobar2000 v1.4 and above. Throws a script error on v1.3.<br>
+See <a href="fb.html#.GetOutputDevices">fb.GetOutputDevices</a>.
     </div>
     
 
@@ -6119,7 +6219,12 @@
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>// To actually change device, you'll need the device_id and output_id// and use them with fb.SetOutputDevice.let str = fb.GetOutputDevices();let arr = JSON.parse(str);// Assuming same list from above, switch output to the last device.fb.SetOutputDevice(arr[4].output_id, arr[4].device_id);</code></pre>
+    <pre class="prettyprint"><code>// To actually change device, you'll need the device_id and output_id
+// and use them with fb.SetOutputDevice.
+let str = fb.GetOutputDevices();
+let arr = JSON.parse(str);
+// Assuming same list from above, switch output to the last device.
+fb.SetOutputDevice(arr[4].output_id, arr[4].device_id);</code></pre>
 
     
 
@@ -6733,7 +6838,9 @@
 
     
     <div class="description">
-        Performance note: if you use the same query frequently, try caching FbTitleFormat object (by storing it somewhere),instead of creating it every time.
+        Performance note: if you use the same query frequently, 
+try caching FbTitleFormat object (by storing it somewhere),
+instead of creating it every time.
     </div>
     
 

@@ -26,7 +26,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Spider Monkey Panel</a></h1>
         
-            <span class="version">v1.2.2-preview</span>
+            <span class="version">v1.2.3</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -68,7 +68,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2664">line 2664</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2667">line 2667</a></code>
             </div>
             
         </h4>
@@ -142,11 +142,31 @@
         
         <p class="code-caption">For playlist viewers</p>
     
-    <pre class="prettyprint"><code>let selection_holder = fb.AcquireUiSelectionHolder();selection_holder.SetPlaylistSelectionTracking();function on_focus(is_focused) {    if (is_focused) { // Updates the selection when panel regains focus        selection_holder.SetPlaylistSelectionTracking();    }}</code></pre>
+    <pre class="prettyprint"><code>let selection_holder = fb.AcquireUiSelectionHolder();
+selection_holder.SetPlaylistSelectionTracking();
+
+function on_focus(is_focused) {
+    if (is_focused) { // Updates the selection when panel regains focus
+        selection_holder.SetPlaylistSelectionTracking();
+    }
+}</code></pre>
 
         <p class="code-caption">For library viewers</p>
     
-    <pre class="prettyprint"><code>let selection_holder = fb.AcquireUiSelectionHolder();let handle_list = null;function on_mouse_lbtn_up(x, y) { // Presumably going to select something here...   handle_list = ...;   selection_holder.SetSelection(handle_list);}function on_focus(is_focused) {   if (is_focused) { // Updates the selection when panel regains focus       if (handle_list &amp;&amp; handle_list.Count)           selection_holder.SetSelection(handle_list);   }}</code></pre>
+    <pre class="prettyprint"><code>let selection_holder = fb.AcquireUiSelectionHolder();
+let handle_list = null;
+
+function on_mouse_lbtn_up(x, y) { // Presumably going to select something here...
+   handle_list = ...;
+   selection_holder.SetSelection(handle_list);
+}
+
+function on_focus(is_focused) {
+   if (is_focused) { // Updates the selection when panel regains focus
+       if (handle_list &amp;&amp; handle_list.Count)
+           selection_holder.SetSelection(handle_list);
+   }
+}</code></pre>
 
     
 
@@ -185,7 +205,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2679">line 2679</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2682">line 2682</a></code>
             </div>
             
         </h4>
@@ -197,7 +217,10 @@
 
     
     <div class="description">
-        Sets selected items to playlist selection and enables tracking.<br>When the playlist selection changes, the stored selection is automaticallyupdated. Tracking ends when a set method is called on any ui_selection_holderor when the last reference to this ui_selection_holder is released.
+        Sets selected items to playlist selection and enables tracking.<br>
+When the playlist selection changes, the stored selection is automatically
+updated. Tracking ends when a set method is called on any ui_selection_holder
+or when the last reference to this ui_selection_holder is released.
     </div>
     
 
@@ -274,7 +297,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2687">line 2687</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2690">line 2690</a></code>
             </div>
             
         </h4>
@@ -286,7 +309,10 @@
 
     
     <div class="description">
-        Sets selected items to playlist contents and enables tracking.<br>When the playlist selection changes, the stored selection is automaticallyupdated. Tracking ends when a set method is called on any ui_selection_holderor when the last reference to this ui_selection_holder is released.
+        Sets selected items to playlist contents and enables tracking.<br>
+When the playlist selection changes, the stored selection is automatically
+updated. Tracking ends when a set method is called on any ui_selection_holder
+or when the last reference to this ui_selection_holder is released.
     </div>
     
 
@@ -363,7 +389,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line2671">line 2671</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line2674">line 2674</a></code>
             </div>
             
         </h4>
