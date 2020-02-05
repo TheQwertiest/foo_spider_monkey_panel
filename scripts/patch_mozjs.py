@@ -15,8 +15,7 @@ def patch():
 
 if __name__ == '__main__':
     call_wrapper.final_call_decorator(
-        "Patching mozjs", 
-        "Patching mozjs: success", 
+        "Patching mozjs",
+        "Patching mozjs: success",
         "Patching mozjs: failure!"
     )(patch)()
-    

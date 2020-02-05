@@ -13,9 +13,8 @@
 // TODO: move to JsEngine form global object
 
 HostTimerDispatcher::HostTimerDispatcher()
+    : m_hTimerQueue( CreateTimerQueue() )
 {
-    m_curTimerId = 1;
-    m_hTimerQueue = CreateTimerQueue();
     createThread();
 }
 

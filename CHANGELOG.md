@@ -25,7 +25,7 @@ ___
 
 ## [1.2.3][] - 2020-01-04
 ### Added
-- Moved documentation from Wiki to a new homepage: https://theqwertiest.github.io/foo_spider_monkey_panel/ :
+- Moved documentation from Wiki to a new homepage: <https://theqwertiest.github.io/foo_spider_monkey_panel>:
   - Contains JS documentation for the latest release.
   - Contains script showcase with basic information about sample scripts and user-made scripts.
 - Updated `FindReplace` dialog in `Configure`:
@@ -38,11 +38,11 @@ ___
   - Uses MUCH less memory.
   - Faster by 10% (on sorted list) to 500% (on unsorted list).
 - Adjusted codepage detection with various file handling methods.
-- Adjusted playlist lock check during drag-n-drop and `plman.AddLocations`: now only `playlist_lock::filter_add` flag is needed.
+- Adjusted playlist lock check during drag-n-drop and `plman.AddLocations`: now only `playlist_lock::filter_add` flag is checked.
 - Removed unneeded `on_size` call.
 - Adjusted component initialization time reported in console to be more accurate.
 - Updated marc2003 scripts: 
-  - Note: `ListenBrainz` sample was removed - use https://github.com/marc2k3/foo_listenbrainz2 instead.
+  - Note: `ListenBrainz` sample was removed - use <https://github.com/marc2k3/foo_listenbrainz2> instead.
 
 ### Fixed
 - Fixed rare crash when using `utils.RunMainMenuCommand` and `utils.IsMainMenuCommandChecked`.

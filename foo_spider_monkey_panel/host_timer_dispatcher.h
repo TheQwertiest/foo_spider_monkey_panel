@@ -72,7 +72,7 @@ private:
     HANDLE m_hTimerQueue = nullptr;
     std::mutex m_timerMutex;
     TimerMap m_timerMap;
-    uint32_t m_curTimerId;
+    uint32_t m_curTimerId = 1;
 
 private: // thread
     struct ThreadTask

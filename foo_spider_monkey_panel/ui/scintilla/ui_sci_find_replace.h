@@ -343,7 +343,6 @@ private:
         }
         else
         {
-
             static_cast<T*>( this )->MessageBox( L"Find reached the starting point of the search",
                                                  L"Find",
                                                  MB_OK | MB_ICONINFORMATION | MB_APPLMODAL );
