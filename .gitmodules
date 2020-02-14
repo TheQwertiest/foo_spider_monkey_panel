@@ -9,7 +9,7 @@
 	url = https://github.com/TheQwertiest/foobar2000-sdk.git
 [submodule "submodules/smp_2003"]
 	path = submodules/smp_2003
-	url = https://github.com/marc2k3/smp_2003.git
+	url = https://github.com/TheQwertiest/smp_2003.git
 [submodule "submodules/scintilla"]
 	path = submodules/scintilla
 	url = https://github.com/theqwertiest/scintilla.git

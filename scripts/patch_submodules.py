@@ -8,7 +8,7 @@ import call_wrapper
 def patch():
     cur_dir = Path(__file__).parent.absolute()
     root_dir = cur_dir.parent
-    patches = [cur_dir/"patches"/p for p in ["foobar2000.patch", "pfc.patch", "scintilla.patch" ]]
+    patches = [cur_dir/"patches"/p for p in ["foobar2000.patch", "pfc.patch", "scintilla.patch", "smp_2003.patch"]]
     for p in patches:
         assert(p.exists() and p.is_file())
 

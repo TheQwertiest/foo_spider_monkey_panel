@@ -1,0 +1,9 @@
+diff --git a/submodules/smp_2003/README.md b/submodules/smp_2003/README.md
+deleted file mode 100644
+index d7f50c0..0000000
+--- a/submodules/smp_2003/README.md
++++ /dev/null
+@@ -1,3 +0,0 @@
+-A collection of JavaScript scripts for `foo_spider_monkey_panel` component by `marc2003`.
+-
+-Note: this is a reupload of `marc2003`'s repository.
