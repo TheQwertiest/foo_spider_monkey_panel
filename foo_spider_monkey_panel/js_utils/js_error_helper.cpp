@@ -325,7 +325,7 @@ void SuppressException( JSContext* cx )
     {
         throw;
     }
-    catch ( const smp::JsException& )
+    catch ( const JsException& )
     {
     }
     catch ( const SmpException& )

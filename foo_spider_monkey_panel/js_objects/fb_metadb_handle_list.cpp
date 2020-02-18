@@ -267,7 +267,7 @@ JSObject* JsFbMetadbHandleList::Constructor( JSContext* cx, JS::HandleValue jsVa
         bool is;
         if ( !JS_IsArrayObject( cx, jsValue, &is ) )
         {
-            throw smp::JsException();
+            throw JsException();
         }
         if ( is )
         {

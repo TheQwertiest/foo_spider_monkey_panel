@@ -229,12 +229,12 @@ bool JsEngine::Initialize()
 
         if ( !JS_AddInterruptCallback( cx, InterruptHandler ) )
         {
-            throw smp::JsException();
+            throw JsException();
         }
 
         if ( !js::UseInternalJobQueues( cx ) )
         {
-            throw smp::JsException();
+            throw JsException();
         }
 
         JS::SetPromiseRejectionTrackerCallback( cx, RejectedPromiseHandler, this );
@@ -243,7 +243,7 @@ bool JsEngine::Initialize()
 
         if ( !JS::InitSelfHostedCode( cx ) )
         {
-            throw smp::JsException();
+            throw JsException();
         }
 
         jsGc_.Initialize( cx );

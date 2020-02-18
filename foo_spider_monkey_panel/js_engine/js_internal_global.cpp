@@ -75,7 +75,7 @@ std::unique_ptr<JsInternalGlobal> JsInternalGlobal::Create( JSContext* cx )
     JS::RealmOptions options;
     JS::RootedObject jsObj( cx,
                             JS_NewGlobalObject( cx, &jsClass, nullptr, JS::FireOnNewGlobalHook, options ) );
-    smp::JsException::ExpectTrue( jsObj );
+    JsException::ExpectTrue( jsObj );
 
     return std::unique_ptr<JsInternalGlobal>( new JsInternalGlobal( cx, jsObj ) );
 }
@@ -119,14 +119,14 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
     JS::SourceText<char16_t> source;
     if ( !source.init( pJsCtx_, reinterpret_cast<const char16_t*>( scriptCode.c_str() ), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
     {
-        throw smp::JsException();
+        throw JsException();
     }
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setFileAndLine( filename.c_str(), 1 );
 
     JS::RootedScript parsedScript( pJsCtx_, JS::Compile( pJsCtx_, opts, source ) );
-    smp::JsException::ExpectTrue( parsedScript );
+    JsException::ExpectTrue( parsedScript );
 
     return scriptDataMap.insert_or_assign( u8path, JsHashMap::ValueType{ parsedScript, lastWriteTime } ).first->second.script;
 }

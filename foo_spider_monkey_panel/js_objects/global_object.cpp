@@ -127,7 +127,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
                             JS_NewGlobalObject( cx, &jsClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
     if ( !jsObj )
     {
-        throw smp::JsException();
+        throw JsException();
     }
 
     {
@@ -136,7 +136,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
 
         if ( !JS::InitRealmStandardClasses( cx ) )
         {
-            throw smp::JsException();
+            throw JsException();
         }
 
         DefineConsole( cx, jsObj );
@@ -149,14 +149,14 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
 
         if ( !JS_DefineFunctions( cx, jsObj, jsFunctions.data() ) )
         {
-            throw smp::JsException();
+            throw JsException();
         }
 
 #ifdef _DEBUG
         JS::RootedObject testFuncs( cx, js::GetTestingFunctions( cx ) );
         if ( !JS_DefineProperty( cx, jsObj, "test", testFuncs, kDefaultPropsFlags ) )
         {
-            throw smp::JsException();
+            throw JsException();
         }
 #endif
 
@@ -270,7 +270,7 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
     JS::RootedValue dummyRval( pJsCtx_ );
     if ( !JS::CloneAndExecuteScript( pJsCtx_, jsScript, &dummyRval ) )
     {
-        throw smp::JsException();
+        throw JsException();
     }
 }
 

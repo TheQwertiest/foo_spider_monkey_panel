@@ -519,7 +519,7 @@ void CDialogHtml::ParseOptions( JS::HandleValue options )
     bool hasProperty;
     if ( !JS_HasProperty( pJsCtx_, jsObject, "data", &hasProperty ) )
     {
-        throw smp::JsException();
+        throw JsException();
     }
 
     if ( hasProperty )
@@ -527,7 +527,7 @@ void CDialogHtml::ParseOptions( JS::HandleValue options )
         JS::RootedValue jsValue( pJsCtx_ );
         if ( !JS_GetProperty( pJsCtx_, jsObject, "data", &jsValue ) )
         {
-            throw smp::JsException();
+            throw JsException();
         }
 
         _variant_t data;

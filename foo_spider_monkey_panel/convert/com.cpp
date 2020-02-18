@@ -157,7 +157,7 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
     uint32_t len;
     if ( !JS_GetArrayLength( cx, obj, &len ) )
     {
-        throw smp::JsException();
+        throw JsException();
     }
 
     // Create the safe array of variants and populate it
@@ -183,7 +183,7 @@ void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
             JS::RootedValue val( cx );
             if ( !JS_GetElement( cx, obj, i, &val ) )
             {
-                throw smp::JsException();
+                throw JsException();
             }
 
             JsToVariant( cx, val, varArray[i] );
@@ -246,7 +246,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
 
         if ( !JS_SetElement( cx, jsArray, i, jsVal ) )
         {
-            throw smp::JsException();
+            throw JsException();
         }
     }
 
@@ -446,7 +446,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
             bool is;
             if ( !JS_IsArrayObject( cx, rval, &is ) )
             {
-                throw smp::JsException();
+                throw JsException();
             }
 
             if ( is )

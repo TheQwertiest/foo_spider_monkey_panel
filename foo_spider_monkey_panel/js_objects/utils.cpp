@@ -626,7 +626,7 @@ JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, 
         {
             if ( JS_IsExceptionPending( pJsCtx_ ) )
             {
-                throw smp::JsException();
+                throw JsException();
             }
             else
             {
