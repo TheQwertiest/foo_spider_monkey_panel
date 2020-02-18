@@ -97,7 +97,10 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         }
         catch ( const std::filesystem::filesystem_error& e )
         {
-            throw SmpException( fmt::format( "Failed to open file `{}`: {}", u8path, e.what() ) );
+            throw SmpException( fmt::format( "Failed to open file `{}`:\n"
+                                             "  {}",
+                                             u8path,
+                                             smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
         }
     }();
 

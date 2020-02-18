@@ -229,7 +229,7 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
         const auto text = smp::file::ReadFile( filename, CP_UTF8 );
         sciEditor_.SetContent( text.c_str() );
     }
-    catch ( const smp::SmpException& e )
+    catch ( const SmpException& e )
     {
         const std::string errorMsg = fmt::format( "Failed to read file: {}", e.what() );
         (void)uMessageBox( m_hWnd, errorMsg.c_str(), m_caption.c_str(), MB_ICONWARNING | MB_SETFOREGROUND );

@@ -256,7 +256,7 @@ bool JsEngine::Initialize()
         StartHeartbeatThread();
         jsMonitor_.Start( cx );
     }
-    catch ( const smp::JsException& )
+    catch ( const JsException& )
     {
         assert( JS_IsExceptionPending( autoJsCtx.get() ) );
         ReportException( mozjs::error::JsErrorToText( autoJsCtx.get() ) );

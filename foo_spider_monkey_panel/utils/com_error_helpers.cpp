@@ -17,7 +17,7 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
     {
     case DISP_E_BADVARTYPE:
     {
-        throw SmpException( fmt::format( "ActiveXObject: CBad variable type {}", argerr ) );
+        throw SmpException( fmt::format( "ActiveXObject: CBad variable type `{}`", argerr ) );
     }
     case DISP_E_EXCEPTION:
     {
@@ -31,7 +31,7 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
         {
             const auto errorSource8 = smp::unicode::ToU8( std::wstring_view{ exception.bstrSource ? exception.bstrSource : L"<none>" } );
             const auto errorDesc8 = smp::unicode::ToU8( std::wstring_view{ exception.bstrDescription ? exception.bstrDescription : L"<none>" } );
-            throw SmpException( fmt::format( "ActiveXObject: source: {}; description: {}", errorSource8, errorDesc8 ) );
+            throw SmpException( fmt::format( "ActiveXObject:\nsource: {}\ndescription: {}", errorSource8, errorDesc8 ) );
         }
         else if ( FAILED( exception.scode ) )
         {
@@ -44,19 +44,19 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
     }
     case DISP_E_OVERFLOW:
     {
-        throw SmpException( fmt::format( "ActiveXObject: Can not convert variable {}", argerr ) );
+        throw SmpException( fmt::format( "ActiveXObject: Can not convert variable `{}`", argerr ) );
     }
     case DISP_E_PARAMNOTFOUND:
     {
-        throw SmpException( fmt::format( "ActiveXObject: Parameter {} not found", argerr ) );
+        throw SmpException( fmt::format( "ActiveXObject: Parameter `{}` not found", argerr ) );
     }
     case DISP_E_TYPEMISMATCH:
     {
-        throw SmpException( fmt::format( "ActiveXObject: Parameter {} type mismatch", argerr ) );
+        throw SmpException( fmt::format( "ActiveXObject: Parameter `{}` type mismatch", argerr ) );
     }
     case DISP_E_PARAMNOTOPTIONAL:
     {
-        throw SmpException( fmt::format( "ActiveXObject: Parameter {} is required", argerr ) );
+        throw SmpException( fmt::format( "ActiveXObject: Parameter `{}` is required", argerr ) );
     }
     default:
     {

@@ -245,7 +245,10 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
         }
         catch ( const fs::filesystem_error& e )
         {
-            throw SmpException( fmt::format( "Failed to open file `{}`: {}", path, e.what() ) );
+            throw SmpException( fmt::format( "Failed to open file `{}`:\n"
+                                             "  {}",
+                                             path,
+                                             smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
         }
     }();
 

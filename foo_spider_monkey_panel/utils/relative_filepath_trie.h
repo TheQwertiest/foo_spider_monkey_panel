@@ -40,8 +40,8 @@ public:
     void emplace( std::wstring_view path, T value )
     {
         const auto processSuffix = []( NodeMap& nodes, std::wstring_view& suffix ) {
-            auto prefix = ExtractPrefix( suffix );
-            std::wstring prefixStr = std::wstring{ prefix.data(), prefix.size() };
+            const auto prefix = ExtractPrefix( suffix );
+            const std::wstring prefixStr{ prefix.data(), prefix.size() };
 
             auto it = nodes.find( prefixStr );
             if ( it == nodes.end() )

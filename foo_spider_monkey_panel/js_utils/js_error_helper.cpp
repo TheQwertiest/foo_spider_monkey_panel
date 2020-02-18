@@ -50,7 +50,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     { // Must not throw errors in error handler
         currentMessage = convert::to_native::ToValue<std::u8string>( cx, excn );
     }
-    catch ( const smp::JsException& )
+    catch ( const JsException& )
     {
         return false;
     }
@@ -81,7 +81,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     { // Must not throw errors in error handler
         convert::to_js::ToValue<std::u8string>( cx, newMessage, &jsMessage );
     }
-    catch ( const smp::JsException& )
+    catch ( const JsException& )
     {
         return false;
     }
@@ -284,7 +284,7 @@ void ExceptionToJsError( JSContext* cx )
     {
         throw;
     }
-    catch ( const smp::JsException& )
+    catch ( const JsException& )
     {
         assert( JS_IsExceptionPending( cx ) );
     }
@@ -300,7 +300,15 @@ void ExceptionToJsError( JSContext* cx )
         const auto errorMsg8 = smp::unicode::ToU8( std::wstring_view{ e.ErrorMessage() ? e.ErrorMessage() : L"<none>" } );
         const auto errorSource8 = smp::unicode::ToU8( std::wstring_view{ e.Source().length() ? static_cast<const wchar_t*>( e.Source() ) : L"<none>" } );
         const auto errorDesc8 = smp::unicode::ToU8( std::wstring_view{ e.Description().length() ? static_cast<const wchar_t*>( e.Description() ) : L"<none>" } );
-        JS_ReportErrorUTF8( cx, fmt::format( "COM error: message {}; source: {}; description: {}", errorMsg8, errorSource8, errorDesc8 ).c_str() );
+        JS_ReportErrorUTF8( cx,
+                            fmt::format( "COM error:\n"
+                                         "  message {}\n"
+                                         "  source: {}\n"
+                                         "  description: {}",
+                                         errorMsg8,
+                                         errorSource8,
+                                         errorDesc8 )
+                                .c_str() );
     }
     catch ( const std::bad_alloc& )
     {

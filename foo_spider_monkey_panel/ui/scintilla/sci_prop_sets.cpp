@@ -129,7 +129,7 @@ void ScintillaCfg::import_from_file( const char* filename )
         {
             return smp::file::ReadFile( filename, CP_UTF8 );
         }
-        catch ( const smp::SmpException& )
+        catch ( const SmpException& )
         {
             return std::u8string{};
         }

@@ -138,7 +138,10 @@ std::filesystem::path GetAbsoluteNormalPath( const std::filesystem::path& path )
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw SmpException( fmt::format( "Failed to open file `{}`: {}", path.u8string(), e.what() ) );
+        throw SmpException( fmt::format( "Failed to open file `{}`:\n"
+                                         "  {}",
+                                         path.u8string(),
+                                         smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
     }
 }
 
@@ -217,7 +220,10 @@ FileReader::FileReader( const std::u8string& inPath, bool checkFileExistense )
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw SmpException( fmt::format( "Failed to open file `{}`: {}", u8path, e.what() ) );
+        throw SmpException( fmt::format( "Failed to open file `{}`:\n"
+                                         "  {}",
+                                         u8path,
+                                         smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
     }
 }
 

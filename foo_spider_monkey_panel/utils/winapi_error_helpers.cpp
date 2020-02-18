@@ -10,36 +10,19 @@ using namespace smp;
 namespace
 {
 
-/// @remark `std::system_category().message(errorCode)` is unsuitable, since it localizes the message
-///         and often in non-unicode way (while JS engine supports only UTF-8 and ASCII).
 std::u8string MessageFromErrorCode( DWORD errorCode )
 {
-    wchar_t* msgBuf = nullptr;
-
-    const DWORD dwRet = FormatMessage(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-        nullptr,
-        errorCode,
-        MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ),
-        msgBuf,
-        0,
-        nullptr );
-    if ( !dwRet )
-    {
-        return std::u8string{ "Unknown error" };
-    }
-    assert( msgBuf );
-
-    utils::final_action autoMsg( [msgBuf] {
-        LocalFree( msgBuf );
-    } );
-
-    return smp::unicode::ToU8( std::wstring_view{ msgBuf } );
+    return smp::unicode::ToU8_FromAcpToWide( std::system_category().message( errorCode ) );
 }
 
 void ThrowParsedWinapiError( DWORD errorCode, std::string_view functionName )
 {
-    throw SmpException( fmt::format( "WinAPI error: {} failed with error ({:#x}): {}", functionName, errorCode, MessageFromErrorCode( errorCode ) ) );
+    throw SmpException( fmt::format( "WinAPI error:\n"
+                                     "  {} failed with error ({:#x}):\n"
+                                     "    {}",
+                                     functionName,
+                                     errorCode,
+                                     MessageFromErrorCode( errorCode ) ) );
 }
 
 } // namespace

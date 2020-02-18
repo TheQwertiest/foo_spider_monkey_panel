@@ -224,7 +224,10 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
         }
         catch ( const fs::filesystem_error& e )
         {
-            throw SmpException( fmt::format( "Failed to get the status of `{}`: {}", path.u8string(), e.what() ) );
+            throw SmpException( fmt::format( "Failed to get the status of `{}`:\n"
+                                             "  {}",
+                                             path.u8string(),
+                                             smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
         }
     };
 
@@ -243,7 +246,10 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
             }
             catch ( const fs::filesystem_error& e )
             {
-                throw SmpException( fmt::format( "Failed to get the size of `{}`: {}", cleanedPath.u8string(), e.what() ) );
+                throw SmpException( fmt::format( "Failed to get the size of `{}`:\n"
+                                                 "  {}",
+                                                 cleanedPath.u8string(),
+                                                 smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
             }
         }();
 
