@@ -103,14 +103,15 @@ private:
             return prefix;
         }
 
-        const auto separatorEndPos = str.find_first_not_of( L"\\/", separatorStartPos );
-        if ( separatorEndPos == std::wstring::npos )
+        const auto postfixStartPos = str.find_first_not_of( L"\\/", separatorStartPos );
+        if ( postfixStartPos == std::wstring::npos )
         {                    // "{a}/{}"
             assert( false ); // should not reach here, since this is not a valid file path
             const auto prefix = str.substr( 0, separatorStartPos );
             str.remove_prefix( str.size() );
             return prefix;
         }
+        const auto separatorEndPos = postfixStartPos - 1;
 
         // "{a}/{b}", "{}/{a}", "{a}///{b}"
         const auto prefix = str.substr( 0, separatorStartPos );

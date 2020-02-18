@@ -496,7 +496,7 @@ void JsFbMetadbHandleList::OrderByPath()
 void JsFbMetadbHandleList::OrderByRelativePath()
 {
     // Note: there is built-in metadb_handle_list::sort_by_relative_path(),
-    // but this implementation is much faster because of trie.
+    // but this implementation is much faster because of trie usage.
     // Also see `get_subsong_index` below.
 
     const auto stlHandleList = pfc_x::Make_Stl_CRef( metadbHandleList_ );
@@ -506,7 +506,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
     pfc::string8_fastalloc temp;
     temp.prealloc( 512 );
 
-    RelativeFilepathTrie<size_t> testTree;
+    RelativeFilepathTrie<size_t> trie;
     for ( const auto& [i, handle]: ranges::view::enumerate( stlHandleList ) )
     {
         temp = ""; ///< get_relative_path won't fill data on fail
@@ -517,10 +517,10 @@ void JsFbMetadbHandleList::OrderByRelativePath()
         // (e.g. cuesheets or files with multiple chapters)
         temp << handle->get_subsong_index();
 
-        testTree.emplace( smp::unicode::ToWide( temp ), i );
+        trie.emplace( smp::unicode::ToWide( temp ), i );
     }
 
-    metadbHandleList_.reorder( testTree.get_sorted_values().data() );
+    metadbHandleList_.reorder( trie.get_sorted_values().data() );
 }
 
 void JsFbMetadbHandleList::RefreshStats()
