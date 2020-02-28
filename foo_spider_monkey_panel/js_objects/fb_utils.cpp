@@ -579,8 +579,8 @@ bool JsFbUtils::IsMainMenuCommandChecked( const std::u8string& command )
     t_uint32 status;
     utils::get_mainmenu_command_status_by_name( command, status );
 
-    return ( mainmenu_commands::flag_checked == status
-             || mainmenu_commands::flag_radiochecked == status );
+    return ( mainmenu_commands::flag_checked & status
+             || mainmenu_commands::flag_radiochecked & status );
 }
 
 bool JsFbUtils::IsMetadbInMediaLibrary( JsFbMetadbHandle* handle )
