@@ -388,19 +388,17 @@ std::u8string JsFbUtils::GetDSPPresets()
     using json = nlohmann::json;
 
     json j = json::array();
-    auto api = output_manager_v2::get();
+    auto api = dsp_config_manager_v2::get();
 
-    outputCoreConfig_t config;
-    api->getCoreConfig( config );
+    const auto selectedPreset = api->get_selected_preset();
+    pfc::string8_fast name;
+    for ( const auto i: ranges::view::indices( api->get_preset_count() ) )
+    {
+        api->get_preset_name( i, name );
 
-    api->listDevices( [&j, &config]( const std::u8string& fullName, const GUID& output_id, const GUID& device_id ) {
-        const std::u8string output_string = fmt::format( "{{{}}}", pfc::print_guid( output_id ) );
-        const std::u8string device_string = fmt::format( "{{{}}}", pfc::print_guid( device_id ) );
-        j.push_back( { { "name", fullName },
-                       { "output_id", output_string },
-                       { "device_id", device_string },
-                       { "active", config.m_output == output_id && config.m_device == device_id } } );
-    } );
+        j.push_back( { { "active", selectedPreset == i },
+                       { "name", name.get_ptr() } } );
+    }
 
     return j.dump();
 }
