@@ -27,7 +27,7 @@ DWORD FindReplaceState::ToScintillaFlags( DWORD currentFlags ) const
 {
     SetFlag( currentFlags, isCaseSensitive, SCFIND_MATCHCASE );
     SetFlag( currentFlags, findWholeWord, SCFIND_WHOLEWORD );
-    SetFlag( currentFlags, useRegExp, SCFIND_REGEXP );
+    SetFlag( currentFlags, useRegExp, SCFIND_REGEXP | SCFIND_POSIX );
 
     return currentFlags;
 }
@@ -35,7 +35,7 @@ void FindReplaceState::FromScintillaFlags( DWORD scintillaFlags )
 {
     isCaseSensitive = !!( scintillaFlags & SCFIND_MATCHCASE );
     findWholeWord = !!( scintillaFlags & SCFIND_WHOLEWORD );
-    useRegExp = !!( scintillaFlags & SCFIND_REGEXP );
+    useRegExp = !!( scintillaFlags & ( SCFIND_REGEXP | SCFIND_POSIX ) );
 }
 DWORD FindReplaceState::ToFrFlags( DWORD currentFlags ) const
 {
@@ -73,6 +73,8 @@ LRESULT CCustomFindReplaceDlg::OnInitDialog( UINT, WPARAM, LPARAM, BOOL& bHandle
 {
     bHandled = FALSE; ///< don't suppress base class methods
     uButton_SetCheck( m_hWnd, IDC_CHECK_USE_REGEXP, useRegExp_ );
+    uButton_SetCheck( m_hWnd, IDC_CHECK_WRAPAROUND, wrapAroundSearch_ );
+    UpdateRegExpHacksState();
 
     hookId_ = smp::utils::HookHandler::GetInstance().RegisterHook(
         [hParent = m_hWnd]( int code, WPARAM wParam, LPARAM lParam ) {
@@ -119,6 +121,7 @@ LRESULT CCustomFindReplaceDlg::OnWrapAroundClick( WORD, WORD wID, HWND, BOOL )
 LRESULT CCustomFindReplaceDlg::OnUseRegExpClick( WORD, WORD wID, HWND, BOOL )
 {
     useRegExp_ = uButton_GetCheck( m_hWnd, wID );
+    UpdateRegExpHacksState();
     return 0;
 }
 
@@ -147,6 +150,7 @@ void CCustomFindReplaceDlg::SetRegExpState( bool newState )
 {
     useRegExp_ = newState;
     uButton_SetCheck( m_hWnd, IDC_CHECK_USE_REGEXP, useRegExp_ );
+    UpdateRegExpHacksState();
 }
 
 bool CCustomFindReplaceDlg::GetWrapAroundSearchState() const
@@ -157,7 +161,31 @@ bool CCustomFindReplaceDlg::GetWrapAroundSearchState() const
 void CCustomFindReplaceDlg::SetWrapAroundSearchState( bool newState )
 {
     wrapAroundSearch_ = newState;
-    uButton_SetCheck( m_hWnd, chx3, wrapAroundSearch_ );
+    uButton_SetCheck( m_hWnd, IDC_CHECK_WRAPAROUND, wrapAroundSearch_ );
+}
+
+void CCustomFindReplaceDlg::UpdateRegExpHacksState()
+{
+    // Whole word search and up direction do not work with regexp (bug in Scintilla)
+    CButton wholeWordSearchBtn( GetDlgItem( chx1 ) );
+    if ( useRegExp_ )
+    {
+        wholeWordSearchBtn.SetCheck( BST_UNCHECKED );
+    }
+    wholeWordSearchBtn.EnableWindow( useRegExp_ ? FALSE : TRUE );
+
+    const bool isFindOnly = !!GetDlgItem( rad1 );
+    if ( isFindOnly )
+    {
+        CButton upDirectionBtn( GetDlgItem( rad1 ) );
+        CButton downDirectionBtn( GetDlgItem( rad2 ) );
+        if ( useRegExp_ )
+        {
+            upDirectionBtn.SetCheck( BST_UNCHECKED );
+            downDirectionBtn.SetCheck( BST_CHECKED );
+        }
+        upDirectionBtn.EnableWindow( useRegExp_ ? FALSE : TRUE );
+    }
 }
 
 } // namespace scintilla

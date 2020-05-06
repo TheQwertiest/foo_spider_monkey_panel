@@ -140,8 +140,8 @@ BEGIN
 
     AUTOCHECKBOX    "Match &whole word only", chx1, 4, 26, 100, 12, WS_GROUP
     AUTOCHECKBOX    "Match &case", chx2, 4, 42, 64, 12
-    AUTOCHECKBOX    "W&rap around", chx3, 4, 58, 64, 12
-    AUTOCHECKBOX    "Regular &expression",IDC_CHECK_USE_REGEXP, 4, 74, 100, 12
+    AUTOCHECKBOX    "W&rap around", IDC_CHECK_WRAPAROUND, 4, 58, 64, 12
+    AUTOCHECKBOX    "Regular &expression", IDC_CHECK_USE_REGEXP, 4, 74, 100, 12
 
     GROUPBOX        "Direction", grp1, 107, 26, 68, 28, WS_GROUP
     AUTORADIOBUTTON "&Up", rad1, 111, 38, 25, 12, WS_GROUP
@@ -169,8 +169,8 @@ BEGIN
 
     AUTOCHECKBOX    "Match &whole word only", chx1, 4, 46, 104, 12, WS_GROUP
     AUTOCHECKBOX    "Match &case", chx2, 4, 62, 59, 12
-    AUTOCHECKBOX    "W&rap around", chx3, 4, 78, 64, 12
-    AUTOCHECKBOX    "Regular &expression",IDC_CHECK_USE_REGEXP, 4, 94, 104, 12
+    AUTOCHECKBOX    "W&rap around", IDC_CHECK_WRAPAROUND, 4, 78, 64, 12
+    AUTOCHECKBOX    "Regular &expression", IDC_CHECK_USE_REGEXP, 4, 94, 104, 12
 
     DEFPUSHBUTTON   "&Find Next", IDOK, 174, 4, 50, 14, WS_GROUP
     PUSHBUTTON      "&Replace", psh1, 174, 21, 50, 14
