@@ -35,8 +35,8 @@ def unpack():
 
     with ZipFile(zip_arc) as z:
         z.extractall(output_dir)
-        
-    restore_timestamps(zip, output_dir)
+
+    restore_timestamps(zip_arc, output_dir)
 
 if __name__ == '__main__':
     call_wrapper.final_call_decorator(
