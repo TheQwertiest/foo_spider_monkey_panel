@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_objects/internal/global_heap_manager.h>
+#include <js_objects/global_object.h>
 
 #include <mutex_workaround.h>
 
@@ -8,8 +9,6 @@
 
 namespace mozjs
 {
-
-class JsGlobalObject;
 
 class JsAsyncTask
     : public IHeapUser
