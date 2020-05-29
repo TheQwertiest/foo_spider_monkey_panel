@@ -19,7 +19,6 @@
 [submodule "submodules/mozjs"]
 	path = submodules/mozjs
 	url = https://bitbucket.org/TheQwertiest/mozjs.git
-	branch = esr68
 [submodule "submodules/acfu-sdk"]
 	path = submodules/acfu-sdk
 	url = https://github.com/3dyd/acfu-sdk.git
