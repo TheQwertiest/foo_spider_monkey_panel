@@ -54,6 +54,7 @@ public: //methods
     JSObject* GetColourScheme( uint32_t count );
     std::u8string GetColourSchemeJSON( uint32_t count );
     JSObject* GetGraphics();
+    JSObject* InvertColours();
     void ReleaseGraphics( JsGdiGraphics* graphics );
     JSObject* Resize( uint32_t w, uint32_t h, uint32_t interpolationMode = 0 );
     JSObject* ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h, uint32_t interpolationMode );

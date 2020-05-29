@@ -58,6 +58,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CreateRawBitmap, JsGdiBitmap::CreateRawBitmap )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetColourScheme, JsGdiBitmap::GetColourScheme )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetColourSchemeJSON, JsGdiBitmap::GetColourSchemeJSON )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetGraphics, JsGdiBitmap::GetGraphics )
+MJS_DEFINE_JS_FN_FROM_NATIVE( InvertColours, JsGdiBitmap::InvertColours )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ReleaseGraphics, JsGdiBitmap::ReleaseGraphics )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Resize, JsGdiBitmap::Resize, JsGdiBitmap::ResizeWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( RotateFlip, JsGdiBitmap::RotateFlip )
@@ -73,6 +74,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "GetColourScheme", GetColourScheme, 1, kDefaultPropsFlags ),
         JS_FN( "GetColourSchemeJSON", GetColourSchemeJSON, 1, kDefaultPropsFlags ),
         JS_FN( "GetGraphics", GetGraphics, 0, kDefaultPropsFlags ),
+        JS_FN( "InvertColours", InvertColours, 1, kDefaultPropsFlags ),
         JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, kDefaultPropsFlags ),
         JS_FN( "Resize", Resize, 2, kDefaultPropsFlags ),
         JS_FN( "RotateFlip", RotateFlip, 1, kDefaultPropsFlags ),
@@ -425,6 +427,37 @@ JSObject* JsGdiBitmap::GetGraphics()
 
     return jsObject;
 }
+
+JSObject* JsGdiBitmap::InvertColours()
+{
+    const UINT width = pGdi_->GetWidth();
+    const UINT height = pGdi_->GetHeight();
+
+    std::unique_ptr<Gdiplus::Bitmap> out( new Gdiplus::Bitmap( width, height, PixelFormat32bppPARGB ) );
+    smp::error::CheckGdiPlusObject( out );
+
+    Gdiplus::ColorMatrix cm{};
+    cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = -1.f;
+    cm.m[3][3] = cm.m[4][0] = cm.m[4][1] = cm.m[4][2] = cm.m[4][4] = 1.f;
+
+    Gdiplus::ImageAttributes ia;
+    Gdiplus::Status gdiRet = ia.SetColorMatrix( &cm );
+    smp::error::CheckGdi( gdiRet, "SetColorMatrix" );
+
+    Gdiplus::Graphics g( out.get() );
+    gdiRet = g.DrawImage( pGdi_.get(),
+                          Gdiplus::Rect{ 0, 0, static_cast<int>( width ), static_cast<int>( height ) },
+                          0,
+                          0,
+                          width,
+                          height,
+                          Gdiplus::UnitPixel,
+                          &ia );
+    smp::error::CheckGdi( gdiRet, "DrawImage" );
+
+    return JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) );
+}
+
 
 void JsGdiBitmap::ReleaseGraphics( JsGdiGraphics* graphics )
 {
