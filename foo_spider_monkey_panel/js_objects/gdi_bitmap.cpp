@@ -74,7 +74,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "GetColourScheme", GetColourScheme, 1, kDefaultPropsFlags ),
         JS_FN( "GetColourSchemeJSON", GetColourSchemeJSON, 1, kDefaultPropsFlags ),
         JS_FN( "GetGraphics", GetGraphics, 0, kDefaultPropsFlags ),
-        JS_FN( "InvertColours", InvertColours, 1, kDefaultPropsFlags ),
+        JS_FN( "InvertColours", InvertColours, 0, kDefaultPropsFlags ),
         JS_FN( "ReleaseGraphics", ReleaseGraphics, 1, kDefaultPropsFlags ),
         JS_FN( "Resize", Resize, 2, kDefaultPropsFlags ),
         JS_FN( "RotateFlip", RotateFlip, 1, kDefaultPropsFlags ),
