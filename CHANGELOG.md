@@ -28,7 +28,8 @@ ___
 ### Changed
 - Updated SpiderMonkey JavaScript engine to 68.8.0 ESR:
   - ECMAScript 2019 conformant JavaScript.
-  - Various performance improvements and bug fixes  
+  - Various performance improvements and bug fixes.
+- Adjusted a "Function failed successfully" error message (e.g. when running out of GDI handles).
 
 ### Fixed
 - Fixed incorrect sorting in `FbMetadbHandleList.OrderByRelativePath()`.
