@@ -24,6 +24,7 @@ ___
 ## [Unreleased][]
 ### Added
 - Re-added ability to automatically download thumbnail images to `thumbs.js` sample (by marc2003).
+- Added missing documentation for `fb.GetDSPPresets()` and `fb.SetDSPPreset()`.
 
 ### Changed
 - Updated SpiderMonkey JavaScript engine to 68.8.0 ESR:

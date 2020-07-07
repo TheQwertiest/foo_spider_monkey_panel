@@ -379,6 +379,33 @@ let fb = {
     GetClipboardContents: function (window_id) { }, // (FbMetadbHandleList)
 
     /**
+     * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3. * <br>
+     * Returns a JSON array in string form so you need to use JSON.parse() on the result.
+     *
+     * @return {string}
+     *
+     * @example
+     * let str = fb.GetDSPPresets();
+     * let arr = JSON.parse(str);
+     * console.log(JSON.stringify(arr, null, 4));
+     * // [
+     * //     {
+     * //         "active": false,
+     * //         "name": "High Filter"
+     * //     },
+     * //     {
+     * //         "active": true,
+     * //         "name": "R128 Compressor"
+     * //     },
+     * //     {
+     * //         "active": false,
+     * //         "name": "7.1 upmix"
+     * //     }
+     * // ]
+     */
+    GetDSPPresets: function () { },
+
+    /**
      * @param {boolean=} [force=true] When true, it will use the first item of the active playlist if it is unable to get the focus item.
      * @return {FbMetadbHandle}
      */
@@ -595,6 +622,20 @@ let fb = {
 
     /** @method */
     SavePlaylist: function () { }, // (void)
+
+    /**
+     * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3.<br>
+     * See {@link fb.GetDSPPresets}.
+     *
+     * @param {number} idx
+     *
+     * @example
+     * let str = fb.GetDSPPresets();
+     * let arr = JSON.parse(str);
+     * let idx; // find the required DSP from `arr` and assign it to `idx`
+     * fb.SetDSPPreset(idx);
+     */
+    SetDSPPreset: function (idx) { }, // (void)
 
     /**
      * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3.<br>
