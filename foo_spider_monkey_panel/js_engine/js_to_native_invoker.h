@@ -161,7 +161,7 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
             if ( !valueVector.empty() )
             {
                 size_t startIdx = 0;
-                for ( auto i: ranges::view::indices( argCount - 1, jsArgs.length() ) )
+                for ( auto i: ranges::views::indices( argCount - 1, jsArgs.length() ) )
                 {
                     valueVector[startIdx++].set( jsArgs[i] );
                 }

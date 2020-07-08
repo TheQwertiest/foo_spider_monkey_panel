@@ -20,10 +20,6 @@
 #include <cmath>
 #include <map>
 
-// range-v3 0.5.0 compatibility fix.
-// remove after updating to the latest version
-#define make_subrange( x, y ) make_iterator_range( x, y )
-
 using namespace smp;
 
 namespace
@@ -365,8 +361,8 @@ std::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     }
     pBitmap->UnlockBits( &bmpdata );
 
-    const std::vector<kmeans::PointData> points =
-        ranges::view::transform( colour_counters, []( const auto& colourCounter ) {
+    const auto points =
+        ranges::views::transform( colour_counters, []( const auto& colourCounter ) {
             const auto [colour, pixelCount] = colourCounter;
 
             const uint8_t r = ( colour >> 16 ) & 0xff;
@@ -374,7 +370,8 @@ std::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
             const uint8_t b = ( colour & 0xff );
 
             return kmeans::PointData{ std::vector<uint8_t>{ r, g, b }, pixelCount };
-        } );
+        } )
+        | ranges::to_vector;
 
     constexpr uint32_t kKmeansIterationCount = 12;
     std::vector<kmeans::ClusterData> clusters = kmeans::run( points, count, kKmeansIterationCount );

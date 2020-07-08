@@ -519,7 +519,7 @@ bool JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
 bool JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
 {
     auto api = playlist_manager::get();
-    const t_size playlistCount = api->get_playlist_count();
+    const size_t playlistCount = api->get_playlist_count();
     if ( from >= playlistCount || to >= playlistCount )
     {
         return false;
@@ -529,7 +529,7 @@ bool JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
         return true;
     }
 
-    std::vector<t_size> order = ranges::view::indices( playlistCount );
+    auto order = ranges::views::indices( playlistCount ) | ranges::to_vector;
 
     const int8_t inc = ( from < to ) ? 1 : -1;
     for ( uint32_t i = from; i != to; i += inc )
@@ -677,7 +677,7 @@ bool JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const std::u8s
     metadb_handle_list handles;
     api->playlist_get_all_items( playlistIndex, handles );
 
-    std::vector<t_size> order = ranges::view::indices( handles.get_count() );
+    auto order = ranges::views::indices( handles.get_count() ) | ranges::to_vector;
 
     titleformat_object::ptr script;
     titleformat_compiler::get()->compile_safe( script, pattern.c_str() );
@@ -719,7 +719,7 @@ void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
 
     std::sort( data.begin(), data.end(), (direction > 0 ? smp::utils::StrCmpLogicalCmp<1> : smp::utils::StrCmpLogicalCmp<-1>));
 
-    const std::vector<size_t> order = data | ranges::view::transform( []( const auto& elem ) { return elem.index; } );
+    const auto order = data | ranges::views::transform( []( const auto& elem ) { return elem.index; } ) | ranges::to_vector;
     api->reorder( order.data(), order.size() );
 }
 

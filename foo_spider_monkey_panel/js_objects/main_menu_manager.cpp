@@ -103,10 +103,11 @@ bool JsMainMenuManager::ExecuteByID( uint32_t id )
 
 void JsMainMenuManager::Init( const std::u8string& root_name )
 {
-    const auto preparedRootName = [&root_name]() -> std::string {
+    const auto preparedRootName = [&root_name]() {
         // Don't care about UTF8 here: we need exact match
         return std::string_view{ root_name }
-               | ranges::view::transform( []( auto i ) { return static_cast<char>( ::tolower( i ) ); } );
+               | ranges::views::transform( []( auto i ) { return static_cast<char>( ::tolower( i ) ); } )
+               | ranges::to<std::string>;
     }();
 
     struct RootElement

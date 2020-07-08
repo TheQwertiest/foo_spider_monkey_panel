@@ -202,7 +202,7 @@ mainmenu_node::ptr find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node,
             curPath += '/';
         }
 
-        for ( auto i: ranges::view::indices( node->get_children_count() ) )
+        for ( auto i: ranges::views::indices( node->get_children_count() ) )
         {
             mainmenu_node::ptr child = node->get_child( i );
             if ( auto retVal = find_mainmenu_command_v2_node_recur( child, curPath, name );
@@ -232,7 +232,7 @@ bool ApplyFnOnMainmenuNode( const std::u8string& name, F_New fnNew, F_Old fnOld 
     {
         auto mmc = e.get();
 
-        for ( auto idx: ranges::view::indices( mmc->get_command_count() ) )
+        for ( auto idx: ranges::views::indices( mmc->get_command_count() ) )
         {
             std::u8string path = generate_mainmenu_command_path( group_guid_text_map, mmc );
 

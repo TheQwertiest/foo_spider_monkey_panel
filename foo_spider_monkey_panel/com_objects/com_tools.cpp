@@ -48,7 +48,7 @@ HRESULT type_info_cache_holder::GetIDsOfNames( LPOLESTR* rgszNames, UINT cNames,
     nonstd::span<LPOLESTR> names( rgszNames, cNames );
     nonstd::span<MEMBERID> memIds( pMemId, cNames );
 
-    for ( auto&& [name, memId]: ranges::view::zip( names, memIds ) )
+    for ( auto&& [name, memId]: ranges::views::zip( names, memIds ) )
     {
         const auto hash = LHashValOfName( LANG_NEUTRAL, name );
         if ( const auto it = m_cache.find( hash );

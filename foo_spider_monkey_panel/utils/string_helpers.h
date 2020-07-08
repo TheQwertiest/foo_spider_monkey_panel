@@ -32,10 +32,11 @@ std::vector<std::u8string_view> SplitByLines( std::u8string_view str );
 template <typename T>
 std::vector<std::basic_string_view<T>> Split( std::basic_string_view<T> str, const std::basic_string<T>& separator )
 {
-    return ranges::view::split( str, separator )
-           | ranges::view::transform( []( auto&& rng ) {
+    return ranges::views::split( str, separator )
+           | ranges::views::transform( []( auto&& rng ) {
                  return std::basic_string_view<T>{ &*rng.begin(), static_cast<size_t>( ranges::distance( rng ) ) };
-             } );
+             } )
+           | ranges::to_vector;
 }
 
 template <typename T>

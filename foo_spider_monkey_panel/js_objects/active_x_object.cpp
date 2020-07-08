@@ -641,7 +641,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
 
     const uint32_t argc = callArgs.length() - 1;
     std::vector<_variant_t> args( argc );
-    for ( auto&& [i, arg]: ranges::view::enumerate( args ) )
+    for ( auto&& [i, arg]: ranges::views::enumerate( args ) )
     {
         JsToVariantSafe( pJsCtx_, callArgs[argc - i], arg );
     }
@@ -667,7 +667,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
                                           &exception,
                                           &argerr );
 
-    for ( auto i: ranges::view::indices( callArgs.length() - 1 ) )
+    for ( auto i: ranges::views::indices( callArgs.length() - 1 ) )
     {
         RefreshValue( pJsCtx_, callArgs[1 + i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
     }
@@ -732,7 +732,7 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
 
     const uint32_t argc = callArgs.length() - 1;
     std::vector<_variant_t> args( argc );
-    for ( auto&& [i, arg]: ranges::view::enumerate( args ) )
+    for ( auto&& [i, arg]: ranges::views::enumerate( args ) )
     {
         JsToVariantSafe( pJsCtx_, callArgs[argc - i], arg );
     }
@@ -765,7 +765,7 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
                                           &exception,
                                           &argerr );
 
-    for ( auto i: ranges::view::indices( callArgs.length() - 1 ) )
+    for ( auto i: ranges::views::indices( callArgs.length() - 1 ) )
     {
         RefreshValue( pJsCtx_, callArgs[1 + i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
     }
@@ -785,7 +785,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
 
     const uint32_t argc = callArgs.length();
     std::vector<_variant_t> args( argc );
-    for ( auto&& [i, arg]: ranges::view::enumerate( args ) )
+    for ( auto&& [i, arg]: ranges::views::enumerate( args ) )
     {
         JsToVariantSafe( pJsCtx_, callArgs[( argc - 1 ) - i], arg );
     }
@@ -811,7 +811,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
                                           &exception,
                                           &argerr );
 
-    for ( auto i: ranges::view::indices( callArgs.length() ) )
+    for ( auto i: ranges::views::indices( callArgs.length() ) )
     {
         RefreshValue( pJsCtx_, callArgs[i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
     }
@@ -876,7 +876,7 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
          && ( TKIND_DISPATCH == pAttr->typekind || TKIND_INTERFACE == pAttr->typekind )
          && pAttr->cImplTypes )
     {
-        for ( auto i: ranges::view::indices( pAttr->cImplTypes ) )
+        for ( auto i: ranges::views::indices( pAttr->cImplTypes ) )
         {
             HREFTYPE hRef = 0;
             hr = pTypeInfo->GetRefTypeOfImplType( i, &hRef );

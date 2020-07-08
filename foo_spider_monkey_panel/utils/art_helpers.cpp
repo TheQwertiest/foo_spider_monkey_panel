@@ -157,7 +157,7 @@ void embed_thread::run( threaded_process_status& p_status,
     auto api = file_lock_manager::get();
     const auto stlHandleList = pfc_x::Make_Stl_Ref( m_handles );
 
-    for ( auto&& [i, handle]: ranges::view::enumerate( stlHandleList ) )
+    for ( auto&& [i, handle]: ranges::views::enumerate( stlHandleList ) )
     {
         const std::u8string path = handle->get_path();
         p_status.set_progress( i, stlHandleList.size() );

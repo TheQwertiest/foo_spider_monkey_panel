@@ -507,7 +507,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
     temp.prealloc( 512 );
 
     RelativeFilepathTrie<size_t> trie;
-    for ( const auto& [i, handle]: ranges::view::enumerate( stlHandleList ) )
+    for ( const auto& [i, handle]: ranges::views::enumerate( stlHandleList ) )
     {
         temp = ""; ///< get_relative_path won't fill data on fail
         api->get_relative_path( handle, temp );
@@ -634,9 +634,9 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
         throw SmpException( "Invalid JSON info: empty object" );
     }
 
-    const std::vector<file_info_impl> info =
-        ranges::view::enumerate( handleList )
-        | ranges::view::transform(
+    const auto info =
+        ranges::views::enumerate( handleList )
+        | ranges::views::transform(
             [isArray, &jsonObject]( const auto& zippedElem ) {
                 const auto& [i, handle] = zippedElem;
 
@@ -645,7 +645,8 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
                 file_info_impl fileInfo = handle->get_info_ref()->info();
                 ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
                 return fileInfo;
-            } );
+            } )
+        | ranges::to_vector;
 
     metadb_io_v2::get()->update_info_async_simple(
         handleList.Pfc(),

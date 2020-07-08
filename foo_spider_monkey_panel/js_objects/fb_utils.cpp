@@ -392,7 +392,7 @@ std::u8string JsFbUtils::GetDSPPresets()
 
     const auto selectedPreset = api->get_selected_preset();
     pfc::string8_fast name;
-    for ( const auto i: ranges::view::indices( api->get_preset_count() ) )
+    for ( const auto i: ranges::views::indices( api->get_preset_count() ) )
     {
         api->get_preset_name( i, name );
 
