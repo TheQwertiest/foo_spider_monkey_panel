@@ -19,11 +19,13 @@ class ActiveXObject
 public:
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
+    static constexpr bool HasStaticFunctions = true;
     static constexpr bool HasProxy = true;
     static constexpr bool HasPostCreate = true;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
+    static const JSFunctionSpec* JsStaticFunctions;
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
@@ -43,8 +45,9 @@ public:
     static size_t GetInternalSize( const std::wstring& name );
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
-public: // ctor
+public:
     static JSObject* Constructor( JSContext* cx, const std::wstring& name );
+    static JSObject* CreateFromArray( JSContext* cx, JS::HandleValue arr, uint32_t elementVariantType );
 
     bool Has( const std::wstring& name );
     bool IsGet( const std::wstring& name );

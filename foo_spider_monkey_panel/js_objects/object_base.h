@@ -42,18 +42,22 @@ namespace mozjs
     Traits that object might need to define (see above):
     
     // Indicates that object has a global JS constructor.
-    // If true, object must also define `JsConstructor`.
-    static constexpr bool HasGlobalProto = true;
+    // If true, object must also define `JsConstructor` and `HasStaticFunctions`.
+    static constexpr bool HasGlobalProto;
+
+    // Indicates that object contains static methods.
+    // If true, object must also define `JsStaticFunctions`.
+    static constexpr bool HasStaticFunctions; 
 */
 
 /*
     Every object must define and initialize the following properties:
     
     // Object's JS class
+    // Note: it MUST contain `FinalizeJsObject` from this class!
     const JSClass JsClass; 
 
     // List of object's JS methods.
-    // Note: it MUST contain `FinalizeJsObject` from this class!
     const JSFunctionSpec* JsFunctions; 
 
     // List of object's JS properties
@@ -71,6 +75,9 @@ namespace mozjs
 
     // Reference to the object's JS proxy
     const js::BaseProxyHandler& JsProxy; 
+
+    // List of object's static JS methods.
+    const JSFunctionSpec* JsStaticFunctions; 
 */
 
 /*
@@ -127,7 +134,27 @@ public:
 
     [[nodiscard]] static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
     {
-        auto pJsProto = JS_InitClass( cx, parentObject, nullptr, &T::JsClass, T::JsConstructor, 0, T::JsProperties, T::JsFunctions, nullptr, nullptr );
+        const JSFunctionSpec* staticFns = [] {
+            if constexpr ( T::HasStaticFunctions )
+            {
+                return T::JsStaticFunctions;
+            }
+            else
+            {
+                return nullptr;
+            }
+        }();
+
+        auto pJsProto = JS_InitClass( cx,
+                                      parentObject,
+                                      nullptr,
+                                      &T::JsClass,
+                                      T::JsConstructor,
+                                      0,
+                                      T::JsProperties,
+                                      T::JsFunctions,
+                                      nullptr,
+                                      staticFns );
         if ( !pJsProto )
         {
             throw smp::JsException();

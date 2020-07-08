@@ -283,13 +283,21 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 MJS_DEFINE_JS_FN( ActiveX_Run, ActiveX_Run_Impl )
 MJS_DEFINE_JS_FN( ActiveX_Get, ActiveX_Get_Impl )
 MJS_DEFINE_JS_FN( ActiveX_Set, ActiveX_Set_Impl )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveX_CreateArray, ActiveXObject::CreateFromArray )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ToString, ActiveXObject::ToString )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
         JS_FN( "toString", ToString, 0, kDefaultPropsFlags ),
+        JS_FN( "ActiveX_CreateArray", ActiveX_CreateArray, 2, kDefaultPropsFlags ),
         JS_FN( "ActiveX_Get", ActiveX_Get, 1, kDefaultPropsFlags ),
         JS_FN( "ActiveX_Set", ActiveX_Set, 1, kDefaultPropsFlags ),
+        JS_FS_END,
+    } );
+
+constexpr auto jsStaticFunctions = smp::to_array<JSFunctionSpec>(
+    {
+        JS_FN( "ActiveX_CreateArray", ActiveX_CreateArray, 2, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -307,6 +315,7 @@ namespace mozjs
 
 const JSClass ActiveXObject::JsClass = jsClass;
 const JSFunctionSpec* ActiveXObject::JsFunctions = jsFunctions.data();
+const JSFunctionSpec* ActiveXObject::JsStaticFunctions = jsStaticFunctions.data();
 const JSPropertySpec* ActiveXObject::JsProperties = jsProperties.data();
 const JsPrototypeId ActiveXObject::PrototypeId = JsPrototypeId::ActiveX;
 const JSNative ActiveXObject::JsConstructor = ::ActiveXObject_Constructor;
@@ -470,6 +479,28 @@ void ActiveXObject::PostCreate( JSContext* cx, JS::HandleObject self )
 JSObject* ActiveXObject::Constructor( JSContext* cx, const std::wstring& name )
 {
     return ActiveXObject::CreateJs( cx, name );
+}
+
+JSObject* ActiveXObject::CreateFromArray( JSContext* cx, JS::HandleValue arr, uint32_t elementVariantType )
+{
+    JS::RootedObject jsObjectIn( cx, arr.toObjectOrNull() );
+    smp::SmpException::ExpectTrue( jsObjectIn, "Value is not a JS object" );
+
+    bool is;
+    if ( !JS_IsArrayObject( cx, jsObjectIn, &is ) )
+    {
+        throw smp::JsException();
+    }
+    smp::SmpException::ExpectTrue( is, "Object is not an array" );
+
+    _variant_t var;
+    convert::com::JsArrayToVariantArray( cx, jsObjectIn, elementVariantType, var );
+
+    std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, var ) );
+    JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
+    assert( jsObject );
+    
+    return jsObject;
 }
 
 std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool reportError )

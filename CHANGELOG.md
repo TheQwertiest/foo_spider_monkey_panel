@@ -25,6 +25,9 @@ ___
 ### Added
 - Re-added ability to automatically download thumbnail images to `thumbs.js` sample (by marc2003).
 - Added missing documentation for `fb.GetDSPPresets()` and `fb.SetDSPPreset()`.
+- API changes:
+  - Added `GdiBitmap.InvertColours()` method.
+  - Added `ActiveXObject.ActiveX_CreateArray(arr, element_variant_type)` method.
 
 ### Changed
 - Updated SpiderMonkey JavaScript engine to 68.8.0 ESR:

@@ -21,6 +21,7 @@ class JsFbTitleFormat
 public:
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
+    static constexpr bool HasStaticFunctions = false;
     static constexpr bool HasProxy = false;
     static constexpr bool HasPostCreate = false;
 

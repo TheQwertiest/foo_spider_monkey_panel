@@ -120,21 +120,26 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
                 const bool isDefaultValue = ( index >= jsArgs.length() || index > MaxArgCount );
 
                 if constexpr ( std::is_same_v<ArgType, JS::HandleValue> )
-                { // Skip conversion, pass through
+                {
                     if ( isDefaultValue )
                     {
                         return ArgType( JS::UndefinedHandleValue );
                     }
-                    return ArgType( jsArgs[index] );
+                    else
+                    {
+                        return ArgType( jsArgs[index] );
+                    }
                 }
                 else if constexpr ( std::is_same_v<ArgType, JS::HandleValueArray> )
-                { // Skip conversion, pass through
+                {
                     if ( isDefaultValue )
                     {
                         return JS::HandleValueArray::empty();
                     }
-
-                    return JS::HandleValueArray::fromMarkedLocation( valueVector.length(), valueVector.begin() );
+                    else
+                    {
+                        return JS::HandleValueArray::fromMarkedLocation( valueVector.length(), valueVector.begin() );
+                    }
                 }
                 else
                 {
@@ -142,7 +147,10 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
                     {
                         return ArgType(); ///< Dummy value
                     }
-                    return convert::to_native::ToValue<ArgType>( cx, jsArgs[index] );
+                    else
+                    {
+                        return convert::to_native::ToValue<ArgType>( cx, jsArgs[index] );
+                    }
                 }
             } );
 
@@ -240,7 +248,11 @@ void InvokeNativeCallback_Member( JSContext* cx,
 
     // May return raw JS pointer! (see below)
     const auto invokeNative = [&]() {
-        return InvokeNativeCallback_Call_Member<!!OptArgCount, ReturnType>( baseClass, fn, fnWithOpt, callbackArguments, ( maxArgCount > jsArgs.length() ? maxArgCount - jsArgs.length() : 0 ) );
+        return InvokeNativeCallback_Call_Member<!!OptArgCount, ReturnType>( baseClass,
+                                                                            fn,
+                                                                            fnWithOpt,
+                                                                            callbackArguments,
+                                                                            ( maxArgCount > jsArgs.length() ? maxArgCount - jsArgs.length() : 0 ) );
     };
 
     // Return value
@@ -287,7 +299,11 @@ void InvokeNativeCallback_Static( JSContext* cx,
 
     // May return raw JS pointer! (see below)
     const auto invokeNative = [&]() {
-        return InvokeNativeCallback_Call_Static<!!OptArgCount, ReturnType>( cx, fn, fnWithOpt, callbackArguments, ( maxArgCount > jsArgs.length() ? maxArgCount - jsArgs.length() : 0 ) );
+        return InvokeNativeCallback_Call_Static<!!OptArgCount, ReturnType>( cx,
+                                                                            fn,
+                                                                            fnWithOpt,
+                                                                            callbackArguments,
+                                                                            ( maxArgCount > jsArgs.length() ? maxArgCount - jsArgs.length() : 0 ) );
     };
 
     // Return value

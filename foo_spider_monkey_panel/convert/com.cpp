@@ -152,49 +152,6 @@ private:
     bool isJsAvailable_ = false;
 };
 
-void JsArrayToComArray( JSContext* cx, JS::HandleObject obj, VARIANT& var )
-{
-    uint32_t len;
-    if ( !JS_GetArrayLength( cx, obj, &len ) )
-    {
-        throw JsException();
-    }
-
-    // Create the safe array of variants and populate it
-    SAFEARRAY* safeArray = SafeArrayCreateVector( VT_VARIANT, 0, len );
-    SmpException::ExpectTrue( safeArray, "SafeArrayCreateVector failed" );
-
-    utils::final_action autoSa( [safeArray]() {
-        SafeArrayDestroy( safeArray );
-    } );
-
-    if ( len )
-    {
-        VARIANT* varArray = nullptr;
-        HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) );
-        smp::error::CheckHR( hr, "SafeArrayAccessData" );
-
-        utils::final_action autoSaData( [safeArray]() {
-            SafeArrayUnaccessData( safeArray );
-        } );
-
-        for ( uint32_t i = 0; i < len; ++i )
-        {
-            JS::RootedValue val( cx );
-            if ( !JS_GetElement( cx, obj, i, &val ) )
-            {
-                throw JsException();
-            }
-
-            JsToVariant( cx, val, varArray[i] );
-        }
-    }
-
-    var.vt = VT_ARRAY | VT_VARIANT;
-    var.parray = safeArray;
-    autoSa.cancel(); // cancel array destruction
-}
-
 bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValue& dest )
 {
     // We only support one dimensional arrays for now
@@ -254,23 +211,63 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     return true;
 }
 
+template<typename T>
+void PutCastedElementInSafeArrayData( void* arr, size_t idx, T value )
+{
+    auto castedArr = static_cast<T*>( arr );
+    castedArr[idx] = value;
+}
+
+void PutVariantInSafeArrayData( void* arr, size_t idx, VARIANTARG& var )
+{
+    switch ( var.vt )
+    {
+    case VT_I1:
+        PutCastedElementInSafeArrayData<int8_t>( arr, idx, var.cVal );
+        break;
+    case VT_I2:
+        PutCastedElementInSafeArrayData<int16_t>( arr, idx, var.iVal );
+        break;
+    case VT_INT:
+    case VT_I4:
+        PutCastedElementInSafeArrayData<int32_t>( arr, idx, var.lVal );
+        break;
+    case VT_R4:
+        PutCastedElementInSafeArrayData<float>( arr, idx, var.fltVal );
+        break;
+    case VT_R8:
+        PutCastedElementInSafeArrayData<double>( arr, idx, var.dblVal );
+        break;
+    case VT_BOOL:
+        PutCastedElementInSafeArrayData<int16_t>( arr, idx, var.boolVal );
+        break;
+    case VT_UI1:
+        PutCastedElementInSafeArrayData<uint8_t>( arr, idx, var.bVal );
+        break;
+    case VT_UI2:
+        PutCastedElementInSafeArrayData<uint16_t>( arr, idx, var.uiVal );
+        break;
+    case VT_UINT:
+    case VT_UI4:
+        PutCastedElementInSafeArrayData<uint32_t>( arr, idx, var.ulVal );
+        break;
+    default:
+        throw SmpException( fmt::format( "ActiveX: unsupported array type: {:#x}", var.vt ) );
+    }
+}
+
 } // namespace
 
 namespace mozjs::convert::com
 {
 
-/// VariantToJs assumes that the caller will call VariantClear, so call AddRef on new objects
+/// VariantToJs assumes that the caller will call VariantClear on `var`, so call AddRef on new objects
 void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
 {
-#define FETCH( x ) ( ref ? *( var.p##x ) : var.x )
+    const bool ref = !!( var.vt & VT_BYREF );
+    const int type = ( ref ? var.vt &= ~VT_BYREF : var.vt );
 
-    bool ref = false;
-    int type = var.vt;
-    if ( type & VT_BYREF )
-    {
-        ref = true;
-        type &= ~VT_BYREF;
-    }
+#define FETCH( x ) ( ref ? *( var.p##x ) : var.x )
 
     switch ( type )
     {
@@ -299,11 +296,9 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
     case VT_R8:
         rval.setNumber( FETCH( dblVal ) );
         break;
-
     case VT_BOOL:
         rval.setBoolean( FETCH( boolVal ) );
         break;
-
     case VT_UI1:
         rval.setNumber( static_cast<uint32_t>( FETCH( bVal ) ) );
         break;
@@ -314,7 +309,6 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
     case VT_UI4:
         rval.setNumber( static_cast<uint32_t>( FETCH( ulVal ) ) );
         break;
-
     case VT_BSTR:
     {
         JS::RootedString jsString( cx, JS_NewUCStringCopyN( cx, reinterpret_cast<const char16_t*>( FETCH( bstrVal ) ), SysStringLen( FETCH( bstrVal ) ) ) );
@@ -335,7 +329,6 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         rval.setObjectOrNull( jsObject );
         break;
     }
-
     case VT_UNKNOWN:
     {
         if ( !FETCH( punkVal ) )
@@ -378,7 +371,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         break;
     default:
         if ( ( type & VT_ARRAY ) && !( type & VT_UI1 ) )
-        { // skip binary data: SMP has no use for it, but it's needed in COM interface
+        { // convert all arrays that are not binary data: SMP has no use for it, but it's needed in COM interface
             ComArrayToJsArray( cx, var, rval );
             break;
         }
@@ -392,6 +385,8 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
             rval.setObjectOrNull( jsObject );
         }
     }
+
+#undef FETCH
 }
 
 void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
@@ -450,8 +445,8 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
             }
 
             if ( is )
-            {
-                JsArrayToComArray( cx, j0, arg );
+            { // other types of arrays are created manually (e.g. VT_ARRAY|VT_I1)
+                JsArrayToVariantArray( cx, j0, VT_VARIANT, arg );
             }
             else
             {
@@ -496,6 +491,90 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     {
         throw SmpException( "ActiveX: unsupported JS value type" );
     }
+}
+
+void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVariantType, VARIANT& var )
+{
+#ifndef NDEBUG
+    {
+        bool is;
+        if ( !JS_IsArrayObject( cx, obj, &is ) )
+        {
+            throw smp::JsException();
+        }
+        assert( is );
+    }
+#endif
+
+    uint32_t len;
+    if ( !JS_GetArrayLength( cx, obj, &len ) )
+    {
+        throw JsException();
+    }
+
+    // Create the safe array of variants and populate it
+    SAFEARRAY* safeArray = SafeArrayCreateVector( elementVariantType, 0, len );
+    SmpException::ExpectTrue( safeArray, "SafeArrayCreateVector failed" );
+
+    utils::final_action autoSa( [safeArray]() {
+        SafeArrayDestroy( safeArray );
+    } );
+
+    if ( len )
+    {
+        if ( elementVariantType == VT_VARIANT )
+        {
+
+            VARIANT* varArray = nullptr;
+            HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) );
+            smp::error::CheckHR( hr, "SafeArrayAccessData" );
+
+            utils::final_action autoSaData( [safeArray]() {
+                SafeArrayUnaccessData( safeArray );
+            } );
+
+            for ( uint32_t i = 0; i < len; ++i )
+            {
+                JS::RootedValue val( cx );
+                if ( !JS_GetElement( cx, obj, i, &val ) )
+                {
+                    throw JsException();
+                }
+
+                JsToVariant( cx, val, varArray[i] );
+            }
+        }
+        else
+        {
+            void* dataArray = nullptr;
+            HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &dataArray ) );
+            smp::error::CheckHR( hr, "SafeArrayAccessData" );
+
+            utils::final_action autoSaData( [safeArray]() {
+                SafeArrayUnaccessData( safeArray );
+            } );
+
+            for ( uint32_t i = 0; i < len; ++i )
+            {
+                JS::RootedValue val( cx );
+                if ( !JS_GetElement( cx, obj, i, &val ) )
+                {
+                    throw JsException();
+                }
+
+                 _variant_t tmp;
+                JsToVariant( cx, val, tmp );
+                tmp.ChangeType( elementVariantType );
+                
+                PutVariantInSafeArrayData( dataArray, i, tmp );
+            }
+        }
+    }
+
+    var.vt = VT_ARRAY | elementVariantType;
+    var.parray = safeArray;
+
+    autoSa.cancel(); // cancel array destruction
 }
 
 } // namespace mozjs::convert::com
