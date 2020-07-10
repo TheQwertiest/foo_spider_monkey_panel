@@ -13,6 +13,7 @@ exclude:
   - Gemfile.lock
   - assets/generated_files/samples/readme.md
   - build_scripts
+  - "*.bat"
 
 markdown: kramdown
 kramdown: 
