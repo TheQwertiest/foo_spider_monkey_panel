@@ -39,7 +39,8 @@ Base functionality includes:
 ## Getting started!
 
 - Use [Installation Guide](installation.md).
-- Take a look at [Documentation and Samples](script_documentation.md)
+- Check out [Samples and User scripts](script_showcase.md).
+- Take a look at [Documentation](script_documentation.md), if you are craving for more!
 
 ## JScript Panel users
 
