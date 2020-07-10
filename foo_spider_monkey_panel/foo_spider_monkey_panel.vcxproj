@@ -296,7 +296,6 @@
     <ClInclude Include="message_blocking_scope.h" />
     <ClInclude Include="message_manager.h" />
     <ClInclude Include="mutex_workaround.h" />
-    <ClInclude Include="panel_tooltip_param.h" />
     <ClInclude Include="smp_exception.h" />
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="config.h" />

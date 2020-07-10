@@ -42,7 +42,7 @@ public:
     void ClearPlaylist();
     bool CopyHandleListToClipboard( JsFbMetadbHandleList* handles );
     JSObject* CreateContextMenuManager();
-    // TODO v2: remove after adding array methods to JsFbMetadbHandleList
+    // TODO v2: remove
     JSObject* CreateHandleList();
     JSObject* CreateMainMenuManager();
     JSObject* CreateProfiler( const std::u8string& name = "" );

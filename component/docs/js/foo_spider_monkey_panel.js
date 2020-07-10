@@ -1742,6 +1742,14 @@ let window = {
     PanelMemoryUsage: undefined, // (uint) (read)
 
     /**
+     * Get associated tooltip object.
+     *
+     * @type {FbTooltip}
+     * @readonly
+     */
+    Tooltip: undefined,
+
+    /**
      * Total memory usage of all panels (in bytes).
      *
      * @type {number}
@@ -1801,6 +1809,13 @@ let window = {
     CreateThemeManager: function (class_id) { }, // (ThemeManager)
 
     /**
+     * Note: a single panel can have only a single tooltip object.
+     * Creating a new tooltip will replace the previous one.
+     * 
+     * Deprecated: use {@link fb.Tooltip} and {@link FbTooltip.SetFont} instead.
+     *
+     * @deprecated
+     * 
      * @param {string=} [font_name='Segoe UI']
      * @param {number=} [font_size_px=12]
      * @param {number=} [font_style=0] See Flags.js > FontStyle
@@ -2633,10 +2648,14 @@ function FbTitleFormat(expression) {
  */
 function FbTooltip() {
     /**
+     * Note: this also updates text on the active tooltip
+     * i.e. there is no need to manually cycle Deactivate()/Activate()
+     * to update text.
+     * 
      * @type {string}
      *
      * @example
-     * let tooltip = window.CreateTooltip();
+     * let tooltip = window.Tooltip;
      * tooltip.Text = "Whoop";
      */
     this.Text = undefined; // (string) (read, write)
@@ -2672,6 +2691,13 @@ function FbTooltip() {
      * @param {number} time
      */
     this.SetDelayTime = function (type, time) { }; // (void)
+
+    /**
+     * @param {string=} [font_name='Segoe UI']
+     * @param {number=} [font_size_px=12]
+     * @param {number=} [font_style=0] See Flags.js > FontStyle
+     */
+    this.SetFont = function (font_name, font_size_px, font_style) { };
 
     /**
      * Use if you want multi-line tooltips.<br>

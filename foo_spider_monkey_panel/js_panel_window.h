@@ -2,7 +2,6 @@
 
 #include <config.h>
 #include <panel_info.h>
-#include <panel_tooltip_param.h>
 #include <user_message.h>
 
 #include <queue>
@@ -68,7 +67,6 @@ public:
     [[nodiscard]] POINT& MinSize();
     [[nodiscard]] int GetHeight() const;
     [[nodiscard]] int GetWidth() const;
-    [[nodiscard]] PanelTooltipParam& GetPanelTooltipParam();
     [[nodiscard]] PanelInfo& ScriptInfo();
 
     [[nodiscard]] t_size& DlgCode();
@@ -108,7 +106,6 @@ private:
     size_t dlgCode_ = 0;                   // modified only from external
     POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
     POINT minSize_ = { 0, 0 };             // modified only from external
-    PanelTooltipParam panelTooltipParam_;  // modified only from external
 
 private:
     bool script_load( bool isFirstLoad );

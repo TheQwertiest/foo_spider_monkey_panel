@@ -651,9 +651,6 @@
     <ClInclude Include="panel_info.h">
       <Filter>z_core\data structs</Filter>
     </ClInclude>
-    <ClInclude Include="panel_tooltip_param.h">
-      <Filter>z_core\data structs</Filter>
-    </ClInclude>
     <ClInclude Include="callback_data.h">
       <Filter>z_core\data structs</Filter>
     </ClInclude>

@@ -22,6 +22,7 @@ namespace mozjs
 {
 
 class FbProperties;
+class JsFbTooltip;
 
 class JsWindow
     : public JsObjectBase<JsWindow>
@@ -36,7 +37,8 @@ public:
     static const JSPropertySpec* JsProperties;
 
 public:
-    ~JsWindow() override;
+    // @remark No need to cleanup JS here, since it must be performed manually beforehand anyway
+    ~JsWindow() override = default;
 
     static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, smp::panel::js_panel_window& parentPanel );
     static size_t GetInternalSize( const smp::panel::js_panel_window& parentPanel );
@@ -50,7 +52,9 @@ public: // methods
     void ClearTimeout( uint32_t timeoutId );
     JSObject* CreatePopupMenu();
     JSObject* CreateThemeManager( const std::wstring& classid );
+    // TODO v2: remove
     JSObject* CreateTooltip( const std::wstring& name = L"Segoe UI", uint32_t pxSize = 12, uint32_t style = 0 );
+    // TODO v2: remove
     JSObject* CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style );
     void DefinePanel( const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     void DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
@@ -92,6 +96,7 @@ public: // props
     uint32_t get_MinWidth();
     std::u8string get_Name();
     uint64_t get_PanelMemoryUsage();
+    JSObject* get_Tooltip();
     uint64_t get_TotalMemoryUsage();
     uint32_t get_Width();
     void put_DlgCode( uint32_t code );
@@ -123,6 +128,9 @@ private:
     bool isPanelDefined_ = false;
     std::unique_ptr<FbProperties> fbProperties_;
     CComPtr<smp::com::IDropTargetImpl> dropTargetHandler_;
+
+    JS::PersistentRootedObject jsTooltip_;
+    JsFbTooltip* pNativeTooltip_ = nullptr;
 };
 
 } // namespace mozjs

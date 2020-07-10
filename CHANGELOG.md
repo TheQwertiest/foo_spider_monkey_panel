@@ -27,13 +27,17 @@ ___
 - Added missing documentation for `fb.GetDSPPresets()` and `fb.SetDSPPreset()`.
 - API changes:
   - Added `GdiBitmap.InvertColours()` method.
-  - Added `ActiveXObject.ActiveX_CreateArray(arr, element_variant_type)` method.
+  - Added `ActiveXObject.ActiveX_CreateArray()` method.
+  - Added `window.Tooltip` property.
+  - Added `FbTooltip.SetFont()` method.
+  - Deprecated `window.CreateTooltip()` method.
 
 ### Changed
 - Updated SpiderMonkey JavaScript engine to 68.8.0 ESR:
   - ECMAScript 2019 conformant JavaScript.
   - Various performance improvements and bug fixes.
 - Adjusted a "Function failed successfully" error message (e.g. when running out of GDI handles).
+- Updated `Tooltip` sample.
 
 ### Fixed
 - Fixed incorrect sorting in `FbMetadbHandleList.OrderByRelativePath()`.

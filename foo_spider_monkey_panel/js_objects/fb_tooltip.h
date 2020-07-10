@@ -3,8 +3,6 @@
 #include <js_objects/object_base.h>
 #include <utils/gdi_helpers.h>
 
-#include <panel_tooltip_param.h>
-
 #include <memory>
 #include <optional>
 #include <string>
@@ -31,16 +29,21 @@ public:
     static const JsPrototypeId PrototypeId;
 
 public:
-    ~JsFbTooltip() override;
+    // @remark No need to cleanup JS here, since it must be performed manually beforehand anyway
+    ~JsFbTooltip() override = default;
 
-    static std::unique_ptr<JsFbTooltip> CreateNative( JSContext* cx, HWND hParentWnd, smp::panel::PanelTooltipParam& p_param_ptr );
-    static size_t GetInternalSize( HWND hParentWnd, const smp::panel::PanelTooltipParam& p_param_ptr );
+    static std::unique_ptr<JsFbTooltip> CreateNative( JSContext* cx, HWND hParentWnd );
+    static size_t GetInternalSize( HWND hParentWnd );
+
+    void PrepareForGc();
 
 public:
     void Activate();
     void Deactivate();
     uint32_t GetDelayTime( uint32_t type );
     void SetDelayTime( uint32_t type, int32_t time );
+    void SetFont( const std::wstring& name = L"Segoe UI", uint32_t pxSize = 12, uint32_t style = 0 );
+    void SetFont( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style );
     void SetMaxWidth( uint32_t width );
     void TrackPosition( int x, int y );
 
@@ -50,15 +53,19 @@ public:
     void put_TrackActivate( bool activate );
 
 private:
-    JsFbTooltip( JSContext* cx, HWND hParentWnd, smp::panel::PanelTooltipParam& p_param_ptr );
+    JsFbTooltip( JSContext* cx, HWND hParentWnd );
 
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
-    HWND hTooltipWnd_;
-    HWND hParentWnd_;
-    smp::panel::PanelTooltipParam& panelTooltipParam_;
+    HWND hTooltipWnd_ = nullptr;
+    HWND hParentWnd_ = nullptr;
+
+    std::wstring fontName_;
+    uint32_t fontSize_{};
+    uint32_t fontStyle_{};
     std::wstring tipBuffer_;
+
     smp::gdi::unique_gdi_ptr<HFONT> pFont_;
     std::unique_ptr<TOOLINFO> toolInfo_;
 };

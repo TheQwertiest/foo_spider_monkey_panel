@@ -111,6 +111,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_MinHeight, JsWindow::get_MinHeight )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MinWidth, JsWindow::get_MinWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Name, JsWindow::get_Name )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PanelMemoryUsage, JsWindow::get_PanelMemoryUsage )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Tooltip, JsWindow::get_Tooltip )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_TotalMemoryUsage, JsWindow::get_TotalMemoryUsage )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsWindow::get_Width )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_DlgCode, JsWindow::put_DlgCode )
@@ -134,6 +135,7 @@ constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
         JS_PSGS( "MinWidth", get_MinWidth, put_MinWidth, kDefaultPropsFlags ),
         JS_PSG( "Name", get_Name, kDefaultPropsFlags ),
         JS_PSG( "PanelMemoryUsage", get_PanelMemoryUsage, kDefaultPropsFlags ),
+        JS_PSG( "Tooltip", get_Tooltip, kDefaultPropsFlags ),
         JS_PSG( "TotalMemoryUsage", get_TotalMemoryUsage, kDefaultPropsFlags ),
         JS_PSG( "Width", get_Width, kDefaultPropsFlags ),
         JS_PS_END,
@@ -153,11 +155,6 @@ JsWindow::JsWindow( JSContext* cx, smp::panel::js_panel_window& parentPanel, std
     , parentPanel_( parentPanel )
     , fbProperties_( std::move( fbProperties ) )
 {
-}
-
-JsWindow::~JsWindow()
-{
-    PrepareForGc();
 }
 
 std::unique_ptr<JsWindow>
@@ -197,6 +194,12 @@ void JsWindow::PrepareForGc()
     {
         dropTargetHandler_->RevokeDragDrop();
         dropTargetHandler_.Release();
+    }
+    if ( fbProperties_ )
+    {
+        assert( pNativeTooltip_ );
+        pNativeTooltip_->PrepareForGc();
+        jsTooltip_.reset();
     }
 
     isFinalized_ = true;
@@ -254,12 +257,16 @@ JSObject* JsWindow::CreateTooltip( const std::wstring& name, uint32_t pxSize, ui
         return nullptr;
     }
 
-    auto& tooltip_param = parentPanel_.GetPanelTooltipParam();
-    tooltip_param.fontName = name;
-    tooltip_param.fontSize = pxSize;
-    tooltip_param.fontStyle = style;
+    if ( !jsTooltip_.initialized() )
+    {
+        jsTooltip_.init( pJsCtx_, JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND() ) );
+        pNativeTooltip_ = static_cast<JsFbTooltip*>( JS_GetPrivate( jsTooltip_ ) );
+    }
 
-    return JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND(), tooltip_param );
+    assert( pNativeTooltip_ );
+    pNativeTooltip_->SetFont( name, pxSize, style );
+    
+    return jsTooltip_;
 }
 
 JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style )
@@ -786,6 +793,11 @@ uint64_t JsWindow::get_TotalMemoryUsage()
     }
 
     return JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage();
+}
+
+JSObject* JsWindow::get_Tooltip()
+{
+    return CreateTooltip();
 }
 
 uint32_t JsWindow::get_Width()

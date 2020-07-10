@@ -785,11 +785,6 @@ int js_panel_window::GetWidth() const
     return width_;
 }
 
-PanelTooltipParam& js_panel_window::GetPanelTooltipParam()
-{
-    return panelTooltipParam_;
-}
-
 PanelInfo& js_panel_window::ScriptInfo()
 {
     return m_script_info;
@@ -1015,12 +1010,6 @@ void js_panel_window::on_panel_destroy()
 
 void js_panel_window::on_script_error()
 {
-    auto& tooltip_param = GetPanelTooltipParam();
-    if ( tooltip_param.hTooltip )
-    {
-        SendMessage( tooltip_param.hTooltip, TTM_ACTIVATE, FALSE, 0 );
-    }
-
     Repaint();
     script_unload();
 }
