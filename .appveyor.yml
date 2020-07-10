@@ -51,17 +51,6 @@ environment:
 matrix:
   fast_finish: true     # set this flag to immediately finish build once one of the jobs fails.
 
-for:
-  -
-    matrix:
-      only:
-        - configuration: Release
-    cache:
-      - node_modules                    # local npm modules
-      - workspaces\packages -> **\packages.config
-      - _result\Win32_Release\bin\foo_spider_monkey_panel.ipdb
-      - _result\Win32_Release\bin\foo_spider_monkey_panel.iobj
-
 cache:
   - node_modules                    # local npm modules
   - workspaces\packages -> **\packages.config
