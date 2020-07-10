@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.3.0](#130---2020-07-10)
 - [1.2.3](#123---2020-01-04)
 - [1.2.2](#122---2019-09-14)
 - [1.2.1](#121---2019-04-24)
@@ -22,6 +23,8 @@
 ___
 
 ## [Unreleased][]
+
+## [1.3.0][] - 2020-07-10
 ### Added
 - Re-added ability to automatically download thumbnail images to `thumbs.js` sample (by marc2003).
 - Added missing documentation for `fb.GetDSPPresets()` and `fb.SetDSPPreset()`.
@@ -298,7 +301,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.2.3...HEAD
+[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.3...v1.3.0
 [1.2.3]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.2-preview...v1.2.3
 [1.2.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.1...v1.2.2-preview
 [1.2.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.0...v1.2.1
