@@ -48,7 +48,7 @@ The main difference from the excellent `JScript Panel` component by [marc2003](h
 - `foo_spider_monkey_panel` uses open-source `SpiderMonkey` engine from Mozilla Firefox, which is being actively developed and improved every day!
 
 Main features of `Mozilla SpiderMonkey` engine:
-- ECMAScript 2018 conformant JavaScript.
+- ECMAScript 2019 conformant JavaScript.
 - Potential support of ECMAScript Next once it has been released.
 - Blazing-fast performance!
 - Easily customizable: allows to implement lot of features that couldn't be implemented before.
@@ -64,7 +64,7 @@ Or just use the [Migration Guide](guides/jsp_to_smp_migration_guide.md) to make 
 [Nightly build](https://ci.appveyor.com/api/projects/theqwertiest/foo-spider-monkey-panel/artifacts/_result%2FWin32_Release%2Ffoo_spider_monkey_panel.fb2k-component?branch=master&job=Configuration%3A%20Release)
 
 ## Credits
-- [marc2003](https://github.com/marc2k3): original [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel), [sample scripts](https://github.com/marc2k3/smp_2003) and multiple contributions to this project.
+- [marc2003](https://github.com/marc2k3): original [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel), [sample scripts](https://github.com/TheQwertiest/smp_2003) and multiple contributions to this project.
 - [T.P. Wang](https://hydrogenaud.io/index.php?action=profile;u=44175): original [WSH Panel Mod](https://code.google.com/archive/p/foo-wsh-panel-mod).
 - [#jsapi IRC channel](https://wiki.mozilla.org/IRC): wouldn't make it through without them, love you guys!  
   Especially huge thanks to sfink and jonco, who spent literally tens of hours helping me!
@@ -78,4 +78,3 @@ Or just use the [Migration Guide](guides/jsp_to_smp_migration_guide.md) to make 
 [appveyor_badge]: https://ci.appveyor.com/api/projects/status/4fg787ijr73u7mxc/branch/master?svg=true
 [codacy_badge]: https://api.codacy.com/project/badge/Grade/19c686bcf26d46e6a639bdece347ae3d
 [codefactor_badge]: https://www.codefactor.io/repository/github/theqwertiest/foo_spider_monkey_panel/badge/master
-

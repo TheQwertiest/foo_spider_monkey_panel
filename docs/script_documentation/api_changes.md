@@ -23,6 +23,23 @@ Legend:
 
 ___
 
+
+## v1.3.0
+
+#### Added
+- Added `GdiBitmap.InvertColours()` method: returns a `GdiBitmap` with inverted colours.
+- Added `window.Tooltip` property: returns a `FbTooltip` object associated with the current panel.
+- Added `FbTooltip.SetFont(font_name, font_size_px, font_style)` method: changes tooltip font.
+- Added `ActiveXObject.ActiveX_CreateArray(arr, element_variant_type)` method: converts a JavaScript array to `ActiveXObject` that contains an object of type `VT_ARRAY|element_variant_type`.
+  Arguments:
+  - `arr`: a JS array that consists of elements of primitive type.
+  - `element_variant_type` a numerial value of variant type (e.g. `0x11` for `VT_UI1`).
+
+### Changed
+- Updated SpiderMonkey JavaScript engine to 68.8.0 ESR:
+  - ECMAScript 2019 conformant JavaScript. See ['What's new in ES2019'](https://flaviocopes.com/es2019) for more info.
+- [**Deprecated**] `window.CreateTooltip()`: use `window.Tooltip` and `FbTooltip.SetFont()` instead.
+
 ## v1.2.2
 
 ### Added
@@ -51,23 +68,23 @@ ___
 ## v1.1.0
 
 ### Added
-- Added `clearInterval`, `clearTimeout`, `setInterval`, `setTimeout` methods to global namespace.  
-  They work the same as corresponding `window.ClearInterval`, `window.ClearTimeout`, `window.SetInterval`, `window.SetTimeout` methods.
-- Added `gdi.LoadImageSyncV2` method.  
-    Works the same as `gdi.LoadImageSync`, but returns a Promise object instead of calling `on_load_image_done`.
-- Added `utils.GetAlbumArtAsyncV2` method.  
-    Works the same as `gdi.GetAlbumArtAsync`, but returns a Promise object instead of calling `on_get_album_art_done`.
-- Added arguments to `FbProfiler.Print`: additional message and an option to disable component info.
+- Added `clearInterval()`, `clearTimeout()`, `setInterval()`, `setTimeout()` methods to global namespace.  
+  They work the same as corresponding `window.ClearInterval()`, `window.ClearTimeout()`, `window.SetInterval()`, `window.SetTimeout()` methods.
+- Added `gdi.LoadImageSyncV2()` method.  
+    Works the same as `gdi.LoadImageSync`, but returns a Promise object instead of calling `on_load_image_done()`.
+- Added `utils.GetAlbumArtAsyncV2()` method.  
+    Works the same as `gdi.GetAlbumArtAsync()`, but returns a Promise object instead of calling `on_get_album_art_done()`.
+- Added arguments to `FbProfiler.Print()`: additional message and an option to disable component info.
 - Added global constructors for the following objects:
   - `FbMetadbHandleList`: from another `FbMetadbHandleList`, from an array of `FbMetadbHandle`, from a single `FbMetadbHandle` and a default constructor.
   - `GdiBitmap`: from another `GdiBitmap`.
-  - `FbProfiler`: accepts the same arguments as `fb.CreateProfiler`.
-  - `FbTitleFormat`: accepts the same arguments as `fb.TitleFormat`.
+  - `FbProfiler`: accepts the same arguments as `fb.CreateProfiler()`.
+  - `FbTitleFormat`: accepts the same arguments as `fb.TitleFormat()`.
 
 ### Changed
-- `fb.DoDragDrop` now requires an additional `window.ID` argument.
+- `fb.DoDragDrop()` now requires an additional `window.ID` argument.
 - New `Text` property in `action` argument of `on_drag_*` callbacks: setting this property will change the drop text on drag window.
-- [**Deprecated**]`fb.CreateHandleList`: use `FbMetadbHandleList` constructor instead.
+- [**Deprecated**]`fb.CreateHandleList()`: use `FbMetadbHandleList` constructor instead.
 
 ## v1.0.5
 
@@ -84,8 +101,8 @@ ___
 
 ### Changed
 - Rewrote `plman.PlaylistRecyclerManager`, since it was broken:
-   - Replaced `Name` property with `GetName` method.
-   - Replaced `Content` property with `GetContent` method.
+   - Replaced `Name` property with `GetName()` method.
+   - Replaced `Content` property with `GetContent()` method.
    - Renamed to `plman.PlaylistRecycler`.
 
 ## v1.0.3
@@ -116,10 +133,10 @@ Note: despite changing scripting engine to `SpiderMonkey`, the file-system and w
 
 ### Added
 - JavaScript is now conformant to ES2018 standard and has quite a few new features:
+   - [Full ES2015-ES2018 overview](https://flaviocopes.com/ecmascript/).
    - [ES2015/ES6](http://es6-features.org).
    - [ES2016/ES7](https://medium.freecodecamp.org/ecmascript-2016-es7-features-86903c5cab70).
    - [ES2017/ES8](https://edgecoders.com/whats-new-in-es2017-or-es8-for-javascript-40352b089780).
-   - [Full ES2015-ES2017 overview](https://flaviocopes.com/ecmascript/).
    - [ES2018/ES9](https://medium.com/front-end-hacking/javascript-whats-new-in-ecmascript-2018-es2018-17ede97f36d5).
 - All methods that returned `VBArray` before return a proper JS array now.
 - `FbMetadbHandleList` items now can be accessed with [ ] operator.
