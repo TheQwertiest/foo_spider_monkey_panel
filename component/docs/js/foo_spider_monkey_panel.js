@@ -69,7 +69,7 @@ function ActiveXObject(name) {
      * @static
      * 
      * @param {Array<*>} arr An array that contains elements of primitive type.
-     * @param {Array<*>} element_variant_type A variant type of array elements.
+     * @param {number} element_variant_type A variant type of array elements.
      *
      * @return {ActiveXObject}
      * 
