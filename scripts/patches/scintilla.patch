@@ -2,7 +2,7 @@
 index 2a7a839c..44bf53b2 100644
 --- a/submodules/scintilla/lexilla/src/lexilla.mak
 +++ b/submodules/scintilla/lexilla/src/lexilla.mak
-@@ -23,8 +23,12 @@ CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 $(CRTFLAGS)
+@@ -37,8 +37,12 @@ CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 $(CRTFLAGS)
  CXXDEBUG=-Od -MTd -DDEBUG
  CXXNDEBUG=-O1 -MT -DNDEBUG -GL
  NAME=-Fo
@@ -16,7 +16,7 @@ index 2a7a839c..44bf53b2 100644
  LIBS=
  NOLOGO=-nologo
  
-@@ -37,9 +41,12 @@ LDFLAGS=$(LDFLAGS) $(NOLOGO)
+@@ -51,9 +55,12 @@ LDFLAGS=$(LDFLAGS) $(NOLOGO)
  !IFDEF DEBUG
  CXXFLAGS=$(CXXFLAGS) $(CXXDEBUG)
  LDFLAGS=$(LDDEBUG) $(LDFLAGS)
@@ -30,8 +30,8 @@ index 2a7a839c..44bf53b2 100644
  
  INCLUDEDIRS=-I../../include -I../../src -I../../lexlib
  CXXFLAGS=$(CXXFLAGS) $(INCLUDEDIRS)
-@@ -197,7 +204,7 @@ $(LEXILLA): $(LEXILLA_OBJS)
- 	$(LD) $(LDFLAGS) -DLL -OUT:$@ $** $(LIBS)
+@@ -98,7 +105,7 @@ $(LEXILLA): $(LEXILLA_OBJS)
+ 	$(LD) $(LDFLAGS) -DEF:Lexilla.def -DLL -OUT:$@ $** $(LIBS)
  
  $(LIBLEXILLA): $(LEXILLA_OBJS)
 -	LIB -OUT:$@ $**
@@ -42,7 +42,7 @@ index 2a7a839c..44bf53b2 100644
 index 4a652f42..d51c77af 100644
 --- a/submodules/scintilla/win32/scintilla.mak
 +++ b/submodules/scintilla/win32/scintilla.mak
-@@ -32,8 +32,12 @@ CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 $(CRTFLAGS)
+@@ -38,8 +38,12 @@ CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 $(CRTFLAGS)
  CXXDEBUG=-Od -MTd -DDEBUG
  CXXNDEBUG=-O1 -MT -DNDEBUG -GL
  NAME=-Fo
@@ -56,7 +56,7 @@ index 4a652f42..d51c77af 100644
  LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.lib OLEAUT32.lib MSIMG32.lib
  NOLOGO=-nologo
  
-@@ -50,8 +54,11 @@ CXXFLAGS=$(CXXFLAGS) -DNO_CXX11_REGEX
+@@ -56,8 +60,11 @@ CXXFLAGS=$(CXXFLAGS) -DNO_CXX11_REGEX
  !IFDEF DEBUG
  CXXFLAGS=$(CXXFLAGS) $(CXXDEBUG)
  LDFLAGS=$(LDDEBUG) $(LDFLAGS)
@@ -68,10 +68,10 @@ index 4a652f42..d51c77af 100644
  !ENDIF
  
  INCLUDES=-I../include -I../src -I../lexlib
-@@ -270,7 +277,7 @@ $(LEXCOMPONENT): $(LEXCOMPONENT_OBJS) $(DIR_O)\ScintRes.res
+@@ -163,7 +170,7 @@ $(LEXCOMPONENT): $(LEXCOMPONENT_OBJS) $(DIR_O)\ScintRes.res
  	$(LD) $(LDFLAGS) -DEF:Scintilla.def -DLL -OUT:$@ $** $(LIBS)
  
- $(LIBSCI): $(SCILEX_OBJS)
+ $(LIBSCI): $(COMPONENT_OBJS)
 -	LIB /OUT:$@ $**
 +	LIB $(LIBFLAGS) /OUT:$@ $**
  
@@ -79,16 +79,16 @@ index 4a652f42..d51c77af 100644
  
 --- a/submodules/scintilla/win32/ScintillaWin.cxx
 +++ b/submodules/scintilla/win32/ScintillaWin.cxx
-@@ -148,7 +148,7 @@
+@@ -149,7 +149,7 @@
  
  namespace {
  
 -const TCHAR callClassName[] = TEXT("CallTip");
 +const TCHAR callClassName[] = TEXT("SMP_CallTip");
  
- void *PointerFromWindow(HWND hWnd) noexcept {
- 	return reinterpret_cast<void *>(::GetWindowLongPtr(hWnd, 0));
-@@ -3217,7 +3217,7 @@
+ void SetWindowID(HWND hWnd, int identifier) noexcept {
+ 	::SetWindowLongPtr(hWnd, GWLP_ID, identifier);
+@@ -3317,7 +3317,7 @@
  	wndclass.lpfnWndProc = ScintillaWin::SWndProc;
  	wndclass.cbWndExtra = sizeof(ScintillaWin *);
  	wndclass.hInstance = hInstance;
