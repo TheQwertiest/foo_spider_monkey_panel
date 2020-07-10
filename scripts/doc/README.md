@@ -1,8 +1,8 @@
 # Spider Monkey Panel 
 
 All SMP panels are defined with JavaScript, which is:
-- Implemented via Mozilla SpiderMonkey engine (ESR60).
-- Conformant with ECMAScript 2018 (with the exception of modules and some RegExp features).
+- Implemented via Mozilla SpiderMonkey engine (ESR68).
+- Conformant with ECMAScript 2019 (with the exception of modules and some RegExp features).
 - Has built-in ActiveX support (so `Microsoft.XMLHTTP` can be used for network access).
 - Has various extensions for managing foobar2000 and interacting with WinAPI.
 - Has no built-in web browser-specific objects: e.g. XMLHttpRequest, Web Workers API and etc.
@@ -55,19 +55,19 @@ var xmlhttp = new ActiveXObject('Microsoft.XMLHTTP');
 
 SMP includes some samples which demonstrate it's API usage (see [samples](../../samples) sub-folder of your `foo_spider_monkey_panel` installation):
 - [samples/basic](../../samples/basic): basic short examples.
-- [samples/complete](../../samples/complete): feature complete and feature rich samples created by [marc2003](https://github.com/marc2k3/smp_2003).
+- [samples/complete](../../samples/complete): feature complete and feature rich samples created by [marc2003][marc_scripts].
 
 See [samples/readme.md](../../samples/readme.md) for more info.
 
 ## Links<a name="links"></a>
 
+[Homepage](https://theqwertiest.github.io/foo_spider_monkey_panel)  
 [Support thread](https://hydrogenaud.io/index.php/topic,116669.new.html)  
 [Changelog][changelog]  
-[Detailed list of API Changes][api_changes]  
-[Wiki](https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki)
+[Detailed list of API Changes][api_changes]
 
 ## Credits<a name="credits"></a>
-- [marc2003](https://github.com/marc2k3): original [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel), [sample scripts](https://github.com/marc2k3/smp_2003) and multiple contributions to this project.
+- [marc2003](https://github.com/marc2k3): original [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel), [sample scripts][marc_scripts] and multiple contributions to this project.
 - [T.P. Wang](https://hydrogenaud.io/index.php?action=profile;u=44175): original [WSH Panel Mod](https://code.google.com/archive/p/foo-wsh-panel-mod).
 - [#jsapi IRC channel](https://wiki.mozilla.org/IRC): wouldn't make it through without them, love you guys!  
   Especially huge thanks to sfink and jonco, who spent literally tens of hours helping me!
@@ -75,4 +75,5 @@ See [samples/readme.md](../../samples/readme.md) for more info.
 
 [changelog]: https://github.com/TheQwertiest/foo_spider_monkey_panel/blob/master/CHANGELOG.md
 [third_part_notices]: https://github.com/TheQwertiest/foo_spider_monkey_panel/blob/master/THIRD_PARTY_NOTICES.md
-[api_changes]: https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/API-Changes
+[api_changes]: https://theqwertiest.github.io/foo_spider_monkey_panel/docs/script_documentation/api_changes
+[marc_scripts]: https://github.com/TheQwertiest/smp_2003

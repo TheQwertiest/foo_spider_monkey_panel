@@ -37,7 +37,7 @@ public:
 
     bool get_help_url( pfc::string_base& p_out ) override
     {
-        p_out = "https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki";
+        p_out = "https://theqwertiest.github.io/foo_spider_monkey_panel";
         return true;
     }
 
