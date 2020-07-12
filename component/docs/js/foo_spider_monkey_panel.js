@@ -2693,7 +2693,7 @@ function FbTooltip() {
     this.SetDelayTime = function (type, time) { }; // (void)
 
     /**
-     * @param {string=} [font_name='Segoe UI']
+     * @param {string}
      * @param {number=} [font_size_px=12]
      * @param {number=} [font_style=0] See Flags.js > FontStyle
      */

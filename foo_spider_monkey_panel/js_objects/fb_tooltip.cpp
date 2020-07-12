@@ -40,6 +40,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Activate, JsFbTooltip::Activate )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Deactivate, JsFbTooltip::Deactivate )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetDelayTime, JsFbTooltip::GetDelayTime )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetDelayTime, JsFbTooltip::SetDelayTime )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetFont, JsFbTooltip::SetFont, JsFbTooltip::SetFontWithOpt, 2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetMaxWidth, JsFbTooltip::SetMaxWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( TrackPosition, JsFbTooltip::TrackPosition )
 
@@ -49,6 +50,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "Deactivate", Deactivate, 0, kDefaultPropsFlags ),
         JS_FN( "GetDelayTime", GetDelayTime, 1, kDefaultPropsFlags ),
         JS_FN( "SetDelayTime", SetDelayTime, 2, kDefaultPropsFlags ),
+        JS_FN( "SetFont", SetFont, 1, kDefaultPropsFlags ),
         JS_FN( "SetMaxWidth", SetMaxWidth, 1, kDefaultPropsFlags ),
         JS_FN( "TrackPosition", TrackPosition, 2, kDefaultPropsFlags ),
         JS_FS_END,
@@ -143,6 +145,7 @@ void JsFbTooltip::PrepareForGc()
     {
         Deactivate();
         DestroyWindow( hTooltipWnd_ );
+        hTooltipWnd_ = nullptr;
     }
 }
 
@@ -200,7 +203,7 @@ void JsFbTooltip::SetFont( const std::wstring& name, uint32_t pxSize, uint32_t s
     }
 }
 
-void JsFbTooltip::SetFont( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style )
+void JsFbTooltip::SetFontWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style )
 {
     switch ( optArgCount )
     {
@@ -210,8 +213,6 @@ void JsFbTooltip::SetFont( size_t optArgCount, const std::wstring& name, uint32_
         return SetFont( name, pxSize );
     case 2:
         return SetFont( name );
-    case 3:
-        return SetFont();
     default:
         throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }

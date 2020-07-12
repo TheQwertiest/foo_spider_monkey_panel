@@ -42,8 +42,8 @@ public:
     void Deactivate();
     uint32_t GetDelayTime( uint32_t type );
     void SetDelayTime( uint32_t type, int32_t time );
-    void SetFont( const std::wstring& name = L"Segoe UI", uint32_t pxSize = 12, uint32_t style = 0 );
-    void SetFont( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style );
+    void SetFont( const std::wstring& name, uint32_t pxSize = 12, uint32_t style = 0 );
+    void SetFontWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style );
     void SetMaxWidth( uint32_t width );
     void TrackPosition( int x, int y );
 

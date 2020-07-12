@@ -195,10 +195,11 @@ void JsWindow::PrepareForGc()
         dropTargetHandler_->RevokeDragDrop();
         dropTargetHandler_.Release();
     }
-    if ( fbProperties_ )
+    if ( pNativeTooltip_ )
     {
         assert( pNativeTooltip_ );
         pNativeTooltip_->PrepareForGc();
+        pNativeTooltip_ = nullptr;
         jsTooltip_.reset();
     }
 
