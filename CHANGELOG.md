@@ -23,6 +23,9 @@
 ___
 
 ## [Unreleased][]
+### Fixed
+- Fixed `FbTooltip.SetFont()` not working.
+- Fixed a memory leak when using `window.Tooltip`.
 
 ## [1.3.0][] - 2020-07-10
 ### Added
