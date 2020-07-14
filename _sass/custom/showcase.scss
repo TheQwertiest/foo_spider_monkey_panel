@@ -1,0 +1,63 @@
+#showcase-grid {
+  overflow: hidden;
+}
+
+#showcase-grid .showcase {
+  margin: 1.75rem 1.25rem 1.75rem 1.25rem;
+  transition: all 250ms;
+  text-align: left;
+  box-shadow: 0 0 1.25rem #666;
+  border: 1px solid #666;
+}
+
+#showcase-grid .showcase:hover {
+  box-shadow: 0 0 1.25rem #ccc;
+  border: 1px solid #eee;
+}
+
+#showcase-grid .showcase .scripttitle {
+  font-weight: bold;
+  text-transform: uppercase;
+  padding: 0.625rem 0.9375rem;
+}
+
+#showcase-grid .showcase .scriptimgwrap {
+  width: 100%;
+  border-bottom: 1px solid #666;
+}
+
+#showcase-grid .showcase .scriptimg {
+  cursor: pointer;
+  display: block;
+  object-fit: cover;
+  margin: auto;
+}
+
+#showcase-grid .scriptlink {
+  color: inherit;
+  display: block;
+  text-decoration: none !important;
+}
+
+#showcase-grid .showcase .scriptdesc {
+  padding: 0 0.9375rem 0.9375rem;
+  margin: 0 0 -1em 0;
+  font-size: 1rem;
+  line-height: 1.5em;
+  overflow: visible;
+  white-space: pre-line;
+}
+
+#showcase-grid[data-columns]::before {
+content: '1 .grid-col.size-1of1';
+}
+
+.grid-col {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 40rem;
+}
+
+.size-1of1 {
+  width: 100%;
+}

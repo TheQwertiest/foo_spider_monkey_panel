@@ -21,32 +21,13 @@ These scripts are automatically installed with the component.
 To use them replace panel contents with the following line: `include('path_to_script');`  
 For example: `include('samples/js-smooth/JS Smooth Browser.js');`
 
-{% assign sorted_authors = site.showcase_sample | group_by: "author" | sort_natural : "name" %}
-{% for author in sorted_authors %}
-{% assign sorted_scripts = author.items | sort_natural : "name" %}
-{% for showcase in sorted_scripts %}
-### {{ showcase.name }}
-
-Author: {{ author.name }}  
-{% if showcase.ported_by %}Ported by: {{ showcase.ported_by }}<br/>{% endif -%}
-{% if showcase.script_path %}Path: {{ showcase.script_path }}<br/>{% endif -%}
-{% if showcase.original_script %}Original script: {{ showcase.original_script }}<br/>{% endif -%}
-{% endfor %}
-{% endfor %}
+{% include functions/showcase_grid.md collection=site.showcase_sample screenshots_dir='/assets/img/screenshots/samples' description_func='showcase_sample_desc' %}
 
 ## User scripts
 
 These scripts are created by SMP users and are not installed with the component.  
-For installation instructions (and support) see correpsonding links.
+For installation instructions (and support) see corresponding links.
 
-{% assign sorted_authors = site.showcase_user | group_by: "author" | sort_natural : "name" %}
-{% for author in sorted_authors %}
-{% assign sorted_scripts = author.items | sort_natural : "name" %}
-{% for showcase in sorted_scripts %}
-### {{ showcase.name }}
+{% include functions/showcase_grid.md collection=site.showcase_user screenshots_dir='/assets/img/screenshots/user_scripts' description_func='showcase_user_script_desc' %}
 
-Author: {{ author.name }}  
-{% if showcase.link %}Link: {{ showcase.link }}<br/>{% endif -%}
-{% if showcase.support_thread %}Support thread: {{ showcase.support_thread }}<br/>{% endif -%}
-{% endfor %}
-{% endfor %}
+{% include functions/showcase_grid_script.md %}

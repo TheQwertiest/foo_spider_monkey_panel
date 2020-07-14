@@ -15,10 +15,6 @@ nav_order: 2
 
 ---
 
-## Eole 
+{% include functions/showcase_grid.md collection=site.showcase_theme screenshots_dir='/assets/img/screenshots/themes' description_func='showcase_theme_desc' %}
 
-[![](https://raw.githubusercontent.com/Ottodix/Eole-foobar-theme/master/preview.png)](https://raw.githubusercontent.com/Ottodix/Eole-foobar-theme/master/preview.png)
-
-Author: [Ottodix](https://github.com/Ottodix)  
-Link: <https://github.com/Ottodix/Eole-foobar-theme>  
-Support thread: <https://hydrogenaud.io/index.php?topic=117595.0>
+{% include functions/showcase_grid_script.md %}

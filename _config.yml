@@ -16,7 +16,7 @@ exclude:
   - "*.bat"
 
 markdown: kramdown
-kramdown: 
+kramdown:
   parse_block_html: true
 
 baseurl: "/foo_spider_monkey_panel/" 
@@ -30,6 +30,7 @@ collections_dir: collections
 collections:
   - showcase_sample
   - showcase_user
+  - showcase_theme
 
 aux_links:
   "View on GitHub":
