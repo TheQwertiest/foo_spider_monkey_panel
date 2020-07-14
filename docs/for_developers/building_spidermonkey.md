@@ -13,7 +13,7 @@ nav_order: 1
 Full instructions are available here: https://developer.mozilla.org/en-US/docs/Mozilla/Projects/SpiderMonkey/Build_Documentation
 
 Preparation steps:
- - Download Mozilla SpiderMonkey sources via [git](https://github.com/mozilla/gecko-dev/tree/esr60) or [mercurial](https://hg.mozilla.org/mozilla-central). You need `esr60` branch.
+ - Download Mozilla SpiderMonkey sources via [git](https://github.com/mozilla/gecko-dev/tree/esr60) or [mercurial](https://hg.mozilla.org/mozilla-central). You need `esr68` branch.
  - Download and install [MozillaBuild](https://developer.mozilla.org/en-US/docs/Mozilla/Developer_guide/Build_Instructions/Windows_Prerequisites#Required_tools).
  - Download and install [LLVM](https://releases.llvm.org/download.html).
 
