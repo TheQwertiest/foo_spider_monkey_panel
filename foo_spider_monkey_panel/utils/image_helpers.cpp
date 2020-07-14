@@ -19,7 +19,7 @@ using namespace smp;
 class LoadImageTask
 {
 public:
-    LoadImageTask( HWND hNotifyWnd, const std::wstring& imagePath );
+    LoadImageTask( HWND hNotifyWnd, uint32_t taskId, const std::wstring& imagePath );
 
     LoadImageTask( const LoadImageTask& ) = delete;
     LoadImageTask& operator=( const LoadImageTask& ) = delete;
@@ -37,12 +37,11 @@ private:
     std::wstring imagePath_;
 };
 
-LoadImageTask::LoadImageTask( HWND hNotifyWnd, const std::wstring& imagePath )
+LoadImageTask::LoadImageTask( HWND hNotifyWnd, uint32_t taskId, const std::wstring& imagePath )
     : hNotifyWnd_( hNotifyWnd )
+    , taskId_(taskId)
     , imagePath_( imagePath )
 {
-    // Such cast will provide unique id only on x86
-    taskId_ = reinterpret_cast<uint32_t>( this );
 }
 
 void LoadImageTask::operator()()
@@ -76,15 +75,19 @@ namespace smp::image
 
 uint32_t LoadImageAsync( HWND hWnd, const std::wstring& imagePath )
 {
-    // We need to wrap task to keep taskId unique, since it's derived from object address
-    auto task = std::make_shared<LoadImageTask>( hWnd, imagePath );
-    const uint32_t taskId = task->GetTaskId();
+    // This is performed on the main thread only, so it's all good
+    static uint32_t g_taskId = 0;
+    if ( g_taskId == std::numeric_limits<uint32_t>::max() )
+    {
+        g_taskId = 0;
+    }
 
+    auto task = std::make_shared<LoadImageTask>( hWnd, g_taskId++, imagePath );
     ThreadPool::GetInstance().AddTask( [task] {
         std::invoke( *task );
     } );
 
-    return taskId;
+    return task->GetTaskId();
 }
 
 std::unique_ptr<Gdiplus::Bitmap> LoadImage( const std::wstring& imagePath )
