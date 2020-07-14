@@ -2693,7 +2693,7 @@ function FbTooltip() {
     this.SetDelayTime = function (type, time) { }; // (void)
 
     /**
-     * @param {string}
+     * @param {string} font_name
      * @param {number=} [font_size_px=12]
      * @param {number=} [font_style=0] See Flags.js > FontStyle
      */
@@ -2936,7 +2936,7 @@ function GdiBitmap(arg) {
  * @param {number} size_px See Helper.js > Point2Pixel function for conversions
  * @param {number=} [style=0] See Flags.js > FontStyle
  */
-function GdiFont() {
+function GdiFont(name, size_px, style) {
     /**
      * @type {number}
      * @readonly
