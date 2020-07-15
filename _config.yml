@@ -28,6 +28,7 @@ title: Spider Monkey Panel
 
 collections_dir: collections
 collections:
+  - screenshots
   - showcase_sample
   - showcase_user
   - showcase_theme

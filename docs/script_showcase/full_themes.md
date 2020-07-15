@@ -15,6 +15,13 @@ nav_order: 2
 
 ---
 
-{% include functions/showcase_grid.md collection=site.showcase_theme screenshots_dir='/assets/img/screenshots/themes' description_func='showcase_theme_desc' %}
+**Important**: update SMP to the latest version after installing the theme! Otherwise you might experience unexpected bugs!
+
+{% include
+functions/showcase_grid.md
+collection=site.showcase_theme
+screenshots_dir='/assets/img/screenshots/themes'
+description_func='showcase_theme_desc'
+%}
 
 {% include functions/showcase_grid_script.md %}
