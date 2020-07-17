@@ -3,15 +3,22 @@
  */
 
 /**
- * Evaluates the script in file.
- * Similar to eval({@link utils.ReadTextFile}(path)), but provides more features:<br>
+ * Evaluates the script in file.<br>
+ * Similar to `eval({@link utils.ReadTextFile}(path))`, but provides more features:<br>
  * - Has `include guards` - script won't be evaluated a second time if it was evaluated before in the same panel.<br>
  * - Has script caching - script file will be read only once from filesystem (even if it is included from different panels).<br>
- * - Has better error reporting.
+ * - Has better error reporting.<br>
+ * <br>
+ * Note: when the relative `path` is used it will be evaluated to the following values:<br>
+ * - `${fb.ComponentPath}/${path}`, if the method is invoked from a top-level script (i.e. panel's `Configure` dialog).<br>
+ * - `${current_script_path}/${path}`, otherwise.
  *
  * @param {string} path Absolute or relative path to JavaScript file.
  * @param {object=} [options=undefined]
  * @param {boolean=} [options.always_evaluate=false] If true, evaluates the script even if it was included before.
+ *
+ * @example <caption>Include sample from `foo_spider_monkey_panel`</caption> 
+ * include('samples/complete/properties.js')
  */
 function include(path, options) { }
 
@@ -48,7 +55,7 @@ function setInterval(func, delay, func_args) { } // (uint)
  * @return {number}
  *
  * @example
- * // See samples\basic\Timer.txt
+ * // See `samples/basic/Timer.js`
  */
 function setTimeout(func, delay, func_args) { } // (uint)
 
@@ -297,7 +304,7 @@ let fb = {
      * let handle_list = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
      * fb.CopyHandleListToClipboard(handle_list);
      *
-     * @example <caption>cut playlist items</caption>
+     * @example <caption>Cut playlist items</caption>
      * let ap = plman.ActivePlaylist;
      * if (!plman.IsPlaylistLocked(ap)) {
      *    let handle_list = plman.GetPlaylistSelectedItems(ap);
@@ -313,7 +320,7 @@ let fb = {
      * @return {ContextMenuManager}
      *
      * @example
-     * // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+     * // See `samples/basic/MainMenuManager All-In-One.js`, `samples/basic/Menu Sample.js`
      */
     CreateContextMenuManager: function () { }, // (ContextMenuManager)
 
@@ -330,7 +337,7 @@ let fb = {
      * @return {MainMenuManager}
      *
      * @example
-     * // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+     * // See `samples/basic/MainMenuManager All-In-One.js`, `samples/basic/Menu Sample.js`
      */
     CreateMainMenuManager: function () { }, // (MainMenuManager)
 
@@ -372,7 +379,7 @@ let fb = {
      * @return {number} Effect that was returned in {@link module:callbacks~on_drag_drop on_drag_drop}.
      *
      * @example
-     * // See samples/basic/DragnDrop.txt
+     * // See `samples/basic/DragnDrop.js`
      */
     DoDragDrop: function (window_id, handle_list, effect, options) { }, // (uint),
 
@@ -770,7 +777,7 @@ let gdi = {
      * @return {number} a unique id, which is used in {@link module:callbacks~on_load_image_done on_load_image_done}.
      *
      * @example
-     * // See samples\basic\LoadImageAsync.txt
+     * // See `samples/basic/LoadImageAsync.js`
      */
     LoadImageAsync: function (window_id, path) { }, // (uint)
 
@@ -783,7 +790,7 @@ let gdi = {
      * @return {Promise.<?GdiBitmap>}
      *
      * @example
-     * // See samples\basic\LoadImageAsyncV2.txt
+     * // See `samples/basic/LoadImageAsyncV2.js`
      */
     LoadImageAsyncV2: function (window_id, path) { }
 };
@@ -1391,7 +1398,7 @@ let utils = {
      * @param {boolean=} [no_load=false]  If true, "image" parameter will be null in {@link module:callbacks~on_get_album_art_done on_get_album_art_done} callback.
      *
      * @example
-     * // See samples\basic\GetAlbumArtAsync.txt
+     * // See `samples/basic/GetAlbumArtAsync.js`
      */
     GetAlbumArtAsync: function (window_id, handle, art_id, need_stub, only_embed, no_load) { }, // (void) [, art_id][, need_stub][, only_embed][, no_load]
 
@@ -1414,7 +1421,7 @@ let utils = {
      * @return {Promise.<ArtPromiseResult>}
      *
      * @example
-     * // See samples\basic\GetAlbumArtAsyncV2.txt
+     * // See `samples/basic/GetAlbumArtAsyncV2.js`
      */
     GetAlbumArtAsyncV2: function (window_id, handle, art_id, need_stub, only_embed, no_load) { },
 
@@ -1443,7 +1450,7 @@ let utils = {
      * @return {GdiBitmap}
      *
      * @example
-     * // See samples\basic\GetAlbumArtV2.txt
+     * // See `samples/basic/GetAlbumArtV2.js`
      */
     GetAlbumArtV2: function (handle, art_id, need_stub) { }, // (GdiBitmap) [, art_id][, need_stub]
 
@@ -1586,7 +1593,7 @@ let utils = {
      *                                      This data is read-only and should not be modified. Has type limitations (see above).
      *
      * @example <caption>Dialog from code</caption>
-     * // See samples/basic/HtmlDialogWithCheckbox.txt
+     * // See `samples/basic/HtmlDialogWithCheckbox.js`
      *
      * @example <caption>Dialog from file</caption>
      * utils.ShowHtmlDialog(window.ID, `file://${fb.ComponentPath}samples/basic/html/PopupWithCheckBox.html`);
@@ -1795,7 +1802,7 @@ let window = {
      * @return {MenuObject}
      *
      * @example
-     * // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+     * // See `samples/basic/MainMenuManager All-In-One.js`, `samples/basic/Menu Sample.js`
      */
     CreatePopupMenu: function () { }, // (MenuObject)
 
@@ -1804,7 +1811,7 @@ let window = {
      * @return {ThemeManager}
      *
      * @example
-     * // See samples\basic\SimpleThemedButton.txt
+     * // See `samples/basic/SimpleThemedButton.js`
      */
     CreateThemeManager: function (class_id) { }, // (ThemeManager)
 
@@ -2812,7 +2819,7 @@ function GdiBitmap(arg) {
      * @param {GdiBitmap} img
      *
      * @example <caption>Blur image<caption>
-     * // samples\basic\Apply Mask.txt
+     * // See `samples/basic/Apply Mask.js`
      */
     this.ApplyMask = function (img) { }; // (boolean)
 
@@ -2916,10 +2923,10 @@ function GdiBitmap(arg) {
      * @param {number} radius Valid values 2-254.
      *
      * @example <caption>Blur image<caption>
-     * // samples\basic\StackBlur (image).txt
+     * // `samples/basic/StackBlur (image).js`
      *
      * @example <caption>Blur text<caption>
-     * // samples\basic\StackBlur (text).txt
+     * // `samples/basic/StackBlur (text).js`
      */
     this.StackBlur = function (radius) { }; // (void)
 }
