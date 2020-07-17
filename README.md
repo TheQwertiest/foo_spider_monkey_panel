@@ -1,7 +1,7 @@
 # Spider Monkey Panel 
 [![version][version_badge]][changelog] [![Build status][appveyor_badge]](https://ci.appveyor.com/project/TheQwertiest/foo-spider-monkey-panel/branch/master) [![CodeFactor][codefactor_badge]](https://www.codefactor.io/repository/github/theqwertiest/foo_spider_monkey_panel/overview/master) [![Codacy Badge][codacy_badge]](https://app.codacy.com/app/qwertiest/foo_spider_monkey_panel?utm_source=github.com&utm_medium=referral&utm_content=TheQwertiest/foo_spider_monkey_panel&utm_campaign=Badge_Grade_Dashboard) 
 
-This is a component for the [foobar2000](https://www.foobar2000.org) audio player that allows for creation of full-fledged CUI/DUI panels using JavaScript!  
+This is a component for the [foobar2000](https://www.foobar2000.org) audio player that allows to use JavaScript to create full-fledged CUI/DUI panels!
 
 Visit [component homepage](https://theqwertiest.github.io/foo_spider_monkey_panel/) for more info.
 
