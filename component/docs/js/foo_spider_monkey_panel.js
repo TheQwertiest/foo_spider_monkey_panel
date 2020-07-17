@@ -41,23 +41,23 @@ function clearInterval(timerID) { } // (void)
  *
  * @param {function()} func
  * @param {number} delay
- * @param {...*} func_args
+ * @param {...*} [func_args]
  * @return {number}
  */
-function setInterval(func, delay, func_args) { } // (uint)
+function setInterval(func, delay, ...func_args) { } // (uint)
 
 /**
  * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout}.
  *
  * @param {function()} func
  * @param {number} delay
- * @param {...*} func_args
+ * @param {...*} [func_args]
  * @return {number}
  *
  * @example
  * // See `samples/basic/Timer.js`
  */
-function setTimeout(func, delay, func_args) { } // (uint)
+function setTimeout(func, delay, ...func_args) { } // (uint)
 
 /**
  * Load ActiveX object.
@@ -167,7 +167,7 @@ let console = {
      *
      * @param {...*} var_args
      */
-    log: function (var_args) { }, // (void)
+    log: function (...var_args) { }, // (void)
 };
 
 /**
@@ -1405,7 +1405,7 @@ let utils = {
     /**
      * @typedef {Object} ArtPromiseResult
      * @property {?GdiBitmap} image null on failure
-     * @property {string} image_path path to image file (or track file if image is embedded)
+     * @property {string} path path to image file (or track file if image is embedded)
      */
 
     /**
@@ -2168,7 +2168,7 @@ function FbFileInfo() {
  * Handle list elements can be accessed with array accessor, e.g. handle_list[i]
  *
  * @constructor
- * @param {FbMetadbHandleList | FbMetadbHandle | Array<FbMetadbHandle> | null | undefined} arg
+ * @param {FbMetadbHandleList | FbMetadbHandle | Array<FbMetadbHandle> | null | undefined} [arg]
  */
 function FbMetadbHandleList(arg) {
     /**
