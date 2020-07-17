@@ -19,20 +19,20 @@ permalink: /
 
 This is a component for the [foobar2000](https://www.foobar2000.org) audio player.
 
-It allows for creation of full-fledged CUI/DUI panels using JavaScript!  
+It allows to use JavaScript to create full-fledged CUI/DUI panels!  
 
 Base functionality includes:
-- Graphics functions: drawing text, external images, lines, rectangles, etc.
-- Access fonts and colours settings from the main preferences of CUI/DUI.
+- Graphics functions: drawing (text, images, lines, rectangles and etc), image modification (resize, blur, inversion of colours and etc).
+- Access to fonts and colours settings from CUI/DUI preferences.
+- Capture of foobar2000 events with callbacks.
+- Capture of keystrokes and mouse movement/clicks.
 - Execution of main menu and context menu commands.
 - Creation of custom buttons and menus.
-- Capture of keystrokes/mouse movement/clicks.
-- Capture of foobar2000 events with callbacks.
-- Processing and changing of file tags.
 - Playlists management: create, destroy, sort, change, rename and do anything that fb2k can do.
-- Access Media Library with ability to sort and filter it's contents.
+- Media Library access with ability to sort and filter it's contents.
+- Management of file tags.
 - Per panel settings storage. 
-- Built-in web and filesystem access.
+- Built-in web and filesystem functionality.
 - [foo_acfu](https://acfu.3dyd.com) integration.
 - And more!
 
@@ -52,7 +52,7 @@ Main features of `Mozilla SpiderMonkey` engine:
 - ECMAScript 2019 conformant JavaScript.
 - Potential support of ECMAScript Next once it has been released.
 - Blazing-fast performance!
-- Easily customizable: allows to implement lot of features that couldn't be implemented before.
+- Easily customizable: allows to implement a lot of features that couldn't be implemented before.
 
 See [the corresponding page][api_changes] for the detailed list of API changes.  
 Or just use the [Migration Guide](guides/jsp_to_smp_migration_guide.md) to make your scripts compatible.
