@@ -165,9 +165,12 @@ layout: table_wrappers
       <div class="search-overlay"></div>
     {% endif %}
   </div>
+
+  <!-- This block is added by `build_scripts\update_layout.py` -->
   <script type="text/javascript" src="{{ "/assets/js/lightbox.js" | relative_url }}"></script>
   <link rel="stylesheet" href="{{ "/assets/css/lightbox.css" | relative_url }}">
   <script type="text/javascript" src="{{ "/assets/js/slideshow.js" | relative_url }}"></script>
+  <!-- End of custom block -->
 </body>
 </html>
 <!-- build-commit-id: {{ site.github.build_revision }} -->
