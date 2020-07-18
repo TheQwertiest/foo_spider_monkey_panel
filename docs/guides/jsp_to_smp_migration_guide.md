@@ -19,9 +19,9 @@ It is rather simple to migrate your script from `foo_jscript_panel` to `foo_spid
 Most of these can be automated by using `Find & Replace` command in your favourite text editor.
 
 #### Replace old headers:
-<details><summary markdown='span'>► Before</summary>
+<details><summary markdown='span'>Before</summary>
 
-~~~javascript
+```javascript
 // ==PREPROCESSOR==
 // @name "MyScript"
 // @author "Me"
@@ -30,108 +30,108 @@ Most of these can be automated by using `Find & Replace` command in your favouri
 // @import "%fb2k_path%\path\to\script2.js"
 // @feature "dragdrop"
 // ==/PREPROCESSOR==
-~~~
+```
 </details>
-<details><summary markdown='span'>► After</summary>
+<details><summary markdown='span'>After</summary>
 
-~~~javascript
+```javascript
 window.DefinePanel('MyScript', {author: 'Me', version: '1.2.3', features: {drag_n_drop: true} });
 include(fb.FoobarPath + 'path\\to\\script1.js');
 include(fb.FoobarPath + 'path\\to\\script2.js');
-~~~
+```
 </details><br>
 
 #### Remove `.toArray()` and `.Dispose()` methods:
-<details><summary markdown='span'>► Before</summary>
+<details><summary markdown='span'>Before</summary>
 
-~~~javascript
+```javascript
 var artists = tfo.EvalWithMetadbs(handle_list).toArray();
 var artist = artists[0];
 tfo.Dispose();
-~~~
+```
 </details>
-<details><summary markdown='span'>► After</summary>
+<details><summary markdown='span'>After</summary>
 
-~~~javascript
+```javascript
 var artists = tfo.EvalWithMetadbs(handle_list);
 var artist = artists[0];
-~~~
+```
 </details><br>
 
 #### Replace `FbMetadbHandleList.Item(i)` calls with `FbMetadbHandleList[i]`:
-<details><summary markdown='span'>► Before</summary>
+<details><summary markdown='span'>Before</summary>
 
-~~~javascript
+```javascript
 var items = plman.GetPlaylistItems(plman.ActivePlaylist);
 var item = items.Item(0);
-~~~
+```
 </details>
-<details><summary markdown='span'>► After</summary>
+<details><summary markdown='span'>After</summary>
 
-~~~javascript
+```javascript
 var items = plman.GetPlaylistItems(plman.ActivePlaylist);
 var item = items[0];
-~~~
+```
 </details><br>
 
 #### Replace `plman.PlaylistRecyclerManager` with `plman.PlaylistRecycler`; replace calls to it's properties: `Name`>`GetName`, `Content`>`GetContent`:
-<details><summary markdown='span'>► Before</summary>
+<details><summary markdown='span'>Before</summary>
 
-~~~javascript
+```javascript
 var playlist_name = plman.PlaylistRecyclerManager.Name(i);
 var playlist_content = plman.PlaylistRecyclerManager.Content(i);
-~~~
+```
 </details>
-<details><summary markdown='span'>► After</summary>
+<details><summary markdown='span'>After</summary>
 
-~~~javascript
+```javascript
 var playlist_name = plman.PlaylistRecycler.GetName(i);
 var playlist_content = plman.PlaylistRecycler.GetContent(i);
-~~~
+```
 </details><br>
 
 #### Add `window.ID` argument to `fb.DoDragDrop`:
-<details><summary markdown='span'>► Before</summary>
+<details><summary markdown='span'>Before</summary>
 
-~~~javascript
+```javascript
 fb.DoDragDrop(cur_playlist_selection, g_drop_effect.copy);
-~~~
+```
 </details>
-<details><summary markdown='span'>► After</summary>
+<details><summary markdown='span'>After</summary>
 
-~~~javascript
+```javascript
 fb.DoDragDrop(window.ID, cur_playlist_selection, g_drop_effect.copy);
-~~~
+```
 </details><br>
 
 #### If there are errors about unknown methods or properties, make sure that corresponding methods and properties have the valid case:
-<details><summary markdown='span'>► Before</summary>
+<details><summary markdown='span'>Before</summary>
 
-~~~javascript
+```javascript
 Console.Log('Log message');
 var items = plman.getPlaylistItems(plman.activePlaylist);
-~~~
+```
 </details>
-<details><summary markdown='span'>► After</summary>
+<details><summary markdown='span'>After</summary>
 
-~~~javascript
+```javascript
 console.log('Log message');
 var items = plman.GetPlaylistItems(plman.ActivePlaylist);
-~~~
+```
 </details><br>
 
 #### Some methods have more rigorous error checks, so you'll have to pass the valid arguments:
-<details><summary markdown='span'>► Before</summary>
+<details><summary markdown='span'>Before</summary>
 
-~~~javascript
+```javascript
 menu.CheckMenuRadioItem(StartIndex, StartIndex, StartIndex + (checked ? 0 : 1)); ///< out of bounds error
-~~~
+```
 </details>
-<details><summary markdown='span'>► After</summary>
+<details><summary markdown='span'>After</summary>
 
-~~~javascript
+```javascript
 if (checked) {
     menu.CheckMenuRadioItem(StartIndex, StartIndex, StartIndex);
 }
-~~~
+```
 </details>

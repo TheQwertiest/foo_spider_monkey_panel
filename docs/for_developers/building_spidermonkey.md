@@ -21,7 +21,7 @@ Build steps:
 1. Open command prompt.
 1. Execute the following commands:
 
-~~~bash
+```bash
 # Switch to your `MozillaBuild` installation folder.
 cd ${YOUR_MOZILLA_BUILD_PATH}
 ./start-shell.bat
@@ -36,7 +36,7 @@ cd _build
 # Add `--enable-debug` if you want to make a binary for debug build of SMP.
 PATH=$PATH:"/c/Program Files/LLVM/bin/" JS_STANDALONE=1 ../configure --enable-nspr-build --disable-jemalloc --disable-js-shell --disable-tests --target=i686-pc-mingw32 --host=i686-pc-mingw32 --with-libclang-path="C:/Program Files/LLVM/bin" --with-clang-path="C:/Program Files/LLVM/bin/clang.exe"
 mozmake
-~~~
+```
 Build artifacts will be located in the following paths:
   - `_build/dist`: `.dll` and headers.
   - `_build/js/src/build`: `mozjs-68.lib` and `mozjs-68.pdb`.

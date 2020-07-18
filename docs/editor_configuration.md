@@ -2,7 +2,7 @@ Editor style in `Panel configuration` can be configured through `Preferences > T
 
 <details><summary>Editor Properties</summary><p>
 
-![Editor Properties](https://github.com/theqwertiest/foo_spider_monkey_panel/wiki/images/editor_config.png)
+![Editor Properties]({{ "assets/img/misc/editor_config.png" | relative_url }})
 </p></details><br>
 
 

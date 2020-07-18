@@ -21,16 +21,22 @@ SMP JavaScript interface can be integrated in various IDE for early error detect
 - [Visual Studio Code](https://code.visualstudio.com/download): 
    - Either add a comment to the top of each file pointing to `foo_spider_monkey_panel.js` interface file:
      ```javascript
-     /// <reference path="./../user-components/foo_spider_monkey_panel/docs/js/foo_spider_monkey_panel.js">
+     /// <reference path="./../../user-components/foo_spider_monkey_panel/docs/js/foo_spider_monkey_panel.js">
      ```
    - Or add a `jsconfig.json` file in the root of your Visual Studio Code project with the path to `docs\js` directory.
-     For example (assuming that project is in `foobar2000/mytheme`):
-     ```json
+     For example (assuming that project is in `foobar2000/themes/mytheme`):
+     ```jsonc
      {
-         "include": [
-            "**/*.js",
-            "../user-components/foo_spider_monkey_panel/docs/js/*.js"
-        ],
+       "compilerOptions": {
+         // this is needed to suppress built-in browser objects (`window`, various DOM objects and etc)
+         "lib": ["es2019"]
+       },
+       "include": [
+         // project files
+         "**/*.js",
+         // docs
+         "../../user-components/foo_spider_monkey_panel/docs/js/*.js"
+       ]
      }
      ```
      
@@ -39,7 +45,15 @@ SMP JavaScript interface can be integrated in various IDE for early error detect
      
 - IntelliJ [Idea Ultimate](https://www.jetbrains.com/idea/download/#section=windows)/[WebStorm](https://www.jetbrains.com/webstorm/download/#section=windows):  
    - `File`>`Settings`>`Languages`>`JavaScript`>`Libraries`>`Add...`>`+`>`Attach Directories...`> Choose `foo_spider_monkey_panel\docs\js` directory.  
-<details><summary markdown='span'>► Screenshot</summary>
+  <details markdown="0">
+  <summary>
+  Screenshot
+  </summary>
 
-![IntelliJ integration](https://github.com/theqwertiest/foo_spider_monkey_panel/wiki/images/intellij_integration.png)
-</details>
+  {% assign img = "assets/img/misc/intellij_integration.png" | relative_url %}
+  {% include functions/clickable_img.html
+    img = img
+    alt = "Properties of multiple items"
+    title = "Properties of multiple items"
+  %}
+  </details>

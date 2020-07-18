@@ -32,7 +32,7 @@ has_children: true
 1. Prepare submodules:
    - If you want to use pre-built SpiderMonkey, execute `py setup.py`: this script will download and initialize all submodules and will also apply compatibility patches.
    - Otherwise, you can build and use your own Mozilla SpiderMonkey engine binaries (ESR68):
-     <details><summary markdown="span">► Instructions</summary>
+     <details><summary markdown="span">Instructions</summary>
 
      1. [Build SpiderMonkey](building_spidermonkey.md).<br>
      2. Put SpiderMonkey engine binaries and headers in `foo_spider_monkey_panel/mozjs` folder using the following pattern:<br>
