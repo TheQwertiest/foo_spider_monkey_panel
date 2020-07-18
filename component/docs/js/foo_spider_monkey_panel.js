@@ -348,13 +348,13 @@ let fb = {
     CreateProfiler: function (name) { }, // (FbProfiler) [name]
 
     /**
-     * Invokes drag-n-drop operation (see {@link https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx}).<br>
+     * Invokes drag-n-drop operation (see {@link https://docs.microsoft.com/en-us/windows/win32/api/ole2/nf-ole2-dodragdrop}).<br>
      * <br>
      * Quick tips:<br>
      * - If you need only to drag from your panel with copy (i.e. without physically moving them):
      *      use only fb.DoDragDrop(handles, DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
      * - If you need only to receive drop to your panel with copy:
-     *      handle on_drop_* callbacks, while setting action.effect argument to (DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
+     *      handle `on_drop_*()` callbacks, while setting action.effect argument to (DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
      * <br>
      * Full drag-n-drop interface description:<br>
      * - Drag-n-drop interface is based on Microsoft IDropSource and IDropTarget interfaces, so a lot of info (including examples) could be gathered from MSDN (IDropSource, IDropTarget, DoDragDrop, DROPEFFECT).<br>
@@ -366,7 +366,7 @@ let fb = {
      *   If the returned Action.Effect was not in okEffects or is equal to DROPEFFECT_NONE (=== 0), then drop will be denied:
      *   cursor icon will be changed, on_drag_drop won't be called after releasing lmbtn, on_drag_leave will be called instead.<br>
      * - DROPEFFECT_LINK should be used as fallback in case effect argument does not have DROPEFFECT_COPY (===1), since some external drops only allow DROPEFFECT_LINK effect.<br>
-     * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see example here: https://github.com/TheQwertiest/CaTRoX_QWR/blob/ab1aa4c7fc19e08d3ccff84d5959779ba46bf704/theme/Scripts/Panel_Playlist.js#L2512 .<br>
+     * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see the example below.<br>
      *
      * @param {number} window_id see {@link window.ID}
      * @param {FbMetadbHandleList} handle_list
@@ -1455,7 +1455,7 @@ let utils = {
     GetAlbumArtV2: function (handle, art_id, need_stub) { }, // (GdiBitmap) [, art_id][, need_stub]
 
     /**
-     * @param {number} index {@link http://msdn.microsoft.com/en-us/library/ms724371%28VS.85%29.aspx}
+     * @param {number} index {@link https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getsyscolor}
      * @return {number} 0 if failed
      *
      * @example
@@ -1464,7 +1464,7 @@ let utils = {
     GetSysColour: function (index) { }, // (uint)
 
     /**
-     * @param {number} index {@link http://msdn.microsoft.com/en-us/library/ms724385%28VS.85%29.aspx}
+     * @param {number} index {@link https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getsyscolor}
      * @return {number} 0 if failed
      */
     GetSystemMetrics: function (index) { }, // (int)
@@ -1509,7 +1509,7 @@ let utils = {
     InputBox: function (window_id, prompt, caption, default_val, error_on_cancel) { }, // (string)
 
     /**
-     * @param {number} vkey {@link http://msdn.microsoft.com/en-us/library/ms927178.aspx}. Some are defined in Flags.js > Used with utils.IsKeyPressed().
+     * @param {number} vkey {@link https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes}. Some are defined in Flags.js > Used with utils.IsKeyPressed().
      * @return {boolean}
      */
     IsKeyPressed: function (vkey) { }, // (boolean)
@@ -1807,7 +1807,7 @@ let window = {
     CreatePopupMenu: function () { }, // (MenuObject)
 
     /**
-     * @param {string} class_id {@link http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx}
+     * @param {string} class_id {@link https://docs.microsoft.com/en-us/windows/win32/controls/parts-and-states}
      * @return {ThemeManager}
      *
      * @example
@@ -2017,49 +2017,49 @@ function FbMetadbHandle() {
     this.Length = undefined; // (double) (read)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {number} playcount Use 0 to clear
      */
     this.SetPlayCount = function (playcount) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {number} loved Use 0 to clear
      */
     this.SetLoved = function (loved) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {string} first_played Use "" to clear
      */
     this.SetFirstPlayed = function (first_played) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {string} last_played Use "" to clear
      */
     this.SetLastPlayed = function (last_played) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {number} rating Use 0 to clear
      */
     this.SetRating = function (rating) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @method
      */
     this.ClearStats = function () { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @method
      */
@@ -2375,7 +2375,7 @@ function FbMetadbHandleList(arg) {
     this.OrderByRelativePath = function () { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @method
      */
@@ -3339,7 +3339,7 @@ function DropTargetAction() {
     this.Base = undefined; // (write)
 
     /**
-     * See {@link https://msdn.microsoft.com/en-us/library/windows/desktop/ms693457.aspx}
+     * See {@link https://docs.microsoft.com/en-us/windows/win32/com/dropeffect-constants}
      *
      * @type {number}
      */
@@ -3506,7 +3506,7 @@ function ThemeManager() {
     this.IsThemePartDefined = function (partid) { }; // (boolean)
 
     /**
-     * See {@link http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx}
+     * See {@link https://docs.microsoft.com/en-us/windows/win32/controls/parts-and-states}
      *
      * @param {number} partid
      * @param {number=} [stateid=0]
