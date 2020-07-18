@@ -26,7 +26,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Spider Monkey Panel</a></h1>
         
-            <span class="version">v1.3.0</span>
+            <span class="version">v1.3.1</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -84,7 +84,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line30">line 30</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line37">line 37</a></code>
             </div>
             
         </h4>
@@ -223,7 +223,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line23">line 23</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line30">line 30</a></code>
             </div>
             
         </h4>
@@ -362,7 +362,7 @@
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line16">line 16</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line23">line 23</a></code>
             </div>
             
         </h4>
@@ -374,11 +374,15 @@
 
     
     <div class="description">
-        Evaluates the script in file.
-Similar to eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path)), but provides more features:<br>
+        Evaluates the script in file.<br>
+Similar to `eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path))`, but provides more features:<br>
 - Has `include guards` - script won't be evaluated a second time if it was evaluated before in the same panel.<br>
 - Has script caching - script file will be read only once from filesystem (even if it is included from different panels).<br>
-- Has better error reporting.
+- Has better error reporting.<br>
+<br>
+Note: when the relative `path` is used it will be evaluated to the following values:<br>
+- `${fb.ComponentPath}/${path}`, if the method is invoked from a top-level script (i.e. panel's `Configure` dialog).<br>
+- `${current_script_path}/${path}`, otherwise.
     </div>
     
 
@@ -601,6 +605,13 @@ Similar to eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path))
 
 
     
+        <h5>Example</h5>
+        
+        <p class="code-caption">Include sample from `foo_spider_monkey_panel`</p>
+    
+    <pre class="prettyprint"><code>include('samples/complete/properties.js')</code></pre>
+
+    
 
 </dd>
 
@@ -611,12 +622,12 @@ Similar to eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path))
     
         <h4 class="name" id="setInterval">
             
-                <span class="type-signature"></span>setInterval<span class="signature">(func, delay, &hellip;func_args)</span><span class="type-signature"> &rarr; {number}</span>
+                <span class="type-signature"></span>setInterval<span class="signature">(func, delay, &hellip;func_args<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {number}</span>
                 
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line40">line 40</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line47">line 47</a></code>
             </div>
             
         </h4>
@@ -743,6 +754,8 @@ Similar to eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path))
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
 
                 
 
@@ -843,12 +856,12 @@ Similar to eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path))
     
         <h4 class="name" id="setTimeout">
             
-                <span class="type-signature"></span>setTimeout<span class="signature">(func, delay, &hellip;func_args)</span><span class="type-signature"> &rarr; {number}</span>
+                <span class="type-signature"></span>setTimeout<span class="signature">(func, delay, &hellip;func_args<span class="signature-attributes">opt</span>)</span><span class="type-signature"> &rarr; {number}</span>
                 
             
             <div class="container-source members">
                 <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-                <code><a href="js_foo_spider_monkey_panel.js.html#line53">line 53</a></code>
+                <code><a href="js_foo_spider_monkey_panel.js.html#line60">line 60</a></code>
             </div>
             
         </h4>
@@ -975,6 +988,8 @@ Similar to eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path))
             
                 <td class="attributes">
                 
+                    &lt;optional><br>
+                
 
                 
 
@@ -1067,7 +1082,7 @@ Similar to eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path))
     
         <h5>Example</h5>
         
-    <pre class="prettyprint"><code>// See samples\basic\Timer.txt</code></pre>
+    <pre class="prettyprint"><code>// See `samples/basic/Timer.js`</code></pre>
 
     
 
@@ -1088,7 +1103,7 @@ Similar to eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path))
     
     <div class="container-source members">
         <code><a href="js_foo_spider_monkey_panel.js.html">js/foo_spider_monkey_panel.js</a></code>,
-        <code><a href="js_foo_spider_monkey_panel.js.html#line1398">line 1398</a></code>
+        <code><a href="js_foo_spider_monkey_panel.js.html#line1405">line 1405</a></code>
     </div>
     
 </h4>
@@ -1174,7 +1189,7 @@ Similar to eval(<a href="utils.html#.ReadTextFile">utils.ReadTextFile</a>(path))
 
         <tr>
             
-                <td class="name"><code>image_path</code></td>
+                <td class="name"><code>path</code></td>
             
 
             <td class="type">

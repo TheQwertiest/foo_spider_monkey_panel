@@ -3,15 +3,22 @@
  */
 
 /**
- * Evaluates the script in file.
- * Similar to eval({@link utils.ReadTextFile}(path)), but provides more features:<br>
+ * Evaluates the script in file.<br>
+ * Similar to `eval({@link utils.ReadTextFile}(path))`, but provides more features:<br>
  * - Has `include guards` - script won't be evaluated a second time if it was evaluated before in the same panel.<br>
  * - Has script caching - script file will be read only once from filesystem (even if it is included from different panels).<br>
- * - Has better error reporting.
+ * - Has better error reporting.<br>
+ * <br>
+ * Note: when the relative `path` is used it will be evaluated to the following values:<br>
+ * - `${fb.ComponentPath}/${path}`, if the method is invoked from a top-level script (i.e. panel's `Configure` dialog).<br>
+ * - `${current_script_path}/${path}`, otherwise.
  *
  * @param {string} path Absolute or relative path to JavaScript file.
  * @param {object=} [options=undefined]
  * @param {boolean=} [options.always_evaluate=false] If true, evaluates the script even if it was included before.
+ *
+ * @example <caption>Include sample from `foo_spider_monkey_panel`</caption> 
+ * include('samples/complete/properties.js')
  */
 function include(path, options) { }
 
@@ -34,23 +41,23 @@ function clearInterval(timerID) { } // (void)
  *
  * @param {function()} func
  * @param {number} delay
- * @param {...*} func_args
+ * @param {...*} [func_args]
  * @return {number}
  */
-function setInterval(func, delay, func_args) { } // (uint)
+function setInterval(func, delay, ...func_args) { } // (uint)
 
 /**
  * See {@link https://developer.mozilla.org/en-US/docs/Web/API/WindowOrWorkerGlobalScope/setTimeout}.
  *
  * @param {function()} func
  * @param {number} delay
- * @param {...*} func_args
+ * @param {...*} [func_args]
  * @return {number}
  *
  * @example
- * // See samples\basic\Timer.txt
+ * // See `samples/basic/Timer.js`
  */
-function setTimeout(func, delay, func_args) { } // (uint)
+function setTimeout(func, delay, ...func_args) { } // (uint)
 
 /**
  * Load ActiveX object.
@@ -69,7 +76,7 @@ function ActiveXObject(name) {
      * @static
      * 
      * @param {Array<*>} arr An array that contains elements of primitive type.
-     * @param {Array<*>} element_variant_type A variant type of array elements.
+     * @param {number} element_variant_type A variant type of array elements.
      *
      * @return {ActiveXObject}
      * 
@@ -160,7 +167,7 @@ let console = {
      *
      * @param {...*} var_args
      */
-    log: function (var_args) { }, // (void)
+    log: function (...var_args) { }, // (void)
 };
 
 /**
@@ -297,7 +304,7 @@ let fb = {
      * let handle_list = plman.GetPlaylistSelectedItems(plman.ActivePlaylist);
      * fb.CopyHandleListToClipboard(handle_list);
      *
-     * @example <caption>cut playlist items</caption>
+     * @example <caption>Cut playlist items</caption>
      * let ap = plman.ActivePlaylist;
      * if (!plman.IsPlaylistLocked(ap)) {
      *    let handle_list = plman.GetPlaylistSelectedItems(ap);
@@ -313,7 +320,7 @@ let fb = {
      * @return {ContextMenuManager}
      *
      * @example
-     * // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+     * // See `samples/basic/MainMenuManager All-In-One.js`, `samples/basic/Menu Sample.js`
      */
     CreateContextMenuManager: function () { }, // (ContextMenuManager)
 
@@ -330,7 +337,7 @@ let fb = {
      * @return {MainMenuManager}
      *
      * @example
-     * // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+     * // See `samples/basic/MainMenuManager All-In-One.js`, `samples/basic/Menu Sample.js`
      */
     CreateMainMenuManager: function () { }, // (MainMenuManager)
 
@@ -341,13 +348,13 @@ let fb = {
     CreateProfiler: function (name) { }, // (FbProfiler) [name]
 
     /**
-     * Invokes drag-n-drop operation (see {@link https://msdn.microsoft.com/en-us/library/windows/desktop/ms678486.aspx}).<br>
+     * Invokes drag-n-drop operation (see {@link https://docs.microsoft.com/en-us/windows/win32/api/ole2/nf-ole2-dodragdrop}).<br>
      * <br>
      * Quick tips:<br>
      * - If you need only to drag from your panel with copy (i.e. without physically moving them):
      *      use only fb.DoDragDrop(handles, DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
      * - If you need only to receive drop to your panel with copy:
-     *      handle on_drop_* callbacks, while setting action.effect argument to (DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
+     *      handle `on_drop_*()` callbacks, while setting action.effect argument to (DROPEFFECT_COPY | DROPEFFECT_LINK).<br>
      * <br>
      * Full drag-n-drop interface description:<br>
      * - Drag-n-drop interface is based on Microsoft IDropSource and IDropTarget interfaces, so a lot of info (including examples) could be gathered from MSDN (IDropSource, IDropTarget, DoDragDrop, DROPEFFECT).<br>
@@ -359,7 +366,7 @@ let fb = {
      *   If the returned Action.Effect was not in okEffects or is equal to DROPEFFECT_NONE (=== 0), then drop will be denied:
      *   cursor icon will be changed, on_drag_drop won't be called after releasing lmbtn, on_drag_leave will be called instead.<br>
      * - DROPEFFECT_LINK should be used as fallback in case effect argument does not have DROPEFFECT_COPY (===1), since some external drops only allow DROPEFFECT_LINK effect.<br>
-     * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see example here: https://github.com/TheQwertiest/CaTRoX_QWR/blob/ab1aa4c7fc19e08d3ccff84d5959779ba46bf704/theme/Scripts/Panel_Playlist.js#L2512 .<br>
+     * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see the example below.<br>
      *
      * @param {number} window_id see {@link window.ID}
      * @param {FbMetadbHandleList} handle_list
@@ -372,7 +379,7 @@ let fb = {
      * @return {number} Effect that was returned in {@link module:callbacks~on_drag_drop on_drag_drop}.
      *
      * @example
-     * // See samples/basic/DragnDrop.txt
+     * // See `samples/basic/DragnDrop.js`
      */
     DoDragDrop: function (window_id, handle_list, effect, options) { }, // (uint),
 
@@ -770,7 +777,7 @@ let gdi = {
      * @return {number} a unique id, which is used in {@link module:callbacks~on_load_image_done on_load_image_done}.
      *
      * @example
-     * // See samples\basic\LoadImageAsync.txt
+     * // See `samples/basic/LoadImageAsync.js`
      */
     LoadImageAsync: function (window_id, path) { }, // (uint)
 
@@ -783,7 +790,7 @@ let gdi = {
      * @return {Promise.<?GdiBitmap>}
      *
      * @example
-     * // See samples\basic\LoadImageAsyncV2.txt
+     * // See `samples/basic/LoadImageAsyncV2.js`
      */
     LoadImageAsyncV2: function (window_id, path) { }
 };
@@ -1391,14 +1398,14 @@ let utils = {
      * @param {boolean=} [no_load=false]  If true, "image" parameter will be null in {@link module:callbacks~on_get_album_art_done on_get_album_art_done} callback.
      *
      * @example
-     * // See samples\basic\GetAlbumArtAsync.txt
+     * // See `samples/basic/GetAlbumArtAsync.js`
      */
     GetAlbumArtAsync: function (window_id, handle, art_id, need_stub, only_embed, no_load) { }, // (void) [, art_id][, need_stub][, only_embed][, no_load]
 
     /**
      * @typedef {Object} ArtPromiseResult
      * @property {?GdiBitmap} image null on failure
-     * @property {string} image_path path to image file (or track file if image is embedded)
+     * @property {string} path path to image file (or track file if image is embedded)
      */
 
     /**
@@ -1414,7 +1421,7 @@ let utils = {
      * @return {Promise.<ArtPromiseResult>}
      *
      * @example
-     * // See samples\basic\GetAlbumArtAsyncV2.txt
+     * // See `samples/basic/GetAlbumArtAsyncV2.js`
      */
     GetAlbumArtAsyncV2: function (window_id, handle, art_id, need_stub, only_embed, no_load) { },
 
@@ -1443,12 +1450,12 @@ let utils = {
      * @return {GdiBitmap}
      *
      * @example
-     * // See samples\basic\GetAlbumArtV2.txt
+     * // See `samples/basic/GetAlbumArtV2.js`
      */
     GetAlbumArtV2: function (handle, art_id, need_stub) { }, // (GdiBitmap) [, art_id][, need_stub]
 
     /**
-     * @param {number} index {@link http://msdn.microsoft.com/en-us/library/ms724371%28VS.85%29.aspx}
+     * @param {number} index {@link https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getsyscolor}
      * @return {number} 0 if failed
      *
      * @example
@@ -1457,7 +1464,7 @@ let utils = {
     GetSysColour: function (index) { }, // (uint)
 
     /**
-     * @param {number} index {@link http://msdn.microsoft.com/en-us/library/ms724385%28VS.85%29.aspx}
+     * @param {number} index {@link https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getsyscolor}
      * @return {number} 0 if failed
      */
     GetSystemMetrics: function (index) { }, // (int)
@@ -1502,7 +1509,7 @@ let utils = {
     InputBox: function (window_id, prompt, caption, default_val, error_on_cancel) { }, // (string)
 
     /**
-     * @param {number} vkey {@link http://msdn.microsoft.com/en-us/library/ms927178.aspx}. Some are defined in Flags.js > Used with utils.IsKeyPressed().
+     * @param {number} vkey {@link https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes}. Some are defined in Flags.js > Used with utils.IsKeyPressed().
      * @return {boolean}
      */
     IsKeyPressed: function (vkey) { }, // (boolean)
@@ -1586,7 +1593,7 @@ let utils = {
      *                                      This data is read-only and should not be modified. Has type limitations (see above).
      *
      * @example <caption>Dialog from code</caption>
-     * // See samples/basic/HtmlDialogWithCheckbox.txt
+     * // See `samples/basic/HtmlDialogWithCheckbox.js`
      *
      * @example <caption>Dialog from file</caption>
      * utils.ShowHtmlDialog(window.ID, `file://${fb.ComponentPath}samples/basic/html/PopupWithCheckBox.html`);
@@ -1795,16 +1802,16 @@ let window = {
      * @return {MenuObject}
      *
      * @example
-     * // See samples\basic\MainMenuManager All-In-One, samples\basic\Menu Sample.txt
+     * // See `samples/basic/MainMenuManager All-In-One.js`, `samples/basic/Menu Sample.js`
      */
     CreatePopupMenu: function () { }, // (MenuObject)
 
     /**
-     * @param {string} class_id {@link http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx}
+     * @param {string} class_id {@link https://docs.microsoft.com/en-us/windows/win32/controls/parts-and-states}
      * @return {ThemeManager}
      *
      * @example
-     * // See samples\basic\SimpleThemedButton.txt
+     * // See `samples/basic/SimpleThemedButton.js`
      */
     CreateThemeManager: function (class_id) { }, // (ThemeManager)
 
@@ -2010,49 +2017,49 @@ function FbMetadbHandle() {
     this.Length = undefined; // (double) (read)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {number} playcount Use 0 to clear
      */
     this.SetPlayCount = function (playcount) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {number} loved Use 0 to clear
      */
     this.SetLoved = function (loved) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {string} first_played Use "" to clear
      */
     this.SetFirstPlayed = function (first_played) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {string} last_played Use "" to clear
      */
     this.SetLastPlayed = function (last_played) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @param {number} rating Use 0 to clear
      */
     this.SetRating = function (rating) { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @method
      */
     this.ClearStats = function () { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @method
      */
@@ -2161,7 +2168,7 @@ function FbFileInfo() {
  * Handle list elements can be accessed with array accessor, e.g. handle_list[i]
  *
  * @constructor
- * @param {FbMetadbHandleList | FbMetadbHandle | Array<FbMetadbHandle> | null | undefined} arg
+ * @param {FbMetadbHandleList | FbMetadbHandle | Array<FbMetadbHandle> | null | undefined} [arg]
  */
 function FbMetadbHandleList(arg) {
     /**
@@ -2368,7 +2375,7 @@ function FbMetadbHandleList(arg) {
     this.OrderByRelativePath = function () { }; // (void)
 
     /**
-     * See {@link https://github.com/TheQwertiest/foo_spider_monkey_panel/wiki/Playback-stats}
+     * See {@link https://theqwertiest.github.io/foo_spider_monkey_panel/docs/guides/playback_stats}
      *
      * @method
      */
@@ -2693,7 +2700,7 @@ function FbTooltip() {
     this.SetDelayTime = function (type, time) { }; // (void)
 
     /**
-     * @param {string=} [font_name='Segoe UI']
+     * @param {string} font_name
      * @param {number=} [font_size_px=12]
      * @param {number=} [font_style=0] See Flags.js > FontStyle
      */
@@ -2812,7 +2819,7 @@ function GdiBitmap(arg) {
      * @param {GdiBitmap} img
      *
      * @example <caption>Blur image<caption>
-     * // samples\basic\Apply Mask.txt
+     * // See `samples/basic/Apply Mask.js`
      */
     this.ApplyMask = function (img) { }; // (boolean)
 
@@ -2916,10 +2923,10 @@ function GdiBitmap(arg) {
      * @param {number} radius Valid values 2-254.
      *
      * @example <caption>Blur image<caption>
-     * // samples\basic\StackBlur (image).txt
+     * // `samples/basic/StackBlur (image).js`
      *
      * @example <caption>Blur text<caption>
-     * // samples\basic\StackBlur (text).txt
+     * // `samples/basic/StackBlur (text).js`
      */
     this.StackBlur = function (radius) { }; // (void)
 }
@@ -2936,7 +2943,7 @@ function GdiBitmap(arg) {
  * @param {number} size_px See Helper.js > Point2Pixel function for conversions
  * @param {number=} [style=0] See Flags.js > FontStyle
  */
-function GdiFont() {
+function GdiFont(name, size_px, style) {
     /**
      * @type {number}
      * @readonly
@@ -3332,7 +3339,7 @@ function DropTargetAction() {
     this.Base = undefined; // (write)
 
     /**
-     * See {@link https://msdn.microsoft.com/en-us/library/windows/desktop/ms693457.aspx}
+     * See {@link https://docs.microsoft.com/en-us/windows/win32/com/dropeffect-constants}
      *
      * @type {number}
      */
@@ -3499,7 +3506,7 @@ function ThemeManager() {
     this.IsThemePartDefined = function (partid) { }; // (boolean)
 
     /**
-     * See {@link http://msdn.microsoft.com/en-us/library/bb773210%28VS.85%29.aspx}
+     * See {@link https://docs.microsoft.com/en-us/windows/win32/controls/parts-and-states}
      *
      * @param {number} partid
      * @param {number=} [stateid=0]
