@@ -58,7 +58,7 @@ cache:
 # scripts that run after cloning repository
 install:
   - npm install
-  - py scripts\setup.py
+  - py -u scripts\setup.py
 
 #---------------------------------#
 #       build configuration       #
@@ -94,13 +94,13 @@ after_build:
 
 # scripts to run *after* solution is built and *before* automatic packaging occurs (web apps, NuGet packages, Azure Cloud Services)
 before_package:
-  - py scripts\generate_docs.py
+  - py -u scripts\generate_docs.py
   - if '%configuration%' == 'Debug' (
-      py scripts\pack_component.py --debug &&
+      py -u scripts\pack_component.py --debug &&
       ren "_result\%platform%_%configuration%\foo_spider_monkey_panel.fb2k-component" "foo_spider_monkey_panel.fb2k-component_debug"
     )
     else (
-      py scripts\pack_component.py
+      py -u scripts\pack_component.py
     )
 
 # to disable automatic builds
@@ -163,7 +163,7 @@ on_success:
           git config --global user.email $env:git_user_email
           git config --global user.name $env:git_user_name
           git clone -q --depth=1 -b gh-pages https://github.com/$($env:APPVEYOR_REPO_NAME).git gh-pages
-          py scripts\update_gh_pages.py
+          py -u scripts\update_gh_pages.py
           cd gh-pages
           git add -A 2>&1
           git commit -q -m "Updated documentation: $env:APPVEYOR_REPO_TAG_NAME ($env:APPVEYOR_REPO_COMMIT)"
