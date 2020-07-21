@@ -48,12 +48,8 @@
   white-space: pre-line;
 }
 
-#showcase-grid .showcase .scriptdesc a {
-  white-space: pre-wrap !important;
-}
-
 #showcase-grid[data-columns]::before {
-content: '1 .grid-col.size-1of1';
+  content: '1 .grid-col.size-1of1';
 }
 
 .grid-col {

@@ -18,6 +18,11 @@ summary {
   display: list-item;
 }
 
+a {
+  white-space: pre-wrap !important;
+  word-wrap: break-all !important;
+}
+
 @import "./code.scss";
 @import "./showcase.scss";
 @import "./slideshow.scss";

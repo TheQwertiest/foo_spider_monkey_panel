@@ -23,14 +23,14 @@ It allows to use JavaScript to create full-fledged CUI/DUI panels!
 
 Base functionality includes:
 - Graphics functions: drawing (text, images, lines, rectangles and etc), image modification (resize, blur, inversion of colours and etc).
-- Access to fonts and colours settings from CUI/DUI preferences.
+- Access to font and colour settings from CUI/DUI preferences.
 - Capture of foobar2000 events with callbacks.
 - Capture of keystrokes and mouse movement/clicks.
 - Execution of main menu and context menu commands.
 - Creation of custom buttons and menus.
-- Playlists management: create, destroy, sort, change, rename and do anything that fb2k can do.
-- Media Library access with ability to sort and filter it's contents.
-- Management of file tags.
+- Playlist management: create, destroy, sort, change, rename and do anything that fb2k can do.
+- Media Library access with ability to sort and filter it's content.
+- File tag management.
 - Per panel settings storage. 
 - Built-in web and filesystem functionality.
 - [foo_acfu](https://acfu.3dyd.com) integration.
