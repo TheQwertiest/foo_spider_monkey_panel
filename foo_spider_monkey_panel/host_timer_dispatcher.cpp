@@ -4,13 +4,18 @@
 
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
+#include <utils/scope_helpers.h>
 #include <utils/thread_helpers.h>
+#include <utils/winapi_error_helpers.h>
 
 #include <message_manager.h>
 #include <smp_exception.h>
 #include <user_message.h>
 
 // TODO: move to JsEngine form global object
+
+namespace smp
+{
 
 HostTimerDispatcher::HostTimerDispatcher()
     : m_hTimerQueue( CreateTimerQueue() )
@@ -100,32 +105,31 @@ void HostTimerDispatcher::onTimerStopRequest( HWND hWnd, HANDLE hTimer, uint32_t
 
 uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
 {
-    if ( !jsFunction )
-    {
-        return 0;
-    }
+    assert( jsFunction );
 
     std::lock_guard<std::mutex> lock( m_timerMutex );
 
-    uint32_t id = m_curTimerId++;
-    while ( m_timerMap.count( id ) )
-    {
-        id = m_curTimerId++;
-    }
+    const uint32_t id = [&] {
+        uint32_t id = m_curTimerId++;
+        while ( m_timerMap.count( id ) )
+        {
+            id = m_curTimerId++;
+        }
+        return id;
+    }();
 
     JS::RootedValue jsFuncValue( cx, JS::ObjectValue( *JS_GetFunctionObject( jsFunction ) ) );
     JS::RootedObject jsArrayObject( cx, JS_NewArrayObject( cx, jsFuncArgs ) );
     smp::JsException::ExpectTrue( jsArrayObject );
     JS::RootedValue jsArrayValue( cx, JS::ObjectValue( *jsArrayObject ) );
 
-    m_timerMap.emplace( id, std::make_unique<HostTimer>( hWnd, id, delay, isRepeated, std::make_unique<HostTimerTask>( cx, jsFuncValue, jsArrayValue ) ) );
+    auto [it, bDummy] = m_timerMap.emplace( id, std::make_unique<HostTimer>( hWnd, id, delay, isRepeated, std::make_unique<HostTimerTask>( cx, jsFuncValue, jsArrayValue ) ) );
+    auto& [iDummy, timer] = *it;
+    auto autoTimer = utils::final_action( [&] { m_timerMap.erase( id ); } );
 
-    if ( !m_timerMap[id]->start( m_hTimerQueue ) )
-    {
-        m_timerMap.erase( id );
-        return 0;
-    }
+    timer->start( m_hTimerQueue );
 
+    autoTimer.cancel();
     return id;
 }
 
@@ -177,12 +181,15 @@ void HostTimerDispatcher::threadMain()
         {
         case ThreadTaskId::killTimerTask:
         {
+            assert( m_hTimerQueue );
+            assert( threadTask.hTimer );
             (void)DeleteTimerQueueTimer( m_hTimerQueue, threadTask.hTimer, INVALID_HANDLE_VALUE );
             onTimerExpire( threadTask.timerId );
             break;
         }
         case ThreadTaskId::shutdownTask:
         {
+            assert( m_hTimerQueue );
             (void)DeleteTimerQueueEx( m_hTimerQueue, INVALID_HANDLE_VALUE );
             m_hTimerQueue = nullptr;
             return;
@@ -257,16 +264,17 @@ HostTimer::HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated, s
     assert( task );
 }
 
-bool HostTimer::start( HANDLE hTimerQueue )
+void HostTimer::start( HANDLE hTimerQueue )
 {
-    return !!CreateTimerQueueTimer(
+    BOOL bRet = CreateTimerQueueTimer(
         &hTimer_,
         hTimerQueue,
         HostTimer::timerProc,
         this,
         delay_,
-        isRepeated_ ? delay_ : 0,
+        ( isRepeated_ ? delay_ : 0 ),
         WT_EXECUTEINTIMERTHREAD | ( isRepeated_ ? 0 : WT_EXECUTEONLYONCE ) );
+    smp::error::CheckWinApi( bRet, "CreateTimerQueueTimer" );
 }
 
 void HostTimer::stop()
@@ -292,9 +300,10 @@ VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFire
     }
 
     auto postTimerTask = [&timer] {
-        smp::panel::message_manager::instance().post_callback_msg( timer->hWnd_,
-                                                                   smp::CallbackMessage::internal_timer_proc,
-                                                                   std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );
+        smp::panel::message_manager::instance().post_callback_msg(
+            timer->hWnd_,
+            smp::CallbackMessage::internal_timer_proc,
+            std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );
     };
 
     if ( timer->isRepeated_ )
@@ -314,7 +323,4 @@ HWND HostTimer::GetHwnd() const
     return hWnd_;
 }
 
-HostTimerTask& HostTimer::GetTask()
-{
-    return *task_;
-}
+} // namespace smp

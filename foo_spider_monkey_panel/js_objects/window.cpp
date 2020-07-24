@@ -266,7 +266,7 @@ JSObject* JsWindow::CreateTooltip( const std::wstring& name, uint32_t pxSize, ui
 
     assert( pNativeTooltip_ );
     pNativeTooltip_->SetFont( name, pxSize, style );
-    
+
     return jsTooltip_;
 }
 
@@ -557,7 +557,9 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay, JS::Handle
     }
 
     SmpException::ExpectTrue( func.isObject() && JS_ObjectIsFunction( &func.toObject() ),
-                              "func argument is not a JS function" );
+                              "`func` argument is not a JS function" );
+
+    SmpException::ExpectTrue( delay > 0, "`delay` must be non-zero" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
     return HostTimerDispatcher::Get().setInterval( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction, funcArgs );

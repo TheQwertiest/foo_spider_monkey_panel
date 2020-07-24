@@ -12,6 +12,9 @@ namespace mozjs
 class JsGlobalObject;
 }
 
+namespace smp
+{
+
 class HostTimer;
 class HostTimerTask;
 
@@ -109,7 +112,7 @@ public:
     HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated, std::shared_ptr<HostTimerTask> task );
     ~HostTimer() = default;
 
-    bool start( HANDLE hTimerQueue );
+    void start( HANDLE hTimerQueue );
     void stop();
 
     /// @brief Timer proc.
@@ -120,7 +123,6 @@ public:
     static VOID CALLBACK timerProc( PVOID lpParameter, BOOLEAN TimerOrWaitFired );
 
     HWND GetHwnd() const;
-    HostTimerTask& GetTask();
 
 private:
     std::shared_ptr<HostTimerTask> task_;
@@ -135,3 +137,5 @@ private:
     std::atomic_bool isStopRequested_ = false;
     bool isStopped_ = false;
 };
+
+} // namespace smp
