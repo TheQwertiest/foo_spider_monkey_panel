@@ -7,8 +7,10 @@ namespace
 
 advconfig_branch_factory branch_smp(
     "Spider Monkey Panel", smp::guid::adv_branch, advconfig_branch::guid_branch_tools, 0 );
+advconfig_branch_factory branch_performance(
+    "Performance: restart is required", smp::guid::adv_branch_performance, smp::guid::adv_branch, 0 );
 advconfig_branch_factory branch_gc(
-    "GC: restart is required", smp::guid::adv_branch_gc, smp::guid::adv_branch, 0 );
+    "GC", smp::guid::adv_branch_gc, smp::guid::adv_branch_performance, 0 );
 #ifdef SMP_ENABLE_CXX_STACKTRACE
 advconfig_branch_factory branch_stacktrace(
     "C++ exception stack trace", smp::guid::adv_branch_stacktrace, smp::guid::adv_branch, 1 );
@@ -43,6 +45,11 @@ advconfig_integer_factory gc_max_alloc_increase(
     "Allowed number of allocations before next GC trigger",
     smp::guid::adv_var_gc_max_alloc_increase, smp::guid::adv_branch_gc, 4,
     1000, 1, 100000 );
+
+advconfig_integer_factory performance_max_runtime(
+    "Script execution time limit before triggering a `slow script` warning (in seconds)",
+    smp::guid::adv_var_performance_max_runtime, smp::guid::adv_branch_performance, 4,
+    5, 0, 60 );
 
 #ifdef SMP_ENABLE_CXX_STACKTRACE
 advconfig_checkbox_factory stacktrace(

@@ -38,18 +38,19 @@ public:
     void OnJsActionStart( JsContainer& jsContainer );
     void OnJsActionEnd( JsContainer& jsContainer );
 
-    bool OnInterrupt();
+    [[nodiscard]] bool OnInterrupt();
 
 private:
     /// @throw smp::SmpException
     void StartMonitorThread();
     void StopMonitorThread();
 
-    bool HasActivePopup( bool isMainThread ) const;
+    [[nodiscard]] bool HasActivePopup( bool isMainThread ) const;
 
 private:
     JSContext* pJsCtx_ = nullptr;
     HWND hFb2k_ = nullptr;
+    const std::chrono::seconds slowScriptLimit_;
 
     struct ContainerData
     {

@@ -1,4 +1,4 @@
-// A lot of logic ripped from js/xpconnect/src/XPCJSContext.cpp
+// A lot of logic ripped from <js/xpconnect/src/XPCJSContext.cpp>
 
 #include <stdafx.h>
 
@@ -11,6 +11,7 @@
 #include <utils/scope_helpers.h>
 #include <utils/thread_helpers.h>
 
+#include <adv_config.h>
 #include <js_panel_window.h>
 #include <message_blocking_scope.h>
 
@@ -20,7 +21,6 @@ namespace
 {
 
 constexpr auto kMonitorRate = std::chrono::seconds( 1 );
-constexpr auto kSlowScriptLimit = std::chrono::seconds( 5 );
 
 auto GetLowResTime()
 {
@@ -33,6 +33,7 @@ namespace mozjs
 {
 
 JsMonitor::JsMonitor()
+    : slowScriptLimit_( static_cast<uint32_t>( smp::config::advanced::performance_max_runtime.get() ) )
 { // JsMonitor might be created before fb2k is fully initialized
     smp::utils::DelayedExecutor::GetInstance().AddTask( [&hFb2k = hFb2k_] { hFb2k = core_api::get_main_window(); } );
 }
@@ -40,12 +41,18 @@ JsMonitor::JsMonitor()
 void JsMonitor::Start( JSContext* cx )
 {
     pJsCtx_ = cx;
-    StartMonitorThread();
+    if ( slowScriptLimit_ != std::chrono::seconds::zero() )
+    {
+        StartMonitorThread();
+    }
 }
 
 void JsMonitor::Stop()
 {
-    StopMonitorThread();
+    if ( slowScriptLimit_ != std::chrono::seconds::zero() )
+    {
+        StopMonitorThread();
+    }
     pJsCtx_ = nullptr;
 }
 
@@ -101,8 +108,9 @@ void JsMonitor::OnJsActionEnd( JsContainer& jsContainer )
 
 bool JsMonitor::OnInterrupt()
 {
-    if ( !pJsCtx_ )
-    { // might be invoked before monitor was started
+    if ( !pJsCtx_ ///< might be invoked before monitor was started
+         || slowScriptLimit_ == std::chrono::seconds::zero() )
+    {
         return true;
     }
 
@@ -151,10 +159,8 @@ bool JsMonitor::OnInterrupt()
         std::vector<std::pair<JsContainer*, ContainerData*>> dataToProcess;
         for ( auto& [pContainer, containerData]: monitoredContainers_ )
         {
-            // TODO: report ICE to MS
-            auto tmp = pContainer;
-            const auto it = ranges::find_if( activeContainers_, [&tmp]( auto& elem ) {
-                return ( elem.first == tmp );
+            const auto it = ranges::find_if( activeContainers_, [pContainer = pContainer]( auto& elem ) {
+                return ( elem.first == pContainer );
             } );
             if ( activeContainers_.cend() != it )
             {
@@ -168,7 +174,7 @@ bool JsMonitor::OnInterrupt()
         auto& containerData = *pContainerData;
 
         if ( containerData.ignoreSlowScriptCheck
-             || ( curTime - containerData.slowScriptCheckpoint ) < kSlowScriptLimit / 2.0 )
+             || ( curTime - containerData.slowScriptCheckpoint ) < slowScriptLimit_ / 2.0 )
         {
             continue;
         }
@@ -183,6 +189,13 @@ bool JsMonitor::OnInterrupt()
             continue;
         }
 
+        if ( JsContainer::JsStatus::EngineFailed == pContainer->GetStatus()
+             || JsContainer::JsStatus::Failed == pContainer->GetStatus() )
+        { // possible if the interrupt was requested again after the script was aborted,
+            // but before the container was removed from active
+            continue;
+        }
+
         if ( !modal_dialog_scope::can_create() )
         {
             continue;
@@ -192,38 +205,44 @@ bool JsMonitor::OnInterrupt()
         {
             std::u8string panelName;
             HWND parentHwnd;
-            if ( JsContainer::JsStatus::Working == pContainer->GetStatus() )
+            switch ( pContainer->GetStatus() )
+            {
+            case JsContainer::JsStatus::Working:
             {
                 auto& parentPanel = pContainer->GetParentPanel();
                 panelName = parentPanel.ScriptInfo().build_info_string( false );
                 parentHwnd = parentPanel.GetHWND();
             }
-            else if ( JsContainer::JsStatus::Ready == pContainer->GetStatus() )
+            case JsContainer::JsStatus::Ready:
             { // possible if script destroyed the parent panel (e.g. by switching layout)
                 parentHwnd = GetActiveWindow();
             }
-            else
-            { // possible if the interrupt was requested again after the script was aborted,
-                // but before the container was removed from active
-                continue;
+            default:
+                assert( 0 );
             }
 
+            std::u8string scriptInfo;
             JS::AutoFilename filename;
             unsigned lineno;
-            (void)JS::DescribeScriptedCaller( pJsCtx_, &filename, &lineno );
-
-            std::u8string scriptInfo;
-            if ( filename.get() )
+            if ( !JS::DescribeScriptedCaller( pJsCtx_, &filename, &lineno ) )
             {
-                if ( strlen( filename.get() ) )
+                JS_ClearPendingException( pJsCtx_ );
+                scriptInfo = "<failed to fetch script info>";
+            }
+            else
+            {
+                if ( filename.get() )
                 {
-                    scriptInfo += filename.get();
+                    if ( strlen( filename.get() ) )
+                    {
+                        scriptInfo += filename.get();
+                    }
+                    else
+                    {
+                        scriptInfo += "<unknown file>";
+                    }
+                    scriptInfo += ": " + std::to_string( lineno );
                 }
-                else
-                {
-                    scriptInfo += "<unknown file>";
-                }
-                scriptInfo += ": " + std::to_string( lineno );
             }
 
             modal_dialog_scope scope( parentHwnd );
@@ -294,9 +313,9 @@ void JsMonitor::StartMonitorThread()
 
                     const auto curTime = GetLowResTime();
 
-                    const auto it = ranges::find_if( activeContainers_, [&curTime]( auto& elem ) {
+                    const auto it = ranges::find_if( activeContainers_, [&curTime, &slowScriptLimit = slowScriptLimit_]( auto& elem ) {
                         auto& [pContainer, startTime] = elem;
-                        return ( ( curTime - startTime ) > kSlowScriptLimit / 2.0 );
+                        return ( ( curTime - startTime ) > slowScriptLimit / 2.0 );
                     } );
 
                     return ( it != activeContainers_.cend() );
