@@ -3,8 +3,6 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_objects/global_object.h>
 
-#include <mutex_workaround.h>
-
 #include <array>
 
 namespace mozjs
@@ -49,7 +47,7 @@ public:
 
     ~JsAsyncTaskImpl() override
     {
-        hack::scoped_lock sl( cleanupLock_ );
+        std::scoped_lock sl( cleanupLock_ );
         if ( !isJsAvailable_ )
         {
             return;
@@ -65,7 +63,7 @@ public:
     /// @details Assumes that JS environment is ready (global, realm and etc).
     bool InvokeJs() final
     {
-        hack::scoped_lock sl( cleanupLock_ );
+        std::scoped_lock sl( cleanupLock_ );
         if ( !isJsAvailable_ )
         {
             return true;
@@ -79,13 +77,13 @@ public:
 
     void PrepareForGlobalGc() final
     {
-        hack::scoped_lock sl( cleanupLock_ );
+        std::scoped_lock sl( cleanupLock_ );
         isJsAvailable_ = false;
     }
 
     bool IsCanceled() const final
     {
-        hack::scoped_lock sl( cleanupLock_ );
+        std::scoped_lock sl( cleanupLock_ );
         return isJsAvailable_;
     }
 

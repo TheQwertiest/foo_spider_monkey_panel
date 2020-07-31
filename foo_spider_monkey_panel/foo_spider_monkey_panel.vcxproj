@@ -295,7 +295,6 @@
     <ClInclude Include="js_utils\serialized_value.h" />
     <ClInclude Include="message_blocking_scope.h" />
     <ClInclude Include="message_manager.h" />
-    <ClInclude Include="mutex_workaround.h" />
     <ClInclude Include="smp_exception.h" />
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="config.h" />
