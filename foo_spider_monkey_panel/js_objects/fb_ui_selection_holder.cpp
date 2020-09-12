@@ -37,7 +37,7 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistSelectionTracking, JsFbUiSelectionHolder::SetPlaylistSelectionTracking )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistTracking, JsFbUiSelectionHolder::SetPlaylistTracking )
-MJS_DEFINE_JS_FN_FROM_NATIVE( SetSelection, JsFbUiSelectionHolder::SetSelection )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetSelection, JsFbUiSelectionHolder::SetSelection, JsFbUiSelectionHolder::SetSelectionWithOpt, 1 )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
@@ -89,11 +89,40 @@ void JsFbUiSelectionHolder::SetPlaylistTracking()
     holder_->set_playlist_tracking();
 }
 
-void JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles )
+const std::array<const GUID*, 7> guids = {
+    &contextmenu_item::caller_undefined,
+    &contextmenu_item::caller_active_playlist_selection,
+    &contextmenu_item::caller_active_playlist,
+    &contextmenu_item::caller_playlist_manager,
+    &contextmenu_item::caller_now_playing,
+    &contextmenu_item::caller_keyboard_shortcut_list,
+    &contextmenu_item::caller_media_library_viewer
+};
+
+void JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles, uint8_t type )
+
 {
     qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
-    holder_->set_selection( handles->GetHandleList() );
+    holder_->set_selection_ex( handles->GetHandleList(), *guids.at( type ) );
+}
+
+void JsFbUiSelectionHolder::SetSelectionWithOpt( size_t optArgCount, JsFbMetadbHandleList* handles, uint8_t type )
+{
+    SmpException::ExpectTrue( handles, "handles argument is null" );
+
+    switch ( optArgCount )
+    {
+    case 0:
+        holder_->set_selection_ex( handles->GetHandleList(), *guids.at( type ) );
+        break;
+    case 1:
+        optArgCount = optArgCount;
+        holder_->set_selection_ex( handles->GetHandleList(), contextmenu_item::caller_undefined );
+        break;
+    default:
+        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+    }
 }
 
 } // namespace mozjs
