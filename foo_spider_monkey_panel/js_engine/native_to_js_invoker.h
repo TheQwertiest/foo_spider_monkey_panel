@@ -57,7 +57,7 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
 
     if ( funcValue.isUndefined() )
     { // Not an error: user didn't define a callback
-        return nullptr;
+        return std::nullopt;
     }
 
     try

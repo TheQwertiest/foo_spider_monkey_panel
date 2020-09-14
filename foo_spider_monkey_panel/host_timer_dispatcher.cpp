@@ -91,16 +91,18 @@ void HostTimerDispatcher::onTimerExpire( uint32_t timerId )
 
 void HostTimerDispatcher::onTimerStopRequest( HWND hWnd, HANDLE hTimer, uint32_t timerId )
 {
-    std::unique_lock<std::mutex> lock( m_threadTaskMutex );
+    {
+        std::unique_lock lock( m_threadTaskMutex );
 
-    ThreadTask threadTask = {};
-    threadTask.taskId = ThreadTaskId::killTimerTask;
-    threadTask.hWnd = hWnd;
-    threadTask.hTimer = hTimer;
-    threadTask.timerId = timerId;
+        ThreadTask threadTask = {};
+        threadTask.taskId = ThreadTaskId::killTimerTask;
+        threadTask.hWnd = hWnd;
+        threadTask.hTimer = hTimer;
+        threadTask.timerId = timerId;
 
-    m_threadTaskList.push_front( threadTask );
-    m_cv.notify_one();
+        m_threadTaskList.push_front( threadTask );
+    }
+    m_cv.notify_all();
 }
 
 uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
@@ -152,8 +154,8 @@ void HostTimerDispatcher::stopThread()
         threadTask.taskId = ThreadTaskId::shutdownTask;
 
         m_threadTaskList.push_front( threadTask );
-        m_cv.notify_one();
     }
+    m_cv.notify_all();
 
     if ( m_thread->joinable() )
     {
