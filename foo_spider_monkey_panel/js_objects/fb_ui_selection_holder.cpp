@@ -109,8 +109,6 @@ void JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles, uint8_t
 
 void JsFbUiSelectionHolder::SetSelectionWithOpt( size_t optArgCount, JsFbMetadbHandleList* handles, uint8_t type )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
-
     switch ( optArgCount )
     {
     case 0:
