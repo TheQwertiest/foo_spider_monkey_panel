@@ -117,7 +117,6 @@ void JsFbUiSelectionHolder::SetSelectionWithOpt( size_t optArgCount, JsFbMetadbH
         holder_->set_selection_ex( handles->GetHandleList(), *guids.at( type ) );
         break;
     case 1:
-        optArgCount = optArgCount;
         holder_->set_selection_ex( handles->GetHandleList(), contextmenu_item::caller_undefined );
         break;
     default:
