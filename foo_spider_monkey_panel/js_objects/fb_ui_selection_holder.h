@@ -36,7 +36,7 @@ public:
 public:
     void SetPlaylistSelectionTracking();
     void SetPlaylistTracking();
-    void SetSelection( JsFbMetadbHandleList* handles, uint8_t type);
+    void SetSelection( JsFbMetadbHandleList* handles, uint8_t type = 0);
     void SetSelectionWithOpt( size_t optArgCount, JsFbMetadbHandleList* handles, uint8_t type );
 
 private:
