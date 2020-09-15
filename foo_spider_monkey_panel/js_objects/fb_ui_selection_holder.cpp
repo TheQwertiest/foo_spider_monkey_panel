@@ -117,7 +117,7 @@ void JsFbUiSelectionHolder::SetSelectionWithOpt( size_t optArgCount, JsFbMetadbH
         SetSelection( handles, type );
         break;
     case 1:
-        holder_->set_selection_ex( handles->GetHandleList(), contextmenu_item::caller_undefined );
+       SetSelection( handles );
         break;
     default:
         throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
