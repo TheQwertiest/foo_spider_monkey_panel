@@ -1,6 +1,7 @@
 #include <stdafx.h>
 
 #include "fb_ui_selection_holder.h"
+#include "utils/gui_holder_helpers.h"
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle_list.h>
@@ -89,22 +90,12 @@ void JsFbUiSelectionHolder::SetPlaylistTracking()
     holder_->set_playlist_tracking();
 }
 
-const std::array<const GUID*, 7> guids = {
-    &contextmenu_item::caller_undefined,
-    &contextmenu_item::caller_active_playlist_selection,
-    &contextmenu_item::caller_active_playlist,
-    &contextmenu_item::caller_playlist_manager,
-    &contextmenu_item::caller_now_playing,
-    &contextmenu_item::caller_keyboard_shortcut_list,
-    &contextmenu_item::caller_media_library_viewer
-};
-
 void JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles, uint8_t type )
-
 {
     qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
-    holder_->set_selection_ex( handles->GetHandleList(), *guids.at( type ) );
+    const GUID gtype = GetHolderGuiFromType( type );
+    holder_->set_selection_ex( handles->GetHandleList(), gtype );
 }
 
 void JsFbUiSelectionHolder::SetSelectionWithOpt( size_t optArgCount, JsFbMetadbHandleList* handles, uint8_t type )
@@ -115,7 +106,7 @@ void JsFbUiSelectionHolder::SetSelectionWithOpt( size_t optArgCount, JsFbMetadbH
         SetSelection( handles, type );
         break;
     case 1:
-       SetSelection( handles );
+        SetSelection( handles );
         break;
     default:
         throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
