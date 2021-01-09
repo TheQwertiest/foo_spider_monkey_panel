@@ -15,9 +15,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "foo_spider_monkey_panel", "
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "scintilla", "..\submodules\scintilla\win32\scintilla.vcxproj", "{10B2A7EF-9089-4352-BA26-7E9AEF50987D}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "3rd-part SDK", "3rd-part SDK", "{0C59EEF0-93B0-4DA2-A67D-821327C32C78}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "submodules", "submodules", "{0C59EEF0-93B0-4DA2-A67D-821327C32C78}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Documentation", "Documentation", "{544844FF-3BCA-4D28-884D-997582B1E2C2}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{544844FF-3BCA-4D28-884D-997582B1E2C2}"
 	ProjectSection(SolutionItems) = preProject
 		..\CHANGELOG.md = ..\CHANGELOG.md
 		..\component\interface.api = ..\component\interface.api

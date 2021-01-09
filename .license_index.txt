@@ -1,0 +1,18 @@
+AtlScintilla: zlib
+Columns UI SDK: other
+CPropertyList: other
+DispatchPtr: BSD
+foobar2000 SDK: other
+fmt: other
+JScript Panel: Unlicense
+JSON for Modern C++: MIT
+KMeans: MIT
+range-v3: BSL-1.0
+PFC: zlib
+Scintilla: HPND
+SpiderMonkey: MPL
+StackBlur: MIT
+span lite: BSL-1.0
+timsort-cpp: MIT
+UI Helpers: BSD
+WTL: MS-PL

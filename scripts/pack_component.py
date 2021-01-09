@@ -10,7 +10,7 @@ import call_wrapper
 def path_basename_tuple(path):
     return (path, path.name)
 
-def zipdir(zip_file, path, arc_path):
+def zipdir(zip_file, path, arc_path=None):
     assert(path.exists() and path.is_dir())
 
     for file in path.rglob("*"):
@@ -39,7 +39,8 @@ def pack(is_debug = False):
     component_zip.unlink(missing_ok=True)
 
     with ZipFile(component_zip, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as z:
-        zipdir(z, root_dir/"component", "")
+        zipdir(z, root_dir/"component")
+        zipdir(z, root_dir/"licenses", "licenses")
         zipdir(z, root_dir/"submodules"/"smp_2003", "samples/complete")
 
         z.write(*path_basename_tuple(root_dir/"LICENSE"))

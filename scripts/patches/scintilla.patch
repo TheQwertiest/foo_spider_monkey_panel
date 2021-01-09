@@ -79,7 +79,7 @@ index 4a652f42..d51c77af 100644
  
 --- a/submodules/scintilla/win32/ScintillaWin.cxx
 +++ b/submodules/scintilla/win32/ScintillaWin.cxx
-@@ -149,7 +149,7 @@
+@@ -150,7 +150,7 @@
  
  namespace {
  
@@ -88,12 +88,12 @@ index 4a652f42..d51c77af 100644
  
  void SetWindowID(HWND hWnd, int identifier) noexcept {
  	::SetWindowLongPtr(hWnd, GWLP_ID, identifier);
-@@ -3317,7 +3317,7 @@
+@@ -3337,7 +3337,7 @@
  	wndclass.lpfnWndProc = ScintillaWin::SWndProc;
  	wndclass.cbWndExtra = sizeof(ScintillaWin *);
  	wndclass.hInstance = hInstance;
 -	wndclass.lpszClassName = L"Scintilla";
 +	wndclass.lpszClassName = L"SMP_Scintilla";
  	scintillaClassAtom = ::RegisterClassExW(&wndclass);
- 	bool result = 0 != scintillaClassAtom;
+ 	const bool result = 0 != scintillaClassAtom;
  

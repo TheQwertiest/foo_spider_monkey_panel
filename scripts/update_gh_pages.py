@@ -21,7 +21,7 @@ def update(gh_pages_dir: PathLike):
         shutil.rmtree(ghp_gen_dir)
         ghp_gen_dir.mkdir(parents=True)
 
-    shutil.copytree(root_dir/"component"/"licenses", ghp_gen_dir/"licenses", dirs_exist_ok=True)
+    shutil.copytree(root_dir/"licenses", ghp_gen_dir/"licenses", dirs_exist_ok=True)
     shutil.copytree(root_dir/"component"/"samples", ghp_gen_dir/"samples", dirs_exist_ok=True)
     shutil.copytree(root_dir/"submodules"/"smp_2003", ghp_gen_dir/"samples"/"complete", dirs_exist_ok=True)
     shutil.copytree(root_dir/"component"/"docs", ghp_gen_dir/"docs", dirs_exist_ok=True)
