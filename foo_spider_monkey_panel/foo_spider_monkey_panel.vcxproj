@@ -108,6 +108,9 @@
     <ProjectReference Include="..\submodules\columns_ui-sdk\columns_ui-sdk.vcxproj">
       <Project>{93ec0ede-01cd-4fb0-b8e8-4f2a027e026e}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\submodules\fb2k_utils\src\fb2k_utils.vcxproj">
+      <Project>{ee3bf4f9-2014-4cff-96c8-44cfb85e0571}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\submodules\foobar2000\foobar2000_component_client\foobar2000_component_client.vcxproj">
       <Project>{71ad2674-065b-48f5-b8b0-e1f9d3892081}</Project>
     </ProjectReference>
@@ -125,14 +128,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="abort_callback.cpp" />
-    <ClCompile Include="acfu_integration.cpp" />
-    <ClCompile Include="adv_config.cpp" />
-    <ClCompile Include="component_paths.cpp" />
-    <ClCompile Include="com_message_scope.cpp" />
-    <ClCompile Include="config_legacy.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="fb2k_callbacks.cpp" />
     <ClCompile Include="com_objects\com_tools.cpp" />
     <ClCompile Include="com_objects\drop_source_impl.cpp" />
     <ClCompile Include="com_objects\drop_target_impl.cpp" />
@@ -140,12 +136,18 @@
     <ClCompile Include="com_objects\host_external.cpp" />
     <ClCompile Include="com_objects\internal\drag_image.cpp" />
     <ClCompile Include="com_objects\internal\drag_utils.cpp" />
-    <ClCompile Include="config.cpp" />
     <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
-    <ClCompile Include="heartbeat_window.cpp" />
-    <ClCompile Include="host_timer_dispatcher.cpp" />
+    <ClCompile Include="fb2k\acfu_integration.cpp" />
+    <ClCompile Include="fb2k\advanced_config.cpp" />
+    <ClCompile Include="fb2k\config.cpp" />
+    <ClCompile Include="fb2k\config_legacy.cpp" />
+    <ClCompile Include="fb2k\fb2k_callbacks.cpp" />
+    <ClCompile Include="fb2k\mainmenu.cpp" />
+    <ClCompile Include="fb2k\stats.cpp" />
+    <ClCompile Include="js_engine\heartbeat_window.cpp" />
+    <ClCompile Include="js_engine\host_timer_dispatcher.cpp" />
     <ClCompile Include="js_engine\js_realm_inner.cpp" />
     <ClCompile Include="js_engine\js_container.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
@@ -186,19 +188,17 @@
     <ClCompile Include="js_objects\theme_manager.cpp" />
     <ClCompile Include="js_objects\utils.cpp" />
     <ClCompile Include="js_objects\window.cpp" />
-    <ClCompile Include="js_panel_window.cpp" />
-    <ClCompile Include="js_panel_window_cui.cpp" />
-    <ClCompile Include="js_panel_window_dui.cpp" />
     <ClCompile Include="js_utils\js_art_helpers.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
     <ClCompile Include="js_utils\js_image_helpers.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
-    <ClCompile Include="mainmenu.cpp" />
-    <ClCompile Include="message_blocking_scope.cpp" />
-    <ClCompile Include="message_manager.cpp" />
-    <ClCompile Include="smp_exception.cpp" />
-    <ClCompile Include="stats.cpp" />
+    <ClCompile Include="panel\com_message_scope.cpp" />
+    <ClCompile Include="panel\js_panel_window.cpp" />
+    <ClCompile Include="panel\js_panel_window_cui.cpp" />
+    <ClCompile Include="panel\js_panel_window_dui.cpp" />
+    <ClCompile Include="panel\message_blocking_scope.cpp" />
+    <ClCompile Include="panel\message_manager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
@@ -218,34 +218,21 @@
     <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\com_error_helpers.cpp" />
-    <ClCompile Include="utils\delayed_executor.cpp" />
-    <ClCompile Include="utils\error_popup.cpp" />
-    <ClCompile Include="utils\file_helpers.cpp" />
     <ClCompile Include="utils\gdi_error_helpers.cpp" />
     <ClCompile Include="utils\gdi_helpers.cpp" />
-    <ClCompile Include="utils\hook_handler.cpp" />
     <ClCompile Include="utils\image_helpers.cpp" />
+    <ClCompile Include="utils\js_exception.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\location_processor.cpp" />
     <ClCompile Include="utils\menu_helpers.cpp" />
-    <ClCompile Include="utils\pfc_helpers_stream.cpp" />
-    <ClCompile Include="utils\semantic_version.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\stacktrace.cpp" />
-    <ClCompile Include="utils\string_helpers.cpp" />
     <ClCompile Include="utils\text_helpers.cpp" />
-    <ClCompile Include="utils\thread_helpers.cpp" />
-    <ClCompile Include="utils\thread_pool.cpp" />
-    <ClCompile Include="utils\unicode.cpp" />
-    <ClCompile Include="utils\winapi_error_helpers.cpp" />
+    <ClCompile Include="utils\thread_pool_instance.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="abort_callback.h" />
-    <ClInclude Include="adv_config.h" />
-    <ClInclude Include="callback_data.h" />
+    <ClInclude Include="component_defines.h" />
     <ClInclude Include="component_guids.h" />
-    <ClInclude Include="component_paths.h" />
-    <ClInclude Include="com_message_scope.h" />
     <ClInclude Include="com_objects\com_tools.h" />
     <ClInclude Include="com_objects\dispatch_ptr.h" />
     <ClInclude Include="com_objects\drop_source_impl.h" />
@@ -256,12 +243,15 @@
     <ClInclude Include="com_objects\internal\drag_utils.h" />
     <ClInclude Include="com_objects\internal\handle.h" />
     <ClInclude Include="com_objects\com_interface.h" />
-    <ClInclude Include="config_legacy.h" />
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
-    <ClInclude Include="drop_action_params.h" />
-    <ClInclude Include="heartbeat_window.h" />
+    <ClInclude Include="fb2k\advanced_config.h" />
+    <ClInclude Include="fb2k\config.h" />
+    <ClInclude Include="fb2k\config_legacy.h" />
+    <ClInclude Include="fb2k\stats.h" />
+    <ClInclude Include="js_engine\heartbeat_window.h" />
+    <ClInclude Include="js_engine\host_timer_dispatcher.h" />
     <ClInclude Include="js_engine\js_realm_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />
     <ClInclude Include="js_engine\js_engine.h" />
@@ -314,18 +304,17 @@
     <ClInclude Include="js_utils\js_prototype_helpers.h" />
     <ClInclude Include="js_utils\scope_helper.h" />
     <ClInclude Include="js_utils\serialized_value.h" />
-    <ClInclude Include="message_blocking_scope.h" />
-    <ClInclude Include="message_manager.h" />
-    <ClInclude Include="smp_exception.h" />
-    <ClInclude Include="component_defines.h" />
-    <ClInclude Include="config.h" />
-    <ClInclude Include="host_timer_dispatcher.h" />
-    <ClInclude Include="js_panel_window.h" />
-    <ClInclude Include="js_panel_window_cui.h" />
-    <ClInclude Include="js_panel_window_dui.h" />
+    <ClInclude Include="panel\callback_data.h" />
+    <ClInclude Include="panel\com_message_scope.h" />
+    <ClInclude Include="panel\drop_action_params.h" />
+    <ClInclude Include="panel\js_panel_window.h" />
+    <ClInclude Include="panel\js_panel_window_cui.h" />
+    <ClInclude Include="panel\js_panel_window_dui.h" />
+    <ClInclude Include="panel\message_blocking_scope.h" />
+    <ClInclude Include="panel\message_manager.h" />
+    <ClInclude Include="panel\panel_info.h" />
+    <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resource.h" />
-    <ClInclude Include="panel_info.h" />
-    <ClInclude Include="stats.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ui\scintilla\sci_prop_sets.h" />
     <ClInclude Include="ui\scintilla\ui_sci_editor.h" />
@@ -339,37 +328,23 @@
     <ClInclude Include="ui\ui_pref.h" />
     <ClInclude Include="ui\ui_property.h" />
     <ClInclude Include="ui\ui_slow_script.h" />
-    <ClInclude Include="user_message.h" />
-    <ClInclude Include="utils\acfu_github.h" />
     <ClInclude Include="utils\array_x.h" />
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\colour_helpers.h" />
     <ClInclude Include="utils\com_error_helpers.h" />
-    <ClInclude Include="utils\delayed_executor.h" />
-    <ClInclude Include="utils\error_popup.h" />
-    <ClInclude Include="utils\file_helpers.h" />
     <ClInclude Include="utils\gdi_error_helpers.h" />
     <ClInclude Include="utils\gdi_helpers.h" />
-    <ClInclude Include="utils\hook_handler.h" />
     <ClInclude Include="utils\image_helpers.h" />
+    <ClInclude Include="utils\js_exception.h" />
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\location_processor.h" />
+    <ClInclude Include="utils\make_unique_ptr.h" />
     <ClInclude Include="utils\menu_helpers.h" />
     <ClInclude Include="utils\relative_filepath_trie.h" />
-    <ClInclude Include="utils\pfc_helpers_cnt.h" />
-    <ClInclude Include="utils\pfc_helpers_stream.h" />
-    <ClInclude Include="utils\pfc_helpers_ui.h" />
-    <ClInclude Include="utils\scope_helpers.h" />
-    <ClInclude Include="utils\semantic_version.h" />
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\stacktrace.h" />
-    <ClInclude Include="utils\string_helpers.h" />
     <ClInclude Include="utils\text_helpers.h" />
-    <ClInclude Include="utils\thread_helpers.h" />
-    <ClInclude Include="utils\thread_pool.h" />
-    <ClInclude Include="utils\type_traits_x.h" />
-    <ClInclude Include="utils\unicode.h" />
-    <ClInclude Include="utils\winapi_error_helpers.h" />
+    <ClInclude Include="utils\thread_pool_instance.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

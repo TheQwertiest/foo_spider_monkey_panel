@@ -2,6 +2,8 @@
 
 #include "ui_name_value_edit.h"
 
+#include <qwr/pfc_helpers_ui.h>
+
 namespace smp::ui
 {
 
@@ -29,7 +31,7 @@ LRESULT CNameValueEdit::OnCommand( UINT, int id, HWND )
     {
         if ( id == IDOK )
         {
-            m_value = smp::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_VALUE ) );
+            m_value = qwr::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_VALUE ) );
         }
 
         EndDialog( id );

@@ -12,9 +12,10 @@
 #include <utils/array_x.h>
 #include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
-#include <utils/scope_helpers.h>
 #include <utils/text_helpers.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/final_action.h>
+#include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
 
@@ -136,11 +137,11 @@ void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
 
 uint32_t JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( font, "font argument is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
     const HDC hDc = pGdi_->GetHDC();
-    smp::utils::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
+    qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
     return smp::utils::get_text_height( hDc, str );
@@ -148,11 +149,11 @@ uint32_t JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font
 
 uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( font, "font argument is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
     const HDC hDc = pGdi_->GetHDC();
-    smp::utils::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
+    qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
     return smp::utils::get_text_width( hDc, str );
@@ -160,11 +161,11 @@ uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font 
 
 void JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawEllipse( &pen, x, y, w, h );
-    smp::error::CheckGdi( gdiRet, "DrawEllipse" );
+    qwr::error::CheckGdi( gdiRet, "DrawEllipse" );
 }
 
 void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
@@ -172,8 +173,8 @@ void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
                                float srcX, float srcY, float srcW, float srcH,
                                float angle, uint8_t alpha )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( image, "image argument is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( image, "image argument is null" );
 
     Gdiplus::Bitmap* img = image->GdiBitmap();
     assert( img );
@@ -184,13 +185,13 @@ void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
     {
         Gdiplus::Matrix m;
         gdiRet = m.RotateAt( angle, Gdiplus::PointF{ dstX + dstW / 2, dstY + dstH / 2 } );
-        smp::error::CheckGdi( gdiRet, "RotateAt" );
+        qwr::error::CheckGdi( gdiRet, "RotateAt" );
 
         gdiRet = pGdi_->GetTransform( &oldMatrix );
-        smp::error::CheckGdi( gdiRet, "GetTransform" );
+        qwr::error::CheckGdi( gdiRet, "GetTransform" );
 
         gdiRet = pGdi_->SetTransform( &m );
-        smp::error::CheckGdi( gdiRet, "SetTransform" );
+        qwr::error::CheckGdi( gdiRet, "SetTransform" );
     }
 
     if ( alpha < 255 )
@@ -202,21 +203,21 @@ void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
         cm.m[3][3] = static_cast<float>( alpha ) / 255;
 
         gdiRet = ia.SetColorMatrix( &cm );
-        smp::error::CheckGdi( gdiRet, "SetColorMatrix" );
+        qwr::error::CheckGdi( gdiRet, "SetColorMatrix" );
 
         gdiRet = pGdi_->DrawImage( img, Gdiplus::RectF( dstX, dstY, dstW, dstH ), srcX, srcY, srcW, srcH, Gdiplus::UnitPixel, &ia );
-        smp::error::CheckGdi( gdiRet, "DrawImage" );
+        qwr::error::CheckGdi( gdiRet, "DrawImage" );
     }
     else
     {
         gdiRet = pGdi_->DrawImage( img, Gdiplus::RectF( dstX, dstY, dstW, dstH ), srcX, srcY, srcW, srcH, Gdiplus::UnitPixel );
-        smp::error::CheckGdi( gdiRet, "DrawImage" );
+        qwr::error::CheckGdi( gdiRet, "DrawImage" );
     }
 
     if ( angle != 0.0 )
     {
         gdiRet = pGdi_->SetTransform( &oldMatrix );
-        smp::error::CheckGdi( gdiRet, "SetTransform" );
+        qwr::error::CheckGdi( gdiRet, "SetTransform" );
     }
 }
 
@@ -234,66 +235,66 @@ void JsGdiGraphics::DrawImageWithOpt( size_t optArgCount, JsGdiBitmap* image,
     case 2:
         return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 void JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawLine( &pen, x1, y1, x2, y2 );
-    smp::error::CheckGdi( gdiRet, "DrawLine" );
+    qwr::error::CheckGdi( gdiRet, "DrawLine" );
 }
 
 void JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     std::vector<Gdiplus::PointF> gdiPoints;
     ParsePoints( points, gdiPoints );
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawPolygon( &pen, gdiPoints.data(), gdiPoints.size() );
-    smp::error::CheckGdi( gdiRet, "DrawPolygon" );
+    qwr::error::CheckGdi( gdiRet, "DrawPolygon" );
 }
 
 void JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::Status gdiRet = pGdi_->DrawRectangle( &pen, x, y, w, h );
-    smp::error::CheckGdi( gdiRet, "DrawRectangle" );
+    qwr::error::CheckGdi( gdiRet, "DrawRectangle" );
 }
 
 void JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( 2 * arc_width <= w && 2 * arc_height <= h, "Arc argument has invalid value" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( 2 * arc_width <= w && 2 * arc_height <= h, "Arc argument has invalid value" );
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::GraphicsPath gp;
     GetRoundRectPath( gp, Gdiplus::RectF{ x, y, w, h }, arc_width, arc_height );
 
     Gdiplus::Status gdiRet = pen.SetStartCap( Gdiplus::LineCapRound );
-    smp::error::CheckGdi( gdiRet, "SetStartCap" );
+    qwr::error::CheckGdi( gdiRet, "SetStartCap" );
 
     gdiRet = pen.SetEndCap( Gdiplus::LineCapRound );
-    smp::error::CheckGdi( gdiRet, "SetEndCap" );
+    qwr::error::CheckGdi( gdiRet, "SetEndCap" );
 
     gdiRet = pGdi_->DrawPath( &pen, &gp );
-    smp::error::CheckGdi( gdiRet, "DrawPath" );
+    qwr::error::CheckGdi( gdiRet, "DrawPath" );
 }
 
 void JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32_t colour, float x, float y, float w, float h, uint32_t flags )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( font, "font argument is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
     Gdiplus::Font* pGdiFont = font->GdiFont();
-    SmpException::ExpectTrue( pGdiFont, "Internal error: GdiFont is null" );
+    qwr::QwrException::ExpectTrue( pGdiFont, "Internal error: GdiFont is null" );
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::StringFormat fmt( Gdiplus::StringFormat::GenericTypographic() );
@@ -301,20 +302,20 @@ void JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32
     if ( flags != 0 )
     {
         Gdiplus::Status gdiRet = fmt.SetAlignment( static_cast<Gdiplus::StringAlignment>( ( flags >> 28 ) & 0x3 ) ); //0xf0000000
-        smp::error::CheckGdi( gdiRet, "SetAlignment" );
+        qwr::error::CheckGdi( gdiRet, "SetAlignment" );
 
         gdiRet = fmt.SetLineAlignment( static_cast<Gdiplus::StringAlignment>( ( flags >> 24 ) & 0x3 ) ); //0x0f000000
-        smp::error::CheckGdi( gdiRet, "SetLineAlignment" );
+        qwr::error::CheckGdi( gdiRet, "SetLineAlignment" );
 
         gdiRet = fmt.SetTrimming( static_cast<Gdiplus::StringTrimming>( ( flags >> 20 ) & 0x7 ) ); //0x00f00000
-        smp::error::CheckGdi( gdiRet, "SetTrimming" );
+        qwr::error::CheckGdi( gdiRet, "SetTrimming" );
 
         gdiRet = fmt.SetFormatFlags( static_cast<Gdiplus::StringAlignment>( flags & 0x7FFF ) ); //0x0000ffff
-        smp::error::CheckGdi( gdiRet, "SetFormatFlags" );
+        qwr::error::CheckGdi( gdiRet, "SetFormatFlags" );
     }
 
     Gdiplus::Status gdiRet = pGdi_->DrawString( str.c_str(), -1, pGdiFont, Gdiplus::RectF( x, y, w, h ), &fmt, &br );
-    smp::error::CheckGdi( gdiRet, "DrawString" );
+    qwr::error::CheckGdi( gdiRet, "DrawString" );
 }
 
 void JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
@@ -328,19 +329,19 @@ void JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& s
     case 1:
         return DrawString( str, font, colour, x, y, w, h );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint32_t max_width )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( font, "font argument is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
     std::vector<smp::utils::wrapped_item> result;
     {
         const HDC hDc = pGdi_->GetHDC();
-        smp::utils::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
+        qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
         gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
         result = smp::utils::estimate_line_wrap( hDc, str, max_width );
@@ -372,24 +373,24 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
 
 void JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t colour )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::Status gdiRet = pGdi_->FillEllipse( &br, x, y, w, h );
-    smp::error::CheckGdi( gdiRet, "FillEllipse" );
+    qwr::error::CheckGdi( gdiRet, "FillEllipse" );
 }
 
 void JsGdiGraphics::FillGradRect( float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     const Gdiplus::RectF rect{ x, y, w, h };
     Gdiplus::LinearGradientBrush brush( rect, colour1, colour2, angle, TRUE );
     Gdiplus::Status gdiRet = brush.SetBlendTriangularShape( focus );
-    smp::error::CheckGdi( gdiRet, "SetBlendTriangularShape" );
+    qwr::error::CheckGdi( gdiRet, "SetBlendTriangularShape" );
 
     gdiRet = pGdi_->FillRectangle( &brush, rect );
-    smp::error::CheckGdi( gdiRet, "FillRectangle" );
+    qwr::error::CheckGdi( gdiRet, "FillRectangle" );
 }
 
 void JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount, float x, float y, float w, float h, float angle, uint32_t colour1, uint32_t colour2, float focus )
@@ -401,27 +402,27 @@ void JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount, float x, float y, f
     case 1:
         return FillGradRect( x, y, w, h, angle, colour1, colour2 );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 void JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     std::vector<Gdiplus::PointF> gdiPoints;
     ParsePoints( points, gdiPoints );
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::Status gdiRet = pGdi_->FillPolygon( &br, gdiPoints.data(), gdiPoints.size(), static_cast<Gdiplus::FillMode>( fillmode ) );
-    smp::error::CheckGdi( gdiRet, "FillPolygon" );
+    qwr::error::CheckGdi( gdiRet, "FillPolygon" );
 }
 
 void JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
-    SmpException::ExpectTrue( 2 * arc_width <= w && 2 * arc_height <= h, "Arc argument has invalid value" );
+    qwr::QwrException::ExpectTrue( 2 * arc_width <= w && 2 * arc_height <= h, "Arc argument has invalid value" );
 
     Gdiplus::SolidBrush br( colour );
     Gdiplus::GraphicsPath gp;
@@ -429,16 +430,16 @@ void JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc
     GetRoundRectPath( gp, rect, arc_width, arc_height );
 
     Gdiplus::Status gdiRet = pGdi_->FillPath( &br, &gp );
-    smp::error::CheckGdi( gdiRet, "FillPath" );
+    qwr::error::CheckGdi( gdiRet, "FillPath" );
 }
 
 void JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::SolidBrush brush( colour );
     Gdiplus::Status gdiRet = pGdi_->FillRectangle( &brush, x, y, w, h );
-    smp::error::CheckGdi( gdiRet, "FillRectangle" );
+    qwr::error::CheckGdi( gdiRet, "FillRectangle" );
 }
 
 void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
@@ -446,17 +447,17 @@ void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
                                    int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
                                    uint8_t alpha )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( bitmap, "bitmap argument is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( bitmap, "bitmap argument is null" );
 
     const HDC srcDc = bitmap->GetHDC();
     assert( srcDc );
 
     const HDC hDc = pGdi_->GetHDC();
-    utils::final_action autoHdcReleaser( [pGdi = pGdi_, hDc]() { pGdi->ReleaseHDC( hDc ); } );
+    qwr::final_action autoHdcReleaser( [pGdi = pGdi_, hDc]() { pGdi->ReleaseHDC( hDc ); } );
 
     BOOL bRet = ::GdiAlphaBlend( hDc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, BLENDFUNCTION{ AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA } );
-    smp::error::CheckWinApi( bRet, "GdiAlphaBlend" );
+    qwr::error::CheckWinApi( bRet, "GdiAlphaBlend" );
 }
 
 void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bitmap,
@@ -471,7 +472,7 @@ void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bi
     case 1:
         return GdiAlphaBlend( bitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -479,41 +480,41 @@ void JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
                                    int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
                                    int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( bitmap, "bitmap argument is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( bitmap, "bitmap argument is null" );
 
     HDC srcDc = bitmap->GetHDC();
     assert( srcDc );
 
     HDC hDc = pGdi_->GetHDC();
-    utils::final_action autoHdcReleaser( [pGdi = pGdi_, hDc]() { pGdi->ReleaseHDC( hDc ); } );
+    qwr::final_action autoHdcReleaser( [pGdi = pGdi_, hDc]() { pGdi->ReleaseHDC( hDc ); } );
 
     BOOL bRet;
     if ( dstW == srcW && dstH == srcH )
     {
         bRet = BitBlt( hDc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY );
-        smp::error::CheckWinApi( bRet, "BitBlt" );
+        qwr::error::CheckWinApi( bRet, "BitBlt" );
     }
     else
     {
         bRet = SetStretchBltMode( hDc, HALFTONE );
-        smp::error::CheckWinApi( bRet, "SetStretchBltMode" );
+        qwr::error::CheckWinApi( bRet, "SetStretchBltMode" );
 
         bRet = SetBrushOrgEx( hDc, 0, 0, nullptr );
-        smp::error::CheckWinApi( bRet, "SetBrushOrgEx" );
+        qwr::error::CheckWinApi( bRet, "SetBrushOrgEx" );
 
         bRet = StretchBlt( hDc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY );
-        smp::error::CheckWinApi( bRet, "StretchBlt" );
+        qwr::error::CheckWinApi( bRet, "StretchBlt" );
     }
 }
 
 void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour, int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t format )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( font, "font argument is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
     const HDC hDc = pGdi_->GetHDC();
-    utils::final_action autoHdcReleaser( [pGdi = pGdi_, hDc] { pGdi->ReleaseHDC( hDc ); } );
+    qwr::final_action autoHdcReleaser( [pGdi = pGdi_, hDc] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
     RECT rc{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
@@ -522,10 +523,10 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     SetTextColor( hDc, smp::colour::convert_argb_to_colorref( colour ) );
 
     int iRet = SetBkMode( hDc, TRANSPARENT );
-    smp::error::CheckWinApi( CLR_INVALID != iRet, "SetBkMode" );
+    qwr::error::CheckWinApi( CLR_INVALID != iRet, "SetBkMode" );
 
     UINT uRet = SetTextAlign( hDc, TA_LEFT | TA_TOP | TA_NOUPDATECP );
-    smp::error::CheckWinApi( GDI_ERROR != uRet, "SetTextAlign" );
+    qwr::error::CheckWinApi( GDI_ERROR != uRet, "SetTextAlign" );
 
     if ( format & DT_MODIFYSTRING )
     {
@@ -539,7 +540,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
 
         RECT rc_calc = rc;
         iRet = DrawText( hDc, str.c_str(), -1, &rc_calc, format );
-        smp::error::CheckWinApi( iRet, "DrawText" );
+        qwr::error::CheckWinApi( iRet, "DrawText" );
 
         format &= ~DT_CALCRECT;
 
@@ -556,7 +557,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     }
 
     iRet = DrawTextEx( hDc, const_cast<wchar_t*>( str.c_str() ), -1, &rc, format, &dpt );
-    smp::error::CheckWinApi( iRet, "DrawTextEx" );
+    qwr::error::CheckWinApi( iRet, "DrawTextEx" );
 }
 
 void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
@@ -570,14 +571,14 @@ void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& 
     case 1:
         return GdiDrawText( str, font, colour, x, y, w, h );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font, float x, float y, float w, float h, uint32_t flags )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    SmpException::ExpectTrue( font, "font argument is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
     Gdiplus::Font* fn = font->GdiFont();
     assert( fn );
@@ -595,7 +596,7 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font
     int chars;
     int lines;
     Gdiplus::Status gdiRet = pGdi_->MeasureString( str.c_str(), -1, fn, Gdiplus::RectF( x, y, w, h ), &fmt, &bound, &chars, &lines );
-    smp::error::CheckGdi( gdiRet, "MeasureString" );
+    qwr::error::CheckGdi( gdiRet, "MeasureString" );
 
     return JsMeasureStringInfo::CreateJs( pJsCtx_, bound.X, bound.Y, bound.Width, bound.Height, lines, chars );
 }
@@ -611,16 +612,16 @@ JSObject* JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::ws
     case 1:
         return MeasureString( str, font, x, y, w, h );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 void JsGdiGraphics::SetInterpolationMode( uint32_t mode )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::Status gdiRet = pGdi_->SetInterpolationMode( static_cast<Gdiplus::InterpolationMode>( mode ) );
-    smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
+    qwr::error::CheckGdi( gdiRet, "SetInterpolationMode" );
 }
 
 void JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode )
@@ -632,16 +633,16 @@ void JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mo
     case 1:
         return SetInterpolationMode();
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 void JsGdiGraphics::SetSmoothingMode( uint32_t mode )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::Status gdiRet = pGdi_->SetSmoothingMode( static_cast<Gdiplus::SmoothingMode>( mode ) );
-    smp::error::CheckGdi( gdiRet, "SetSmoothingMode" );
+    qwr::error::CheckGdi( gdiRet, "SetSmoothingMode" );
 }
 
 void JsGdiGraphics::SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode )
@@ -653,16 +654,16 @@ void JsGdiGraphics::SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode )
     case 1:
         return SetSmoothingMode();
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 void JsGdiGraphics::SetTextRenderingHint( uint32_t mode )
 {
-    SmpException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::Status gdiRet = pGdi_->SetTextRenderingHint( static_cast<Gdiplus::TextRenderingHint>( mode ) );
-    smp::error::CheckGdi( gdiRet, "SetTextRenderingHint" );
+    qwr::error::CheckGdi( gdiRet, "SetTextRenderingHint" );
 }
 
 void JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode )
@@ -674,7 +675,7 @@ void JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mo
     case 1:
         return SetTextRenderingHint();
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -685,29 +686,29 @@ void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, const Gdiplus::
     Gdiplus::RectF corner{ rect.X, rect.Y, arc_dia_w, arc_dia_h };
 
     Gdiplus::Status gdiRet = gp.Reset();
-    smp::error::CheckGdi( gdiRet, "Reset" );
+    qwr::error::CheckGdi( gdiRet, "Reset" );
 
     // top left
     gdiRet = gp.AddArc( corner, 180, 90 );
-    smp::error::CheckGdi( gdiRet, "AddArc" );
+    qwr::error::CheckGdi( gdiRet, "AddArc" );
 
     // top right
     corner.X += ( rect.Width - arc_dia_w );
     gdiRet = gp.AddArc( corner, 270, 90 );
-    smp::error::CheckGdi( gdiRet, "AddArc" );
+    qwr::error::CheckGdi( gdiRet, "AddArc" );
 
     // bottom right
     corner.Y += ( rect.Height - arc_dia_h );
     gdiRet = gp.AddArc( corner, 0, 90 );
-    smp::error::CheckGdi( gdiRet, "AddArc" );
+    qwr::error::CheckGdi( gdiRet, "AddArc" );
 
     // bottom left
     corner.X -= ( rect.Width - arc_dia_w );
     gdiRet = gp.AddArc( corner, 90, 90 );
-    smp::error::CheckGdi( gdiRet, "AddArc" );
+    qwr::error::CheckGdi( gdiRet, "AddArc" );
 
     gdiRet = gp.CloseFigure();
-    smp::error::CheckGdi( gdiRet, "CloseFigure" );
+    qwr::error::CheckGdi( gdiRet, "CloseFigure" );
 }
 
 void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF>& gdiPoints )
@@ -730,7 +731,7 @@ void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
     gdiPoints.clear();
     convert::to_native::ProcessArray<float>( pJsCtx_, jsValue, pointParser );
 
-    SmpException::ExpectTrue( isX, "Points count must be a multiple of two" ); ///< Means that we were expecting `y` coordinate
+    qwr::QwrException::ExpectTrue( isX, "Points count must be a multiple of two" ); ///< Means that we were expecting `y` coordinate
 }
 
 } // namespace mozjs

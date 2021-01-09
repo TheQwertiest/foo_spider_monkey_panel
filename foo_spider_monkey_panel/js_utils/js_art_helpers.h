@@ -3,7 +3,7 @@
 namespace mozjs::art
 {
 
-/// @throw smp::SmpException
+/// @throw qwr::QwrException
 /// @throw smp::JsException
 JSObject* GetAlbumArtPromise( JSContext* cx, HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
 

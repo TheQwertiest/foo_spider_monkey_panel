@@ -8,7 +8,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-#include <utils/string_helpers.h>
+
+#include <qwr/string_helpers.h>
 
 using namespace smp;
 
@@ -86,8 +87,8 @@ size_t JsContextMenuManager::GetInternalSize()
 
 void JsContextMenuManager::BuildMenu( JsMenuObject* menuObject, int32_t base_id, int32_t max_id )
 {
-    SmpException::ExpectTrue( contextMenu_.is_valid(), "Context menu is not initialized" );
-    SmpException::ExpectTrue( menuObject, "menuObject argument is null" );
+    qwr::QwrException::ExpectTrue( contextMenu_.is_valid(), "Context menu is not initialized" );
+    qwr::QwrException::ExpectTrue( menuObject, "menuObject argument is null" );
 
     contextMenu_->win32_build_menu( menuObject->HMenu(), contextMenu_->get_root(), base_id, max_id );
 }
@@ -101,20 +102,20 @@ void JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* m
     case 1:
         return BuildMenu( menuObject, base_id );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 bool JsContextMenuManager::ExecuteByID( uint32_t id )
 {
-    SmpException::ExpectTrue( contextMenu_.is_valid(), "Context menu is not initialized" );
+    qwr::QwrException::ExpectTrue( contextMenu_.is_valid(), "Context menu is not initialized" );
 
     return contextMenu_->execute_by_id( id );
 }
 
 void JsContextMenuManager::InitContext( JsFbMetadbHandleList* handles )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
     contextmenu_manager::g_create( contextMenu_ );
     contextMenu_->init_context( handles->GetHandleList(), contextmenu_manager::flag_show_shortcuts );

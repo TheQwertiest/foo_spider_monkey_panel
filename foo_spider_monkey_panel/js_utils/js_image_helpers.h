@@ -8,7 +8,7 @@ struct JSContext;
 namespace mozjs::image
 {
 
-/// @throw smp::SmpException
+/// @throw qwr::QwrException
 /// @throw smp::JsException
 JSObject* GetImagePromise( JSContext* cx, HWND hWnd, const std::wstring& imagePath );
 

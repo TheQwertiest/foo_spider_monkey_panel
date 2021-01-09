@@ -1,7 +1,8 @@
 #pragma once
 
 #include <js_engine/native_to_js_invoker.h>
-#include <utils/scope_helpers.h>
+
+#include <qwr/final_action.h>
 
 #include <optional>
 
@@ -72,7 +73,7 @@ public:
         auto selfSaver = shared_from_this();
 
         OnJsActionStart();
-        smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+        qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>( args )... );
     }

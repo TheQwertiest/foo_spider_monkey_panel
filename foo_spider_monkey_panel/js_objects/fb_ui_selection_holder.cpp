@@ -91,7 +91,7 @@ void JsFbUiSelectionHolder::SetPlaylistTracking()
 
 void JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
     holder_->set_selection( handles->GetHandleList() );
 }

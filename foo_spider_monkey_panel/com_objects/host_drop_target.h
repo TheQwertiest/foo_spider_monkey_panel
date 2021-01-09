@@ -2,8 +2,7 @@
 
 #include <com_objects/com_tools.h>
 #include <com_objects/drop_target_impl.h>
-
-#include <drop_action_params.h>
+#include <panel/drop_action_params.h>
 
 namespace smp::com
 {
@@ -15,7 +14,7 @@ protected:
     virtual void FinalRelease();
 
 public:
-    /// @throw smp::SmpException
+    /// @throw qwr::QwrException
     HostDropTarget( HWND hWnd );
     ~HostDropTarget() override = default;
 

@@ -139,7 +139,7 @@ namespace mozjs::convert::to_native
 template <>
 std::u8string ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
-    return smp::unicode::ToU8( ToValue<std::wstring>( cx, jsString ) );
+    return qwr::unicode::ToU8( ToValue<std::wstring>( cx, jsString ) );
 }
 
 template <>

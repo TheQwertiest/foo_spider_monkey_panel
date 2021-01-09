@@ -7,8 +7,9 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
 #include <utils/gdi_error_helpers.h>
-#include <utils/scope_helpers.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/final_action.h>
+#include <qwr/winapi_error_helpers.h>
 
 // TODO: add font caching
 
@@ -92,8 +93,8 @@ JsGdiFont::~JsGdiFont()
 std::unique_ptr<JsGdiFont>
 JsGdiFont::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> pGdiFont, HFONT hFont, bool isManaged )
 {
-    SmpException::ExpectTrue( !!pGdiFont, "Internal error: Gdiplus::Font object is null" );
-    SmpException::ExpectTrue( hFont, "Internal error: HFONT object is null" );
+    qwr::QwrException::ExpectTrue( !!pGdiFont, "Internal error: Gdiplus::Font object is null" );
+    qwr::QwrException::ExpectTrue( hFont, "Internal error: HFONT object is null" );
 
     return std::unique_ptr<JsGdiFont>( new JsGdiFont( cx, std::move( pGdiFont ), hFont, isManaged ) );
 }
@@ -116,7 +117,7 @@ HFONT JsGdiFont::GetHFont() const
 JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, uint32_t pxSize, uint32_t style )
 {
     auto pGdiFont = std::make_unique<Gdiplus::Font>( fontName.c_str(), static_cast<Gdiplus::REAL>( pxSize ), style, Gdiplus::UnitPixel );
-    smp::error::CheckGdiPlusObject( pGdiFont );
+    qwr::error::CheckGdiPlusObject( pGdiFont );
 
     // Generate HFONT
     // The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
@@ -135,8 +136,8 @@ JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, u
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
-    smp::error::CheckWinApi( !!hFont, "CreateFont" );
-    utils::final_action autoFont( [hFont]() {
+    qwr::error::CheckWinApi( !!hFont, "CreateFont" );
+    qwr::final_action autoFont( [hFont]() {
         DeleteObject( hFont );
     } );
 
@@ -156,7 +157,7 @@ JSObject* JsGdiFont::ConstructorWithOpt( JSContext* cx, size_t optArgCount, cons
     case 1:
         return Constructor( cx, fontName, pxSize );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -173,10 +174,10 @@ std::wstring JsGdiFont::get_Name() const
     Gdiplus::FontFamily fontFamily;
     std::array<wchar_t, LF_FACESIZE> name{};
     Gdiplus::Status gdiRet = pGdi_->GetFamily( &fontFamily );
-    smp::error::CheckGdi( gdiRet, "GetFamily" );
+    qwr::error::CheckGdi( gdiRet, "GetFamily" );
 
     gdiRet = fontFamily.GetFamilyName( name.data(), LANG_NEUTRAL );
-    smp::error::CheckGdi( gdiRet, "GetFamilyName" );
+    qwr::error::CheckGdi( gdiRet, "GetFamilyName" );
 
     return std::wstring( name.data() );
 }

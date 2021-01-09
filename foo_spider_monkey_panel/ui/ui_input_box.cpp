@@ -2,6 +2,8 @@
 
 #include "ui_input_box.h"
 
+#include <qwr/pfc_helpers_ui.h>
+
 namespace smp::ui
 {
 
@@ -32,7 +34,7 @@ LRESULT CInputBox::OnCommand( UINT, int id, HWND )
     {
         if ( id == IDOK )
         {
-            m_value = smp::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_INPUT_VALUE ) );
+            m_value = qwr::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_INPUT_VALUE ) );
         }
 
         EndDialog( id );

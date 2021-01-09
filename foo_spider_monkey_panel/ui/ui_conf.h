@@ -1,9 +1,9 @@
 #pragma once
 
+#include <panel/user_message.h>
 #include <ui/scintilla/ui_sci_editor.h>
 
 #include <resource.h>
-#include <user_message.h>
 
 // Forward declarations
 namespace smp::panel

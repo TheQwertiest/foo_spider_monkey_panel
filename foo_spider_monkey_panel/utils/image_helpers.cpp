@@ -2,12 +2,12 @@
 
 #include "image_helpers.h"
 
+#include <panel/message_manager.h>
+#include <panel/user_message.h>
 #include <utils/gdi_helpers.h>
-#include <utils/thread_pool.h>
+#include <utils/thread_pool_instance.h>
 
 #include <Shlwapi.h>
-#include <message_manager.h>
-#include <user_message.h>
 
 #include <algorithm>
 
@@ -39,7 +39,7 @@ private:
 
 LoadImageTask::LoadImageTask( HWND hNotifyWnd, uint32_t taskId, const std::wstring& imagePath )
     : hNotifyWnd_( hNotifyWnd )
-    , taskId_(taskId)
+    , taskId_( taskId )
     , imagePath_( imagePath )
 {
 }
@@ -56,7 +56,7 @@ uint32_t LoadImageTask::GetTaskId() const
 
 void LoadImageTask::run()
 {
-    const std::u8string path = file_path_display( smp::unicode::ToU8( imagePath_ ).c_str() ).get_ptr();
+    const std::u8string path = file_path_display( qwr::unicode::ToU8( imagePath_ ).c_str() ).get_ptr();
     panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
                                                           smp::CallbackMessage::internal_load_image_done,
                                                           std::make_unique<
@@ -83,7 +83,7 @@ uint32_t LoadImageAsync( HWND hWnd, const std::wstring& imagePath )
     }
 
     auto task = std::make_shared<LoadImageTask>( hWnd, g_taskId++, imagePath );
-    ThreadPool::GetInstance().AddTask( [task] {
+    smp::GetThreadPoolInstance().AddTask( [task] {
         std::invoke( *task );
     } );
 

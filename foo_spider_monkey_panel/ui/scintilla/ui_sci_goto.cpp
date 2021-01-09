@@ -3,8 +3,10 @@
 #include "ui_sci_goto.h"
 
 #include <ui/scintilla/ui_sci_editor.h>
-#include <utils/hook_handler.h>
-#include <utils/string_helpers.h>
+
+#include <qwr/hook_handler.h>
+#include <qwr/pfc_helpers_ui.h>
+#include <qwr/string_helpers.h>
 
 namespace
 {
@@ -30,7 +32,7 @@ LRESULT CDialogGoto::OnInitDialog( HWND, LPARAM )
 {
     uSetWindowText( GetDlgItem( IDC_EDIT_LINENUMBER ), std::to_string( curLineNumber_ ).c_str() );
 
-    hookId_ = smp::utils::HookHandler::GetInstance().RegisterHook(
+    hookId_ = qwr::HookHandler::GetInstance().RegisterHook(
         [hParent = m_hWnd]( int code, WPARAM wParam, LPARAM lParam ) {
             GetMsgProc( code, wParam, lParam, hParent );
         } );
@@ -42,7 +44,7 @@ void CDialogGoto::OnDestroy()
 {
     if ( hookId_ )
     {
-        smp::utils::HookHandler::GetInstance().UnregisterHook( hookId_ );
+        qwr::HookHandler::GetInstance().UnregisterHook( hookId_ );
         hookId_ = 0;
     }
 }
@@ -51,8 +53,8 @@ LRESULT CDialogGoto::OnCloseCmd( WORD, WORD wID, HWND )
 {
     if ( wID == IDOK )
     {
-        const auto text = smp::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_LINENUMBER ) );
-        const auto numRet = smp::string::GetNumber<unsigned>( static_cast<std::u8string_view>( text ) );
+        const auto text = qwr::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_LINENUMBER ) );
+        const auto numRet = qwr::string::GetNumber<unsigned>( static_cast<std::u8string_view>( text ) );
         if ( numRet )
         {
             ::SendMessage( hParent_, CScintillaGotoImpl::GetGotoMsg(), (WPARAM)GotoMsg::PerformGoto, (LPARAM)*numRet );
@@ -138,4 +140,4 @@ LRESULT CScintillaGotoImpl::OnGotoCmd( UINT /*uMsg*/, WPARAM wParam, LPARAM lPar
     return 0;
 }
 
-} // namespace scintilla
+} // namespace smp::ui::sci

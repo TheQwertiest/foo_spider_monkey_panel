@@ -1,8 +1,7 @@
 #pragma once
 
+#include <fb2k/advanced_config.h>
 #include <utils/stacktrace.h>
-
-#include <adv_config.h>
 
 namespace mozjs::error
 {
@@ -36,7 +35,7 @@ bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Arg
     try
     {
 #ifdef SMP_ENABLE_CXX_STACKTRACE
-        if ( smp::config::advanced::stacktrace.get() )
+        if ( smp::config::advanced::stacktrace.GetValue() )
         {
             internal::Execute_JsWithSehStackTrace( cx, std::forward<F>( func ), std::forward<Args>( args )... );
         }

@@ -5,10 +5,10 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <panel/message_blocking_scope.h>
 #include <utils/array_x.h>
-#include <utils/winapi_error_helpers.h>
 
-#include <message_blocking_scope.h>
+#include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
 
@@ -89,7 +89,7 @@ std::unique_ptr<JsMenuObject>
 JsMenuObject::CreateNative( JSContext* cx, HWND hParentWnd )
 {
     HMENU hMenu = ::CreatePopupMenu();
-    smp::error::CheckWinApi( !!hMenu, "CreatePopupMenu" );
+    qwr::error::CheckWinApi( !!hMenu, "CreatePopupMenu" );
 
     return std::unique_ptr<JsMenuObject>( new JsMenuObject( cx, hParentWnd, hMenu ) );
 }
@@ -108,25 +108,25 @@ void JsMenuObject::AppendMenuItem( uint32_t flags, uint32_t item_id, const std::
 {
     if ( flags & MF_POPUP )
     {
-        throw SmpException( "Invalid flags: MF_POPUP when adding menu item" );
+        throw qwr::QwrException( "Invalid flags: MF_POPUP when adding menu item" );
     }
 
     BOOL bRet = ::AppendMenu( hMenu_, flags, item_id, text.c_str() );
-    smp::error::CheckWinApi( bRet, "AppendMenu" );
+    qwr::error::CheckWinApi( bRet, "AppendMenu" );
 }
 
 void JsMenuObject::AppendMenuSeparator()
 {
     BOOL bRet = ::AppendMenu( hMenu_, MF_SEPARATOR, 0, nullptr );
-    smp::error::CheckWinApi( bRet, "AppendMenu" );
+    qwr::error::CheckWinApi( bRet, "AppendMenu" );
 }
 
 void JsMenuObject::AppendTo( JsMenuObject* parent, uint32_t flags, const std::wstring& text )
 {
-    SmpException::ExpectTrue( parent, "parent argument is null" );
+    qwr::QwrException::ExpectTrue( parent, "parent argument is null" );
 
     BOOL bRet = ::AppendMenu( parent->HMenu(), flags | MF_STRING | MF_POPUP, (UINT_PTR)hMenu_, text.c_str() );
-    smp::error::CheckWinApi( bRet, "AppendMenu" );
+    qwr::error::CheckWinApi( bRet, "AppendMenu" );
 
     isDetached_ = true;
 }
@@ -136,16 +136,16 @@ void JsMenuObject::CheckMenuItem( uint32_t item_id, bool check )
     DWORD dRet = ::CheckMenuItem( hMenu_, item_id, check ? MF_CHECKED : MF_UNCHECKED );
     if ( static_cast<DWORD>( -1 ) == dRet )
     {
-        throw SmpException( "Menu item with specified id does not exist" );
+        throw qwr::QwrException( "Menu item with specified id does not exist" );
     }
 }
 
 void JsMenuObject::CheckMenuRadioItem( uint32_t first, uint32_t last, uint32_t selected )
 {
-    SmpException::ExpectTrue( selected >= first && selected <= last, "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( selected >= first && selected <= last, "Index is out of bounds" );
 
     BOOL bRet = ::CheckMenuRadioItem( hMenu_, first, last, selected, MF_BYCOMMAND );
-    smp::error::CheckWinApi( bRet, "CheckMenuRadioItem" );
+    qwr::error::CheckWinApi( bRet, "CheckMenuRadioItem" );
 }
 
 uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
@@ -157,7 +157,7 @@ uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
     flags &= ~TPM_RECURSE;
 
     BOOL bRet = ClientToScreen( hParentWnd_, &pt );
-    smp::error::CheckWinApi( bRet, "ClientToScreen" );
+    qwr::error::CheckWinApi( bRet, "ClientToScreen" );
 
     if ( MessageBlockingScope::IsBlocking() )
     {
@@ -179,7 +179,7 @@ uint32_t JsMenuObject::TrackPopupMenuWithOpt( size_t optArgCount, int32_t x, int
     case 1:
         return TrackPopupMenu( x, y );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 

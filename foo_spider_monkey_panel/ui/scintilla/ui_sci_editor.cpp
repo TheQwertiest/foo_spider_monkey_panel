@@ -6,10 +6,10 @@
 #include <ui/scintilla/ui_sci_goto.h>
 #include <utils/array_x.h>
 #include <utils/colour_helpers.h>
-#include <utils/file_helpers.h>
-#include <utils/string_helpers.h>
 
-#include <component_paths.h>
+#include <qwr/fb2k_paths.h>
+#include <qwr/file_helpers.h>
+#include <qwr/string_helpers.h>
 
 #include <charconv>
 #include <optional>
@@ -100,7 +100,7 @@ DWORD GetColourFromHex( std::u8string_view hex )
 
     const std::u8string_view hexView{ hex.substr( 1 ) }; // skip '#'
 
-    const auto colour = smp::string::GetNumber<uint32_t>( hexView, 16 ).value_or( 0 );
+    const auto colour = qwr::string::GetNumber<uint32_t>( hexView, 16 ).value_or( 0 );
 
     return smp::colour::convert_argb_to_colorref( colour );
 }
@@ -109,7 +109,7 @@ ScintillaStyle ParseStyle( std::u8string_view p_definition )
 {
     ScintillaStyle p_style;
 
-    const auto attributes = smp::string::Split( p_definition, ',' );
+    const auto attributes = qwr::string::Split( p_definition, ',' );
     for ( const auto& attribute: attributes )
     {
         if ( attribute.empty() )
@@ -117,7 +117,7 @@ ScintillaStyle ParseStyle( std::u8string_view p_definition )
             continue;
         }
 
-        const auto values = smp::string::Split( attribute, ':' );
+        const auto values = qwr::string::Split( attribute, ':' );
         if ( values.empty() || values[0].empty() )
         {
             continue;
@@ -172,7 +172,7 @@ ScintillaStyle ParseStyle( std::u8string_view p_definition )
         {
             if ( values.size() >= 2 )
             {
-                auto intRet = smp::string::GetNumber<unsigned>( values[1] );
+                auto intRet = qwr::string::GetNumber<unsigned>( values[1] );
                 if ( intRet )
                 {
                     p_style.flags |= ESF_SIZE;
@@ -473,14 +473,14 @@ void CScriptEditorCtrl::ReadAPI()
         return;
     }
 
-    const auto files = smp::string::Split<char8_t>( *propvalRet, ';' );
+    const auto files = qwr::string::Split<char8_t>( *propvalRet, ';' );
     std::u8string content;
     for ( const auto& file: files )
     {
         try
         {
-            const auto content = smp::file::ReadFile( std::u8string{ file.data(), file.size() }, CP_UTF8 );
-            for ( const auto& line: smp::string::SplitByLines( content ) )
+            const auto content = qwr::file::ReadFile( std::u8string{ file.data(), file.size() }, CP_UTF8 );
+            for ( const auto& line: qwr::string::SplitByLines( content ) )
             {
                 if ( !line.empty() && IsCSym( line[0] ) )
                 {
@@ -488,7 +488,7 @@ void CScriptEditorCtrl::ReadAPI()
                 }
             }
         }
-        catch ( const SmpException& e )
+        catch ( const qwr::QwrException& e )
         {
             FB2K_console_formatter() << "Warning: " SMP_NAME_WITH_VERSION ": Could not load file " << std::u8string{ file.data(), file.size() };
             FB2K_console_formatter() << e.what();
@@ -572,7 +572,7 @@ void CScriptEditorCtrl::SetScintillaSettings()
             return std::nullopt;
         }
 
-        return smp::string::GetNumber<int>( static_cast<std::string_view>( *propvalRet ) );
+        return qwr::string::GetNumber<int>( static_cast<std::string_view>( *propvalRet ) );
     };
 
     auto retVal = getIntFromProp( "style.wrap.mode" );
@@ -1225,9 +1225,9 @@ void CScriptEditorCtrl::Init()
     AutoCSetIgnoreCase( true );
 
     // Set embedded properties
-    SetProperty( "dir.base", smp::get_fb2k_path().c_str() );
-    SetProperty( "dir.component", smp::get_fb2k_component_path().c_str() );
-    SetProperty( "dir.profile", smp::get_profile_path().c_str() );
+    SetProperty( "dir.base", qwr::path::Foobar2000().u8string().c_str() );
+    SetProperty( "dir.component", qwr::path::Component().u8string().c_str() );
+    SetProperty( "dir.profile", qwr::path::Profile().u8string().c_str() );
 
     // Load properties
     LoadProperties( g_scintillaCfg.val() );

@@ -2,7 +2,7 @@
 
 #include "ui_sci_find_replace.h"
 
-#include <utils/hook_handler.h>
+#include <qwr/hook_handler.h>
 
 namespace smp::ui::sci
 {
@@ -76,7 +76,7 @@ LRESULT CCustomFindReplaceDlg::OnInitDialog( UINT, WPARAM, LPARAM, BOOL& bHandle
     uButton_SetCheck( m_hWnd, IDC_CHECK_WRAPAROUND, wrapAroundSearch_ );
     UpdateRegExpHacksState();
 
-    hookId_ = smp::utils::HookHandler::GetInstance().RegisterHook(
+    hookId_ = qwr::HookHandler::GetInstance().RegisterHook(
         [hParent = m_hWnd]( int code, WPARAM wParam, LPARAM lParam ) {
             GetMsgProc( code, wParam, lParam, hParent );
         } );
@@ -89,7 +89,7 @@ LRESULT CCustomFindReplaceDlg::OnDestroy( UINT, WPARAM, LPARAM, BOOL& bHandled )
     bHandled = FALSE; ///< don't suppress base class methods
     if ( hookId_ )
     {
-        smp::utils::HookHandler::GetInstance().UnregisterHook( hookId_ );
+        qwr::HookHandler::GetInstance().UnregisterHook( hookId_ );
         hookId_ = 0;
     }
     return 0;
@@ -188,4 +188,4 @@ void CCustomFindReplaceDlg::UpdateRegExpHacksState()
     }
 }
 
-} // namespace scintilla
+} // namespace smp::ui::sci

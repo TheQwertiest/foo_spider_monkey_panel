@@ -6,9 +6,8 @@
 #include <convert/native_to_js.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_property_helper.h>
-#include <utils/scope_helpers.h>
 
-#include <smp_exception.h>
+#include <qwr/final_action.h>
 
 using namespace smp;
 
@@ -54,7 +53,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     {
         return false;
     }
-    catch ( const SmpException& )
+    catch ( const qwr::QwrException& )
     {
         return false;
     }
@@ -85,7 +84,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     {
         return false;
     }
-    catch ( const SmpException& )
+    catch ( const qwr::QwrException& )
     {
         return false;
     }
@@ -96,7 +95,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
 
 bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const std::u8string& text )
 {
-    utils::final_action autoClearOnError{ [cx] { JS_ClearPendingException( cx ); } };
+    qwr::final_action autoClearOnError{ [cx] { JS_ClearPendingException( cx ); } };
 
     JS::RootedObject excnObject( cx, &excn.toObject() );
     JS_ClearPendingException( cx ); ///< need this for js::ErrorReport::init
@@ -217,7 +216,7 @@ std::u8string JsErrorToText( JSContext* cx )
     (void)JS_GetPendingException( cx, &excn );
     JS_ClearPendingException( cx ); ///< need this for js::ErrorReport::init
 
-    utils::final_action autoErrorClear( [cx]() { // There should be no exceptions on function exit
+    qwr::final_action autoErrorClear( [cx]() { // There should be no exceptions on function exit
         JS_ClearPendingException( cx );
     } );
 
@@ -288,7 +287,7 @@ void ExceptionToJsError( JSContext* cx )
     {
         assert( JS_IsExceptionPending( cx ) );
     }
-    catch ( const SmpException& e )
+    catch ( const qwr::QwrException& e )
     {
         JS_ClearPendingException( cx );
         JS_ReportErrorUTF8( cx, e.what() );
@@ -297,9 +296,9 @@ void ExceptionToJsError( JSContext* cx )
     {
         JS_ClearPendingException( cx );
 
-        const auto errorMsg8 = smp::unicode::ToU8( std::wstring_view{ e.ErrorMessage() ? e.ErrorMessage() : L"<none>" } );
-        const auto errorSource8 = smp::unicode::ToU8( std::wstring_view{ e.Source().length() ? static_cast<const wchar_t*>( e.Source() ) : L"<none>" } );
-        const auto errorDesc8 = smp::unicode::ToU8( std::wstring_view{ e.Description().length() ? static_cast<const wchar_t*>( e.Description() ) : L"<none>" } );
+        const auto errorMsg8 = qwr::unicode::ToU8( std::wstring_view{ e.ErrorMessage() ? e.ErrorMessage() : L"<none>" } );
+        const auto errorSource8 = qwr::unicode::ToU8( std::wstring_view{ e.Source().length() ? static_cast<const wchar_t*>( e.Source() ) : L"<none>" } );
+        const auto errorDesc8 = qwr::unicode::ToU8( std::wstring_view{ e.Description().length() ? static_cast<const wchar_t*>( e.Description() ) : L"<none>" } );
         JS_ReportErrorUTF8( cx,
                             fmt::format( "COM error:\n"
                                          "  message {}\n"
@@ -328,7 +327,7 @@ void SuppressException( JSContext* cx )
     catch ( const JsException& )
     {
     }
-    catch ( const SmpException& )
+    catch ( const qwr::QwrException& )
     {
     }
     catch ( const _com_error& )
@@ -345,7 +344,7 @@ void SuppressException( JSContext* cx )
 
 void PrependTextToJsError( JSContext* cx, const std::u8string& text )
 {
-    utils::final_action autoJsReport( [cx, text] {
+    qwr::final_action autoJsReport( [cx, text] {
         JS_ReportErrorUTF8( cx, "%s", text.c_str() );
     } );
 

@@ -7,11 +7,11 @@
 #include <convert/js_to_native.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_property_helper.h>
-#include <utils/hook_handler.h>
-#include <utils/scope_helpers.h>
-#include <utils/winapi_error_helpers.h>
 
-#include <component_paths.h>
+#include <qwr/fb2k_paths.h>
+#include <qwr/final_action.h>
+#include <qwr/hook_handler.h>
+#include <qwr/winapi_error_helpers.h>
 
 namespace smp::ui
 {
@@ -34,7 +34,7 @@ CDialogHtml::~CDialogHtml()
 
 LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
 {
-    utils::final_action autoExit( [&] {
+    qwr::final_action autoExit( [&] {
         EndDialog( -1 );
     } );
 
@@ -47,22 +47,22 @@ LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
 
         IObjectWithSitePtr pOWS = nullptr;
         HRESULT hr = wndIE.QueryHost( IID_IObjectWithSite, reinterpret_cast<void**>( &pOWS ) );
-        smp::error::CheckHR( hr, "QueryHost" );
+        qwr::error::CheckHR( hr, "QueryHost" );
 
         hr = pOWS->SetSite( static_cast<IServiceProvider*>( this ) );
-        smp::error::CheckHR( hr, "SetSite" );
+        qwr::error::CheckHR( hr, "SetSite" );
 
         IWebBrowserPtr pBrowser;
         hr = wndIE.QueryControl( &pBrowser );
-        smp::error::CheckHR( hr, "QueryControl" );
+        qwr::error::CheckHR( hr, "QueryControl" );
 
         _variant_t v;
         hr = pBrowser->Navigate( _bstr_t( L"about:blank" ), &v, &v, &v, &v ); ///< Document object is only available after Navigate
-        smp::error::CheckHR( hr, "Navigate" );
+        qwr::error::CheckHR( hr, "Navigate" );
 
         IDispatchPtr pDocDispatch;
         hr = pBrowser->get_Document( &pDocDispatch );
-        smp::error::CheckHR( hr, "get_Document" );
+        qwr::error::CheckHR( hr, "get_Document" );
 
         IHTMLDocument2Ptr pDocument = pDocDispatch;
 
@@ -71,14 +71,14 @@ LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
             IOleObjectPtr pOleObject( pDocument );
             IOleClientSitePtr pClientSite;
             hr = pOleObject->GetClientSite( &pClientSite );
-            smp::error::CheckHR( hr, "GetClientSite" );
+            qwr::error::CheckHR( hr, "GetClientSite" );
 
             pDefaultUiHandler_ = pClientSite;
 
             // Set the new custom IDocHostUIHandler
             ICustomDocPtr pCustomDoc( pDocument );
             hr = pCustomDoc->SetUIHandler( this );
-            smp::error::CheckHR( hr, "SetUIHandler" );
+            qwr::error::CheckHR( hr, "SetUIHandler" );
         }
 
         {
@@ -90,30 +90,30 @@ LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
              && !wmemcmp( htmlCodeOrPath_.c_str(), filePrefix.c_str(), filePrefix.length() ) )
         {
             hr = pBrowser->Navigate( _bstr_t( htmlCodeOrPath_.c_str() ), &v, &v, &v, &v );
-            smp::error::CheckHR( hr, "Navigate" );
+            qwr::error::CheckHR( hr, "Navigate" );
         }
         else
         {
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
-            utils::final_action autoPsa( [pSaStrings]() {
+            qwr::final_action autoPsa( [pSaStrings]() {
                 SafeArrayDestroy( pSaStrings );
             } );
 
             VARIANT* pSaVar = nullptr;
             hr = SafeArrayAccessData( pSaStrings, reinterpret_cast<void**>( &pSaVar ) );
-            smp::error::CheckHR( hr, "SafeArrayAccessData" );
+            qwr::error::CheckHR( hr, "SafeArrayAccessData" );
 
             _bstr_t bstr( htmlCodeOrPath_.c_str() );
             pSaVar->vt = VT_BSTR;
             pSaVar->bstrVal = bstr.Detach();
             hr = SafeArrayUnaccessData( pSaStrings );
-            smp::error::CheckHR( hr, "SafeArrayUnaccessData" );
+            qwr::error::CheckHR( hr, "SafeArrayUnaccessData" );
 
             hr = pDocument->write( pSaStrings );
-            smp::error::CheckHR( hr, "write" );
+            qwr::error::CheckHR( hr, "write" );
 
             hr = pDocument->close();
-            smp::error::CheckHR( hr, "close" );
+            qwr::error::CheckHR( hr, "close" );
         }
 
         wndIE.SetFocus();
@@ -124,7 +124,7 @@ LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
         return -1;
     }
 
-    hookId_ = smp::utils::HookHandler::GetInstance().RegisterHook(
+    hookId_ = qwr::HookHandler::GetInstance().RegisterHook(
         [hIE, pThis = this]( int code, WPARAM wParam, LPARAM lParam ) {
             GetMsgProc( code, wParam, lParam, hIE, pThis );
         } );
@@ -137,7 +137,7 @@ LRESULT CDialogHtml::OnDestroyDialog()
 {
     if ( hookId_ )
     {
-        smp::utils::HookHandler::GetInstance().UnregisterHook( hookId_ );
+        qwr::HookHandler::GetInstance().UnregisterHook( hookId_ );
         hookId_ = 0;
     }
 
@@ -501,7 +501,7 @@ void CDialogHtml::ParseOptions( JS::HandleValue options )
 
     if ( !options.isObject() )
     {
-        throw SmpException( "options argument is not an object" );
+        throw qwr::QwrException( "options argument is not an object" );
     }
 
     JS::RootedObject jsObject( pJsCtx_, &options.toObject() );
@@ -561,7 +561,7 @@ void CDialogHtml::SetOptions()
     }
 
     {
-        const auto w_fb2k_path = smp::unicode::ToWide( smp::get_fb2k_path() ) + L"foobar2000.exe";
+        const auto w_fb2k_path = qwr::path::Foobar2000() / L"foobar2000.exe";
         SHFILEINFO shfi{};
         SHGetFileInfo( w_fb2k_path.c_str(), 0, &shfi, sizeof( SHFILEINFO ), SHGFI_ICON | SHGFI_SHELLICONSIZE | SHGFI_SMALLICON );
         if ( shfi.hIcon )

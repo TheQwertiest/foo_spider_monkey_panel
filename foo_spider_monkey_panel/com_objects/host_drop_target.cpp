@@ -2,15 +2,13 @@
 
 #include "host_drop_target.h"
 
-#include "js_panel_window.h"
-
 #include <com_objects/internal/drag_utils.h>
 #include <js_engine/js_container.h>
 #include <js_objects/drop_source_action.h>
 #include <js_objects/global_object.h>
+#include <panel/js_panel_window.h>
+#include <panel/user_message.h>
 #include <utils/location_processor.h>
-
-#include <user_message.h>
 
 namespace
 {

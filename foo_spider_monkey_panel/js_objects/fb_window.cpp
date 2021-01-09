@@ -6,7 +6,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/winapi_error_helpers.h>
 
 namespace
 {
@@ -84,7 +85,7 @@ std::unique_ptr<JsFbWindow>
 JsFbWindow::CreateNative( JSContext* cx )
 {
     HWND hFbWnd = FindWindow( L"{E7076D1C-A7BF-4f39-B771-BCBE88F2A2A8}", nullptr );
-    smp::error::CheckWinApi( !!hFbWnd, "FindWindow" );
+    qwr::error::CheckWinApi( !!hFbWnd, "FindWindow" );
 
     return std::unique_ptr<JsFbWindow>( new JsFbWindow( cx, hFbWnd ) );
 }
@@ -224,7 +225,7 @@ void JsFbWindow::put_FrameStyle( uint8_t style )
     default:
     {
         JS_ReportErrorUTF8( pJsCtx_, "Unknown style: %u", style );
-        throw smp::SmpException( "" );
+        throw qwr::QwrException( "" );
     }
     }
 

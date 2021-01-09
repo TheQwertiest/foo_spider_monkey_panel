@@ -2,6 +2,7 @@
 
 #include "js_container.h"
 
+#include <js_engine/host_timer_dispatcher.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_gc.h>
 #include <js_engine/js_realm_inner.h>
@@ -11,11 +12,9 @@
 #include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
-#include <utils/scope_helpers.h>
+#include <panel/js_panel_window.h>
 
-#include <host_timer_dispatcher.h>
-#include <js_panel_window.h>
-#include <smp_exception.h>
+#include <qwr/final_action.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/CompilationAndEvaluation.h>
@@ -69,7 +68,7 @@ bool JsContainer::Initialize()
     {
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
         assert( jsGlobal_ );
-        utils::final_action autoGlobal( [&jsGlobal = jsGlobal_] {
+        qwr::final_action autoGlobal( [&jsGlobal = jsGlobal_] {
             jsGlobal.reset();
         } );
 
@@ -189,7 +188,7 @@ bool JsContainer::ExecuteScript( const std::u8string& scriptCode )
     opts.setFileAndLine( "<main>", 1 );
 
     OnJsActionStart();
-    smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+    qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
     JS::RootedValue dummyRval( pJsCtx_ );
     bool bRet = JS::Evaluate( pJsCtx_, opts, source, &dummyRval );
@@ -297,7 +296,7 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     JsScope autoScope( pJsCtx_, jsGlobal_ );
 
     OnJsActionStart();
-    smp::utils::final_action autoAction( [&] { OnJsActionEnd(); } );
+    qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
     (void)jsTask.InvokeJs();
 }

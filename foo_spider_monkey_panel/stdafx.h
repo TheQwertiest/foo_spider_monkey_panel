@@ -96,15 +96,15 @@ using u8string_view = basic_string_view<char8_t>;
 #endif
 
 // Additional PFC wrappers
-#include <utils/pfc_helpers_cnt.h>
-#include <utils/pfc_helpers_stream.h>
-#include <utils/pfc_helpers_ui.h>
+#include <qwr/pfc_helpers_cnt.h>
+#include <qwr/pfc_helpers_stream.h>
 
-// Unicode converters
-#include <utils/unicode.h>
+#include <qwr/unicode.h>
+#include <qwr/qwr_exception.h>
+
+#include <utils/js_exception.h>
 
 #include <component_defines.h>
 #include <component_guids.h>
-#include <smp_exception.h>
 
 // clang-format on

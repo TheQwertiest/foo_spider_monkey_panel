@@ -7,8 +7,9 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-#include <utils/scope_helpers.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/final_action.h>
+#include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
 
@@ -94,7 +95,7 @@ std::unique_ptr<JsThemeManager>
 JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classId )
 {
     HTHEME hTheme = OpenThemeData( hwnd, classId.c_str() );
-    SmpException::ExpectTrue( hTheme, "Internal error: Failed to get theme data for the provided class list" );
+    qwr::QwrException::ExpectTrue( hTheme, "Internal error: Failed to get theme data for the provided class list" );
 
     return std::unique_ptr<JsThemeManager>( new JsThemeManager( cx, hTheme ) );
 }
@@ -108,20 +109,20 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
                                           int32_t x, int32_t y, uint32_t w, uint32_t h,
                                           int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h )
 {
-    SmpException::ExpectTrue( gr, "gr argument is null" );
+    qwr::QwrException::ExpectTrue( gr, "gr argument is null" );
 
     Gdiplus::Graphics* graphics = gr->GetGraphicsObject();
     assert( graphics );
 
     HDC dc = graphics->GetHDC();
-    utils::final_action autoHdcReleaser( [graphics, dc]() { graphics->ReleaseHDC( dc ); } );
+    qwr::final_action autoHdcReleaser( [graphics, dc]() { graphics->ReleaseHDC( dc ); } );
 
     const RECT rc{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     const RECT clip_rc{ clip_x, clip_y, static_cast<LONG>( clip_x + clip_y ), static_cast<LONG>( clip_w + clip_h ) };
     LPCRECT pclip_rc = ( !clip_x && !clip_y && !clip_w && !clip_h ) ? nullptr : &clip_rc;
 
     HRESULT hr = ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rc, pclip_rc );
-    smp::error::CheckHR( hr, "DrawThemeBackground" );
+    qwr::error::CheckHR( hr, "DrawThemeBackground" );
 }
 
 void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr,
@@ -141,7 +142,7 @@ void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphi
     case 4:
         return DrawThemeBackground( gr, x, y, w, h );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -165,7 +166,7 @@ void JsThemeManager::SetPartAndStateIDWithOpt( size_t optArgCount, int32_t parti
     case 1:
         return SetPartAndStateID( partid );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 

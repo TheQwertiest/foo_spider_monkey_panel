@@ -7,8 +7,6 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
 
-#include <smp_exception.h>
-
 using namespace smp;
 
 namespace
@@ -99,7 +97,7 @@ JSObject* JsFbProfiler::ConstructorWithOpt( JSContext* cx, size_t optArgCount, c
     case 1:
         return Constructor( cx );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -136,7 +134,7 @@ void JsFbProfiler::PrintWithOpt( size_t optArgCount, const std::u8string& additi
     case 2:
         return Print();
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 

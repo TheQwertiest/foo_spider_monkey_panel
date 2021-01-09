@@ -7,7 +7,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-#include <utils/string_helpers.h>
+
+#include <qwr/string_helpers.h>
 
 using namespace smp;
 
@@ -88,7 +89,7 @@ JSObject* JsFbPlaylistRecycler::GetContent( uint32_t index )
     auto api = playlist_manager_v3::get();
 
     const t_size count = api->recycler_get_count();
-    SmpException::ExpectTrue( index < count, "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( index < count, "Index is out of bounds" );
 
     metadb_handle_list handles;
     playlist_manager_v3::get()->recycler_get_content( index, handles );
@@ -101,7 +102,7 @@ pfc::string8_fast JsFbPlaylistRecycler::GetName( uint32_t index )
     auto api = playlist_manager_v3::get();
 
     const t_size count = api->recycler_get_count();
-    SmpException::ExpectTrue( index < count, "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( index < count, "Index is out of bounds" );
 
     pfc::string8_fast name;
     playlist_manager_v3::get()->recycler_get_name( index, name );
@@ -123,7 +124,7 @@ void JsFbPlaylistRecycler::Restore( uint32_t index )
     auto api = playlist_manager_v3::get();
 
     const t_size count = api->recycler_get_count();
-    SmpException::ExpectTrue( index < count, "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( index < count, "Index is out of bounds" );
 
     api->recycler_restore( index );
 }

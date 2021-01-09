@@ -4,7 +4,8 @@
 
 #include <com_objects/internal/drag_image.h>
 #include <com_objects/internal/drag_utils.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/winapi_error_helpers.h>
 
 _COM_SMARTPTR_TYPEDEF( IDragSourceHelper2, IID_IDragSourceHelper2 );
 
@@ -19,7 +20,7 @@ IDropSourceImpl::IDropSourceImpl( HWND hWnd, IDataObject* pDataObject, size_t it
     assert( itemCount );
 
     HRESULT hr = pDragSourceHelper_.CreateInstance( CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER );
-    smp::error::CheckHR( hr, "CreateInstance" );
+    qwr::error::CheckHR( hr, "CreateInstance" );
 
     if ( IDragSourceHelper2Ptr pDragSourceHelper2 = pDragSourceHelper_;
          pDragSourceHelper2 )

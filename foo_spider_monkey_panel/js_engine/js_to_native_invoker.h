@@ -5,7 +5,8 @@
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/string_helpers.h>
+
+#include <qwr/string_helpers.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Wrapper.h>
@@ -234,13 +235,13 @@ void InvokeNativeCallback_Member( JSContext* cx,
     JS::CallArgs jsArgs = JS::CallArgsFromVp( argc, vp );
     if ( jsArgs.length() < ( maxArgCount - OptArgCount ) )
     {
-        throw smp::SmpException( "Invalid number of arguments" );
+        throw qwr::QwrException( "Invalid number of arguments" );
     }
 
     BaseClass* baseClass = InvokeNativeCallback_GetThisObject<BaseClass>( cx, jsArgs.thisv() );
     if ( !baseClass )
     {
-        throw smp::SmpException( "Invalid `this` context" );
+        throw qwr::QwrException( "Invalid `this` context" );
     }
 
     JS::RootedValueVector handleValueVector( cx );
@@ -291,7 +292,7 @@ void InvokeNativeCallback_Static( JSContext* cx,
     JS::CallArgs jsArgs = JS::CallArgsFromVp( argc, vp );
     if ( jsArgs.length() < ( maxArgCount - OptArgCount ) )
     {
-        throw smp::SmpException( "Invalid number of arguments" );
+        throw qwr::QwrException( "Invalid number of arguments" );
     }
 
     JS::RootedValueVector handleValueVector( cx );

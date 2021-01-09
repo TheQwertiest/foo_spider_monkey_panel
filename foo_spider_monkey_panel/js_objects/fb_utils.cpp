@@ -3,6 +3,7 @@
 #include "fb_utils.h"
 
 #include <com_objects/drop_source_impl.h>
+#include <fb2k/stats.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/context_menu_manager.h>
 #include <js_objects/fb_metadb_handle.h>
@@ -15,15 +16,14 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
+#include <panel/message_blocking_scope.h>
 #include <utils/array_x.h>
 #include <utils/art_helpers.h>
-#include <utils/delayed_executor.h>
 #include <utils/menu_helpers.h>
-#include <utils/string_helpers.h>
 
-#include <component_paths.h>
-#include <message_blocking_scope.h>
-#include <stats.h>
+#include <qwr/delayed_executor.h>
+#include <qwr/fb2k_paths.h>
+#include <qwr/string_helpers.h>
 
 using namespace smp;
 
@@ -255,7 +255,7 @@ void JsFbUtils::ClearPlaylist()
 
 bool JsFbUtils::CopyHandleListToClipboard( JsFbMetadbHandleList* handles )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
     pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handles->GetHandleList() );
     return SUCCEEDED( OleSetClipboard( pDO.get_ptr() ) );
@@ -290,13 +290,13 @@ JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const std::u8str
     case 1:
         return CreateProfiler();
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
     const metadb_handle_list& handleList = handles->GetHandleList();
     const size_t handleCount = handleList.get_count();
 
@@ -348,7 +348,7 @@ uint32_t JsFbUtils::DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsF
     case 1:
         return DoDragDrop( hWindow, handles, okEffects );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -383,7 +383,7 @@ JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
 
 std::u8string JsFbUtils::GetDSPPresets()
 {
-    SmpException::ExpectTrue( static_api_test_t<dsp_config_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
+    qwr::QwrException::ExpectTrue( static_api_test_t<dsp_config_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
     using json = nlohmann::json;
 
@@ -430,7 +430,7 @@ JSObject* JsFbUtils::GetFocusItemWithOpt( size_t optArgCount, bool force )
     case 1:
         return GetFocusItem();
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -444,7 +444,7 @@ JSObject* JsFbUtils::GetLibraryItems()
 
 pfc::string8_fast JsFbUtils::GetLibraryRelativePath( JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     pfc::string8_fast temp;
     library_manager::get()->get_relative_path( handle->GetHandle(), temp );
@@ -464,7 +464,7 @@ JSObject* JsFbUtils::GetNowPlaying()
 
 std::u8string JsFbUtils::GetOutputDevices()
 {
-    SmpException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
+    qwr::QwrException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
     using json = nlohmann::json;
 
@@ -490,7 +490,7 @@ std::u8string JsFbUtils::GetOutputDevices()
 
 JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const std::u8string& query )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
     const metadb_handle_list& handles_ptr = handles->GetHandleList();
     metadb_handle_list dst_list( handles_ptr );
@@ -504,7 +504,7 @@ JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const std::u8
     }
     catch ( const pfc::exception& e )
     {
-        throw SmpException( e.what() );
+        throw qwr::QwrException( e.what() );
     }
 
     pfc::array_t<bool> mask;
@@ -545,7 +545,7 @@ JSObject* JsFbUtils::GetSelectionsWithOpt( size_t optArgCount, uint32_t flags )
     case 1:
         return GetSelections();
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -585,7 +585,7 @@ bool JsFbUtils::IsMainMenuCommandChecked( const std::u8string& command )
 
 bool JsFbUtils::IsMetadbInMediaLibrary( JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     return library_manager::get()->is_item_in_library( handle->GetHandle() );
 }
@@ -640,19 +640,19 @@ bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const std::u8strin
     case 1:
         return RunContextCommand( command );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 bool JsFbUtils::RunContextCommandWithMetadb( const std::u8string& command, JS::HandleValue handle, uint32_t flags )
 {
-    SmpException::ExpectTrue( handle.isObject(), "handle argument is invalid" );
+    qwr::QwrException::ExpectTrue( handle.isObject(), "handle argument is invalid" );
 
     JS::RootedObject jsObject( pJsCtx_, &handle.toObject() );
 
     auto* jsHandle = GetInnerInstancePrivate<JsFbMetadbHandle>( pJsCtx_, jsObject );
     auto* jsHandleList = GetInnerInstancePrivate<JsFbMetadbHandleList>( pJsCtx_, jsObject );
-    SmpException::ExpectTrue( jsHandle || jsHandleList, "handle argument is invalid" );
+    qwr::QwrException::ExpectTrue( jsHandle || jsHandleList, "handle argument is invalid" );
 
     metadb_handle_list handle_list;
     if ( jsHandleList )
@@ -676,7 +676,7 @@ bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const st
     case 1:
         return RunContextCommandWithMetadb( command, handle );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -692,19 +692,19 @@ void JsFbUtils::SavePlaylist()
 
 void JsFbUtils::SetDSPPreset( uint32_t idx )
 {
-    SmpException::ExpectTrue( static_api_test_t<dsp_config_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
+    qwr::QwrException::ExpectTrue( static_api_test_t<dsp_config_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
     auto api = dsp_config_manager_v2::get();
     t_size count = api->get_preset_count();
 
-    SmpException::ExpectTrue( idx < count, "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( idx < count, "Index is out of bounds" );
 
     api->select_preset( idx );
 }
 
 void JsFbUtils::SetOutputDevice( const std::wstring& output, const std::wstring& device )
 {
-    SmpException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
+    qwr::QwrException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
     GUID output_id;
     GUID device_id;
@@ -728,7 +728,7 @@ void JsFbUtils::ShowLibrarySearchUI( const std::u8string& query )
 
 void JsFbUtils::ShowPopupMessage( const std::u8string& msg, const std::u8string& title )
 {
-    smp::utils::DelayedExecutor::GetInstance().AddTask( [msg, title] {
+    qwr::DelayedExecutor::GetInstance().AddTask( [msg, title] {
         popup_message::g_show( msg.c_str(), title.c_str() );
     } );
 }
@@ -742,7 +742,7 @@ void JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const std::u8string
     case 1:
         return ShowPopupMessage( msg );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -783,7 +783,7 @@ bool JsFbUtils::get_AlwaysOnTop()
 
 std::u8string JsFbUtils::get_ComponentPath()
 {
-    return smp::get_fb2k_component_path();
+    return ( qwr::path::Component() / "" ).u8string();
 }
 
 bool JsFbUtils::get_CursorFollowPlayback()
@@ -793,7 +793,7 @@ bool JsFbUtils::get_CursorFollowPlayback()
 
 std::u8string JsFbUtils::get_FoobarPath()
 {
-    return smp::get_fb2k_path();
+    return ( qwr::path::Foobar2000() / "" ).u8string();
 }
 
 bool JsFbUtils::get_IsPaused()
@@ -823,7 +823,7 @@ double JsFbUtils::get_PlaybackTime()
 
 std::u8string JsFbUtils::get_ProfilePath()
 {
-    return smp::get_profile_path();
+    return ( qwr::path::Profile() / "" ).u8string();
 }
 
 uint32_t JsFbUtils::get_ReplaygainMode()
@@ -874,7 +874,7 @@ void JsFbUtils::put_ReplaygainMode( uint32_t p )
         &standard_commands::guid_main_rg_byorder
     };
 
-    SmpException::ExpectTrue( p < guids.size(), "Invalid replay gain mode: {}", p );
+    qwr::QwrException::ExpectTrue( p < guids.size(), "Invalid replay gain mode: {}", p );
 
     standard_commands::run_main( *guids[p] );
     playback_control_v3::get()->restart();
@@ -895,7 +895,7 @@ JsFbUtils::DoDragDropOptions JsFbUtils::ParseDoDragDropOptions( JS::HandleValue 
     DoDragDropOptions parsedoptions;
     if ( !options.isNullOrUndefined() )
     {
-        SmpException::ExpectTrue( options.isObject(), "options argument is not an object" );
+        qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
         parsedoptions.useTheming = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "use_theming" ).value_or( true );

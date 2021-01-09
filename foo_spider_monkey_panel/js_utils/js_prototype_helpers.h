@@ -1,7 +1,8 @@
 #pragma once
 
 #include <js_objects/internal/prototype_ids.h>
-#include <utils/string_helpers.h>
+
+#include <qwr/string_helpers.h>
 
 namespace mozjs
 {
@@ -55,7 +56,7 @@ JSObject* GetPrototype( JSContext* cx, JsPrototypeId protoId )
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS_GetClass( globalObject ) ) );
 
     JS::Value protoVal = JS_GetReservedSlot( globalObject, slotIdx );
-    smp::SmpException::ExpectTrue( protoVal.isObject(),
+    qwr::QwrException::ExpectTrue( protoVal.isObject(),
                                    "Internal error: Slot {}({}) does not contain a prototype",
                                    static_cast<uint32_t>( protoId ),
                                    slotIdx );

@@ -2,13 +2,12 @@
 
 #include "fb_metadb_handle.h"
 
+#include <fb2k/stats.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_file_info.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-
-#include <stats.h>
 
 using namespace smp;
 
@@ -96,7 +95,7 @@ JsFbMetadbHandle::JsFbMetadbHandle( JSContext* cx, const metadb_handle_ptr& hand
 std::unique_ptr<mozjs::JsFbMetadbHandle>
 JsFbMetadbHandle::CreateNative( JSContext* cx, const metadb_handle_ptr& handle )
 {
-    SmpException::ExpectTrue( handle.is_valid(), "Internal error: metadb_handle_ptr is null" );
+    qwr::QwrException::ExpectTrue( handle.is_valid(), "Internal error: metadb_handle_ptr is null" );
 
     return std::unique_ptr<JsFbMetadbHandle>( new JsFbMetadbHandle( cx, handle ) );
 }
@@ -122,7 +121,7 @@ void JsFbMetadbHandle::ClearStats()
 
 bool JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     return ( handle->GetHandle() == metadbHandle_ );
 }

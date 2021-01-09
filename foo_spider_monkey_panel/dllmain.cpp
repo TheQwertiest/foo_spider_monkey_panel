@@ -1,13 +1,13 @@
 #include <stdafx.h>
 
 #include <js_engine/js_engine.h>
-#include <utils/delayed_executor.h>
-#include <utils/error_popup.h>
-#include <utils/thread_pool.h>
+#include <panel/message_manager.h>
+#include <panel/user_message.h>
+#include <utils/thread_pool_instance.h>
 
-#include <abort_callback.h>
-#include <message_manager.h>
-#include <user_message.h>
+#include <qwr/abort_callback.h>
+#include <qwr/delayed_executor.h>
+#include <qwr/error_popup.h>
 
 #include <Scintilla.h>
 
@@ -117,7 +117,7 @@ class js_initquit : public initquit
 public:
     void on_init() override
     {
-        smp::utils::DelayedExecutor::GetInstance().EnableExecution(); ///< Enable task processing (e.g. error popups)
+        qwr::DelayedExecutor::GetInstance().EnableExecution(); ///< Enable task processing (e.g. error popups)
         CheckSubsystemStatus();
     }
 
@@ -125,8 +125,8 @@ public:
     { // Careful when changing invocation order here!
         mozjs::JsEngine::GetInstance().PrepareForExit();
         smp::panel::message_manager::instance().send_msg_to_all( static_cast<UINT>( smp::InternalSyncMessage::terminate_script ) );
-        smp::GlobalAbortCallback::GetInstance().Abort();
-        smp::ThreadPool::GetInstance().Finalize();
+        qwr::GlobalAbortCallback::GetInstance().Abort();
+        smp::GetThreadPoolInstance().Finalize();
     }
 
 private:
@@ -147,7 +147,7 @@ private:
             errorText += fmt::format( "{}: error code: {:#x}\r\n", failure.description, failure.errorCode );
         }
 
-        smp::utils::ReportErrorWithPopup( errorText );
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
     }
 };
 

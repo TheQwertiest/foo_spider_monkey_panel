@@ -6,8 +6,9 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-#include <utils/scope_helpers.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/final_action.h>
+#include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
 
@@ -96,9 +97,9 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd )
         nullptr,
         core_api::get_my_instance(),
         nullptr );
-    smp::error::CheckWinApi( hTooltipWnd_, "CreateWindowEx" );
+    qwr::error::CheckWinApi( hTooltipWnd_, "CreateWindowEx" );
 
-    smp::utils::final_action autoHwnd( [hTooltipWnd = hTooltipWnd_] {
+    qwr::final_action autoHwnd( [hTooltipWnd = hTooltipWnd_] {
         if ( IsWindow( hTooltipWnd ) )
         {
             DestroyWindow( hTooltipWnd );
@@ -120,16 +121,16 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd )
     toolInfo_->lpszText = const_cast<wchar_t*>( tipBuffer_.c_str() ); // we need to have text here, otherwise tooltip will glitch out
 
     bool bRet = SendMessage( hTooltipWnd_, TTM_ADDTOOL, 0, (LPARAM)toolInfo_.get() );
-    smp::error::CheckWinApi( bRet, "SendMessage(TTM_ADDTOOL)" );
+    qwr::error::CheckWinApi( bRet, "SendMessage(TTM_ADDTOOL)" );
     SendMessage( hTooltipWnd_, TTM_ACTIVATE, FALSE, 0 );
-                       
+
     autoHwnd.cancel();
 }
 
 std::unique_ptr<JsFbTooltip>
 JsFbTooltip::CreateNative( JSContext* cx, HWND hParentWnd )
 {
-    SmpException::ExpectTrue( hParentWnd, "Internal error: hParentWnd is null" );
+    qwr::QwrException::ExpectTrue( hParentWnd, "Internal error: hParentWnd is null" );
 
     return std::unique_ptr<JsFbTooltip>( new JsFbTooltip( cx, hParentWnd ) );
 }
@@ -161,14 +162,14 @@ void JsFbTooltip::Deactivate()
 
 uint32_t JsFbTooltip::GetDelayTime( uint32_t type )
 {
-    SmpException::ExpectTrue( type >= TTDT_AUTOMATIC && type <= TTDT_INITIAL, "Invalid delay type: {}", type );
+    qwr::QwrException::ExpectTrue( type >= TTDT_AUTOMATIC && type <= TTDT_INITIAL, "Invalid delay type: {}", type );
 
     return SendMessage( hTooltipWnd_, TTM_GETDELAYTIME, type, 0 );
 }
 
 void JsFbTooltip::SetDelayTime( uint32_t type, int32_t time )
 {
-    SmpException::ExpectTrue( type >= TTDT_AUTOMATIC && type <= TTDT_INITIAL, "Invalid delay type: {}", type );
+    qwr::QwrException::ExpectTrue( type >= TTDT_AUTOMATIC && type <= TTDT_INITIAL, "Invalid delay type: {}", type );
 
     SendMessage( hTooltipWnd_, TTM_SETDELAYTIME, type, static_cast<LPARAM>( static_cast<int>( MAKELONG( time, 0 ) ) ) );
 }
@@ -198,7 +199,7 @@ void JsFbTooltip::SetFont( const std::wstring& name, uint32_t pxSize, uint32_t s
             DEFAULT_QUALITY,
             DEFAULT_PITCH | FF_DONTCARE,
             fontName_.c_str() ) );
-        smp::error::CheckWinApi( !!pFont_, "CreateFont" );
+        qwr::error::CheckWinApi( !!pFont_, "CreateFont" );
         SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)pFont_.get(), MAKELPARAM( FALSE, 0 ) );
     }
 }
@@ -214,7 +215,7 @@ void JsFbTooltip::SetFontWithOpt( size_t optArgCount, const std::wstring& name, 
     case 2:
         return SetFont( name );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 

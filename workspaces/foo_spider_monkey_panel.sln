@@ -65,6 +65,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lexilla", "..\submodules\scintilla\lexilla\src\lexilla.vcxproj", "{7CA4BBC9-83CA-42BE-84BB-8A98368FABAB}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fb2k_utils", "..\submodules\fb2k_utils\src\fb2k_utils.vcxproj", "{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -117,6 +119,12 @@ Global
 		{7CA4BBC9-83CA-42BE-84BB-8A98368FABAB}.Release|Win32.ActiveCfg = Release|Win32
 		{7CA4BBC9-83CA-42BE-84BB-8A98368FABAB}.Release|Win32.Build.0 = Release|Win32
 		{7CA4BBC9-83CA-42BE-84BB-8A98368FABAB}.Release|x64.ActiveCfg = Release|Win32
+		{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571}.Debug|Win32.ActiveCfg = Debug|Win32
+		{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571}.Debug|Win32.Build.0 = Debug|Win32
+		{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571}.Debug|x64.ActiveCfg = Debug|Win32
+		{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571}.Release|Win32.ActiveCfg = Release|Win32
+		{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571}.Release|Win32.Build.0 = Release|Win32
+		{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -130,9 +138,10 @@ Global
 		{324E062D-0AF2-42F1-874B-82CE61D9B2FD} = {544844FF-3BCA-4D28-884D-997582B1E2C2}
 		{C83916CB-E2CC-436F-9B39-CDAF19B88C6C} = {544844FF-3BCA-4D28-884D-997582B1E2C2}
 		{7CA4BBC9-83CA-42BE-84BB-8A98368FABAB} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 		SolutionNewStyle = 1
+		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 	EndGlobalSection
 EndGlobal

@@ -12,8 +12,9 @@
 #include <utils/gdi_error_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
-#include <utils/scope_helpers.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/final_action.h>
+#include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
 
@@ -91,7 +92,7 @@ size_t JsGdiUtils::GetInternalSize()
 JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    smp::error::CheckGdiPlusObject( img );
+    qwr::error::CheckGdiPlusObject( img );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) );
 }
@@ -110,7 +111,7 @@ JSObject* JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontN
     case 1:
         return Font( fontName, pxSize );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -127,7 +128,7 @@ JSObject* JsGdiUtils::Image( const std::wstring& path )
 
 std::uint32_t JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& path )
 {
-    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
+    qwr::QwrException::ExpectTrue( hWnd, "Invalid hWnd argument" );
 
     // Such cast will work only on x86
     return smp::image::LoadImageAsync( reinterpret_cast<HWND>( hWnd ), path );
@@ -135,7 +136,7 @@ std::uint32_t JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& pat
 
 JSObject* JsGdiUtils::LoadImageAsyncV2( uint32_t hWnd, const std::wstring& path )
 {
-    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
+    qwr::QwrException::ExpectTrue( hWnd, "Invalid hWnd argument" );
 
     // Such cast will work only on x86
     return mozjs::image::GetImagePromise( pJsCtx_, reinterpret_cast<HWND>( hWnd ), path );

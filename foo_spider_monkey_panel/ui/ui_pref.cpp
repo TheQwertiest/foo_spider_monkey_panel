@@ -5,7 +5,8 @@
 #include <ui/scintilla/sci_prop_sets.h>
 #include <ui/ui_name_value_edit.h>
 #include <utils/array_x.h>
-#include <utils/file_helpers.h>
+
+#include <qwr/file_helpers.h>
 
 #include <filesystem>
 
@@ -101,8 +102,8 @@ void CDialogPref::LoadProps( bool reset )
 
     for ( auto&& [i, prop]: ranges::views::enumerate( prop_sets ) )
     {
-        m_props.AddItem( i, 0, smp::unicode::ToWide( prop.key ).c_str() );
-        m_props.AddItem( i, 1, smp::unicode::ToWide( prop.val ).c_str() );
+        m_props.AddItem( i, 0, qwr::unicode::ToWide( prop.key ).c_str() );
+        m_props.AddItem( i, 1, qwr::unicode::ToWide( prop.val ).c_str() );
     }
 
     OnChanged();
@@ -142,7 +143,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
             }
 
             // Update list
-            m_props.SetItemText( pniv->iItem, 1, smp::unicode::ToWide( newVal ).c_str() );
+            m_props.SetItemText( pniv->iItem, 1, qwr::unicode::ToWide( newVal ).c_str() );
             DoDataExchange();
         }
     }
@@ -159,27 +160,31 @@ std::u8string CDialogPref::uGetItemText( int nItem, int nSubItem )
     (void)m_props.GetItemText( nItem, nSubItem, buffer.data(), size );
     buffer.resize( wcslen( buffer.c_str() ) );
 
-    return smp::unicode::ToU8( buffer );
+    return qwr::unicode::ToU8( buffer );
 }
 
 void CDialogPref::OnButtonExportBnClicked( WORD, WORD, HWND )
 {
-    fs::path path( smp::file::FileDialog( L"Save as", true, k_DialogExtFilter, L"cfg" ) );
-    if ( !path.empty() )
+    const auto path_opt = qwr::file::FileDialog( L"Save as", true, guid::dialog_path, k_DialogExtFilter, L"cfg" );
+    if ( !path_opt || path_opt->empty() )
     {
-        path = path.lexically_normal();
-        g_scintillaCfg.export_to_file( path.wstring().c_str() );
+        return;
     }
+
+    const auto path = path_opt->lexically_normal();
+    g_scintillaCfg.export_to_file( path.c_str() );
 }
 
 void CDialogPref::OnButtonImportBnClicked( WORD, WORD, HWND )
 {
-    fs::path path( smp::file::FileDialog( L"Import from", false, k_DialogExtFilter, L"cfg" ) );
-    if ( !path.empty() )
+    const auto path_opt = qwr::file::FileDialog( L"Import from", false, guid::dialog_path, k_DialogExtFilter, L"cfg" );
+    if ( !path_opt || path_opt->empty() )
     {
-        path = path.lexically_normal();
-        g_scintillaCfg.import_from_file( path.u8string().c_str() );
+        return;
     }
+
+    const auto path = path_opt->lexically_normal();
+    g_scintillaCfg.import_from_file( path.u8string().c_str() );
 
     LoadProps();
 }

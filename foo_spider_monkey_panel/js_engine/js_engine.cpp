@@ -2,24 +2,24 @@
 
 #include "js_engine.h"
 
+#include <fb2k/advanced_config.h>
+#include <js_engine/heartbeat_window.h>
+#include <js_engine/host_timer_dispatcher.h>
 #include <js_engine/js_container.h>
 #include <js_engine/js_internal_global.h>
 #include <js_engine/js_realm_inner.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
-#include <utils/error_popup.h>
-#include <utils/scope_helpers.h>
-#include <utils/string_helpers.h>
-#include <utils/thread_helpers.h>
-
-#include <adv_config.h>
-#include <heartbeat_window.h>
-#include <host_timer_dispatcher.h>
-#include <js_panel_window.h>
-#include <message_blocking_scope.h>
-#include <user_message.h>
+#include <panel/js_panel_window.h>
+#include <panel/message_blocking_scope.h>
+#include <panel/user_message.h>
+#include <utils/make_unique_ptr.h>
 
 #include <js/Initialization.h>
+#include <qwr/error_popup.h>
+#include <qwr/final_action.h>
+#include <qwr/string_helpers.h>
+#include <qwr/thread_helpers.h>
 
 using namespace smp;
 
@@ -47,7 +47,7 @@ void ReportException( const std::u8string& errorText )
         return text;
     }();
 
-    smp::utils::ReportErrorWithPopup( errorTextPadded );
+    qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorTextPadded );
 }
 
 } // namespace
@@ -216,14 +216,14 @@ bool JsEngine::Initialize()
         return true;
     }
 
-    utils::unique_ptr<JSContext> autoJsCtx( nullptr, []( auto pCtx ) {
+    auto autoJsCtx = utils::make_unique<JSContext>( nullptr, []( auto pCtx ) {
         JS_DestroyContext( pCtx );
     } );
 
     try
     {
         autoJsCtx.reset( JS_NewContext( JsGc::GetMaxHeap() ) );
-        SmpException::ExpectTrue( autoJsCtx.get(), "JS_NewContext failed" );
+        qwr::QwrException::ExpectTrue( autoJsCtx.get(), "JS_NewContext failed" );
 
         JSContext* cx = autoJsCtx.get();
 
@@ -262,7 +262,7 @@ bool JsEngine::Initialize()
         ReportException( mozjs::error::JsErrorToText( autoJsCtx.get() ) );
         return false;
     }
-    catch ( const SmpException& e )
+    catch ( const qwr::QwrException& e )
     {
         ReportException( e.what() );
         return false;
@@ -316,7 +316,7 @@ void JsEngine::StartHeartbeatThread()
             PostMessage( parent->heartbeatWindow_->GetHwnd(), static_cast<UINT>( smp::MiscMessage::heartbeat ), 0, 0 );
         }
     } );
-    smp::utils::SetThreadName( heartbeatThread_, "SMP Heartbeat" );
+    qwr::SetThreadName( heartbeatThread_, "SMP Heartbeat" );
 }
 
 void JsEngine::StopHeartbeatThread()

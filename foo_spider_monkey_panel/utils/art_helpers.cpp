@@ -2,15 +2,16 @@
 
 #include "art_helpers.h"
 
+#include <panel/message_manager.h>
+#include <panel/user_message.h>
 #include <utils/gdi_helpers.h>
-#include <utils/scope_helpers.h>
-#include <utils/string_helpers.h>
-#include <utils/thread_pool.h>
+#include <utils/thread_pool_instance.h>
 
 #include <Shlwapi.h>
-#include <abort_callback.h>
-#include <message_manager.h>
-#include <user_message.h>
+
+#include <qwr/abort_callback.h>
+#include <qwr/final_action.h>
+#include <qwr/string_helpers.h>
 
 #include <algorithm>
 
@@ -155,7 +156,7 @@ void embed_thread::run( threaded_process_status& p_status,
                         abort_callback& p_abort )
 {
     auto api = file_lock_manager::get();
-    const auto stlHandleList = pfc_x::Make_Stl_Ref( m_handles );
+    const auto stlHandleList = qwr::pfc_x::Make_Stl_Ref( m_handles );
 
     for ( auto&& [i, handle]: ranges::views::enumerate( stlHandleList ) )
     {
@@ -233,7 +234,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
         &album_art_ids::artist,
     };
 
-    SmpException::ExpectTrue( art_id < guids.size(), "Unknown art_id: {}", art_id );
+    qwr::QwrException::ExpectTrue( art_id < guids.size(), "Unknown art_id: {}", art_id );
 
     return *guids[art_id];
 }
@@ -243,7 +244,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const std::u8string&
     const pfc::string_extension extension( rawpath.c_str() );
     const GUID& artTypeGuid = GetGuidForArtId( art_id );
 
-    TimedAbortCallback abort;
+    qwr::TimedAbortCallback abort;
     for ( service_enum_t<album_art_extractor> e; !e.finished(); ++e )
     {
         auto extractor = e.get();
@@ -272,7 +273,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
     assert( handle.is_valid() );
 
     const GUID& artTypeGuid = GetGuidForArtId( art_id );
-    TimedAbortCallback abort;
+    qwr::TimedAbortCallback abort;
     auto aamv2 = album_art_manager_v2::get();
 
     try
@@ -320,7 +321,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle
             bitmap = GetBitmapFromMetadb( handle, art_id, need_stub, no_load, &imagePath );
         }
     }
-    catch ( const SmpException& )
+    catch ( const qwr::QwrException& )
     { // The only possible exception is invalid art_id, which should be checked beforehand
         assert( 0 );
     }
@@ -338,7 +339,7 @@ void GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_
     assert( handle.is_valid() );
     (void)GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
 
-    ThreadPool::GetInstance().AddTask( [task = std::make_shared<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load )] {
+    smp::GetThreadPoolInstance().AddTask( [task = std::make_shared<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load )] {
         std::invoke( *task );
     } );
 }

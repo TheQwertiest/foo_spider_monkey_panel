@@ -2,7 +2,7 @@
 
 #include "drop_target_impl.h"
 
-#include <utils/winapi_error_helpers.h>
+#include <qwr/winapi_error_helpers.h>
 
 namespace smp::com
 {
@@ -13,7 +13,7 @@ IDropTargetImpl::IDropTargetImpl( HWND hWnd )
     assert( hWnd );
 
     HRESULT hr = m_dropTargetHelper.CreateInstance( CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER );
-    smp::error::CheckHR( hr, "CreateInstance" );
+    qwr::error::CheckHR( hr, "CreateInstance" );
 
     assert( m_dropTargetHelper );
 }

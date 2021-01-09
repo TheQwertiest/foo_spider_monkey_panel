@@ -5,7 +5,8 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-#include <utils/scope_helpers.h>
+
+#include <qwr/final_action.h>
 
 using namespace smp;
 
@@ -123,7 +124,7 @@ std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableH
     std::u8string output;
 
     ++logDepth;
-    utils::final_action autoDecrement( [&logDepth] { --logDepth; } );
+    qwr::final_action autoDecrement( [&logDepth] { --logDepth; } );
 
     if ( !jsValue.isObject() )
     {
@@ -165,7 +166,7 @@ std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableH
             }
 
             curObjects.emplaceBack( jsObject );
-            utils::final_action autoPop( [&curObjects] { curObjects.popBack(); } );
+            qwr::final_action autoPop( [&curObjects] { curObjects.popBack(); } );
 
             bool is;
             if ( !JS_IsArrayObject( cx, jsObject, &is ) )

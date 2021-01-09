@@ -7,9 +7,9 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/serialized_value.h>
-#include <utils/string_helpers.h>
+#include <panel/js_panel_window.h>
 
-#include <js_panel_window.h>
+#include <qwr/string_helpers.h>
 
 using namespace smp;
 
@@ -43,7 +43,7 @@ void FbProperties::PrepareForGc()
 
 JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue )
 {
-    const std::wstring trimmedPropName( smp::string::Trim<wchar_t>( propName ) );
+    const std::wstring trimmedPropName( qwr::string::Trim<wchar_t>( propName ) );
 
     bool hasProperty = false;
     if ( properties_.count( trimmedPropName ) )
@@ -80,7 +80,7 @@ JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleVal
 
 void FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue propValue )
 {
-    const std::wstring trimmedPropName( smp::string::Trim<wchar_t>( propName ) );
+    const std::wstring trimmedPropName( qwr::string::Trim<wchar_t>( propName ) );
 
     auto& panelPropertyValues = parentPanel_.GetSettings().properties.values;
 

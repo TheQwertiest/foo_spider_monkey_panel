@@ -4,7 +4,8 @@
 
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
-#include <utils/type_traits_x.h>
+
+#include <qwr/type_traits.h>
 
 namespace mozjs
 {
@@ -32,7 +33,7 @@ SerializedJsValue SerializeJsValue( JSContext* cx, JS::HandleValue jsValue )
     }
     else
     {
-        throw smp::SmpException( "Unsupported value type" );
+        throw qwr::QwrException( "Unsupported value type" );
     }
 
     return serializedValue;
@@ -60,7 +61,7 @@ void DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue
         }
         else
         {
-            static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
+            static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
         }
     },
                 serializedValue );

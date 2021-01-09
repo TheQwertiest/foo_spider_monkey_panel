@@ -6,8 +6,6 @@
 namespace smp::utils
 {
 
-std::optional<UINT> DetectCharSet( std::string_view text );
-
 size_t get_text_height( HDC hdc, std::wstring_view text );
 size_t get_text_width( HDC hdc, std::wstring_view text );
 

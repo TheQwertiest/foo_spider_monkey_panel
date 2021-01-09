@@ -2,12 +2,13 @@
 
 #include "ui_conf.h"
 
+#include <panel/js_panel_window.h>
 #include <utils/array_x.h>
-#include <utils/file_helpers.h>
-#include <utils/scope_helpers.h>
 
-#include <component_paths.h>
-#include <js_panel_window.h>
+#include <qwr/fb2k_paths.h>
+#include <qwr/file_helpers.h>
+#include <qwr/final_action.h>
+#include <qwr/pfc_helpers_ui.h>
 
 namespace
 {
@@ -42,7 +43,7 @@ LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
     assert( menu.m_hMenu );
 
     // Get caption text
-    m_caption = smp::pfc_x::uGetWindowText<char8_t>( m_hWnd );
+    m_caption = qwr::pfc_x::uGetWindowText<char8_t>( m_hWnd );
 
     // Init resize
     DlgResize_Init();
@@ -218,18 +219,20 @@ LRESULT CDialogConf::OnFileSave( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 {
-    const auto filename = smp::unicode::ToU8( smp::file::FileDialog( L"Import File", false, k_DialogExtFilter, L"js" ) );
-    if ( filename.empty() )
+    const auto filename_opt = qwr::file::FileDialog( L"Import File", false, guid::dialog_path, k_DialogExtFilter, L"js" );
+    if ( !filename_opt || filename_opt->empty() )
     {
         return 0;
     }
 
+    const auto filename = *filename_opt;
+
     try
     {
-        const auto text = smp::file::ReadFile( filename, CP_UTF8 );
+        const auto text = qwr::file::ReadFile( filename, CP_UTF8 );
         sciEditor_.SetContent( text.c_str() );
     }
-    catch ( const SmpException& e )
+    catch ( const qwr::QwrException& e )
     {
         const std::string errorMsg = fmt::format( "Failed to read file: {}", e.what() );
         (void)uMessageBox( m_hWnd, errorMsg.c_str(), m_caption.c_str(), MB_ICONWARNING | MB_SETFOREGROUND );
@@ -240,11 +243,13 @@ LRESULT CDialogConf::OnFileImport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 {
-    const std::wstring filename( smp::file::FileDialog( L"Export File", true, k_DialogExtFilter, L"js" ) );
-    if ( filename.empty() )
+    const auto filename_opt = qwr::file::FileDialog( L"Export File", true, guid::dialog_path, k_DialogExtFilter, L"js" );
+    if ( !filename_opt || filename_opt->empty() )
     {
         return 0;
     }
+
+    const auto filename = *filename_opt;
 
     std::u8string text;
     text.resize( sciEditor_.GetTextLength() + 1 );
@@ -252,7 +257,7 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
     sciEditor_.GetText( text.data(), text.size() );
     text.resize( strlen( text.data() ) );
 
-    (void)smp::file::WriteFile( filename.c_str(), text );
+    qwr::file::WriteFile( filename, text );
 
     return 0;
 }
@@ -294,7 +299,7 @@ LRESULT CDialogConf::OnFeaturesGrabFocus( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnHelp( WORD, WORD, HWND )
 {
-    const auto path = smp::unicode::ToWide( smp::get_fb2k_component_path() ) + L"\\docs\\html\\index.html";
+    const auto path = qwr::path::Component() / L"docs/html/index.html";
     ShellExecute( nullptr, L"open", path.c_str(), nullptr, nullptr, SW_SHOW );
     return 0;
 }

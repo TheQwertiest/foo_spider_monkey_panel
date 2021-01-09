@@ -14,14 +14,14 @@ public:
     JsGc& operator=( const JsGc& ) = delete;
 
 public:
-    /// @throw smp::SmpException
+    /// @throw qwr::QwrException
     [[nodiscard]] static uint32_t GetMaxHeap();
     [[nodiscard]] static uint64_t GetTotalHeapUsageForGlobal( JSContext* cx, JS::HandleObject jsGlobal );
     /// @details Returns last heap size instead of the current size,
     /// but this should be good enough for users
     [[nodiscard]] uint64_t GetTotalHeapUsage() const;
 
-    /// @throw smp::SmpException
+    /// @throw qwr::QwrException
     void Initialize( JSContext* pJsCtx );
     void Finalize();
 

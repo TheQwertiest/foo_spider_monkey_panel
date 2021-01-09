@@ -1,7 +1,8 @@
 #pragma once
 
 #include <convert/js_to_native.h>
-#include <utils/string_helpers.h>
+
+#include <qwr/string_helpers.h>
 
 #include <optional>
 

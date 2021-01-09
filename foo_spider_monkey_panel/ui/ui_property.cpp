@@ -2,12 +2,12 @@
 
 #include "ui_property.h"
 
+#include <panel/js_panel_window.h>
 #include <utils/array_x.h>
-#include <utils/file_helpers.h>
-#include <utils/type_traits_x.h>
 
-#include <abort_callback.h>
-#include <js_panel_window.h>
+#include <qwr/abort_callback.h>
+#include <qwr/file_helpers.h>
+#include <qwr/type_traits.h>
 
 // precision
 #include <filesystem>
@@ -95,11 +95,11 @@ LRESULT CDialogProperty::OnPinItemChanged( LPNMHDR pnmh )
                 else if constexpr ( std::is_same_v<T, std::u8string> )
                 {
                     var.ChangeType( VT_BSTR );
-                    arg = smp::unicode::ToU8( std::wstring_view{ var.bstrVal ? var.bstrVal : L"" } );
+                    arg = qwr::unicode::ToU8( std::wstring_view{ var.bstrVal ? var.bstrVal : L"" } );
                 }
                 else
                 {
-                    static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
+                    static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
                 }
             },
                         val );
@@ -165,11 +165,11 @@ void CDialogProperty::LoadProperties( bool reload )
             }
             else if constexpr ( std::is_same_v<T, std::u8string> )
             {
-                return PropCreateSimple( name.c_str(), smp::unicode::ToWide( arg ).c_str() );
+                return PropCreateSimple( name.c_str(), qwr::unicode::ToWide( arg ).c_str() );
             }
             else
             {
-                static_assert( smp::always_false_v<T>, "non-exhaustive visitor!" );
+                static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
             }
         },
                                       *pSerializedValue );
@@ -205,14 +205,14 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
         { L"All files", L"*.*" },
     } );
 
-    fs::path path( smp::file::FileDialog( L"Import from", false, k_DialogImportExtFilter, L"json", L"props" ) );
-    if ( path.empty() )
+    const auto path_opt = qwr::file::FileDialog( L"Import from", false, guid::dialog_path, k_DialogImportExtFilter, L"json", L"props" );
+    if ( !path_opt || path_opt->empty() )
     {
         return 0;
     }
-    path = path.lexically_normal();
+    const auto path = path_opt->lexically_normal();
 
-    auto& abort = smp::GlobalAbortCallback::GetInstance();
+    auto& abort = qwr::GlobalAbortCallback::GetInstance();
 
     try
     {
@@ -258,15 +258,15 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD, WORD, HWND )
             { L"All files", L"*.*" },
         } );
 
-    fs::path path( smp::file::FileDialog( L"Save as", true, k_DialogExportExtFilter, L"json", L"props" ) );
-    if ( path.empty() )
+    const auto path_opt = qwr::file::FileDialog( L"Save as", true, guid::dialog_path, k_DialogExportExtFilter, L"json", L"props" );
+    if ( !path_opt || path_opt->empty() )
     {
         return 0;
     }
-    path = path.lexically_normal();
+    const auto path = path_opt->lexically_normal();
 
     file_ptr io;
-    auto& abort = smp::GlobalAbortCallback::GetInstance();
+    auto& abort = qwr::GlobalAbortCallback::GetInstance();
 
     try
     {

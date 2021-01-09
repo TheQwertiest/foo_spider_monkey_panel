@@ -9,7 +9,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/winapi_error_helpers.h>
 
 // TODO: add font caching
 
@@ -124,7 +125,7 @@ JS::Value JsEnumerator::Item()
 void JsEnumerator::MoveFirst()
 {
     HRESULT hr = pEnum_->Reset();
-    smp::error::CheckHR( hr, "Reset" );
+    qwr::error::CheckHR( hr, "Reset" );
 
     GetCurrentElement();
 }
@@ -149,7 +150,7 @@ void JsEnumerator::GetCurrentElement()
     }
     else
     {
-        smp::error::CheckHR( hr, "Next" );
+        qwr::error::CheckHR( hr, "Next" );
     }
 
     if ( !fetchedElements )

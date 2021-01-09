@@ -4,11 +4,14 @@
 
 #ifdef SMP_ENABLE_CXX_STACKTRACE
 
-#    include <utils/scope_helpers.h>
+#    include <fb2k/advanced_config.h>
 
-#    include <adv_config.h>
 #    include <dbghelp.h>
+
+#    include <qwr/final_action.h>
 #    pragma comment( lib, "dbghelp.lib" )
+
+#    include <nonstd/span.hpp>
 
 #    include <new>
 #    include <string_view>
@@ -124,14 +127,14 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
     assert( !stackTrace.empty() );
 
     nonstd::span<wchar_t> curView = stackTrace.subspan( 0, stackTrace.size() - 1 );
-    smp::utils::final_action autoZeroTermination{
+    qwr::final_action autoZeroTermination{
         [&curView] {
             curView[0] = L'\0'; ///< curView.size() is always < stackTrace.size()
         }
     };
 
-    const auto maxRecurCount = static_cast<uint32_t>( smp_advconf::stacktrace_max_recursion.get() );
-    const auto maxDepth = static_cast<uint32_t>( smp_advconf::stacktrace_max_depth.get() );
+    const auto maxRecurCount = smp_advconf::stacktrace_max_recursion.GetValue();
+    const auto maxDepth = smp_advconf::stacktrace_max_depth.GetValue();
 
     if ( !hThread )
     {
@@ -149,7 +152,7 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
         curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
         return;
     }
-    smp::utils::final_action autoSymCleanup{ [&hProcess] { SymCleanup( hProcess ); } };
+    qwr::final_action autoSymCleanup{ [&hProcess] { SymCleanup( hProcess ); } };
 
     {
         std::array<wchar_t, 512> pathBuffer;

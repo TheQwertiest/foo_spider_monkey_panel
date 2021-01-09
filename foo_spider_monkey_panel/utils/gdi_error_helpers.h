@@ -4,15 +4,15 @@
 
 #include <optional>
 
-namespace smp::error
+namespace qwr::error
 {
 
 const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
 
-/// @throw smp::SmpException
+/// @throw qwr::QwrException
 void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName );
 
-/// @throw smp::SmpException
+/// @throw qwr::QwrException
 template <typename T, typename T_Parent = T>
 void CheckGdiPlusObject( const std::unique_ptr<T>& obj, const T_Parent* pParentObj = nullptr )
 {
@@ -38,12 +38,12 @@ void CheckGdiPlusObject( const std::unique_ptr<T>& obj, const T_Parent* pParentO
 
     if ( status )
     {
-        throw SmpException( fmt::format( "Failed to create GdiPlus object ({:#x}): {}", *status, GdiErrorCodeToText( *status ) ) );
+        throw qwr::QwrException( fmt::format( "Failed to create GdiPlus object ({:#x}): {}", *status, GdiErrorCodeToText( *status ) ) );
     }
     else
     {
-        throw SmpException( "Failed to create GdiPlus object" );
+        throw qwr::QwrException( "Failed to create GdiPlus object" );
     }
 }
 
-} // namespace smp::error
+} // namespace qwr::error

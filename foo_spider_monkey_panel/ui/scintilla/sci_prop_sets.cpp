@@ -3,8 +3,9 @@
 #include "sci_prop_sets.h"
 
 #include <utils/array_x.h>
-#include <utils/file_helpers.h>
-#include <utils/string_helpers.h>
+
+#include <qwr/file_helpers.h>
+#include <qwr/string_helpers.h>
 
 using namespace smp::ui::sci;
 
@@ -63,8 +64,8 @@ void ScintillaCfg::get_data_raw( stream_writer* p_stream, abort_callback& p_abor
         p_stream->write_lendian_t( m_data.size(), p_abort );
         for ( const auto& prop: m_data )
         {
-            smp::pfc_x::WriteString( *p_stream, prop.key, p_abort );
-            smp::pfc_x::WriteString( *p_stream, prop.val, p_abort );
+            qwr::pfc_x::WriteString( *p_stream, prop.key, p_abort );
+            qwr::pfc_x::WriteString( *p_stream, prop.val, p_abort );
         }
     }
     catch ( ... )
@@ -86,8 +87,8 @@ void ScintillaCfg::set_data_raw( stream_reader* p_stream, t_size, abort_callback
 
         for ( t_size i = 0; i < count; ++i )
         {
-            key = smp::pfc_x::ReadString( *p_stream, p_abort );
-            val = smp::pfc_x::ReadString( *p_stream, p_abort );
+            key = qwr::pfc_x::ReadString( *p_stream, p_abort );
+            val = qwr::pfc_x::ReadString( *p_stream, p_abort );
             data_map[key] = val;
         }
     }
@@ -119,7 +120,7 @@ void ScintillaCfg::export_to_file( const wchar_t* filename )
         content += "\r\n";
     }
 
-    smp::file::WriteFile( filename, content );
+    qwr::file::WriteFile( filename, content );
 }
 
 void ScintillaCfg::import_from_file( const char* filename )
@@ -127,9 +128,9 @@ void ScintillaCfg::import_from_file( const char* filename )
     const std::u8string text = [&filename] {
         try
         {
-            return smp::file::ReadFile( filename, CP_UTF8 );
+            return qwr::file::ReadFile( filename, CP_UTF8 );
         }
-        catch ( const SmpException& )
+        catch ( const qwr::QwrException& )
         {
             return std::u8string{};
         }
@@ -140,14 +141,14 @@ void ScintillaCfg::import_from_file( const char* filename )
     }
 
     ScintillaPropValues data_map;
-    for ( const auto& line: smp::string::SplitByLines( text ) )
+    for ( const auto& line: qwr::string::SplitByLines( text ) )
     {
         if ( line.length() < 3 || line[0] == '#' )
         { // skip comments and lines that are too short
             continue;
         }
 
-        const auto parts = smp::string::Split( line, '=' );
+        const auto parts = qwr::string::Split( line, '=' );
         if ( parts.size() != 2 || parts[0].empty() )
         {
             continue;
@@ -194,4 +195,4 @@ bool ScintillaCfg::StriCmpAscii::operator()( const std::u8string& a, const std::
     return ( pfc::comparator_stricmp_ascii::compare( a.c_str(), b.c_str() ) < 0 );
 }
 
-} // namespace scintilla
+} // namespace smp::ui::sci

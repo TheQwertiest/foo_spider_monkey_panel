@@ -7,7 +7,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-#include <utils/string_helpers.h>
+
+#include <qwr/string_helpers.h>
 
 using namespace smp;
 
@@ -81,8 +82,8 @@ size_t JsMainMenuManager::GetInternalSize()
 
 void JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t count )
 {
-    SmpException::ExpectTrue( menuManager_.is_valid(), "Main menu manager is not initialized" );
-    SmpException::ExpectTrue( menu, "menu argument is null" );
+    qwr::QwrException::ExpectTrue( menuManager_.is_valid(), "Main menu manager is not initialized" );
+    qwr::QwrException::ExpectTrue( menu, "menu argument is null" );
 
     // HACK: workaround for foo_menu_addons
     try
@@ -96,7 +97,7 @@ void JsMainMenuManager::BuildMenu( JsMenuObject* menu, int32_t base_id, int32_t 
 
 bool JsMainMenuManager::ExecuteByID( uint32_t id )
 {
-    SmpException::ExpectTrue( menuManager_.is_valid(), "Main menu manager is not initialized" );
+    qwr::QwrException::ExpectTrue( menuManager_.is_valid(), "Main menu manager is not initialized" );
 
     return menuManager_->execute_command( id );
 }
@@ -131,7 +132,7 @@ void JsMainMenuManager::Init( const std::u8string& root_name )
     auto result = ranges::find_if( validRoots, [&preparedRootName]( auto& root ) {
         return preparedRootName == root.name;
     } );
-    SmpException::ExpectTrue( result != std::cend( validRoots ), "Invalid menu root name: {}", root_name );
+    qwr::QwrException::ExpectTrue( result != std::cend( validRoots ), "Invalid menu root name: {}", root_name );
 
     menuManager_ = standard_api_create_t<mainmenu_manager>();
     menuManager_->instantiate( *( result->guid ) );

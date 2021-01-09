@@ -2,6 +2,7 @@
 
 #include "fb_metadb_handle_list.h"
 
+#include <fb2k/stats.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_title_format.h>
@@ -9,11 +10,10 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
 #include <utils/art_helpers.h>
-#include <utils/string_helpers.h>
 #include <utils/text_helpers.h>
 
-#include <abort_callback.h>
-#include <stats.h>
+#include <qwr/abort_callback.h>
+#include <qwr/string_helpers.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Conversions.h>
@@ -273,14 +273,14 @@ JSObject* JsFbMetadbHandleList::Constructor( JSContext* cx, JS::HandleValue jsVa
         {
             metadb_handle_list handleList;
             convert::to_native::ProcessArray<JsFbMetadbHandle*>( cx, jsValue, [&handleList]( auto pNativeHandle ) {
-                SmpException::ExpectTrue( pNativeHandle, "Array contains invalid value" );
+                qwr::QwrException::ExpectTrue( pNativeHandle, "Array contains invalid value" );
                 handleList.add_item( pNativeHandle->GetHandle() );
             } );
             return JsFbMetadbHandleList::CreateJs( cx, handleList );
         }
     }
 
-    throw SmpException( "Unsupported argument type" );
+    throw qwr::QwrException( "Unsupported argument type" );
 }
 
 JSObject* JsFbMetadbHandleList::ConstructorWithOpt( JSContext* cx, size_t optArgCount, JS::HandleValue jsValue )
@@ -292,23 +292,23 @@ JSObject* JsFbMetadbHandleList::ConstructorWithOpt( JSContext* cx, size_t optArg
     case 1:
         return Constructor( cx );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 void JsFbMetadbHandleList::Add( JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
-    SmpException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
+    qwr::QwrException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
 
     metadbHandleList_.add_item( fbHandle );
 }
 
 void JsFbMetadbHandleList::AddRange( JsFbMetadbHandleList* handles )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
     metadbHandleList_.add_items( handles->GetHandleList() );
 }
@@ -322,7 +322,7 @@ void JsFbMetadbHandleList::AttachImage( const std::u8string& image_path, uint32_
     }
 
     const GUID& what = art::GetGuidForArtId( art_id );
-    auto& abort = GlobalAbortCallback::GetInstance();
+    auto& abort = qwr::GlobalAbortCallback::GetInstance();
     album_art_data_ptr data;
 
     try
@@ -360,10 +360,10 @@ void JsFbMetadbHandleList::AttachImage( const std::u8string& image_path, uint32_
 
 int32_t JsFbMetadbHandleList::BSearch( JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
-    SmpException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
+    qwr::QwrException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
 
     return static_cast<int32_t>( metadbHandleList_.bsearch_by_pointer( fbHandle ) );
 }
@@ -388,7 +388,7 @@ JSObject* JsFbMetadbHandleList::Convert()
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        smp::pfc_x::Make_Stl_CRef( metadbHandleList_ ),
+        qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ),
         []( const auto& vec, auto index ) {
             return vec[index];
         },
@@ -399,10 +399,10 @@ JSObject* JsFbMetadbHandleList::Convert()
 
 int32_t JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
-    SmpException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
+    qwr::QwrException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
 
     return static_cast<int32_t>( metadbHandleList_.find_item( fbHandle ) );
 }
@@ -414,7 +414,7 @@ JSObject* JsFbMetadbHandleList::GetLibraryRelativePaths()
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        smp::pfc_x::Make_Stl_CRef( metadbHandleList_ ),
+        qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ),
         [&api]( const auto& vec, auto index ) {
             pfc::string8_fast path;
             api->get_relative_path( vec[index], path );
@@ -427,28 +427,28 @@ JSObject* JsFbMetadbHandleList::GetLibraryRelativePaths()
 
 void JsFbMetadbHandleList::Insert( uint32_t index, JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
-    SmpException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
+    qwr::QwrException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
 
     metadbHandleList_.insert_item( fbHandle, index );
 }
 
 void JsFbMetadbHandleList::InsertRange( uint32_t index, JsFbMetadbHandleList* handles )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
     metadbHandleList_.insert_items( handles->GetHandleList(), index );
 }
 
 void JsFbMetadbHandleList::MakeDifference( JsFbMetadbHandleList* handles )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
-    const auto a = pfc_x::Make_Stl_CRef( metadbHandleList_ );
-    const auto b = pfc_x::Make_Stl_CRef( handles->GetHandleList() );
-    smp::pfc_x::Stl<metadb_handle_list> result;
+    const auto a = qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ );
+    const auto b = qwr::pfc_x::Make_Stl_CRef( handles->GetHandleList() );
+    qwr::pfc_x::Stl<metadb_handle_list> result;
 
     std::set_difference( a.cbegin(), a.cend(), b.cbegin(), b.cend(), std::back_inserter( result ) );
 
@@ -457,11 +457,11 @@ void JsFbMetadbHandleList::MakeDifference( JsFbMetadbHandleList* handles )
 
 void JsFbMetadbHandleList::MakeIntersection( JsFbMetadbHandleList* handles )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
-    const auto a = pfc_x::Make_Stl_CRef( metadbHandleList_ );
-    const auto b = pfc_x::Make_Stl_CRef( handles->GetHandleList() );
-    pfc_x::Stl<metadb_handle_list> result;
+    const auto a = qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ );
+    const auto b = qwr::pfc_x::Make_Stl_CRef( handles->GetHandleList() );
+    qwr::pfc_x::Stl<metadb_handle_list> result;
 
     std::set_intersection( a.cbegin(), a.cend(), b.cbegin(), b.cend(), std::back_inserter( result ) );
 
@@ -470,11 +470,11 @@ void JsFbMetadbHandleList::MakeIntersection( JsFbMetadbHandleList* handles )
 
 void JsFbMetadbHandleList::MakeUnion( JsFbMetadbHandleList* handles )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
-    const auto a = pfc_x::Make_Stl_CRef( metadbHandleList_ );
-    const auto b = pfc_x::Make_Stl_CRef( handles->GetHandleList() );
-    pfc_x::Stl<metadb_handle_list> result;
+    const auto a = qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ );
+    const auto b = qwr::pfc_x::Make_Stl_CRef( handles->GetHandleList() );
+    qwr::pfc_x::Stl<metadb_handle_list> result;
 
     std::set_union( a.cbegin(), a.cend(), b.cbegin(), b.cend(), std::back_inserter( result ) );
 
@@ -483,7 +483,7 @@ void JsFbMetadbHandleList::MakeUnion( JsFbMetadbHandleList* handles )
 
 void JsFbMetadbHandleList::OrderByFormat( JsFbTitleFormat* script, int8_t direction )
 {
-    SmpException::ExpectTrue( script, "script argument is null" );
+    qwr::QwrException::ExpectTrue( script, "script argument is null" );
 
     metadbHandleList_.sort_by_format( script->GetTitleFormat(), nullptr, direction );
 }
@@ -499,7 +499,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
     // but this implementation is much faster because of trie usage.
     // Also see `get_subsong_index` below.
 
-    const auto stlHandleList = pfc_x::Make_Stl_CRef( metadbHandleList_ );
+    const auto stlHandleList = qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ );
 
     auto api = library_manager::get();
 
@@ -517,7 +517,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
         // (e.g. cuesheets or files with multiple chapters)
         temp << handle->get_subsong_index();
 
-        trie.emplace( smp::unicode::ToWide( temp ), i );
+        trie.emplace( qwr::unicode::ToWide( temp ), i );
     }
 
     metadbHandleList_.reorder( trie.get_sorted_values().data() );
@@ -526,7 +526,7 @@ void JsFbMetadbHandleList::OrderByRelativePath()
 void JsFbMetadbHandleList::RefreshStats()
 {
     pfc::list_t<metadb_index_hash> hashes;
-    for ( const auto& handle: pfc_x::Make_Stl_CRef( metadbHandleList_ ) )
+    for ( const auto& handle: qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ) )
     {
         metadb_index_hash hash;
         if ( stats::hashHandle( handle, hash ) )
@@ -540,10 +540,10 @@ void JsFbMetadbHandleList::RefreshStats()
 
 void JsFbMetadbHandleList::Remove( JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
-    SmpException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
+    qwr::QwrException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
 
     metadbHandleList_.remove_item( fbHandle );
 }
@@ -587,7 +587,7 @@ void JsFbMetadbHandleList::RemoveAttachedImages()
 
 void JsFbMetadbHandleList::RemoveById( uint32_t index )
 {
-    SmpException::ExpectTrue( index < metadbHandleList_.get_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( index < metadbHandleList_.get_count(), "Index is out of bounds" );
     (void)metadbHandleList_.remove_by_idx( index );
 }
 
@@ -605,7 +605,7 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
 {
     using json = nlohmann::json;
 
-    const auto handleList = pfc_x::Make_Stl_CRef( metadbHandleList_ );
+    const auto handleList = qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ );
     if ( handleList.empty() )
     { // Not an error
         return;
@@ -618,20 +618,20 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
         }
         catch ( const json::parse_error& e )
         {
-            throw SmpException( fmt::format( "JSON parsing failed: {}", e.what() ) );
+            throw qwr::QwrException( fmt::format( "JSON parsing failed: {}", e.what() ) );
         }
     }();
 
-    SmpException::ExpectTrue( jsonObject.is_array() || jsonObject.is_object(), "Invalid JSON info: unsupported value type" );
+    qwr::QwrException::ExpectTrue( jsonObject.is_array() || jsonObject.is_object(), "Invalid JSON info: unsupported value type" );
 
     const bool isArray = jsonObject.is_array();
     if ( isArray && jsonObject.size() != handleList.size() )
     {
-        throw SmpException( "Invalid JSON info: mismatched with handle count" );
+        throw qwr::QwrException( "Invalid JSON info: mismatched with handle count" );
     }
     if ( !isArray && jsonObject.empty() )
     {
-        throw SmpException( "Invalid JSON info: empty object" );
+        throw qwr::QwrException( "Invalid JSON info: empty object" );
     }
 
     const auto info =
@@ -663,18 +663,18 @@ uint32_t JsFbMetadbHandleList::get_Count()
 
 JSObject* JsFbMetadbHandleList::get_Item( uint32_t index )
 {
-    SmpException::ExpectTrue( index < metadbHandleList_.get_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( index < metadbHandleList_.get_count(), "Index is out of bounds" );
 
     return JsFbMetadbHandle::CreateJs( pJsCtx_, metadbHandleList_[index] );
 }
 
 void JsFbMetadbHandleList::put_Item( uint32_t index, JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( index < metadbHandleList_.get_count(), "Index is out of bounds" );
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( index < metadbHandleList_.get_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     metadb_handle_ptr fbHandle( handle->GetHandle() );
-    SmpException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
+    qwr::QwrException::ExpectTrue( fbHandle.is_valid(), "Internal error: FbMetadbHandle does not contain a valid handle" );
 
     metadbHandleList_.replace_item( index, fbHandle );
 }
@@ -690,11 +690,11 @@ void JsFbMetadbHandleList::ModifyFileInfoWithJson( const nlohmann::json& jsonObj
     };
 
     const json& obj = jsonObject;
-    SmpException::ExpectTrue( obj.is_object() && !obj.empty(), "Invalid JSON info: unsupported value" );
+    qwr::QwrException::ExpectTrue( obj.is_object() && !obj.empty(), "Invalid JSON info: unsupported value" );
 
     for ( const auto& [key, value]: obj.items() )
     {
-        SmpException::ExpectTrue( !key.empty(), "Invalid JSON info: key is empty" );
+        qwr::QwrException::ExpectTrue( !key.empty(), "Invalid JSON info: key is empty" );
 
         fileInfo.meta_remove_field( key.c_str() );
 

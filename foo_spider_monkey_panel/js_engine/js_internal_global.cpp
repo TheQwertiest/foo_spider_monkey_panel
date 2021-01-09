@@ -3,7 +3,8 @@
 #include "js_internal_global.h"
 
 #include <js_engine/js_realm_inner.h>
-#include <utils/file_helpers.h>
+
+#include <qwr/file_helpers.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/CompilationAndEvaluation.h>
@@ -97,10 +98,10 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         }
         catch ( const std::filesystem::filesystem_error& e )
         {
-            throw SmpException( fmt::format( "Failed to open file `{}`:\n"
-                                             "  {}",
-                                             u8path,
-                                             smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
+            throw qwr::QwrException( fmt::format( "Failed to open file `{}`:\n"
+                                                  "  {}",
+                                                  u8path,
+                                                  qwr::unicode::ToU8_FromAcpToWide( e.what() ) ) );
         }
     }();
 
@@ -113,7 +114,7 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         }
     }
 
-    const std::wstring scriptCode = smp::file::ReadFileW( u8path, CP_ACP, false );
+    const std::wstring scriptCode = qwr::file::ReadFileW( u8path, CP_ACP, false );
     const auto filename = absolutePath.filename().u8string();
 
     JS::SourceText<char16_t> source;

@@ -25,12 +25,12 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
+#include <panel/js_panel_window.h>
 #include <utils/array_x.h>
-#include <utils/file_helpers.h>
-#include <utils/scope_helpers.h>
 
-#include <component_paths.h>
-#include <js_panel_window.h>
+#include <qwr/fb2k_paths.h>
+#include <qwr/file_helpers.h>
+#include <qwr/final_action.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/CompilationAndEvaluation.h>
@@ -231,7 +231,7 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
             {
                 if ( parentFilepaths.empty() )
                 {
-                    fsPath = fs::u8path( get_fb2k_component_path() ) / fsPath;
+                    fsPath = qwr::path::Component() / fsPath;
                 }
                 else
                 {
@@ -239,16 +239,16 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
                 }
             }
 
-            SmpException::ExpectTrue( fs::exists( fsPath ) && fs::is_regular_file( fsPath ), "Path does not point to a valid file: {}", path );
+            qwr::QwrException::ExpectTrue( fs::exists( fsPath ) && fs::is_regular_file( fsPath ), "Path does not point to a valid file: {}", path );
 
             return fsPath.lexically_normal();
         }
         catch ( const fs::filesystem_error& e )
         {
-            throw SmpException( fmt::format( "Failed to open file `{}`:\n"
-                                             "  {}",
-                                             path,
-                                             smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
+            throw qwr::QwrException( fmt::format( "Failed to open file `{}`:\n"
+                                                  "  {}",
+                                                  path,
+                                                  qwr::unicode::ToU8_FromAcpToWide( e.what() ) ) );
         }
     }();
 
@@ -262,7 +262,7 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
 
     includedFiles_.emplace( u8Path );
     parentFilepaths_.emplace_back( fsPath.parent_path().u8string() );
-    smp::utils::final_action autoPath{ [&parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
+    qwr::final_action autoPath{ [&parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
 
     JS::RootedScript jsScript( pJsCtx_, JsEngine::GetInstance().GetInternalGlobal().GetCachedScript( fsPath ) );
     assert( jsScript );
@@ -283,7 +283,7 @@ void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const std::u8stri
     case 1:
         return IncludeScript( path );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -312,7 +312,7 @@ JsGlobalObject::IncludeOptions JsGlobalObject::ParseIncludeOptions( JS::HandleVa
     IncludeOptions parsedOptions;
     if ( !options.isNullOrUndefined() )
     {
-        SmpException::ExpectTrue( options.isObject(), "options argument is not an object" );
+        qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
         parsedOptions.alwaysEvaluate = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "always_evaluate" ).value_or( false );

@@ -9,13 +9,13 @@
 #include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <panel/message_manager.h>
+#include <panel/user_message.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
-#include <utils/string_helpers.h>
-#include <utils/thread_pool.h>
+#include <utils/thread_pool_instance.h>
 
-#include <message_manager.h>
-#include <user_message.h>
+#include <qwr/string_helpers.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Promise.h>
@@ -156,7 +156,7 @@ JSObject* GetImagePromise( JSContext* cx, HWND hWnd, const std::wstring& imagePa
     JS::RootedObject jsObject( cx, JS::NewPromiseObject( cx, nullptr ) );
     JsException::ExpectTrue( jsObject );
 
-    ThreadPool::GetInstance().AddTask( [task = std::make_shared<ImageFetchTask>( cx, jsObject, hWnd, imagePath )] {
+    smp::GetThreadPoolInstance().AddTask( [task = std::make_shared<ImageFetchTask>( cx, jsObject, hWnd, imagePath )] {
         std::invoke( *task );
     } );
 

@@ -2,9 +2,9 @@
 
 #include "gdi_error_helpers.h"
 
-#include <utils/string_helpers.h>
+#include <qwr/string_helpers.h>
 
-namespace smp::error
+namespace qwr::error
 {
 
 const char* GdiErrorCodeToText( Gdiplus::Status errorCode )
@@ -62,8 +62,8 @@ void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName )
 {
     if ( gdiStatus > 0 )
     {
-        throw SmpException( fmt::format( "GdiPlus error: {} failed with error ({:#x}): {}", functionName, gdiStatus, GdiErrorCodeToText( gdiStatus ) ) );
+        throw qwr::QwrException( fmt::format( "GdiPlus error: {} failed with error ({:#x}): {}", functionName, gdiStatus, GdiErrorCodeToText( gdiStatus ) ) );
     }
 }
 
-} // namespace smp::error
+} // namespace qwr::error

@@ -14,14 +14,13 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_prototype_helpers.h>
+#include <panel/com_message_scope.h>
 #include <utils/array_x.h>
 #include <utils/com_error_helpers.h>
-#include <utils/scope_helpers.h>
-#include <utils/string_helpers.h>
-#include <utils/winapi_error_helpers.h>
 
-#include <com_message_scope.h>
-#include <smp_exception.h>
+#include <qwr/final_action.h>
+#include <qwr/string_helpers.h>
+#include <qwr/winapi_error_helpers.h>
 
 #include <string>
 #include <vector>
@@ -249,10 +248,10 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
     auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
-    smp::SmpException::ExpectTrue( pNative, "`this` is not an object of valid type" );
+    qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     JS::RootedString jsString( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
-    smp::SmpException::ExpectTrue( jsString, "Failed to get function name" );
+    qwr::QwrException::ExpectTrue( jsString, "Failed to get function name" );
 
     pNative->Invoke( convert::to_native::ToValue<std::wstring>( cx, jsString ), args );
     return true;
@@ -263,7 +262,7 @@ bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
     auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
-    smp::SmpException::ExpectTrue( pNative, "`this` is not an object of valid type" );
+    qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     pNative->Get( args );
     return true;
@@ -274,7 +273,7 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
     auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
-    smp::SmpException::ExpectTrue( pNative, "`this` is not an object of valid type" );
+    qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     pNative->Set( args );
     return true;
@@ -444,7 +443,7 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
     HRESULT hresult = ( name[0] == L'{' )
                           ? CLSIDFromString( name.c_str(), &clsid )
                           : CLSIDFromProgID( name.c_str(), &clsid );
-    SmpException::ExpectTrue( SUCCEEDED( hresult ), L"Invalid CLSID: {}", name );
+    qwr::QwrException::ExpectTrue( SUCCEEDED( hresult ), L"Invalid CLSID: {}", name );
 
     std::unique_ptr<ActiveXObject> nativeObject;
     IUnknown* unk = nullptr;
@@ -452,13 +451,13 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
     if ( SUCCEEDED( hresult ) && unk )
     {
         nativeObject = std::make_unique<ActiveXObject>( cx, unk );
-        SmpException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via IUnknown: {}", name );
+        qwr::QwrException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via IUnknown: {}", name );
     }
 
     if ( !nativeObject )
     {
         nativeObject = std::make_unique<ActiveXObject>( cx, clsid );
-        SmpException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via CLSID: {}", name );
+        qwr::QwrException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via CLSID: {}", name );
     }
 
     return nativeObject;
@@ -484,14 +483,14 @@ JSObject* ActiveXObject::Constructor( JSContext* cx, const std::wstring& name )
 JSObject* ActiveXObject::CreateFromArray( JSContext* cx, JS::HandleValue arr, uint32_t elementVariantType )
 {
     JS::RootedObject jsObjectIn( cx, arr.toObjectOrNull() );
-    smp::SmpException::ExpectTrue( jsObjectIn, "Value is not a JS object" );
+    qwr::QwrException::ExpectTrue( jsObjectIn, "Value is not a JS object" );
 
     bool is;
     if ( !JS_IsArrayObject( cx, jsObjectIn, &is ) )
     {
         throw smp::JsException();
     }
-    smp::SmpException::ExpectTrue( is, "Object is not an array" );
+    qwr::QwrException::ExpectTrue( is, "Object is not an array" );
 
     _variant_t var;
     convert::com::JsArrayToVariantArray( cx, jsObjectIn, elementVariantType, var );
@@ -499,7 +498,7 @@ JSObject* ActiveXObject::CreateFromArray( JSContext* cx, JS::HandleValue arr, ui
     std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, var ) );
     JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
     assert( jsObject );
-    
+
     return jsObject;
 }
 
@@ -509,7 +508,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
     {
         if ( reportError )
         {
-            throw SmpException( "Internal error: pDispatch_ is null" );
+            throw qwr::QwrException( "Internal error: pDispatch_ is null" );
         }
         return std::nullopt;
     }
@@ -535,7 +534,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
         {
             if ( reportError )
             {
-                throw SmpException( fmt::format( "Failed to get DISPID for `{}`", smp::unicode::ToU8( name ) ) );
+                throw qwr::QwrException( fmt::format( "Failed to get DISPID for `{}`", qwr::unicode::ToU8( name ) ) );
             }
             return std::nullopt;
         }
@@ -599,7 +598,7 @@ std::wstring ActiveXObject::ToString()
 
 void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp )
 {
-    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
     auto dispRet = GetDispId( propName, false );
     if ( !dispRet )
@@ -623,7 +622,7 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
                                           &argerr );
     if ( FAILED( hresult ) )
     {
-        smp::error::ReportActiveXError( hresult, exception, argerr );
+        qwr::error::ReportActiveXError( hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, varResult, vp );
@@ -631,13 +630,13 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
 
 void ActiveXObject::Get( JS::CallArgs& callArgs )
 {
-    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
-    SmpException::ExpectTrue( callArgs.length(), "Property name is missing" );
+    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( callArgs.length(), "Property name is missing" );
 
     const auto propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
     const auto dispRet = GetDispId( propName );
-    SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
+    qwr::QwrException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
 
     const uint32_t argc = callArgs.length() - 1;
     std::vector<_variant_t> args( argc );
@@ -674,7 +673,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
 
     if ( FAILED( hresult ) )
     {
-        smp::error::ReportActiveXError( hresult, exception, argerr );
+        qwr::error::ReportActiveXError( hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, varResult, callArgs.rval() );
@@ -682,10 +681,10 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
 
 void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 {
-    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
     const auto dispRet = GetDispId( propName );
-    SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
+    qwr::QwrException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
 
     _variant_t arg;
     JsToVariantSafe( pJsCtx_, v, arg );
@@ -716,19 +715,19 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 
     if ( FAILED( hresult ) )
     {
-        smp::error::ReportActiveXError( hresult, exception, argerr );
+        qwr::error::ReportActiveXError( hresult, exception, argerr );
     }
 }
 
 void ActiveXObject::Set( const JS::CallArgs& callArgs )
 {
-    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
-    SmpException::ExpectTrue( callArgs.length(), "Property name is missing" );
+    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( callArgs.length(), "Property name is missing" );
 
     const auto propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
 
     const auto dispRet = GetDispId( propName );
-    SmpException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
+    qwr::QwrException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
 
     const uint32_t argc = callArgs.length() - 1;
     std::vector<_variant_t> args( argc );
@@ -772,16 +771,16 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
 
     if ( FAILED( hresult ) )
     {
-        smp::error::ReportActiveXError( hresult, exception, argerr );
+        qwr::error::ReportActiveXError( hresult, exception, argerr );
     }
 }
 
 void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& callArgs )
 {
-    SmpException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
     const auto dispRet = GetDispId( funcName );
-    SmpException::ExpectTrue( dispRet.has_value(), L"Invalid function name: {}", funcName );
+    qwr::QwrException::ExpectTrue( dispRet.has_value(), L"Invalid function name: {}", funcName );
 
     const uint32_t argc = callArgs.length();
     std::vector<_variant_t> args( argc );
@@ -818,7 +817,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
 
     if ( FAILED( hresult ) )
     {
-        smp::error::ReportActiveXError( hresult, exception, argerr );
+        qwr::error::ReportActiveXError( hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, varResult, callArgs.rval() );
@@ -831,7 +830,7 @@ void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
         return;
     }
 
-    SmpException::ExpectTrue( pUnknown_ || pDispatch_ || hasVariant_, "Internal error: pUnknown_ and pDispatch_ are null and variant_ was not set" );
+    qwr::QwrException::ExpectTrue( pUnknown_ || pDispatch_ || hasVariant_, "Internal error: pUnknown_ and pDispatch_ are null and variant_ was not set" );
     if ( hasVariant_ )
     { // opaque data
         areMembersSetup_ = true;
@@ -841,17 +840,17 @@ void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
     if ( !pDispatch_ )
     {
         HRESULT hr = pUnknown_->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pDispatch_ ) );
-        smp::error::CheckHR( hr, "QueryInterface" );
+        qwr::error::CheckHR( hr, "QueryInterface" );
     }
 
     if ( !pTypeInfo_ )
     {
         unsigned ctinfo;
         HRESULT hr = pDispatch_->GetTypeInfoCount( &ctinfo );
-        smp::error::CheckHR( hr, "GetTypeInfoCount" );
+        qwr::error::CheckHR( hr, "GetTypeInfoCount" );
 
         hr = pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
-        smp::error::CheckHR( hr, "GetTypeInfo" );
+        qwr::error::CheckHR( hr, "GetTypeInfo" );
     }
 
     ParseTypeInfoRecursive( pJsCtx_, pTypeInfo_, members_ );
@@ -866,9 +865,9 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
 
     TYPEATTR* pAttr = nullptr;
     HRESULT hr = pTypeInfo->GetTypeAttr( &pAttr );
-    smp::error::CheckHR( hr, "GetTypeAttr" );
+    qwr::error::CheckHR( hr, "GetTypeAttr" );
 
-    utils::final_action autoTypeAttr( [pTypeInfo, pAttr] {
+    qwr::final_action autoTypeAttr( [pTypeInfo, pAttr] {
         pTypeInfo->ReleaseTypeAttr( pAttr );
     } );
 
@@ -880,13 +879,13 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
         {
             HREFTYPE hRef = 0;
             hr = pTypeInfo->GetRefTypeOfImplType( i, &hRef );
-            smp::error::CheckHR( hr, "GetTypeAttr" );
+            qwr::error::CheckHR( hr, "GetTypeAttr" );
 
             ITypeInfo* pTypeInfoCur = nullptr;
             hr = pTypeInfo->GetRefTypeInfo( hRef, &pTypeInfoCur );
             if ( SUCCEEDED( hr ) && pTypeInfoCur )
             {
-                utils::final_action autoTypeInfo( [pTypeInfoCur] {
+                qwr::final_action autoTypeInfo( [pTypeInfoCur] {
                     pTypeInfoCur->Release();
                 } );
 

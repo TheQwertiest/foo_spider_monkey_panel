@@ -312,11 +312,11 @@ void get_mainmenu_command_status_by_name( const std::u8string& name, uint32_t& s
                 ptr->get_display( idx, tmp, status );
             } );
 
-        SmpException::ExpectTrue( bRet, "Unknown menu command" );
+        qwr::QwrException::ExpectTrue( bRet, "Unknown menu command: {}", name );
     }
     catch ( const pfc::exception& e )
     {
-        throw SmpException( e.what() );
+        throw qwr::QwrException( e.what() );
     }
 }
 

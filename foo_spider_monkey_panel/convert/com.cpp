@@ -11,8 +11,9 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/scope_helpers.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/final_action.h>
+#include <qwr/winapi_error_helpers.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Date.h>
@@ -155,17 +156,17 @@ private:
 bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValue& dest )
 {
     // We only support one dimensional arrays for now
-    SmpException::ExpectTrue( SafeArrayGetDim( src.parray ) == 1, "Multi-dimensional array are not supported failed" );
+    qwr::QwrException::ExpectTrue( SafeArrayGetDim( src.parray ) == 1, "Multi-dimensional array are not supported failed" );
 
     // Get the upper bound;
     long ubound; // NOLINT (google-runtime-int)
     HRESULT hr = SafeArrayGetUBound( src.parray, 1, &ubound );
-    smp::error::CheckHR( hr, "SafeArrayGetUBound" );
+    qwr::error::CheckHR( hr, "SafeArrayGetUBound" );
 
     // Get the lower bound
     long lbound; // NOLINT (google-runtime-int)
     hr = SafeArrayGetLBound( src.parray, 1, &lbound );
-    smp::error::CheckHR( hr, "SafeArrayGetLBound" );
+    qwr::error::CheckHR( hr, "SafeArrayGetLBound" );
 
     // Create the JS Array
     JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, ubound - lbound + 1 ) );
@@ -180,7 +181,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     else // This was maybe a VT_SAFEARRAY
     {
         hr = SafeArrayGetVartype( src.parray, &vartype );
-        smp::error::CheckHR( hr, "SafeArrayGetVartype" );
+        qwr::error::CheckHR( hr, "SafeArrayGetVartype" );
     }
 
     JS::RootedValue jsVal( cx );
@@ -197,7 +198,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
             var.vt = vartype;
             hr = SafeArrayGetElement( src.parray, &i, &var.byref );
         }
-        smp::error::CheckHR( hr, "SafeArrayGetElement" );
+        qwr::error::CheckHR( hr, "SafeArrayGetElement" );
 
         VariantToJs( cx, var, &jsVal );
 
@@ -211,7 +212,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     return true;
 }
 
-template<typename T>
+template <typename T>
 void PutCastedElementInSafeArrayData( void* arr, size_t idx, T value )
 {
     auto castedArr = static_cast<T*>( arr );
@@ -252,7 +253,7 @@ void PutVariantInSafeArrayData( void* arr, size_t idx, VARIANTARG& var )
         PutCastedElementInSafeArrayData<uint32_t>( arr, idx, var.ulVal );
         break;
     default:
-        throw SmpException( fmt::format( "ActiveX: unsupported array type: {:#x}", var.vt ) );
+        throw qwr::QwrException( fmt::format( "ActiveX: unsupported array type: {:#x}", var.vt ) );
     }
 }
 
@@ -377,7 +378,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         }
         else
         {
-            SmpException::ExpectTrue( type <= VT_CLSID || type == ( VT_ARRAY | VT_UI1 ), "ActiveX: unsupported object type: {:#x}", type );
+            qwr::QwrException::ExpectTrue( type <= VT_CLSID || type == ( VT_ARRAY | VT_UI1 ), "ActiveX: unsupported object type: {:#x}", type );
 
             JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::make_unique<ActiveXObject>( cx, var ) ) );
             assert( jsObject );
@@ -405,7 +406,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
             {
                 //1.7.2.3
                 HRESULT hr = VariantCopyInd( &arg, &x->variant_ );
-                smp::error::CheckHR( hr, "VariantCopyInd" );
+                qwr::error::CheckHR( hr, "VariantCopyInd" );
                 //VariantCopy(&arg,&x->variant_);
                 //1.7.2.2 could address invalid memory if x is freed before arg
                 // arg.vt = VT_VARIANT | VT_BYREF;
@@ -450,7 +451,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
             }
             else
             {
-                throw SmpException( "ActiveX: unsupported JS object type" );
+                throw qwr::QwrException( "ActiveX: unsupported JS object type" );
             }
         }
     }
@@ -489,7 +490,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     }
     else
     {
-        throw SmpException( "ActiveX: unsupported JS value type" );
+        throw qwr::QwrException( "ActiveX: unsupported JS value type" );
     }
 }
 
@@ -514,9 +515,9 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
 
     // Create the safe array of variants and populate it
     SAFEARRAY* safeArray = SafeArrayCreateVector( elementVariantType, 0, len );
-    SmpException::ExpectTrue( safeArray, "SafeArrayCreateVector failed" );
+    qwr::QwrException::ExpectTrue( safeArray, "SafeArrayCreateVector failed" );
 
-    utils::final_action autoSa( [safeArray]() {
+    qwr::final_action autoSa( [safeArray]() {
         SafeArrayDestroy( safeArray );
     } );
 
@@ -527,9 +528,9 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
 
             VARIANT* varArray = nullptr;
             HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) );
-            smp::error::CheckHR( hr, "SafeArrayAccessData" );
+            qwr::error::CheckHR( hr, "SafeArrayAccessData" );
 
-            utils::final_action autoSaData( [safeArray]() {
+            qwr::final_action autoSaData( [safeArray]() {
                 SafeArrayUnaccessData( safeArray );
             } );
 
@@ -548,9 +549,9 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
         {
             void* dataArray = nullptr;
             HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &dataArray ) );
-            smp::error::CheckHR( hr, "SafeArrayAccessData" );
+            qwr::error::CheckHR( hr, "SafeArrayAccessData" );
 
-            utils::final_action autoSaData( [safeArray]() {
+            qwr::final_action autoSaData( [safeArray]() {
                 SafeArrayUnaccessData( safeArray );
             } );
 
@@ -562,10 +563,10 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
                     throw JsException();
                 }
 
-                 _variant_t tmp;
+                _variant_t tmp;
                 JsToVariant( cx, val, tmp );
                 tmp.ChangeType( elementVariantType );
-                
+
                 PutVariantInSafeArrayData( dataArray, i, tmp );
             }
         }

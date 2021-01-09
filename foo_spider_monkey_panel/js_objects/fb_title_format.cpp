@@ -8,7 +8,8 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
-#include <utils/string_helpers.h>
+
+#include <qwr/string_helpers.h>
 
 using namespace smp;
 
@@ -121,13 +122,13 @@ pfc::string8_fast JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
     case 1:
         return Eval();
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 pfc::string8_fast JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     pfc::string8_fast text;
     handle->GetHandle()->format_title( nullptr, text, titleFormatObject_, nullptr );
@@ -136,12 +137,12 @@ pfc::string8_fast JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
 
 JSObject* JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        smp::pfc_x::Make_Stl_CRef( handles->GetHandleList() ),
+        qwr::pfc_x::Make_Stl_CRef( handles->GetHandleList() ),
         [&titleFormat = titleFormatObject_]( const auto& vec, auto index ) {
             pfc::string8_fast text;
             vec[index]->format_title( nullptr, text, titleFormat, nullptr );

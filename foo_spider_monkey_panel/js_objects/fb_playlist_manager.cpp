@@ -12,10 +12,10 @@
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
 #include <utils/location_processor.h>
-#include <utils/string_helpers.h>
 #include <utils/text_helpers.h>
 
-#include <abort_callback.h>
+#include <qwr/abort_callback.h>
+#include <qwr/string_helpers.h>
 
 using namespace smp;
 
@@ -196,7 +196,7 @@ void JsFbPlaylistManager::PrepareForGc()
 
 void JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     playlist_manager::get()->queue_add_item( handle->GetHandle() );
 }
@@ -228,7 +228,7 @@ void JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t play
     case 1:
         return AddLocations( playlistIndex, locations );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -260,7 +260,7 @@ uint32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const 
     catch ( const pfc::exception& e )
     { // Bad query expression
         playlist_manager::get()->remove_playlist( upos );
-        throw SmpException( e.what() );
+        throw qwr::QwrException( e.what() );
     }
 }
 
@@ -275,7 +275,7 @@ uint32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uin
     case 2:
         return CreateAutoPlaylist( playlistIndex, name, query );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -300,7 +300,7 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const std::u8str
 {
     auto api = playlist_manager_v4::get();
 
-    SmpException::ExpectTrue( from < api->get_playlist_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( from < api->get_playlist_count(), "Index is out of bounds" );
 
     metadb_handle_list contents;
     api->playlist_get_all_items( from, contents );
@@ -312,7 +312,7 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const std::u8str
     }
 
     stream_reader_dummy dummy_reader;
-    auto& abort = smp::GlobalAbortCallback::GetInstance();
+    auto& abort = qwr::GlobalAbortCallback::GetInstance();
     const uint32_t upos = api->create_playlist_ex( uname.c_str(), uname.length(), from + 1, contents, &dummy_reader, abort );
 
     assert( pfc_infinite != upos );
@@ -328,7 +328,7 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint
     case 1:
         return DuplicatePlaylist( from );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -362,7 +362,7 @@ uint32_t JsFbPlaylistManager::FindOrCreatePlaylist( const std::u8string& name, b
 
 int32_t JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     t_playback_queue_item item;
     item.m_handle = handle->GetHandle();
@@ -392,7 +392,7 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueContents()
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue(
         pJsCtx_,
-        smp::pfc_x::Make_Stl_CRef( contents ),
+        qwr::pfc_x::Make_Stl_CRef( contents ),
         []( const auto& vec, auto index ) {
             return vec[index];
         },
@@ -455,7 +455,7 @@ JSObject* JsFbPlaylistManager::GetPlaylistSelectedItems( uint32_t playlistIndex 
 
 void JsFbPlaylistManager::InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
     pfc::bit_array_val selection( select );
     playlist_manager::get()->playlist_insert_items( playlistIndex, base, handles->GetHandleList(), selection );
@@ -470,13 +470,13 @@ void JsFbPlaylistManager::InsertPlaylistItemsWithOpt( size_t optArgCount, uint32
     case 1:
         return InsertPlaylistItems( playlistIndex, base, handles );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 void JsFbPlaylistManager::InsertPlaylistItemsFilter( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select )
 {
-    SmpException::ExpectTrue( handles, "handles argument is null" );
+    qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
     playlist_manager::get()->playlist_insert_items_filter( playlistIndex, base, handles->GetHandleList(), select );
 }
@@ -490,13 +490,13 @@ void JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt( size_t optArgCount, 
     case 1:
         return InsertPlaylistItemsFilter( playlistIndex, base, handles );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 bool JsFbPlaylistManager::IsAutoPlaylist( uint32_t playlistIndex )
 {
-    SmpException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
 
     return autoplaylist_manager::get()->is_client_present( playlistIndex );
 }
@@ -511,7 +511,7 @@ bool JsFbPlaylistManager::IsPlaylistItemSelected( uint32_t playlistIndex, uint32
 bool JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
-    SmpException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
 
     return api->playlist_lock_is_present( playlistIndex );
 }
@@ -586,7 +586,7 @@ void JsFbPlaylistManager::RemovePlaylistSelectionWithOpt( size_t optArgCount, ui
     case 1:
         return RemovePlaylistSelection( playlistIndex );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -612,7 +612,7 @@ void JsFbPlaylistManager::SetPlaylistFocusItem( uint32_t playlistIndex, uint32_t
 
 void JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbMetadbHandle* handle )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     playlist_manager::get()->playlist_set_focus_by_handle( playlistIndex, handle->GetHandle() );
 }
@@ -638,7 +638,7 @@ void JsFbPlaylistManager::SetPlaylistSelectionSingle( uint32_t playlistIndex, ui
 
 bool JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
 {
-    SmpException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
 
     auto api = autoplaylist_manager::get();
     if ( !api->is_client_present( playlistIndex ) )
@@ -666,7 +666,7 @@ bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t play
     case 1:
         return SortByFormat( playlistIndex, pattern );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -696,7 +696,7 @@ bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t pl
     case 1:
         return SortByFormatV2( playlistIndex, pattern );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -732,7 +732,7 @@ void JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t
     case 1:
         return SortPlaylistsByName();
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -776,7 +776,7 @@ JSObject* JsFbPlaylistManager::get_PlaylistRecycler()
 void JsFbPlaylistManager::put_ActivePlaylist( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
-    SmpException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
 
     api->set_active_playlist( playlistIndex );
 }
@@ -784,7 +784,7 @@ void JsFbPlaylistManager::put_ActivePlaylist( uint32_t playlistIndex )
 void JsFbPlaylistManager::put_PlaybackOrder( uint32_t order )
 {
     auto api = playlist_manager::get();
-    SmpException::ExpectTrue( order < api->playback_order_get_count(), "Unknown playback order id: {}", order );
+    qwr::QwrException::ExpectTrue( order < api->playback_order_get_count(), "Unknown playback order id: {}", order );
 
     api->playback_order_set_active( order );
 }
@@ -792,7 +792,7 @@ void JsFbPlaylistManager::put_PlaybackOrder( uint32_t order )
 void JsFbPlaylistManager::put_PlayingPlaylist( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();
-    SmpException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
 
     api->set_playing_playlist( playlistIndex );
 }

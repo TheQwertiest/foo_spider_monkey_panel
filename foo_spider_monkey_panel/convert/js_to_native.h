@@ -1,7 +1,8 @@
 #pragma once
 
 #include <js_utils/js_object_helper.h>
-#include <utils/type_traits_x.h>
+
+#include <qwr/type_traits.h>
 
 #include <optional>
 
@@ -31,7 +32,7 @@ template <typename T>
 T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 {
     auto pNative = mozjs::GetInnerInstancePrivate<std::remove_pointer_t<T>>( cx, jsObject );
-    smp::SmpException::ExpectTrue( pNative, "Object is not of valid type" );
+    qwr::QwrException::ExpectTrue( pNative, "Object is not of valid type" );
 
     return pNative;
 }
@@ -39,7 +40,7 @@ T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 template <typename T>
 T ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 {
-    static_assert( smp::always_false_v<T>, "Unsupported type" );
+    static_assert( qwr::always_false_v<T>, "Unsupported type" );
 }
 
 template <>
@@ -96,7 +97,7 @@ template <typename T>
 std::vector<T> ToVector( JSContext* cx, JS::HandleValue jsValue )
 {
     JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
-    smp::SmpException::ExpectTrue( jsObject, "Value is not a JS object" );
+    qwr::QwrException::ExpectTrue( jsObject, "Value is not a JS object" );
 
     return ToVector<T>( cx, jsObject );
 }
@@ -118,7 +119,7 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
         // TODO: think if there is a good way to move this to convert::to_native
         if ( !jsValue.isObjectOrNull() )
         {
-            throw smp::SmpException( "Value is not a JS object" );
+            throw qwr::QwrException( "Value is not a JS object" );
         }
 
         if ( jsValue.isNull() )
@@ -129,13 +130,13 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
         JS::RootedObject jsObject( cx, &jsValue.toObject() );
         return internal::ToSimpleValue<T>( cx, jsObject );
     }
-    else if constexpr ( smp::is_specialization_of_v<T, std::vector> )
+    else if constexpr ( qwr::is_specialization_of_v<T, std::vector> )
     {
         return internal::ToVector<T::value_type>( cx, jsValue );
     }
     else
     {
-        static_assert( smp::always_false_v<T>, "Unsupported type" );
+        static_assert( qwr::always_false_v<T>, "Unsupported type" );
     }
 }
 
@@ -162,7 +163,7 @@ void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
     {
         throw smp::JsException();
     }
-    smp::SmpException::ExpectTrue( is, "Object is not an array" );
+    qwr::QwrException::ExpectTrue( is, "Object is not an array" );
 
     uint32_t arraySize;
     if ( !JS_GetArrayLength( cx, jsObject, &arraySize ) )
@@ -192,7 +193,7 @@ template <typename T, typename F>
 void ProcessArray( JSContext* cx, JS::HandleValue jsValue, F&& workerFunc )
 {
     JS::RootedObject jsObject( cx, jsValue.toObjectOrNull() );
-    smp::SmpException::ExpectTrue( jsObject, "Value is not a JS object" );
+    qwr::QwrException::ExpectTrue( jsObject, "Value is not a JS object" );
 
     to_native::ProcessArray<T>( cx, jsObject, std::forward<F>( workerFunc ) );
 }

@@ -4,16 +4,16 @@
 
 #include "js_monitor.h"
 
+#include <fb2k/advanced_config.h>
 #include <js_engine/js_container.h>
 #include <js_engine/js_engine.h>
+#include <panel/js_panel_window.h>
+#include <panel/message_blocking_scope.h>
 #include <ui/ui_slow_script.h>
-#include <utils/delayed_executor.h>
-#include <utils/scope_helpers.h>
-#include <utils/thread_helpers.h>
 
-#include <adv_config.h>
-#include <js_panel_window.h>
-#include <message_blocking_scope.h>
+#include <qwr/delayed_executor.h>
+#include <qwr/final_action.h>
+#include <qwr/thread_helpers.h>
 
 using namespace smp;
 
@@ -33,9 +33,9 @@ namespace mozjs
 {
 
 JsMonitor::JsMonitor()
-    : slowScriptLimit_( static_cast<uint32_t>( smp::config::advanced::performance_max_runtime.get() ) )
+    : slowScriptLimit_( smp::config::advanced::performance_max_runtime.GetValue() )
 { // JsMonitor might be created before fb2k is fully initialized
-    smp::utils::DelayedExecutor::GetInstance().AddTask( [&hFb2k = hFb2k_] { hFb2k = core_api::get_main_window(); } );
+    qwr::DelayedExecutor::GetInstance().AddTask( [&hFb2k = hFb2k_] { hFb2k = core_api::get_main_window(); } );
 }
 
 void JsMonitor::Start( JSContext* cx )
@@ -122,7 +122,7 @@ bool JsMonitor::OnInterrupt()
         }
         isInInterrupt_ = true;
     }
-    smp::utils::final_action autoBool( [&] {
+    qwr::final_action autoBool( [&] {
         std::unique_lock<std::mutex> lock( watcherDataMutex_ );
         isInInterrupt_ = false;
     } );
@@ -328,7 +328,7 @@ void JsMonitor::StartMonitorThread()
             }
         }
     } );
-    smp::utils::SetThreadName( watcherThread_, "SMP Watcher" );
+    qwr::SetThreadName( watcherThread_, "SMP Watcher" );
 }
 
 void JsMonitor::StopMonitorThread()

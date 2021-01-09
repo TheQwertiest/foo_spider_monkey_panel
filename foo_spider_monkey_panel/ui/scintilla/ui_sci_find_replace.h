@@ -79,7 +79,6 @@ private:
     bool useRegExp_ = false;
 };
 
-
 // TODO: cleanup this mess
 template <typename T>
 class CScintillaFindReplaceImpl
@@ -128,8 +127,8 @@ public:
             fr.lpTemplateName = ( bFindOnly ? MAKEINTRESOURCE( IDD_FINDDLGORD_WITH_REGEXP ) : MAKEINTRESOURCE( IDD_REPLACEDLGORD_WITH_REGEXP ) );
             fr.hInstance = ModuleHelper::GetModuleInstance();
 
-            const std::wstring findText = ( lpszFindWhat && wcslen( lpszFindWhat ) ? lpszFindWhat : smp::unicode::ToWide( lastState_.findText ) );
-            const std::wstring replaceText = ( lpszReplaceWith && wcslen( lpszReplaceWith ) ? lpszReplaceWith : smp::unicode::ToWide( lastState_.replaceText ) );
+            const std::wstring findText = ( lpszFindWhat && wcslen( lpszFindWhat ) ? lpszFindWhat : qwr::unicode::ToWide( lastState_.findText ) );
+            const std::wstring replaceText = ( lpszReplaceWith && wcslen( lpszReplaceWith ) ? lpszReplaceWith : qwr::unicode::ToWide( lastState_.replaceText ) );
 
             HWND hWndFindReplace = findReplaceDialog->Create( bFindOnly,
                                                               findText.c_str(),
@@ -146,8 +145,8 @@ public:
                 hEdit_ = sciEditor_;
                 isFindOnlyDialog_ = bFindOnly;
                 // Need these in case called via F3, instead of dialog buttons
-                lastState_.findText = smp::unicode::ToU8( findText );
-                lastState_.replaceText = smp::unicode::ToU8( replaceText );
+                lastState_.findText = qwr::unicode::ToU8( findText );
+                lastState_.replaceText = qwr::unicode::ToU8( replaceText );
 
                 findReplaceDialog->SetWrapAroundSearchState( lastState_.useWrapAround );
                 findReplaceDialog->SetRegExpState( lastState_.useRegExp );
@@ -208,10 +207,10 @@ public:
         sciEditor_.SetSearchFlags( lastState_.ToScintillaFlags() );
 
         const auto docLength = sciEditor_.GetLength();
-        
+
         if ( -1 == FindInRange( Range{ 0, docLength }, false ) )
         {
-            pBase->TextNotFound( smp::unicode::ToWide(lastState_.findText).c_str() );
+            pBase->TextNotFound( qwr::unicode::ToWide( lastState_.findText ).c_str() );
             return;
         }
 
@@ -274,7 +273,7 @@ public:
 
         if ( !FindImpl( direction ) )
         {
-            BaseClass::TextNotFound( smp::unicode::ToWide( lastState_.findText ).c_str() );
+            BaseClass::TextNotFound( qwr::unicode::ToWide( lastState_.findText ).c_str() );
             return false;
         }
         else
@@ -297,7 +296,7 @@ public:
             lastState_.useRegExp
                 ? sciEditor_.ReplaceTargetRE( lastState_.replaceText.c_str(), lastState_.replaceText.length() )
                 : sciEditor_.ReplaceTarget( lastState_.replaceText.c_str(), lastState_.replaceText.length() );
-        
+
         sciEditor_.SetSelectionStart( prevSelectionRange.first );
         sciEditor_.SetSelectionEnd( prevSelectionRange.first + replaceLen );
         lastSearchPosition_ = prevSelectionRange.first + replaceLen;
@@ -316,7 +315,7 @@ public:
         int iRet = sciEditor_.GetSelectedText( text.data() );
         text.resize( strlen( text.c_str() ) );
 
-        strText = smp::unicode::ToWide( text ).c_str();
+        strText = qwr::unicode::ToWide( text ).c_str();
 
         return iRet;
     }
@@ -430,11 +429,11 @@ private:
 
             lastState_.FromFrFlags( pFindReplaceDialog->m_fr.Flags );
             const auto findCStr = pFindReplaceDialog->GetFindString();
-            lastState_.findText = smp::unicode::ToU8( std::wstring_view{ findCStr ? findCStr : L"" } );
+            lastState_.findText = qwr::unicode::ToU8( std::wstring_view{ findCStr ? findCStr : L"" } );
             if ( !isFindOnlyDialog_ )
             {
                 const auto replaceCStr = pFindReplaceDialog->GetReplaceString();
-                lastState_.replaceText = smp::unicode::ToU8( std::wstring_view{ replaceCStr ? replaceCStr : L"" } );
+                lastState_.replaceText = qwr::unicode::ToU8( std::wstring_view{ replaceCStr ? replaceCStr : L"" } );
             }
             lastState_.useWrapAround = pFindReplaceDialog->GetWrapAroundSearchState();
             lastState_.useRegExp = pFindReplaceDialog->GetRegExpState();
@@ -492,4 +491,4 @@ private:
 template <typename T>
 smp::ui::sci::FindReplaceState CScintillaFindReplaceImpl<T>::lastState_;
 
-} // namespace scintilla
+} // namespace smp::ui::sci

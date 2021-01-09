@@ -13,10 +13,11 @@
 #include <utils/array_x.h>
 #include <utils/art_helpers.h>
 #include <utils/colour_helpers.h>
-#include <utils/file_helpers.h>
 #include <utils/gdi_error_helpers.h>
-#include <utils/scope_helpers.h>
-#include <utils/winapi_error_helpers.h>
+
+#include <qwr/file_helpers.h>
+#include <qwr/final_action.h>
+#include <qwr/winapi_error_helpers.h>
 
 // StringCchCopy, StringCchCopyN
 #include <StrSafe.h>
@@ -168,7 +169,7 @@ bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const std::u8string& na
     case 1:
         return CheckComponent( name );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -180,17 +181,17 @@ bool JsUtils::CheckFont( const std::wstring& name )
 
     int recv;
     Gdiplus::Status gdiRet = font_collection.GetFamilies( count, font_families.data(), &recv );
-    smp::error::CheckGdi( gdiRet, "GetFamilies" );
-    SmpException::ExpectTrue( recv == count, "Internal error: GetFamilies numSought != numFound" );
+    qwr::error::CheckGdi( gdiRet, "GetFamilies" );
+    qwr::QwrException::ExpectTrue( recv == count, "Internal error: GetFamilies numSought != numFound" );
 
     std::array<wchar_t, LF_FACESIZE> family_name_eng{};
     std::array<wchar_t, LF_FACESIZE> family_name_loc{};
     const auto it = ranges::find_if( font_families, [&family_name_eng, &family_name_loc, &name]( const auto& fontFamily ) {
         Gdiplus::Status gdiRet = fontFamily.GetFamilyName( family_name_eng.data(), MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
-        smp::error::CheckGdi( gdiRet, "GetFamilyName" );
+        qwr::error::CheckGdi( gdiRet, "GetFamilyName" );
 
         gdiRet = fontFamily.GetFamilyName( family_name_loc.data() );
-        smp::error::CheckGdi( gdiRet, "GetFamilyName" );
+        qwr::error::CheckGdi( gdiRet, "GetFamilyName" );
 
         return ( !_wcsicmp( name.c_str(), family_name_loc.data() )
                  || !_wcsicmp( name.c_str(), family_name_eng.data() ) );
@@ -224,10 +225,10 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
         }
         catch ( const fs::filesystem_error& e )
         {
-            throw SmpException( fmt::format( "Failed to get the status of `{}`:\n"
-                                             "  {}",
-                                             path.u8string(),
-                                             smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
+            throw qwr::QwrException( fmt::format( "Failed to get the status of `{}`:\n"
+                                                  "  {}",
+                                                  path.u8string(),
+                                                  qwr::unicode::ToU8_FromAcpToWide( e.what() ) ) );
         }
     };
 
@@ -246,10 +247,10 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
             }
             catch ( const fs::filesystem_error& e )
             {
-                throw SmpException( fmt::format( "Failed to get the size of `{}`:\n"
-                                                 "  {}",
-                                                 cleanedPath.u8string(),
-                                                 smp::unicode::ToU8_FromAcpToWide( e.what() ) ) );
+                throw qwr::QwrException( fmt::format( "Failed to get the size of `{}`:\n"
+                                                      "  {}",
+                                                      cleanedPath.u8string(),
+                                                      qwr::unicode::ToU8_FromAcpToWide( e.what() ) ) );
             }
         }();
 
@@ -291,12 +292,12 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     else if ( L"chardet" == mode )
     {
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setNumber( static_cast<uint32_t>( smp::file::DetectFileCharset( cleanedPath.u8string() ) ) );
+        jsValue.setNumber( static_cast<uint32_t>( qwr::file::DetectFileCharset( cleanedPath.u8string() ) ) );
         return jsValue;
     }
     else
     {
-        throw SmpException( fmt::format( "Invalid value of mode argument: '{}'", smp::unicode::ToU8( mode ) ) );
+        throw qwr::QwrException( fmt::format( "Invalid value of mode argument: '{}'", qwr::unicode::ToU8( mode ) ) );
     }
 }
 
@@ -312,8 +313,8 @@ std::u8string JsUtils::FormatFileSize( uint64_t p )
 
 void JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
-    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( hWnd, "Invalid hWnd argument" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     // Such cast will work only on x86
     smp::art::GetAlbumArtAsync( reinterpret_cast<HWND>( hWnd ), handle->GetHandle(), art_id, need_stub, only_embed, no_load );
@@ -334,14 +335,14 @@ void JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMe
     case 4:
         return GetAlbumArtAsync( hWnd, handle );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 JSObject* JsUtils::GetAlbumArtAsyncV2( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
 {
-    SmpException::ExpectTrue( hWnd, "Invalid hWnd argument" );
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( hWnd, "Invalid hWnd argument" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     // Such cast will work only on x86
     return mozjs::art::GetAlbumArtPromise( pJsCtx_, reinterpret_cast<HWND>( hWnd ), handle->GetHandle(), art_id, need_stub, only_embed, no_load );
@@ -362,7 +363,7 @@ JSObject* JsUtils::GetAlbumArtAsyncV2WithOpt( size_t optArgCount, uint32_t hWnd,
     case 4:
         return GetAlbumArtAsyncV2( hWnd, handle );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -386,13 +387,13 @@ JSObject* JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::u8
     case 1:
         return GetAlbumArtEmbedded( rawpath );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 JSObject* JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub )
 {
-    SmpException::ExpectTrue( handle, "handle argument is null" );
+    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     std::unique_ptr<Gdiplus::Bitmap> artImage( smp::art::GetBitmapFromMetadb( handle->GetHandle(), art_id, need_stub, false, nullptr ) );
     if ( !artImage )
@@ -414,14 +415,14 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
     case 2:
         return GetAlbumArtV2( handle );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 uint32_t JsUtils::GetSysColour( uint32_t index )
 {
     const auto hBrush = ::GetSysColorBrush( index ); ///< no need to call DeleteObject here
-    SmpException::ExpectTrue( hBrush, "Invalid color index: {}", index );
+    qwr::QwrException::ExpectTrue( hBrush, "Invalid color index: {}", index );
 
     return smp::colour::convert_colorref_to_argb( ::GetSysColor( index ) );
 }
@@ -473,7 +474,7 @@ JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const std::u8string& pattern
     case 2:
         return Glob( pattern );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -487,7 +488,7 @@ std::u8string JsUtils::InputBox( uint32_t hWnd, const std::u8string& prompt, con
         int status = dlg.DoModal( reinterpret_cast<HWND>( hWnd ) );
         if ( status == IDCANCEL && error_on_cancel )
         {
-            throw SmpException( "Dialog window was closed" );
+            throw qwr::QwrException( "Dialog window was closed" );
         }
 
         if ( status == IDOK )
@@ -510,7 +511,7 @@ std::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const
     case 2:
         return InputBox( hWnd, prompt, caption );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -523,11 +524,11 @@ std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_
 {
     // WinAPI is weird: 0 - error (with LastError), > 0 - characters required
     int iRet = LCIDToLocaleName( lcid, nullptr, 0, LOCALE_ALLOW_NEUTRAL_NAMES );
-    smp::error::CheckWinApi( iRet, "LCIDToLocaleName(nullptr)" );
+    qwr::error::CheckWinApi( iRet, "LCIDToLocaleName(nullptr)" );
 
     std::wstring localeName( iRet, '\0' );
     iRet = LCIDToLocaleName( lcid, localeName.data(), localeName.size(), LOCALE_ALLOW_NEUTRAL_NAMES );
-    smp::error::CheckWinApi( iRet, "LCIDToLocaleName(data)" );
+    qwr::error::CheckWinApi( iRet, "LCIDToLocaleName(data)" );
 
     std::optional<NLSVERSIONINFOEX> versionInfo;
     try
@@ -536,7 +537,7 @@ std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_
         {
             NLSVERSIONINFOEX tmpVersionInfo{};
             BOOL bRet = GetNLSVersionEx( COMPARE_STRING, localeName.c_str(), &tmpVersionInfo );
-            smp::error::CheckWinApi( bRet, "GetNLSVersionEx" );
+            qwr::error::CheckWinApi( bRet, "GetNLSVersionEx" );
 
             versionInfo = tmpVersionInfo;
         }
@@ -548,11 +549,11 @@ std::wstring JsUtils::MapString( const std::wstring& str, uint32_t lcid, uint32_
     auto* pVersionInfo = reinterpret_cast<NLSVERSIONINFO*>( versionInfo ? &( *versionInfo ) : nullptr );
 
     iRet = LCMapStringEx( localeName.c_str(), flags, str.c_str(), str.length() + 1, nullptr, 0, pVersionInfo, nullptr, 0 );
-    smp::error::CheckWinApi( iRet, "LCMapStringEx(nullptr)" );
+    qwr::error::CheckWinApi( iRet, "LCMapStringEx(nullptr)" );
 
     std::wstring dst( iRet, '\0' );
     iRet = LCMapStringEx( localeName.c_str(), flags, str.c_str(), str.length() + 1, dst.data(), dst.size(), pVersionInfo, nullptr, 0 );
-    smp::error::CheckWinApi( iRet, "LCMapStringEx(data)" );
+    qwr::error::CheckWinApi( iRet, "LCMapStringEx(data)" );
 
     dst.resize( wcslen( dst.c_str() ) );
     return dst;
@@ -569,7 +570,7 @@ std::wstring JsUtils::ReadINI( const std::wstring& filename, const std::wstring&
     std::wstring dst( MAX_PATH, '\0' );
     int iRet = GetPrivateProfileString( section.c_str(), key.c_str(), defaultval.c_str(), dst.data(), dst.size(), filename.c_str() );
     // TODO v2: Uncomment error checking
-    // smp::error::CheckWinApi( ( iRet || ( NO_ERROR == GetLastError() ) ), "GetPrivateProfileString(nullptr)" );
+    // qwr::error::CheckWinApi( ( iRet || ( NO_ERROR == GetLastError() ) ), "GetPrivateProfileString(nullptr)" );
 
     if ( !iRet && ( NO_ERROR != GetLastError() ) )
     {
@@ -592,13 +593,13 @@ std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& fi
     case 1:
         return ReadINI( filename, section, key );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
 std::wstring JsUtils::ReadTextFile( const std::u8string& filePath, uint32_t codepage )
 {
-    return smp::file::ReadFileW( filePath, codepage );
+    return qwr::file::ReadFileW( filePath, codepage );
 }
 
 std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::u8string& filePath, uint32_t codepage )
@@ -610,7 +611,7 @@ std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::u8stri
     case 1:
         return ReadTextFile( filePath );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -630,7 +631,7 @@ JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, 
             }
             else
             {
-                throw SmpException( fmt::format( "DoModal failed: {}", iRet ) );
+                throw qwr::QwrException( fmt::format( "DoModal failed: {}", iRet ) );
             }
         }
     }
@@ -648,7 +649,7 @@ JS::Value JsUtils::ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, con
     case 1:
         return ShowHtmlDialog( hWnd, htmlCode );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
@@ -657,14 +658,14 @@ bool JsUtils::WriteINI( const std::wstring& filename, const std::wstring& sectio
     return WritePrivateProfileString( section.c_str(), key.c_str(), val.c_str(), filename.c_str() );
 }
 
-bool JsUtils::WriteTextFile( const std::wstring& filename, const std::u8string& content, bool write_bom )
-{ // TODO: inspect the code (replace with std::filesystem perhaps?)
-    SmpException::ExpectTrue( !filename.empty(), "Invalid filename" );
+void JsUtils::WriteTextFile( const std::wstring& filename, const std::u8string& content, bool write_bom )
+{
+    qwr::QwrException::ExpectTrue( !filename.empty(), "Invalid filename" );
 
-    return smp::file::WriteFile( filename.c_str(), content, write_bom );
+    qwr::file::WriteFile( filename.c_str(), content, write_bom );
 }
 
-bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const std::u8string& content, bool write_bom )
+void JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const std::u8string& content, bool write_bom )
 {
     switch ( optArgCount )
     {
@@ -673,7 +674,7 @@ bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& file
     case 1:
         return WriteTextFile( filename, content );
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 

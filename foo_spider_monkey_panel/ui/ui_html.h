@@ -139,7 +139,7 @@ public:
     ULONG STDMETHODCALLTYPE Release() override;
 
 private:
-    /// @throw smp::SmpException
+    /// @throw qwr::QwrException
     /// @throw smp::JsException
     void ParseOptions( JS::HandleValue options );
     void SetOptions();

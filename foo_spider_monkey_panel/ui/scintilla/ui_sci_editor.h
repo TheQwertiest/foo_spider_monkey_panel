@@ -3,11 +3,10 @@
 // The License.txt file describes the conditions under which this software may be distributed.
 #pragma once
 
+#include <panel/user_message.h>
 #include <ui/scintilla/ui_sci_find_replace.h>
 #include <ui/scintilla/ui_sci_goto.h>
 #include <ui/scintilla/wtlscintilla.h>
-
-#include <user_message.h>
 
 #include <nonstd/span.hpp>
 
@@ -124,4 +123,4 @@ private:
     std::set<std::u8string, KeyWordComparator> m_apis;
 };
 
-} // namespace scintilla
+} // namespace smp::ui::sci

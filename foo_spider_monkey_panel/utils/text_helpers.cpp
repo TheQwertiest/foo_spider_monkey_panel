@@ -14,44 +14,6 @@ namespace
 
 using namespace smp::utils;
 
-enum class CodePage : UINT
-{
-    DosLatin1 = 850,
-    ShiftJis = 932,
-    Gbk = 936,
-    EucKr = 949,
-    Big5 = 950,
-    WinLatin1 = 1252,
-    UsAscii = 20127,
-    Utf8 = CP_UTF8,
-};
-
-UINT FilterEncodings( nonstd::span<const DetectEncodingInfo> encodings )
-{
-    assert( !encodings.empty() );
-
-    if ( encodings.size() == 1 )
-    {
-        const auto codepage = encodings[0].nCodePage;
-        if ( codepage == static_cast<UINT>( CodePage::UsAscii ) )
-        { // UsAscii is a subset of Utf8
-            return static_cast<UINT>( CodePage::Utf8 );
-        }
-        else
-        {
-            return codepage;
-        }
-    }
-    else
-    {
-        return ranges::max_element( encodings,
-                                    []( const auto& a, const auto& b ) {
-                                        return ( a.nConfidence < b.nConfidence );
-                                    } )
-            ->nCodePage;
-    }
-}
-
 bool is_wrap_char( wchar_t current, wchar_t next )
 {
     if ( std::iswpunct( current ) )
@@ -142,31 +104,6 @@ void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, st
 namespace smp::utils
 {
 
-std::optional<UINT> DetectCharSet( std::string_view text )
-{
-    _COM_SMARTPTR_TYPEDEF( IMultiLanguage2, IID_IMultiLanguage2 );
-    IMultiLanguage2Ptr lang;
-
-    HRESULT hr = lang.CreateInstance( CLSID_CMultiLanguage, nullptr, CLSCTX_INPROC_SERVER );
-    if ( FAILED( hr ) )
-    {
-        return std::nullopt;
-    }
-
-    constexpr int maxEncodings = 2;
-    int encodingCount = maxEncodings;
-    std::array<DetectEncodingInfo, maxEncodings> encodings;
-    int iTextSize = text.size();
-
-    hr = lang->DetectInputCodepage( MLDETECTCP_NONE, 0, const_cast<char*>( text.data() ), &iTextSize, encodings.data(), &encodingCount );
-    if ( FAILED( hr ) || !encodingCount )
-    {
-        return std::nullopt;
-    }
-
-    return FilterEncodings( nonstd::span<const DetectEncodingInfo>( encodings.data(), encodingCount ) );
-}
-
 size_t get_text_height( HDC hdc, std::wstring_view text )
 {
     SIZE size;
@@ -218,7 +155,7 @@ StrCmpLogicalCmpData::StrCmpLogicalCmpData( const std::wstring& textId, size_t i
 }
 
 StrCmpLogicalCmpData::StrCmpLogicalCmpData( const std::u8string_view& textId, size_t index )
-    : textId( L' ' + smp::unicode::ToWide( textId ) )
+    : textId( L' ' + qwr::unicode::ToWide( textId ) )
     , index( index )
 {
     // space is needed for StrCmpLogicalW bug workaround

@@ -60,7 +60,7 @@ private:
     bool Initialize();
     void Finalize();
 
-    /// @throw smp::SmpException
+    /// @throw qwr::QwrException
     void StartHeartbeatThread();
     void StopHeartbeatThread();
 
