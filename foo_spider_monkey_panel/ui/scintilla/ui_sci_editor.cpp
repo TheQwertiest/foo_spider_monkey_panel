@@ -672,14 +672,13 @@ CScriptEditorCtrl::IndentationStatus CScriptEditorCtrl::GetIndentState( int line
         }
         else
         {
-            constexpr auto keywords = smp::to_array<const char*>(
-                { "case",
-                  "default",
-                  "do",
-                  "else",
-                  "for",
-                  "if",
-                  "while" } );
+            constexpr const char* keywords[]{ "case",
+                                              "default",
+                                              "do",
+                                              "else",
+                                              "for",
+                                              "if",
+                                              "while" };
             if ( ranges::find( keywords, part ) != ranges::cend( keywords ) )
             {
                 return IndentationStatus::isKeyWordStart;
@@ -1456,4 +1455,4 @@ std::optional<std::u8string> CScriptEditorCtrl::GetPropertyExpanded_Opt( const c
     return propval;
 }
 
-} // namespace scintilla
+} // namespace smp::ui::sci
