@@ -36,7 +36,9 @@
 [submodule "submodules/fmt"]
 	path = submodules/fmt
 	url = https://github.com/fmtlib/fmt.git
-	branch = release
-[submodule "submodules/span-lite"]
-	path = submodules/span-lite
+[submodule "submodules/fb2k_utils"]
+	path = submodules/fb2k_utils
+	url = https://github.com/TheQwertiest/fb2k_utils.git
+[submodule "submodules/span"]
+	path = submodules/span
 	url = https://github.com/martinmoene/span-lite.git
