@@ -151,7 +151,7 @@ private:
     }
 };
 
-initquit_factory_t<js_initquit> g_initquit;
+FB2K_SERVICE_FACTORY( js_initquit );
 
 } // namespace
 

@@ -211,11 +211,13 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
 
 void JsGlobalObject::ClearInterval( uint32_t intervalId )
 {
+    assert( pJsWindow_ );
     pJsWindow_->ClearInterval( intervalId );
 }
 
 void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
 {
+    assert( pJsWindow_ );
     pJsWindow_->ClearInterval( timeoutId );
 }
 
