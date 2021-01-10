@@ -210,7 +210,7 @@ bool JsMonitor::OnInterrupt()
             case JsContainer::JsStatus::Working:
             {
                 auto& parentPanel = pContainer->GetParentPanel();
-                panelName = parentPanel.ScriptInfo().build_info_string( false );
+                panelName = parentPanel.GetPanelDescription( false );
                 parentHwnd = parentPanel.GetHWND();
             }
             case JsContainer::JsStatus::Ready:

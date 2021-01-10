@@ -13,11 +13,6 @@ namespace smp::panel
 class js_panel_window;
 }
 
-namespace smp::com
-{
-class IDropTargetImpl;
-}
-
 namespace mozjs
 {
 
@@ -56,8 +51,12 @@ public: // methods
     JSObject* CreateTooltip( const std::wstring& name = L"Segoe UI", uint32_t pxSize = 12, uint32_t style = 0 );
     // TODO v2: remove
     JSObject* CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style );
+    // TODO v2: remove
     void DefinePanel( const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    // TODO v2: remove
     void DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void DefineScript( const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void DefineScriptWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     uint32_t GetColourCUI( uint32_t type, const std::wstring& guidstr = L"" );
     uint32_t GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     uint32_t GetColourDUI( uint32_t type );
@@ -108,16 +107,17 @@ public: // props
 private:
     JsWindow( JSContext* cx, smp::panel::js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties );
 
-    struct DefinePanelOptions
+    struct DefineScriptOptions
     {
         std::u8string author;
         std::u8string version;
         struct Features
         {
-            bool drag_n_drop = false;
+            bool dragAndDrop = false;
+            bool grabFocus = true;
         } features;
     };
-    DefinePanelOptions ParseDefinePanelOptions( JS::HandleValue options );
+    DefineScriptOptions ParseDefineScriptOptions( JS::HandleValue options );
 
 private:
     JSContext* pJsCtx_;
@@ -125,9 +125,8 @@ private:
 
     bool isFinalized_ = false; ///< if true, then parentPanel_ might be already inaccessible
 
-    bool isPanelDefined_ = false;
+    bool isScriptDefined_ = false;
     std::unique_ptr<FbProperties> fbProperties_;
-    CComPtr<smp::com::IDropTargetImpl> dropTargetHandler_;
 
     JS::PersistentRootedObject jsTooltip_;
     JsFbTooltip* pNativeTooltip_ = nullptr;

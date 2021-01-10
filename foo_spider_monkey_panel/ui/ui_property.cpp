@@ -6,6 +6,7 @@
 #include <utils/array_x.h>
 
 #include <qwr/abort_callback.h>
+#include <qwr/error_popup.h>
 #include <qwr/file_helpers.h>
 #include <qwr/type_traits.h>
 
@@ -120,8 +121,8 @@ LRESULT CDialogProperty::OnClearallBnClicked( WORD, WORD, HWND )
 void CDialogProperty::Apply()
 {
     // Copy back
-    parentPanel_->GetSettings().properties = localProperties_;
-    parentPanel_->update_script();
+    parentPanel_->GetPanelProperties() = localProperties_;
+    parentPanel_->ReloadScript();
     LoadProperties();
 }
 
@@ -131,7 +132,7 @@ void CDialogProperty::LoadProperties( bool reload )
 
     if ( reload )
     {
-        localProperties_ = parentPanel_->GetSettings().properties;
+        localProperties_ = parentPanel_->GetPanelProperties();
     }
 
     struct LowerLexCmp
@@ -222,29 +223,55 @@ LRESULT CDialogProperty::OnImportBnClicked( WORD, WORD, HWND )
         const auto extension = path.extension();
         if ( extension == ".json" )
         {
-            localProperties_.LoadJson( *io, abort, true );
+            localProperties_ = config::PanelProperties::FromJson( qwr::pfc_x::ReadRawString( *io, abort ) );
         }
         else if ( extension == ".smp" )
         {
-            localProperties_.LoadBinary( *io, abort );
+            localProperties_ = config::PanelProperties::Load( *io, abort, config::SerializationFormat::Binary );
         }
         else if ( extension == ".wsp" )
         {
-            localProperties_.LoadLegacy( *io, abort );
+            localProperties_ = config::PanelProperties::Load( *io, abort, config::SerializationFormat::Com );
         }
         else
         { // let's brute-force it!
-            if ( !localProperties_.LoadJson( *io, abort, true )
-                 && !localProperties_.LoadBinary( *io, abort ) )
+            const auto tryParse = [&io, &abort]( smp::config::SerializationFormat format ) -> std::optional<config::PanelProperties> {
+                try
+                {
+                    return config::PanelProperties::Load( *io, abort, format );
+                }
+                catch ( const qwr::QwrException& )
+                {
+                    return std::nullopt;
+                }
+            };
+
+            bool success = false;
+            for ( const auto format: { config::SerializationFormat::Json, config::SerializationFormat::Binary, config::SerializationFormat::Com } )
             {
-                localProperties_.LoadLegacy( *io, abort );
+                auto propOpt = tryParse( format );
+                if ( propOpt )
+                {
+                    localProperties_ = *propOpt;
+                    success = true;
+                    break;
+                }
+            }
+            if ( !success )
+            {
+                throw qwr::QwrException( "Failed to parse panel properties: unknown format" );
             }
         }
 
         LoadProperties( false );
     }
-    catch ( const pfc::exception& )
+    catch ( const qwr::QwrException& e )
     {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+    }
+    catch ( const pfc::exception& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
     }
 
     return 0;
@@ -265,16 +292,17 @@ LRESULT CDialogProperty::OnExportBnClicked( WORD, WORD, HWND )
     }
     const auto path = path_opt->lexically_normal();
 
-    file_ptr io;
-    auto& abort = qwr::GlobalAbortCallback::GetInstance();
-
     try
     {
+        auto& abort = qwr::GlobalAbortCallback::GetInstance();
+        file_ptr io;
         filesystem::g_open_write_new( io, path.u8string().c_str(), abort );
-        localProperties_.SaveJson( *io, abort, true );
+
+        qwr::pfc_x::WriteStringRaw( *io, localProperties_.ToJson(), abort );
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
     }
 
     return 0;

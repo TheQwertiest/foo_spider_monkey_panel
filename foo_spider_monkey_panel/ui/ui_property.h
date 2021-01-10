@@ -1,6 +1,6 @@
 #pragma once
 
-#include <fb2k/config.h>
+#include <config/panel_config.h>
 #include <property_list/PropertyList.h>
 
 #include <resource.h>

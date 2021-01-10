@@ -2,6 +2,7 @@
 
 #include "js_panel_window_dui.h"
 
+#include <com_objects/drop_target_impl.h>
 #include <panel/message_manager.h>
 #include <panel/user_message.h>
 #include <utils/colour_helpers.h>
@@ -68,8 +69,8 @@ namespace smp::panel
 js_panel_window_dui::js_panel_window_dui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
     : js_panel_window( PanelType::DUI )
     , m_callback( callback )
+    , m_is_edit_mode( m_callback->is_edit_mode_enabled() )
 {
-    m_is_edit_mode = m_callback->is_edit_mode_enabled();
     set_configuration( cfg );
 }
 
@@ -226,7 +227,7 @@ bool js_panel_window_dui::edit_mode_context_menu_test( const POINT&, bool )
 ui_element_config::ptr js_panel_window_dui::get_configuration()
 {
     ui_element_config_builder builder;
-    GetSettings().Save( builder.m_stream, fb2k::noAbort );
+    SaveSettings( builder.m_stream, fb2k::noAbort );
     return builder.finish( g_get_guid() );
 }
 
@@ -259,13 +260,11 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_siz
 void js_panel_window_dui::set_configuration( ui_element_config::ptr data )
 {
     ui_element_config_parser parser( data );
-    GetSettings().Load( parser.m_stream, parser.get_remaining(), fb2k::noAbort );
 
-    // FIX: If window already created, DUI won't destroy it and create it again.
-    if ( t_parent::GetHWND() )
-    {
-        update_script();
-    }
+    const auto settings = smp::config::PanelSettings::Load( parser.m_stream, parser.get_remaining(), fb2k::noAbort );
+    UpdateSettings( settings,
+                    // FIX: If window already created, DUI won't destroy it and create it again.
+                    !!t_parent::GetHWND() );
 }
 
 void js_panel_window_dui::initialize_window( HWND parent )

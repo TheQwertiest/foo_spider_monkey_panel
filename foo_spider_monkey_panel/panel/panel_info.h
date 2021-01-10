@@ -5,52 +5,33 @@ namespace smp::panel
 
 struct PanelInfo
 {
-    std::u8string name;
-    std::u8string version;
-    std::u8string author;
+    std::u8string panelId;
+    std::u8string scriptName;
+    std::u8string scriptVersion;
+    std::u8string scriptAuthor;
 
-    PanelInfo( const GUID& guid )
-        : guid_( guid )
+    std::u8string BuildInfoString( bool full = true ) const
     {
-    }
+        std::u8string ret = fmt::format( "{{{}}}", panelId );
 
-    void clear()
-    {
-        name.clear();
-        version.clear();
-        author.clear();
-    }
-
-    std::u8string build_info_string( bool full = true ) const
-    {
-        std::u8string ret;
-
-        if ( !name.empty() )
+        if ( !scriptName.empty() )
         {
-            ret += name;
-        }
-        else
-        {
-            ret += fmt::format( "{{{}}}", pfc::print_guid( guid_ ) );
-        }
-
-        if ( full )
-        {
-            if ( !version.empty() )
+            ret += fmt::format( ": {}", scriptName );
+            if ( full )
             {
-                ret += fmt::format( " v{}", version );
-            }
-            if ( !author.empty() )
-            {
-                ret += fmt::format( " by {}", author );
+                if ( !scriptVersion.empty() )
+                {
+                    ret += fmt::format( " v{}", scriptVersion );
+                }
+                if ( !scriptAuthor.empty() )
+                {
+                    ret += fmt::format( " by {}", scriptAuthor );
+                }
             }
         }
 
         return ret;
     }
-
-private:
-    GUID guid_;
 };
 
 } // namespace smp::panel
