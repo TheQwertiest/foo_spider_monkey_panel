@@ -47,7 +47,7 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
     assert( !!globalObject );
     assert( functionName.length() );
 
-    JsScope autoScope( cx, globalObject );
+    JsAutoRealmWithErrorReport autoScope( cx, globalObject );
 
     JS::RootedValue funcValue( cx );
     if ( !JS_GetProperty( cx, globalObject, functionName.c_str(), &funcValue ) )

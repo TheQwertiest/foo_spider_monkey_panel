@@ -216,7 +216,7 @@ void JsContainer::InvokeOnDragAction( const std::u8string& functionName, const P
     }
 
     auto selfSaver = shared_from_this();
-    JsScope autoScope( pJsCtx_, jsGlobal_ );
+    JsAutoRealmWithErrorReport autoScope( pJsCtx_, jsGlobal_ );
 
     if ( !CreateDropActionIfNeeded() )
     { // reports
@@ -244,7 +244,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
     }
 
     auto selfSaver = shared_from_this();
-    JsScope autoScope( pJsCtx_, jsGlobal_ );
+    JsAutoRealmWithErrorReport autoScope( pJsCtx_, jsGlobal_ );
 
     // Bind object to current realm
     JS::RootedValue jsValue( pJsCtx_, *reinterpret_cast<JS::HandleValue*>( lp ) );
@@ -293,7 +293,7 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     }
 
     auto selfSaver = shared_from_this();
-    JsScope autoScope( pJsCtx_, jsGlobal_ );
+    JsAutoRealmWithErrorReport autoScope( pJsCtx_, jsGlobal_ );
 
     OnJsActionStart();
     qwr::final_action autoAction( [&] { OnJsActionEnd(); } );

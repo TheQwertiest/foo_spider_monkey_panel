@@ -410,14 +410,14 @@ void my_playlist_callback_static::on_playlists_changed()
 namespace
 {
 
-initquit_factory_t<my_initquit> g_my_initquit;
-library_callback_factory_t<my_library_callback> g_my_library_callback;
-play_callback_static_factory_t<my_play_callback_static> g_my_play_callback_static;
-play_callback_static_factory_t<my_playback_queue_callback> g_my_playback_queue_callback;
-playback_statistics_collector_factory_t<my_playback_statistics_collector> g_my_playback_statistics_collector;
-service_factory_single_t<my_config_object_notify> g_my_config_object_notify;
-service_factory_single_t<my_dsp_config_callback> g_my_dsp_config_callback;
-service_factory_single_t<my_metadb_io_callback> g_my_metadb_io_callback;
-service_factory_single_t<my_playlist_callback_static> g_my_playlist_callback_static;
+FB2K_SERVICE_FACTORY( my_initquit );
+FB2K_SERVICE_FACTORY( my_library_callback );
+FB2K_SERVICE_FACTORY( my_play_callback_static );
+FB2K_SERVICE_FACTORY( my_playback_queue_callback );
+FB2K_SERVICE_FACTORY( my_playback_statistics_collector );
+FB2K_SERVICE_FACTORY( my_config_object_notify );
+FB2K_SERVICE_FACTORY( my_dsp_config_callback );
+FB2K_SERVICE_FACTORY( my_metadb_io_callback );
+FB2K_SERVICE_FACTORY( my_playlist_callback_static );
 
 } // namespace

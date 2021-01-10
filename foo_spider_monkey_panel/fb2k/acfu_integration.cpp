@@ -61,6 +61,6 @@ std::string SmpSource::GetComponentFilename() const
     return SMP_UNDERSCORE_NAME;
 }
 
-service_factory_single_t<SmpSource> g_acfuSource;
+FB2K_SERVICE_FACTORY( SmpSource );
 
 } // namespace

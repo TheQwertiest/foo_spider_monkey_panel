@@ -529,13 +529,13 @@ void JsFbMetadbHandleList::RefreshStats()
     for ( const auto& handle: qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ) )
     {
         metadb_index_hash hash;
-        if ( stats::hashHandle( handle, hash ) )
+        if ( stats::HashHandle( handle, hash ) )
         {
             hashes.add_item( hash );
         }
     }
 
-    stats::refresh( hashes );
+    stats::RefreshStats( hashes );
 }
 
 void JsFbMetadbHandleList::Remove( JsFbMetadbHandle* handle )
@@ -686,7 +686,7 @@ void JsFbMetadbHandleList::ModifyFileInfoWithJson( const nlohmann::json& jsonObj
     auto jsonToString = []( const json& value ) {
         return ( value.type() == json::value_t::string
                      ? value.get<std::string>()
-                     : value.dump() );
+                     : value.dump( 2 ) );
     };
 
     const json& obj = jsonObject;

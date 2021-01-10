@@ -50,7 +50,7 @@ public:
     }
 };
 
-preferences_page_factory_t<js_preferences_page_impl> g_pref;
+FB2K_SERVICE_FACTORY( js_preferences_page_impl );
 
 } // namespace
 

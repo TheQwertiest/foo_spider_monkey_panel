@@ -7,21 +7,17 @@ struct JSContext;
 namespace mozjs
 {
 
-class JsScope
+class JsAutoRealmWithErrorReport
 {
 public:
-    JsScope( JSContext* cx, JS::HandleObject global, bool enableAutoReport = true )
+    JsAutoRealmWithErrorReport( JSContext* cx, JS::HandleObject global )
         : ac_( cx, global )
         , are_( cx )
     {
-        if ( !enableAutoReport )
-        {
-            are_.Disable();
-        }
     }
 
-    JsScope( const JsScope& ) = delete;
-    JsScope& operator=( const JsScope& ) = delete;
+    JsAutoRealmWithErrorReport( const JsAutoRealmWithErrorReport& ) = delete;
+    JsAutoRealmWithErrorReport& operator=( const JsAutoRealmWithErrorReport& ) = delete;
 
     void DisableReport()
     {

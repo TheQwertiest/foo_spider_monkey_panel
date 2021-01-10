@@ -407,7 +407,7 @@ std::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
               { "freq", frequency } } );
     }
 
-    return j.dump();
+    return j.dump( 2 );
 }
 
 JSObject* JsGdiBitmap::GetGraphics()
