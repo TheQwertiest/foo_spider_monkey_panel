@@ -24,6 +24,9 @@
 ___
 
 ## [Unreleased][]
+### Changed 
+- `window.Name` now returns panel name instead of script name.
+- `window.DefinePanel()` is marked as **\[Deprecated]**. Use `window.DefineScript()` instead.
 
 ## [1.3.1][] - 2020-07-18
 ### Fixed
@@ -40,7 +43,7 @@ ___
   - Added `ActiveXObject.ActiveX_CreateArray()` method.
   - Added `window.Tooltip` property.
   - Added `FbTooltip.SetFont()` method.
-  - Deprecated `window.CreateTooltip()` method.
+  - `window.CreateTooltip()` method is marked as **\[Deprecated]**. Use `window.Tooltip` instead.
 
 ### Changed
 - Updated SpiderMonkey JavaScript engine to 68.8.0 ESR:

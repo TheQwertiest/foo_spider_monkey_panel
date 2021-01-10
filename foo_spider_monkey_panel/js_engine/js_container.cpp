@@ -149,7 +149,7 @@ void JsContainer::Fail( const std::u8string& errorText )
     assert( pParentPanel_ );
     const std::u8string errorTextPadded = [pParentPanel = pParentPanel_, &errorText]() {
         std::u8string text =
-            fmt::format( "Error: " SMP_NAME_WITH_VERSION " ({})", pParentPanel->ScriptInfo().build_info_string() );
+            fmt::format( "Error: " SMP_NAME_WITH_VERSION " ({})", pParentPanel->GetPanelDescription() );
         if ( !errorText.empty() )
         {
             text += "\n";
@@ -173,28 +173,67 @@ bool JsContainer::ExecuteScript( const std::u8string& scriptCode )
     assert( jsGlobal_.initialized() );
     assert( JsStatus::Working == jsStatus_ );
 
-    isParsingScript_ = true;
-
     auto selfSaver = shared_from_this();
-    JsScope autoScope( pJsCtx_, jsGlobal_ );
+    isParsingScript_ = true;
+    const auto autoParseState = qwr::final_action( [&] { isParsingScript_ = false; } );
 
-    JS::SourceText<mozilla::Utf8Unit> source;
-    if ( !source.init( pJsCtx_, scriptCode.c_str(), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
+    JSAutoRealm ac( pJsCtx_, jsGlobal_ );
+    try
     {
+        JS::SourceText<mozilla::Utf8Unit> source;
+        if ( !source.init( pJsCtx_, scriptCode.c_str(), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
+        {
+            throw JsException();
+        }
+
+        JS::CompileOptions opts( pJsCtx_ );
+        opts.setFileAndLine( "<main>", 1 );
+
+        OnJsActionStart();
+        qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
+
+        JS::RootedValue dummyRval( pJsCtx_ );
+        if ( !JS::Evaluate( pJsCtx_, opts, source, &dummyRval ) )
+        {
+            throw JsException();
+        }
+        return true;
+    }
+    catch ( ... )
+    {
+        mozjs::error::ExceptionToJsError( pJsCtx_ );
+        Fail( mozjs::error::JsErrorToText( pJsCtx_ ) );
         return false;
     }
+}
 
-    JS::CompileOptions opts( pJsCtx_ );
-    opts.setFileAndLine( "<main>", 1 );
+bool JsContainer::ExecuteScriptFile( const std::filesystem::path& scriptPath )
+{
+    assert( pJsCtx_ );
+    assert( jsGlobal_.initialized() );
+    assert( JsStatus::Working == jsStatus_ );
 
-    OnJsActionStart();
-    qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
+    auto selfSaver = shared_from_this();
+    isParsingScript_ = true;
+    auto autoParseState = qwr::final_action( [&] { isParsingScript_ = false; } );
 
-    JS::RootedValue dummyRval( pJsCtx_ );
-    bool bRet = JS::Evaluate( pJsCtx_, opts, source, &dummyRval );
+    JSAutoRealm ac( pJsCtx_, jsGlobal_ );
+    try
+    {
 
-    isParsingScript_ = false;
-    return bRet;
+        OnJsActionStart();
+        qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
+
+        assert( pNativeGlobal_ );
+        pNativeGlobal_->IncludeScript( scriptPath.u8string() );
+        return true;
+    }
+    catch ( ... )
+    {
+        mozjs::error::ExceptionToJsError( pJsCtx_ );
+        Fail( mozjs::error::JsErrorToText( pJsCtx_ ) );
+        return false;
+    }
 }
 
 void JsContainer::RunJobs()

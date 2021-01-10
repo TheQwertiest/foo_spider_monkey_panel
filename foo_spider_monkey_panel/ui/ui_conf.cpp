@@ -25,6 +25,8 @@ constexpr auto k_DialogExtFilter = smp::to_array<COMDLG_FILTERSPEC>(
         { L"All files", L"*.*" },
     } );
 
+WINDOWPLACEMENT g_WindowPlacement{};
+
 } // namespace
 
 namespace smp::ui
@@ -49,31 +51,31 @@ LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
     DlgResize_Init();
 
     // Apply window placement
-    auto& windowPlacement = panelSettings.windowPlacement;
-    if ( windowPlacement.length == 0 )
+    if ( !g_WindowPlacement.length )
     {
-        windowPlacement.length = sizeof( WINDOWPLACEMENT );
+        WINDOWPLACEMENT tmpPlacement{};
+        tmpPlacement.length = sizeof( WINDOWPLACEMENT );
 
-        if ( !GetWindowPlacement( &windowPlacement ) )
+        if ( GetWindowPlacement( &tmpPlacement ) )
         {
-            memset( &windowPlacement, 0, sizeof( WINDOWPLACEMENT ) );
+            g_WindowPlacement = tmpPlacement;
         }
     }
     else
     {
-        SetWindowPlacement( &windowPlacement );
+        SetWindowPlacement( &g_WindowPlacement );
     }
 
     // GUID Text
-    const std::u8string guid_text = fmt::format( "GUID: {}", pfc::print_guid( panelSettings.guid ) );
-    uSetWindowText( GetDlgItem( IDC_STATIC_GUID ), guid_text.c_str() );
+    uSetWindowText( GetDlgItem( IDC_STATIC_GUID ), fmt::format( "Name: {}", panelSettings.panelId ).c_str() );
 
     // Edit Control
     sciEditor_.SubclassWindow( GetDlgItem( IDC_EDIT ) );
     sciEditor_.SetScintillaSettings();
     sciEditor_.SetJScript();
     sciEditor_.ReadAPI();
-    sciEditor_.SetContent( panelSettings.script.c_str(), true );
+    // TODO: replace with proper handling for multiple script types
+    sciEditor_.SetContent( panelSettings.script->c_str(), true );
     sciEditor_.SetSavePoint();
 
     // Edge Style
@@ -107,6 +109,16 @@ LRESULT CDialogConf::OnInitDialog( HWND, LPARAM )
 
 LRESULT CDialogConf::OnCloseCmd( WORD, WORD wID, HWND )
 {
+    // Window position
+    {
+        WINDOWPLACEMENT tmpPlacement{};
+        tmpPlacement.length = sizeof( WINDOWPLACEMENT );
+        if ( GetWindowPlacement( &tmpPlacement ) )
+        {
+            g_WindowPlacement = tmpPlacement;
+        }
+    }
+
     switch ( wID )
     {
     case IDOK:
@@ -156,27 +168,26 @@ void CDialogConf::Apply()
     std::vector<char> code( sciEditor_.GetTextLength() + 1 );
     sciEditor_.GetText( code.data(), code.size() );
 
-    auto& panelSettings = m_parent->GetSettings();
+    auto panelSettings = m_parent->GetSettings();
 
     if ( menu.GetMenuState( ID_EDGESTYLE_NONE, MF_BYCOMMAND ) & MF_CHECKED )
     {
-        panelSettings.edgeStyle = smp::config::EdgeStyle::NO_EDGE;
+        panelSettings.edgeStyle = smp::config::EdgeStyle::NoEdge;
     }
     else if ( menu.GetMenuState( ID_EDGESTYLE_GREY, MF_BYCOMMAND ) & MF_CHECKED )
     {
-        panelSettings.edgeStyle = smp::config::EdgeStyle::GREY_EDGE;
+        panelSettings.edgeStyle = smp::config::EdgeStyle::GreyEdge;
     }
     else if ( menu.GetMenuState( ID_EDGESTYLE_SUNKEN, MF_BYCOMMAND ) & MF_CHECKED )
     {
-        panelSettings.edgeStyle = smp::config::EdgeStyle::SUNKEN_EDGE;
+        panelSettings.edgeStyle = smp::config::EdgeStyle::SunkenEdge;
     }
 
     panelSettings.shouldGrabFocus = menu.GetMenuState( ID_PANELFEATURES_GRABFOCUS, MF_BYCOMMAND ) & MF_CHECKED;
     panelSettings.isPseudoTransparent = menu.GetMenuState( ID_PANELFEATURES_PSEUDOTRANSPARENT, MF_BYCOMMAND ) & MF_CHECKED;
-    m_parent->update_script( code.data() );
+    panelSettings.script = code.data();
 
-    // Window position
-    GetWindowPlacement( &panelSettings.windowPlacement );
+    m_parent->SetSettings( panelSettings );
 
     // Save point
     sciEditor_.SetSavePoint();
@@ -184,8 +195,6 @@ void CDialogConf::Apply()
 
 LRESULT CDialogConf::OnNotify( int, LPNMHDR pnmh )
 {
-    // SCNotification* notification = reinterpret_cast<SCNotification*>( pnmh );
-
     switch ( pnmh->code )
     {
     case SCN_SAVEPOINTLEFT:
@@ -264,7 +273,7 @@ LRESULT CDialogConf::OnFileExport( WORD, WORD, HWND )
 
 LRESULT CDialogConf::OnEditResetDefault( WORD, WORD, HWND )
 {
-    sciEditor_.SetContent( smp::config::PanelSettings::GetDefaultScript().c_str() );
+    sciEditor_.SetContent( smp::config::PanelSettings_InMemory::GetDefaultScript().c_str() );
     return 0;
 }
 

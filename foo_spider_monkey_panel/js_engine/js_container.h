@@ -4,6 +4,7 @@
 
 #include <qwr/final_action.h>
 
+#include <filesystem>
 #include <optional>
 
 class HostTimerTask;
@@ -54,6 +55,7 @@ public:
     JsStatus GetStatus() const;
 
     bool ExecuteScript( const std::u8string& scriptCode );
+    bool ExecuteScriptFile( const std::filesystem::path& scriptPath );
 
     static void RunJobs();
 

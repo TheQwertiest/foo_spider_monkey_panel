@@ -2,6 +2,7 @@
 
 #include "js_panel_window.h"
 
+#include <com_objects/host_drop_target.h>
 #include <js_engine/js_container.h>
 #include <panel/com_message_scope.h>
 #include <panel/drop_action_params.h>
@@ -16,6 +17,7 @@
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
 #include <qwr/final_action.h>
+#include <qwr/winapi_error_helpers.h>
 
 namespace
 {
@@ -24,9 +26,9 @@ DWORD ConvertEdgeStyleToNativeFlags( smp::config::EdgeStyle edge_style )
 {
     switch ( edge_style )
     {
-    case smp::config::EdgeStyle::SUNKEN_EDGE:
+    case smp::config::EdgeStyle::SunkenEdge:
         return WS_EX_CLIENTEDGE;
-    case smp::config::EdgeStyle::GREY_EDGE:
+    case smp::config::EdgeStyle::GreyEdge:
         return WS_EX_STATICEDGE;
     default:
         return 0;
@@ -45,7 +47,6 @@ namespace smp::panel
 
 js_panel_window::js_panel_window( PanelType instanceType )
     : panelType_( instanceType )
-    , m_script_info( settings_.guid )
 {
 }
 
@@ -70,24 +71,90 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
     return my_class_data;
 }
 
-void js_panel_window::update_script( const char* code )
-{
-    if ( code )
-    {
-        settings_.script = code;
-    }
-
-    if ( pJsContainer_ )
-    { // Panel might be not loaded at all, if settings are changed from Preferences.
-        script_unload();
-        script_load( false );
-    }
-}
-
 void js_panel_window::JsEngineFail( const std::u8string& errorText )
 {
     qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
     wnd_.SendMessage( static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
+}
+
+const config::ParsedPanelSettings& js_panel_window::GetSettings() const
+{
+    return settings_;
+}
+
+config::PanelProperties& js_panel_window::GetPanelProperties()
+{
+    return properties_;
+}
+
+void js_panel_window::ReloadScript()
+{
+    if ( pJsContainer_ )
+    { // Panel might be not loaded at all, if settings are changed from Preferences.
+        UnloadScript();
+        if ( !ReloadSettings() )
+        {
+            return;
+        }
+        LoadScript( false );
+    }
+}
+
+void js_panel_window::SetSettings( const smp::config::ParsedPanelSettings& settings )
+{
+    settings_ = settings;
+    ReloadScript();
+}
+
+bool js_panel_window::UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel )
+{
+    try
+    {
+        settings_ = config::ParsedPanelSettings::Parse( settings );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        JsEngineFail( e.what() );
+        return false;
+    }
+
+    properties_ = settings.properties;
+
+    if ( reloadPanel )
+    {
+        ReloadScript();
+    }
+    return true;
+}
+
+bool js_panel_window::SaveSettings( stream_writer& writer, abort_callback& abort ) const
+{
+    try
+    {
+        auto settings = settings_.GeneratePanelSettings();
+        settings.properties = properties_;
+        settings.Save( writer, abort );
+        return true;
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        return false;
+    }
+}
+
+bool js_panel_window::ReloadSettings()
+{
+    try
+    {
+        settings_ = config::ParsedPanelSettings::Reparse( settings_ );
+        return true;
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        JsEngineFail( e.what() );
+        return false;
+    }
 }
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -218,7 +285,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     {
     case WM_DISPLAYCHANGE:
     case WM_THEMECHANGED:
-        update_script();
+        ReloadScript();
         return 0;
 
     case WM_ERASEBKGND:
@@ -606,7 +673,7 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
     }
     case InternalSyncMessage::terminate_script:
     {
-        script_unload();
+        UnloadScript();
         return 0;
     }
     case InternalSyncMessage::update_size_on_reload:
@@ -658,7 +725,7 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     }
     case InternalAsyncMessage::reload_script:
     {
-        update_script();
+        ReloadScript();
         return 0;
     }
     case InternalAsyncMessage::show_configure:
@@ -722,7 +789,7 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
     {
     case 1:
     {
-        update_script();
+        ReloadScript();
         break;
     }
     case 2:
@@ -749,9 +816,32 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
     }
 }
 
-GUID js_panel_window::GetGUID()
+std::u8string js_panel_window::GetPanelId()
 {
-    return settings_.guid;
+    return settings_.panelId;
+}
+
+std::u8string js_panel_window::GetPanelDescription( bool includeVersionAndAuthor )
+{
+    std::u8string ret = fmt::format( "{}", settings_.panelId );
+
+    if ( !settings_.scriptName.empty() )
+    {
+        ret += fmt::format( ": {}", settings_.scriptName );
+        if ( includeVersionAndAuthor )
+        {
+            if ( !settings_.scriptVersion.empty() )
+            {
+                ret += fmt::format( " v{}", settings_.scriptVersion );
+            }
+            if ( !settings_.scriptAuthor.empty() )
+            {
+                ret += fmt::format( " by {}", settings_.scriptAuthor );
+            }
+        }
+    }
+
+    return ret;
 }
 
 HDC js_panel_window::GetHDC() const
@@ -784,11 +874,6 @@ int js_panel_window::GetWidth() const
     return width_;
 }
 
-PanelInfo& js_panel_window::ScriptInfo()
-{
-    return m_script_info;
-}
-
 t_size& js_panel_window::DlgCode()
 {
     return dlgCode_;
@@ -797,6 +882,38 @@ t_size& js_panel_window::DlgCode()
 PanelType js_panel_window::GetPanelType() const
 {
     return panelType_;
+}
+
+void js_panel_window::SetScriptInfo( const std::u8string& scriptName, const std::u8string& scriptAuthor, const std::u8string& scriptVersion )
+{
+    settings_.scriptName = scriptName;
+    settings_.scriptAuthor = scriptAuthor;
+    settings_.scriptVersion = scriptVersion;
+}
+
+void js_panel_window::SetDragAndDropStatus( bool isEnabled )
+{
+    settings_.enableDragDrop = isEnabled;
+    if ( isEnabled )
+    {
+        dropTargetHandler_.Attach( new com_object_impl_t<com::HostDropTarget>( wnd_ ) );
+
+        HRESULT hr = dropTargetHandler_->RegisterDragDrop();
+        qwr::error::CheckHR( hr, "RegisterDragDrop" );
+    }
+    else
+    {
+        if ( dropTargetHandler_ )
+        {
+            dropTargetHandler_->RevokeDragDrop();
+            dropTargetHandler_.Release();
+        }
+    }
+}
+
+void js_panel_window::SetCaptureFocusStatus( bool isEnabled )
+{
+    settings_.shouldGrabFocus = isEnabled;
 }
 
 void js_panel_window::Repaint( bool force /*= false */ )
@@ -866,13 +983,13 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
     }
 
     wnd_.SetWindowRgn( nullptr, FALSE );
-    if ( smp::config::EdgeStyle::NO_EDGE != settings_.edgeStyle )
+    if ( smp::config::EdgeStyle::NoEdge != settings_.edgeStyle )
     {
         wnd_.SendMessage( WM_NCPAINT, 1, 0 );
     }
 }
 
-bool js_panel_window::script_load( bool isFirstLoad )
+bool js_panel_window::LoadScript( bool isFirstLoad )
 {
     pfc::hires_timer timer;
     timer.start();
@@ -899,14 +1016,25 @@ bool js_panel_window::script_load( bool isFirstLoad )
         return false;
     }
 
-    if ( !pJsContainer_->ExecuteScript( settings_.script ) )
-    { // error reporting handled inside
-        return false;
+    if ( settings_.script )
+    {
+        if ( !pJsContainer_->ExecuteScript( *settings_.script ) )
+        { // error reporting handled inside
+            return false;
+        }
+    }
+    else
+    {
+        assert( settings_.scriptPath );
+        if ( !pJsContainer_->ExecuteScriptFile( *settings_.scriptPath ) )
+        { // error reporting handled inside
+            return false;
+        }
     }
 
     FB2K_console_formatter() << fmt::format(
         SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",
-        ScriptInfo().build_info_string(),
+        GetPanelDescription(),
         static_cast<uint32_t>( timer.query() * 1000 ) );
 
     if ( !isFirstLoad )
@@ -918,18 +1046,24 @@ bool js_panel_window::script_load( bool isFirstLoad )
     return true;
 }
 
-void js_panel_window::script_unload()
+void js_panel_window::UnloadScript()
 {
     pJsContainer_->InvokeJsCallback( "on_script_unload" );
     message_manager::instance().DisableAsyncMessages( wnd_ );
-    ScriptInfo().clear();
     selectionHolder_.release();
+    try
+    {
+        SetDragAndDropStatus( false );
+    }
+    catch ( const qwr::QwrException& )
+    {
+    }
     pJsContainer_->Finalize();
 }
 
-void js_panel_window::create_context()
+void js_panel_window::CreateDrawContext()
 {
-    delete_context();
+    DeleteDrawContext();
 
     bmp_.CreateCompatibleBitmap( hDc_, width_, height_ );
 
@@ -939,7 +1073,7 @@ void js_panel_window::create_context()
     }
 }
 
-void js_panel_window::delete_context()
+void js_panel_window::DeleteDrawContext()
 {
     if ( bmp_ )
     {
@@ -987,30 +1121,30 @@ void js_panel_window::on_panel_create( HWND hWnd )
     width_ = rc.Width();
     height_ = rc.Height();
 
-    create_context();
+    CreateDrawContext();
 
     message_manager::instance().AddWindow( wnd_ );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
-    script_load( true );
+    LoadScript( true );
 }
 
 void js_panel_window::on_panel_destroy()
 {
     // Careful when changing invocation order here!
 
-    script_unload();
+    UnloadScript();
     pJsContainer_.reset();
 
     message_manager::instance().RemoveWindow( wnd_ );
-    delete_context();
+    DeleteDrawContext();
     ReleaseDC( wnd_, hDc_ );
 }
 
 void js_panel_window::on_script_error()
 {
     Repaint();
-    script_unload();
+    UnloadScript();
 }
 
 void js_panel_window::on_js_task( CallbackData& callbackData )
@@ -1581,8 +1715,8 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
     width_ = w;
     height_ = h;
 
-    delete_context();
-    create_context();
+    DeleteDrawContext();
+    CreateDrawContext();
 
     pJsContainer_->InvokeJsCallback( "on_size",
                                      static_cast<uint32_t>( w ),
@@ -1603,16 +1737,6 @@ void js_panel_window::on_volume_change( CallbackData& callbackData )
     auto& data = callbackData.GetData<float>();
     pJsContainer_->InvokeJsCallback( "on_volume_change",
                                      std::get<0>( data ) );
-}
-
-config::PanelSettings& js_panel_window::GetSettings()
-{
-    return settings_;
-}
-
-const config::PanelSettings& js_panel_window::GetSettings() const
-{
-    return settings_;
 }
 
 } // namespace smp::panel

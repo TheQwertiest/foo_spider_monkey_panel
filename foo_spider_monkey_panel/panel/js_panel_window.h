@@ -1,10 +1,15 @@
 #pragma once
 
-#include <fb2k/config.h>
+#include <config/parsed_panel_config.h>
 #include <panel/panel_info.h>
 #include <panel/user_message.h>
 
 #include <queue>
+
+namespace smp::com
+{
+class IDropTargetImpl;
+}
 
 namespace mozjs
 {
@@ -22,7 +27,6 @@ enum class PanelType : uint8_t
     DUI = 1
 };
 
-// TODO: split this class somehow
 class js_panel_window
     : public ui_helpers::container_window
 {
@@ -34,8 +38,39 @@ public:
     // ui_helpers::container_window
     [[nodiscard]] class_data& get_class_data() const override;
 
-    void update_script( const char* code = nullptr );
+    void ReloadScript();
+    void SetSettings( const smp::config::ParsedPanelSettings& settings );
+    bool UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel = true );
+    bool SaveSettings( stream_writer& writer, abort_callback& abort ) const;
+
     void JsEngineFail( const std::u8string& errorText );
+
+    void Repaint( bool force = false );
+    void RepaintRect( const CRect& rc, bool force = false );
+    /// @details Calls Repaint inside
+    void RepaintBackground( const CRect& updateRc );
+
+public: // accessors
+    [[nodiscard]] std::u8string GetPanelId();
+    [[nodiscard]] std::u8string GetPanelDescription( bool includeVersionAndAuthor = true );
+    [[nodiscard]] HDC GetHDC() const;
+    [[nodiscard]] HWND GetHWND() const;
+    [[nodiscard]] POINT& MaxSize();
+    [[nodiscard]] POINT& MinSize();
+    [[nodiscard]] int GetHeight() const;
+    [[nodiscard]] int GetWidth() const;
+    [[nodiscard]] const config::ParsedPanelSettings& GetSettings() const;
+    [[nodiscard]] config::PanelProperties& GetPanelProperties();
+
+    [[nodiscard]] t_size& DlgCode();
+    [[nodiscard]] PanelType GetPanelType() const;
+    virtual DWORD GetColour( unsigned type, const GUID& guid ) = 0;
+    virtual HFONT GetFont( unsigned type, const GUID& guid ) = 0;
+
+    void SetScriptInfo( const std::u8string& scriptName, const std::u8string& scriptAuthor, const std::u8string& scriptVersion );
+    /// @throw qwr::QwrException
+    void SetDragAndDropStatus( bool isEnabled );
+    void SetCaptureFocusStatus( bool isEnabled );
 
 protected:
     virtual void notify_size_limit_changed( LPARAM lp ) = 0;
@@ -50,6 +85,13 @@ protected:
     void execute_context_menu_command( uint32_t id, uint32_t id_base );
 
 private:
+    bool ReloadSettings();
+    bool LoadScript( bool isFirstLoad );
+    void UnloadScript();
+    void CreateDrawContext();
+    void DeleteDrawContext();
+
+private: // callback handling
     std::optional<LRESULT> process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_async_messages( UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_main_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
@@ -58,60 +100,6 @@ private:
     std::optional<LRESULT> process_player_messages( PlayerMessage msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp );
-
-public:
-    [[nodiscard]] GUID GetGUID();
-    [[nodiscard]] HDC GetHDC() const;
-    [[nodiscard]] HWND GetHWND() const;
-    [[nodiscard]] POINT& MaxSize();
-    [[nodiscard]] POINT& MinSize();
-    [[nodiscard]] int GetHeight() const;
-    [[nodiscard]] int GetWidth() const;
-    [[nodiscard]] PanelInfo& ScriptInfo();
-
-    [[nodiscard]] t_size& DlgCode();
-    [[nodiscard]] PanelType GetPanelType() const;
-    virtual DWORD GetColour( unsigned type, const GUID& guid ) = 0;
-    virtual HFONT GetFont( unsigned type, const GUID& guid ) = 0;
-
-    void Repaint( bool force = false );
-    void RepaintRect( const CRect& rc, bool force = false );
-    /// @details Calls Repaint inside
-    void RepaintBackground( const CRect& updateRc );
-
-    [[nodiscard]] config::PanelSettings& GetSettings();
-    [[nodiscard]] const config::PanelSettings& GetSettings() const;
-
-private:
-    const PanelType panelType_;
-    config::PanelSettings settings_;
-
-    std::shared_ptr<mozjs::JsContainer> pJsContainer_;
-
-    CWindow wnd_;
-    HDC hDc_ = nullptr;
-
-    PanelInfo m_script_info; // TODO: move to JsContainer
-
-    uint32_t height_ = 0;     // Used externally as well
-    uint32_t width_ = 0;      // Used externally as well
-    CBitmap bmp_ = nullptr;   // used only internally
-    CBitmap bmpBg_ = nullptr; // used only internally
-
-    bool isBgRepaintNeeded_ = false;           // used only internally
-    bool isPaintInProgress_ = false;           // used only internally
-    bool isMouseTracked_ = false;              // used only internally
-    ui_selection_holder::ptr selectionHolder_; // used only internally
-
-    size_t dlgCode_ = 0;                   // modified only from external
-    POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
-    POINT minSize_ = { 0, 0 };             // modified only from external
-
-private:
-    bool script_load( bool isFirstLoad );
-    void script_unload();
-    void create_context();
-    void delete_context();
 
     // Internal callbacks
     void on_context_menu( int x, int y );
@@ -180,6 +168,32 @@ private:
     void on_selection_changed();
     void on_size( uint32_t w, uint32_t h );
     void on_volume_change( CallbackData& callbackData );
+
+private:
+    const PanelType panelType_;
+    config::ParsedPanelSettings settings_;
+    config::PanelProperties properties_;
+
+    std::shared_ptr<mozjs::JsContainer> pJsContainer_;
+
+    CWindow wnd_;
+    HDC hDc_ = nullptr;
+
+    uint32_t height_ = 0;     // Used externally as well
+    uint32_t width_ = 0;      // Used externally as well
+    CBitmap bmp_ = nullptr;   // used only internally
+    CBitmap bmpBg_ = nullptr; // used only internally
+
+    bool isBgRepaintNeeded_ = false;           // used only internally
+    bool isPaintInProgress_ = false;           // used only internally
+    bool isMouseTracked_ = false;              // used only internally
+    ui_selection_holder::ptr selectionHolder_; // used only internally
+
+    CComPtr<smp::com::IDropTargetImpl> dropTargetHandler_; // used only internally
+
+    size_t dlgCode_ = 0;                   // modified only from external
+    POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
+    POINT minSize_ = { 0, 0 };             // modified only from external
 };
 
 } // namespace smp::panel

@@ -2,6 +2,7 @@
 
 #include "js_panel_window_cui.h"
 
+#include <com_objects/drop_target_impl.h>
 #include <panel/message_manager.h>
 #include <panel/user_message.h>
 #include <utils/colour_helpers.h>
@@ -158,7 +159,7 @@ void js_panel_window_cui::get_category( pfc::string_base& out ) const
 
 void js_panel_window_cui::get_config( stream_writer* writer, abort_callback& abort ) const
 {
-    GetSettings().Save( *writer, abort );
+    SaveSettings( *writer, abort );
 }
 
 void js_panel_window_cui::get_name( pfc::string_base& out ) const
@@ -168,7 +169,6 @@ void js_panel_window_cui::get_name( pfc::string_base& out ) const
 
 void js_panel_window_cui::on_bool_changed( t_size ) const
 {
-    // TODO: may be implemented one day
 }
 
 void js_panel_window_cui::on_colour_changed( t_size ) const
@@ -183,7 +183,8 @@ void js_panel_window_cui::on_font_changed( t_size ) const
 
 void js_panel_window_cui::set_config( stream_reader* reader, t_size size, abort_callback& abort )
 {
-    GetSettings().Load( *reader, size, abort );
+    const auto settings = smp::config::PanelSettings::Load( *reader, size, abort );
+    UpdateSettings( settings, false );
 }
 
 void js_panel_window_cui::notify_size_limit_changed( LPARAM lp )

@@ -241,12 +241,6 @@
     <ClCompile Include="fb2k\mainmenu.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="fb2k\config.cpp">
-      <Filter>fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="fb2k\config_legacy.cpp">
-      <Filter>fb2k</Filter>
-    </ClCompile>
     <ClCompile Include="panel\message_blocking_scope.cpp">
       <Filter>panel</Filter>
     </ClCompile>
@@ -284,6 +278,21 @@
     </ClCompile>
     <ClCompile Include="fb2k\advanced_config.cpp">
       <Filter>fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="config\panel_config.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\panel_config_binary.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\panel_config_com.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\panel_config_json.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\parsed_panel_config.cpp">
+      <Filter>config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -566,12 +575,6 @@
     <ClInclude Include="fb2k\stats.h">
       <Filter>fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="fb2k\config.h">
-      <Filter>fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="fb2k\config_legacy.h">
-      <Filter>fb2k</Filter>
-    </ClInclude>
     <ClInclude Include="panel\message_blocking_scope.h">
       <Filter>panel</Filter>
     </ClInclude>
@@ -623,6 +626,21 @@
       <Filter>fb2k</Filter>
     </ClInclude>
     <ClInclude Include="component_defines.h" />
+    <ClInclude Include="config\panel_config_com.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_config_json.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_config_binary.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_config.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\parsed_panel_config.h">
+      <Filter>config</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="default.js">
@@ -673,6 +691,9 @@
     </Filter>
     <Filter Include="resources">
       <UniqueIdentifier>{c5622339-902d-4569-9e43-3a9dab7b21a7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config">
+      <UniqueIdentifier>{3a9d2773-53cc-42cc-8c4d-b8e23af110e5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

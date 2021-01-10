@@ -2,7 +2,6 @@
 
 #include "window.h"
 
-#include <com_objects/host_drop_target.h>
 #include <js_engine/host_timer_dispatcher.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_invoker.h>
@@ -190,11 +189,6 @@ void JsWindow::PrepareForGc()
         fbProperties_->PrepareForGc();
         fbProperties_.reset();
     }
-    if ( dropTargetHandler_ )
-    {
-        dropTargetHandler_->RevokeDragDrop();
-        dropTargetHandler_.Release();
-    }
     if ( pNativeTooltip_ )
     {
         assert( pNativeTooltip_ );
@@ -289,37 +283,40 @@ JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring
 
 void JsWindow::DefinePanel( const std::u8string& name, JS::HandleValue options )
 {
+    DefineScript( name, options );
+}
+
+void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options )
+{
+    DefineScriptWithOpt( optArgCount, name, options );
+}
+
+void JsWindow::DefineScript( const std::u8string& name, JS::HandleValue options )
+{
     if ( isFinalized_ )
     {
         return;
     }
 
-    qwr::QwrException::ExpectTrue( !isPanelDefined_, "DefinePanel can't be called twice" );
+    qwr::QwrException::ExpectTrue( !isScriptDefined_, "DefineScript can't be called twice" );
 
-    const auto parsedOptions = ParseDefinePanelOptions( options );
+    const auto parsedOptions = ParseDefineScriptOptions( options );
 
-    parentPanel_.ScriptInfo().name = name;
-    parentPanel_.ScriptInfo().author = parsedOptions.author;
-    parentPanel_.ScriptInfo().version = parsedOptions.version;
-    if ( parsedOptions.features.drag_n_drop )
-    {
-        dropTargetHandler_.Attach( new com_object_impl_t<com::HostDropTarget>( parentPanel_.GetHWND() ) );
+    parentPanel_.SetScriptInfo( name, parsedOptions.author, parsedOptions.version );
+    parentPanel_.SetDragAndDropStatus( parsedOptions.features.dragAndDrop );
+    parentPanel_.SetCaptureFocusStatus( parsedOptions.features.grabFocus );
 
-        HRESULT hr = dropTargetHandler_->RegisterDragDrop();
-        qwr::error::CheckHR( hr, "RegisterDragDrop" );
-    }
-
-    isPanelDefined_ = true;
+    isScriptDefined_ = true;
 }
 
-void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options )
+void JsWindow::DefineScriptWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options )
 {
     switch ( optArgCount )
     {
     case 0:
-        return DefinePanel( name, options );
+        return DefineScript( name, options );
     case 1:
-        return DefinePanel( name );
+        return DefineScript( name );
     default:
         throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
@@ -766,15 +763,7 @@ std::u8string JsWindow::get_Name()
         return std::u8string{};
     }
 
-    if ( const auto& name = parentPanel_.ScriptInfo().name;
-         !name.empty() )
-    {
-        return name;
-    }
-    else
-    {
-        return pfc::print_guid( parentPanel_.GetGUID() ).get_ptr();
-    }
+    return parentPanel_.GetPanelId();
 }
 
 uint64_t JsWindow::get_PanelMemoryUsage()
@@ -867,9 +856,9 @@ void JsWindow::put_MinWidth( uint32_t width )
     PostMessage( parentPanel_.GetHWND(), static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_minimum_width, 0 );
 }
 
-JsWindow::DefinePanelOptions JsWindow::ParseDefinePanelOptions( JS::HandleValue options )
+JsWindow::DefineScriptOptions JsWindow::ParseDefineScriptOptions( JS::HandleValue options )
 {
-    DefinePanelOptions parsedOptions;
+    DefineScriptOptions parsedOptions;
     if ( !options.isNullOrUndefined() )
     {
         qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
@@ -895,7 +884,8 @@ JsWindow::DefinePanelOptions JsWindow::ParseDefinePanelOptions( JS::HandleValue 
             qwr::QwrException::ExpectTrue( jsFeaturesValue.isObject(), "`features` is not an object" );
 
             JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
-            parsedOptions.features.drag_n_drop = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "drag_n_drop" ).value_or( false );
+            parsedOptions.features.dragAndDrop = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "drag_n_drop" ).value_or( false );
+            parsedOptions.features.grabFocus = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "grab_focus" ).value_or( true );
         }
     }
 

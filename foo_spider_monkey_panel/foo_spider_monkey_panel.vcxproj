@@ -128,6 +128,11 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="config\panel_config.cpp" />
+    <ClCompile Include="config\panel_config_binary.cpp" />
+    <ClCompile Include="config\panel_config_com.cpp" />
+    <ClCompile Include="config\panel_config_json.cpp" />
+    <ClCompile Include="config\parsed_panel_config.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="com_objects\com_tools.cpp" />
     <ClCompile Include="com_objects\drop_source_impl.cpp" />
@@ -141,8 +146,6 @@
     <ClCompile Include="convert\native_to_js.cpp" />
     <ClCompile Include="fb2k\acfu_integration.cpp" />
     <ClCompile Include="fb2k\advanced_config.cpp" />
-    <ClCompile Include="fb2k\config.cpp" />
-    <ClCompile Include="fb2k\config_legacy.cpp" />
     <ClCompile Include="fb2k\fb2k_callbacks.cpp" />
     <ClCompile Include="fb2k\mainmenu.cpp" />
     <ClCompile Include="fb2k\stats.cpp" />
@@ -243,12 +246,15 @@
     <ClInclude Include="com_objects\internal\drag_utils.h" />
     <ClInclude Include="com_objects\internal\handle.h" />
     <ClInclude Include="com_objects\com_interface.h" />
+    <ClInclude Include="config\panel_config.h" />
+    <ClInclude Include="config\panel_config_binary.h" />
+    <ClInclude Include="config\panel_config_com.h" />
+    <ClInclude Include="config\panel_config_json.h" />
+    <ClInclude Include="config\parsed_panel_config.h" />
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="fb2k\advanced_config.h" />
-    <ClInclude Include="fb2k\config.h" />
-    <ClInclude Include="fb2k\config_legacy.h" />
     <ClInclude Include="fb2k\stats.h" />
     <ClInclude Include="js_engine\heartbeat_window.h" />
     <ClInclude Include="js_engine\host_timer_dispatcher.h" />

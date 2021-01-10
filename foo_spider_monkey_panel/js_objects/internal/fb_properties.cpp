@@ -52,7 +52,7 @@ JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleVal
     }
     else
     {
-        auto& panelPropertyValues = parentPanel_.GetSettings().properties.values;
+        auto& panelPropertyValues = parentPanel_.GetPanelProperties().values;
 
         auto it = panelPropertyValues.find( trimmedPropName );
         if ( it != panelPropertyValues.end() )
@@ -82,7 +82,7 @@ void FbProperties::SetProperty( const std::wstring& propName, JS::HandleValue pr
 {
     const std::wstring trimmedPropName( qwr::string::Trim<wchar_t>( propName ) );
 
-    auto& panelPropertyValues = parentPanel_.GetSettings().properties.values;
+    auto& panelPropertyValues = parentPanel_.GetPanelProperties().values;
 
     if ( propValue.isNullOrUndefined() )
     {
