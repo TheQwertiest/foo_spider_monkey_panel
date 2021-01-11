@@ -133,12 +133,6 @@
     <ClCompile Include="ui\ui_pref.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ui_property.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ui_conf.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_input_box.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -294,6 +288,33 @@
     <ClCompile Include="config\parsed_panel_config.cpp">
       <Filter>config</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ui_editor.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_conf_new.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_conf_tab_appearance.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_conf_tab_script_source.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_edit_in_progress.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_conf_tab_properties.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\edit_text.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\config.cpp">
+      <Filter>fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\scintilla\sci_config.cpp">
+      <Filter>ui\scintilla</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -447,12 +468,6 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_pref.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ui_property.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ui_conf.h">
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_input_box.h">
@@ -640,6 +655,36 @@
     </ClInclude>
     <ClInclude Include="config\parsed_panel_config.h">
       <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_editor.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_itab.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf_new.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf_tab_appearance.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf_tab_script_source.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_edit_in_progress.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf_tab_properties.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\edit_text.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fb2k\config.h">
+      <Filter>fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\scintilla\sci_config.h">
+      <Filter>ui\scintilla</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

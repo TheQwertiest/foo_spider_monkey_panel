@@ -4,7 +4,7 @@
 
 #include <map>
 
-namespace smp::ui::sci
+namespace smp::config::sci
 {
 
 struct ScintillaProp
@@ -16,7 +16,7 @@ struct ScintillaProp
 
 using ScintillaPropList = std::vector<ScintillaProp>;
 
-class ScintillaCfg : public cfg_var
+class ScintillaPropsCfg : public cfg_var
 {
 public:
     struct DefaultPropValue
@@ -26,7 +26,7 @@ public:
     };
 
 public:
-    ScintillaCfg( const GUID& p_guid, nonstd::span<const DefaultPropValue> p_default );
+    ScintillaPropsCfg( const GUID& p_guid );
 
     [[nodiscard]] ScintillaPropList& val();
     [[nodiscard]] const ScintillaPropList& val() const;
@@ -55,6 +55,4 @@ private:
     ScintillaPropList m_data;
 };
 
-extern ScintillaCfg g_scintillaCfg;
-
-} // namespace scintilla
+} // namespace smp::config::sci

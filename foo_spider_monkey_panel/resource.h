@@ -11,12 +11,17 @@
 #define IDD_DIALOG_PREFERENCE              107
 #define IDD_DIALOG_NAME_VALUE              108
 #define IDD_DIALOG_PROPERTIES              109
-#define IDAPPLY                            110
 #define IDD_DIALOG_HTML                    111
+#define IDD_DIALOG_EDITOR                  112
 #define IDR_MENU_CONF                      115
 #define IDD_DIALOG_SLOWSCRIPT              116
 #define IDD_FINDDLGORD_WITH_REGEXP         117
 #define IDD_REPLACEDLGORD_WITH_REGEXP      118
+#define IDD_DIALOG_CONF                    119
+#define IDD_DIALOG_CONF_TAB_SIMPLE_SCRIPT  120
+#define IDD_DIALOG_EDIT_IN_PROGRESS        121
+#define IDR_MENU_EDITOR                    122
+#define IDD_DIALOG_PACKAGE_MANAGER         126
 #define IDC_STATIC_GUID                    1000
 #define IDC_EDIT                           1001
 #define IDC_DEL                            1010
@@ -51,6 +56,46 @@
 #define IDC_SLOWSCRIPT_SCRIPT_NAME         1069
 #define IDC_CHECK_USE_REGEXP               1070
 #define IDC_CHECK_WRAPAROUND               1071
+#define IDD_DIALOG_CONF_TAB_APPEARANCE     1072
+#define IDC_TAB_CONF                       1073
+#define IDC_COMBO_SRC_SAMPLE               1074
+#define IDC_TEXTEDIT_SRC_PATH              1075
+#define IDC_BUTTON_EDIT_SCRIPT             1076
+#define IDC_RADIO_SRC_SAMPLE               1077
+#define IDC_RADIO_SRC_FILE                 1078
+#define IDC_RADIO_SRC_MEMORY               1079
+#define IDC_RADIO_EDGE_NO                  1082
+#define IDC_RADIO_EDGE_SUNKEN              1083
+#define IDC_RADIO_EDGE_GREY                1084
+#define IDC_CHECK_PSEUDOTRANSPARENT        1085
+#define IDC_EDIT_IN_PROGRESS_FOCUS         1086
+#define IDC_LIST_PACKAGE_FILES             1087
+#define IDC_EDIT_PACKAGE_NAME              1088
+#define IDC_EDIT_PACKAGE_AUTHOR            1089
+#define IDC_EDIT_PACKAGE_VERSION           1090
+#define IDC_EDIT_PACKAGE_DESCRIPTION       1091
+#define IDC_BUTTON_ADD_FILE                1092
+#define IDC_BUTTON_REMOVE_FILE             1093
+#define IDC_BUTTON_OPEN_FOLDER             1094
+#define IDC_RADIO_SRC_PACKAGE              1095
+#define IDC_BUTTON_BROWSE                  1096
+#define IDC_BUTTON_OPEN_PKG_MGR            1097
+#define IDC_BUTTON_NEW_ACTION              1098
+#define IDC_BUTTON_DELETE_ACTION           1099
+#define IDC_CHECK_SHOULD_GRAB_FOCUS        1100
+#define IDC_CHECK_ENABLE_DRAG_N_DROP       1101
+#define IDD_DIALOG_CONF_TAB_PACKAGE        1102
+#define IDD_DIALOG_CONF_TAB_PACKAGE_OPTS   1103
+#define IDC_BUTTON_EDIT_ACTION             1104
+#define IDC_BUTTON_RENAME_FILE             1105
+#define IDC_TEXTEDIT_SRC_PACKAGE           1106
+#define IDC_LIST_MENU_ACTIONS              1107
+#define IDC_LIST_PACKAGES                  1108
+#define IDC_BUTTON_NEW_PACKAGE             1109
+#define IDC_BUTTON_DELETE_PACKAGE          1110
+#define IDC_BUTTON_EXPORT_PACKAGE          1111
+#define IDC_BUTTON_IMPORT_PACKAGE          1112
+#define IDC_RICHEDIT_PACKAGE_INFO          1113
 #define ID_FILE_IMPORT                     40014
 #define ID_FILE_EXPORT                     40015
 #define ID_EDIT_RESETTODEFAULT             40016
@@ -59,14 +104,17 @@
 #define ID_EDGESTYLE_GREY                  40021
 #define ID_PANELFEATURES_PSEUDOTRANSPARENT 40022
 #define ID_PANELFEATURES_GRABFOCUS         40023
+#define IDAPPLY                            40024
+#define ID_EDIT_WITH_INTERNAL              40028
+#define ID_EDIT_WITH_EXTERNAL              40029
 
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED
 #    ifndef APSTUDIO_READONLY_SYMBOLS
-#        define _APS_NEXT_RESOURCE_VALUE 119
-#        define _APS_NEXT_COMMAND_VALUE  40024
-#        define _APS_NEXT_CONTROL_VALUE  1072
+#        define _APS_NEXT_RESOURCE_VALUE 128
+#        define _APS_NEXT_COMMAND_VALUE  40030
+#        define _APS_NEXT_CONTROL_VALUE  1114
 #        define _APS_NEXT_SYMED_VALUE    101
 #    endif
 #endif

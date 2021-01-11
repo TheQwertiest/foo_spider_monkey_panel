@@ -2,7 +2,7 @@
 
 #include "ui_pref.h"
 
-#include <ui/scintilla/sci_prop_sets.h>
+#include <ui/scintilla/sci_config.h>
 #include <ui/ui_name_value_edit.h>
 #include <utils/array_x.h>
 
@@ -11,8 +11,6 @@
 #include <filesystem>
 
 namespace fs = std::filesystem;
-
-using namespace smp::ui::sci;
 
 namespace
 {
@@ -93,10 +91,10 @@ void CDialogPref::LoadProps( bool reset )
 {
     if ( reset )
     {
-        g_scintillaCfg.reset();
+        config::sci::props.reset();
     }
 
-    const auto& prop_sets = g_scintillaCfg.val();
+    const auto& prop_sets = config::sci::props.val();
 
     m_props.DeleteAllItems();
 
@@ -117,7 +115,7 @@ LRESULT CDialogPref::OnPropNMDblClk( LPNMHDR pnmh )
 
     if ( pniv->iItem >= 0 )
     {
-        auto& prop_sets = g_scintillaCfg.val();
+        auto& prop_sets = config::sci::props.val();
 
         const auto key = this->uGetItemText( pniv->iItem, 0 );
         const auto val = this->uGetItemText( pniv->iItem, 1 );
@@ -165,26 +163,36 @@ std::u8string CDialogPref::uGetItemText( int nItem, int nSubItem )
 
 void CDialogPref::OnButtonExportBnClicked( WORD, WORD, HWND )
 {
-    const auto path_opt = qwr::file::FileDialog( L"Save as", true, guid::dialog_path, k_DialogExtFilter, L"cfg" );
+    qwr::file::FileDialogOptions fdOpts{};
+    fdOpts.savePathGuid = guid::dialog_path;
+    fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
+    fdOpts.defaultExtension = L"cfg";
+
+    const auto path_opt = qwr::file::FileDialog( L"Save as", true, fdOpts );
     if ( !path_opt || path_opt->empty() )
     {
         return;
     }
 
     const auto path = path_opt->lexically_normal();
-    g_scintillaCfg.export_to_file( path.c_str() );
+    config::sci::props.export_to_file( path.c_str() );
 }
 
 void CDialogPref::OnButtonImportBnClicked( WORD, WORD, HWND )
 {
-    const auto path_opt = qwr::file::FileDialog( L"Import from", false, guid::dialog_path, k_DialogExtFilter, L"cfg" );
+    qwr::file::FileDialogOptions fdOpts{};
+    fdOpts.savePathGuid = guid::dialog_path;
+    fdOpts.filterSpec.assign( k_DialogExtFilter.begin(), k_DialogExtFilter.end() );
+    fdOpts.defaultExtension = L"cfg";
+
+    const auto path_opt = qwr::file::FileDialog( L"Import from", false, fdOpts );
     if ( !path_opt || path_opt->empty() )
     {
         return;
     }
 
     const auto path = path_opt->lexically_normal();
-    g_scintillaCfg.import_from_file( path.u8string().c_str() );
+    config::sci::props.import_from_file( path.u8string().c_str() );
 
     LoadProps();
 }

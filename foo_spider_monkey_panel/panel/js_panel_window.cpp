@@ -8,8 +8,7 @@
 #include <panel/drop_action_params.h>
 #include <panel/message_blocking_scope.h>
 #include <panel/message_manager.h>
-#include <ui/ui_conf.h>
-#include <ui/ui_property.h>
+#include <ui/ui_conf_new.h>
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
@@ -745,17 +744,18 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     }
 }
 
-bool js_panel_window::show_configure_popup( HWND parent )
+void js_panel_window::show_configure_popup( HWND parent )
 {
     if ( !modal_dialog_scope::can_create() )
     {
-        return false;
+        return;
     }
 
     modal_dialog_scope scope( parent );
 
-    smp::ui::CDialogConf dlg( this );
-    return ( dlg.DoModal( parent ) == IDOK );
+    //ui::CDialogConf dlg( this );
+    ui::CDialogConfNew dlg( this );
+    (void)dlg.DoModal( parent );
 }
 
 void js_panel_window::show_property_popup( HWND parent )
@@ -767,7 +767,7 @@ void js_panel_window::show_property_popup( HWND parent )
 
     modal_dialog_scope scope( parent );
 
-    smp::ui::CDialogProperty dlg( this );
+    ui::CDialogConfNew dlg( this, ui::CDialogConfNew::Tab::properties );
     (void)dlg.DoModal( parent );
 }
 
