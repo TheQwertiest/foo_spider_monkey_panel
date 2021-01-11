@@ -5,6 +5,8 @@
 
 #include <resource.h>
 
+#include <functional>
+
 // Forward declarations
 namespace smp::panel
 {
@@ -14,24 +16,25 @@ class js_panel_window;
 namespace smp::ui
 {
 
-class CDialogConf
-    : public CDialogImpl<CDialogConf>
-    , public CDialogResize<CDialogConf>
+class CEditor
+    : public CDialogImpl<CEditor>
+    , public CDialogResize<CEditor>
 {
 public:
-    CDialogConf( smp::panel::js_panel_window* p_parent );
+    using SaveCallback = std::function<void()>;
 
-    BEGIN_DLGRESIZE_MAP( CDialogConf )
-        DLGRESIZE_CONTROL( IDC_STATIC_GUID, DLSZ_SIZE_X )
+    CEditor( std::u8string& text, SaveCallback callback = nullptr );
+
+    BEGIN_DLGRESIZE_MAP( CEditor )
         DLGRESIZE_CONTROL( IDC_EDIT, DLSZ_SIZE_X | DLSZ_SIZE_Y )
         DLGRESIZE_CONTROL( IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y )
         DLGRESIZE_CONTROL( IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y )
         DLGRESIZE_CONTROL( IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y )
     END_DLGRESIZE_MAP()
 
-    // TODO: add hook for KEYBOARD somewhere for CCustomEditFindReplaceDlg (e.g. ESC, Enter, TAB and etc)
+    // TODO: make `apply` and `save` buttons dynamic via SCN_SAVEPOINTREACHED and SCN_SAVEPOINTLEFT
 
-    BEGIN_MSG_MAP( CDialogConf )
+    BEGIN_MSG_MAP( CEditor )
         MSG_WM_INITDIALOG( OnInitDialog )
         MSG_WM_NOTIFY( OnNotify )
         MESSAGE_HANDLER( static_cast<UINT>( smp::MiscMessage::key_down ), OnUwmKeyDown )
@@ -41,19 +44,15 @@ public:
         COMMAND_ID_HANDLER_EX( ID_FILE_SAVE, OnFileSave )
         COMMAND_ID_HANDLER_EX( ID_FILE_IMPORT, OnFileImport )
         COMMAND_ID_HANDLER_EX( ID_FILE_EXPORT, OnFileExport )
-        COMMAND_ID_HANDLER_EX( ID_EDIT_RESETTODEFAULT, OnEditResetDefault )
-        COMMAND_RANGE_HANDLER_EX( ID_EDGESTYLE_NONE, ID_EDGESTYLE_GREY, OnFeaturesEdgeStyle )
-        COMMAND_ID_HANDLER_EX( ID_PANELFEATURES_PSEUDOTRANSPARENT, OnFeaturesPseudoTransparent )
-        COMMAND_ID_HANDLER_EX( ID_PANELFEATURES_GRABFOCUS, OnFeaturesGrabFocus )
         COMMAND_ID_HANDLER_EX( ID_HELP, OnHelp )
         COMMAND_ID_HANDLER_EX( ID_APP_ABOUT, OnAbout )
-        CHAIN_MSG_MAP( CDialogResize<CDialogConf> )
+        CHAIN_MSG_MAP( CDialogResize<CEditor> )
         REFLECT_NOTIFICATIONS()
     END_MSG_MAP()
 
     enum
     {
-        IDD = IDD_DIALOG_CONFIG
+        IDD = IDD_DIALOG_EDITOR
     };
 
     LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
@@ -65,10 +64,6 @@ public:
     LRESULT OnFileSave( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnFileImport( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnFileExport( WORD wNotifyCode, WORD wID, HWND hWndCtl );
-    LRESULT OnEditResetDefault( WORD wNotifyCode, WORD wID, HWND hWndCtl );
-    LRESULT OnFeaturesEdgeStyle( WORD wNotifyCode, WORD wID, HWND hWndCtl );
-    LRESULT OnFeaturesPseudoTransparent( WORD wNotifyCode, WORD wID, HWND hWndCtl );
-    LRESULT OnFeaturesGrabFocus( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnAbout( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 
@@ -76,11 +71,12 @@ public:
     void Apply();
 
 private:
-    smp::panel::js_panel_window* m_parent = nullptr;
-
     smp::ui::sci::CScriptEditorCtrl sciEditor_;
     CMenu menu;
 
+    SaveCallback callback_;
+
+    std::u8string& text_;
     std::u8string m_caption;
 };
 

@@ -2,6 +2,7 @@
 
 #include "ui_sci_editor.h"
 
+#include <ui/scintilla/sci_config.h>
 #include <ui/scintilla/sci_prop_sets.h>
 #include <ui/scintilla/ui_sci_goto.h>
 #include <utils/array_x.h>
@@ -272,7 +273,7 @@ LRESULT CScriptEditorCtrl::OnKeyDown( UINT, WPARAM wParam, LPARAM lParam, BOOL& 
 {
     // Pass the message to the parent window to handle all shortcuts (it will call us back)
     bHandled = FALSE;
-    (void)::PostMessage( ::GetAncestor( m_hWnd, GA_PARENT ), static_cast<UINT>( smp::MiscMessage::key_down ), wParam, lParam );
+    GetParent().PostMessage( static_cast<UINT>( smp::MiscMessage::key_down ), wParam, lParam );
     return 1;
 }
 
@@ -1230,10 +1231,10 @@ void CScriptEditorCtrl::Init()
     SetProperty( "dir.profile", qwr::path::Profile().u8string().c_str() );
 
     // Load properties
-    LoadProperties( g_scintillaCfg.val() );
+    LoadProperties( config::sci::props.val() );
 }
 
-void CScriptEditorCtrl::LoadProperties( nonstd::span<const ScintillaProp> data )
+void CScriptEditorCtrl::LoadProperties( nonstd::span<const config::sci::ScintillaProp> data )
 {
     for ( const auto& prop: data )
     {

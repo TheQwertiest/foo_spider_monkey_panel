@@ -271,7 +271,9 @@ config::PanelSettings_Sample GetPayload_Sample( const config::ParsedPanelSetting
     config::PanelSettings_Sample payload;
 
     assert( parsedSettings.scriptPath );
-    payload.sampleName = parsedSettings.scriptPath->filename().u8string();
+    // TODO: extract to proper place
+    auto sampleDirPath = qwr::path::Component() / "samples";
+    payload.sampleName = fs::relative( *parsedSettings.scriptPath, sampleDirPath ).u8string();
 
     return payload;
 }
@@ -383,6 +385,11 @@ PanelSettings ParsedPanelSettings::GeneratePanelSettings() const
     }
 
     return settings;
+}
+
+ParsedPanelSettings ParsedPanelSettings::GetDefault()
+{
+    return Parse( PanelSettings{} );
 }
 
 } // namespace smp::config

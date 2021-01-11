@@ -2,6 +2,7 @@
 
 #include <config/panel_config.h>
 #include <property_list/PropertyList.h>
+#include <ui/ui_itab.h>
 
 #include <resource.h>
 
@@ -13,59 +14,69 @@ class js_panel_window;
 namespace smp::ui
 {
 
-class CDialogProperty
-    : public CDialogImpl<CDialogProperty>
-    , public CDialogResize<CDialogProperty>
+class CDialogConfNew;
+
+class CConfigTabProperties
+    : public CDialogImpl<CConfigTabProperties>
+    , public CDialogResize<CConfigTabProperties>
+    , public ITab
 {
 public:
-    CDialogProperty( smp::panel::js_panel_window* p_parent );
+    enum
+    {
+        IDD = IDD_DIALOG_PROPERTIES
+    };
 
-    BEGIN_DLGRESIZE_MAP( CDialogProperty )
+    BEGIN_DLGRESIZE_MAP( CConfigTabProperties )
         DLGRESIZE_CONTROL( IDC_LIST_PROPERTIES, DLSZ_SIZE_X | DLSZ_SIZE_Y )
         DLGRESIZE_CONTROL( IDC_DEL, DLSZ_MOVE_Y )
         DLGRESIZE_CONTROL( IDC_CLEARALL, DLSZ_MOVE_Y )
         DLGRESIZE_CONTROL( IDC_IMPORT, DLSZ_MOVE_Y )
         DLGRESIZE_CONTROL( IDC_EXPORT, DLSZ_MOVE_Y )
-        DLGRESIZE_CONTROL( IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y )
-        DLGRESIZE_CONTROL( IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y )
-        DLGRESIZE_CONTROL( IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y )
     END_DLGRESIZE_MAP()
 
-    BEGIN_MSG_MAP( CDialogProperty )
+    BEGIN_MSG_MAP( CConfigTabProperties )
         MSG_WM_INITDIALOG( OnInitDialog )
-        COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
-        COMMAND_ID_HANDLER_EX( IDAPPLY, OnCloseCmd )
-        COMMAND_HANDLER_EX( IDC_CLEARALL, BN_CLICKED, OnClearallBnClicked )
+        COMMAND_HANDLER_EX( IDC_CLEARALL, BN_CLICKED, OnClearAllBnClicked )
         COMMAND_HANDLER_EX( IDC_DEL, BN_CLICKED, OnDelBnClicked )
         COMMAND_HANDLER_EX( IDC_IMPORT, BN_CLICKED, OnImportBnClicked )
         COMMAND_HANDLER_EX( IDC_EXPORT, BN_CLICKED, OnExportBnClicked )
 #pragma warning( push )
 #pragma warning( disable : 26454 ) // Arithmetic overflow
         NOTIFY_CODE_HANDLER_EX( PIN_ITEMCHANGED, OnPinItemChanged )
+        NOTIFY_CODE_HANDLER_EX( PIN_SELCHANGED, OnSelChanged )
 #pragma warning( pop )
-        CHAIN_MSG_MAP( CDialogResize<CDialogProperty> )
+        CHAIN_MSG_MAP( CDialogResize<CConfigTabProperties> )
         REFLECT_NOTIFICATIONS()
     END_MSG_MAP()
 
-    enum
-    {
-        IDD = IDD_DIALOG_PROPERTIES
-    };
+    CConfigTabProperties( CDialogConfNew& parent, config::PanelProperties& properties );
 
-    LRESULT OnClearallBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl );
-    LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
+    // > IUiTab
+    HWND CreateTab( HWND hParent ) override;
+    CDialogImplBase& Dialog() override;
+    const wchar_t* Name() const override;
+    bool HasChanged() override;
+    void Apply() override;
+    void Revert() override;
+    // < IUiTab
+
+private:
+    LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
+    LRESULT OnClearAllBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnDelBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnExportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnImportBnClicked( WORD wNotifyCode, WORD wID, HWND hWndCtl );
-    LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
     LRESULT OnPinItemChanged( LPNMHDR pnmh );
-    void Apply();
-    void LoadProperties( bool reload = true );
+    LRESULT OnSelChanged( LPNMHDR pnmh );
+
+    void UpdateUiFromData();
+    void UpdateUiDelButton();
 
 private:
     CPropertyListCtrl propertyListCtrl_;
-    smp::panel::js_panel_window* parentPanel_;
-    smp::config::PanelProperties localProperties_;
+    CDialogConfNew& parent_;
+    config::PanelProperties& properties_;
 };
 
 } // namespace smp::ui

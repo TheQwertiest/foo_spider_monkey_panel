@@ -78,7 +78,7 @@ protected:
     // ui_helpers::container_window
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
-    bool show_configure_popup( HWND parent );
+    void show_configure_popup( HWND parent );
     void show_property_popup( HWND parent );
 
     static void build_context_menu( HMENU hMenu, int x, int y, uint32_t id_base );

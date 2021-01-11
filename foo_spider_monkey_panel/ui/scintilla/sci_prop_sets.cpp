@@ -7,12 +7,10 @@
 #include <qwr/file_helpers.h>
 #include <qwr/string_helpers.h>
 
-using namespace smp::ui::sci;
-
 namespace
 {
 
-constexpr auto DefaultProps = smp::to_array<ScintillaCfg::DefaultPropValue>(
+constexpr auto DefaultProps = smp::to_array<smp::config::sci::ScintillaPropsCfg::DefaultPropValue>(
     { { "style.default", "font:Courier New,size:10" },
       { "style.comment", "fore:#008000" },
       { "style.keyword", "bold,fore:#0000ff" },
@@ -38,26 +36,26 @@ constexpr auto DefaultProps = smp::to_array<ScintillaCfg::DefaultPropValue>(
 
 } // namespace
 
-namespace smp::ui::sci
+namespace smp::config::sci
 {
 
-ScintillaCfg::ScintillaCfg( const GUID& p_guid, nonstd::span<const DefaultPropValue> p_default )
+ScintillaPropsCfg::ScintillaPropsCfg( const GUID& p_guid )
     : cfg_var( p_guid )
 {
-    init_data( p_default );
+    init_data( DefaultProps );
 }
 
-ScintillaPropList& ScintillaCfg::val()
+ScintillaPropList& ScintillaPropsCfg::val()
 {
     return m_data;
 }
 
-const ScintillaPropList& ScintillaCfg::val() const
+const ScintillaPropList& ScintillaPropsCfg::val() const
 {
     return m_data;
 }
 
-void ScintillaCfg::get_data_raw( stream_writer* p_stream, abort_callback& p_abort )
+void ScintillaPropsCfg::get_data_raw( stream_writer* p_stream, abort_callback& p_abort )
 {
     try
     {
@@ -73,7 +71,7 @@ void ScintillaCfg::get_data_raw( stream_writer* p_stream, abort_callback& p_abor
     }
 }
 
-void ScintillaCfg::set_data_raw( stream_reader* p_stream, t_size, abort_callback& p_abort )
+void ScintillaPropsCfg::set_data_raw( stream_reader* p_stream, t_size p_sizehint, abort_callback& p_abort )
 {
     ScintillaPropValues data_map;
 
@@ -101,7 +99,7 @@ void ScintillaCfg::set_data_raw( stream_reader* p_stream, t_size, abort_callback
     merge_data( data_map );
 }
 
-void ScintillaCfg::reset()
+void ScintillaPropsCfg::reset()
 {
     for ( auto& prop: m_data )
     {
@@ -109,7 +107,7 @@ void ScintillaCfg::reset()
     }
 }
 
-void ScintillaCfg::export_to_file( const wchar_t* filename )
+void ScintillaPropsCfg::export_to_file( const wchar_t* filename )
 {
     std::u8string content;
 
@@ -123,7 +121,7 @@ void ScintillaCfg::export_to_file( const wchar_t* filename )
     qwr::file::WriteFile( filename, content );
 }
 
-void ScintillaCfg::import_from_file( const char* filename )
+void ScintillaPropsCfg::import_from_file( const char* filename )
 {
     const std::u8string text = [&filename] {
         try
@@ -162,7 +160,7 @@ void ScintillaCfg::import_from_file( const char* filename )
     merge_data( data_map );
 }
 
-void ScintillaCfg::init_data( nonstd::span<const DefaultPropValue> p_default )
+void ScintillaPropsCfg::init_data( nonstd::span<const DefaultPropValue> p_default )
 {
     m_data.clear();
 
@@ -176,7 +174,7 @@ void ScintillaCfg::init_data( nonstd::span<const DefaultPropValue> p_default )
     }
 }
 
-void ScintillaCfg::merge_data( const ScintillaPropValues& data_map )
+void ScintillaPropsCfg::merge_data( const ScintillaPropValues& data_map )
 {
     for ( auto& prop: m_data )
     {
@@ -188,11 +186,9 @@ void ScintillaCfg::merge_data( const ScintillaPropValues& data_map )
     }
 }
 
-ScintillaCfg g_scintillaCfg( smp::guid::scintilla_props, DefaultProps );
-
-bool ScintillaCfg::StriCmpAscii::operator()( const std::u8string& a, const std::u8string& b ) const
+bool ScintillaPropsCfg::StriCmpAscii::operator()( const std::u8string& a, const std::u8string& b ) const
 {
     return ( pfc::comparator_stricmp_ascii::compare( a.c_str(), b.c_str() ) < 0 );
 }
 
-} // namespace smp::ui::sci
+} // namespace smp::config::sci

@@ -133,7 +133,8 @@ bool js_panel_window_cui::is_available( const uie::window_host_ptr& ) const
 
 bool js_panel_window_cui::show_config_popup( HWND parent )
 {
-    return show_configure_popup( parent );
+    show_configure_popup( parent );
+    return true;
 }
 
 const GUID& js_panel_window_cui::get_extension_guid() const
