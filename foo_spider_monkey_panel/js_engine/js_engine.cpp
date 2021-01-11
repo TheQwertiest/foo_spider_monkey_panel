@@ -74,6 +74,10 @@ JsEngine& JsEngine::GetInstance()
 void JsEngine::PrepareForExit()
 {
     shouldShutdown_ = true;
+    if ( registeredContainers_.empty() )
+    { // finalize immediately, since we don't have containers to care about
+        Finalize();
+    }
 }
 
 bool JsEngine::RegisterContainer( JsContainer& jsContainer )
