@@ -35,6 +35,7 @@ public:
     bool CheckComponentWithOpt( size_t optArgCount, const std::u8string& name, bool is_dll );
     bool CheckFont( const std::wstring& name );
     uint32_t ColourPicker( uint32_t hWindow, uint32_t default_colour );
+    void EditTextFile( uint32_t hWindow, const std::wstring& path );
     JS::Value FileTest( const std::wstring& path, const std::wstring& mode );
     std::u8string FormatDuration( double p );
     std::u8string FormatFileSize( uint64_t p );

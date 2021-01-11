@@ -79,10 +79,10 @@ protected:
     // ui_helpers::container_window
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
-    void ShowConfigureLegacy( HWND parent );
+    void EditScript();
     void ShowConfigure( HWND parent, ui::CDialogConfNew::Tab tab = ui::CDialogConfNew::Tab::def );
 
-    static void build_context_menu( HMENU hMenu, int x, int y, uint32_t id_base );
+    void build_context_menu( HMENU hMenu, int x, int y, uint32_t id_base );
     void execute_context_menu_command( uint32_t id, uint32_t id_base );
 
 private:

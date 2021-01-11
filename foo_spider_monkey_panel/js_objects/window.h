@@ -57,6 +57,7 @@ public: // methods
     void DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     void DefineScript( const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     void DefineScriptWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void EditScript();
     uint32_t GetColourCUI( uint32_t type, const std::wstring& guidstr = L"" );
     uint32_t GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     uint32_t GetColourDUI( uint32_t type );

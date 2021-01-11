@@ -71,7 +71,7 @@ function on_size(width, height) {
 }
 
 function on_mouse_lbtn_up(x, y) {
-	window.ShowConfigure();
+	window.EditScript();
 }
 
 function on_mouse_move() {

@@ -61,7 +61,8 @@ enum class PlayerMessage : UINT
 enum class InternalAsyncMessage : UINT
 {
     first_message = static_cast<int>( PlayerMessage::last_message ) + 1,
-    main_menu_item = first_message,
+    edit_script = first_message,
+    main_menu_item,
     refresh_bg,
     reload_script,
     show_configure_legacy,

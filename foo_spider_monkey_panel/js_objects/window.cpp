@@ -55,6 +55,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CreatePopupMenu, JsWindow::CreatePopupMenu )
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreateThemeManager, JsWindow::CreateThemeManager )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CreateTooltip, JsWindow::CreateTooltip, JsWindow::CreateTooltipWithOpt, 3 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DefinePanel, JsWindow::DefinePanel, JsWindow::DefinePanelWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( EditScript, JsWindow::EditScript )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetColourCUI, JsWindow::GetColourCUI, JsWindow::GetColourCUIWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetColourDUI, JsWindow::GetColourDUI )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetFontCUI, JsWindow::GetFontCUI, JsWindow::GetFontCUIWithOpt, 1 )
@@ -80,6 +81,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "CreateThemeManager", CreateThemeManager, 1, kDefaultPropsFlags ),
         JS_FN( "CreateTooltip", CreateTooltip, 0, kDefaultPropsFlags ),
         JS_FN( "DefinePanel", DefinePanel, 1, kDefaultPropsFlags ),
+        JS_FN( "EditScript", EditScript, 0, kDefaultPropsFlags ),
         JS_FN( "GetColourCUI", GetColourCUI, 1, kDefaultPropsFlags ),
         JS_FN( "GetColourDUI", GetColourDUI, 1, kDefaultPropsFlags ),
         JS_FN( "GetFontCUI", GetFontCUI, 1, kDefaultPropsFlags ),
@@ -322,6 +324,16 @@ void JsWindow::DefineScriptWithOpt( size_t optArgCount, const std::u8string& nam
     default:
         throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
+}
+
+void JsWindow::EditScript()
+{
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
+    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::edit_script ) );
 }
 
 uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
