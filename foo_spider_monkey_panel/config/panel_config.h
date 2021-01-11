@@ -16,13 +16,6 @@ enum class SerializationFormat : uint8_t
     Json
 };
 
-enum class PackageLocation : uint8_t
-{
-    Sample = 0,
-    LocalAppData = 1,
-    Fb2k = 2,
-};
-
 enum class EdgeStyle : uint8_t
 {
     NoEdge = 0,

@@ -10,6 +10,14 @@
 namespace smp::config
 {
 
+enum class ScriptSourceType : uint8_t
+{
+    Package = 0,
+    Sample,
+    File,
+    InMemory,
+};
+
 struct ParsedPanelSettings
 {
     using MenuAction = std::pair<std::string, std::string>;
@@ -40,6 +48,8 @@ struct ParsedPanelSettings
 
     static ParsedPanelSettings GetDefault();
     PanelSettings GeneratePanelSettings() const;
+
+    ScriptSourceType GetSourceType() const;
 };
 
 } // namespace smp::config

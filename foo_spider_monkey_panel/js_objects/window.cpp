@@ -69,6 +69,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetInterval, JsWindow::SetInterval, JsWin
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetProperty, JsWindow::SetProperty, JsWindow::SetPropertyWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetTimeout, JsWindow::SetTimeout, JsWindow::SetTimeoutWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigure, JsWindow::ShowConfigure )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigureV2, JsWindow::ShowConfigureV2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowProperties, JsWindow::ShowProperties )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
@@ -93,6 +94,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "SetProperty", SetProperty, 1, kDefaultPropsFlags ),
         JS_FN( "SetTimeout", SetTimeout, 2, kDefaultPropsFlags ),
         JS_FN( "ShowConfigure", ShowConfigure, 0, kDefaultPropsFlags ),
+        JS_FN( "ShowConfigureV2", ShowConfigureV2, 0, kDefaultPropsFlags ),
         JS_FN( "ShowProperties", ShowProperties, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
@@ -626,6 +628,16 @@ uint32_t JsWindow::SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, 
 }
 
 void JsWindow::ShowConfigure()
+{
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
+    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure_legacy ) );
+}
+
+void JsWindow::ShowConfigureV2()
 {
     if ( isFinalized_ )
     {

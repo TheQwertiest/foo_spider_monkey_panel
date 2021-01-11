@@ -315,6 +315,9 @@
     <ClCompile Include="ui\scintilla\sci_config.cpp">
       <Filter>ui\scintilla</Filter>
     </ClCompile>
+    <ClCompile Include="panel\edit_script.cpp">
+      <Filter>panel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -685,6 +688,9 @@
     </ClInclude>
     <ClInclude Include="ui\scintilla\sci_config.h">
       <Filter>ui\scintilla</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\edit_script.h">
+      <Filter>panel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

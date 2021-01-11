@@ -64,6 +64,7 @@ enum class InternalAsyncMessage : UINT
     main_menu_item = first_message,
     refresh_bg,
     reload_script,
+    show_configure_legacy,
     show_configure,
     show_properties,
     last_message = show_properties,

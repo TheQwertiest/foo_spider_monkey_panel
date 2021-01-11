@@ -6,6 +6,7 @@
 #include <js_engine/js_container.h>
 #include <panel/com_message_scope.h>
 #include <panel/drop_action_params.h>
+#include <panel/edit_script.h>
 #include <panel/message_blocking_scope.h>
 #include <panel/message_manager.h>
 #include <ui/ui_conf_new.h>
@@ -727,14 +728,19 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
         ReloadScript();
         return 0;
     }
+    case InternalAsyncMessage::show_configure_legacy:
+    {
+        ShowConfigureLegacy( wnd_ );
+        return 0;
+    }
     case InternalAsyncMessage::show_configure:
     {
-        show_configure_popup( wnd_ );
+        ShowConfigure( wnd_ );
         return 0;
     }
     case InternalAsyncMessage::show_properties:
     {
-        show_property_popup( wnd_ );
+        ShowConfigure( wnd_, ui::CDialogConfNew::Tab::properties );
         return 0;
     }
     default:
@@ -744,7 +750,7 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     }
 }
 
-void js_panel_window::show_configure_popup( HWND parent )
+void js_panel_window::ShowConfigureLegacy( HWND parent )
 {
     if ( !modal_dialog_scope::can_create() )
     {
@@ -753,12 +759,27 @@ void js_panel_window::show_configure_popup( HWND parent )
 
     modal_dialog_scope scope( parent );
 
-    //ui::CDialogConf dlg( this );
-    ui::CDialogConfNew dlg( this );
-    (void)dlg.DoModal( parent );
+    switch ( settings_.GetSourceType() )
+    {
+    case config::ScriptSourceType::InMemory:
+    {
+        const auto hasChanged = EditScript( parent, settings_ );
+        if ( hasChanged )
+        {
+            ReloadScript();
+        }
+        break;
+    }
+    default:
+    {
+        ui::CDialogConfNew dlg( this );
+        (void)dlg.DoModal( parent );
+        break;
+    }
+    }
 }
 
-void js_panel_window::show_property_popup( HWND parent )
+void js_panel_window::ShowConfigure( HWND parent, ui::CDialogConfNew::Tab tab )
 {
     if ( !modal_dialog_scope::can_create() )
     {
@@ -767,7 +788,7 @@ void js_panel_window::show_property_popup( HWND parent )
 
     modal_dialog_scope scope( parent );
 
-    ui::CDialogConfNew dlg( this, ui::CDialogConfNew::Tab::properties );
+    ui::CDialogConfNew dlg( this, tab );
     (void)dlg.DoModal( parent );
 }
 
@@ -779,8 +800,9 @@ void js_panel_window::build_context_menu( HMENU hMenu, int x, int y, uint32_t id
     menu.AppendMenu( MF_STRING, id_base + 2, L"&Open component folder" );
     menu.AppendMenu( MF_STRING, id_base + 3, L"&Open documentation" );
     menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
-    menu.AppendMenu( MF_STRING, id_base + 4, L"&Properties" );
-    menu.AppendMenu( MF_STRING, id_base + 5, L"&Configure..." );
+    menu.AppendMenu( MF_STRING, id_base + 4, L"&Edit script..." );
+    menu.AppendMenu( MF_STRING, id_base + 5, L"&Properties..." );
+    menu.AppendMenu( MF_STRING, id_base + 6, L"&Configure..." );
 }
 
 void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_base )
@@ -805,12 +827,28 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
     }
     case 4:
     {
-        show_property_popup( wnd_ );
+        if ( !modal_dialog_scope::can_create() )
+        {
+            return;
+        }
+
+        modal_dialog_scope scope( wnd_ );
+
+        const auto hasChanged = EditScript( wnd_, settings_ );
+        if ( hasChanged )
+        {
+            ReloadScript();
+        }
         break;
     }
     case 5:
     {
-        show_configure_popup( wnd_ );
+        ShowConfigure( wnd_, ui::CDialogConfNew::Tab::properties );
+        break;
+    }
+    case 6:
+    {
+        ShowConfigure( wnd_ );
         break;
     }
     }
