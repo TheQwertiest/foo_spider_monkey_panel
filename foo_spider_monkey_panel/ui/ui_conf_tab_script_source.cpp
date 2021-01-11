@@ -3,8 +3,8 @@
 #include "ui_conf_tab_script_source.h"
 
 #include <fb2k/config.h>
+#include <panel/edit_script.h>
 #include <ui/ui_conf_new.h>
-#include <utils/edit_text.h>
 
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
@@ -227,64 +227,11 @@ void CConfigTabScriptSource::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
 
     try
     {
-        switch ( sourceTypeId_ )
+        const auto hasChanged = panel::EditScript( *this, settings_ );
+        if ( hasChanged )
         {
-        case IDC_RADIO_SRC_SAMPLE:
-        {
-            const int iRet = MessageBox(
-                L"Are you sure?\n\n"
-                L"You are trying to edit a sample script.\n"
-                L"Any changes performed to the script will be applied to every panel that are using this sample.\n"
-                L"These changes will also be lost when updating the component.",
-                L"Editing script",
-                MB_YESNO | MB_ICONWARNING );
-            if ( iRet != IDYES )
-            {
-                break;
-            }
-
-            const auto filePath = fs::path( sampleData_[sampleIdx_].path );
-            if ( !fs::exists( filePath ) )
-            {
-                qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Sample script is missing: {}", filePath.u8string() ) );
-                break;
-            }
-
-            smp::EditTextFile( *this, filePath );
-            break;
-        }
-        case IDC_RADIO_SRC_FILE:
-        {
-            const auto filePath = fs::u8path( path_ );
-            if ( !fs::exists( filePath ) )
-            {
-                qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Script is missing: {}", filePath.u8string() ) );
-                break;
-            }
-
-            smp::EditTextFile( *this, filePath );
-            break;
-        }
-        case IDC_RADIO_SRC_MEMORY:
-        {
-            assert( settings_.script );
-            auto script = *settings_.script;
-            smp::EditText( *this, script );
-            settings_.script = script;
-
             parent_.OnDataChanged();
-            break;
         }
-        default:
-        {
-            assert( false );
-            break;
-        }
-        }
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
     }
     catch ( const qwr::QwrException& e )
     {
@@ -365,7 +312,7 @@ void CConfigTabScriptSource::InitializeLocalOptions()
     path_ = ( settings_.scriptPath ? settings_.scriptPath->u8string() : std::u8string{} );
 
     sampleIdx_ = [&] {
-        if ( settings_.packageId || !settings_.isSample )
+        if ( settings_.GetSourceType() != config::ScriptSourceType::Sample )
         {
             return 0;
         }
@@ -395,21 +342,18 @@ void CConfigTabScriptSource::InitializeLocalOptions()
 
     // Source is checked last, because it can be changed in the code above
     sourceTypeId_ = [&] {
-        if ( settings_.packageId )
+        switch ( settings_.GetSourceType() )
         {
+        case config::ScriptSourceType::Package:
             return IDC_RADIO_SRC_PACKAGE;
-        }
-        else if ( settings_.isSample )
-        {
+        case config::ScriptSourceType::Sample:
             return IDC_RADIO_SRC_SAMPLE;
-        }
-        else if ( settings_.scriptPath )
-        {
+        case config::ScriptSourceType::File:
             return IDC_RADIO_SRC_FILE;
-        }
-        else
-        {
-            assert( settings_.script );
+        case config::ScriptSourceType::InMemory:
+            return IDC_RADIO_SRC_MEMORY;
+        default:
+            assert( false );
             return IDC_RADIO_SRC_MEMORY;
         }
     }();

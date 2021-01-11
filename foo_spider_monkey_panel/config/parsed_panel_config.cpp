@@ -364,25 +364,23 @@ PanelSettings ParsedPanelSettings::GeneratePanelSettings() const
     settings.id = panelId;
     settings.edgeStyle = edgeStyle;
     settings.isPseudoTransparent = isPseudoTransparent;
-
-    if ( packageId )
-    {
-        Save_PackageData( *this );
-        settings.payload = GetPayload_Package( *this );
-    }
-    else if ( isSample )
-    {
-        settings.payload = GetPayload_Sample( *this );
-    }
-    else if ( scriptPath )
-    {
-        settings.payload = GetPayload_File( *this );
-    }
-    else
-    {
-        assert( script );
-        settings.payload = GetPayload_InMemory( *this );
-    }
+    settings.payload = [&]() -> decltype( settings.payload ) {
+        switch ( GetSourceType() )
+        {
+        case ScriptSourceType::Package:
+            Save_PackageData( *this );
+            return GetPayload_Package( *this );
+        case ScriptSourceType::Sample:
+            return GetPayload_Sample( *this );
+        case ScriptSourceType::File:
+            return GetPayload_File( *this );
+        case ScriptSourceType::InMemory:
+            return GetPayload_InMemory( *this );
+        default:
+            assert( false );
+            return PanelSettings_InMemory{};
+        }
+    }();
 
     return settings;
 }
@@ -390,6 +388,27 @@ PanelSettings ParsedPanelSettings::GeneratePanelSettings() const
 ParsedPanelSettings ParsedPanelSettings::GetDefault()
 {
     return Parse( PanelSettings{} );
+}
+
+ScriptSourceType ParsedPanelSettings::GetSourceType() const
+{
+    if ( packageId )
+    {
+        return ScriptSourceType::Package;
+    }
+    else if ( isSample )
+    {
+        return ScriptSourceType::Sample;
+    }
+    else if ( scriptPath )
+    {
+        return ScriptSourceType::File;
+    }
+    else
+    {
+        assert( script );
+        return ScriptSourceType::InMemory;
+    }
 }
 
 } // namespace smp::config

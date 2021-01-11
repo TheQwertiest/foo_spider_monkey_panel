@@ -3,6 +3,7 @@
 #include <config/parsed_panel_config.h>
 #include <panel/panel_info.h>
 #include <panel/user_message.h>
+#include <ui/ui_conf_new.h>
 
 #include <queue>
 
@@ -78,8 +79,8 @@ protected:
     // ui_helpers::container_window
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
-    void show_configure_popup( HWND parent );
-    void show_property_popup( HWND parent );
+    void ShowConfigureLegacy( HWND parent );
+    void ShowConfigure( HWND parent, ui::CDialogConfNew::Tab tab = ui::CDialogConfNew::Tab::def );
 
     static void build_context_menu( HMENU hMenu, int x, int y, uint32_t id_base );
     void execute_context_menu_command( uint32_t id, uint32_t id_base );

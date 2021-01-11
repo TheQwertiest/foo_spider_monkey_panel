@@ -79,6 +79,7 @@ public: // methods
     uint32_t SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs = JS::HandleValueArray{ JS::UndefinedHandleValue } );
     uint32_t SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs );
     void ShowConfigure();
+    void ShowConfigureV2();
     void ShowProperties();
 
 public: // props
