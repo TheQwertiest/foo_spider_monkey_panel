@@ -712,6 +712,11 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
 {
     switch ( msg )
     {
+    case InternalAsyncMessage::edit_script:
+    {
+        EditScript();
+        return 0;
+    }
     case InternalAsyncMessage::main_menu_item:
     {
         on_main_menu( wp );
@@ -730,7 +735,19 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     }
     case InternalAsyncMessage::show_configure_legacy:
     {
-        ShowConfigureLegacy( wnd_ );
+        switch ( settings_.GetSourceType() )
+        {
+        case config::ScriptSourceType::InMemory:
+        {
+            EditScript();
+            break;
+        }
+        default:
+        {
+            ShowConfigure( wnd_ );
+            break;
+        }
+        }
         return 0;
     }
     case InternalAsyncMessage::show_configure:
@@ -750,20 +767,22 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     }
 }
 
-void js_panel_window::ShowConfigureLegacy( HWND parent )
+void js_panel_window::EditScript()
 {
     if ( !modal_dialog_scope::can_create() )
     {
         return;
     }
 
-    modal_dialog_scope scope( parent );
+    modal_dialog_scope scope( wnd_ );
 
     switch ( settings_.GetSourceType() )
     {
     case config::ScriptSourceType::InMemory:
+    case config::ScriptSourceType::File:
+    case config::ScriptSourceType::Sample:
     {
-        const auto hasChanged = EditScript( parent, settings_ );
+        const auto hasChanged = panel::EditScript( wnd_, settings_ );
         if ( hasChanged )
         {
             ReloadScript();
@@ -773,7 +792,7 @@ void js_panel_window::ShowConfigureLegacy( HWND parent )
     default:
     {
         ui::CDialogConfNew dlg( this );
-        (void)dlg.DoModal( parent );
+        (void)dlg.DoModal( wnd_ );
         break;
     }
     }
@@ -800,7 +819,9 @@ void js_panel_window::build_context_menu( HMENU hMenu, int x, int y, uint32_t id
     menu.AppendMenu( MF_STRING, id_base + 2, L"&Open component folder" );
     menu.AppendMenu( MF_STRING, id_base + 3, L"&Open documentation" );
     menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
-    menu.AppendMenu( MF_STRING, id_base + 4, L"&Edit script..." );
+
+    const auto gray = ( settings_.GetSourceType() == config::ScriptSourceType::Package ? MF_GRAYED : 0 );
+    menu.AppendMenu( MF_STRING | gray, id_base + 4, L"&Edit script..." );
     menu.AppendMenu( MF_STRING, id_base + 5, L"&Properties..." );
     menu.AppendMenu( MF_STRING, id_base + 6, L"&Configure..." );
 }
@@ -834,7 +855,7 @@ void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_bas
 
         modal_dialog_scope scope( wnd_ );
 
-        const auto hasChanged = EditScript( wnd_, settings_ );
+        const auto hasChanged = panel::EditScript( wnd_, settings_ );
         if ( hasChanged )
         {
             ReloadScript();

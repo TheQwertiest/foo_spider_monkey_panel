@@ -13,6 +13,7 @@
 #include <utils/array_x.h>
 #include <utils/art_helpers.h>
 #include <utils/colour_helpers.h>
+#include <utils/edit_text.h>
 #include <utils/gdi_error_helpers.h>
 
 #include <qwr/file_helpers.h>
@@ -56,6 +57,7 @@ JSClass jsClass = {
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CheckComponent, JsUtils::CheckComponent, JsUtils::CheckComponentWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( CheckFont, JsUtils::CheckFont );
 MJS_DEFINE_JS_FN_FROM_NATIVE( ColourPicker, JsUtils::ColourPicker );
+MJS_DEFINE_JS_FN_FROM_NATIVE( EditTextFile, JsUtils::EditTextFile );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FileTest, JsUtils::FileTest );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FormatDuration, JsUtils::FormatDuration );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FormatFileSize, JsUtils::FormatFileSize );
@@ -81,6 +83,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "CheckComponent", CheckComponent, 1, kDefaultPropsFlags ),
         JS_FN( "CheckFont", CheckFont, 1, kDefaultPropsFlags ),
         JS_FN( "ColourPicker", ColourPicker, 2, kDefaultPropsFlags ),
+        JS_FN( "EditTextFile", ::EditTextFile, 2, kDefaultPropsFlags ),
         JS_FN( "FileTest", FileTest, 2, kDefaultPropsFlags ),
         JS_FN( "FormatDuration", FormatDuration, 1, kDefaultPropsFlags ),
         JS_FN( "FormatFileSize", FormatFileSize, 1, kDefaultPropsFlags ),
@@ -211,6 +214,21 @@ uint32_t JsUtils::ColourPicker( uint32_t hWindow, uint32_t default_colour )
     }
 
     return smp::colour::convert_colorref_to_argb( colour );
+}
+
+void JsUtils::EditTextFile( uint32_t hWindow, const std::wstring& path )
+{
+    if ( !modal_dialog_scope::can_create() )
+    {
+        return;
+    }
+
+    // Such cast will work only on x86
+    HWND hWnd = reinterpret_cast<HWND>( hWindow );
+
+    modal_dialog_scope scope( hWnd );
+
+    smp::EditTextFile( hWnd, std::filesystem::path{ path } );
 }
 
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
