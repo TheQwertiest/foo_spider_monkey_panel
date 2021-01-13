@@ -34,6 +34,7 @@ public:
         COMMAND_HANDLER_EX( IDC_CHECK_SHOULD_GRAB_FOCUS, BN_CLICKED, OnDdxUiChange )
         COMMAND_HANDLER_EX( IDC_CHECK_ENABLE_DRAG_N_DROP, BN_CLICKED, OnDdxUiChange )
         COMMAND_HANDLER_EX( IDC_LIST_PACKAGE_FILES, LBN_SELCHANGE, OnDdxUiChange )
+        COMMAND_HANDLER_EX( IDC_BUTTON_NEW_SCRIPT, BN_CLICKED, OnNewScript )
         COMMAND_HANDLER_EX( IDC_BUTTON_ADD_FILE, BN_CLICKED, OnAddFile )
         COMMAND_HANDLER_EX( IDC_BUTTON_REMOVE_FILE, BN_CLICKED, OnRemoveFile )
         COMMAND_HANDLER_EX( IDC_BUTTON_RENAME_FILE, BN_CLICKED, OnRenameFile )
@@ -61,6 +62,7 @@ private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
     void OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl );
 
+    void OnNewScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnAddFile( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnRemoveFile( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnRenameFile( UINT uNotifyCode, int nID, CWindow wndCtl );

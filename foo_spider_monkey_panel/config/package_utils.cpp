@@ -205,37 +205,44 @@ std::filesystem::path GetPackageScriptsDir( const ParsedPanelSettings& settings 
 
 std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSettings& settings )
 {
-    std::vector<std::filesystem::path> files;
-
-    const auto packagePath = GetPackagePath( settings );
-
-    assert( settings.scriptPath );
-    const auto mainScript = *settings.scriptPath;
-
-    files.emplace_back( mainScript );
-
-    if ( const auto scriptsDir = packagePath / "scripts";
-         fs::exists( scriptsDir ) )
+    try
     {
-        for ( const auto& it: fs::directory_iterator( scriptsDir ) )
+        std::vector<std::filesystem::path> files;
+
+        const auto packagePath = GetPackagePath( settings );
+
+        assert( settings.scriptPath );
+        const auto mainScript = *settings.scriptPath;
+
+        files.emplace_back( mainScript );
+
+        if ( const auto scriptsDir = packagePath / "scripts";
+             fs::exists( scriptsDir ) )
         {
-            if ( it.path().extension() == ".js" && it.path() != mainScript )
+            for ( const auto& it: fs::directory_iterator( scriptsDir ) )
+            {
+                if ( it.path().extension() == ".js" && it.path() != mainScript )
+                {
+                    files.emplace_back( it.path() );
+                }
+            }
+        }
+
+        if ( const auto assetsDir = packagePath / "assets";
+             fs::exists( assetsDir ) )
+        {
+            for ( const auto& it: fs::directory_iterator( assetsDir ) )
             {
                 files.emplace_back( it.path() );
             }
         }
-    }
 
-    if ( const auto assetsDir = packagePath / "assets";
-         fs::exists( assetsDir ) )
+        return files;
+    }
+    catch ( const fs::filesystem_error& e )
     {
-        for ( const auto& it: fs::directory_iterator( assetsDir ) )
-        {
-            files.emplace_back( it.path() );
-        }
+        throw qwr::QwrException( e );
     }
-
-    return files;
 }
 
 } // namespace smp::config

@@ -8,7 +8,7 @@
 #define IDD_DIALOG_GOTO                    104
 #define IDD_DIALOG_PREFERENCE              107
 #define IDD_DIALOG_NAME_VALUE              108
-#define IDD_DIALOG_PROPERTIES              109
+#define IDD_DIALOG_CONF_TAB_PROPERTIES     109
 #define IDD_DIALOG_HTML                    111
 #define IDD_DIALOG_EDITOR                  112
 #define IDR_MENU_CONF                      115
@@ -78,6 +78,8 @@
 #define IDC_BUTTON_EXPORT_PACKAGE          1111
 #define IDC_BUTTON_IMPORT_PACKAGE          1112
 #define IDC_RICHEDIT_PACKAGE_INFO          1113
+#define IDC_BUTTON_EDIT_PANEL_NAME         1114
+#define IDC_BUTTON_NEW_SCRIPT              1115
 #define ID_FILE_IMPORT                     40014
 #define ID_FILE_EXPORT                     40015
 #define ID_EDIT_RESETTODEFAULT             40016
@@ -96,7 +98,7 @@
 #    ifndef APSTUDIO_READONLY_SYMBOLS
 #        define _APS_NEXT_RESOURCE_VALUE 128
 #        define _APS_NEXT_COMMAND_VALUE  40030
-#        define _APS_NEXT_CONTROL_VALUE  1114
+#        define _APS_NEXT_CONTROL_VALUE  1116
 #        define _APS_NEXT_SYMED_VALUE    101
 #    endif
 #endif
