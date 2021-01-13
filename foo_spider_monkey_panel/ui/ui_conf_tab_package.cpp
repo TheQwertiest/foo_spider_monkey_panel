@@ -14,7 +14,6 @@
 
 namespace fs = std::filesystem;
 
-// TODO: add `New` button
 // TODO: display package id
 
 namespace smp::ui
@@ -115,16 +114,73 @@ void CConfigTabPackage::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl
     parent_.OnDataChanged();
 }
 
+void CConfigTabPackage::OnNewScript( UINT uNotifyCode, int nID, CWindow wndCtl )
+{
+    assert( static_cast<size_t>( focusedFileIdx_ ) < files_.size() );
+
+    auto& filepath = files_[focusedFileIdx_];
+
+    try
+    {
+        const auto scriptsDir = config::GetPackageScriptsDir( settings_ );
+
+        const auto newFilenameOpt = [&]() -> std::optional<fs::path> {
+            while ( true )
+            {
+                CInputBox dlg( "Enter script name", "Create new script file" );
+                if ( dlg.DoModal( m_hWnd ) != IDOK )
+                {
+                    return std::nullopt;
+                }
+
+                auto path = scriptsDir / dlg.GetValue();
+                if ( path.extension() != ".js" )
+                {
+                    path += ".js";
+                }
+
+                if ( fs::exists( path ) )
+                {
+                    MessageBox(
+                        L"File with this name already exists!",
+                        L"Creating file",
+                        MB_OK | MB_ICONWARNING );
+                }
+                else
+                {
+                    return path;
+                }
+            }
+        }();
+
+        if ( !newFilenameOpt )
+        {
+            return;
+        }
+
+        fs::create_directories( newFilenameOpt->parent_path() );
+        qwr::file::WriteFile( *newFilenameOpt, "// empty" );
+
+        files_.emplace_back( *newFilenameOpt );
+        focusedFile_ = *newFilenameOpt;
+
+        UpdateListBoxFromData();
+        DoFullDdxToUi();
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+    }
+}
+
 void CConfigTabPackage::OnAddFile( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     qwr::file::FileDialogOptions fdOpts{};
     fdOpts.savePathGuid = guid::dialog_path;
     fdOpts.savePathGuid = guid::dialog_path;
     fdOpts.filterSpec.assign( {
-        { L"JavaScript files", L"*.js" },
         { L"All files", L"*.*" },
     } );
-    fdOpts.defaultExtension = L"js";
 
     const auto pathOpt = qwr::file::FileDialog( L"Add file", false, fdOpts );
     if ( !pathOpt )
@@ -135,14 +191,20 @@ void CConfigTabPackage::OnAddFile( UINT uNotifyCode, int nID, CWindow wndCtl )
     try
     {
         const fs::path path( *pathOpt );
-        const fs::path newPath = ( path.extension() == ".js"
-                                       ? packagePath_ / "scripts" / path.filename()
-                                       : packagePath_ / "assets" / path.filename() );
+        const fs::path newPath = packagePath_ / "assets" / path.filename();
 
         const auto it = ranges::find( files_, newPath );
         if ( it != files_.cend() )
         {
-            // TODO: ask confirmation and rewrite
+            const int iRet = MessageBox(
+                L"File already exists\n\n"
+                L"Do you want to rewrite it?",
+                L"Adding file",
+                MB_YESNO | MB_ICONWARNING );
+            if ( IDYES != iRet )
+            {
+                return;
+            }
         }
         else
         {

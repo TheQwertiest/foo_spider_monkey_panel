@@ -24,7 +24,7 @@ class CConfigTabProperties
 public:
     enum
     {
-        IDD = IDD_DIALOG_PROPERTIES
+        IDD = IDD_DIALOG_CONF_TAB_PROPERTIES
     };
 
     BEGIN_DLGRESIZE_MAP( CConfigTabProperties )

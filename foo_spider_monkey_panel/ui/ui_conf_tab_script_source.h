@@ -30,7 +30,6 @@ public:
         COMMAND_HANDLER_EX( IDC_RADIO_SRC_FILE, BN_CLICKED, OnScriptSrcChange )
         COMMAND_HANDLER_EX( IDC_RADIO_SRC_MEMORY, BN_CLICKED, OnScriptSrcChange )
         COMMAND_HANDLER_EX( IDC_RADIO_SRC_PACKAGE, BN_CLICKED, OnScriptSrcChange )
-        COMMAND_HANDLER_EX( IDC_TEXTEDIT_SRC_PATH, EN_CHANGE, OnScriptSrcChange )
         COMMAND_HANDLER_EX( IDC_COMBO_SRC_SAMPLE, CBN_SELCHANGE, OnScriptSrcChange )
         COMMAND_HANDLER_EX( IDC_BUTTON_BROWSE, BN_CLICKED, OnBrowseFile )
         COMMAND_HANDLER_EX( IDC_BUTTON_OPEN_PKG_MGR, BN_CLICKED, OnOpenPackageManager )
@@ -95,7 +94,6 @@ private:
 
     int sourceTypeId_;
     int sampleIdx_;
-    // TODO: make path read-only
     std::u8string path_;
     std::u8string packageName_;
 
