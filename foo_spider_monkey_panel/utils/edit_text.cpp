@@ -58,7 +58,7 @@ std::filesystem::path GetFixedEditorPath()
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw qwr::QwrException( e.what() );
+        throw qwr::QwrException( e );
     }
 }
 

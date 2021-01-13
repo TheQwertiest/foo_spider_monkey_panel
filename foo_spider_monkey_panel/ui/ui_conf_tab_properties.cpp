@@ -3,7 +3,7 @@
 #include "ui_conf_tab_properties.h"
 
 #include <panel/js_panel_window.h>
-#include <ui/ui_conf_new.h>
+#include <ui/ui_conf.h>
 #include <utils/array_x.h>
 
 #include <qwr/abort_callback.h>
@@ -20,7 +20,7 @@ namespace fs = std::filesystem;
 namespace smp::ui
 {
 
-CConfigTabProperties::CConfigTabProperties( CDialogConfNew& parent, config::PanelProperties& properties )
+CConfigTabProperties::CConfigTabProperties( CDialogConf& parent, config::PanelProperties& properties )
     : parent_( parent )
     , properties_( properties )
 {
@@ -52,7 +52,6 @@ void CConfigTabProperties::Apply()
 
 void CConfigTabProperties::Revert()
 {
-    UpdateUiFromData();
 }
 
 LRESULT CConfigTabProperties::OnInitDialog( HWND, LPARAM )

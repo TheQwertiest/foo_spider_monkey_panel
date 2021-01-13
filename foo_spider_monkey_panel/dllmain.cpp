@@ -11,10 +11,9 @@
 
 #include <Scintilla.h>
 
-#include <map>
+#include <unordered_map>
 
 DECLARE_COMPONENT_VERSION( SMP_NAME, SMP_VERSION, SMP_ABOUT );
-
 VALIDATE_COMPONENT_FILENAME( SMP_DLL_NAME );
 
 // Script TypeLib
@@ -23,8 +22,9 @@ ITypeLibPtr g_typelib;
 namespace
 {
 
-ULONG_PTR g_gdip_token;
-CAppModule g_wtl_module;
+ULONG_PTR g_pGdiToken = 0;
+CAppModule g_wtlModule;
+HMODULE g_hRichEdit = nullptr;
 
 enum SubsystemId : uint32_t
 {
@@ -34,6 +34,7 @@ enum SubsystemId : uint32_t
     SMP_GDIPLUS,
     SMP_WTL,
     SMP_WTL_AX,
+    SMP_RICHEDIT,
     ENUM_END
 };
 
@@ -43,7 +44,7 @@ struct SubsystemError
     uint32_t errorCode = 0;
 };
 
-std::map<SubsystemId, SubsystemError> g_subsystem_failures;
+std::unordered_map<SubsystemId, SubsystemError> g_subsystem_failures;
 
 void InitializeSubsystems( HINSTANCE ins )
 {
@@ -72,14 +73,14 @@ void InitializeSubsystems( HINSTANCE ins )
 
     {
         Gdiplus::GdiplusStartupInput gdip_input;
-        if ( Gdiplus::Status gdiRet = Gdiplus::GdiplusStartup( &g_gdip_token, &gdip_input, nullptr );
+        if ( Gdiplus::Status gdiRet = Gdiplus::GdiplusStartup( &g_pGdiToken, &gdip_input, nullptr );
              Gdiplus::Ok != gdiRet )
         {
             g_subsystem_failures[SMP_GDIPLUS] = { "OleInitialize failed", static_cast<uint32_t>( gdiRet ) };
         }
     }
 
-    if ( HRESULT hr = g_wtl_module.Init( nullptr, ins );
+    if ( HRESULT hr = g_wtlModule.Init( nullptr, ins );
          FAILED( hr ) )
     {
         g_subsystem_failures[SMP_WTL] = { "WTL module Init failed", static_cast<uint32_t>( hr ) };
@@ -90,17 +91,29 @@ void InitializeSubsystems( HINSTANCE ins )
     {
         g_subsystem_failures[SMP_WTL_AX] = { "AtlAxWinInit failed", static_cast<uint32_t>( GetLastError() ) };
     }
+
+    {
+        g_hRichEdit = LoadLibrary( CRichEditCtrl::GetLibraryName() );
+        if ( !g_hRichEdit )
+        {
+            g_subsystem_failures[SMP_RICHEDIT] = { "Failed to load RichEdit library", static_cast<uint32_t>( GetLastError() ) };
+        }
+    }
 }
 
 void FinalizeSubsystems()
 {
+    if ( !g_subsystem_failures.count( SMP_RICHEDIT ) )
+    {
+        FreeLibrary( g_hRichEdit );
+    }
     if ( !g_subsystem_failures.count( SMP_WTL ) )
     {
-        g_wtl_module.Term();
+        g_wtlModule.Term();
     }
     if ( !g_subsystem_failures.count( SMP_GDIPLUS ) )
     {
-        Gdiplus::GdiplusShutdown( g_gdip_token );
+        Gdiplus::GdiplusShutdown( g_pGdiToken );
     }
     if ( !g_subsystem_failures.count( SMP_SCINTILLA ) )
     {

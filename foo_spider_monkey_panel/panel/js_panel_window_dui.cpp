@@ -233,12 +233,12 @@ ui_element_config::ptr js_panel_window_dui::get_configuration()
 
 void js_panel_window_dui::edit_mode_context_menu_build( const POINT& p_point, bool, HMENU p_menu, unsigned p_id_base )
 {
-    build_context_menu( p_menu, p_point.x, p_point.y, p_id_base );
+    GenerateContextMenu( p_menu, p_point.x, p_point.y, p_id_base );
 }
 
 void js_panel_window_dui::edit_mode_context_menu_command( const POINT&, bool, unsigned p_id, unsigned p_id_base )
 {
-    execute_context_menu_command( p_id, p_id_base );
+    ExecuteContextMenu( p_id, p_id_base );
 }
 
 void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_size )

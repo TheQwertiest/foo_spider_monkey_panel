@@ -12,7 +12,7 @@
 namespace smp::ui
 {
 
-class CDialogConfNew;
+class CDialogConf;
 
 class CConfigTabScriptSource
     : public CDialogImpl<CConfigTabScriptSource>
@@ -21,7 +21,7 @@ class CConfigTabScriptSource
 public:
     enum
     {
-        IDD = IDD_DIALOG_CONF_TAB_SIMPLE_SCRIPT
+        IDD = IDD_DIALOG_CONF_TAB_SCRIPT_SRC
     };
 
     BEGIN_MSG_MAP( CConfigTabScriptSource )
@@ -52,7 +52,7 @@ public:
     };
 
 public:
-    CConfigTabScriptSource( CDialogConfNew& parent, config::ParsedPanelSettings& settings );
+    CConfigTabScriptSource( CDialogConf& parent, config::ParsedPanelSettings& settings );
     ~CConfigTabScriptSource() override = default;
 
     // > IUiTab
@@ -67,32 +67,39 @@ public:
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
     void OnScriptSrcChange( UINT uNotifyCode, int nID, CWindow wndCtl );
+    void OnDdxValueChange( int nID );
 
     void OnBrowseFile( UINT uNotifyCode, int nID, CWindow wndCtl );
+    std::optional<std::filesystem::path> OnBrowseFileImpl();
     void OnOpenPackageManager( UINT uNotifyCode, int nID, CWindow wndCtl );
+    std::optional<config::ParsedPanelSettings> OnOpenPackageManagerImpl( const std::u8string packageId );
 
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     LONG OnEditScriptDropDown( LPNMHDR pnmh ) const;
     void OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl );
 
     void InitializeLocalOptions();
+    void InitializeSourceType();
     void DoFullDdxToUi();
-    void DoRadioButtonsDdxToUi();
+    void DoSourceTypeDdxToUi();
+    void DoButtonsDdxToUi();
     void InitializeSamplesComboBox();
 
     bool RequestConfirmationForReset();
 
 private:
-    bool isInitializingUi_ = false;
+    bool suppressUiDdx_ = true;
 
-    CDialogConfNew& parent_;
+    CDialogConf& parent_;
     config::ParsedPanelSettings& settings_;
 
     int sourceTypeId_;
-    std::u8string path_;
     int sampleIdx_;
+    // TODO: make path read-only
+    std::u8string path_;
+    std::u8string packageName_;
 
-    std::array<std::unique_ptr<qwr::ui::IUiDdx>, 3> ddx_;
+    std::array<std::unique_ptr<qwr::ui::IUiDdx>, 4> ddx_;
 
     static std::vector<SampleComboBoxElem> sampleData_;
     CComboBox samplesComboBox_;

@@ -4,7 +4,8 @@
 
 #include <fb2k/config.h>
 #include <panel/edit_script.h>
-#include <ui/ui_conf_new.h>
+#include <ui/ui_conf.h>
+#include <ui/ui_package_manager.h>
 
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
@@ -55,11 +56,12 @@ namespace smp::ui
 
 std::vector<CConfigTabScriptSource::SampleComboBoxElem> CConfigTabScriptSource::sampleData_;
 
-CConfigTabScriptSource::CConfigTabScriptSource( CDialogConfNew& parent, config::ParsedPanelSettings& settings )
+CConfigTabScriptSource::CConfigTabScriptSource( CDialogConf& parent, config::ParsedPanelSettings& settings )
     : parent_( parent )
     , settings_( settings )
     , ddx_( {
           qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( path_, IDC_TEXTEDIT_SRC_PATH ),
+          qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( packageName_, IDC_TEXTEDIT_SRC_PACKAGE ),
           qwr::ui::CreateUiDdx<qwr::ui::UiDdx_ComboBox>( sampleIdx_, IDC_COMBO_SRC_SAMPLE ),
           qwr::ui::CreateUiDdx<qwr::ui::UiDdx_RadioRange>( sourceTypeId_,
                                                            std::initializer_list<int>{
@@ -102,8 +104,6 @@ void CConfigTabScriptSource::Apply()
 
 void CConfigTabScriptSource::Revert()
 {
-    InitializeLocalOptions();
-    DoFullDdxToUi();
 }
 
 BOOL CConfigTabScriptSource::OnInitDialog( HWND hwndFocus, LPARAM lParam )
@@ -117,12 +117,14 @@ BOOL CConfigTabScriptSource::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     InitializeLocalOptions();
     DoFullDdxToUi();
 
+    suppressUiDdx_ = false;
+
     return TRUE; // set focus to default control
 }
 
 void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
-    if ( isInitializingUi_ )
+    if ( suppressUiDdx_ )
     {
         return;
     }
@@ -139,46 +141,95 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
         ( *it )->ReadFromUi();
     }
 
-    config::PanelSettings newSettings{};
-    switch ( sourceTypeId_ )
-    {
-    case IDC_RADIO_SRC_SAMPLE:
-    {
-        newSettings.payload = ( sampleData_.empty()
-                                    ? config::PanelSettings_Sample{}
-                                    : config::PanelSettings_Sample{ qwr::unicode::ToU8( sampleData_[sampleIdx_].displayedName ) } );
-        break;
-    }
-    case IDC_RADIO_SRC_FILE:
-    {
-        // TODO: add support for relative path (i.e. automatic truncation and expansion)
-        // idea: truncate and expand path in config, not in UI
-        newSettings.payload = config::PanelSettings_File{ path_ };
-        break;
-    }
-    case IDC_RADIO_SRC_MEMORY:
-    {
-        newSettings.payload = config::PanelSettings_InMemory{};
-        break;
-    }
-    case IDC_RADIO_SRC_PACKAGE:
-    {
-        // TODO: implement
-        OnOpenPackageManager( 0, 0, nullptr );
-        newSettings.payload = config::PanelSettings_InMemory{};
-        break;
-    }
-    default:
-    {
-        assert( false );
-        break;
-    }
-    }
+    bool isCanceled = false;
+    const auto newPayLoadOpt = [&]() -> std::optional<config::PanelSettings::ScriptVariant> {
+        switch ( sourceTypeId_ )
+        {
+        case IDC_RADIO_SRC_SAMPLE:
+        {
+            return ( sampleData_.empty()
+                         ? config::PanelSettings_Sample{}
+                         : config::PanelSettings_Sample{ qwr::unicode::ToU8( sampleData_[sampleIdx_].displayedName ) } );
+        }
+        case IDC_RADIO_SRC_MEMORY:
+        {
+            return config::PanelSettings_InMemory{};
+        }
+        case IDC_RADIO_SRC_FILE:
+        {
+            // TODO: add support for relative path (i.e. automatic truncation and expansion)
+            // idea: truncate and expand path in config, not in UI
 
-    settings_ = config::ParsedPanelSettings::Parse( newSettings );
+            const auto parsedSettingsOpt = OnBrowseFileImpl();
+            if ( parsedSettingsOpt )
+            {
+                path_ = parsedSettingsOpt->u8string();
+                return config::PanelSettings_File{ path_ };
+            }
+            else
+            {
+                return std::nullopt;
+            }
+            break;
+        }
+        case IDC_RADIO_SRC_PACKAGE:
+        {
+            const auto parsedSettingsOpt = OnOpenPackageManagerImpl( settings_.packageId.value_or( "" ) );
+            if ( parsedSettingsOpt )
+            {
+                packageName_ = parsedSettingsOpt->scriptName;
+                return parsedSettingsOpt->GeneratePanelSettings().payload;
+            }
+            else
+            {
+                return std::nullopt;
+            }
+            break;
+        }
+        default:
+        {
+            assert( false );
+            return std::nullopt;
+        }
+        }
+    }();
 
-    DoRadioButtonsDdxToUi();
-    parent_.OnScriptTypeChange();
+    if ( newPayLoadOpt )
+    {
+        config::PanelSettings newSettings;
+        newSettings.payload = *newPayLoadOpt;
+        try
+        {
+            settings_ = config::ParsedPanelSettings::Parse( newSettings );
+
+            DoButtonsDdxToUi();
+            DoFullDdxToUi();
+            parent_.OnScriptTypeChange();
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        }
+    }
+    else
+    {
+        InitializeSourceType();
+        OnDdxValueChange( sourceTypeId_ );
+    }
+}
+
+void CConfigTabScriptSource::OnDdxValueChange( int nID )
+{
+    // avoid triggering loopback ddx
+    suppressUiDdx_ = true;
+    const qwr::final_action autoSuppress( [&] { suppressUiDdx_ = false; } );
+
+    auto it = std::find_if( ddx_.begin(), ddx_.end(), [nID]( auto& val ) {
+        return val->IsMatchingId( nID );
+    } );
+
+    assert( ddx_.end() != it );
+    ( *it )->WriteToUi();
 }
 
 void CConfigTabScriptSource::OnBrowseFile( UINT uNotifyCode, int nID, CWindow wndCtl )
@@ -188,16 +239,7 @@ void CConfigTabScriptSource::OnBrowseFile( UINT uNotifyCode, int nID, CWindow wn
         return;
     }
 
-    qwr::file::FileDialogOptions fdOpts{};
-    fdOpts.savePathGuid = guid::dialog_path;
-    fdOpts.filterSpec.assign( {
-        { L"JavaScript files", L"*.js" },
-        { L"Text files", L"*.txt" },
-        { L"All files", L"*.*" },
-    } );
-    fdOpts.defaultExtension = L"js";
-
-    const auto pathOpt = qwr::file::FileDialog( L"Open script file", false, fdOpts );
+    const auto pathOpt = OnBrowseFileImpl();
     if ( !pathOpt || pathOpt->empty() )
     {
         return;
@@ -211,31 +253,76 @@ void CConfigTabScriptSource::OnBrowseFile( UINT uNotifyCode, int nID, CWindow wn
     settings_ = config::ParsedPanelSettings::Parse( newSettings );
 
     DoFullDdxToUi();
-    DoRadioButtonsDdxToUi();
+    DoButtonsDdxToUi();
     parent_.OnScriptTypeChange();
+}
+
+std::optional<std::filesystem::path> CConfigTabScriptSource::OnBrowseFileImpl()
+{
+    qwr::file::FileDialogOptions fdOpts{};
+    fdOpts.savePathGuid = guid::dialog_path;
+    fdOpts.filterSpec.assign( {
+        { L"JavaScript files", L"*.js" },
+        { L"Text files", L"*.txt" },
+        { L"All files", L"*.*" },
+    } );
+    fdOpts.defaultExtension = L"js";
+
+    const auto pathOpt = qwr::file::FileDialog( L"Open script file", false, fdOpts );
+    if ( !pathOpt || pathOpt->empty() )
+    {
+        return std::nullopt;
+    }
+
+    return pathOpt;
 }
 
 void CConfigTabScriptSource::OnOpenPackageManager( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
-    //CDialogPackageManager pkgMgr("");
-    //pkgMgr.DoModal();
+    assert( settings_.packageId );
+
+    const auto parsedSettingsOpt = OnOpenPackageManagerImpl( *settings_.packageId );
+    if ( !parsedSettingsOpt )
+    {
+        return;
+    }
+
+    packageName_ = parsedSettingsOpt->scriptName;
+    settings_ = *parsedSettingsOpt;
+
+    DoFullDdxToUi();
+    DoButtonsDdxToUi();
+    parent_.OnScriptTypeChange();
+}
+
+std::optional<config::ParsedPanelSettings> CConfigTabScriptSource::OnOpenPackageManagerImpl( const std::u8string packageId )
+{
+    CDialogPackageManager pkgMgr( packageId );
+    pkgMgr.DoModal( m_hWnd );
+
+    return pkgMgr.GetPackage();
 }
 
 void CConfigTabScriptSource::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
-    namespace fs = std::filesystem;
-
-    try
+    if ( settings_.GetSourceType() == config::ScriptSourceType::Package )
     {
-        const auto hasChanged = panel::EditScript( *this, settings_ );
-        if ( hasChanged )
-        {
-            parent_.OnDataChanged();
-        }
+        parent_.SwitchTab( CDialogConf::Tab::package );
     }
-    catch ( const qwr::QwrException& e )
+    else
     {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        try
+        {
+            const auto hasChanged = panel::EditScript( *this, settings_ );
+            if ( hasChanged )
+            {
+                parent_.OnDataChanged();
+            }
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        }
     }
 }
 
@@ -286,7 +373,7 @@ void CConfigTabScriptSource::OnEditScriptWith( UINT uNotifyCode, int nID, CWindo
         }
         catch ( const fs::filesystem_error& e )
         {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
         }
         break;
     }
@@ -309,7 +396,13 @@ void CConfigTabScriptSource::InitializeLocalOptions()
 {
     namespace fs = std::filesystem;
 
-    path_ = ( settings_.scriptPath ? settings_.scriptPath->u8string() : std::u8string{} );
+    path_ = ( settings_.scriptPath && settings_.GetSourceType() != config::ScriptSourceType::Package
+                  ? settings_.scriptPath->u8string()
+                  : std::u8string{} );
+
+    packageName_ = ( settings_.GetSourceType() == config::ScriptSourceType::Package
+                         ? settings_.scriptName
+                         : std::u8string{} );
 
     sampleIdx_ = [&] {
         if ( settings_.GetSourceType() != config::ScriptSourceType::Sample )
@@ -341,6 +434,11 @@ void CConfigTabScriptSource::InitializeLocalOptions()
     }();
 
     // Source is checked last, because it can be changed in the code above
+    InitializeSourceType();
+}
+
+void CConfigTabScriptSource::InitializeSourceType()
+{
     sourceTypeId_ = [&] {
         switch ( settings_.GetSourceType() )
         {
@@ -366,17 +464,18 @@ void CConfigTabScriptSource::DoFullDdxToUi()
         return;
     }
 
-    isInitializingUi_ = true;
-    const qwr::final_action autoInit( [&] { isInitializingUi_ = false; } );
+    // avoid triggering loopback ddx
+    suppressUiDdx_ = true;
+    const qwr::final_action autoSuppress( [&] { suppressUiDdx_ = false; } );
 
     for ( auto& ddx: ddx_ )
     {
         ddx->WriteToUi();
     }
-    DoRadioButtonsDdxToUi();
+    DoButtonsDdxToUi();
 }
 
-void CConfigTabScriptSource::DoRadioButtonsDdxToUi()
+void CConfigTabScriptSource::DoSourceTypeDdxToUi()
 {
     if ( !this->m_hWnd )
     {
@@ -425,6 +524,59 @@ void CConfigTabScriptSource::DoRadioButtonsDdxToUi()
     }
 }
 
+void CConfigTabScriptSource::DoButtonsDdxToUi()
+{
+    if ( !this->m_hWnd )
+    {
+        return;
+    }
+
+    switch ( sourceTypeId_ )
+    {
+    case IDC_RADIO_SRC_SAMPLE:
+    {
+        CWindow{ GetDlgItem( IDC_COMBO_SRC_SAMPLE ) }.EnableWindow( true );
+        CWindow{ GetDlgItem( IDC_TEXTEDIT_SRC_PATH ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_BUTTON_BROWSE ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_TEXTEDIT_SRC_PACKAGE ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_BUTTON_OPEN_PKG_MGR ) }.EnableWindow( false );
+        break;
+    }
+    case IDC_RADIO_SRC_MEMORY:
+    {
+        CWindow{ GetDlgItem( IDC_COMBO_SRC_SAMPLE ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_TEXTEDIT_SRC_PATH ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_BUTTON_BROWSE ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_TEXTEDIT_SRC_PACKAGE ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_BUTTON_OPEN_PKG_MGR ) }.EnableWindow( false );
+        break;
+    }
+    case IDC_RADIO_SRC_FILE:
+    {
+        CWindow{ GetDlgItem( IDC_COMBO_SRC_SAMPLE ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_TEXTEDIT_SRC_PATH ) }.EnableWindow( true );
+        CWindow{ GetDlgItem( IDC_BUTTON_BROWSE ) }.EnableWindow( true );
+        CWindow{ GetDlgItem( IDC_TEXTEDIT_SRC_PACKAGE ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_BUTTON_OPEN_PKG_MGR ) }.EnableWindow( false );
+        break;
+    }
+    case IDC_RADIO_SRC_PACKAGE:
+    {
+        CWindow{ GetDlgItem( IDC_COMBO_SRC_SAMPLE ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_TEXTEDIT_SRC_PATH ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_BUTTON_BROWSE ) }.EnableWindow( false );
+        CWindow{ GetDlgItem( IDC_TEXTEDIT_SRC_PACKAGE ) }.EnableWindow( true );
+        CWindow{ GetDlgItem( IDC_BUTTON_OPEN_PKG_MGR ) }.EnableWindow( true );
+        break;
+    }
+    default:
+    {
+        assert( false );
+        break;
+    }
+    }
+}
+
 void CConfigTabScriptSource::InitializeSamplesComboBox()
 {
     samplesComboBox_ = GetDlgItem( IDC_COMBO_SRC_SAMPLE );
@@ -436,6 +588,7 @@ void CConfigTabScriptSource::InitializeSamplesComboBox()
 
 bool CConfigTabScriptSource::RequestConfirmationForReset()
 {
+    // TODO: fix revert (or move the confirmation to parent window)
     if ( sourceTypeId_ == IDC_RADIO_SRC_MEMORY )
     {
         assert( settings_.script );
@@ -451,18 +604,8 @@ bool CConfigTabScriptSource::RequestConfirmationForReset()
                 L"Are you sure?",
                 L"Changing script type",
                 MB_YESNO | MB_ICONWARNING );
-            return ( iRet == IDYES );
+            return ( IDYES == iRet );
         }
-    }
-    else if ( sourceTypeId_ == IDC_RADIO_SRC_PACKAGE )
-    {
-        const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", "SMP package", MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
-        if ( ret == IDYES )
-        {
-            Apply();
-        }
-
-        return !( ret == IDCANCEL );
     }
     else
     {
@@ -471,7 +614,29 @@ bool CConfigTabScriptSource::RequestConfirmationForReset()
             L"Are you sure?",
             L"Changing script type",
             MB_YESNO | MB_ICONWARNING );
-        return ( iRet == IDYES );
+        if ( iRet != IDYES )
+        {
+            return false;
+        }
+
+        if ( sourceTypeId_ == IDC_RADIO_SRC_PACKAGE && parent_.HasChanged() )
+        {
+            const int iRet = uMessageBox( m_hWnd, "Do you want to save your changes to package?", SMP_NAME, MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
+            switch ( iRet )
+            {
+            case IDYES:
+                parent_.Apply();
+                break;
+            case IDNO:
+                parent_.Revert();
+                break;
+            case IDCANCEL:
+            default:
+                return false;
+            }
+        }
+
+        return true;
     }
 }
 

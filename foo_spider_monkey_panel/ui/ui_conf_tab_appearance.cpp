@@ -2,7 +2,7 @@
 
 #include "ui_conf_tab_appearance.h"
 
-#include <ui/ui_conf_new.h>
+#include <ui/ui_conf.h>
 
 namespace
 {
@@ -60,7 +60,7 @@ smp::config::EdgeStyle GetEdgeEnumFromId( int edgeStyleId )
 namespace smp::ui
 {
 
-CConfigTabAppearance::CConfigTabAppearance( CDialogConfNew& parent, config::ParsedPanelSettings& settings )
+CConfigTabAppearance::CConfigTabAppearance( CDialogConf& parent, config::ParsedPanelSettings& settings )
     : parent_( parent )
     , edgeStyle_( settings.edgeStyle )
     , isPseudoTransparent_( settings.isPseudoTransparent )
@@ -102,8 +102,6 @@ void CConfigTabAppearance::Apply()
 
 void CConfigTabAppearance::Revert()
 {
-    InitializeLocalOptions();
-    DoFullDdxToUi();
 }
 
 BOOL CConfigTabAppearance::OnInitDialog( HWND hwndFocus, LPARAM lParam )

@@ -14,7 +14,7 @@ class js_panel_window;
 namespace smp::ui
 {
 
-class CDialogConfNew;
+class CDialogConf;
 
 class CConfigTabProperties
     : public CDialogImpl<CConfigTabProperties>
@@ -50,7 +50,7 @@ public:
         REFLECT_NOTIFICATIONS()
     END_MSG_MAP()
 
-    CConfigTabProperties( CDialogConfNew& parent, config::PanelProperties& properties );
+    CConfigTabProperties( CDialogConf& parent, config::PanelProperties& properties );
 
     // > IUiTab
     HWND CreateTab( HWND hParent ) override;
@@ -75,7 +75,7 @@ private:
 
 private:
     CPropertyListCtrl propertyListCtrl_;
-    CDialogConfNew& parent_;
+    CDialogConf& parent_;
     config::PanelProperties& properties_;
 };
 

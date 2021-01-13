@@ -8,13 +8,13 @@
 #include <qwr/error_popup.h>
 #include <qwr/winapi_error_helpers.h>
 
+namespace fs = std::filesystem;
+
 namespace smp::panel
 {
 
 bool EditScript( HWND hParent, config::ParsedPanelSettings& settings )
 {
-    namespace fs = std::filesystem;
-
     try
     {
         switch ( settings.GetSourceType() )
@@ -36,11 +36,7 @@ bool EditScript( HWND hParent, config::ParsedPanelSettings& settings )
 
             assert( settings.scriptPath );
             const auto filePath = *settings.scriptPath;
-            if ( !fs::exists( filePath ) )
-            {
-                qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Sample script is missing: {}", filePath.u8string() ) );
-                break;
-            }
+            qwr::QwrException::ExpectTrue( fs::exists( filePath ), "Sample script is missing: {}", filePath.u8string() );
 
             smp::EditTextFile( hParent, filePath );
             break;
@@ -49,11 +45,7 @@ bool EditScript( HWND hParent, config::ParsedPanelSettings& settings )
         {
             assert( settings.scriptPath );
             const auto filePath = *settings.scriptPath;
-            if ( !fs::exists( filePath ) )
-            {
-                qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Script is missing: {}", filePath.u8string() ) );
-                break;
-            }
+            qwr::QwrException::ExpectTrue( fs::exists( filePath ), "Script is missing: {}", filePath.u8string() );
 
             smp::EditTextFile( hParent, filePath );
             break;
@@ -79,7 +71,38 @@ bool EditScript( HWND hParent, config::ParsedPanelSettings& settings )
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw qwr::QwrException( e.what() );
+        throw qwr::QwrException( e );
+    }
+}
+
+void EditPackageScript( HWND hParent, const std::filesystem::path& script, const config::ParsedPanelSettings& settings )
+{
+    try
+    {
+        assert( settings.GetSourceType() == config::ScriptSourceType::Package );
+        if ( settings.isSample )
+        {
+            const int iRet = MessageBox(
+                hParent,
+                L"Are you sure?\n\n"
+                L"You are trying to edit a sample script.\n"
+                L"Any changes performed to the script will be applied to every panel that are using this sample.\n"
+                L"These changes will also be lost when updating the component.",
+                L"Editing script",
+                MB_YESNO | MB_ICONWARNING );
+            if ( iRet != IDYES )
+            {
+                return;
+            }
+        }
+
+        qwr::QwrException::ExpectTrue( fs::exists( script ), "Script is missing: {}", script.u8string() );
+
+        smp::EditTextFile( hParent, script );
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( e );
     }
 }
 

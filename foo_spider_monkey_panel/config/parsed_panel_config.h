@@ -20,9 +20,6 @@ enum class ScriptSourceType : uint8_t
 
 struct ParsedPanelSettings
 {
-    using MenuAction = std::pair<std::string, std::string>;
-    using MenuActions = std::vector<MenuAction>;
-
     std::u8string panelId;
     std::optional<std::u8string> script;
     std::optional<std::filesystem::path> scriptPath;
@@ -31,25 +28,23 @@ struct ParsedPanelSettings
     std::u8string scriptVersion;
     std::u8string scriptAuthor;
     std::u8string scriptDescription;
-
-    // TODO: handle this
     bool isSample = false;
 
     EdgeStyle edgeStyle = EdgeStyle::Default;
     bool isPseudoTransparent = false;
     bool shouldGrabFocus = true;
     bool enableDragDrop = false;
-    MenuActions menuActions;
 
     /// @throw qwr::QwrException
     [[nodiscard]] static ParsedPanelSettings Parse( const PanelSettings& settings );
     /// @throw qwr::QwrException
     [[nodiscard]] static ParsedPanelSettings Reparse( const ParsedPanelSettings& parsedSettings );
 
-    static ParsedPanelSettings GetDefault();
-    PanelSettings GeneratePanelSettings() const;
+    static [[nodiscard]] ParsedPanelSettings GetDefault();
 
-    ScriptSourceType GetSourceType() const;
+    [[nodiscard]] PanelSettings GeneratePanelSettings() const;
+
+    [[nodiscard]] ScriptSourceType GetSourceType() const;
 };
 
 } // namespace smp::config

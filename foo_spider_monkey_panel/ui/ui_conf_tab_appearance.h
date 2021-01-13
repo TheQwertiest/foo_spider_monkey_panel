@@ -12,7 +12,7 @@
 namespace smp::ui
 {
 
-class CDialogConfNew;
+class CDialogConf;
 
 class CConfigTabAppearance
     : public CDialogImpl<CConfigTabAppearance>
@@ -33,7 +33,7 @@ public:
     END_MSG_MAP()
 
 public:
-    CConfigTabAppearance( CDialogConfNew& parent, config::ParsedPanelSettings& settings );
+    CConfigTabAppearance( CDialogConf& parent, config::ParsedPanelSettings& settings );
     ~CConfigTabAppearance() override = default;
 
     // > IUiTab
@@ -53,7 +53,7 @@ private:
     void InitializeLocalOptions();
 
 private:
-    CDialogConfNew& parent_;
+    CDialogConf& parent_;
 
     config::EdgeStyle& edgeStyle_;
     bool& isPseudoTransparent_;

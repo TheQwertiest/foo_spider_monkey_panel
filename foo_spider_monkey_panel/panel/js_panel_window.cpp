@@ -3,13 +3,14 @@
 #include "js_panel_window.h"
 
 #include <com_objects/host_drop_target.h>
+#include <config/package_utils.h>
 #include <js_engine/js_container.h>
 #include <panel/com_message_scope.h>
 #include <panel/drop_action_params.h>
 #include <panel/edit_script.h>
 #include <panel/message_blocking_scope.h>
 #include <panel/message_manager.h>
-#include <ui/ui_conf_new.h>
+#include <ui/ui_conf.h>
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
@@ -131,6 +132,7 @@ bool js_panel_window::SaveSettings( stream_writer& writer, abort_callback& abort
 {
     try
     {
+        config::MaybeSavePackageData( settings_ );
         auto settings = settings_.GeneratePanelSettings();
         settings.properties = properties_;
         settings.Save( writer, abort );
@@ -757,7 +759,7 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     }
     case InternalAsyncMessage::show_properties:
     {
-        ShowConfigure( wnd_, ui::CDialogConfNew::Tab::properties );
+        ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
         return 0;
     }
     default:
@@ -769,36 +771,40 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
 
 void js_panel_window::EditScript()
 {
-    if ( !modal_dialog_scope::can_create() )
-    {
-        return;
-    }
-
-    modal_dialog_scope scope( wnd_ );
-
     switch ( settings_.GetSourceType() )
     {
     case config::ScriptSourceType::InMemory:
     case config::ScriptSourceType::File:
     case config::ScriptSourceType::Sample:
     {
-        const auto hasChanged = panel::EditScript( wnd_, settings_ );
-        if ( hasChanged )
+        try
         {
-            ReloadScript();
+            const auto hasChanged = panel::EditScript( wnd_, settings_ );
+            if ( hasChanged )
+            {
+                ReloadScript();
+            }
         }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        }
+        break;
+    }
+    case config::ScriptSourceType::Package:
+    {
+        ShowConfigure( wnd_, ui::CDialogConf::Tab::package );
         break;
     }
     default:
     {
-        ui::CDialogConfNew dlg( this );
-        (void)dlg.DoModal( wnd_ );
+        assert( false );
         break;
     }
     }
 }
 
-void js_panel_window::ShowConfigure( HWND parent, ui::CDialogConfNew::Tab tab )
+void js_panel_window::ShowConfigure( HWND parent, ui::CDialogConf::Tab tab )
 {
     if ( !modal_dialog_scope::can_create() )
     {
@@ -807,71 +813,118 @@ void js_panel_window::ShowConfigure( HWND parent, ui::CDialogConfNew::Tab tab )
 
     modal_dialog_scope scope( parent );
 
-    ui::CDialogConfNew dlg( this, tab );
+    ui::CDialogConf dlg( this, tab );
     (void)dlg.DoModal( parent );
 }
 
-void js_panel_window::build_context_menu( HMENU hMenu, int x, int y, uint32_t id_base )
+void js_panel_window::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t id_base )
 {
-    CMenuHandle menu{ hMenu };
-    menu.AppendMenu( MF_STRING, id_base + 1, L"&Reload" );
-    menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
-    menu.AppendMenu( MF_STRING, id_base + 2, L"&Open component folder" );
-    menu.AppendMenu( MF_STRING, id_base + 3, L"&Open documentation" );
-    menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
+    namespace fs = std::filesystem;
 
-    const auto gray = ( settings_.GetSourceType() == config::ScriptSourceType::Package ? MF_GRAYED : 0 );
-    menu.AppendMenu( MF_STRING | gray, id_base + 4, L"&Edit script..." );
-    menu.AppendMenu( MF_STRING, id_base + 5, L"&Properties..." );
-    menu.AppendMenu( MF_STRING, id_base + 6, L"&Configure..." );
+    try
+    {
+        CMenuHandle menu{ hMenu };
+
+        auto curIdx = id_base;
+
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Reload" );
+        menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Open component folder" );
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Open documentation" );
+        menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
+        if ( settings_.GetSourceType() == config::ScriptSourceType::Package )
+        {
+            ++curIdx;
+
+            const auto scriptFiles = config::GetPackageScriptFiles( settings_ );
+            const auto scriptsDir = config::GetPackageScriptsDir( settings_ );
+
+            CMenu cSubMenu;
+            cSubMenu.CreatePopupMenu();
+
+            auto scriptIdx = id_base + 100;
+            for ( const auto& file: scriptFiles )
+            {
+                cSubMenu.AppendMenu( MF_STRING, ++scriptIdx, fs::relative( file, scriptsDir ).c_str() );
+            }
+
+            menu.AppendMenu( MF_STRING, cSubMenu, L"&Edit script" );
+            cSubMenu.Detach();
+        }
+        else
+        {
+            menu.AppendMenu( MF_STRING, ++curIdx, L"&Edit script..." );
+        }
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Properties..." );
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Configure..." );
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+    }
 }
 
-void js_panel_window::execute_context_menu_command( uint32_t id, uint32_t id_base )
+void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
 {
-    switch ( id - id_base )
+    try
     {
-    case 1:
-    {
-        ReloadScript();
-        break;
-    }
-    case 2:
-    {
-        ShellExecute( nullptr, L"open", qwr::path::Component().c_str(), nullptr, nullptr, SW_SHOW );
-        break;
-    }
-    case 3:
-    {
-        const auto htmlHelp = qwr::path::Component() / L"docs/html/index.html";
-        ShellExecute( nullptr, L"open", htmlHelp.c_str(), nullptr, nullptr, SW_SHOW );
-        break;
-    }
-    case 4:
-    {
-        if ( !modal_dialog_scope::can_create() )
+        switch ( id - id_base )
         {
-            return;
-        }
-
-        modal_dialog_scope scope( wnd_ );
-
-        const auto hasChanged = panel::EditScript( wnd_, settings_ );
-        if ( hasChanged )
+        case 1:
         {
             ReloadScript();
+            break;
         }
-        break;
+        case 2:
+        {
+            ShellExecute( nullptr, L"open", qwr::path::Component().c_str(), nullptr, nullptr, SW_SHOW );
+            break;
+        }
+        case 3:
+        {
+            const auto htmlHelp = qwr::path::Component() / L"docs/html/index.html";
+            ShellExecute( nullptr, L"open", htmlHelp.c_str(), nullptr, nullptr, SW_SHOW );
+            break;
+        }
+        case 4:
+        {
+            const auto hasChanged = panel::EditScript( wnd_, settings_ );
+            if ( hasChanged )
+            {
+                ReloadScript();
+            }
+
+            break;
+        }
+        case 5:
+        {
+            ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
+            break;
+        }
+        case 6:
+        {
+            ShowConfigure( wnd_ );
+            break;
+        }
+        }
+
+        if ( id - id_base > 100 )
+        {
+            assert( settings_.GetSourceType() == config::ScriptSourceType::Package );
+
+            const auto scriptFiles = config::GetPackageScriptFiles( settings_ );
+            const auto fileIdx = std::min( id - id_base, scriptFiles.size() ) - 1;
+
+            panel::EditPackageScript( wnd_, scriptFiles[fileIdx], settings_ );
+        }
     }
-    case 5:
+    catch ( const qwr::QwrException& e )
     {
-        ShowConfigure( wnd_, ui::CDialogConfNew::Tab::properties );
-        break;
-    }
-    case 6:
-    {
-        ShowConfigure( wnd_ );
-        break;
-    }
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
     }
 }
 
@@ -1156,10 +1209,10 @@ void js_panel_window::on_context_menu( int x, int y )
 
     CMenu menu = CreatePopupMenu();
     constexpr uint32_t base_id = 0;
-    build_context_menu( menu, x, y, base_id );
+    GenerateContextMenu( menu, x, y, base_id );
 
     const uint32_t ret = menu.TrackPopupMenu( TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, wnd_, nullptr );
-    execute_context_menu_command( ret, base_id );
+    ExecuteContextMenu( ret, base_id );
 }
 
 void js_panel_window::on_erase_background()
