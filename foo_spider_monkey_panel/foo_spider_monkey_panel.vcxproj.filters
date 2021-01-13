@@ -291,9 +291,6 @@
     <ClCompile Include="ui\ui_editor.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ui_conf_new.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_conf_tab_appearance.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -317,6 +314,21 @@
     </ClCompile>
     <ClCompile Include="panel\edit_script.cpp">
       <Filter>panel</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\zip_utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_conf.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="config\package_utils.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_conf_tab_package.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\ui_package_manager.cpp">
+      <Filter>ui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -665,9 +677,6 @@
     <ClInclude Include="ui\ui_itab.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ui_conf_new.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="ui\ui_conf_tab_appearance.h">
       <Filter>ui</Filter>
     </ClInclude>
@@ -691,6 +700,21 @@
     </ClInclude>
     <ClInclude Include="panel\edit_script.h">
       <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\zip_utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="config\package_utils.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_conf_tab_package.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_package_manager.h">
+      <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

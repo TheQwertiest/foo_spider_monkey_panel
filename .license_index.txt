@@ -7,6 +7,7 @@ fmt: other
 JScript Panel: Unlicense
 JSON for Modern C++: MIT
 KMeans: MIT
+miniz: MIT
 range-v3: BSL-1.0
 PFC: zlib
 Scintilla: HPND

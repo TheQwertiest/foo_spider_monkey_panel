@@ -1,11 +1,14 @@
 #include <stdafx.h>
 
-#include "ui_conf_new.h"
+#include "ui_conf.h"
 
+#include <config/package_utils.h>
 #include <panel/js_panel_window.h>
 #include <ui/ui_conf_tab_appearance.h>
+#include <ui/ui_conf_tab_package.h>
 #include <ui/ui_conf_tab_properties.h>
 #include <ui/ui_conf_tab_script_source.h>
+//#include <ui/ui_conf_tab_package_options.h>
 
 #include <qwr/error_popup.h>
 
@@ -32,7 +35,7 @@ WINDOWPLACEMENT g_WindowPlacement{};
 namespace smp::ui
 {
 
-CDialogConfNew::CDialogConfNew( smp::panel::js_panel_window* pParent, Tab tabId )
+CDialogConf::CDialogConf( smp::panel::js_panel_window* pParent, Tab tabId )
     : pParent_( pParent )
     , caption_( "Panel Configuration" )
     , oldSettings_( pParent->GetSettings() )
@@ -44,62 +47,89 @@ CDialogConfNew::CDialogConfNew( smp::panel::js_panel_window* pParent, Tab tabId 
 {
 }
 
-bool CDialogConfNew::IsCleanSlate() const
+bool CDialogConf::IsCleanSlate() const
 {
     return isCleanSlate_;
 }
 
-void CDialogConfNew::OnDataChanged()
+void CDialogConf::OnDataChanged()
 {
     OnDataChangedImpl( true );
 }
 
-void CDialogConfNew::OnScriptTypeChange()
+void CDialogConf::OnScriptTypeChange()
 {
-    assert( !HasChanged() ); ///< all settings should've been saved or abandoned
+    bool tabLayoutChanged = ( oldSettings_.GetSourceType() != localSettings_.GetSourceType()
+                              && ( oldSettings_.GetSourceType() == config::ScriptSourceType::Package
+                                   || localSettings_.GetSourceType() == config::ScriptSourceType::Package ) );
 
-    Apply();
+    // package data is saved by the caller
+    Apply( false );
+
+    if ( tabLayoutChanged )
+    {
+        ReinitializeTabData();
+        ReinitializeTabControls();
+    }
 
     isCleanSlate_ = true;
 }
 
-bool CDialogConfNew::HasChanged()
+bool CDialogConf::HasChanged()
 {
     return ( hasChanged_
              || ranges::any_of( tabs_, []( const auto& pTab ) { return pTab->HasChanged(); } ) );
 }
 
-void CDialogConfNew::Apply()
+void CDialogConf::Apply( bool savePackageData )
 {
     oldSettings_ = localSettings_;
     oldProperties_ = localProperties_;
 
-    for ( auto& tab: tabs_ )
+    for ( auto& pTab: tabs_ )
     {
-        tab->Apply();
+        pTab->Apply();
     }
 
     OnDataChangedImpl( false );
+
+    if ( savePackageData )
+    {
+        try
+        {
+            config::MaybeSavePackageData( oldSettings_ );
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        }
+    }
 
     auto updatedSettings = oldSettings_.GeneratePanelSettings();
     updatedSettings.properties = oldProperties_;
     pParent_->UpdateSettings( updatedSettings );
 }
 
-void CDialogConfNew::Revert()
+void CDialogConf::Revert()
 {
     localSettings_ = oldSettings_;
     localProperties_ = oldProperties_;
 
-    for ( auto& tab: tabs_ )
+    for ( auto& pTab: tabs_ )
     {
-        tab->Revert();
+        pTab->Revert();
     }
 
     OnDataChangedImpl( false );
 }
 
-BOOL CDialogConfNew::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+void CDialogConf::SwitchTab( CDialogConf::Tab tabId )
+{
+    SetTabIdx( tabId );
+    cTabs_.SetCurSel( activeTabIdx_ );
+}
+
+BOOL CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
     cTabs_ = GetDlgItem( IDC_TAB_CONF );
 
@@ -111,7 +141,7 @@ BOOL CDialogConfNew::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return TRUE; // set focus to default control
 }
 
-LRESULT CDialogConfNew::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
     { // Window position
         WINDOWPLACEMENT tmpPlacement{};
@@ -167,7 +197,7 @@ LRESULT CDialogConfNew::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     return 0;
 }
 
-void CDialogConfNew::OnParentNotify( UINT message, UINT nChildID, LPARAM lParam )
+void CDialogConf::OnParentNotify( UINT message, UINT nChildID, LPARAM lParam )
 {
     if ( WM_DESTROY == message && pcCurTab_ && reinterpret_cast<HWND>( lParam ) == static_cast<HWND>( *pcCurTab_ ) )
     {
@@ -175,15 +205,15 @@ void CDialogConfNew::OnParentNotify( UINT message, UINT nChildID, LPARAM lParam 
     }
 }
 
-LRESULT CDialogConfNew::OnSelectionChanged( LPNMHDR pNmhdr )
+LRESULT CDialogConf::OnSelectionChanged( LPNMHDR pNmhdr )
 {
-    activeTabIdx_ = TabCtrl_GetCurSel( GetDlgItem( IDC_TAB_CONF ) );
+    activeTabIdx_ = cTabs_.GetCurSel();
     CreateChildTab();
 
     return 0;
 }
 
-LRESULT CDialogConfNew::OnWindowPosChanged( UINT, WPARAM, LPARAM lp, BOOL& bHandled )
+LRESULT CDialogConf::OnWindowPosChanged( UINT, WPARAM, LPARAM lp, BOOL& bHandled )
 {
     auto lpwp = reinterpret_cast<LPWINDOWPOS>( lp );
     if ( lpwp->flags & SWP_HIDEWINDOW )
@@ -200,48 +230,68 @@ LRESULT CDialogConfNew::OnWindowPosChanged( UINT, WPARAM, LPARAM lp, BOOL& bHand
     return 0;
 }
 
-void CDialogConfNew::OnDataChangedImpl( bool hasChanged )
+void CDialogConf::OnDataChangedImpl( bool hasChanged )
 {
     hasChanged_ = hasChanged;
     CButton{ GetDlgItem( IDAPPLY ) }.EnableWindow( hasChanged );
 }
 
-void CDialogConfNew::InitializeTabData( smp::ui::CDialogConfNew::Tab tabId )
+void CDialogConf::InitializeTabData( smp::ui::CDialogConf::Tab tabId )
 {
     tabs_.clear();
 
     tabs_.emplace_back( std::make_unique<CConfigTabScriptSource>( *this, localSettings_ ) );
+    if ( localSettings_.GetSourceType() == config::ScriptSourceType::Package )
+    {
+        tabs_.emplace_back( std::make_unique<CConfigTabPackage>( *this, localSettings_ ) );
+    }
     tabs_.emplace_back( std::make_unique<CConfigTabAppearance>( *this, localSettings_ ) );
     tabs_.emplace_back( std::make_unique<CConfigTabProperties>( *this, localProperties_ ) );
 
-    switch ( tabId )
-    {
-    case Tab::script:
-        activeTabIdx_ = 0;
-        break;
-    case Tab::properties:
-        activeTabIdx_ = 2;
-        break;
-    default:
-        assert( false );
-        activeTabIdx_ = 0;
-        break;
-    }
+    SetTabIdx( tabId );
 }
 
-void CDialogConfNew::InitializeTabControls()
+void CDialogConf::ReinitializeTabData()
+{
+    tabs_.resize( 1 );
+
+    if ( localSettings_.GetSourceType() == config::ScriptSourceType::Package )
+    {
+        tabs_.emplace_back( std::make_unique<CConfigTabPackage>( *this, localSettings_ ) );
+    }
+    tabs_.emplace_back( std::make_unique<CConfigTabAppearance>( *this, localSettings_ ) );
+    tabs_.emplace_back( std::make_unique<CConfigTabProperties>( *this, localProperties_ ) );
+}
+
+void CDialogConf::InitializeTabControls()
 {
     cTabs_.DeleteAllItems();
-    for ( auto&& [i, pTab]: ranges::views::enumerate( tabs_ ) )
+
+    for ( const auto& pTab: tabs_ )
     {
-        cTabs_.InsertItem( i, pTab->Name() );
+        cTabs_.AddItem( pTab->Name() );
     }
 
     cTabs_.SetCurSel( activeTabIdx_ );
     CreateChildTab();
 }
 
-void CDialogConfNew::CreateChildTab()
+void CDialogConf::ReinitializeTabControls()
+{
+    // do not recreate the first tab
+
+    for ( auto&& i: ranges::views::ints( 1, cTabs_.GetItemCount() ) )
+    {
+        cTabs_.DeleteItem( 1 );
+    }
+
+    for ( const auto& pTab: tabs_ | ranges::views::drop( 1 ) )
+    {
+        cTabs_.AddItem( pTab->Name() );
+    }
+}
+
+void CDialogConf::CreateChildTab()
 {
     DestroyChildTab();
 
@@ -258,6 +308,7 @@ void CDialogConfNew::CreateChildTab()
     }
 
     auto& pCurTab = tabs_[activeTabIdx_];
+    assert( pCurTab );
     pcCurTab_ = &pCurTab->Dialog();
     pCurTab->CreateTab( m_hWnd );
 
@@ -269,13 +320,33 @@ void CDialogConfNew::CreateChildTab()
     pcCurTab_->ShowWindow( SW_SHOWNORMAL );
 }
 
-void CDialogConfNew::DestroyChildTab()
+void CDialogConf::DestroyChildTab()
 {
     if ( pcCurTab_ && static_cast<HWND>( *pcCurTab_ ) )
     {
         pcCurTab_->ShowWindow( SW_HIDE );
         pcCurTab_->DestroyWindow();
         pcCurTab_ = nullptr;
+    }
+}
+
+void CDialogConf::SetTabIdx( CDialogConf::Tab tabId )
+{
+    switch ( tabId )
+    {
+    case Tab::script:
+        activeTabIdx_ = 0;
+        break;
+    case Tab::package:
+        activeTabIdx_ = 1;
+        break;
+    case Tab::properties:
+        activeTabIdx_ = tabs_.size() - 1;
+        break;
+    default:
+        assert( false );
+        activeTabIdx_ = 0;
+        break;
     }
 }
 

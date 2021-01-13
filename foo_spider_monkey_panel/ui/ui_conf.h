@@ -18,14 +18,15 @@ class js_panel_window;
 namespace smp::ui
 {
 
-class CDialogConfNew
-    : public CDialogImpl<CDialogConfNew>
+class CDialogConf
+    : public CDialogImpl<CDialogConf>
 {
 public:
     enum class Tab : uint8_t
     {
         script,
         properties,
+        package,
         def = script,
     };
 
@@ -35,7 +36,7 @@ public:
         IDD = IDD_DIALOG_CONF
     };
 
-    BEGIN_MSG_MAP( CDialogConfNew )
+    BEGIN_MSG_MAP( CDialogConf )
         MSG_WM_INITDIALOG( OnInitDialog )
         MSG_WM_PARENTNOTIFY( OnParentNotify )
         COMMAND_ID_HANDLER_EX( IDOK, OnCloseCmd )
@@ -47,13 +48,18 @@ public:
 
     // TODO: add help button
 
-    CDialogConfNew( smp::panel::js_panel_window* pParent, CDialogConfNew::Tab tabId = CDialogConfNew::Tab::def );
+    CDialogConf( smp::panel::js_panel_window* pParent, CDialogConf::Tab tabId = CDialogConf::Tab::def );
 
     bool IsCleanSlate() const;
 
     void OnDataChanged();
     void OnScriptTypeChange();
     bool HasChanged();
+
+    void Apply( bool savePackageData = true );
+    void Revert();
+
+    void SwitchTab( CDialogConf::Tab tabId );
 
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
@@ -64,13 +70,13 @@ private:
 
     void OnDataChangedImpl( bool hasChanged = true );
 
-    void InitializeTabData( CDialogConfNew::Tab tabId = CDialogConfNew::Tab::def );
+    void InitializeTabData( CDialogConf::Tab tabId = CDialogConf::Tab::def );
+    void ReinitializeTabData();
     void InitializeTabControls();
+    void ReinitializeTabControls();
     void CreateChildTab();
     void DestroyChildTab();
-
-    void Apply();
-    void Revert();
+    void SetTabIdx( CDialogConf::Tab tabId );
 
 private:
     panel::js_panel_window* pParent_ = nullptr;
@@ -85,7 +91,7 @@ private:
 
     std::u8string caption_;
 
-    const CDialogConfNew::Tab startingTabId_;
+    const CDialogConf::Tab startingTabId_;
     CTabCtrl cTabs_;
     CDialogImplBase* pcCurTab_ = nullptr;
 

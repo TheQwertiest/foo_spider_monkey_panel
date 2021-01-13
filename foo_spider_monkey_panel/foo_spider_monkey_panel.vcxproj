@@ -105,6 +105,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ProjectReference Include="..\miniz\miniz.vcxproj">
+      <Project>{1b0654f2-3fec-43b8-8c0a-6206c64bd6b2}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\submodules\columns_ui-sdk\columns_ui-sdk.vcxproj">
       <Project>{93ec0ede-01cd-4fb0-b8e8-4f2a027e026e}</Project>
     </ProjectReference>
@@ -128,6 +131,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="config\package_utils.cpp" />
     <ClCompile Include="config\panel_config.cpp" />
     <ClCompile Include="config\panel_config_binary.cpp" />
     <ClCompile Include="config\panel_config_com.cpp" />
@@ -213,8 +217,9 @@
     <ClCompile Include="ui\scintilla\ui_sci_editor.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_find_replace.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_goto.cpp" />
-    <ClCompile Include="ui\ui_conf_new.cpp" />
+    <ClCompile Include="ui\ui_conf.cpp" />
     <ClCompile Include="ui\ui_conf_tab_appearance.cpp" />
+    <ClCompile Include="ui\ui_conf_tab_package.cpp" />
     <ClCompile Include="ui\ui_conf_tab_script_source.cpp" />
     <ClCompile Include="ui\ui_editor.cpp" />
     <ClCompile Include="ui\ui_edit_in_progress.cpp" />
@@ -223,6 +228,7 @@
     </ClCompile>
     <ClCompile Include="ui\ui_input_box.cpp" />
     <ClCompile Include="ui\ui_name_value_edit.cpp" />
+    <ClCompile Include="ui\ui_package_manager.cpp" />
     <ClCompile Include="ui\ui_pref.cpp" />
     <ClCompile Include="ui\ui_conf_tab_properties.cpp" />
     <ClCompile Include="ui\ui_slow_script.cpp" />
@@ -240,6 +246,7 @@
     <ClCompile Include="utils\stacktrace.cpp" />
     <ClCompile Include="utils\text_helpers.cpp" />
     <ClCompile Include="utils\thread_pool_instance.cpp" />
+    <ClCompile Include="utils\zip_utils.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="component_defines.h" />
@@ -254,6 +261,7 @@
     <ClInclude Include="com_objects\internal\drag_utils.h" />
     <ClInclude Include="com_objects\internal\handle.h" />
     <ClInclude Include="com_objects\com_interface.h" />
+    <ClInclude Include="config\package_utils.h" />
     <ClInclude Include="config\panel_config.h" />
     <ClInclude Include="config\panel_config_binary.h" />
     <ClInclude Include="config\panel_config_com.h" />
@@ -338,8 +346,9 @@
     <ClInclude Include="ui\scintilla\ui_sci_find_replace.h" />
     <ClInclude Include="ui\scintilla\ui_sci_goto.h" />
     <ClInclude Include="ui\scintilla\wtlscintilla.h" />
-    <ClInclude Include="ui\ui_conf_new.h" />
+    <ClInclude Include="ui\ui_conf.h" />
     <ClInclude Include="ui\ui_conf_tab_appearance.h" />
+    <ClInclude Include="ui\ui_conf_tab_package.h" />
     <ClInclude Include="ui\ui_conf_tab_script_source.h" />
     <ClInclude Include="ui\ui_editor.h" />
     <ClInclude Include="ui\ui_edit_in_progress.h" />
@@ -347,6 +356,7 @@
     <ClInclude Include="ui\ui_input_box.h" />
     <ClInclude Include="ui\ui_itab.h" />
     <ClInclude Include="ui\ui_name_value_edit.h" />
+    <ClInclude Include="ui\ui_package_manager.h" />
     <ClInclude Include="ui\ui_pref.h" />
     <ClInclude Include="ui\ui_conf_tab_properties.h" />
     <ClInclude Include="ui\ui_slow_script.h" />
@@ -368,6 +378,7 @@
     <ClInclude Include="utils\stacktrace.h" />
     <ClInclude Include="utils\text_helpers.h" />
     <ClInclude Include="utils\thread_pool_instance.h" />
+    <ClInclude Include="utils\zip_utils.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include=".clang-format" />

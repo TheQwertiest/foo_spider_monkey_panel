@@ -2,6 +2,8 @@
 
 #include "parsed_panel_config.h"
 
+#include <config/package_utils.h>
+
 #include <nlohmann/json.hpp>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
@@ -32,7 +34,7 @@ void Parse_File( const config::PanelSettings_File& settings, config::ParsedPanel
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw qwr::QwrException( e.what() );
+        throw qwr::QwrException( e );
     }
 }
 
@@ -46,77 +48,7 @@ void Parse_Sample( const config::PanelSettings_Sample& settings, config::ParsedP
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw qwr::QwrException( e.what() );
-    }
-}
-
-std::optional<std::filesystem::path> FindPackage( const std::u8string& packageId )
-{
-    for ( const auto& path: { qwr::path::Component() / "samples" / "packages",
-                              qwr::path::Profile() / SMP_UNDERSCORE_NAME / "packages",
-                              qwr::path::Foobar2000() / SMP_UNDERSCORE_NAME / "packages" } )
-    {
-        const auto targetPath = path / packageId;
-        if ( fs::exists( targetPath ) && fs::is_directory( targetPath ) )
-        {
-            return targetPath;
-        }
-    }
-    return std::nullopt;
-}
-
-void Parse_PackageFromPath( const std::filesystem::path& packageDir, config::ParsedPanelSettings& parsedSettings )
-{
-    using json = nlohmann::json;
-
-    try
-    {
-        const auto valueOrEmpty = []( const std::u8string& str ) -> std::u8string {
-            return ( str.empty() ? "<empty>" : str );
-        };
-        qwr::QwrException::ExpectTrue( fs::exists( packageDir ),
-                                       "Can't find the required package: `{}'",
-                                       packageDir.u8string() );
-
-        const auto packageJsonFile = packageDir / "package.json";
-        qwr::QwrException::ExpectTrue( fs::exists( packageJsonFile ), "Corrupted package: can't find `package.json`" );
-
-        parsedSettings.scriptPath = ( packageDir / "main.js" ).u8string();
-        parsedSettings.isSample = ( packageDir.parent_path() == qwr::path::Component() / "samples" / "packages" );
-
-        const json jsonMain = json::parse( qwr::file::ReadFile( packageJsonFile.u8string(), false ) );
-        qwr::QwrException::ExpectTrue( jsonMain.is_object(), "Corrupted `package.json`: not a JSON object" );
-
-        parsedSettings.packageId = jsonMain.at( "id" ).get<std::string>();
-        parsedSettings.scriptName = jsonMain.at( "name" ).get<std::string>();
-        parsedSettings.scriptAuthor = jsonMain.at( "author" ).get<std::string>();
-        parsedSettings.scriptVersion = jsonMain.at( "version" ).get<std::string>();
-        parsedSettings.scriptDescription = jsonMain.value( "description", std::string() );
-        parsedSettings.enableDragDrop = jsonMain.value( "enableDragDrop", false );
-        parsedSettings.shouldGrabFocus = jsonMain.value( "shouldGrabFocus", true );
-
-        if ( jsonMain.find( "menuActions" ) != jsonMain.end() )
-        {
-            const auto menuActionsJson = jsonMain.at( "menuActions" );
-            qwr::QwrException::ExpectTrue( menuActionsJson.is_object(), "Corrupted `package.json`: `menuActions` is not a JSON object" );
-
-            config::ParsedPanelSettings::MenuActions menuActions;
-            for ( const auto& [key, value]: menuActionsJson.items() )
-            {
-                qwr::QwrException::ExpectTrue( !key.empty(), "Corrupted `package.json`: empty key in `menuActions`" );
-                menuActions.emplace_back( key, value.empty() ? std::string() : value.get<std::string>() );
-            }
-
-            parsedSettings.menuActions = menuActions;
-        }
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        throw qwr::QwrException( e.what() );
-    }
-    catch ( const json::exception& e )
-    {
-        throw qwr::QwrException( fmt::format( "Corrupted `package.json`: {}", e.what() ) );
+        throw qwr::QwrException( e );
     }
 }
 
@@ -128,7 +60,7 @@ void Parse_Package( const config::PanelSettings_Package& settings, config::Parse
 
     try
     {
-        const auto packageDirRet = FindPackage( settings.id );
+        const auto packageDirRet = config::FindPackage( settings.id );
         const auto valueOrEmpty = []( const std::u8string& str ) -> std::u8string {
             return ( str.empty() ? "<empty>" : str );
         };
@@ -138,12 +70,12 @@ void Parse_Package( const config::PanelSettings_Package& settings, config::Parse
                                        valueOrEmpty( settings.name ),
                                        valueOrEmpty( settings.author ) );
 
-        Parse_PackageFromPath( *packageDirRet, parsedSettings );
+        parsedSettings = config::GetPackageSettingsFromPath( *packageDirRet );
         qwr::QwrException::ExpectTrue( settings.id == parsedSettings.packageId, "Corrupted package: `id` is mismatched with parent folder" );
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw qwr::QwrException( e.what() );
+        throw qwr::QwrException( e );
     }
     catch ( const json::exception& e )
     {
@@ -160,7 +92,7 @@ void Reparse_Package( config::ParsedPanelSettings& parsedSettings )
 
     try
     {
-        const auto packageDirRet = FindPackage( packageId );
+        const auto packageDirRet = config::FindPackage( packageId );
         const auto valueOrEmpty = []( const std::u8string& str ) -> std::u8string {
             return ( str.empty() ? "<empty>" : str );
         };
@@ -170,86 +102,16 @@ void Reparse_Package( config::ParsedPanelSettings& parsedSettings )
                                        valueOrEmpty( parsedSettings.scriptName ),
                                        valueOrEmpty( parsedSettings.scriptAuthor ) );
 
-        Parse_PackageFromPath( *packageDirRet, parsedSettings );
+        parsedSettings = config::GetPackageSettingsFromPath( *packageDirRet );
         qwr::QwrException::ExpectTrue( packageId == parsedSettings.packageId, "Corrupted package: `id` is mismatched with parent folder" );
     }
     catch ( const fs::filesystem_error& e )
     {
-        throw qwr::QwrException( e.what() );
+        throw qwr::QwrException( e );
     }
     catch ( const json::exception& e )
     {
         throw qwr::QwrException( fmt::format( "Corrupted `package.json`: {}", e.what() ) );
-    }
-}
-
-void Save_PackageData( const config::ParsedPanelSettings& parsedSettings )
-{
-    namespace fs = std::filesystem;
-    using json = nlohmann::json;
-
-    assert( parsedSettings.scriptPath );
-    qwr::QwrException::ExpectTrue( !parsedSettings.scriptPath->empty(), "Corrupted settings: `scriptPath` is empty" );
-
-    try
-    {
-        auto jsonMain = json::object();
-
-        assert( parsedSettings.packageId );
-        qwr::QwrException::ExpectTrue( !parsedSettings.packageId->empty(), "Corrupted settings: `id` is empty" );
-
-        jsonMain.push_back( { "id", *parsedSettings.packageId } );
-        jsonMain.push_back( { "name", parsedSettings.scriptName } );
-        jsonMain.push_back( { "author", parsedSettings.scriptAuthor } );
-        jsonMain.push_back( { "version", parsedSettings.scriptVersion } );
-        jsonMain.push_back( { "description", parsedSettings.scriptDescription } );
-        jsonMain.push_back( { "enableDragDrop", parsedSettings.enableDragDrop } );
-        jsonMain.push_back( { "shouldGrabFocus", parsedSettings.shouldGrabFocus } );
-
-        if ( !parsedSettings.menuActions.empty() )
-        {
-            json menuActionsJson = json::object();
-            for ( const auto& [id, desc]: parsedSettings.menuActions )
-            {
-                menuActionsJson.push_back( { id, desc } );
-            }
-
-            jsonMain.push_back( { "menuActions", menuActionsJson } );
-        }
-
-        const auto packageDirRet = FindPackage( *parsedSettings.packageId );
-        const auto packagePath = [&] {
-            if ( packageDirRet )
-            {
-                return *packageDirRet;
-            }
-            else
-            {
-                return qwr::path::Profile() / SMP_UNDERSCORE_NAME / "packages";
-            }
-        }();
-
-        if ( !fs::exists( packagePath ) )
-        {
-            fs::create_directories( packagePath );
-        }
-
-        const auto packageJsonFile = packagePath / L"package.json";
-        qwr::file::WriteFile( packageJsonFile, jsonMain.dump( 2 ) );
-
-        const auto mainScriptPath = packagePath / L"main.js";
-        if ( !fs::exists( mainScriptPath ) )
-        {
-            qwr::file::WriteFile( mainScriptPath, config::PanelSettings_InMemory::GetDefaultScript() );
-        }
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        throw qwr::QwrException( e.what() );
-    }
-    catch ( const json::exception& e )
-    {
-        throw qwr::QwrException( fmt::format( "Corrupted settings: {}", e.what() ) );
     }
 }
 
@@ -368,7 +230,6 @@ PanelSettings ParsedPanelSettings::GeneratePanelSettings() const
         switch ( GetSourceType() )
         {
         case ScriptSourceType::Package:
-            Save_PackageData( *this );
             return GetPayload_Package( *this );
         case ScriptSourceType::Sample:
             return GetPayload_Sample( *this );

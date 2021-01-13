@@ -92,7 +92,8 @@ enum class MiscMessage : UINT
     heartbeat = static_cast<int>( InternalSyncMessage::last_message ) + 1,
     key_down,
     run_task_async,
-    size_limit_changed
+    size_limit_changed,
+    ui_editable_listbox_item_edited
 };
 
 template <typename T>
