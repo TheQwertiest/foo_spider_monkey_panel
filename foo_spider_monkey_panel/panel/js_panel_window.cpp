@@ -917,9 +917,10 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
             assert( settings_.GetSourceType() == config::ScriptSourceType::Package );
 
             const auto scriptFiles = config::GetPackageScriptFiles( settings_ );
-            const auto fileIdx = std::min( id - id_base, scriptFiles.size() ) - 1;
+            const auto fileIdx = std::min( id - id_base - 100, scriptFiles.size() ) - 1;
 
             panel::EditPackageScript( wnd_, scriptFiles[fileIdx], settings_ );
+            ReloadScript();
         }
     }
     catch ( const qwr::QwrException& e )

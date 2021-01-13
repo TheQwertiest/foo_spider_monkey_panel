@@ -5,6 +5,7 @@
 
 #include <resource.h>
 
+#include <qwr/ui_ddx.h>
 #include <qwr/ui_option.h>
 
 #include <optional>
@@ -42,6 +43,9 @@ public:
         COMMAND_ID_HANDLER_EX( IDOK, OnCloseCmd )
         COMMAND_ID_HANDLER_EX( IDCANCEL, OnCloseCmd )
         COMMAND_ID_HANDLER_EX( IDAPPLY, OnCloseCmd )
+        COMMAND_HANDLER_EX( IDC_EDIT_PANEL_NAME, EN_CHANGE, OnDdxUiChange )
+        COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_PANEL_NAME, BN_CLICKED, OnStartEditPanelName )
+        COMMAND_HANDLER_EX( IDC_BUTTON_COMMIT_PANEL_NAME, BN_CLICKED, OnCommitPanelName )
         MESSAGE_HANDLER( WM_WINDOWPOSCHANGED, OnWindowPosChanged )
         NOTIFY_HANDLER_EX( IDC_TAB_CONF, TCN_SELCHANGE, OnSelectionChanged )
     END_MSG_MAP()
@@ -63,10 +67,16 @@ public:
 
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
+    void OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl );
     LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     void OnParentNotify( UINT message, UINT nChildID, LPARAM lParam );
     LRESULT OnWindowPosChanged( UINT, WPARAM, LPARAM lp, BOOL& bHandled );
     LRESULT OnSelectionChanged( LPNMHDR pNmhdr );
+    void OnStartEditPanelName( UINT uNotifyCode, int nID, CWindow wndCtl );
+    void OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl );
+    void DisablePanelNameControls();
+
+    void DoFullDdxToUi();
 
     void OnDataChangedImpl( bool hasChanged = true );
 
@@ -79,6 +89,8 @@ private:
     void SetTabIdx( CDialogConf::Tab tabId );
 
 private:
+    bool suppressUiDdx_ = true;
+
     panel::js_panel_window* pParent_ = nullptr;
     config::ParsedPanelSettings oldSettings_;
     config::ParsedPanelSettings localSettings_;
@@ -89,7 +101,7 @@ private:
     bool hasChanged_ = false;
     bool isCleanSlate_ = false;
 
-    std::u8string caption_;
+    std::unique_ptr<qwr::ui::IUiDdx> panelNameDdx_;
 
     const CDialogConf::Tab startingTabId_;
     CTabCtrl cTabs_;

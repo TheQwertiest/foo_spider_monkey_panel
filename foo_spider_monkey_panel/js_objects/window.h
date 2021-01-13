@@ -96,6 +96,7 @@ public: // props
     uint32_t get_MinHeight();
     uint32_t get_MinWidth();
     std::u8string get_Name();
+    // TODO: add get_ScriptInfo
     uint64_t get_PanelMemoryUsage();
     JSObject* get_Tooltip();
     uint64_t get_TotalMemoryUsage();
