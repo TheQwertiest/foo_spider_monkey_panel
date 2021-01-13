@@ -142,11 +142,6 @@ void CConfigTabAppearance::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wnd
     parent_.OnDataChanged();
 }
 
-void CConfigTabAppearance::InitializeLocalOptions()
-{
-    edgeStyleId_ = GetEdgeIdFromEnum( edgeStyle_ );
-}
-
 void CConfigTabAppearance::DoFullDdxToUi()
 {
     if ( !this->m_hWnd )
@@ -158,6 +153,11 @@ void CConfigTabAppearance::DoFullDdxToUi()
     {
         ddx->WriteToUi();
     }
+}
+
+void CConfigTabAppearance::InitializeLocalOptions()
+{
+    edgeStyleId_ = GetEdgeIdFromEnum( edgeStyle_ );
 }
 
 } // namespace smp::ui

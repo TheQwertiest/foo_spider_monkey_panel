@@ -70,7 +70,7 @@ void Parse_Package( const config::PanelSettings_Package& settings, config::Parse
                                        valueOrEmpty( settings.name ),
                                        valueOrEmpty( settings.author ) );
 
-        parsedSettings = config::GetPackageSettingsFromPath( *packageDirRet );
+        config::FillPackageSettingsFromPath( *packageDirRet, parsedSettings );
         qwr::QwrException::ExpectTrue( settings.id == parsedSettings.packageId, "Corrupted package: `id` is mismatched with parent folder" );
     }
     catch ( const fs::filesystem_error& e )
@@ -102,7 +102,7 @@ void Reparse_Package( config::ParsedPanelSettings& parsedSettings )
                                        valueOrEmpty( parsedSettings.scriptName ),
                                        valueOrEmpty( parsedSettings.scriptAuthor ) );
 
-        parsedSettings = config::GetPackageSettingsFromPath( *packageDirRet );
+        config::FillPackageSettingsFromPath( *packageDirRet, parsedSettings );
         qwr::QwrException::ExpectTrue( packageId == parsedSettings.packageId, "Corrupted package: `id` is mismatched with parent folder" );
     }
     catch ( const fs::filesystem_error& e )

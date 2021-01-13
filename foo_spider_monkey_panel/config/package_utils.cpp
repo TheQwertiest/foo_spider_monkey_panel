@@ -184,6 +184,11 @@ ParsedPanelSettings GetPackageSettingsFromPath( const std::filesystem::path& pac
     return settings;
 }
 
+void FillPackageSettingsFromPath( const std::filesystem::path& packagePath, ParsedPanelSettings& settings )
+{
+    Parse_PackageFromPath( packagePath, settings );
+}
+
 void MaybeSavePackageData( const ParsedPanelSettings& settings )
 {
     if ( settings.GetSourceType() == ScriptSourceType::Package )

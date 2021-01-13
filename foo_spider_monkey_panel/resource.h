@@ -20,7 +20,7 @@
 #define IDD_DIALOG_EDIT_IN_PROGRESS        121
 #define IDR_MENU_EDITOR                    122
 #define IDD_DIALOG_PACKAGE_MANAGER         126
-#define IDC_STATIC_GUID                    1000
+#define IDC_EDIT_PANEL_NAME                1000
 #define IDC_EDIT                           1001
 #define IDC_DEL                            1010
 #define IDC_CLEARALL                       1011
@@ -80,6 +80,7 @@
 #define IDC_RICHEDIT_PACKAGE_INFO          1113
 #define IDC_BUTTON_EDIT_PANEL_NAME         1114
 #define IDC_BUTTON_NEW_SCRIPT              1115
+#define IDC_BUTTON_COMMIT_PANEL_NAME       1118
 #define ID_FILE_IMPORT                     40014
 #define ID_FILE_EXPORT                     40015
 #define ID_EDIT_RESETTODEFAULT             40016
@@ -98,7 +99,7 @@
 #    ifndef APSTUDIO_READONLY_SYMBOLS
 #        define _APS_NEXT_RESOURCE_VALUE 128
 #        define _APS_NEXT_COMMAND_VALUE  40030
-#        define _APS_NEXT_CONTROL_VALUE  1116
+#        define _APS_NEXT_CONTROL_VALUE  1119
 #        define _APS_NEXT_SYMED_VALUE    101
 #    endif
 #endif

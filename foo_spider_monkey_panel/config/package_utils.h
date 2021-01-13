@@ -15,6 +15,9 @@ ParsedPanelSettings GetNewPackageSettings( const std::u8string& name );
 ParsedPanelSettings GetPackageSettingsFromPath( const std::filesystem::path& packagePath );
 
 /// @throw qwr::QwrException
+void FillPackageSettingsFromPath( const std::filesystem::path& packagePath, ParsedPanelSettings& settings );
+
+/// @throw qwr::QwrException
 void MaybeSavePackageData( const ParsedPanelSettings& settings );
 
 /// @throw qwr::QwrException

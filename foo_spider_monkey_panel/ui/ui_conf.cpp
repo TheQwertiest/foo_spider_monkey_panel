@@ -37,12 +37,13 @@ namespace smp::ui
 
 CDialogConf::CDialogConf( smp::panel::js_panel_window* pParent, Tab tabId )
     : pParent_( pParent )
-    , caption_( "Panel Configuration" )
     , oldSettings_( pParent->GetSettings() )
     , localSettings_( oldSettings_ )
     , oldProperties_( pParent->GetPanelProperties() )
     , localProperties_( oldProperties_ )
     , isCleanSlate_( ::IsCleanSlate( pParent->GetSettings() ) )
+    , panelNameDdx_(
+          qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( localSettings_.panelId, IDC_EDIT_PANEL_NAME ) )
     , startingTabId_( tabId )
 {
 }
@@ -136,9 +137,28 @@ BOOL CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     InitializeTabData( startingTabId_ );
     InitializeTabControls();
 
+    DisablePanelNameControls();
+
     CButton{ GetDlgItem( IDAPPLY ) }.EnableWindow( false );
 
+    panelNameDdx_->SetHwnd( m_hWnd );
+
+    DoFullDdxToUi();
+
+    suppressUiDdx_ = false;
+
     return TRUE; // set focus to default control
+}
+
+void CDialogConf::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
+{
+    if ( suppressUiDdx_ )
+    {
+        return;
+    }
+
+    panelNameDdx_->ReadFromUi();
+    OnDataChanged();
 }
 
 LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
@@ -169,7 +189,7 @@ LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     {
         if ( HasChanged() )
         {
-            const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", caption_.c_str(), MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
+            const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", "Panel configuration", MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
             switch ( ret )
             {
             case IDYES:
@@ -228,6 +248,51 @@ LRESULT CDialogConf::OnWindowPosChanged( UINT, WPARAM, LPARAM lp, BOOL& bHandled
     bHandled = FALSE;
 
     return 0;
+}
+
+void CDialogConf::OnStartEditPanelName( UINT uNotifyCode, int nID, CWindow wndCtl )
+{
+    CButton edit{ GetDlgItem( IDC_BUTTON_EDIT_PANEL_NAME ) };
+    edit.EnableWindow( false );
+    edit.ShowWindow( SW_HIDE );
+
+    CButton commit{ GetDlgItem( IDC_BUTTON_COMMIT_PANEL_NAME ) };
+    commit.EnableWindow( true );
+    commit.ShowWindow( SW_SHOWNOACTIVATE );
+
+    CEdit panelName{ GetDlgItem( IDC_EDIT_PANEL_NAME ) };
+    panelName.ModifyStyle( 0, WS_TABSTOP, 0 );
+    panelName.SetReadOnly( FALSE );
+}
+
+void CDialogConf::OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl )
+{
+    DisablePanelNameControls();
+}
+
+void CDialogConf::DisablePanelNameControls()
+{
+    CButton edit{ GetDlgItem( IDC_BUTTON_EDIT_PANEL_NAME ) };
+    edit.EnableWindow( true );
+    edit.ShowWindow( SW_SHOWNOACTIVATE );
+
+    CButton commit{ GetDlgItem( IDC_BUTTON_COMMIT_PANEL_NAME ) };
+    commit.EnableWindow( false );
+    commit.ShowWindow( SW_HIDE );
+
+    CEdit panelName{ GetDlgItem( IDC_EDIT_PANEL_NAME ) };
+    panelName.ModifyStyle( WS_TABSTOP, 0, 0 );
+    panelName.SetReadOnly( TRUE );
+}
+
+void CDialogConf::DoFullDdxToUi()
+{
+    if ( !this->m_hWnd )
+    {
+        return;
+    }
+
+    panelNameDdx_->WriteToUi();
 }
 
 void CDialogConf::OnDataChangedImpl( bool hasChanged )
