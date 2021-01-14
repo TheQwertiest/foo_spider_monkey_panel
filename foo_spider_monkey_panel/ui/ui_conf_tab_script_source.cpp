@@ -91,6 +91,8 @@ CConfigTabScriptSource::CConfigTabScriptSource( CDialogConf& parent, config::Par
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
         }
     }
+
+    InitializeLocalOptions();
 }
 
 HWND CConfigTabScriptSource::CreateTab( HWND hParent )
@@ -129,7 +131,6 @@ BOOL CConfigTabScriptSource::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     }
 
     InitializeSamplesComboBox();
-    InitializeLocalOptions();
     DoFullDdxToUi();
 
     suppressUiDdx_ = false;

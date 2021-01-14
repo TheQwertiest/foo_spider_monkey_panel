@@ -92,8 +92,8 @@ private:
     CDialogConf& parent_;
     config::ParsedPanelSettings& settings_;
 
-    int sourceTypeId_;
-    int sampleIdx_;
+    int sourceTypeId_ = 0;
+    int sampleIdx_ = 0;
     std::u8string path_;
     std::u8string packageName_;
 

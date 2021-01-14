@@ -179,7 +179,6 @@ void CConfigTabPackage::OnAddFile( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     qwr::file::FileDialogOptions fdOpts{};
     fdOpts.savePathGuid = guid::dialog_path;
-    fdOpts.savePathGuid = guid::dialog_path;
     fdOpts.filterSpec.assign( {
         { L"All files", L"*.*" },
     } );
