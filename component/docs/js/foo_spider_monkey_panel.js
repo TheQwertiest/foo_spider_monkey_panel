@@ -9,9 +9,10 @@
  * - Has script caching - script file will be read only once from filesystem (even if it is included from different panels).<br>
  * - Has better error reporting.<br>
  * <br>
- * Note: when the relative `path` is used it will be evaluated to the following values:<br>
- * - `${fb.ComponentPath}/${path}`, if the method is invoked from a top-level script (i.e. panel's `Configure` dialog).<br>
- * - `${current_script_path}/${path}`, otherwise.
+ * Note: when the relative `path` is used it will be searched in the following paths:<br>
+ * - `${current_package_path}/scripts/${path}`, if the panel uses a package script.<br>
+ * - `${current_script_path}/${path}`, if the script is not a top-level `in-memory` script.<br>
+ * - `${fb.ComponentPath}/${path}`, otherwise.
  *
  * @param {string} path Absolute or relative path to JavaScript file.
  * @param {object=} [options=undefined]
@@ -1347,6 +1348,15 @@ let utils = {
     ColourPicker: function (window_id, default_colour) { }, // (uint)
 
     /**
+     * Edit a text file with the default text editor. <br>
+     * Default text editor can be changed via `Edit` button on the main tab of {@link window.ShowConfigureV2}.
+     *
+     * @param {number} window_id {@link window.ID}
+     * @param {number} path Path to file
+     */
+    EditTextFile: function (window_id, path) { }, // (uint)
+
+    /**
      * Various utility functions for working with file.
      *
      * @param {string} path
@@ -1453,6 +1463,15 @@ let utils = {
      * // See `samples/basic/GetAlbumArtV2.js`
      */
     GetAlbumArtV2: function (handle, art_id, need_stub) { }, // (GdiBitmap) [, art_id][, need_stub]
+
+    /**
+     * Get path to a package directory with the specified id.<br>
+     * Throws exception if package is not found.
+     * 
+     * @param {string} package_id
+     * @return {string}
+     */
+    GetPackagePath: function (package_id) { },
 
     /**
      * @param {number} index {@link https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getsyscolor}
@@ -1731,8 +1750,7 @@ let window = {
     MinWidth: undefined, // (uint) (read, write)
 
     /**
-     * Returns the author set in {@link window.DefinePanel}.
-     * If it isn't present, the GUID of the panel is returned.
+     * Returns the panel name set in {@link window.ShowConfigureV2}.
      *
      * @type {string}
      * @readonly
@@ -1746,6 +1764,25 @@ let window = {
      * @readonly
      */
     PanelMemoryUsage: undefined, // (uint) (read)
+
+    /**
+    * Information about the panel script.<br>
+    * Note: package_id is only present when the panel script is a package.
+    * 
+    * @typedef {ScriptInfo}
+    * @property {string} name
+    * @property {string} [author]
+    * @property {string} [version]
+    * @property {string} [package_id]
+    */
+
+    /**
+     * Information about the panel script.
+     *
+     * @type {ScriptInfo}
+     * @readonly
+     */
+    ScriptInfo: undefined,
 
     /**
      * Get associated tooltip object.
@@ -1786,9 +1823,14 @@ let window = {
     /**
      * Setups the panel information and available features.<br>
      * Can be called only once, so it's better to define it
-     * directly in the panel Configure menu.
+     * directly in the panel Configure menu.<br>
+     * <br>
+     * Deprecated: use {@link window.DefineScript} instead.<br>
+     * Panel name can be changed via {@link window.ShowConfigureV2}.<br>
      *
-     * @param {string} name Displayed panel name
+     * @deprecated
+     *
+     * @param {string} name Displayed script name
      * @param {object=} [options={}]
      * @param {string=} [options.author=''] Script author
      * @param {string=} [options.version=''] Script version
@@ -1796,6 +1838,26 @@ let window = {
      * @param {boolean=} [options.features.drag_n_drop=false] Indicates if drag_n_drop functionality should be enabled
      */
     DefinePanel: function (name, options) { }, // (void)
+
+    /**
+     * Setup the script information.<br>
+     * Can be called only once for the whole panel.
+     * 
+     * @param {string} name Script name
+     * @param {object=} [options={}]
+     * @param {string=} [options.author=''] Script author
+     * @param {string=} [options.version=''] Script version
+     * @param {object=} [options.features=undefined] Additional script features
+     * @param {boolean=} [options.features.drag_n_drop=false] Indicates if drag_n_drop functionality should be enabled
+     * @param {boolean=} [options.features.grab_focus=true] Indicates if panel should grab mouse focus
+     */
+    DefineScript: function (name, options) { }, // (void)
+
+     /**
+     * Open the current panel script in the default text editor.<br>
+     * Default text editor can be changed via `Edit` button on the main tab of {@link window.ShowConfigureV2}.
+     */
+    EditScript: function () { },
 
     /**
      * @return {MenuObject}
@@ -1961,8 +2023,18 @@ let window = {
     /**
      * Show configuration window of current panel
      * @method
+     * 
+     * Deprecated: use {@link window.ShowConfigureV2} to configure panel and {@link window.EditScript} to edit script.
+     *
+     * @deprecated
      */
     ShowConfigure: function () { }, // (void)
+
+    /**
+     * Show configuration window of current panel
+     * @method
+     */
+    ShowConfigureV2: function () { }, // (void)
 
     /**
      * Show properties window of current panel

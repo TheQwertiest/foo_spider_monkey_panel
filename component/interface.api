@@ -135,6 +135,7 @@ utils.Version
 utils.CheckComponent(name[, is_dll])
 utils.CheckFont(name)
 utils.ColourPicker(window_id, default_colour)
+utils.EditTextFile(window_id, path)
 utils.FileTest(path, mode)
 utils.FormatDuration(seconds)
 utils.FormatFileSize(bytes)
@@ -142,6 +143,7 @@ utils.GetAlbumArtAsync(window_id, handle[, art_id, need_stub, only_embed, no_loa
 utils.GetAlbumArtAsyncV2(window_id, handle[, art_id, need_stub, only_embed, no_load])
 utils.GetAlbumArtEmbedded(rawpath[, art_id])
 utils.GetAlbumArtV2(handle[, art_id, need_stub])
+utils.GetPackagePath(package_id)
 utils.GetSysColour(index)
 utils.GetSystemMetrics(index)
 utils.Glob(pattern[, exc_mask, inc_mask])
@@ -168,6 +170,7 @@ window.MinHeight
 window.MinWidth
 window.Name
 window.PanelMemoryUsage
+window.ScriptInfo
 window.Tooltip
 window.TotalMemoryUsage
 window.Width
@@ -178,6 +181,8 @@ window.CreatePopupMenu()
 window.CreateThemeManager(classlist)
 window.CreateTooltip(name, size_px, style)
 window.DefinePanel(name[, options])
+window.DefineScript(name[, options])
+window.EditScript()
 window.GetColourCUI(type[, client_guid])
 window.GetColourDUI(type)
 window.GetFontCUI(type[, client_guid])
@@ -192,6 +197,7 @@ window.SetInterval(func, delay)
 window.SetProperty(name, val)
 window.SetTimeout(func, delay)
 window.ShowConfigure()
+window.ShowConfigureV2()
 window.ShowProperties()
 
 #Use in on_paint
