@@ -80,7 +80,7 @@ private:
     void UpdateListBoxFromData();
 
 private:
-    bool suppressUiDdx_ = true;
+    bool suppressDdxFromUi_ = true;
 
     CDialogConf& parent_;
     config::ParsedPanelSettings& settings_; ///< used only for package data save
