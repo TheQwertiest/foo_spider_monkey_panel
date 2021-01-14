@@ -46,6 +46,7 @@ public:
         COMMAND_HANDLER_EX( IDC_EDIT_PANEL_NAME, EN_CHANGE, OnDdxUiChange )
         COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_PANEL_NAME, BN_CLICKED, OnStartEditPanelName )
         COMMAND_HANDLER_EX( IDC_BUTTON_COMMIT_PANEL_NAME, BN_CLICKED, OnCommitPanelName )
+        COMMAND_ID_HANDLER_EX( ID_HELP, OnHelp )
         MESSAGE_HANDLER( WM_WINDOWPOSCHANGED, OnWindowPosChanged )
         NOTIFY_HANDLER_EX( IDC_TAB_CONF, TCN_SELCHANGE, OnSelectionChanged )
     END_MSG_MAP()
@@ -74,6 +75,7 @@ private:
     LRESULT OnSelectionChanged( LPNMHDR pNmhdr );
     void OnStartEditPanelName( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl );
+    LRESULT OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     void DisablePanelNameControls();
 
     void DoFullDdxToUi();

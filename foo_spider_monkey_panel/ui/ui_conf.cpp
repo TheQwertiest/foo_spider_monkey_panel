@@ -8,12 +8,9 @@
 #include <ui/ui_conf_tab_package.h>
 #include <ui/ui_conf_tab_properties.h>
 #include <ui/ui_conf_tab_script_source.h>
-//#include <ui/ui_conf_tab_package_options.h>
 
 #include <qwr/error_popup.h>
-
-// TODO: fix default button highlighting and handling
-// TODO: fix `TAB` button handling (cycle between controls)
+#include <qwr/fb2k_paths.h>
 
 namespace
 {
@@ -64,6 +61,8 @@ void CDialogConf::OnScriptTypeChange()
                               && ( oldSettings_.GetSourceType() == config::ScriptSourceType::Package
                                    || localSettings_.GetSourceType() == config::ScriptSourceType::Package ) );
 
+    OnDataChangedImpl( true );
+
     // package data is saved by the caller
     Apply( false );
 
@@ -84,6 +83,11 @@ bool CDialogConf::HasChanged()
 
 void CDialogConf::Apply( bool savePackageData )
 {
+    if ( !hasChanged_ )
+    {
+        return;
+    }
+
     oldSettings_ = localSettings_;
     oldProperties_ = localProperties_;
 
@@ -128,6 +132,7 @@ void CDialogConf::SwitchTab( CDialogConf::Tab tabId )
 {
     SetTabIdx( tabId );
     cTabs_.SetCurSel( activeTabIdx_ );
+    CreateChildTab();
 }
 
 BOOL CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
@@ -268,6 +273,13 @@ void CDialogConf::OnStartEditPanelName( UINT uNotifyCode, int nID, CWindow wndCt
 void CDialogConf::OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     DisablePanelNameControls();
+}
+
+LRESULT CDialogConf::OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+{
+    const auto path = qwr::path::Component() / L"docs/html/index.html";
+    ShellExecute( nullptr, L"open", path.c_str(), nullptr, nullptr, SW_SHOW );
+    return 0;
 }
 
 void CDialogConf::DisablePanelNameControls()

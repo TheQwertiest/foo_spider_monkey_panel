@@ -4,9 +4,8 @@
 //
 #define VS_VERSION_INFO                    1
 #define IDR_SCRIPT                         101
-#define IDD_DIALOG_CONFIG                  102
 #define IDD_DIALOG_GOTO                    104
-#define IDD_DIALOG_PREFERENCE              107
+#define IDD_DIALOG_EDITOR_CONFIG           107
 #define IDD_DIALOG_NAME_VALUE              108
 #define IDD_DIALOG_CONF_TAB_PROPERTIES     109
 #define IDD_DIALOG_HTML                    111
@@ -81,6 +80,8 @@
 #define IDC_BUTTON_EDIT_PANEL_NAME         1114
 #define IDC_BUTTON_NEW_SCRIPT              1115
 #define IDC_BUTTON_COMMIT_PANEL_NAME       1118
+#define IDC_BUTTON_RESET                   1119
+#define IDC_STATIC_LINE                    1120
 #define ID_FILE_IMPORT                     40014
 #define ID_FILE_EXPORT                     40015
 #define ID_EDIT_RESETTODEFAULT             40016
@@ -92,14 +93,15 @@
 #define IDAPPLY                            40024
 #define ID_EDIT_WITH_INTERNAL              40028
 #define ID_EDIT_WITH_EXTERNAL              40029
+#define ID_OPTIONS_PROPERTIES              40030
 
 // Next default values for new objects
 //
 #ifdef APSTUDIO_INVOKED
 #    ifndef APSTUDIO_READONLY_SYMBOLS
-#        define _APS_NEXT_RESOURCE_VALUE 128
-#        define _APS_NEXT_COMMAND_VALUE  40030
-#        define _APS_NEXT_CONTROL_VALUE  1119
+#        define _APS_NEXT_RESOURCE_VALUE 129
+#        define _APS_NEXT_COMMAND_VALUE  40031
+#        define _APS_NEXT_CONTROL_VALUE  1123
 #        define _APS_NEXT_SYMED_VALUE    101
 #    endif
 #endif

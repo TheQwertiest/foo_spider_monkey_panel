@@ -130,9 +130,6 @@
     <ClCompile Include="utils\kmeans.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ui_pref.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_input_box.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -330,6 +327,9 @@
     <ClCompile Include="ui\ui_package_manager.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="ui\ui_editor_config.cpp">
+      <Filter>ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -480,9 +480,6 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_name_value_edit.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ui_pref.h">
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_input_box.h">
@@ -714,6 +711,9 @@
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_package_manager.h">
+      <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\ui_editor_config.h">
       <Filter>ui</Filter>
     </ClInclude>
   </ItemGroup>
