@@ -2,6 +2,7 @@
 
 #include "global_object.h"
 
+#include <config/package_utils.h>
 #include <js_engine/js_container.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_internal_global.h>
@@ -225,24 +226,41 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
 {
     namespace fs = std::filesystem;
 
-    const fs::path fsPath = [&path, &parentFilepaths = parentFilepaths_] {
+    const auto allSearchPaths = [&] {
+        std::vector<fs::path> paths;
+        if ( !parentFilepaths_.empty() )
+        {
+            ranges::actions::push_back( fs::u8path( parentFilepaths_.back() ) );
+        }
+        if ( const auto& setting = parentContainer_.GetParentPanel().GetSettings();
+             setting.packageId )
+        {
+            ranges::actions::push_back( paths, config::GetPackageScriptsDir( setting ) );
+        }
+        ranges::actions::push_back( paths, qwr::path::Component() );
+
+        return paths;
+    }();
+
+    const auto fsPath = [&path, &allSearchPaths] {
         try
         {
             fs::path fsPath = fs::u8path( path );
             if ( fsPath.is_relative() )
             {
-                if ( parentFilepaths.empty() )
+                assert( !allSearchPaths.empty() );
+                for ( const auto& searchPath: allSearchPaths )
                 {
-                    fsPath = qwr::path::Component() / fsPath;
+                    if ( fs::exists( searchPath / fsPath ) )
+                    {
+                        qwr::QwrException::ExpectTrue( fs::is_regular_file( searchPath / fsPath ), "Path does not point to a valid file: {}", path );
+                        return fsPath.lexically_normal();
+                    }
                 }
-                else
-                {
-                    fsPath = fs::u8path( parentFilepaths.back() ) / fsPath;
-                }
+                throw qwr::QwrException( "Path does not point to a valid file: {}", path );
             }
 
             qwr::QwrException::ExpectTrue( fs::exists( fsPath ) && fs::is_regular_file( fsPath ), "Path does not point to a valid file: {}", path );
-
             return fsPath.lexically_normal();
         }
         catch ( const fs::filesystem_error& e )

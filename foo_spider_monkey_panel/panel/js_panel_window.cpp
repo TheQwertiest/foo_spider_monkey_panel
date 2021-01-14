@@ -101,6 +101,24 @@ void js_panel_window::ReloadScript()
     }
 }
 
+void js_panel_window::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel )
+{
+    const auto settings = [&] {
+        try
+        {
+            return config::PanelSettings::Load( reader, size, abort );
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be reset!\n"
+                                                                         "Error: {}",
+                                                                         e.what() ) );
+            return config::PanelSettings{};
+        }
+    }();
+    UpdateSettings( settings, reloadPanel );
+}
+
 void js_panel_window::SetSettings( const smp::config::ParsedPanelSettings& settings )
 {
     settings_ = settings;

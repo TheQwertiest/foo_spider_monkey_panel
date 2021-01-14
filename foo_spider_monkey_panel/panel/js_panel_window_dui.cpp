@@ -261,10 +261,9 @@ void js_panel_window_dui::set_configuration( ui_element_config::ptr data )
 {
     ui_element_config_parser parser( data );
 
-    const auto settings = smp::config::PanelSettings::Load( parser.m_stream, parser.get_remaining(), fb2k::noAbort );
-    UpdateSettings( settings,
-                    // FIX: If window already created, DUI won't destroy it and create it again.
-                    !!t_parent::GetHWND() );
+    LoadSettings( parser.m_stream, parser.get_remaining(), fb2k::noAbort,
+                  // FIX: If window already created, DUI won't destroy it and create it again.
+                  !!t_parent::GetHWND() );
 }
 
 void js_panel_window_dui::initialize_window( HWND parent )
