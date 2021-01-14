@@ -157,7 +157,7 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
     }
 
     bool isCanceled = false;
-    const auto newPayLoadOpt = [&]() -> std::optional<config::PanelSettings::ScriptVariant> {
+    const auto newPayloadOpt = [&]() -> std::optional<config::PanelSettings::ScriptVariant> {
         switch ( sourceTypeId_ )
         {
         case IDC_RADIO_SRC_SAMPLE:
@@ -209,10 +209,10 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
         }
     }();
 
-    if ( newPayLoadOpt )
+    if ( newPayloadOpt )
     {
         config::PanelSettings newSettings;
-        newSettings.payload = *newPayLoadOpt;
+        newSettings.payload = *newPayloadOpt;
         try
         {
             settings_ = config::ParsedPanelSettings::Parse( newSettings );
@@ -220,17 +220,17 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
             DoButtonsDdxToUi();
             DoFullDdxToUi();
             parent_.OnScriptTypeChange();
+
+            return;
         }
         catch ( const qwr::QwrException& e )
         {
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
         }
     }
-    else
-    {
-        InitializeSourceType();
-        OnDdxValueChange( sourceTypeId_ );
-    }
+
+    InitializeSourceType();
+    OnDdxValueChange( sourceTypeId_ );
 }
 
 void CConfigTabScriptSource::OnDdxValueChange( int nID )
@@ -332,6 +332,7 @@ void CConfigTabScriptSource::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
             if ( hasChanged )
             {
                 parent_.OnDataChanged();
+                parent_.Apply();
             }
         }
         catch ( const qwr::QwrException& e )

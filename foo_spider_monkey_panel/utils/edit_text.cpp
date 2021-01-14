@@ -99,7 +99,7 @@ void EditTextFileInternal( HWND hParent, const std::filesystem::path& file )
     auto text = qwr::file::ReadFile( file.u8string(), CP_ACP, true );
     {
         ConditionalModalScope scope( hParent );
-        smp::ui::CEditor dlg( text, [&file, &text] { qwr::file::WriteFile( file.wstring().c_str(), text ); } );
+        smp::ui::CEditor dlg( file.filename().u8string(), text, [&file, &text] { qwr::file::WriteFile( file.wstring().c_str(), text ); } );
         dlg.DoModal( hParent );
     }
 }
@@ -122,7 +122,7 @@ void EditTextFileExternal( const std::filesystem::path& pathToEditor, const std:
 void EditTextInternal( HWND hParent, std::u8string& text )
 {
     ConditionalModalScope scope( hParent );
-    smp::ui::CEditor dlg( text );
+    smp::ui::CEditor dlg( "Temporary file", text );
     dlg.DoModal( hParent );
 }
 

@@ -229,7 +229,7 @@
     <ClCompile Include="ui\ui_input_box.cpp" />
     <ClCompile Include="ui\ui_name_value_edit.cpp" />
     <ClCompile Include="ui\ui_package_manager.cpp" />
-    <ClCompile Include="ui\ui_pref.cpp" />
+    <ClCompile Include="ui\ui_editor_config.cpp" />
     <ClCompile Include="ui\ui_conf_tab_properties.cpp" />
     <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
@@ -357,7 +357,7 @@
     <ClInclude Include="ui\ui_itab.h" />
     <ClInclude Include="ui\ui_name_value_edit.h" />
     <ClInclude Include="ui\ui_package_manager.h" />
-    <ClInclude Include="ui\ui_pref.h" />
+    <ClInclude Include="ui\ui_editor_config.h" />
     <ClInclude Include="ui\ui_conf_tab_properties.h" />
     <ClInclude Include="ui\ui_slow_script.h" />
     <ClInclude Include="utils\array_x.h" />

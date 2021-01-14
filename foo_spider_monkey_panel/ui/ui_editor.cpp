@@ -4,6 +4,7 @@
 
 #include <panel/js_panel_window.h>
 #include <ui/scintilla/sci_config.h>
+#include <ui/ui_editor_config.h>
 #include <utils/array_x.h>
 
 #include <qwr/fb2k_paths.h>
@@ -27,9 +28,10 @@ WINDOWPLACEMENT g_WindowPlacement{};
 namespace smp::ui
 {
 
-CEditor::CEditor( std::u8string& text, SaveCallback callback )
+CEditor::CEditor( const std::u8string& caption, std::u8string& text, SaveCallback callback )
     : callback_( callback )
     , text_( text )
+    , caption_( caption )
 {
 }
 
@@ -37,9 +39,6 @@ LRESULT CEditor::OnInitDialog( HWND, LPARAM )
 {
     menu = GetMenu();
     assert( menu.m_hMenu );
-
-    // Get caption text
-    m_caption = qwr::pfc_x::uGetWindowText<char8_t>( m_hWnd );
 
     // Init resize
     DlgResize_Init();
@@ -62,9 +61,7 @@ LRESULT CEditor::OnInitDialog( HWND, LPARAM )
 
     // Edit Control
     sciEditor_.SubclassWindow( GetDlgItem( IDC_EDIT ) );
-    sciEditor_.SetScintillaSettings();
-    sciEditor_.SetJScript();
-    sciEditor_.ReadAPI();
+    RereadProperties();
     sciEditor_.SetContent( text_.c_str(), true );
     sciEditor_.SetSavePoint();
 
@@ -97,10 +94,11 @@ LRESULT CEditor::OnCloseCmd( WORD, WORD wID, HWND )
         break;
     }
     case IDCANCEL:
+    case ID_APP_EXIT:
     {
         if ( sciEditor_.GetModify() )
         {
-            const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", m_caption.c_str(), MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
+            const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", caption_.c_str(), MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
             switch ( ret )
             {
             case IDYES:
@@ -114,7 +112,7 @@ LRESULT CEditor::OnCloseCmd( WORD, WORD wID, HWND )
             }
         }
 
-        EndDialog( IDCANCEL );
+        EndDialog( wID );
         break;
     }
     default:
@@ -126,20 +124,6 @@ LRESULT CEditor::OnCloseCmd( WORD, WORD wID, HWND )
     return 0;
 }
 
-void CEditor::Apply()
-{
-    sciEditor_.SetSavePoint();
-
-    std::vector<char> textBuffer( sciEditor_.GetTextLength() + 1 );
-    sciEditor_.GetText( textBuffer.data(), textBuffer.size() );
-    text_ = textBuffer.data();
-
-    if ( callback_ )
-    {
-        callback_();
-    }
-}
-
 LRESULT CEditor::OnNotify( int, LPNMHDR pnmh )
 {
     // SCNotification* notification = reinterpret_cast<SCNotification*>( pnmh );
@@ -148,12 +132,14 @@ LRESULT CEditor::OnNotify( int, LPNMHDR pnmh )
     {
     case SCN_SAVEPOINTLEFT:
     { // dirty
-        uSetWindowText( m_hWnd, ( m_caption + " *" ).c_str() );
+        isDirty_ = true;
+        UpdateUiElements();
         break;
     }
     case SCN_SAVEPOINTREACHED:
     { // not dirty
-        uSetWindowText( m_hWnd, m_caption.c_str() );
+        isDirty_ = false;
+        UpdateUiElements();
         break;
     }
     }
@@ -196,7 +182,7 @@ LRESULT CEditor::OnFileImport( WORD, WORD, HWND )
     catch ( const qwr::QwrException& e )
     {
         const auto errorMsg = fmt::format( "Failed to read file: {}", e.what() );
-        (void)uMessageBox( m_hWnd, errorMsg.c_str(), m_caption.c_str(), MB_ICONWARNING | MB_SETFOREGROUND );
+        (void)uMessageBox( m_hWnd, errorMsg.c_str(), caption_.c_str(), MB_ICONWARNING | MB_SETFOREGROUND );
     }
 
     return 0;
@@ -226,6 +212,16 @@ LRESULT CEditor::OnFileExport( WORD, WORD, HWND )
     return 0;
 }
 
+LRESULT CEditor::OnOptionProperties( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+{
+    CDialogEditorConfig config;
+    config.DoModal( m_hWnd );
+
+    RereadProperties();
+
+    return 0;
+}
+
 LRESULT CEditor::OnHelp( WORD, WORD, HWND )
 {
     const auto path = qwr::path::Component() / L"docs/html/index.html";
@@ -237,6 +233,27 @@ LRESULT CEditor::OnAbout( WORD, WORD, HWND )
 {
     (void)uMessageBox( m_hWnd, SMP_ABOUT, "About Spider Monkey Panel", MB_SETFOREGROUND );
     return 0;
+}
+
+void CEditor::RereadProperties()
+{
+    sciEditor_.SetScintillaSettings();
+    sciEditor_.SetJScript();
+    sciEditor_.ReadAPI();
+}
+
+void CEditor::UpdateUiElements()
+{
+    if ( isDirty_ )
+    {
+        CButton( GetDlgItem( IDAPPLY ) ).EnableWindow( TRUE );
+        uSetWindowText( m_hWnd, ( caption_ + " *" ).c_str() );
+    }
+    else
+    {
+        CButton( GetDlgItem( IDAPPLY ) ).EnableWindow( FALSE );
+        uSetWindowText( m_hWnd, caption_.c_str() );
+    }
 }
 
 bool CEditor::ProcessKey( uint32_t vk )
@@ -253,6 +270,20 @@ bool CEditor::ProcessKey( uint32_t vk )
     }
 
     return false;
+}
+
+void CEditor::Apply()
+{
+    sciEditor_.SetSavePoint();
+
+    std::vector<char> textBuffer( sciEditor_.GetTextLength() + 1 );
+    sciEditor_.GetText( textBuffer.data(), textBuffer.size() );
+    text_ = textBuffer.data();
+
+    if ( callback_ )
+    {
+        callback_();
+    }
 }
 
 } // namespace smp::ui

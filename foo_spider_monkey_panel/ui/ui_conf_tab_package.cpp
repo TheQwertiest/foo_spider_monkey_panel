@@ -346,6 +346,8 @@ void CConfigTabPackage::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl 
         qwr::QwrException::ExpectTrue( fs::exists( filePath ), "Script is missing: {}", filePath.u8string() );
 
         smp::EditTextFile( *this, filePath );
+        parent_.OnDataChanged();
+        parent_.Apply();
     }
     catch ( const fs::filesystem_error& e )
     {
