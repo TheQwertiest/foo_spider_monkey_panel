@@ -556,7 +556,7 @@ let fb = {
     /**
      * Retrieves what the selection type is.
      *
-     * @return {number}
+     * @return {number} Possible values:<br>
      *     0 - undefined (no item)<br>
      *     1 - active_playlist_selection<br>
      *     2 - caller_active_playlist<br>
@@ -2841,8 +2841,7 @@ function FbUiSelectionHolder() {
      *
      * @param {FbMetadbHandleList} handle_list
      * 
-     * @param {number} [type=0]
-     * 
+     * @param {number} [type=0] Selection type. Possible values:<br>
      *     0 - default, undefined<br>
      *     1 - active_playlist_selection<br>
      *     2 - caller_active_playlist<br>

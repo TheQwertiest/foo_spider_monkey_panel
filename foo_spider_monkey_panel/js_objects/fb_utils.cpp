@@ -3,6 +3,7 @@
 #include "fb_utils.h"
 
 #include <com_objects/drop_source_impl.h>
+#include <fb2k/selection_holder_helper.h>
 #include <fb2k/stats.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/context_menu_manager.h>
@@ -551,22 +552,10 @@ JSObject* JsFbUtils::GetSelectionsWithOpt( size_t optArgCount, uint32_t flags )
 
 uint32_t JsFbUtils::GetSelectionType()
 {
-    const std::array<const GUID*, 7> guids = {
-        &contextmenu_item::caller_undefined,
-        &contextmenu_item::caller_active_playlist_selection,
-        &contextmenu_item::caller_active_playlist,
-        &contextmenu_item::caller_playlist_manager,
-        &contextmenu_item::caller_now_playing,
-        &contextmenu_item::caller_keyboard_shortcut_list,
-        &contextmenu_item::caller_media_library_viewer
-    };
-
     const GUID type = ui_selection_manager_v2::get()->get_selection_type( 0 );
+    const auto holderIdOpt = GetSelectionHolderTypeFromGuid( type );
 
-    const auto it = ranges::find_if( guids, [type]( const auto pGuid ) { return type == *pGuid; } );
-    return ( ranges::end( guids ) != it
-                 ? ranges::distance( ranges::begin( guids ), it )
-                 : 0 );
+    return holderIdOpt.value_or( 0 );
 }
 
 bool JsFbUtils::IsLibraryEnabled()

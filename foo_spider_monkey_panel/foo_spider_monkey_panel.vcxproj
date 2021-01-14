@@ -153,6 +153,7 @@
     <ClCompile Include="fb2k\config.cpp" />
     <ClCompile Include="fb2k\fb2k_callbacks.cpp" />
     <ClCompile Include="fb2k\mainmenu.cpp" />
+    <ClCompile Include="fb2k\selection_holder_helper.cpp" />
     <ClCompile Include="fb2k\stats.cpp" />
     <ClCompile Include="js_engine\heartbeat_window.cpp" />
     <ClCompile Include="js_engine\host_timer_dispatcher.cpp" />
@@ -272,6 +273,7 @@
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="fb2k\advanced_config.h" />
     <ClInclude Include="fb2k\config.h" />
+    <ClInclude Include="fb2k\selection_holder_helper.h" />
     <ClInclude Include="fb2k\stats.h" />
     <ClInclude Include="js_engine\heartbeat_window.h" />
     <ClInclude Include="js_engine\host_timer_dispatcher.h" />

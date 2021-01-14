@@ -1,8 +1,8 @@
 #include <stdafx.h>
 
 #include "fb_ui_selection_holder.h"
-#include "utils/gui_holder_helpers.h"
 
+#include <fb2k/selection_holder_helper.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_utils/js_error_helper.h>
@@ -94,8 +94,10 @@ void JsFbUiSelectionHolder::SetSelection( JsFbMetadbHandleList* handles, uint8_t
 {
     qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
-    const GUID gtype = GetHolderGuiFromType( type );
-    holder_->set_selection_ex( handles->GetHandleList(), gtype );
+    const auto holderGuidOpt = GetSelectionHolderGuidFromType( type );
+    qwr::QwrException::ExpectTrue( holderGuidOpt.has_value(), "Unknown selection holder type: {}", type );
+
+    holder_->set_selection_ex( handles->GetHandleList(), *holderGuidOpt );
 }
 
 void JsFbUiSelectionHolder::SetSelectionWithOpt( size_t optArgCount, JsFbMetadbHandleList* handles, uint8_t type )
@@ -109,7 +111,7 @@ void JsFbUiSelectionHolder::SetSelectionWithOpt( size_t optArgCount, JsFbMetadbH
         SetSelection( handles );
         break;
     default:
-        throw SmpException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
 }
 
