@@ -27,26 +27,34 @@ auto GetSampleFolderPath()
     return qwr::path::Component() / "samples";
 }
 
+/// @throw qwr::QwrException
 std::vector<CConfigTabScriptSource::SampleComboBoxElem> GetSampleFileData()
 {
     namespace fs = std::filesystem;
 
-    std::vector<CConfigTabScriptSource::SampleComboBoxElem> elems;
-
-    const auto sampleFolderPath = GetSampleFolderPath();
-
-    for ( const auto& subdir: { "complete", "jsplaylist-mod", "js-smooth", "basic" } )
+    try
     {
-        for ( const auto& filepath: fs::directory_iterator( sampleFolderPath / subdir ) )
+        std::vector<CConfigTabScriptSource::SampleComboBoxElem> elems;
+
+        const auto sampleFolderPath = GetSampleFolderPath();
+
+        for ( const auto& subdir: { "complete", "jsplaylist-mod", "js-smooth", "basic" } )
         {
-            if ( filepath.path().extension() == ".js" )
+            for ( const auto& filepath: fs::directory_iterator( sampleFolderPath / subdir ) )
             {
-                elems.emplace_back( filepath.path().wstring(), fs::relative( filepath, sampleFolderPath ) );
+                if ( filepath.path().extension() == ".js" )
+                {
+                    elems.emplace_back( filepath.path().wstring(), fs::relative( filepath, sampleFolderPath ) );
+                }
             }
         }
-    }
 
-    return elems;
+        return elems;
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( e );
+    }
 }
 
 } // namespace
@@ -74,7 +82,14 @@ CConfigTabScriptSource::CConfigTabScriptSource( CDialogConf& parent, config::Par
 {
     if ( sampleData_.empty() )
     { // can't initialize it during global initialization
-        sampleData_ = GetSampleFileData();
+        try
+        {
+            sampleData_ = GetSampleFileData();
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        }
     }
 }
 

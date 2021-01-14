@@ -220,7 +220,6 @@ bool JsContainer::ExecuteScriptFile( const std::filesystem::path& scriptPath )
     JSAutoRealm ac( pJsCtx_, jsGlobal_ );
     try
     {
-
         OnJsActionStart();
         qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 

@@ -184,8 +184,7 @@ void js_panel_window_cui::on_font_changed( t_size ) const
 
 void js_panel_window_cui::set_config( stream_reader* reader, t_size size, abort_callback& abort )
 {
-    const auto settings = smp::config::PanelSettings::Load( *reader, size, abort );
-    UpdateSettings( settings, false );
+    LoadSettings( *reader, size, abort, false );
 }
 
 void js_panel_window_cui::notify_size_limit_changed( LPARAM lp )
