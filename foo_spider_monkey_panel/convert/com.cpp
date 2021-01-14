@@ -525,7 +525,6 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
     {
         if ( elementVariantType == VT_VARIANT )
         {
-
             VARIANT* varArray = nullptr;
             HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) );
             qwr::error::CheckHR( hr, "SafeArrayAccessData" );

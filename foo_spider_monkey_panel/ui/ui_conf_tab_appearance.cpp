@@ -74,6 +74,7 @@ CConfigTabAppearance::CConfigTabAppearance( CDialogConf& parent, config::ParsedP
                                                            } ),
       } )
 {
+    InitializeLocalOptions();
 }
 
 HWND CConfigTabAppearance::CreateTab( HWND hParent )
@@ -111,7 +112,6 @@ BOOL CConfigTabAppearance::OnInitDialog( HWND hwndFocus, LPARAM lParam )
         ddx->SetHwnd( m_hWnd );
     }
 
-    InitializeLocalOptions();
     DoFullDdxToUi();
 
     return TRUE; // set focus to default control

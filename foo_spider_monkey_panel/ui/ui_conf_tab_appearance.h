@@ -58,7 +58,7 @@ private:
     config::EdgeStyle& edgeStyle_;
     bool& isPseudoTransparent_;
 
-    int edgeStyleId_;
+    int edgeStyleId_ = 0;
 
     std::array<std::unique_ptr<qwr::ui::IUiDdx>, 2> ddx_;
 };

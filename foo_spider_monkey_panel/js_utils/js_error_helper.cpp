@@ -20,7 +20,6 @@ std::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
 {
     try
     { // Must not throw errors in error handler
-
         // Note: exceptions thrown while compiling top-level script have no stack.
         JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
         if ( !stackObj )
