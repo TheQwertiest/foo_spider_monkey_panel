@@ -1766,10 +1766,10 @@ let window = {
     PanelMemoryUsage: undefined, // (uint) (read)
 
     /**
-    * Information about the panel script.<br>
+    * Return value of {@link window.ScriptInfo}.<br>
     * Note: package_id is only present when the panel script is a package.
     * 
-    * @typedef {ScriptInfo}
+    * @typedef {Object} ScriptInfo
     * @property {string} name
     * @property {string} [author]
     * @property {string} [version]
