@@ -556,7 +556,7 @@ let fb = {
     /**
      * Retrieves what the selection type is.
      *
-     * @return {number}
+     * @return {number} Possible values:<br>
      *     0 - undefined (no item)<br>
      *     1 - active_playlist_selection<br>
      *     2 - caller_active_playlist<br>
@@ -2840,8 +2840,18 @@ function FbUiSelectionHolder() {
      * Sets the selected items.
      *
      * @param {FbMetadbHandleList} handle_list
+     * 
+     * @param {number} [type=0] Selection type. Possible values:<br>
+     *     0 - default, undefined<br>
+     *     1 - active_playlist_selection<br>
+     *     2 - caller_active_playlist<br>
+     *     3 - playlist_manager<br>
+     *     4 - now_playing<br>
+     *     5 - keyboard_shortcut_list<br>
+     *     6 - media_library_viewer
+     * 
      */
-    this.SetSelection = function (handle_list) { }; // (void)
+    this.SetSelection = function (handle_list, type) { }; // (void)
 
     /**
      * Sets selected items to playlist selection and enables tracking.<br>
