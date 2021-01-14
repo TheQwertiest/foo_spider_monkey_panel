@@ -10,11 +10,10 @@
 
 #include <qwr/error_popup.h>
 #include <qwr/file_helpers.h>
+#include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
 
 namespace fs = std::filesystem;
-
-// TODO: display package id
 
 namespace smp::ui
 {
@@ -80,14 +79,14 @@ BOOL CConfigTabPackage::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     InitializeFilesListBox();
     DoFullDdxToUi();
 
-    suppressUiDdx_ = false;
+    suppressDdxFromUi_ = false;
 
     return TRUE; // set focus to default control
 }
 
 void CConfigTabPackage::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
-    if ( suppressUiDdx_ )
+    if ( suppressDdxFromUi_ )
     {
         return;
     }
@@ -111,7 +110,10 @@ void CConfigTabPackage::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl
 
     UpdateUiButtons();
 
-    parent_.OnDataChanged();
+    if ( nID != IDC_LIST_PACKAGE_FILES )
+    {
+        parent_.OnDataChanged();
+    }
 }
 
 void CConfigTabPackage::OnNewScript( UINT uNotifyCode, int nID, CWindow wndCtl )
@@ -425,6 +427,10 @@ void CConfigTabPackage::DoFullDdxToUi()
     {
         return;
     }
+
+    // avoid triggering loopback ddx
+    suppressDdxFromUi_ = true;
+    const qwr::final_action autoSuppress( [&] { suppressDdxFromUi_ = false; } );
 
     for ( auto& ddx: ddx_ )
     {
