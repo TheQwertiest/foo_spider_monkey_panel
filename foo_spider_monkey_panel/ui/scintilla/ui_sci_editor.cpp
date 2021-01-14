@@ -1226,9 +1226,9 @@ void CScriptEditorCtrl::Init()
     AutoCSetIgnoreCase( true );
 
     // Set embedded properties
-    SetProperty( "dir.base", qwr::path::Foobar2000().u8string().c_str() );
-    SetProperty( "dir.component", qwr::path::Component().u8string().c_str() );
-    SetProperty( "dir.profile", qwr::path::Profile().u8string().c_str() );
+    SetProperty( "dir.base", ( qwr::path::Foobar2000() / "" ).u8string().c_str() );
+    SetProperty( "dir.component", ( qwr::path::Component() / "" ).u8string().c_str() );
+    SetProperty( "dir.profile", ( qwr::path::Profile() / "" ).u8string().c_str() );
 
     // Load properties
     LoadProperties( config::sci::props.val() );

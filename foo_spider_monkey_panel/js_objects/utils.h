@@ -47,6 +47,7 @@ public:
     JSObject* GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::u8string& rawpath, uint32_t art_id );
     JSObject* GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true );
     JSObject* GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub );
+    std::u8string GetPackagePath( const std::u8string& packageId );
     uint32_t GetSysColour( uint32_t index );
     uint32_t GetSystemMetrics( uint32_t index );
     JSObject* Glob( const std::u8string& pattern, uint32_t exc_mask = FILE_ATTRIBUTE_DIRECTORY, uint32_t inc_mask = 0xFFFFFFFF );

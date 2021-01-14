@@ -9,6 +9,7 @@
 #include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/js_property_helper.h>
 #include <panel/message_manager.h>
 #include <panel/user_message.h>
 #include <utils/art_helpers.h>
@@ -152,16 +153,15 @@ bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject, JS::HandleVa
             JS::RootedObject jsBitmap( cx, JsGdiBitmap::CreateJs( cx, std::move( image_ ) ) );
             jsBitmapValue = jsBitmap ? JS::ObjectValue( *jsBitmap ) : JS::UndefinedValue();
         }
-        JS::RootedValue jsPath( cx );
-        convert::to_js::ToValue( cx, path_, &jsPath );
 
         JS::RootedObject jsResult( cx, JS_NewPlainObject( cx ) );
-        if ( !jsResult
-             || !JS_DefineProperty( cx, jsResult, "image", jsBitmapValue, kDefaultPropsFlags )
-             || !JS_DefineProperty( cx, jsResult, "path", jsPath, kDefaultPropsFlags ) )
+        if ( !jsResult )
         {
             throw JsException();
         }
+
+        AddProperty( cx, jsResult, "image", JS::HandleValue{ jsBitmapValue } );
+        AddProperty( cx, jsResult, "path", path_ );
 
         JS::RootedValue jsResultValue( cx, JS::ObjectValue( *jsResult ) );
         (void)JS::ResolvePromise( cx, jsPromise, jsResultValue );
