@@ -93,11 +93,12 @@ public: // props
     uint32_t get_MaxHeight();
     uint32_t get_MaxWidth();
     uint32_t get_MemoryLimit();
+    // TODO: JSObject* get_MemoryStats();
     uint32_t get_MinHeight();
     uint32_t get_MinWidth();
     std::u8string get_Name();
-    // TODO: add get_ScriptInfo
     uint64_t get_PanelMemoryUsage();
+    JSObject* get_ScriptInfo();
     JSObject* get_Tooltip();
     uint64_t get_TotalMemoryUsage();
     uint32_t get_Width();

@@ -2,6 +2,7 @@
 
 #include "utils.h"
 
+#include <config/package_utils.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/gdi_bitmap.h>
@@ -65,6 +66,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsync, JsUtils::GetAlbumArtAsy
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2WithOpt, 4 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbeddedWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtV2, JsUtils::GetAlbumArtV2, JsUtils::GetAlbumArtV2WithOpt, 2 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPackagePath, JsUtils::GetPackagePath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetSysColour, JsUtils::GetSysColour );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetSystemMetrics, JsUtils::GetSystemMetrics );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Glob, JsUtils::Glob, JsUtils::GlobWithOpt, 2 );
@@ -91,6 +93,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "GetAlbumArtAsyncV2", GetAlbumArtAsyncV2, 2, kDefaultPropsFlags ),
         JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, kDefaultPropsFlags ),
         JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, kDefaultPropsFlags ),
+        JS_FN( "GetPackagePath", GetPackagePath, 1, kDefaultPropsFlags ),
         JS_FN( "GetSysColour", GetSysColour, 1, kDefaultPropsFlags ),
         JS_FN( "GetSystemMetrics", GetSystemMetrics, 1, kDefaultPropsFlags ),
         JS_FN( "Glob", Glob, 1, kDefaultPropsFlags ),
@@ -435,6 +438,14 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
     default:
         throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
+}
+
+std::u8string JsUtils::GetPackagePath( const std::u8string& packageId )
+{
+    const auto packagePathOpt = config::FindPackage( packageId );
+    qwr::QwrException::ExpectTrue( packagePathOpt.has_value(), "Unknown package: {}", packageId );
+
+    return packagePathOpt->u8string();
 }
 
 uint32_t JsUtils::GetSysColour( uint32_t index )

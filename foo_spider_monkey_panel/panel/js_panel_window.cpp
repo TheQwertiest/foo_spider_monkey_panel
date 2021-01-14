@@ -863,7 +863,17 @@ void js_panel_window::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t i
             auto scriptIdx = id_base + 100;
             for ( const auto& file: scriptFiles )
             {
-                cSubMenu.AppendMenu( MF_STRING, ++scriptIdx, fs::relative( file, scriptsDir ).c_str() );
+                const auto relativePath = [&] {
+                    if ( file.filename() == "main.js" )
+                    {
+                        return fs::path( "main.js" );
+                    }
+                    else
+                    {
+                        return fs::relative( file, scriptsDir );
+                    }
+                }();
+                cSubMenu.AppendMenu( MF_STRING, ++scriptIdx, relativePath.c_str() );
             }
 
             menu.AppendMenu( MF_STRING, cSubMenu, L"&Edit script" );

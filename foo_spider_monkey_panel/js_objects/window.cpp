@@ -55,6 +55,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CreatePopupMenu, JsWindow::CreatePopupMenu )
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreateThemeManager, JsWindow::CreateThemeManager )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CreateTooltip, JsWindow::CreateTooltip, JsWindow::CreateTooltipWithOpt, 3 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DefinePanel, JsWindow::DefinePanel, JsWindow::DefinePanelWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DefineScript, JsWindow::DefineScript, JsWindow::DefineScriptWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( EditScript, JsWindow::EditScript )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetColourCUI, JsWindow::GetColourCUI, JsWindow::GetColourCUIWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetColourDUI, JsWindow::GetColourDUI )
@@ -81,6 +82,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "CreateThemeManager", CreateThemeManager, 1, kDefaultPropsFlags ),
         JS_FN( "CreateTooltip", CreateTooltip, 0, kDefaultPropsFlags ),
         JS_FN( "DefinePanel", DefinePanel, 1, kDefaultPropsFlags ),
+        JS_FN( "DefineScript", DefineScript, 1, kDefaultPropsFlags ),
         JS_FN( "EditScript", EditScript, 0, kDefaultPropsFlags ),
         JS_FN( "GetColourCUI", GetColourCUI, 1, kDefaultPropsFlags ),
         JS_FN( "GetColourDUI", GetColourDUI, 1, kDefaultPropsFlags ),
@@ -114,6 +116,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_MinHeight, JsWindow::get_MinHeight )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MinWidth, JsWindow::get_MinWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Name, JsWindow::get_Name )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PanelMemoryUsage, JsWindow::get_PanelMemoryUsage )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_ScriptInfo, JsWindow::get_ScriptInfo )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Tooltip, JsWindow::get_Tooltip )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_TotalMemoryUsage, JsWindow::get_TotalMemoryUsage )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsWindow::get_Width )
@@ -138,6 +141,7 @@ constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
         JS_PSGS( "MinWidth", get_MinWidth, put_MinWidth, kDefaultPropsFlags ),
         JS_PSG( "Name", get_Name, kDefaultPropsFlags ),
         JS_PSG( "PanelMemoryUsage", get_PanelMemoryUsage, kDefaultPropsFlags ),
+        JS_PSG( "ScriptInfo", get_ScriptInfo, kDefaultPropsFlags ),
         JS_PSG( "Tooltip", get_Tooltip, kDefaultPropsFlags ),
         JS_PSG( "TotalMemoryUsage", get_TotalMemoryUsage, kDefaultPropsFlags ),
         JS_PSG( "Width", get_Width, kDefaultPropsFlags ),
@@ -799,6 +803,34 @@ uint64_t JsWindow::get_PanelMemoryUsage()
 
     JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
     return JsGc::GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal );
+}
+
+JSObject* JsWindow::get_ScriptInfo()
+{
+    if ( isFinalized_ )
+    {
+        return nullptr;
+    }
+
+    const auto& settings = parentPanel_.GetSettings();
+
+    JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
+
+    AddProperty( pJsCtx_, jsObject, "name", settings.scriptName );
+    if ( !settings.scriptAuthor.empty() )
+    {
+        AddProperty( pJsCtx_, jsObject, "author", settings.scriptAuthor );
+    }
+    if ( !settings.scriptVersion.empty() )
+    {
+        AddProperty( pJsCtx_, jsObject, "version", settings.scriptVersion );
+    }
+    if ( settings.packageId )
+    {
+        AddProperty( pJsCtx_, jsObject, "package_id", *settings.packageId );
+    }
+
+    return jsObject;
 }
 
 uint64_t JsWindow::get_TotalMemoryUsage()

@@ -1,8 +1,7 @@
 #pragma once
 
 #include <convert/js_to_native.h>
-
-#include <qwr/string_helpers.h>
+#include <convert/native_to_js.h>
 
 #include <optional>
 
@@ -34,6 +33,18 @@ std::optional<T> GetOptionalProperty( JSContext* cx, JS::HandleObject jsObject, 
     }
 
     return convert::to_native::ToValue<T>( cx, jsValue );
+};
+
+template <typename T>
+void AddProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& propName, const T& propValue )
+{
+    JS::RootedValue jsProperty( cx );
+    convert::to_js::ToValue( cx, propValue, &jsProperty );
+
+    if ( !JS_DefineProperty( cx, jsObject, propName.c_str(), jsProperty, kDefaultPropsFlags ) )
+    {
+        throw smp::JsException();
+    }
 };
 
 } // namespace mozjs
