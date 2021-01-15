@@ -7,16 +7,18 @@
 namespace smp::ui
 {
 
-CNameValueEdit::CNameValueEdit( const char* p_name, const char* p_value )
-    : m_name( p_name )
-    , m_value( p_value )
+CNameValueEdit::CNameValueEdit( const char* name, const char* value, const char* caption )
+    : name_( name )
+    , value_( value )
+    , caption_( caption )
 {
 }
 
 LRESULT CNameValueEdit::OnInitDialog( HWND, LPARAM )
 {
-    uSendDlgItemMessageText( m_hWnd, IDC_EDIT_NAME, WM_SETTEXT, 0, m_name.c_str() );
-    uSendDlgItemMessageText( m_hWnd, IDC_EDIT_VALUE, WM_SETTEXT, 0, m_value.c_str() );
+    uSetWindowText( m_hWnd, caption_.c_str() );
+    uSendDlgItemMessageText( m_hWnd, IDC_EDIT_NAME, WM_SETTEXT, 0, name_.c_str() );
+    uSendDlgItemMessageText( m_hWnd, IDC_EDIT_VALUE, WM_SETTEXT, 0, value_.c_str() );
 
     // Select all
     SendDlgItemMessage( IDC_EDIT_VALUE, EM_SETSEL, 0, -1 );
@@ -27,14 +29,21 @@ LRESULT CNameValueEdit::OnInitDialog( HWND, LPARAM )
 
 LRESULT CNameValueEdit::OnCommand( UINT, int id, HWND )
 {
-    if ( id == IDOK || id == IDCANCEL )
+    switch ( id )
     {
-        if ( id == IDOK )
-        {
-            m_value = qwr::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_VALUE ) );
-        }
-
+    case IDOK:
+    {
+        value_ = qwr::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_VALUE ) );
         EndDialog( id );
+        break;
+    }
+    case IDCANCEL:
+    {
+        EndDialog( id );
+        break;
+    }
+    default:
+        break;
     }
 
     return 0;
@@ -42,7 +51,7 @@ LRESULT CNameValueEdit::OnCommand( UINT, int id, HWND )
 
 std::u8string CNameValueEdit::GetValue()
 {
-    return m_value;
+    return value_;
 }
 
 } // namespace smp::ui

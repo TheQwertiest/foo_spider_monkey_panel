@@ -8,8 +8,6 @@ namespace smp::ui
 class CNameValueEdit : public CDialogImpl<CNameValueEdit>
 {
 public:
-    CNameValueEdit( const char* p_name, const char* p_value );
-
     BEGIN_MSG_MAP( CNameValueEdit )
         MSG_WM_INITDIALOG( OnInitDialog )
         MSG_WM_COMMAND( OnCommand )
@@ -20,14 +18,17 @@ public:
         IDD = IDD_DIALOG_NAME_VALUE
     };
 
-    LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
-    LRESULT OnCommand( UINT codeNotify, int id, HWND hwndCtl );
-
+    CNameValueEdit( const char* name, const char* value, const char* caption );
     std::u8string GetValue();
 
 private:
-    std::u8string m_name;
-    std::u8string m_value;
+    LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
+    LRESULT OnCommand( UINT codeNotify, int id, HWND hwndCtl );
+
+private:
+    std::u8string name_;
+    std::u8string value_;
+    std::u8string caption_;
 };
 
 } // namespace smp::ui

@@ -16,7 +16,7 @@ public:
     };
 
     BEGIN_DDX_MAP( CDialogEditorConfig )
-        DDX_CONTROL_HANDLE( IDC_LIST_EDITOR_PROP, m_props )
+        DDX_CONTROL_HANDLE( IDC_LIST_EDITOR_PROP, propertiesListView_ )
     END_DDX_MAP()
 
     BEGIN_MSG_MAP( CDialogEditorConfig )
@@ -43,12 +43,12 @@ private:
     LRESULT OnPropNMDblClk( LPNMHDR pnmh );
 
     void LoadProps( bool reset = false );
-    std::u8string uGetItemText( int nItem, int nSubItem );
+    std::u8string GetItemTextStr( int nItem, int nSubItem );
 
 private:
     bool hasChanged_ = false;
 
-    CListViewCtrl m_props;
+    CListViewCtrl propertiesListView_;
 };
 
 } // namespace smp::ui

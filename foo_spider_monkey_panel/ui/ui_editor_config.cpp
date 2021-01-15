@@ -34,13 +34,13 @@ BOOL CDialogEditorConfig::OnInitDialog( HWND, LPARAM )
 {
     DoDataExchange();
 
-    SetWindowTheme( m_props.m_hWnd, L"explorer", nullptr );
+    SetWindowTheme( propertiesListView_.m_hWnd, L"explorer", nullptr );
 
-    m_props.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER );
-    m_props.AddColumn( L"Name", 0 );
-    m_props.SetColumnWidth( 0, 150 );
-    m_props.AddColumn( L"Value", 1 );
-    m_props.SetColumnWidth( 1, 310 );
+    propertiesListView_.SetExtendedListViewStyle( LVS_EX_FULLROWSELECT | LVS_EX_DOUBLEBUFFER );
+    propertiesListView_.AddColumn( L"Name", 0 );
+    propertiesListView_.SetColumnWidth( 0, 150 );
+    propertiesListView_.AddColumn( L"Value", 1 );
+    propertiesListView_.SetColumnWidth( 1, 310 );
     LoadProps();
 
     return TRUE; // set focus to default control
@@ -112,41 +112,32 @@ void CDialogEditorConfig::OnButtonImportBnClicked( WORD, WORD, HWND )
 
 LRESULT CDialogEditorConfig::OnPropNMDblClk( LPNMHDR pnmh )
 {
-    //for ListView - (LPNMITEMACTIVATE)pnmh
-    //for StatusBar	- (LPNMMOUSE)pnmh
     auto pniv = reinterpret_cast<LPNMITEMACTIVATE>( pnmh );
 
-    if ( pniv->iItem >= 0 )
+    if ( pniv->iItem < 0 )
     {
+        return 0;
+    }
+
+    const auto key = this->GetItemTextStr( pniv->iItem, 0 );
+    const auto val = this->GetItemTextStr( pniv->iItem, 1 );
+
+    CNameValueEdit dlg( key.c_str(), val.c_str(), "Edit property" );
+    if ( IDOK == dlg.DoModal( m_hWnd ) )
+    {
+        const auto newVal = dlg.GetValue();
+
+        // Save
         auto& prop_sets = config::sci::props.val();
-
-        const auto key = this->uGetItemText( pniv->iItem, 0 );
-        const auto val = this->uGetItemText( pniv->iItem, 1 );
-
-        if ( !modal_dialog_scope::can_create() )
+        auto it = ranges::find_if( prop_sets, [&key]( const auto& elem ) { return ( elem.key == key ); } );
+        if ( it != prop_sets.end() )
         {
-            return 0;
+            it->val = newVal;
         }
 
-        modal_dialog_scope scope( m_hWnd );
-
-        CNameValueEdit dlg( key.c_str(), val.c_str() );
-
-        if ( IDOK == dlg.DoModal( m_hWnd ) )
-        {
-            const auto newVal = dlg.GetValue();
-
-            // Save
-            auto it = ranges::find_if( prop_sets, [&key]( const auto& elem ) { return ( elem.key == key ); } );
-            if ( it != prop_sets.end() )
-            {
-                it->val = newVal;
-            }
-
-            // Update list
-            m_props.SetItemText( pniv->iItem, 1, qwr::unicode::ToWide( newVal ).c_str() );
-            DoDataExchange();
-        }
+        // Update list
+        propertiesListView_.SetItemText( pniv->iItem, 1, qwr::unicode::ToWide( newVal ).c_str() );
+        DoDataExchange();
     }
 
     return 0;
@@ -161,23 +152,24 @@ void CDialogEditorConfig::LoadProps( bool reset )
 
     const auto& prop_sets = config::sci::props.val();
 
-    m_props.DeleteAllItems();
+    propertiesListView_.DeleteAllItems();
 
     for ( auto&& [i, prop]: ranges::views::enumerate( prop_sets ) )
     {
-        m_props.AddItem( i, 0, qwr::unicode::ToWide( prop.key ).c_str() );
-        m_props.AddItem( i, 1, qwr::unicode::ToWide( prop.val ).c_str() );
+        propertiesListView_.AddItem( i, 0, qwr::unicode::ToWide( prop.key ).c_str() );
+        propertiesListView_.AddItem( i, 1, qwr::unicode::ToWide( prop.val ).c_str() );
     }
 }
 
-std::u8string CDialogEditorConfig::uGetItemText( int nItem, int nSubItem )
+std::u8string CDialogEditorConfig::GetItemTextStr( int nItem, int nSubItem )
 {
+    constexpr size_t kBufferLen = 256;
     std::wstring buffer;
+    buffer.resize( kBufferLen );
 
-    auto size = m_props.GetItemText( nItem, nSubItem, buffer.data(), 0 );
-    buffer.resize( size + 1 );
-    (void)m_props.GetItemText( nItem, nSubItem, buffer.data(), size );
-    buffer.resize( wcslen( buffer.c_str() ) );
+    auto size = propertiesListView_.GetItemText( nItem, nSubItem, buffer.data(), buffer.size() );
+    // size == wcslen(buffer.c_str())
+    buffer.resize( size );
 
     return qwr::unicode::ToU8( buffer );
 }

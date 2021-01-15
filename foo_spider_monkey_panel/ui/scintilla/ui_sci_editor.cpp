@@ -564,8 +564,13 @@ void CScriptEditorCtrl::SetJScript()
     Colourise( 0, std::numeric_limits<unsigned int>::max() );
 }
 
-void CScriptEditorCtrl::SetScintillaSettings()
+void CScriptEditorCtrl::ReloadScintillaSettings()
 {
+    for ( const auto& prop: config::sci::props.val() )
+    {
+        SetProperty( prop.key.c_str(), prop.val.c_str() );
+    }
+
     auto getIntFromProp = [&]( const std::string& propName ) -> std::optional<int> {
         const auto propvalRet = GetPropertyExpanded_Opt( propName.c_str() );
         if ( !propvalRet )
@@ -1231,15 +1236,7 @@ void CScriptEditorCtrl::Init()
     SetProperty( "dir.profile", ( qwr::path::Profile() / "" ).u8string().c_str() );
 
     // Load properties
-    LoadProperties( config::sci::props.val() );
-}
-
-void CScriptEditorCtrl::LoadProperties( nonstd::span<const config::sci::ScintillaProp> data )
-{
-    for ( const auto& prop: data )
-    {
-        SetProperty( prop.key.c_str(), prop.val.c_str() );
-    }
+    ReloadScintillaSettings();
 }
 
 void CScriptEditorCtrl::RestoreDefaultStyle()

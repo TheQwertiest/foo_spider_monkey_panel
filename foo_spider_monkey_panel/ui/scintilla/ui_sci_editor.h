@@ -50,7 +50,7 @@ public:
     void ReadAPI();
     void SetJScript();
     void SetContent( const char* text, bool clear_undo_buffer = false );
-    void SetScintillaSettings();
+    void ReloadScintillaSettings();
     BOOL SubclassWindow( HWND hWnd );
 
 private:
@@ -95,7 +95,6 @@ private:
     bool RangeIsAllWhitespace( int start, int end );
     std::optional<DWORD> GetPropertyColor( const char* key );
     void Init();
-    void LoadProperties( nonstd::span<const config::sci::ScintillaProp> data );
     void RestoreDefaultStyle();
     void TrackWidth();
     void LoadStyleFromProperties();

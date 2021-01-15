@@ -71,7 +71,7 @@ public:
     LRESULT OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     LRESULT OnAbout( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 
-    void RereadProperties();
+    void ReloadProperties();
     void UpdateUiElements();
 
     bool ProcessKey( uint32_t vk );

@@ -61,7 +61,7 @@ LRESULT CEditor::OnInitDialog( HWND, LPARAM )
 
     // Edit Control
     sciEditor_.SubclassWindow( GetDlgItem( IDC_EDIT ) );
-    RereadProperties();
+    ReloadProperties();
     sciEditor_.SetContent( text_.c_str(), true );
     sciEditor_.SetSavePoint();
 
@@ -217,7 +217,7 @@ LRESULT CEditor::OnOptionProperties( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     CDialogEditorConfig config;
     config.DoModal( m_hWnd );
 
-    RereadProperties();
+    ReloadProperties();
 
     return 0;
 }
@@ -235,9 +235,9 @@ LRESULT CEditor::OnAbout( WORD, WORD, HWND )
     return 0;
 }
 
-void CEditor::RereadProperties()
+void CEditor::ReloadProperties()
 {
-    sciEditor_.SetScintillaSettings();
+    sciEditor_.ReloadScintillaSettings();
     sciEditor_.SetJScript();
     sciEditor_.ReadAPI();
 }
