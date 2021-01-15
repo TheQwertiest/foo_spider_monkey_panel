@@ -109,6 +109,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_ID, JsWindow::get_ID )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_InstanceType, JsWindow::get_InstanceType )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_IsTransparent, JsWindow::get_IsTransparent )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_IsVisible, JsWindow::get_IsVisible )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_JsMemoryStats, JsWindow::get_JsMemoryStats )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MaxHeight, JsWindow::get_MaxHeight )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MaxWidth, JsWindow::get_MaxWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_MemoryLimit, JsWindow::get_MemoryLimit )
@@ -134,6 +135,7 @@ constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
         JS_PSG( "InstanceType", get_InstanceType, kDefaultPropsFlags ),
         JS_PSG( "IsTransparent", get_IsTransparent, kDefaultPropsFlags ),
         JS_PSG( "IsVisible", get_IsVisible, kDefaultPropsFlags ),
+        JS_PSG( "JsMemoryStats", get_JsMemoryStats, kDefaultPropsFlags ),
         JS_PSGS( "MaxHeight", get_MaxHeight, put_MaxHeight, kDefaultPropsFlags ),
         JS_PSGS( "MaxWidth", get_MaxWidth, put_MaxWidth, kDefaultPropsFlags ),
         JS_PSG( "MemoryLimit", get_MemoryLimit, kDefaultPropsFlags ),
@@ -732,6 +734,23 @@ bool JsWindow::get_IsVisible()
     }
 
     return IsWindowVisible( parentPanel_.GetHWND() );
+}
+
+JSObject* JsWindow::get_JsMemoryStats()
+{
+    if ( isFinalized_ )
+    {
+        return nullptr;
+    }
+
+    JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
+
+    JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
+    AddProperty( pJsCtx_, jsObject, "memory_usage", JsGc::GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal ) );
+    AddProperty( pJsCtx_, jsObject, "total_memory_usage", JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage() );
+    AddProperty( pJsCtx_, jsObject, "total_memory_limit", JsGc::GetMaxHeap() );
+
+    return jsObject;
 }
 
 uint32_t JsWindow::get_MaxHeight()

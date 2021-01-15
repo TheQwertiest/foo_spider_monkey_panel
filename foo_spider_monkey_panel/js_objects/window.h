@@ -90,16 +90,19 @@ public: // props
     uint32_t get_InstanceType();
     bool get_IsTransparent();
     bool get_IsVisible();
+    JSObject* get_JsMemoryStats();
     uint32_t get_MaxHeight();
     uint32_t get_MaxWidth();
+    // TODO v2: remove
     uint32_t get_MemoryLimit();
-    // TODO: JSObject* get_MemoryStats();
     uint32_t get_MinHeight();
     uint32_t get_MinWidth();
     std::u8string get_Name();
+    // TODO v2: remove
     uint64_t get_PanelMemoryUsage();
     JSObject* get_ScriptInfo();
     JSObject* get_Tooltip();
+    // TODO v2: remove
     uint64_t get_TotalMemoryUsage();
     uint32_t get_Width();
     void put_DlgCode( uint32_t code );

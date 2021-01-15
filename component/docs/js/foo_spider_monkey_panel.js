@@ -1716,6 +1716,25 @@ let window = {
     IsVisible: undefined, // (boolean) (read)
 
     /**
+    * Return value of {@link window.JsMemoryStats}.<br>
+    * 
+    * @typedef {Object} JsMemoryStats
+    * @property {number} memory_usage Memory usage of the current panel (in bytes)
+    * @property {number} total_memory_usage Total memory usage of all panels (in bytes)
+    * @property {number} total_memory_limit 
+    *    Maximum allowed memory usage for the component (in bytes).<br>
+    *    If the total memory usage exceeds this value, all panels will fail with OOM error.
+    */
+
+    /**
+     * Get memory statistics for JavaScript engine.
+     * 
+     * @type {JsMemoryStats}
+     * @readonly
+     */
+    JsMemoryStats: undefined,
+
+    /**
      * @type {number}
      * @readonly
      */
@@ -1738,8 +1757,11 @@ let window = {
 
     /**
      * Maximum allowed memory usage for the component (in bytes).<br>
-     * If the total memory usage exceeds this value, all panels will fail with OOM error.
+     * If the total memory usage exceeds this value, all panels will fail with OOM error.<br>
+     * <br>
+     * Deprecated: use {@link window.JsMemoryStats.total_memory_limit} instead.
      *
+     * @deprecated
      * @type {number}
      * @readonly
      */
@@ -1768,7 +1790,9 @@ let window = {
     Name: undefined, // (string) (read)
 
     /**
-     * Memory usage of the current panel (in bytes).
+     * Memory usage of the current panel (in bytes).<br>
+     * <br>
+     * Deprecated: use {@link window.JsMemoryStats.memory_usage} instead.
      *
      * @type {number}
      * @readonly
@@ -1803,7 +1827,9 @@ let window = {
     Tooltip: undefined,
 
     /**
-     * Total memory usage of all panels (in bytes).
+     * Total memory usage of all panels (in bytes).<br>
+     * <br>
+     * Deprecated: use {@link window.JsMemoryStats.total_memory_usage} instead.
      *
      * @type {number}
      * @readonly
