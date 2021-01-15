@@ -46,8 +46,8 @@ private:
 
 private:
     using t_parent = js_panel_window;
-    bool m_is_edit_mode;
-    ui_element_instance_callback::ptr m_callback;
+    ui_element_instance_callback::ptr uiCallback_;
+    bool isEditMode_;
 };
 
 } // namespace smp::panel

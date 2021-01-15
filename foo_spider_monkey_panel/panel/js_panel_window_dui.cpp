@@ -68,8 +68,8 @@ namespace smp::panel
 
 js_panel_window_dui::js_panel_window_dui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
     : js_panel_window( PanelType::DUI )
-    , m_callback( callback )
-    , m_is_edit_mode( m_callback->is_edit_mode_enabled() )
+    , uiCallback_( callback )
+    , isEditMode_( callback->is_edit_mode_enabled() )
 {
     set_configuration( cfg );
 }
@@ -145,7 +145,7 @@ DWORD js_panel_window_dui::GetColour( unsigned type, const GUID& guid )
     t_ui_color colour = 0; ///< black
     if ( guidToQuery != pfc::guid_null )
     {
-        colour = m_callback->query_std_color( guidToQuery );
+        colour = uiCallback_->query_std_color( guidToQuery );
     }
 
     return smp::colour::convert_colorref_to_argb( colour );
@@ -179,7 +179,7 @@ HFONT js_panel_window_dui::GetFont( unsigned type, const GUID& guid )
         }
     }();
 
-    return ( guidToQuery != pfc::guid_null ? m_callback->query_font_ex( guidToQuery ) : nullptr );
+    return ( guidToQuery != pfc::guid_null ? uiCallback_->query_font_ex( guidToQuery ) : nullptr );
 }
 
 HWND js_panel_window_dui::get_wnd()
@@ -196,7 +196,7 @@ LRESULT js_panel_window_dui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
     case WM_RBUTTONDBLCLK:
     case WM_CONTEXTMENU:
     {
-        if ( m_is_edit_mode )
+        if ( isEditMode_ )
         {
             return DefWindowProc( hwnd, msg, wp, lp );
         }
@@ -245,7 +245,7 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_siz
 {
     if ( p_what == ui_element_notify_edit_mode_changed )
     {
-        notify_is_edit_mode_changed( m_callback->is_edit_mode_enabled() );
+        notify_is_edit_mode_changed( uiCallback_->is_edit_mode_enabled() );
     }
     else if ( p_what == ui_element_notify_font_changed )
     {
@@ -273,12 +273,12 @@ void js_panel_window_dui::initialize_window( HWND parent )
 
 void js_panel_window_dui::notify_size_limit_changed( LPARAM )
 {
-    m_callback->on_min_max_info_change();
+    uiCallback_->on_min_max_info_change();
 }
 
 void js_panel_window_dui::notify_is_edit_mode_changed( bool enabled )
 {
-    m_is_edit_mode = enabled;
+    isEditMode_ = enabled;
 }
 
 } // namespace smp::panel
