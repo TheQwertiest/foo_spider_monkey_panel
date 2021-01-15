@@ -105,6 +105,7 @@ public:
     std::u8string get_ProfilePath();
     uint32_t get_ReplaygainMode();
     bool get_StopAfterCurrent();
+    std::u8string get_Version();
     float get_Volume();
     void put_AlwaysOnTop( bool p );
     void put_CursorFollowPlayback( bool p );

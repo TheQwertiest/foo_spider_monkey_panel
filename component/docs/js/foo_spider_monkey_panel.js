@@ -263,6 +263,16 @@ let fb = {
     StopAfterCurrent: undefined, // (boolean) (read, write)
 
     /**
+    * @type {string}
+    * @readonly
+    *
+    * @example
+    * console.log(fb.Version)
+    * // 1.4.1
+    */
+    Version: undefined,
+
+    /**
      * @type {float}
      *
      * @example

@@ -167,6 +167,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaybackTime, JsFbUtils::get_PlaybackTime )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_ProfilePath, JsFbUtils::get_ProfilePath )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_ReplaygainMode, JsFbUtils::get_ReplaygainMode )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_StopAfterCurrent, JsFbUtils::get_StopAfterCurrent )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_Version, JsFbUtils::get_Version )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Volume, JsFbUtils::get_Volume )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_AlwaysOnTop, JsFbUtils::put_AlwaysOnTop )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_CursorFollowPlayback, JsFbUtils::put_CursorFollowPlayback )
@@ -190,6 +191,7 @@ constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
         JS_PSG( "ProfilePath", get_ProfilePath, kDefaultPropsFlags ),
         JS_PSGS( "ReplaygainMode", get_ReplaygainMode, put_ReplaygainMode, kDefaultPropsFlags ),
         JS_PSGS( "StopAfterCurrent", get_StopAfterCurrent, put_StopAfterCurrent, kDefaultPropsFlags ),
+        JS_PSG( "Version", get_Version, kDefaultPropsFlags ),
         JS_PSGS( "Volume", get_Volume, put_Volume, kDefaultPropsFlags ),
         JS_PS_END,
     } );
@@ -825,6 +827,11 @@ uint32_t JsFbUtils::get_ReplaygainMode()
 bool JsFbUtils::get_StopAfterCurrent()
 {
     return playback_control::get()->get_stop_after_current();
+}
+
+std::u8string JsFbUtils::get_Version()
+{
+    return core_version_info_v2::get()->get_version_as_text();
 }
 
 float JsFbUtils::get_Volume()
