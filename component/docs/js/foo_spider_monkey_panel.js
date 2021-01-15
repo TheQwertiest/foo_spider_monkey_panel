@@ -379,7 +379,7 @@ let fb = {
      * - DROPEFFECT_LINK should be used as fallback in case effect argument does not have DROPEFFECT_COPY (===1), since some external drops only allow DROPEFFECT_LINK effect.<br>
      * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see the example below.<br>
      *
-     * @param {number} window_id see {@link window.ID}
+     * @param {number} window_id unused
      * @param {FbMetadbHandleList} handle_list
      * @param {number} effect Allowed effects.
      * @param {object=} [options=undefined] Customization options for the data displayed in the drag window.
@@ -403,7 +403,7 @@ let fb = {
      * <br>
      * Performance note: validate clipboard content with {@link fb.CheckClipboardContents} before calling this method.
      *
-     * @param {number} window_id
+     * @param {number=} [window_id=0] unused
      * @return {FbMetadbHandleList}
      *
      * @example
@@ -413,7 +413,7 @@ let fb = {
      *    menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents() ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.js for MF_* definitions
      *    let idx = menu.TrackPopupMenu(x, y);
      *    if (idx == 1) {
-     *        let handle_list  = fb.GetClipboardContents(window.ID);
+     *        let handle_list  = fb.GetClipboardContents();
      *        plman.InsertPlaylistItems(ap, plman.PlaylistItemCount(ap), handle_list );
      *    }
      *    return true;
@@ -783,7 +783,7 @@ let gdi = {
     /**
      * Load image from file asynchronously.
      *
-     * @param {number} window_id see {@link window.ID}
+     * @param {number} window_id unused
      * @param {string} path
      * @return {number} a unique id, which is used in {@link module:callbacks~on_load_image_done on_load_image_done}.
      *
@@ -796,7 +796,7 @@ let gdi = {
      * Load image from file asynchronously.
      * Returns a `Promise` object, which will be resolved when image loading is done.
      *
-     * @param {number} window_id see {@link window.ID}
+     * @param {number} window_id unused
      * @param {string} path
      * @return {Promise.<?GdiBitmap>}
      *
@@ -1347,12 +1347,12 @@ let utils = {
     /**
      * Spawns a windows popup dialog to let you choose a colour.
      *
-     * @param {number} window_id {@link window.ID}
+     * @param {number} window_id unused
      * @param {number} default_colour This colour is used if OK button was not clicked.
      * @return {number}
      *
      * @example
-     * let colour = utils.ColourPicker(window.ID, RGB(255, 0, 0));
+     * let colour = utils.ColourPicker(0, RGB(255, 0, 0));
      * // See docs\Helper.js for RGB function.
      */
     ColourPicker: function (window_id, default_colour) { }, // (uint)
@@ -1361,10 +1361,9 @@ let utils = {
      * Edit a text file with the default text editor. <br>
      * Default text editor can be changed via `Edit` button on the main tab of {@link window.ShowConfigureV2}.
      *
-     * @param {number} window_id {@link window.ID}
      * @param {number} path Path to file
      */
-    EditTextFile: function (window_id, path) { }, // (uint)
+    EditTextFile: function (path) { }, // (uint)
 
     /**
      * Various utility functions for working with file.
@@ -1410,7 +1409,7 @@ let utils = {
      * Performance note: consider using {@link gdi.LoadImageAsync} or {@link gdi.LoadImageAsyncV2} if there are a lot of images to load
      * or if the image is big.
      *
-     * @param {number} window_id {@link window.ID}
+     * @param {number} window_id unused
      * @param {FbMetadbHandle} handle
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      * @param {boolean=} [need_stub=true]
@@ -1432,7 +1431,7 @@ let utils = {
      * Load art image for the track asynchronously.<br>
      * Returns a `Promise` object, which will be resolved when art loading is done.
      *
-     * @param {number} window_id {@link window.ID}
+     * @param {number} window_id unused
      * @param {FbMetadbHandle} handle
      * @param {number=} [art_id=0] See Flags.js > AlbumArtId
      * @param {boolean=} [need_stub=true] If true, will return a stub image from `Preferences`>`Display`>`Stub image path` when there is no art image available.
@@ -1521,7 +1520,7 @@ let utils = {
      *
      * @example
      * // With "error_on_cancel" not set (or set to false), cancelling the dialog will return "default_val".
-     * let username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "");
+     * let username = utils.InputBox(0, "Enter your username", "Spider Monkey Panel", "");
      *
      * @example
      * // Using Example1, you can't tell if OK or Cancel was pressed if the return value is the same
@@ -1529,7 +1528,7 @@ let utils = {
      * // when Cancel is pressed.
      * let username = "";
      * try {
-     *    username = utils.InputBox(window.ID, "Enter your username", "Spider Monkey Panel", "", true);
+     *    username = utils.InputBox(0, "Enter your username", "Spider Monkey Panel", "", true);
      *    // OK was pressed.
      * } catch(e) {
      *     // Dialog was closed by pressing Esc, Cancel or the Close button.
@@ -1606,7 +1605,7 @@ let utils = {
      *   - Arrays: must be cast via `.toArray()` inside html. Each element has same type limitations as options.data.<br>
      *   - Functions: with maximum of 7 arguments. Each argument has same type limitations as options.data.
      *
-     * @param {number} window_id {@link window.ID}
+     * @param {number} window_id unused
      * @param {string} code_or_path Html code or file path. File path must begin with `file://` prefix.
      * @param {object=} [options=undefined]
      * @param {number=} [options.width=250] Window width
@@ -1625,7 +1624,7 @@ let utils = {
      * // See `samples/basic/HtmlDialogWithCheckbox.js`
      *
      * @example <caption>Dialog from file</caption>
-     * utils.ShowHtmlDialog(window.ID, `file://${fb.ComponentPath}samples/basic/html/PopupWithCheckBox.html`);
+     * utils.ShowHtmlDialog(0, `file://${fb.ComponentPath}samples/basic/html/PopupWithCheckBox.html`);
      */
     ShowHtmlDialog: function (window_id, code_or_path, options) { },
 
@@ -1680,8 +1679,7 @@ let window = {
     DlgCode: undefined, // (uint) (read, write)
 
     /**
-     * Required in multiple methods such as {@link fb.GetClipboardContents}, {@link utils.ColourPicker}, {@link utils.GetAlbumArtAsync},
-     * {@link utils.InputBox}, {@link utils.LoadImageAsync} and etc.
+     * Window handle casted to uint32_t.
      *
      * @type {number}
      * @readonly

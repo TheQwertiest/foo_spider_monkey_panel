@@ -210,6 +210,12 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
     }
 }
 
+HWND JsGlobalObject::GetPanelHwnd() const
+{
+    assert( pJsWindow_ );
+    return pJsWindow_->GetHwnd();
+}
+
 void JsGlobalObject::ClearInterval( uint32_t intervalId )
 {
     assert( pJsWindow_ );

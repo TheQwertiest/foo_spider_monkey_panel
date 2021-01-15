@@ -47,10 +47,11 @@ public:
     JSObject* CreateMainMenuManager();
     JSObject* CreateProfiler( const std::u8string& name = "" );
     JSObject* CreateProfilerWithOpt( size_t optArgCount, const std::u8string& name );
-    uint32_t DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options = JS::UndefinedHandleValue );
-    uint32_t DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options );
+    uint32_t DoDragDrop( uint32_t hWnd, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options = JS::UndefinedHandleValue );
+    uint32_t DoDragDropWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options );
     void Exit();
-    JSObject* GetClipboardContents( uint32_t hWindow );
+    JSObject* GetClipboardContents( uint32_t hWnd = 0 );
+    JSObject* GetClipboardContentsWithOpt( size_t optArgCount, uint32_t hWnd );
     std::u8string GetDSPPresets();
     JSObject* GetFocusItem( bool force = true );
     JSObject* GetFocusItemWithOpt( size_t optArgCount, bool force );

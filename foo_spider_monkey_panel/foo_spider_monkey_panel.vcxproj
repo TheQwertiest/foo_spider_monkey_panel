@@ -199,6 +199,7 @@
     <ClCompile Include="js_objects\window.cpp" />
     <ClCompile Include="js_utils\js_art_helpers.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
+    <ClCompile Include="js_utils\js_hwnd_helpers.cpp" />
     <ClCompile Include="js_utils\js_image_helpers.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
@@ -323,6 +324,7 @@
     <ClInclude Include="js_utils\js_art_helpers.h" />
     <ClInclude Include="js_utils\js_async_task.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
+    <ClInclude Include="js_utils\js_hwnd_helpers.h" />
     <ClInclude Include="js_utils\js_image_helpers.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />
     <ClInclude Include="js_utils\js_property_helper.h" />

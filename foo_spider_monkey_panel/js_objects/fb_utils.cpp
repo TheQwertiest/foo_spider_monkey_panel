@@ -15,6 +15,7 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/main_menu_manager.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <panel/message_blocking_scope.h>
@@ -65,7 +66,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CreateMainMenuManager, JsFbUtils::CreateMainMenuMa
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CreateProfiler, JsFbUtils::CreateProfiler, JsFbUtils::CreateProfilerWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DoDragDrop, JsFbUtils::DoDragDrop, JsFbUtils::DoDragDropWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Exit, JsFbUtils::Exit )
-MJS_DEFINE_JS_FN_FROM_NATIVE( GetClipboardContents, JsFbUtils::GetClipboardContents )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetClipboardContents, JsFbUtils::GetClipboardContents, JsFbUtils::GetClipboardContentsWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetDSPPresets, JsFbUtils::GetDSPPresets )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetFocusItem, JsFbUtils::GetFocusItem, JsFbUtils::GetFocusItemWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetLibraryItems, JsFbUtils::GetLibraryItems )
@@ -297,8 +298,12 @@ JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const std::u8str
     }
 }
 
-uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options )
+uint32_t JsFbUtils::DoDragDrop( uint32_t hWnd, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options )
 {
+    (void)hWnd;
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    qwr::QwrException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
     qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
     const metadb_handle_list& handleList = handles->GetHandleList();
     const size_t handleCount = handleList.get_count();
@@ -329,8 +334,7 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWindow, JsFbMetadbHandleList* handles,
     MessageBlockingScope scope;
 
     pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handleList );
-    // Such HWND cast works only on x86
-    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( (HWND)hWindow,
+    pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( hPanel,
                                                                                   pDO.get_ptr(),
                                                                                   handleCount,
                                                                                   parsedOptions.useTheming,
@@ -360,8 +364,12 @@ void JsFbUtils::Exit()
     standard_commands::main_exit();
 }
 
-JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
+JSObject* JsFbUtils::GetClipboardContents( uint32_t hWnd )
 {
+    (void)hWnd;
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    qwr::QwrException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
     auto api = ole_interaction::get();
     pfc::com_ptr_t<IDataObject> pDO;
     metadb_handle_list items;
@@ -375,13 +383,26 @@ JSObject* JsFbUtils::GetClipboardContents( uint32_t hWindow )
         {
             dropped_files_data_impl data;
             if ( SUCCEEDED( api->parse_dataobject( pDO, data ) ) )
-            { // Such cast will work only on x86
-                data.to_handles( items, native, (HWND)hWindow );
+            {
+                data.to_handles( items, native, hPanel );
             }
         }
     }
 
     return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
+}
+
+JSObject* JsFbUtils::GetClipboardContentsWithOpt( size_t optArgCount, uint32_t hWnd )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return GetClipboardContents( hWnd );
+    case 1:
+        return GetClipboardContents();
+    default:
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+    }
 }
 
 std::u8string JsFbUtils::GetDSPPresets()

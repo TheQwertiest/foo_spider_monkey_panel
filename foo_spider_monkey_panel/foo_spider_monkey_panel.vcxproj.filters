@@ -330,6 +330,9 @@
     <ClCompile Include="ui\ui_editor_config.cpp">
       <Filter>ui</Filter>
     </ClCompile>
+    <ClCompile Include="js_utils\js_hwnd_helpers.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
     <ClCompile Include="fb2k\selection_holder_helper.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
@@ -718,6 +721,9 @@
     </ClInclude>
     <ClInclude Include="ui\ui_editor_config.h">
       <Filter>ui</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\js_hwnd_helpers.h">
+      <Filter>js_utils</Filter>
     </ClInclude>
     <ClInclude Include="fb2k\selection_holder_helper.h">
       <Filter>fb2k</Filter>

@@ -6,6 +6,7 @@
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_font.h>
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_image_helpers.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/array_x.h>
@@ -128,18 +129,20 @@ JSObject* JsGdiUtils::Image( const std::wstring& path )
 
 std::uint32_t JsGdiUtils::LoadImageAsync( uint32_t hWnd, const std::wstring& path )
 {
-    qwr::QwrException::ExpectTrue( hWnd, "Invalid hWnd argument" );
+    (void)hWnd;
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    qwr::QwrException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
 
-    // Such cast will work only on x86
-    return smp::image::LoadImageAsync( reinterpret_cast<HWND>( hWnd ), path );
+    return smp::image::LoadImageAsync( hPanel, path );
 }
 
 JSObject* JsGdiUtils::LoadImageAsyncV2( uint32_t hWnd, const std::wstring& path )
 {
-    qwr::QwrException::ExpectTrue( hWnd, "Invalid hWnd argument" );
+    (void)hWnd;
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    qwr::QwrException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
 
-    // Such cast will work only on x86
-    return mozjs::image::GetImagePromise( pJsCtx_, reinterpret_cast<HWND>( hWnd ), path );
+    return mozjs::image::GetImagePromise( pJsCtx_, hPanel, path );
 }
 
 } // namespace mozjs

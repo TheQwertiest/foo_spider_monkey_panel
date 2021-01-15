@@ -210,6 +210,16 @@ void JsWindow::PrepareForGc()
     isFinalized_ = true;
 }
 
+HWND JsWindow::GetHwnd() const
+{
+    if ( isFinalized_ )
+    {
+        return nullptr;
+    }
+
+    return parentPanel_.GetHWND();
+}
+
 void JsWindow::ClearInterval( uint32_t intervalId )
 {
     if ( isFinalized_ )
@@ -697,13 +707,8 @@ uint32_t JsWindow::get_Height()
 
 uint32_t JsWindow::get_ID()
 {
-    if ( isFinalized_ )
-    {
-        return 0;
-    }
-
     // Such cast works properly only on x86
-    return reinterpret_cast<uint32_t>( parentPanel_.GetHWND() );
+    return reinterpret_cast<uint32_t>( GetHwnd() );
 }
 
 uint32_t JsWindow::get_InstanceType()
