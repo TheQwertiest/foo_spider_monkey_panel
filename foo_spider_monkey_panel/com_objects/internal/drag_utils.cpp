@@ -87,8 +87,7 @@ HRESULT SetDropText( IDataObject* pdtobj, DROPIMAGETYPE dit, const wchar_t* msg,
 {
     static const auto cfRet = static_cast<CLIPFORMAT>( RegisterClipboardFormat( CFSTR_DROPDESCRIPTION ) );
 
-    DROPDESCRIPTION dd_prev;
-    memset( &dd_prev, 0, sizeof( dd_prev ) );
+    DROPDESCRIPTION dd_prev{};
 
     bool dd_prev_valid = ( SUCCEEDED( GetDataObjectDataSimple( pdtobj, cfRet, dd_prev ) ) );
 
@@ -98,7 +97,7 @@ HRESULT SetDropText( IDataObject* pdtobj, DROPIMAGETYPE dit, const wchar_t* msg,
          || wcscmp( dd_prev.szInsert, insert )
          || wcscmp( dd_prev.szMessage, msg ) )
     {
-        DROPDESCRIPTION dd;
+        DROPDESCRIPTION dd{};
         dd.type = dit;
         wcscpy_s( dd.szMessage, msg );
         wcscpy_s( dd.szInsert, insert );

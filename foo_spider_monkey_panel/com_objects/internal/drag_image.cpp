@@ -141,29 +141,49 @@ void draw_drag_image_icon( HDC dc, const RECT& rc, HICON icon )
     // We may want to use better scaling.
     DrawIconEx( dc, 0, 0, icon, RECT_CX( rc ), RECT_CY( rc ), 0, nullptr, DI_NORMAL );
 }
-SIZE GetDragImageContentSize( HDC dc, bool isThemed, HTHEME theme )
-{
-    auto sz = uih::get_system_dpi_cached();
-    MARGINS margins{ 0 };
-    constexpr int themeState = 0;
-    HRESULT hr{ S_OK };
 
-    if ( UsesTheming( isThemed, theme, DD_IMAGEBG, themeState ) )
+std::tuple<SIZE, POINT> GetDragImageContentSizeAndOffset( HDC dc, bool isThemed, HTHEME theme )
+{
+    constexpr int themeState = 0;
+
+    auto sz = uih::get_system_dpi_cached();
+    POINT offset{};
+
+    if ( !UsesTheming( true, theme, DD_IMAGEBG, themeState ) )
     {
-        hr = GetThemePartSize( theme, dc, DD_IMAGEBG, themeState, nullptr, TS_DRAW, &sz );
-        if ( SUCCEEDED( hr ) )
+        return { sz, offset };
+    }
+
+    if ( isThemed )
+    {
+        HRESULT hr = GetThemePartSize( theme, dc, DD_IMAGEBG, themeState, nullptr, TS_DRAW, &sz );
+        if ( FAILED( hr ) )
         {
-            hr = GetThemeMargins( theme, dc, DD_IMAGEBG, themeState, TMT_CONTENTMARGINS, nullptr, &margins );
-        }
-        if ( SUCCEEDED( hr ) )
-        {
-            sz.cx -= margins.cxLeftWidth + margins.cxRightWidth;
-            sz.cy -= margins.cyBottomHeight + margins.cyTopHeight;
+            return { sz, offset };
         }
     }
 
-    return sz;
+    MARGINS margins{};
+    HRESULT hr = GetThemeMargins( theme, dc, DD_IMAGEBG, themeState, TMT_CONTENTMARGINS, nullptr, &margins );
+    if ( FAILED( hr ) )
+    {
+        return { sz, offset };
+    }
+
+    if ( isThemed )
+    {
+        sz.cx -= margins.cxLeftWidth + margins.cxRightWidth;
+        sz.cy -= margins.cyBottomHeight + margins.cyTopHeight;
+    }
+    else
+    {
+        offset = { 0,
+                   margins.cyBottomHeight + margins.cyTopHeight };
+    }
+
+    return { sz, offset };
 }
+
 bool create_drag_image( HWND wnd, bool isThemed, HTHEME theme, COLORREF selectionBackgroundColour,
                         COLORREF selectionTextColour, HICON icon, const LPLOGFONT font, const char* text,
                         Gdiplus::Bitmap* pCustomImage, LPSHDRAGIMAGE lpsdi )
@@ -171,7 +191,7 @@ bool create_drag_image( HWND wnd, bool isThemed, HTHEME theme, COLORREF selectio
     HDC dc = GetDC( wnd );
     HDC dc_mem = CreateCompatibleDC( dc );
 
-    SIZE size = GetDragImageContentSize( dc, isThemed, theme );
+    auto [size, offset] = GetDragImageContentSizeAndOffset( dc, isThemed, theme );
     if ( !isThemed && pCustomImage )
     {
         size.cx = std::max<INT>( size.cx, pCustomImage->GetWidth() );
@@ -224,7 +244,7 @@ bool create_drag_image( HWND wnd, bool isThemed, HTHEME theme, COLORREF selectio
     lpsdi->sizeDragImage.cx = size.cx;
     lpsdi->sizeDragImage.cy = size.cy;
     lpsdi->ptOffset.x = size.cx / 2;
-    lpsdi->ptOffset.y = size.cy - size.cy / 10;
+    lpsdi->ptOffset.y = ( size.cy - offset.y ) - ( size.cy - offset.y ) / 10;
     lpsdi->hbmpDragImage = bm_mem;
     lpsdi->crColorKey = CLR_NONE;
 

@@ -338,7 +338,7 @@ private:
     bool FindImpl( FindReplaceState::Direction direction )
     {
         // Scintilla bug
-        assert( lastState_.useRegExp && direction == FindReplaceState::Direction::down );
+        assert( !lastState_.useRegExp || direction == FindReplaceState::Direction::down );
 
         const Range selectionRange = { sciEditor_.GetSelectionStart(), sciEditor_.GetSelectionEnd() };
         if ( lastSearchPosition_ != selectionRange.first )
