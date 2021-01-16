@@ -173,9 +173,6 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
         }
         case IDC_RADIO_SRC_FILE:
         {
-            // TODO: add support for relative path (i.e. automatic truncation and expansion)
-            // idea: truncate and expand path in config, not in UI
-
             const auto parsedSettingsOpt = OnBrowseFileImpl();
             if ( parsedSettingsOpt )
             {
@@ -416,7 +413,7 @@ void CConfigTabScriptSource::InitializeLocalOptions()
 {
     namespace fs = std::filesystem;
 
-    path_ = ( settings_.scriptPath && settings_.GetSourceType() != config::ScriptSourceType::Package
+    path_ = ( settings_.scriptPath && settings_.GetSourceType() == config::ScriptSourceType::File
                   ? settings_.scriptPath->u8string()
                   : std::u8string{} );
 
