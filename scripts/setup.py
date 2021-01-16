@@ -48,6 +48,8 @@ def setup( skip_mozjs,
     if (not skip_submodules_download):
         call_decorator('Downloading submodules')(download_submodules.download)()
         call_decorator("Configuring Scintilla")(configure_scintilla.configure)()
+        if (not skip_mozjs):
+            call_decorator("MozJs unpacking")(unpack_mozjs.unpack)()
         if (not skip_submodules_patches):
             call_decorator('Patching fb2k submodules')(
                 load_module(scripts_path/'patch_fb2k_submodules.py').patch
@@ -55,8 +57,6 @@ def setup( skip_mozjs,
                 root_dir=root_dir
             )
             call_decorator("Patching submodules")(patch_submodules.patch)()
-    if (not skip_mozjs):
-        call_decorator("MozJs unpacking")(unpack_mozjs.unpack)()
 
     call_decorator('Version header generation')(
         load_module(scripts_path/'generate_version_header.py').generate_header_custom

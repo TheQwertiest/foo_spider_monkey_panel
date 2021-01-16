@@ -1,0 +1,34 @@
+diff a/mozjs b/mozjs
+--- a/mozjs/Debug/include/js/Utility.h
++++ b/mozjs/Debug/include/js/Utility.h
+@@ -408,8 +408,12 @@ static inline void js_free(void* p) {
+   // TODO: This should call |moz_arena_free(js::MallocArena, p)| but we
+   // currently can't enforce that all memory freed here was allocated by
+   // js_malloc().
+-  free(p);
++
++  // TheQwertiest: workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1243367
++  // it's safe to do so, because `moz_arena_free` calls `free` when built with `--disable-je-malloc`
++  moz_arena_free(js::MallocArena, p);
++  // free(p);
+ }
+ #endif /* JS_USE_CUSTOM_ALLOCATOR */
+ 
+ #include <new>
+
+--- a/mozjs/Release/include/js/Utility.h
++++ b/mozjs/Release/include/js/Utility.h
+@@ -408,8 +408,12 @@ static inline void js_free(void* p) {
+   // TODO: This should call |moz_arena_free(js::MallocArena, p)| but we
+   // currently can't enforce that all memory freed here was allocated by
+   // js_malloc().
+-  free(p);
++
++  // TheQwertiest: workaround for https://bugzilla.mozilla.org/show_bug.cgi?id=1243367
++  // it's safe to do so, because `moz_arena_free` calls `free` when built with `--disable-je-malloc`
++  moz_arena_free(js::MallocArena, p);
++  // free(p);
+ }
+ #endif /* JS_USE_CUSTOM_ALLOCATOR */
+ 
+ #include <new>
