@@ -574,7 +574,7 @@ public:
 		m_iPrevious = 0;
 
 		if ((m_dwExtStyle & PLS_EX_NOCOLUMNRESIZE) == 0 &&
-			GET_X_LPARAM(lParam) == m_iMiddle)
+			IsOnDivider(GET_X_LPARAM(lParam)))
 		{
 			m_iPrevious = GET_X_LPARAM(lParam);
 		}
@@ -647,7 +647,7 @@ public:
 		::GetCursorPos(&pt);
 		this->ScreenToClient(&pt);
 
-		if (pt.x == m_iMiddle)
+		if (IsOnDivider(pt.x))
 		{
 			::SetCursor(::LoadCursor(NULL, IDC_SIZEWE));
 			return FALSE;
@@ -874,6 +874,11 @@ public:
 		dc.SelectPen(hOldPen);
 
 		dc.SelectFont(hOldFont);
+	}
+
+	bool IsOnDivider(int pt_x) {
+		constexpr int offset = 1;
+        return (pt_x >= m_iMiddle - offset && pt_x <= m_iMiddle + offset);
 	}
 };
 
