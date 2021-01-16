@@ -637,12 +637,12 @@ std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& fi
     }
 }
 
-std::wstring JsUtils::ReadTextFile( const std::u8string& filePath, uint32_t codepage )
+std::wstring JsUtils::ReadTextFile( const std::wstring& filePath, uint32_t codepage )
 {
     return qwr::file::ReadFileW( filePath, codepage );
 }
 
-std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::u8string& filePath, uint32_t codepage )
+std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::wstring& filePath, uint32_t codepage )
 {
     switch ( optArgCount )
     {

@@ -34,12 +34,10 @@ private:
 /// @throw qwr::QwrException
 const GUID& GetGuidForArtId( uint32_t art_id );
 
-/// @throw qwr::QwrException
 /// @throw smp::JsException
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const std::u8string& rawpath, uint32_t art_id );
 
 /// @throw qwr::QwrException
-/// @throw smp::JsException
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, std::u8string* pImagePath );
 
 /// @details Validate art_id before calling this function!
