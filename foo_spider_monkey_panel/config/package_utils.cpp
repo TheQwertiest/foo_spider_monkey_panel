@@ -36,7 +36,7 @@ void Parse_PackageFromPath( const std::filesystem::path& packageDir, config::Par
         parsedSettings.scriptPath = ( packageDir / "main.js" ).u8string();
         parsedSettings.isSample = ( packageDir.parent_path() == qwr::path::Component() / "samples" / "packages" );
 
-        const json jsonMain = json::parse( qwr::file::ReadFile( packageJsonFile.u8string(), false ) );
+        const json jsonMain = json::parse( qwr::file::ReadFile( packageJsonFile, false ) );
         qwr::QwrException::ExpectTrue( jsonMain.is_object(), "Corrupted `package.json`: not a JSON object" );
 
         parsedSettings.packageId = jsonMain.at( "id" ).get<std::string>();

@@ -706,7 +706,7 @@ void JsUtils::WriteTextFile( const std::wstring& filename, const std::u8string& 
 {
     qwr::QwrException::ExpectTrue( !filename.empty(), "Invalid filename" );
 
-    qwr::file::WriteFile( filename.c_str(), content, write_bom );
+    qwr::file::WriteFile( filename, content, write_bom );
 }
 
 void JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const std::u8string& content, bool write_bom )

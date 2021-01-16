@@ -72,11 +72,11 @@ void NotifyParentPanel( HWND hParent )
 void EditTextFileInternal( HWND hParent, const std::filesystem::path& file, bool isPanelScript )
 {
     // TODO: handle BOM
-    auto text = qwr::file::ReadFile( file.u8string(), CP_ACP, true );
+    auto text = qwr::file::ReadFile( file, CP_ACP, true );
     {
         ConditionalModalScope scope( hParent );
         smp::ui::CEditor dlg( file.filename().u8string(), text, [&] {
-            qwr::file::WriteFile( file.wstring().c_str(), text );
+            qwr::file::WriteFile( file, text );
             if ( isPanelScript )
             {
                 NotifyParentPanel( hParent );
@@ -143,7 +143,7 @@ void EditTextExternal( HWND hParent, const std::filesystem::path& pathToEditor, 
         return;
     }
 
-    text = qwr::file::ReadFile( fsTmpFilePath.u8string(), CP_UTF8 );
+    text = qwr::file::ReadFile( fsTmpFilePath, CP_UTF8 );
 }
 
 } // namespace

@@ -90,8 +90,8 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
     JSAutoRealm ac( pJsCtx_, jsGlobal_ );
 
     auto& scriptDataMap = scriptCache_.get().data;
-    const auto u8path = absolutePath.lexically_normal().u8string();
-    const auto lastWriteTime = [&absolutePath, &u8path] {
+    const auto cleanPath = absolutePath.lexically_normal();
+    const auto lastWriteTime = [&absolutePath, &cleanPath] {
         try
         {
             return std::filesystem::last_write_time( absolutePath );
@@ -100,12 +100,12 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         {
             throw qwr::QwrException( fmt::format( "Failed to open file `{}`:\n"
                                                   "  {}",
-                                                  u8path,
+                                                  cleanPath.u8string(),
                                                   qwr::unicode::ToU8_FromAcpToWide( e.what() ) ) );
         }
     }();
 
-    if ( auto it = scriptDataMap.find( u8path );
+    if ( auto it = scriptDataMap.find( cleanPath.u8string() );
          scriptDataMap.cend() != it )
     {
         if ( it->second.writeTime == lastWriteTime )
@@ -114,7 +114,7 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
         }
     }
 
-    const std::wstring scriptCode = qwr::file::ReadFileW( u8path, CP_ACP, false );
+    const std::wstring scriptCode = qwr::file::ReadFileW( cleanPath, CP_ACP, false );
     const auto filename = absolutePath.filename().u8string();
 
     JS::SourceText<char16_t> source;
@@ -129,7 +129,7 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
     JS::RootedScript parsedScript( pJsCtx_, JS::Compile( pJsCtx_, opts, source ) );
     JsException::ExpectTrue( parsedScript );
 
-    return scriptDataMap.insert_or_assign( u8path, JsHashMap::ValueType{ parsedScript, lastWriteTime } ).first->second.script;
+    return scriptDataMap.insert_or_assign( cleanPath.u8string(), JsHashMap::ValueType{ parsedScript, lastWriteTime } ).first->second.script;
 }
 
 } // namespace mozjs

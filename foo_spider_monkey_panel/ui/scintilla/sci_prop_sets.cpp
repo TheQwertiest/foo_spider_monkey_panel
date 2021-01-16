@@ -123,10 +123,12 @@ void ScintillaPropsCfg::export_to_file( const wchar_t* filename )
 
 void ScintillaPropsCfg::import_from_file( const char* filename )
 {
+    namespace fs = std::filesystem;
+
     const std::u8string text = [&filename] {
         try
         {
-            return qwr::file::ReadFile( filename, CP_UTF8 );
+            return qwr::file::ReadFile( fs::u8path( filename ), CP_UTF8 );
         }
         catch ( const qwr::QwrException& )
         {

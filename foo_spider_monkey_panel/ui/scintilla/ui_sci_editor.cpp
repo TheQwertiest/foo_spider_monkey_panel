@@ -464,6 +464,8 @@ bool CScriptEditorCtrl::ProcessKey( uint32_t vk )
 
 void CScriptEditorCtrl::ReadAPI()
 {
+    namespace fs = std::filesystem;
+
     m_apis.clear();
 
     constexpr char8_t propname[] = "api.jscript";
@@ -480,7 +482,7 @@ void CScriptEditorCtrl::ReadAPI()
     {
         try
         {
-            const auto content = qwr::file::ReadFile( std::u8string{ file.data(), file.size() }, CP_UTF8 );
+            const auto content = qwr::file::ReadFile( fs::u8path( std::u8string{ file.data(), file.size() } ), CP_UTF8 );
             for ( const auto& line: qwr::string::SplitByLines( content ) )
             {
                 if ( !line.empty() && IsCSym( line[0] ) )
