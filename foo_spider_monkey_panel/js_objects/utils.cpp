@@ -235,7 +235,7 @@ void JsUtils::EditTextFile( const std::wstring& path )
 
     modal_dialog_scope scope( hPanel );
 
-    smp::EditTextFile( hPanel, std::filesystem::path{ path } );
+    smp::EditTextFile( hPanel, std::filesystem::path{ path }, false );
 }
 
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )

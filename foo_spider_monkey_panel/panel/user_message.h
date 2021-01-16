@@ -78,6 +78,7 @@ enum class InternalSyncMessage : UINT
     notify_data = first_message,
     script_error,
     terminate_script,
+    ui_script_editor_saved,
     update_size_on_reload,
     wnd_drag_drop,
     wnd_drag_enter,
@@ -92,8 +93,7 @@ enum class MiscMessage : UINT
     heartbeat = static_cast<int>( InternalSyncMessage::last_message ) + 1,
     key_down,
     run_task_async,
-    size_limit_changed,
-    ui_editable_listbox_item_edited
+    size_limit_changed
 };
 
 template <typename T>

@@ -329,12 +329,7 @@ void CConfigTabScriptSource::OnEditScript( UINT uNotifyCode, int nID, CWindow wn
     {
         try
         {
-            const auto hasChanged = panel::EditScript( *this, settings_ );
-            if ( hasChanged )
-            {
-                parent_.OnDataChanged();
-                parent_.Apply();
-            }
+            panel::EditScript( *this, settings_ );
         }
         catch ( const qwr::QwrException& e )
         {
@@ -407,6 +402,14 @@ void CConfigTabScriptSource::OnEditScriptWith( UINT uNotifyCode, int nID, CWindo
     }
 
     OnEditScript( uNotifyCode, nID, wndCtl );
+}
+
+LRESULT CConfigTabScriptSource::OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+    parent_.OnDataChanged();
+    parent_.Apply();
+
+    return 0;
 }
 
 void CConfigTabScriptSource::InitializeLocalOptions()

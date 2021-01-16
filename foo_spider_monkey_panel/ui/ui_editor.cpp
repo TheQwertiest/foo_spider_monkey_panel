@@ -65,6 +65,8 @@ LRESULT CEditor::OnInitDialog( HWND, LPARAM )
     sciEditor_.SetContent( text_.c_str(), true );
     sciEditor_.SetSavePoint();
 
+    UpdateUiElements();
+
     return TRUE; // set focus to default control
 }
 

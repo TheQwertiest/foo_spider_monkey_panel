@@ -344,9 +344,7 @@ void CConfigTabPackage::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl 
         const auto filePath = files_[focusedFileIdx_];
         qwr::QwrException::ExpectTrue( fs::exists( filePath ), "Script is missing: {}", filePath.u8string() );
 
-        smp::EditTextFile( *this, filePath );
-        parent_.OnDataChanged();
-        parent_.Apply();
+        smp::EditTextFile( *this, filePath, true );
     }
     catch ( const fs::filesystem_error& e )
     {
@@ -418,6 +416,14 @@ LONG CConfigTabPackage::OnEditScriptDropDown( LPNMHDR pnmh )
         menu.AppendMenu( MF_BYPOSITION, ID_EDIT_WITH_INTERNAL, L"Edit with internal editor" );
         menu.TrackPopupMenu( TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, m_hWnd, nullptr );
     }
+
+    return 0;
+}
+
+LRESULT CConfigTabPackage::OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+    parent_.OnDataChanged();
+    parent_.Apply();
 
     return 0;
 }

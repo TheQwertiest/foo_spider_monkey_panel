@@ -696,6 +696,11 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
         UnloadScript();
         return 0;
     }
+    case InternalSyncMessage::ui_script_editor_saved:
+    {
+        ReloadScript();
+        return 0;
+    }
     case InternalSyncMessage::update_size_on_reload:
     {
         on_size( width_, height_ );
@@ -797,11 +802,7 @@ void js_panel_window::EditScript()
     {
         try
         {
-            const auto hasChanged = panel::EditScript( wnd_, settings_ );
-            if ( hasChanged )
-            {
-                ReloadScript();
-            }
+            panel::EditScript( wnd_, settings_ );
         }
         catch ( const qwr::QwrException& e )
         {
@@ -920,12 +921,7 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         }
         case 4:
         {
-            const auto hasChanged = panel::EditScript( wnd_, settings_ );
-            if ( hasChanged )
-            {
-                ReloadScript();
-            }
-
+            panel::EditScript( wnd_, settings_ );
             break;
         }
         case 5:

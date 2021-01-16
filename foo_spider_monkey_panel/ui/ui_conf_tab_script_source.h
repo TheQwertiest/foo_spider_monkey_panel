@@ -1,6 +1,7 @@
 #pragma once
 
 #include <config/parsed_panel_config.h>
+#include <panel/user_message.h>
 #include <ui/ui_itab.h>
 
 #include <resource.h>
@@ -26,6 +27,7 @@ public:
 
     BEGIN_MSG_MAP( CConfigTabScriptSource )
         MSG_WM_INITDIALOG( OnInitDialog )
+        MESSAGE_HANDLER_EX( static_cast<int>( InternalSyncMessage::ui_script_editor_saved ), OnScriptSaved );
         COMMAND_HANDLER_EX( IDC_RADIO_SRC_SAMPLE, BN_CLICKED, OnScriptSrcChange )
         COMMAND_HANDLER_EX( IDC_RADIO_SRC_FILE, BN_CLICKED, OnScriptSrcChange )
         COMMAND_HANDLER_EX( IDC_RADIO_SRC_MEMORY, BN_CLICKED, OnScriptSrcChange )
@@ -76,6 +78,8 @@ private:
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     LONG OnEditScriptDropDown( LPNMHDR pnmh ) const;
     void OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl );
+
+    LRESULT OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lParam );
 
     void InitializeLocalOptions();
     void InitializeSourceType();

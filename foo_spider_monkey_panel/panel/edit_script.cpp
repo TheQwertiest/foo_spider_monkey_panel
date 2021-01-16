@@ -13,7 +13,7 @@ namespace fs = std::filesystem;
 namespace smp::panel
 {
 
-bool EditScript( HWND hParent, config::ParsedPanelSettings& settings )
+void EditScript( HWND hParent, config::ParsedPanelSettings& settings )
 {
     try
     {
@@ -38,7 +38,7 @@ bool EditScript( HWND hParent, config::ParsedPanelSettings& settings )
             const auto filePath = *settings.scriptPath;
             qwr::QwrException::ExpectTrue( fs::exists( filePath ), "Sample script is missing: {}", filePath.u8string() );
 
-            smp::EditTextFile( hParent, filePath );
+            smp::EditTextFile( hParent, filePath, true );
             break;
         }
         case config::ScriptSourceType::File:
@@ -47,17 +47,14 @@ bool EditScript( HWND hParent, config::ParsedPanelSettings& settings )
             const auto filePath = *settings.scriptPath;
             qwr::QwrException::ExpectTrue( fs::exists( filePath ), "Script is missing: {}", filePath.u8string() );
 
-            smp::EditTextFile( hParent, filePath );
+            smp::EditTextFile( hParent, filePath, true );
             break;
         }
         case config::ScriptSourceType::InMemory:
         {
             assert( settings.script );
-            auto script = *settings.script;
-            smp::EditText( hParent, script );
-            settings.script = script;
-
-            return true;
+            smp::EditText( hParent, *settings.script, true );
+            break;
         }
         case config::ScriptSourceType::Package:
         default:
@@ -66,8 +63,6 @@ bool EditScript( HWND hParent, config::ParsedPanelSettings& settings )
             break;
         }
         }
-
-        return false;
     }
     catch ( const fs::filesystem_error& e )
     {
@@ -98,7 +93,7 @@ void EditPackageScript( HWND hParent, const std::filesystem::path& script, const
 
         qwr::QwrException::ExpectTrue( fs::exists( script ), "Script is missing: {}", script.u8string() );
 
-        smp::EditTextFile( hParent, script );
+        smp::EditTextFile( hParent, script, true );
     }
     catch ( const fs::filesystem_error& e )
     {

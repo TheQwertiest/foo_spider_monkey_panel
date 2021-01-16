@@ -33,8 +33,6 @@ public:
         DLGRESIZE_CONTROL( IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y )
     END_DLGRESIZE_MAP()
 
-    // TODO: make `apply` and `save` buttons dynamic via SCN_SAVEPOINTREACHED and SCN_SAVEPOINTLEFT
-
     BEGIN_MSG_MAP( CEditor )
         MSG_WM_INITDIALOG( OnInitDialog )
         MSG_WM_NOTIFY( OnNotify )

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <config/parsed_panel_config.h>
+#include <panel/user_message.h>
 #include <ui/ui_itab.h>
 
 #include <resource.h>
@@ -27,6 +28,7 @@ public:
 
     BEGIN_MSG_MAP( CConfigTabPackage )
         MSG_WM_INITDIALOG( OnInitDialog )
+        MESSAGE_HANDLER_EX( static_cast<int>( InternalSyncMessage::ui_script_editor_saved ), OnScriptSaved );
         COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_NAME, EN_CHANGE, OnDdxUiChange )
         COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_VERSION, EN_CHANGE, OnDdxUiChange )
         COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_AUTHOR, EN_CHANGE, OnDdxUiChange )
@@ -71,6 +73,8 @@ private:
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl );
     LONG OnEditScriptDropDown( LPNMHDR pnmh );
+
+    LRESULT OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lParam );
 
     void DoFullDdxToUi();
     void UpdateUiButtons();

@@ -15,6 +15,8 @@
 namespace
 {
 
+using namespace smp;
+
 /// @remark For cases when modal might be called from another modal
 class ConditionalModalScope
 {
@@ -62,44 +64,24 @@ std::filesystem::path GetFixedEditorPath()
     }
 }
 
-} // namespace
-
-namespace smp
+void NotifyParentPanel( HWND hParent )
 {
-
-void EditTextFile( HWND hParent, const std::filesystem::path& file )
-{
-    const auto editorPath = GetFixedEditorPath();
-    if ( editorPath.empty() )
-    {
-        smp::EditTextFileInternal( hParent, file );
-    }
-    else
-    {
-        smp::EditTextFileExternal( editorPath, file );
-    }
+    SendMessage( hParent, static_cast<INT>( InternalSyncMessage::ui_script_editor_saved ), 0, 0 );
 }
 
-void EditText( HWND hParent, std::u8string& text )
-{
-    const auto editorPath = GetFixedEditorPath();
-    if ( editorPath.empty() )
-    {
-        smp::EditTextInternal( hParent, text );
-    }
-    else
-    {
-        smp::EditTextExternal( hParent, editorPath, text );
-    }
-}
-
-void EditTextFileInternal( HWND hParent, const std::filesystem::path& file )
+void EditTextFileInternal( HWND hParent, const std::filesystem::path& file, bool isPanelScript )
 {
     // TODO: handle BOM
     auto text = qwr::file::ReadFile( file.u8string(), CP_ACP, true );
     {
         ConditionalModalScope scope( hParent );
-        smp::ui::CEditor dlg( file.filename().u8string(), text, [&file, &text] { qwr::file::WriteFile( file.wstring().c_str(), text ); } );
+        smp::ui::CEditor dlg( file.filename().u8string(), text, [&] {
+            qwr::file::WriteFile( file.wstring().c_str(), text );
+            if ( isPanelScript )
+            {
+                NotifyParentPanel( hParent );
+            }
+        } );
         dlg.DoModal( hParent );
     }
 }
@@ -119,10 +101,14 @@ void EditTextFileExternal( const std::filesystem::path& pathToEditor, const std:
     }
 }
 
-void EditTextInternal( HWND hParent, std::u8string& text )
+void EditTextInternal( HWND hParent, std::u8string& text, bool isPanelScript )
 {
     ConditionalModalScope scope( hParent );
-    smp::ui::CEditor dlg( "Temporary file", text );
+    smp::ui::CEditor dlg( "Temporary file", text, [&] {  
+        if (isPanelScript)
+            {
+                NotifyParentPanel( hParent );
+            } } );
     dlg.DoModal( hParent );
 }
 
@@ -152,9 +138,50 @@ void EditTextExternal( HWND hParent, const std::filesystem::path& pathToEditor, 
 
     ConditionalModalScope scope( hParent );
     ui::CEditInProgress dlg{ pathToEditor, fsTmpFilePath };
-    if ( dlg.DoModal( hParent ) == IDOK )
+    if ( dlg.DoModal( hParent ) != IDOK )
     {
-        text = qwr::file::ReadFile( fsTmpFilePath.u8string(), CP_UTF8 );
+        return;
+    }
+
+    text = qwr::file::ReadFile( fsTmpFilePath.u8string(), CP_UTF8 );
+}
+
+} // namespace
+
+namespace smp
+{
+
+void EditTextFile( HWND hParent, const std::filesystem::path& file, bool isPanelScript )
+{
+    const auto editorPath = GetFixedEditorPath();
+    if ( editorPath.empty() )
+    {
+        EditTextFileInternal( hParent, file, isPanelScript );
+    }
+    else
+    {
+        EditTextFileExternal( editorPath, file );
+        if ( isPanelScript )
+        {
+            NotifyParentPanel( hParent );
+        }
+    }
+}
+
+void EditText( HWND hParent, std::u8string& text, bool isPanelScript )
+{
+    const auto editorPath = GetFixedEditorPath();
+    if ( editorPath.empty() )
+    {
+        EditTextInternal( hParent, text, isPanelScript );
+    }
+    else
+    {
+        EditTextExternal( hParent, editorPath, text );
+        if ( isPanelScript )
+        {
+            NotifyParentPanel( hParent );
+        }
     }
 }
 
