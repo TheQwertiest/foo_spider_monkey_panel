@@ -38,17 +38,17 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "js_docs", "js_docs", "{324E
 		..\scripts\doc\README.md = ..\scripts\doc\README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{C276FFA1-45F8-4ABB-BD1B-50B414CEF1D0}"
-	ProjectSection(SolutionItems) = preProject
-		..\foo_spider_monkey_panel\.clang-format = ..\foo_spider_monkey_panel\.clang-format
-		..\foo_spider_monkey_panel\.clang-tidy = ..\foo_spider_monkey_panel\.clang-tidy
-	EndProjectSection
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "lexilla", "..\submodules\scintilla\lexilla\src\lexilla.vcxproj", "{7CA4BBC9-83CA-42BE-84BB-8A98368FABAB}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "fb2k_utils", "..\submodules\fb2k_utils\src\fb2k_utils.vcxproj", "{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "miniz", "..\miniz\miniz.vcxproj", "{1B0654F2-3FEC-43B8-8C0A-6206C64BD6B2}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{953785C5-143A-45BD-A877-597515012F21}"
+	ProjectSection(SolutionItems) = preProject
+		..\foo_spider_monkey_panel\.clang-format = ..\foo_spider_monkey_panel\.clang-format
+		..\foo_spider_monkey_panel\.clang-tidy = ..\foo_spider_monkey_panel\.clang-tidy
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -130,7 +130,7 @@ Global
 		{1B0654F2-3FEC-43B8-8C0A-6206C64BD6B2} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 		SolutionNewStyle = 1
+		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 	EndGlobalSection
 EndGlobal

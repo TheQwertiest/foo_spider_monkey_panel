@@ -344,7 +344,7 @@ void CConfigTabPackage::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl 
         const auto filePath = files_[focusedFileIdx_];
         qwr::QwrException::ExpectTrue( fs::exists( filePath ), "Script is missing: {}", filePath.u8string() );
 
-        smp::EditTextFile( *this, filePath, true );
+        smp::EditTextFile( *this, filePath, true, true );
     }
     catch ( const fs::filesystem_error& e )
     {

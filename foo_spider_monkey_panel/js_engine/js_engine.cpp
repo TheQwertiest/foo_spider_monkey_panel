@@ -17,7 +17,6 @@
 
 #include <js/Initialization.h>
 #include <qwr/error_popup.h>
-#include <qwr/final_action.h>
 #include <qwr/string_helpers.h>
 #include <qwr/thread_helpers.h>
 

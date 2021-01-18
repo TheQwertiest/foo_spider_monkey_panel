@@ -19,7 +19,6 @@
 #include <utils/gdi_error_helpers.h>
 
 #include <qwr/file_helpers.h>
-#include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
 
 // StringCchCopy, StringCchCopyN
@@ -235,7 +234,8 @@ void JsUtils::EditTextFile( const std::wstring& path )
 
     modal_dialog_scope scope( hPanel );
 
-    smp::EditTextFile( hPanel, std::filesystem::path{ path }, false );
+    // TODO: add options - editor_path, is_modal
+    smp::EditTextFile( hPanel, std::filesystem::path{ path }, false, false );
 }
 
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )

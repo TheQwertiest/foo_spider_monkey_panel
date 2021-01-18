@@ -10,7 +10,6 @@
 #include <Shlwapi.h>
 
 #include <qwr/abort_callback.h>
-#include <qwr/final_action.h>
 #include <qwr/string_helpers.h>
 
 #include <algorithm>

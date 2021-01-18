@@ -6,7 +6,7 @@ namespace smp
 {
 
 /// @throw qwr::QwrException
-void EditTextFile( HWND hParent, const std::filesystem::path& file, bool isPanelScript );
+void EditTextFile( HWND hParent, const std::filesystem::path& file, bool isPanelScript, bool isModal );
 
 /// @throw qwr::QwrException
 void EditText( HWND hParent, std::u8string& text, bool isPanelScript );

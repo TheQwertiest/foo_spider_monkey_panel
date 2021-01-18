@@ -385,7 +385,6 @@
     <ClInclude Include="utils\zip_utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include=".clang-format" />
     <None Include="default.js" />
     <None Include="foo_spider_monkey_panel.rc2" />
     <None Include="packages.config" />

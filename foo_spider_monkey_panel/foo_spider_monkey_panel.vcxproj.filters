@@ -733,7 +733,6 @@
     <None Include="default.js">
       <Filter>resources</Filter>
     </None>
-    <None Include=".clang-format" />
     <None Include="foo_spider_monkey_panel.rc2">
       <Filter>resources</Filter>
     </None>

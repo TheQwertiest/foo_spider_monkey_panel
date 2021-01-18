@@ -2,7 +2,6 @@
 
 #include "ui_edit_in_progress.h"
 
-#include <qwr/final_action.h>
 #include <qwr/thread_helpers.h>
 #include <qwr/winapi_error_helpers.h>
 

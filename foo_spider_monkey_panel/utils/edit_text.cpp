@@ -86,18 +86,29 @@ void EditTextFileInternal( HWND hParent, const std::filesystem::path& file, bool
     }
 }
 
-void EditTextFileExternal( const std::filesystem::path& pathToEditor, const std::filesystem::path& file )
+bool EditTextFileExternal( HWND hParent, const std::filesystem::path& file, const std::filesystem::path& pathToEditor, bool isModal )
 {
-    const std::wstring qPath = L"\"" + file.wstring() + L"\"";
-    const auto hInstance = ShellExecute( nullptr,
-                                         L"open",
-                                         pathToEditor.c_str(),
-                                         qPath.c_str(),
-                                         nullptr,
-                                         SW_SHOW );
-    if ( (int)hInstance < 32 )
-    { // As per WinAPI
-        qwr::error::CheckWin32( (int)hInstance, "ShellExecute" );
+    if ( isModal )
+    {
+        ConditionalModalScope scope( hParent );
+        ui::CEditInProgress dlg{ pathToEditor, file };
+        return ( dlg.DoModal( hParent ) == IDOK );
+    }
+    else
+    {
+        const std::wstring qPath = L"\"" + file.wstring() + L"\"";
+        const auto hInstance = ShellExecute( nullptr,
+                                             L"open",
+                                             pathToEditor.c_str(),
+                                             qPath.c_str(),
+                                             nullptr,
+                                             SW_SHOW );
+        if ( (int)hInstance < 32 )
+        { // As per WinAPI
+            qwr::error::CheckWin32( (int)hInstance, "ShellExecute" );
+        }
+
+        return true;
     }
 }
 
@@ -112,38 +123,58 @@ void EditTextInternal( HWND hParent, std::u8string& text, bool isPanelScript )
     dlg.DoModal( hParent );
 }
 
-void EditTextExternal( HWND hParent, const std::filesystem::path& pathToEditor, std::u8string& text )
+void EditTextExternal( HWND hParent, std::u8string& text, const std::filesystem::path& pathToEditor )
 {
     namespace fs = std::filesystem;
 
-    std::wstring tmpFilePath;
-    tmpFilePath.resize( MAX_PATH + 1 );
+    // keep .tmp for the uniqueness
+    const auto fsTmpFilePath = [] {
+        std::wstring tmpFilePath;
+        tmpFilePath.resize( MAX_PATH - 14 ); // max allowed size of path in GetTempFileName
 
-    DWORD dwRet = GetTempPath( tmpFilePath.size() - 1, tmpFilePath.data() );
-    qwr::error::CheckWinApi( dwRet && dwRet <= MAX_PATH, "GetTempPath" );
+        DWORD dwRet = GetTempPath( tmpFilePath.size(), tmpFilePath.data() );
+        qwr::error::CheckWinApi( dwRet && dwRet <= tmpFilePath.size(), "GetTempPath" );
 
-    std::wstring filename;
-    filename.resize( MAX_PATH + 1 );
-    UINT uRet = GetTempFileName( tmpFilePath.c_str(),
-                                 L"smp",
-                                 0,
-                                 filename.data() ); // buffer for name
-    qwr::error::CheckWinApi( uRet, "GetTempFileName" );
+        std::wstring filename;
+        filename.resize( MAX_PATH );
+        UINT uRet = GetTempFileName( tmpFilePath.c_str(),
+                                     L"smp",
+                                     0,
+                                     filename.data() ); // buffer for name
+        qwr::error::CheckWinApi( uRet, "GetTempFileName" );
 
-    fs::path fsTmpFilePath( tmpFilePath );
-    fsTmpFilePath /= filename;
+        filename.resize( wcslen( filename.c_str() ) );
 
-    qwr::file::WriteFile( fsTmpFilePath, text );
-    const qwr::final_action autoRemove( [&fsTmpFilePath] { fs::remove( fsTmpFilePath ); } );
+        return fs::path( tmpFilePath ) / filename;
+    }();
+    const qwr::final_action autoRemove( [&fsTmpFilePath] {
+        try
+            {
+            fs::remove( fsTmpFilePath );
+            }
+            catch ( const fs::filesystem_error& )
+            {
+            } } );
 
-    ConditionalModalScope scope( hParent );
-    ui::CEditInProgress dlg{ pathToEditor, fsTmpFilePath };
-    if ( dlg.DoModal( hParent ) != IDOK )
+    // use .tmp.js for proper file association
+    const auto fsJsTmpFilePath = fs::path( fsTmpFilePath ).concat( L".js" );
+
+    qwr::file::WriteFile( fsJsTmpFilePath, text );
+    const qwr::final_action autoRemove2( [&fsJsTmpFilePath] { 
+        try
+            {
+            fs::remove( fsJsTmpFilePath );
+            }
+            catch ( const fs::filesystem_error& )
+            {
+            } } );
+
+    if ( !EditTextFileExternal( hParent, fsJsTmpFilePath, pathToEditor, true ) )
     {
         return;
     }
 
-    text = qwr::file::ReadFile( fsTmpFilePath, CP_UTF8 );
+    text = qwr::file::ReadFile( fsJsTmpFilePath, CP_UTF8 );
 }
 
 } // namespace
@@ -151,7 +182,7 @@ void EditTextExternal( HWND hParent, const std::filesystem::path& pathToEditor, 
 namespace smp
 {
 
-void EditTextFile( HWND hParent, const std::filesystem::path& file, bool isPanelScript )
+void EditTextFile( HWND hParent, const std::filesystem::path& file, bool isPanelScript, bool isModal )
 {
     const auto editorPath = GetFixedEditorPath();
     if ( editorPath.empty() )
@@ -160,7 +191,7 @@ void EditTextFile( HWND hParent, const std::filesystem::path& file, bool isPanel
     }
     else
     {
-        EditTextFileExternal( editorPath, file );
+        EditTextFileExternal( hParent, file, editorPath, isModal );
         if ( isPanelScript )
         {
             NotifyParentPanel( hParent );
@@ -177,7 +208,7 @@ void EditText( HWND hParent, std::u8string& text, bool isPanelScript )
     }
     else
     {
-        EditTextExternal( hParent, editorPath, text );
+        EditTextExternal( hParent, text, editorPath );
         if ( isPanelScript )
         {
             NotifyParentPanel( hParent );

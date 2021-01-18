@@ -7,7 +7,6 @@
 #include <js_engine/js_realm_inner.h>
 #include <js_utils/js_error_helper.h>
 
-#include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
 
 namespace

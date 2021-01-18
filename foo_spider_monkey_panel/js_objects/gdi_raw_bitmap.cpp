@@ -9,7 +9,6 @@
 #include <utils/gdi_error_helpers.h>
 #include <utils/gdi_helpers.h>
 
-#include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
 
 using namespace smp;

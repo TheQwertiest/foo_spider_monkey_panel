@@ -19,7 +19,6 @@
 #include <utils/array_x.h>
 #include <utils/gdi_helpers.h>
 
-#include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
