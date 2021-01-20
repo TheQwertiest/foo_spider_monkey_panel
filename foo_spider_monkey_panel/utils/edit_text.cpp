@@ -96,7 +96,7 @@ bool EditTextFileExternal( HWND hParent, const std::filesystem::path& file, cons
     }
     else
     {
-        const std::wstring qPath = L"\"" + file.wstring() + L"\"";
+        const auto qPath = L"\"" + file.wstring() + L"\"";
         const auto hInstance = ShellExecute( nullptr,
                                              L"open",
                                              pathToEditor.c_str(),

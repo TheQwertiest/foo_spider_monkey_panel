@@ -160,7 +160,8 @@ void CEditInProgress::EditorHandler()
 {
     try
     {
-        const auto editorParams = GetExternalEditorParams( editor_.filename().wstring() ) + L" " + file_.wstring();
+        const auto qPath = L"\"" + file_.wstring() + L"\"";
+        const auto editorParams = GetExternalEditorParams( editor_.filename().wstring() ) + L" " + qPath;
 
         SHELLEXECUTEINFO ShExecInfo{};
         ShExecInfo.cbSize = sizeof( SHELLEXECUTEINFO );
