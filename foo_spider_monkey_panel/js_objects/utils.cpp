@@ -714,9 +714,9 @@ void JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& file
     switch ( optArgCount )
     {
     case 0:
-        return WriteTextFile( filename, content, write_bom );
+        WriteTextFile( filename, content, write_bom );
     case 1:
-        return WriteTextFile( filename, content );
+        WriteTextFile( filename, content );
     default:
         throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }

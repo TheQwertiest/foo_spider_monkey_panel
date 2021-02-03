@@ -39,7 +39,6 @@ LRESULT CEditor::OnInitDialog( HWND, LPARAM )
     menu = GetMenu();
     assert( menu.m_hMenu );
 
-    // Init resize
     DlgResize_Init();
 
     // Apply window placement

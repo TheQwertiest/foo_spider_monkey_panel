@@ -139,6 +139,16 @@ BOOL CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
     cTabs_ = GetDlgItem( IDC_TAB_CONF );
 
+    CRect tabRect;
+    cTabs_.GetWindowRect( &tabRect );
+    cTabs_.AdjustRect( 0, &tabRect );
+    cTabs_.ScreenToClient( &tabRect );
+
+    CRect dlgRect;
+    GetClientRect( &dlgRect );
+    tabBorderSize_.cx = dlgRect.Width() - tabRect.Width();
+    tabBorderSize_.cy = dlgRect.Height() - tabRect.Height();
+
     InitializeTabData( startingTabId_ );
     InitializeTabControls();
 
@@ -148,11 +158,35 @@ BOOL CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
     panelNameDdx_->SetHwnd( m_hWnd );
 
+    DlgResize_Init( false );
     DoFullDdxToUi();
 
     suppressUiDdx_ = false;
 
     return TRUE; // set focus to default control
+}
+
+LRESULT CDialogConf::OnSize( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled )
+{
+    CDialogResize<CDialogConf>::OnSize( uMsg, wParam, lParam, bHandled );
+
+    if ( !cTabs_ || !pcCurTab_ )
+    {
+        bHandled = TRUE;
+        return 0;
+    }
+
+    RECT tabRc;
+
+    cTabs_.GetWindowRect( &tabRc );
+    ::MapWindowPoints( HWND_DESKTOP, m_hWnd, (LPPOINT)&tabRc, 2 );
+
+    cTabs_.AdjustRect( FALSE, &tabRc );
+
+    pcCurTab_->SetWindowPos( nullptr, tabRc.left, tabRc.top, tabRc.right - tabRc.left, tabRc.bottom - tabRc.top, SWP_NOZORDER );
+
+    bHandled = TRUE;
+    return 0;
 }
 
 void CDialogConf::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )

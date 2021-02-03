@@ -21,6 +21,7 @@ namespace smp::ui
 
 class CDialogConf
     : public CDialogImpl<CDialogConf>
+    , public CDialogResize<CDialogConf>
 {
 public:
     enum class Tab : uint8_t
@@ -37,8 +38,20 @@ public:
         IDD = IDD_DIALOG_CONF
     };
 
+    BEGIN_DLGRESIZE_MAP( CDialogConf )
+        DLGRESIZE_CONTROL( IDC_TAB_CONF, DLSZ_SIZE_X | DLSZ_SIZE_Y )
+        DLGRESIZE_CONTROL( IDC_EDIT_PANEL_NAME, DLSZ_SIZE_X )
+        DLGRESIZE_CONTROL( IDC_BUTTON_EDIT_PANEL_NAME, DLSZ_MOVE_X )
+        DLGRESIZE_CONTROL( IDC_BUTTON_COMMIT_PANEL_NAME, DLSZ_MOVE_X )
+        DLGRESIZE_CONTROL( ID_HELP, DLSZ_MOVE_Y )
+        DLGRESIZE_CONTROL( IDOK, DLSZ_MOVE_X | DLSZ_MOVE_Y )
+        DLGRESIZE_CONTROL( IDCANCEL, DLSZ_MOVE_X | DLSZ_MOVE_Y )
+        DLGRESIZE_CONTROL( IDAPPLY, DLSZ_MOVE_X | DLSZ_MOVE_Y )
+    END_DLGRESIZE_MAP()
+
     BEGIN_MSG_MAP( CDialogConf )
         MSG_WM_INITDIALOG( OnInitDialog )
+        MESSAGE_HANDLER( WM_SIZE, OnSize )
         MSG_WM_PARENTNOTIFY( OnParentNotify )
         COMMAND_ID_HANDLER_EX( IDOK, OnCloseCmd )
         COMMAND_ID_HANDLER_EX( IDCANCEL, OnCloseCmd )
@@ -49,6 +62,7 @@ public:
         COMMAND_ID_HANDLER_EX( ID_HELP, OnHelp )
         MESSAGE_HANDLER( WM_WINDOWPOSCHANGED, OnWindowPosChanged )
         NOTIFY_HANDLER_EX( IDC_TAB_CONF, TCN_SELCHANGE, OnSelectionChanged )
+        CHAIN_MSG_MAP( CDialogResize<CDialogConf> )
     END_MSG_MAP()
 
     // TODO: add help button
@@ -68,6 +82,7 @@ public:
 
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
+    LRESULT OnSize( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHandled );
     void OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl );
     LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
     void OnParentNotify( UINT message, UINT nChildID, LPARAM lParam );
@@ -108,6 +123,7 @@ private:
     const CDialogConf::Tab startingTabId_;
     CTabCtrl cTabs_;
     CDialogImplBase* pcCurTab_ = nullptr;
+    CSize tabBorderSize_{};
 
     size_t activeTabIdx_ = 0;
     std::vector<std::unique_ptr<ITab>> tabs_;
