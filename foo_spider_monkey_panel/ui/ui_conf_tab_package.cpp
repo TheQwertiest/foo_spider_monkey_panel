@@ -71,6 +71,8 @@ void CConfigTabPackage::Revert()
 
 BOOL CConfigTabPackage::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
+    DlgResize_Init( false, true, WS_CHILD );
+
     for ( auto& ddx: ddx_ )
     {
         ddx->SetHwnd( m_hWnd );

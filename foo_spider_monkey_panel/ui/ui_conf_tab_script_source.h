@@ -17,6 +17,7 @@ class CDialogConf;
 
 class CConfigTabScriptSource
     : public CDialogImpl<CConfigTabScriptSource>
+    , public CDialogResize<CConfigTabScriptSource>
     , public ITab
 {
 public:
@@ -24,6 +25,16 @@ public:
     {
         IDD = IDD_DIALOG_CONF_TAB_SCRIPT_SRC
     };
+
+    BEGIN_DLGRESIZE_MAP( CConfigTabScriptSource )
+        DLGRESIZE_CONTROL( IDC_GROUP_SCRIPT_SRC, DLSZ_SIZE_X | DLSZ_SIZE_Y )
+        DLGRESIZE_CONTROL( IDC_COMBO_SRC_SAMPLE, DLSZ_SIZE_X )
+        DLGRESIZE_CONTROL( IDC_TEXTEDIT_SRC_PATH, DLSZ_SIZE_X )
+        DLGRESIZE_CONTROL( IDC_BUTTON_BROWSE, DLSZ_MOVE_X )
+        DLGRESIZE_CONTROL( IDC_TEXTEDIT_SRC_PACKAGE, DLSZ_SIZE_X )
+        DLGRESIZE_CONTROL( IDC_BUTTON_OPEN_PKG_MGR, DLSZ_MOVE_X )
+        DLGRESIZE_CONTROL( IDC_BUTTON_EDIT_SCRIPT, DLSZ_MOVE_X | DLSZ_MOVE_Y )
+    END_DLGRESIZE_MAP()
 
     BEGIN_MSG_MAP( CConfigTabScriptSource )
         MSG_WM_INITDIALOG( OnInitDialog )
@@ -39,6 +50,7 @@ public:
         NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
+        CHAIN_MSG_MAP( CDialogResize<CConfigTabScriptSource> )
     END_MSG_MAP()
 
     struct SampleComboBoxElem

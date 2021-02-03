@@ -137,17 +137,9 @@ void CDialogConf::SwitchTab( CDialogConf::Tab tabId )
 
 BOOL CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
+    DlgResize_Init( false );
+
     cTabs_ = GetDlgItem( IDC_TAB_CONF );
-
-    CRect tabRect;
-    cTabs_.GetWindowRect( &tabRect );
-    cTabs_.AdjustRect( 0, &tabRect );
-    cTabs_.ScreenToClient( &tabRect );
-
-    CRect dlgRect;
-    GetClientRect( &dlgRect );
-    tabBorderSize_.cx = dlgRect.Width() - tabRect.Width();
-    tabBorderSize_.cy = dlgRect.Height() - tabRect.Height();
 
     InitializeTabData( startingTabId_ );
     InitializeTabControls();
@@ -158,7 +150,6 @@ BOOL CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
     panelNameDdx_->SetHwnd( m_hWnd );
 
-    DlgResize_Init( false );
     DoFullDdxToUi();
 
     suppressUiDdx_ = false;

@@ -82,6 +82,14 @@
 #define IDC_BUTTON_COMMIT_PANEL_NAME       1118
 #define IDC_BUTTON_RESET                   1119
 #define IDC_STATIC_LINE                    1120
+#define IDC_GROUP_SCRIPT_SRC               1121
+#define IDC_GROUP_PKG_FILES                1122
+#define IDC_GROUP_PKG_INFO                 1123
+#define IDC_GROUP_PANEL_BEHAVIOUR          1124
+#define IDC_LTEXT_NAME                     1125
+#define IDC_LTEXT_VERSION                  1126
+#define IDC_LTEXT_AUTHOR                   1127
+#define IDC_LTEXT_DESCRIPTION              1128
 #define ID_FILE_IMPORT                     40014
 #define ID_FILE_EXPORT                     40015
 #define ID_EDIT_RESETTODEFAULT             40016
@@ -101,7 +109,7 @@
 #    ifndef APSTUDIO_READONLY_SYMBOLS
 #        define _APS_NEXT_RESOURCE_VALUE 129
 #        define _APS_NEXT_COMMAND_VALUE  40031
-#        define _APS_NEXT_CONTROL_VALUE  1123
+#        define _APS_NEXT_CONTROL_VALUE  1129
 #        define _APS_NEXT_SYMED_VALUE    101
 #    endif
 #endif

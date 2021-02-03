@@ -123,7 +123,6 @@ private:
     const CDialogConf::Tab startingTabId_;
     CTabCtrl cTabs_;
     CDialogImplBase* pcCurTab_ = nullptr;
-    CSize tabBorderSize_{};
 
     size_t activeTabIdx_ = 0;
     std::vector<std::unique_ptr<ITab>> tabs_;
