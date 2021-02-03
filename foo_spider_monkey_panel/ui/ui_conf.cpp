@@ -302,6 +302,7 @@ void CDialogConf::OnStartEditPanelName( UINT uNotifyCode, int nID, CWindow wndCt
     CEdit panelName{ GetDlgItem( IDC_EDIT_PANEL_NAME ) };
     panelName.ModifyStyle( 0, WS_TABSTOP, 0 );
     panelName.SetReadOnly( FALSE );
+    panelName.SetFocus();
 }
 
 void CDialogConf::OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl )
