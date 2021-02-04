@@ -53,7 +53,7 @@ BEGIN
             VALUE "FileDescription", SMP_NAME " component for foobar2000"
             VALUE "FileVersion", SMP_VERSION
             VALUE "InternalName", SMP_DLL_NAME
-            VALUE "LegalCopyright", "Copyright (C) 2018-2020 Yuri Shutenko"
+            VALUE "LegalCopyright", "Copyright (C) 2018-2021 Yuri Shutenko"
             VALUE "OriginalFilename", SMP_DLL_NAME
             VALUE "ProductName", SMP_NAME
             VALUE "ProductVersion", SMP_VERSION
