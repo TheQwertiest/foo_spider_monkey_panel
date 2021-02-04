@@ -275,3 +275,6 @@ __pycache__/
 
 ### VisualStudio Patch ###
 build/
+
+### Exceptions ###
+!/component/**/packages/*
