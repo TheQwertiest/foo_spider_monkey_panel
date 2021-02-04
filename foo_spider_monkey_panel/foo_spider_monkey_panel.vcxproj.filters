@@ -288,16 +288,7 @@
     <ClCompile Include="ui\ui_editor.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ui_conf_tab_appearance.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ui_conf_tab_script_source.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_edit_in_progress.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="ui\ui_conf_tab_properties.cpp">
       <Filter>ui</Filter>
     </ClCompile>
     <ClCompile Include="utils\edit_text.cpp">
@@ -321,9 +312,6 @@
     <ClCompile Include="config\package_utils.cpp">
       <Filter>config</Filter>
     </ClCompile>
-    <ClCompile Include="ui\ui_conf_tab_package.cpp">
-      <Filter>ui</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_package_manager.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -335,6 +323,18 @@
     </ClCompile>
     <ClCompile Include="fb2k\selection_holder_helper.cpp">
       <Filter>fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\impl\ui_conf_tab_properties.cpp">
+      <Filter>ui\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\impl\ui_conf_tab_script_source.cpp">
+      <Filter>ui\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\impl\ui_conf_tab_appearance.cpp">
+      <Filter>ui\impl</Filter>
+    </ClCompile>
+    <ClCompile Include="ui\impl\ui_conf_tab_package.cpp">
+      <Filter>ui\impl</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -674,19 +674,7 @@
     <ClInclude Include="ui\ui_editor.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ui_itab.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ui_conf_tab_appearance.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ui_conf_tab_script_source.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="ui\ui_edit_in_progress.h">
-      <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="ui\ui_conf_tab_properties.h">
       <Filter>ui</Filter>
     </ClInclude>
     <ClInclude Include="utils\edit_text.h">
@@ -710,9 +698,6 @@
     <ClInclude Include="config\package_utils.h">
       <Filter>config</Filter>
     </ClInclude>
-    <ClInclude Include="ui\ui_conf_tab_package.h">
-      <Filter>ui</Filter>
-    </ClInclude>
     <ClInclude Include="ui\ui_package_manager.h">
       <Filter>ui</Filter>
     </ClInclude>
@@ -727,6 +712,24 @@
     </ClInclude>
     <ClInclude Include="resources\resource.h">
       <Filter>resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\impl\ui_conf_tab_properties.h">
+      <Filter>ui\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\impl\ui_conf_tab_script_source.h">
+      <Filter>ui\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\impl\ui_itab.h">
+      <Filter>ui\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\impl\ui_conf_tab_appearance.h">
+      <Filter>ui\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\impl\ui_conf_tab_package.h">
+      <Filter>ui\impl</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\impl\ui_file_drop_list_box.h">
+      <Filter>ui\impl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -786,6 +789,9 @@
     </Filter>
     <Filter Include="config">
       <UniqueIdentifier>{3a9d2773-53cc-42cc-8c4d-b8e23af110e5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\impl">
+      <UniqueIdentifier>{6470c9be-1e65-41eb-8ed9-74e95928e341}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

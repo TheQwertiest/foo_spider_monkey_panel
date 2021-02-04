@@ -214,15 +214,16 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="ui\impl\ui_conf_tab_appearance.cpp" />
+    <ClCompile Include="ui\impl\ui_conf_tab_package.cpp" />
+    <ClCompile Include="ui\impl\ui_conf_tab_properties.cpp" />
+    <ClCompile Include="ui\impl\ui_conf_tab_script_source.cpp" />
     <ClCompile Include="ui\scintilla\sci_config.cpp" />
     <ClCompile Include="ui\scintilla\sci_prop_sets.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_editor.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_find_replace.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_goto.cpp" />
     <ClCompile Include="ui\ui_conf.cpp" />
-    <ClCompile Include="ui\ui_conf_tab_appearance.cpp" />
-    <ClCompile Include="ui\ui_conf_tab_package.cpp" />
-    <ClCompile Include="ui\ui_conf_tab_script_source.cpp" />
     <ClCompile Include="ui\ui_editor.cpp" />
     <ClCompile Include="ui\ui_edit_in_progress.cpp" />
     <ClCompile Include="ui\ui_html.cpp">
@@ -232,7 +233,6 @@
     <ClCompile Include="ui\ui_name_value_edit.cpp" />
     <ClCompile Include="ui\ui_package_manager.cpp" />
     <ClCompile Include="ui\ui_editor_config.cpp" />
-    <ClCompile Include="ui\ui_conf_tab_properties.cpp" />
     <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\com_error_helpers.cpp" />
@@ -344,6 +344,12 @@
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="ui\impl\ui_conf_tab_appearance.h" />
+    <ClInclude Include="ui\impl\ui_conf_tab_package.h" />
+    <ClInclude Include="ui\impl\ui_conf_tab_properties.h" />
+    <ClInclude Include="ui\impl\ui_conf_tab_script_source.h" />
+    <ClInclude Include="ui\impl\ui_file_drop_list_box.h" />
+    <ClInclude Include="ui\impl\ui_itab.h" />
     <ClInclude Include="ui\scintilla\sci_config.h" />
     <ClInclude Include="ui\scintilla\sci_prop_sets.h" />
     <ClInclude Include="ui\scintilla\ui_sci_editor.h" />
@@ -351,18 +357,13 @@
     <ClInclude Include="ui\scintilla\ui_sci_goto.h" />
     <ClInclude Include="ui\scintilla\wtlscintilla.h" />
     <ClInclude Include="ui\ui_conf.h" />
-    <ClInclude Include="ui\ui_conf_tab_appearance.h" />
-    <ClInclude Include="ui\ui_conf_tab_package.h" />
-    <ClInclude Include="ui\ui_conf_tab_script_source.h" />
     <ClInclude Include="ui\ui_editor.h" />
     <ClInclude Include="ui\ui_edit_in_progress.h" />
     <ClInclude Include="ui\ui_html.h" />
     <ClInclude Include="ui\ui_input_box.h" />
-    <ClInclude Include="ui\ui_itab.h" />
     <ClInclude Include="ui\ui_name_value_edit.h" />
     <ClInclude Include="ui\ui_package_manager.h" />
     <ClInclude Include="ui\ui_editor_config.h" />
-    <ClInclude Include="ui\ui_conf_tab_properties.h" />
     <ClInclude Include="ui\ui_slow_script.h" />
     <ClInclude Include="utils\array_x.h" />
     <ClInclude Include="utils\art_helpers.h" />

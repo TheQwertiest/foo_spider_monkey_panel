@@ -10,6 +10,21 @@
 
 namespace fs = std::filesystem;
 
+namespace
+{
+
+template <typename... Args>
+void CheckMZip( mz_bool mzBool, const mz_zip_archive& mzZip, std::string_view functionName, std::string_view introMessageFmt = {}, Args&&... introMessageFmtArgs )
+{
+    if ( !mzBool )
+    {
+        const auto introMessage = fmt::format( introMessageFmt, std::forward<Args>( introMessageFmtArgs )... );
+        throw qwr::QwrException( "{}{} failed with error {:#x}: {}", introMessage, functionName, mzZip.m_last_error, mz_zip_get_error_string( mzZip.m_last_error ) );
+    }
+}
+
+} // namespace
+
 namespace smp
 {
 
@@ -21,7 +36,7 @@ ZipPacker::ZipPacker( const fs::path& zipFile )
     {
         if ( fs::exists( zipFile_ ) )
         {
-            qwr::QwrException::ExpectTrue( fs::is_regular_file( zipFile_ ), "Can't create zip file: non-deleteable item with the same name already exists" );
+            qwr::QwrException::ExpectTrue( fs::is_regular_file( zipFile_ ), "Can't create zip file: non-deletable item with the same name already exists" );
             fs::remove( zipFile_ );
         }
     }
@@ -31,7 +46,7 @@ ZipPacker::ZipPacker( const fs::path& zipFile )
     }
 
     const auto zRet = mz_zip_writer_init_file( pZip_.get(), zipFile_.u8string().c_str(), 0 );
-    qwr::QwrException::ExpectTrue( !!zRet, "mz_zip_writer_init_file failed: {:#x}", pZip_->m_last_error );
+    CheckMZip( zRet, *pZip_, "mz_zip_writer_init_file" );
 }
 
 ZipPacker::~ZipPacker()
@@ -62,11 +77,7 @@ ZipPacker::~ZipPacker()
 void ZipPacker::AddFile( const fs::path& srcFile, const std::u8string& destFileName )
 {
     auto zRet = mz_zip_writer_add_file( pZip_.get(), destFileName.c_str(), srcFile.u8string().c_str(), "", 0, MZ_BEST_COMPRESSION );
-    qwr::QwrException::ExpectTrue( !!zRet,
-                                   "Failed to add file to archive: `{}`\n"
-                                   "  mz_zip_writer_add_file failed: {:#x}",
-                                   srcFile.filename().u8string(),
-                                   pZip_->m_last_error );
+    CheckMZip( zRet, *pZip_, "mz_zip_writer_init_file", "Failed to add file to archive: `{}`\n  ", srcFile.filename().u8string() );
 }
 void ZipPacker::AddFolder( const fs::path& srcFolder, const std::u8string& destFolderName )
 {
@@ -96,10 +107,10 @@ void ZipPacker::AddFolder( const fs::path& srcFolder, const std::u8string& destF
 void ZipPacker::Finish()
 {
     auto zRet = mz_zip_writer_finalize_archive( pZip_.get() );
-    qwr::QwrException::ExpectTrue( !!zRet, "mz_zip_writer_finalize_archive failed: {:#x}", pZip_->m_last_error );
+    CheckMZip( zRet, *pZip_, "mz_zip_writer_finalize_archive" );
 
     zRet = mz_zip_writer_end( pZip_.get() );
-    qwr::QwrException::ExpectTrue( !!zRet, "mz_zip_writer_end failed: {:#x}", pZip_->m_last_error );
+    CheckMZip( zRet, *pZip_, "mz_zip_writer_end" );
 }
 
 void UnpackZip( const fs::path& zipFile, const fs::path& dstFolder )
@@ -120,7 +131,7 @@ void UnpackZip( const fs::path& zipFile, const fs::path& dstFolder )
 
         mz_zip_archive mzZip{};
         auto zRet = mz_zip_reader_init_file( &mzZip, zipFile.u8string().c_str(), 0 );
-        qwr::QwrException::ExpectTrue( !!zRet, "mz_zip_reader_init_file failed: {:#x}", mzZip.m_last_error );
+        CheckMZip( zRet, mzZip, "mz_zip_reader_init_file", "Failed to open archive: `{}`\n  ", zipFile.filename().u8string() );
 
         qwr::final_action autoZip( [&] { mz_zip_reader_end( &mzZip ); } );
 
@@ -134,7 +145,7 @@ void UnpackZip( const fs::path& zipFile, const fs::path& dstFolder )
         {
             mz_zip_archive_file_stat zFileStat;
             zRet = mz_zip_reader_file_stat( &mzZip, i, &zFileStat );
-            qwr::QwrException::ExpectTrue( !!zRet, "mz_zip_reader_file_stat failed: {:#x}", mzZip.m_last_error );
+            CheckMZip( zRet, mzZip, "mz_zip_reader_file_stat" );
 
             assert( zFileStat.m_filename );
             const fs::path curPath = dstFolder / qwr::unicode::ToWide( std::u8string_view{ zFileStat.m_filename, strlen( zFileStat.m_filename ) } );
@@ -152,7 +163,7 @@ void UnpackZip( const fs::path& zipFile, const fs::path& dstFolder )
                     fs::create_directories( curPath.parent_path() );
                 }
                 zRet = mz_zip_reader_extract_to_file( &mzZip, i, curPath.u8string().c_str(), 0 );
-                qwr::QwrException::ExpectTrue( !!zRet, "mz_zip_reader_extract_to_file failed: {:#x}", mzZip.m_last_error );
+                CheckMZip( zRet, mzZip, "mz_zip_reader_extract_to_file" );
             }
         }
     }

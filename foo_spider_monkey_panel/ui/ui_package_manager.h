@@ -3,6 +3,7 @@
 #include <config/panel_config.h>
 #include <config/parsed_panel_config.h>
 #include <resources/resource.h>
+#include <ui/impl/ui_file_drop_list_box.h>
 
 #include <qwr/ui_ddx.h>
 
@@ -31,6 +32,7 @@ public:
         COMMAND_HANDLER_EX( IDC_BUTTON_OPEN_FOLDER, BN_CLICKED, OnOpenFolder )
         COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
         NOTIFY_HANDLER_EX( IDC_RICHEDIT_PACKAGE_INFO, EN_LINK, OnRichEditLinkClick )
+        MESSAGE_HANDLER_EX( CFileDropListBox<>::GetOnDropMsg(), OnDropFiles )
     END_MSG_MAP()
 
     CDialogPackageManager( const std::u8string& currentPackageId );
@@ -55,8 +57,8 @@ private:
     void OnExportPackage( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnOpenFolder( UINT uNotifyCode, int nID, CWindow wndCtl );
     LRESULT OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl );
-
     LRESULT OnRichEditLinkClick( LPNMHDR pnmh );
+    LRESULT OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam );
 
     void DoFullDdxToUi();
     void UpdateUiButtons();
@@ -68,6 +70,7 @@ private:
     void UpdatedUiPackageInfo();
 
     PackageData GeneratePackageData( const config::ParsedPanelSettings& parsedSettings );
+    void ImportPackage( const std::filesystem::path& path );
 
 private:
     std::u8string focusedPackageId_;
@@ -75,7 +78,7 @@ private:
     std::array<std::unique_ptr<qwr::ui::IUiDdx>, 1> ddx_;
 
     std::vector<PackageData> packages_;
-    CListBox packagesListBox_;
+    CFileDropListBox<> packagesListBox_;
 
     CRichEditCtrl packageInfoEdit_;
 };

@@ -4,10 +4,10 @@
 
 #include <config/package_utils.h>
 #include <panel/js_panel_window.h>
-#include <ui/ui_conf_tab_appearance.h>
-#include <ui/ui_conf_tab_package.h>
-#include <ui/ui_conf_tab_properties.h>
-#include <ui/ui_conf_tab_script_source.h>
+#include <ui/impl/ui_conf_tab_appearance.h>
+#include <ui/impl/ui_conf_tab_package.h>
+#include <ui/impl/ui_conf_tab_properties.h>
+#include <ui/impl/ui_conf_tab_script_source.h>
 
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>

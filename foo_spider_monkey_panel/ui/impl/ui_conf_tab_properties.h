@@ -3,7 +3,7 @@
 #include <config/panel_config.h>
 #include <property_list/PropertyList.h>
 #include <resources/resource.h>
-#include <ui/ui_itab.h>
+#include <ui/impl/ui_itab.h>
 
 namespace smp::panel
 {

@@ -3,7 +3,7 @@
 #include <config/parsed_panel_config.h>
 #include <panel/user_message.h>
 #include <resources/resource.h>
-#include <ui/ui_itab.h>
+#include <ui/impl/ui_itab.h>
 
 #include <qwr/ui_ddx.h>
 

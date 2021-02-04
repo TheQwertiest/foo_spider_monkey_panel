@@ -50,7 +50,9 @@ LRESULT CDialogPackageManager::OnInitDialog( HWND, LPARAM )
         ddx->SetHwnd( m_hWnd );
     }
 
-    packagesListBox_ = GetDlgItem( IDC_LIST_PACKAGES );
+    packagesListBox_.SubclassWindow( GetDlgItem( IDC_LIST_PACKAGES ) );
+    packagesListBox_.Initialize();
+
     // TODO: add context menu
     packageInfoEdit_ = GetDlgItem( IDC_RICHEDIT_PACKAGE_INFO );
     packageInfoEdit_.SetWindowLong( GWL_EXSTYLE, packageInfoEdit_.GetWindowLong( GWL_EXSTYLE ) & ~WS_EX_CLIENTEDGE );
@@ -84,6 +86,7 @@ void CDialogPackageManager::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wn
     if ( nID == IDC_LIST_PACKAGES )
     {
         UpdatedUiPackageInfo();
+        UpdateUiButtons();
     }
 }
 
@@ -184,101 +187,7 @@ void CDialogPackageManager::OnImportPackage( UINT uNotifyCode, int nID, CWindow 
         return;
     }
 
-    try
-    {
-        const auto tmpPath = qwr::path::Profile() / SMP_UNDERSCORE_NAME / "tmp" / "unpacked_package";
-        if ( fs::exists( tmpPath ) )
-        {
-            fs::remove_all( tmpPath );
-        }
-        fs::create_directories( tmpPath );
-        qwr::final_action autoTmp( [&] {
-            try
-            {
-                fs::remove_all( tmpPath );
-            }
-            catch ( const fs::filesystem_error& )
-            {
-            }
-        } );
-
-        UnpackZip( fs::path( *pathOpt ), tmpPath );
-
-        const auto newSettings = [&tmpPath] {
-            auto settings = config::GetPackageSettingsFromPath( tmpPath );
-            settings.scriptPath = qwr::path::Profile() / SMP_UNDERSCORE_NAME / "packages" / *settings.packageId / "main.js";
-            return settings;
-        }();
-
-        if ( const auto oldPackagePathOpt = config::FindPackage( *newSettings.packageId );
-             oldPackagePathOpt )
-        {
-            const int iRet = MessageBox(
-                L"Another version of this package is present.\n"
-                L"Do you want to update?",
-                L"Importing package",
-                MB_YESNO );
-            if ( iRet != IDYES )
-            {
-                return;
-            }
-
-            try
-            {
-                const auto oldSettings = config::GetPackageSettingsFromPath( *oldPackagePathOpt );
-                if ( oldSettings.scriptName != newSettings.scriptName )
-                {
-                    const int iRet = MessageBox(
-                        qwr::unicode::ToWide(
-                            fmt::format( "Currently installed package has a different name from the new one:\n"
-                                         "old: '{}' vs new: '{}'\n\n"
-                                         "Do you want to continue?",
-                                         oldSettings.scriptName,
-                                         newSettings.scriptName ) )
-                            .c_str(),
-                        L"Importing package",
-                        MB_YESNO | MB_ICONWARNING );
-                    if ( iRet != IDYES )
-                    {
-                        return;
-                    }
-                }
-            }
-            catch ( const qwr::QwrException& )
-            {
-            }
-
-            fs::remove_all( *oldPackagePathOpt );
-        }
-
-        fs::copy( tmpPath, config::GetPackagePath( newSettings ), fs::copy_options::recursive );
-
-        auto it =
-            ranges::find_if( packages_,
-                             [packageId = *newSettings.packageId]( const auto& elem ) {
-                                 return ( packageId == elem.id );
-                             } );
-        if ( it != packages_.cend() )
-        {
-            *it = GeneratePackageData( newSettings );
-        }
-        else
-        {
-            packages_.emplace_back( GeneratePackageData( newSettings ) );
-        }
-        focusedPackageId_ = *newSettings.packageId;
-
-        UpdateListBoxFromData();
-        DoFullDdxToUi();
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
-    }
-    catch ( const qwr::QwrException& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
-    }
+    ImportPackage( *pathOpt );
 }
 
 void CDialogPackageManager::OnExportPackage( UINT uNotifyCode, int nID, CWindow wndCtl )
@@ -373,6 +282,34 @@ LRESULT CDialogPackageManager::OnRichEditLinkClick( LPNMHDR pnmh )
         packageInfoEdit_.GetTextRange( pEl->chrg.cpMin, pEl->chrg.cpMax, url.data() );
 
         ShellExecute( nullptr, L"open", url.c_str(), nullptr, nullptr, SW_SHOWNORMAL );
+    }
+
+    return 0;
+}
+
+LRESULT CDialogPackageManager::OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+    auto hDropInfo = (HDROP)wParam;
+    const auto autoDrop = qwr::final_action( [hDropInfo] {
+        DragFinish( hDropInfo );
+    } );
+
+    const auto fileCount = DragQueryFile( hDropInfo, 0xFFFFFFFF, nullptr, 0 );
+    if ( !fileCount )
+    {
+        return 0;
+    }
+
+    for ( const auto i: ranges::views::ints( 0, (int)fileCount ) )
+    {
+        const auto pathLength = DragQueryFile( hDropInfo, i, nullptr, 0 );
+        std::wstring path;
+        path.resize( pathLength + 1 );
+
+        DragQueryFile( hDropInfo, i, path.data(), path.size() );
+        path.resize( path.size() - 1 );
+
+        ImportPackage( path );
     }
 
     return 0;
@@ -602,6 +539,107 @@ CDialogPackageManager::PackageData CDialogPackageManager::GeneratePackageData( c
                         *parsedSettings.packageId,
                         parsedSettings,
                         L"" };
+}
+
+void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
+{
+    assert( fs::exists( path ) );
+
+    try
+    {
+        const auto tmpPath = qwr::path::Profile() / SMP_UNDERSCORE_NAME / "tmp" / "unpacked_package";
+        if ( fs::exists( tmpPath ) )
+        {
+            fs::remove_all( tmpPath );
+        }
+        fs::create_directories( tmpPath );
+        qwr::final_action autoTmp( [&] {
+            try
+            {
+                fs::remove_all( tmpPath );
+            }
+            catch ( const fs::filesystem_error& )
+            {
+            }
+        } );
+
+        UnpackZip( fs::path( path ), tmpPath );
+
+        const auto newSettings = [&tmpPath] {
+            auto settings = config::GetPackageSettingsFromPath( tmpPath );
+            settings.scriptPath = qwr::path::Profile() / SMP_UNDERSCORE_NAME / "packages" / *settings.packageId / "main.js";
+            return settings;
+        }();
+
+        if ( const auto oldPackagePathOpt = config::FindPackage( *newSettings.packageId );
+             oldPackagePathOpt )
+        {
+            const int iRet = MessageBox(
+                L"Another version of this package is present.\n"
+                L"Do you want to update?",
+                L"Importing package",
+                MB_YESNO );
+            if ( iRet != IDYES )
+            {
+                return;
+            }
+
+            try
+            {
+                const auto oldSettings = config::GetPackageSettingsFromPath( *oldPackagePathOpt );
+                if ( oldSettings.scriptName != newSettings.scriptName )
+                {
+                    const int iRet = MessageBox(
+                        qwr::unicode::ToWide(
+                            fmt::format( "Currently installed package has a different name from the new one:\n"
+                                         "old: '{}' vs new: '{}'\n\n"
+                                         "Do you want to continue?",
+                                         oldSettings.scriptName,
+                                         newSettings.scriptName ) )
+                            .c_str(),
+                        L"Importing package",
+                        MB_YESNO | MB_ICONWARNING );
+                    if ( iRet != IDYES )
+                    {
+                        return;
+                    }
+                }
+            }
+            catch ( const qwr::QwrException& )
+            {
+            }
+
+            fs::remove_all( *oldPackagePathOpt );
+        }
+
+        fs::copy( tmpPath, config::GetPackagePath( newSettings ), fs::copy_options::recursive );
+
+        auto it =
+            ranges::find_if( packages_,
+                             [packageId = *newSettings.packageId]( const auto& elem ) {
+                                 return ( packageId == elem.id );
+                             } );
+        if ( it != packages_.cend() )
+        {
+            *it = GeneratePackageData( newSettings );
+        }
+        else
+        {
+            packages_.emplace_back( GeneratePackageData( newSettings ) );
+        }
+        focusedPackageId_ = *newSettings.packageId;
+
+        UpdateListBoxFromData();
+        DoFullDdxToUi();
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+    }
 }
 
 } // namespace smp::ui
