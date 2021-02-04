@@ -461,7 +461,7 @@ void CConfigTabPackage::InitializeFilesListBox()
     try
     {
         filesListBox_ = GetDlgItem( IDC_LIST_PACKAGE_FILES );
-        files_ = config::GetPackageScriptFiles( settings_ );
+        files_ = config::GetPackageFiles( settings_ );
         UpdateListBoxFromData();
     }
     catch ( const fs::filesystem_error& e )

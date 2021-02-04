@@ -29,4 +29,7 @@ std::filesystem::path GetPackageScriptsDir( const ParsedPanelSettings& settings 
 /// @throw qwr::QwrException
 std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSettings& settings );
 
+/// @throw qwr::QwrException
+std::vector<std::filesystem::path> GetPackageFiles( const ParsedPanelSettings& settings );
+
 } // namespace smp::config

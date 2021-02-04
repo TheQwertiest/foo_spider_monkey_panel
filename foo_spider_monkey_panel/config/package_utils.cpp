@@ -233,6 +233,22 @@ std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSetti
             }
         }
 
+        return files;
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( e );
+    }
+}
+
+std::vector<std::filesystem::path> GetPackageFiles( const ParsedPanelSettings& settings )
+{
+    try
+    {
+        auto files = GetPackageScriptFiles( settings );
+
+        const auto packagePath = GetPackagePath( settings );
+
         if ( const auto assetsDir = packagePath / "assets";
              fs::exists( assetsDir ) )
         {
