@@ -1,9 +1,8 @@
 #pragma once
 
-#include "resource.h"
-
 #include <config/panel_config.h>
 #include <config/parsed_panel_config.h>
+#include <resources/resource.h>
 
 #include <qwr/ui_ddx.h>
 

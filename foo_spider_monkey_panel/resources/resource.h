@@ -3,7 +3,9 @@
 // Used by foo_spider_monkey_panel.rc
 //
 #define VS_VERSION_INFO                    1
-#define IDR_SCRIPT                         101
+#define IDR_DEFAULT_SCRIPT                 101
+#define IDR_SCINTILLA_INTERFACE_API        102
+#define IDR_SCINTILLA_JS_API               103
 #define IDD_DIALOG_GOTO                    104
 #define IDD_DIALOG_EDITOR_CONFIG           107
 #define IDD_DIALOG_NAME_VALUE              108

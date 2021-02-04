@@ -32,7 +32,7 @@ constexpr auto DefaultProps = smp::to_array<smp::config::sci::ScintillaPropsCfg:
       { "style.wrap.visualflags", "1" },          // SC_WRAPVISUALFLAG_END
       { "style.wrap.visualflags.location", "0" }, // SC_WRAPVISUALFLAGLOC_DEFAULT
       { "style.wrap.indentmode", "0" },           // SC_WRAPINDENT_FIXED
-      { "api.jscript", "$(dir.component)jscript.api;$(dir.component)interface.api" } } );
+      { "api.extra", "" } } );
 
 } // namespace
 

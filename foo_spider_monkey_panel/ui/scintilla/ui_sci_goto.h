@@ -1,6 +1,6 @@
 #pragma once
 
-#include <resource.h>
+#include <resources/resource.h>
 
 namespace smp::ui::sci
 {
@@ -62,4 +62,4 @@ private:
     CDialogGoto* pGoto_ = nullptr;
 };
 
-} // namespace scintilla
+} // namespace smp::ui::sci

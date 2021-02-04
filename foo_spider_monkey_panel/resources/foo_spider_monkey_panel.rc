@@ -594,7 +594,9 @@ END
 // SCRIPT
 //
 
-IDR_SCRIPT              SCRIPT                  "default.js"
+IDR_DEFAULT_SCRIPT            SCRIPT   "default_script.js"
+IDR_SCINTILLA_INTERFACE_API   SCRIPT   "scintilla_interface.api"
+IDR_SCINTILLA_JS_API          SCRIPT   "scintilla_jscript.api"
 
 
 /////////////////////////////////////////////////////////////////////////////

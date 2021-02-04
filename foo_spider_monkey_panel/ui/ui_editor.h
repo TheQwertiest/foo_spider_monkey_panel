@@ -1,9 +1,8 @@
 #pragma once
 
 #include <panel/user_message.h>
+#include <resources/resource.h>
 #include <ui/scintilla/ui_sci_editor.h>
-
-#include <resource.h>
 
 #include <functional>
 

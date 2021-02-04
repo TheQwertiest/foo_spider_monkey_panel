@@ -2,9 +2,8 @@
 
 #include <config/panel_config.h>
 #include <property_list/PropertyList.h>
+#include <resources/resource.h>
 #include <ui/ui_itab.h>
-
-#include <resource.h>
 
 namespace smp::panel
 {

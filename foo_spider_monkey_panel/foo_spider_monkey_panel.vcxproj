@@ -342,7 +342,7 @@
     <ClInclude Include="panel\message_manager.h" />
     <ClInclude Include="panel\panel_info.h" />
     <ClInclude Include="panel\user_message.h" />
-    <ClInclude Include="resource.h" />
+    <ClInclude Include="resources\resource.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="ui\scintilla\sci_config.h" />
     <ClInclude Include="ui\scintilla\sci_prop_sets.h" />
@@ -385,16 +385,18 @@
     <ClInclude Include="utils\zip_utils.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.js" />
-    <None Include="foo_spider_monkey_panel.rc2" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="foo_spider_monkey_panel.rc" />
-    <ResourceCompile Include="version.rc" />
+    <None Include="resources\default_script.js" />
+    <None Include="resources\foo_spider_monkey_panel.rc2" />
+    <None Include="resources\scintilla_interface.api" />
+    <None Include="resources\scintilla_jscript.api" />
   </ItemGroup>
   <ItemGroup>
     <Midl Include="com_objects\com_interface.idl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\foo_spider_monkey_panel.rc" />
+    <ResourceCompile Include="resources\version.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -468,10 +468,33 @@ void CScriptEditorCtrl::ReadAPI()
 
     m_apis.clear();
 
-    constexpr char8_t propname[] = "api.jscript";
+    const auto readApi = [&m_apis = m_apis]( const auto& content ) {
+        for ( const auto& line: qwr::string::SplitByLines( content ) )
+        {
+            if ( !line.empty() && IsCSym( line[0] ) )
+            {
+                m_apis.emplace( line.data(), line.size() );
+            }
+        }
+    };
 
-    const auto propvalRet = GetPropertyExpanded_Opt( propname );
-    if ( !propvalRet )
+    const auto loadResource = []( int resourceId, const char* resourceType ) {
+        puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( resourceId ), resourceType );
+        if ( puRes )
+        {
+            return std::u8string{ static_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
+        }
+        else
+        {
+            return std::u8string{};
+        }
+    };
+
+    readApi( loadResource( IDR_SCINTILLA_JS_API, "Script" ) );
+    readApi( loadResource( IDR_SCINTILLA_INTERFACE_API, "Script" ) );
+
+    const auto propvalRet = GetPropertyExpanded_Opt( "api.extra" );
+    if ( !propvalRet || propvalRet->empty() )
     {
         return;
     }
@@ -483,13 +506,7 @@ void CScriptEditorCtrl::ReadAPI()
         try
         {
             const auto content = qwr::file::ReadFile( fs::u8path( std::u8string{ file.data(), file.size() } ), CP_UTF8 );
-            for ( const auto& line: qwr::string::SplitByLines( content ) )
-            {
-                if ( !line.empty() && IsCSym( line[0] ) )
-                {
-                    m_apis.emplace( line.data(), line.size() );
-                }
-            }
+            readApi( content );
         }
         catch ( const qwr::QwrException& e )
         {

@@ -5,8 +5,7 @@
 #include <config/panel_config_binary.h>
 #include <config/panel_config_com.h>
 #include <config/panel_config_json.h>
-
-#include <resource.h>
+#include <resources/resource.h>
 
 #include <qwr/string_helpers.h>
 
@@ -59,7 +58,7 @@ void PanelProperties::Save( stream_writer& writer, abort_callback& abort ) const
 
 std::u8string PanelSettings_InMemory::GetDefaultScript()
 {
-    puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_SCRIPT ), "SCRIPT" );
+    puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_DEFAULT_SCRIPT ), "SCRIPT" );
     if ( puRes )
     {
         return std::u8string{ static_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };

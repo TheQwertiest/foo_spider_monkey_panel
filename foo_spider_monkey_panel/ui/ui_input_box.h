@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resource.h"
+#include <resources/resource.h>
 
 namespace smp::ui
 {

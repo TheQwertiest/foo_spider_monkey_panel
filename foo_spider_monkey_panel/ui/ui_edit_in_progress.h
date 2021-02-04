@@ -1,6 +1,6 @@
 #pragma once
 
-#include "resource.h"
+#include <resources/resource.h>
 
 #include <filesystem>
 #include <mutex>

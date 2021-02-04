@@ -470,9 +470,6 @@
     <ClInclude Include="convert\js_to_native.h">
       <Filter>convert</Filter>
     </ClInclude>
-    <ClInclude Include="resource.h">
-      <Filter>resources</Filter>
-    </ClInclude>
     <ClInclude Include="js_objects\fb_window.h">
       <Filter>js_objects</Filter>
     </ClInclude>
@@ -728,15 +725,24 @@
     <ClInclude Include="fb2k\selection_holder_helper.h">
       <Filter>fb2k</Filter>
     </ClInclude>
+    <ClInclude Include="resources\resource.h">
+      <Filter>resources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="default.js">
-      <Filter>resources</Filter>
-    </None>
-    <None Include="foo_spider_monkey_panel.rc2">
-      <Filter>resources</Filter>
-    </None>
     <None Include="packages.config" />
+    <None Include="resources\foo_spider_monkey_panel.rc2">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="resources\default_script.js">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="resources\scintilla_interface.api">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="resources\scintilla_jscript.api">
+      <Filter>resources</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="js_engine">
@@ -783,16 +789,16 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="foo_spider_monkey_panel.rc">
-      <Filter>resources</Filter>
-    </ResourceCompile>
-    <ResourceCompile Include="version.rc">
-      <Filter>resources</Filter>
-    </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
     <Midl Include="com_objects\com_interface.idl">
       <Filter>com_objects</Filter>
     </Midl>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="resources\version.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
+    <ResourceCompile Include="resources\foo_spider_monkey_panel.rc">
+      <Filter>resources</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>
