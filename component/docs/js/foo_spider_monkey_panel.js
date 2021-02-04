@@ -1803,10 +1803,10 @@ let window = {
     * Note: package_id is only present when the panel script is a package.
     * 
     * @typedef {Object} ScriptInfo
-    * @property {string} name
-    * @property {string} [author]
-    * @property {string} [version]
-    * @property {string} [package_id]
+    * @property {string} Name
+    * @property {string} [Author]
+    * @property {string} [Version]
+    * @property {string} [PackageId]
     */
 
     /**

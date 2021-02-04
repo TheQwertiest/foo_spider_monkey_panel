@@ -839,18 +839,18 @@ JSObject* JsWindow::get_ScriptInfo()
 
     JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
 
-    AddProperty( pJsCtx_, jsObject, "name", settings.scriptName );
+    AddProperty( pJsCtx_, jsObject, "Name", settings.scriptName );
     if ( !settings.scriptAuthor.empty() )
     {
-        AddProperty( pJsCtx_, jsObject, "author", settings.scriptAuthor );
+        AddProperty( pJsCtx_, jsObject, "Author", settings.scriptAuthor );
     }
     if ( !settings.scriptVersion.empty() )
     {
-        AddProperty( pJsCtx_, jsObject, "version", settings.scriptVersion );
+        AddProperty( pJsCtx_, jsObject, "Version", settings.scriptVersion );
     }
     if ( settings.packageId )
     {
-        AddProperty( pJsCtx_, jsObject, "package_id", *settings.packageId );
+        AddProperty( pJsCtx_, jsObject, "PackageId", *settings.packageId );
     }
 
     return jsObject;
