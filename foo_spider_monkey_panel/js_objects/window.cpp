@@ -307,7 +307,21 @@ void JsWindow::DefinePanel( const std::u8string& name, JS::HandleValue options )
 
 void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options )
 {
-    DefineScriptWithOpt( optArgCount, name, options );
+    if ( isFinalized_ )
+    {
+        return;
+    }
+
+    qwr::QwrException::ExpectTrue( !isScriptDefined_, "DefinePanel/DefineScript can't be called twice" );
+
+    const auto parsedOptions = ParseDefineScriptOptions( options );
+
+    parentPanel_.SetPanelName( name );
+    parentPanel_.SetScriptInfo( name, parsedOptions.author, parsedOptions.version );
+    parentPanel_.SetDragAndDropStatus( parsedOptions.features.dragAndDrop );
+    parentPanel_.SetCaptureFocusStatus( parsedOptions.features.grabFocus );
+
+    isScriptDefined_ = true;
 }
 
 void JsWindow::DefineScript( const std::u8string& name, JS::HandleValue options )

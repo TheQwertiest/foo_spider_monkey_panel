@@ -1036,6 +1036,11 @@ void js_panel_window::SetScriptInfo( const std::u8string& scriptName, const std:
     settings_.scriptVersion = scriptVersion;
 }
 
+void js_panel_window::SetPanelName( const std::u8string& panelName )
+{
+    settings_.panelId = panelName;
+}
+
 void js_panel_window::SetDragAndDropStatus( bool isEnabled )
 {
     settings_.enableDragDrop = isEnabled;

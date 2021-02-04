@@ -1856,7 +1856,7 @@ let window = {
     ClearInterval: function (timerID) { }, // (void)
 
     /**
-     * Setups the panel information and available features.<br>
+     * Setups the panel and script information and available features.<br>
      * Can be called only once, so it's better to define it
      * directly in the panel Configure menu.<br>
      * <br>
@@ -1865,7 +1865,7 @@ let window = {
      *
      * @deprecated
      *
-     * @param {string} name Displayed script name
+     * @param {string} name Script name and panel name
      * @param {object=} [options={}]
      * @param {string=} [options.author=''] Script author
      * @param {string=} [options.version=''] Script version

@@ -70,6 +70,7 @@ public: // accessors
     virtual HFONT GetFont( unsigned type, const GUID& guid ) = 0;
 
     void SetScriptInfo( const std::u8string& scriptName, const std::u8string& scriptAuthor, const std::u8string& scriptVersion );
+    void SetPanelName( const std::u8string& panelName );
     /// @throw qwr::QwrException
     void SetDragAndDropStatus( bool isEnabled );
     void SetCaptureFocusStatus( bool isEnabled );
