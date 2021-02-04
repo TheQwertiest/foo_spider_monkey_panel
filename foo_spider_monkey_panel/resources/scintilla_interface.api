@@ -21,6 +21,7 @@ fb.PlaybackTime
 fb.ProfilePath
 fb.ReplaygainMode
 fb.StopAfterCurrent
+fb.Version
 fb.Volume
 
 fb.AcquireUiSelectionHolder()
@@ -35,7 +36,7 @@ fb.CreateMainMenuManager()
 fb.CreateProfiler([name])
 fb.DoDragDrop(handle_list, effect)
 fb.Exit()
-fb.GetClipboardContents(window_id)
+fb.GetClipboardContents()
 fb.GetDSPPresets();
 fb.GetFocusItem([force])
 fb.GetLibraryItems()
@@ -163,6 +164,7 @@ window.ID
 window.InstanceType
 window.IsTransparent
 window.IsVisible
+window.JsMemoryStats
 window.MaxHeight
 window.MaxWidth
 window.MemoryLimit
