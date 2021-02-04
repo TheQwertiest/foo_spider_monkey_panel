@@ -1647,6 +1647,7 @@ let utils = {
      * @param {string} filename
      * @param {string} content
      * @param {boolean=} [write_bom=true]
+     * @return {boolean}
      *
      * @example <caption>Default encoding</caption>
      * // write_bom missing but defaults to true, resulting file is UTF8-BOM

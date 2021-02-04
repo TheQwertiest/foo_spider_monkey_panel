@@ -702,14 +702,22 @@ bool JsUtils::WriteINI( const std::wstring& filename, const std::wstring& sectio
     return WritePrivateProfileString( section.c_str(), key.c_str(), val.c_str(), filename.c_str() );
 }
 
-void JsUtils::WriteTextFile( const std::wstring& filename, const std::u8string& content, bool write_bom )
+bool JsUtils::WriteTextFile( const std::wstring& filename, const std::u8string& content, bool write_bom )
 {
     qwr::QwrException::ExpectTrue( !filename.empty(), "Invalid filename" );
 
-    qwr::file::WriteFile( filename, content, write_bom );
+    try
+    {
+        qwr::file::WriteFile( filename, content, write_bom );
+        return true;
+    }
+    catch ( const qwr::QwrException& )
+    {
+        return false;
+    }
 }
 
-void JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const std::u8string& content, bool write_bom )
+bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const std::u8string& content, bool write_bom )
 {
     switch ( optArgCount )
     {
