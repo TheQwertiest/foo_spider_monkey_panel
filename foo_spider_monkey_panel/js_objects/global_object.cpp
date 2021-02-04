@@ -236,14 +236,14 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
         std::vector<fs::path> paths;
         if ( !parentFilepaths_.empty() )
         {
-            ranges::actions::push_back( fs::u8path( parentFilepaths_.back() ) );
+            paths.emplace_back( fs::u8path( parentFilepaths_.back() ) );
         }
         if ( const auto& setting = parentContainer_.GetParentPanel().GetSettings();
              setting.packageId )
         {
-            ranges::actions::push_back( paths, config::GetPackageScriptsDir( setting ) );
+            paths.emplace_back( config::GetPackageScriptsDir( setting ) );
         }
-        ranges::actions::push_back( paths, qwr::path::Component() );
+        paths.emplace_back( qwr::path::Component() );
 
         return paths;
     }();
@@ -251,16 +251,17 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
     const auto fsPath = [&path, &allSearchPaths] {
         try
         {
-            fs::path fsPath = fs::u8path( path );
+            const auto fsPath = fs::u8path( path );
             if ( fsPath.is_relative() )
             {
                 assert( !allSearchPaths.empty() );
                 for ( const auto& searchPath: allSearchPaths )
                 {
-                    if ( fs::exists( searchPath / fsPath ) )
+                    const auto curPath = searchPath / fsPath;
+                    if ( fs::exists( curPath ) )
                     {
-                        qwr::QwrException::ExpectTrue( fs::is_regular_file( searchPath / fsPath ), "Path does not point to a valid file: {}", path );
-                        return fsPath.lexically_normal();
+                        qwr::QwrException::ExpectTrue( fs::is_regular_file( curPath ), "Path does not point to a valid file: {}", path );
+                        return curPath.lexically_normal();
                     }
                 }
                 throw qwr::QwrException( "Path does not point to a valid file: {}", path );
