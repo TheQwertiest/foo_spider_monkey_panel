@@ -75,7 +75,10 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 void js_panel_window::JsEngineFail( const std::u8string& errorText )
 {
     qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
-    wnd_.SendMessage( static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
+    if ( wnd_ )
+    {
+        wnd_.SendMessage( static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
+    }
 }
 
 const config::ParsedPanelSettings& js_panel_window::GetSettings() const
@@ -116,7 +119,12 @@ void js_panel_window::LoadSettings( stream_reader& reader, t_size size, abort_ca
             return config::PanelSettings{};
         }
     }();
-    UpdateSettings( settings, reloadPanel );
+
+    if ( !UpdateSettings( settings, reloadPanel ) )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be reset!" ) );
+        UpdateSettings( config::PanelSettings{}, reloadPanel );
+    }
 }
 
 void js_panel_window::SetSettings( const smp::config::ParsedPanelSettings& settings )
