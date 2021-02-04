@@ -7,9 +7,9 @@
 // Warning: drag-n-drop is an advanced technique, so beware!
 //
 
-window.DefinePanel("Drag n drop", { author: "TheQwertiest", features: { drag_n_drop: true } });
+window.DefineScript('Drag n drop', { author: 'TheQwertiest', features: { drag_n_drop: true } });
 
-include(`${fb.ComponentPath}docs\\Flags.js`);
+include('docs/Flags.js');
 
 const fso = new ActiveXObject('Scripting.FileSystemObject');
 const font = gdi.Font('Segoe Ui', 12);
@@ -32,8 +32,8 @@ let last_pressed_coord = {};
 let is_dragging = false;
 let is_internal_drag_n_drop_active = false;
 
-let status_text = "Start dragging to or from the panel";
-let status_text_2 = "";
+let status_text = 'Start dragging to or from the panel';
+let status_text_2 = '';
 
 
 ////////////////////////////
@@ -49,8 +49,8 @@ function on_paint(gr) {
     gr.DrawString(status_text, font, 0xFF000000, 0, 0, ww, 30, 0x11000000);
     gr.DrawString(status_text_2, font, 0xFF000000, 0, 30, ww, 30, 0x11000000);
     
-    gr.DrawString("Drag from here or from outside", font, 0xFF000000, 0, 60, ww/2, wh - 60, 0x11000000);
-    gr.DrawString("Drop here or outside", font, 0xFF000000, ww/2, 60, ww/2, wh - 60, 0x11000000);
+    gr.DrawString('Drag from here or from outside', font, 0xFF000000, 0, 60, ww/2, wh - 60, 0x11000000);
+    gr.DrawString('Drop here or outside', font, 0xFF000000, ww/2, 60, ww/2, wh - 60, 0x11000000);
 }
 
 function on_size(w,h) {
@@ -129,7 +129,7 @@ function on_drag_leave() {
     mouse_in = false;
     mouse_down = false;
 
-    status_text_2 = "Item was dragged outside or dropped on no-drop zone";
+    status_text_2 = 'Item was dragged outside or dropped on no-drop zone';
     window.Repaint(); 
 }
 
@@ -142,8 +142,8 @@ function on_drag_over(action, x, y, mask) {
         action.Effect = g_drop_effect.none;
     }
     
-    if (status_text_2 !== "Item is being dragged") {
-        status_text_2 = "Item is being dragged";
+    if (status_text_2 !== 'Item is being dragged') {
+        status_text_2 = 'Item is being dragged';
         window.Repaint(); 
     }
 }
@@ -168,23 +168,23 @@ function on_drag_drop(action, x, y, m) {
         // Suppress native drop, since we've handled it ourselves
         action.Effect = g_drop_effect.none;
                 
-        status_text_2 = "Item from playlist was dropped and ";
-        status_text_2 += copy_drop ? "copied" : "moved";            
+        status_text_2 = 'Item from playlist was dropped and ';
+        status_text_2 += copy_drop ? 'copied' : 'moved';            
         window.Repaint();        
     }
     else {
         action.Effect = filter_effect_by_modifiers(action.Effect);
         if (g_drop_effect.none !== action.Effect) {
             external_drop(action);
-            status_text_2 = "Item from outside was dropped and ";
-            status_text_2 += g_drop_effect.move & action.Effect ? "moved" : "copied";
+            status_text_2 = 'Item from outside was dropped and ';
+            status_text_2 += g_drop_effect.move & action.Effect ? 'moved' : 'copied';
             window.Repaint();    
         }
         else {
             is_dragging = false;
             is_internal_drag_n_drop_active = false;
             
-            status_text_2 = "Item from outside was dropped but the action was forbidden";            
+            status_text_2 = 'Item from outside was dropped but the action was forbidden';            
             window.Repaint(); 
         }
     }
@@ -216,7 +216,7 @@ function perform_internal_drag_n_drop() {
     let cur_playlist_size = plman.PlaylistItemCount(cur_playlist_idx);
     let cur_playlist_selection = plman.GetPlaylistSelectedItems(cur_playlist_idx);
     
-    let effect = fb.DoDragDrop(window.ID, cur_playlist_selection, g_drop_effect.copy | g_drop_effect.move | g_drop_effect.link);
+    let effect = fb.DoDragDrop(0, cur_playlist_selection, g_drop_effect.copy | g_drop_effect.move | g_drop_effect.link);
 
     function can_handle_move_drop() {
         // We can handle the 'move drop' properly only when playlist is still in the same state
