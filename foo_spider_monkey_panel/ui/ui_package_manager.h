@@ -12,8 +12,6 @@
 namespace smp::ui
 {
 
-// TODO: add drag-n-drop support
-
 class CDialogPackageManager : public CDialogImpl<CDialogPackageManager>
 {
 public:
@@ -24,6 +22,7 @@ public:
 
     BEGIN_MSG_MAP( CDialogPackageManager )
         MSG_WM_INITDIALOG( OnInitDialog )
+        MSG_WM_DESTROY( OnDestroy )
         COMMAND_HANDLER_EX( IDC_LIST_PACKAGES, LBN_SELCHANGE, OnDdxUiChange )
         COMMAND_HANDLER_EX( IDC_BUTTON_NEW_PACKAGE, BN_CLICKED, OnNewPackage )
         COMMAND_HANDLER_EX( IDC_BUTTON_DELETE_PACKAGE, BN_CLICKED, OnDeletePackage )
@@ -32,7 +31,7 @@ public:
         COMMAND_HANDLER_EX( IDC_BUTTON_OPEN_FOLDER, BN_CLICKED, OnOpenFolder )
         COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
         NOTIFY_HANDLER_EX( IDC_RICHEDIT_PACKAGE_INFO, EN_LINK, OnRichEditLinkClick )
-        MESSAGE_HANDLER_EX( CFileDropListBox<>::GetOnDropMsg(), OnDropFiles )
+        MESSAGE_HANDLER_EX( CFileDropListBox::GetOnDropMsg(), OnDropFiles )
     END_MSG_MAP()
 
     CDialogPackageManager( const std::u8string& currentPackageId );
@@ -50,6 +49,7 @@ private:
 
 private:
     LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
+    void OnDestroy();
     void OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnNewPackage( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnDeletePackage( UINT uNotifyCode, int nID, CWindow wndCtl );
@@ -78,7 +78,7 @@ private:
     std::array<std::unique_ptr<qwr::ui::IUiDdx>, 1> ddx_;
 
     std::vector<PackageData> packages_;
-    CFileDropListBox<> packagesListBox_;
+    CComPtr<CFileDropListBox> pPackagesListBox_;
 
     CRichEditCtrl packageInfoEdit_;
 };

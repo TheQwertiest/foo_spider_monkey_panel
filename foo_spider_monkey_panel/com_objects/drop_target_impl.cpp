@@ -8,7 +8,7 @@ namespace smp::com
 {
 
 IDropTargetImpl::IDropTargetImpl( HWND hWnd )
-    : m_hWnd( hWnd )
+    : hWnd_( hWnd )
 {
     assert( hWnd );
 
@@ -25,12 +25,12 @@ IDropTargetImpl::~IDropTargetImpl()
 
 HRESULT IDropTargetImpl::RegisterDragDrop()
 {
-    return ::RegisterDragDrop( m_hWnd, this );
+    return ::RegisterDragDrop( hWnd_, this );
 }
 
 HRESULT IDropTargetImpl::RevokeDragDrop()
 {
-    return ::RevokeDragDrop( m_hWnd );
+    return ::RevokeDragDrop( hWnd_ );
 }
 
 STDMETHODIMP IDropTargetImpl::DragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
@@ -45,7 +45,7 @@ STDMETHODIMP IDropTargetImpl::DragEnter( IDataObject* pDataObj, DWORD grfKeyStat
     }
 
     POINT point{ pt.x, pt.y };
-    m_dropTargetHelper->DragEnter( m_hWnd, pDataObj, &point, *pdwEffect );
+    m_dropTargetHelper->DragEnter( hWnd_, pDataObj, &point, *pdwEffect );
 
     return OnDragEnter( pDataObj, grfKeyState, pt, pdwEffect );
 }

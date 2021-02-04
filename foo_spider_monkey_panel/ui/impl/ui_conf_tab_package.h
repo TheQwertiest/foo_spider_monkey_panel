@@ -3,6 +3,7 @@
 #include <config/parsed_panel_config.h>
 #include <panel/user_message.h>
 #include <resources/resource.h>
+#include <ui/impl/ui_file_drop_list_box.h>
 #include <ui/impl/ui_itab.h>
 
 #include <qwr/ui_ddx.h>
@@ -64,6 +65,7 @@ public:
         COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
         NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
+        MESSAGE_HANDLER_EX( CFileDropListBox::GetOnDropMsg(), OnDropFiles )
         CHAIN_MSG_MAP( CDialogResize<CConfigTabPackage> )
     END_MSG_MAP()
 
@@ -95,6 +97,7 @@ private:
     LONG OnEditScriptDropDown( LPNMHDR pnmh );
 
     LRESULT OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lParam );
+    LRESULT OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam );
 
     void DoFullDdxToUi();
     void UpdateUiButtons();

@@ -430,6 +430,12 @@ LRESULT CConfigTabPackage::OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lPara
     return 0;
 }
 
+LRESULT CConfigTabPackage::OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam )
+{
+
+    return 0;
+}
+
 void CConfigTabPackage::DoFullDdxToUi()
 {
     if ( !this->m_hWnd )
@@ -461,6 +467,7 @@ void CConfigTabPackage::InitializeFilesListBox()
     try
     {
         filesListBox_ = GetDlgItem( IDC_LIST_PACKAGE_FILES );
+
         files_ = config::GetPackageFiles( settings_ );
         UpdateListBoxFromData();
     }

@@ -50,8 +50,19 @@ LRESULT CDialogPackageManager::OnInitDialog( HWND, LPARAM )
         ddx->SetHwnd( m_hWnd );
     }
 
-    packagesListBox_.SubclassWindow( GetDlgItem( IDC_LIST_PACKAGES ) );
-    packagesListBox_.Initialize();
+    pPackagesListBox_.Attach( new com_object_impl_t<CFileDropListBox>( GetDlgItem( IDC_LIST_PACKAGES ) ) );
+
+    try
+    {
+        HRESULT hr = pPackagesListBox_->RegisterDragDrop();
+        qwr::error::CheckHR( hr, "RegisterDragDrop" );
+    }
+    catch ( qwr::QwrException& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+    }
+
+    *pPackagesListBox_ = GetDlgItem( IDC_LIST_PACKAGES );
 
     // TODO: add context menu
     packageInfoEdit_ = GetDlgItem( IDC_RICHEDIT_PACKAGE_INFO );
@@ -63,13 +74,19 @@ LRESULT CDialogPackageManager::OnInitDialog( HWND, LPARAM )
     SetWindowText( L"Script package manager" );
 
     CenterWindow();
-    ::SetFocus( packagesListBox_ );
+    ::SetFocus( *pPackagesListBox_ );
 
     LoadPackages();
     UpdateListBoxFromData();
     DoFullDdxToUi();
 
     return FALSE;
+}
+
+void CDialogPackageManager::OnDestroy()
+{
+    assert( pPackagesListBox_ );
+    pPackagesListBox_->RevokeDragDrop();
 }
 
 void CDialogPackageManager::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
@@ -289,12 +306,24 @@ LRESULT CDialogPackageManager::OnRichEditLinkClick( LPNMHDR pnmh )
 
 LRESULT CDialogPackageManager::OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-    auto hDropInfo = (HDROP)wParam;
-    const auto autoDrop = qwr::final_action( [hDropInfo] {
-        DragFinish( hDropInfo );
+    auto pDataObj = reinterpret_cast<IDataObject*>( lParam );
+    const auto autoDrop = qwr::final_action( [pDataObj] {
+        pDataObj->Release();
     } );
 
-    const auto fileCount = DragQueryFile( hDropInfo, 0xFFFFFFFF, nullptr, 0 );
+    FORMATETC fmte = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+    STGMEDIUM stgm;
+    if ( !SUCCEEDED( pDataObj->GetData( &fmte, &stgm ) ) )
+    {
+        return 0;
+    }
+    const auto autoStgm = qwr::final_action( [&stgm] {
+        ReleaseStgMedium( &stgm );
+    } );
+
+    const auto hDrop = reinterpret_cast<HDROP>( stgm.hGlobal );
+
+    const auto fileCount = DragQueryFile( hDrop, 0xFFFFFFFF, nullptr, 0 );
     if ( !fileCount )
     {
         return 0;
@@ -302,11 +331,11 @@ LRESULT CDialogPackageManager::OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lPa
 
     for ( const auto i: ranges::views::ints( 0, (int)fileCount ) )
     {
-        const auto pathLength = DragQueryFile( hDropInfo, i, nullptr, 0 );
+        const auto pathLength = DragQueryFile( hDrop, i, nullptr, 0 );
         std::wstring path;
         path.resize( pathLength + 1 );
 
-        DragQueryFile( hDropInfo, i, path.data(), path.size() );
+        DragQueryFile( hDrop, i, path.data(), path.size() );
         path.resize( path.size() - 1 );
 
         ImportPackage( path );
@@ -444,10 +473,10 @@ void CDialogPackageManager::UpdateListBoxFromData()
         focusedPackageIdx_ = ranges::distance( packages_.cbegin(), it );
     }
 
-    packagesListBox_.ResetContent();
+    pPackagesListBox_->ResetContent();
     for ( const auto& package: packages_ )
     {
-        packagesListBox_.AddString( package.displayedName.c_str() );
+        pPackagesListBox_->AddString( package.displayedName.c_str() );
     }
 }
 

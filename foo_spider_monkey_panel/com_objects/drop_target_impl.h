@@ -32,7 +32,7 @@ public:
 
 protected:
     IDropTargetHelperPtr m_dropTargetHelper;
-    HWND m_hWnd;
+    HWND hWnd_;
 };
 
 } // namespace smp::com

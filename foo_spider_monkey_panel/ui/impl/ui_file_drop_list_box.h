@@ -1,42 +1,42 @@
 #pragma once
 
+#include <com_objects/com_tools.h>
+#include <com_objects/drop_target_impl.h>
+
 namespace smp::ui
 {
 
-template <class T = CWindow>
-class CFileDropListBox : public CWindowImpl<CFileDropListBox<CWindow>, CListBox>
+class CFileDropListBox
+    : public smp::com::IDropTargetImpl
+    , public CListBox
 {
 public:
-    CFileDropListBox( HWND hWnd = nullptr )
-    {
-    }
+    CFileDropListBox( HWND hWnd );
+    CFileDropListBox& operator=( HWND hWnd );
 
-    CFileDropListBox& operator=( HWND hWnd )
-    {
-        m_hWnd = hWnd;
-        return *this;
-    }
+    static UINT GetOnDropMsg();
 
-    void Initialize()
-    {
-        this->DragAcceptFiles();
-    }
-
-    static UINT GetOnDropMsg()
-    {
-        static const UINT msgId = ::RegisterWindowMessage( L"smp_ui_file_drop" );
-        return msgId;
-    }
+protected:
+    void FinalRelease();
 
 private:
-    BEGIN_MSG_MAP( CFileDropListBox<T> )
-        MSG_WM_DROPFILES( OnDropFiles )
-    END_MSG_MAP()
+    BEGIN_COM_QI_IMPL()
+        COM_QI_ENTRY_MULTI( IUnknown, IDropTarget )
+        COM_QI_ENTRY( IDropTarget )
+    END_COM_QI_IMPL()
 
-    void OnDropFiles( HDROP hDropInfo )
-    {
-        this->GetParent().SendMessage( GetOnDropMsg(), (WPARAM)hDropInfo );
-    }
+    // com::IDropTargetImpl
+    HRESULT OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
+    HRESULT OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
+    HRESULT OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
+    HRESULT OnDragLeave() override;
+
+    DWORD GetEffect() const;
+
+    static bool IsFile( IDataObject* pDataObj );
+
+private:
+    bool isFile_ = false;
 };
 
 } // namespace smp::ui
