@@ -8,7 +8,7 @@
 #include "windows.h"
 #undef APSTUDIO_HIDDEN_SYMBOLS
 
-#include <component_defines.h>
+#include "../component_defines.h"
 
 #undef APSTUDIO_READONLY_SYMBOLS
 

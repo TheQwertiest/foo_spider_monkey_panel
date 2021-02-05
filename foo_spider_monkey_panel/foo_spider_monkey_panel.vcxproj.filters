@@ -336,7 +336,6 @@
     <ClCompile Include="ui\impl\ui_conf_tab_package.cpp">
       <Filter>ui\impl</Filter>
     </ClCompile>
-    <ClCompile Include="ui\impl\ui_file_drop_list_box.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -729,7 +728,7 @@
     <ClInclude Include="ui\impl\ui_conf_tab_package.h">
       <Filter>ui\impl</Filter>
     </ClInclude>
-    <ClInclude Include="ui\impl\ui_file_drop_list_box.h">
+    <ClInclude Include="ui\impl\ui_file_drop_control.h">
       <Filter>ui\impl</Filter>
     </ClInclude>
   </ItemGroup>

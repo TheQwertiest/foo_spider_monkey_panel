@@ -62,8 +62,6 @@ LRESULT CDialogPackageManager::OnInitDialog( HWND, LPARAM )
         qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
     }
 
-    *pPackagesListBox_ = GetDlgItem( IDC_LIST_PACKAGES );
-
     // TODO: add context menu
     packageInfoEdit_ = GetDlgItem( IDC_RICHEDIT_PACKAGE_INFO );
     packageInfoEdit_.SetWindowLong( GWL_EXSTYLE, packageInfoEdit_.GetWindowLong( GWL_EXSTYLE ) & ~WS_EX_CLIENTEDGE );

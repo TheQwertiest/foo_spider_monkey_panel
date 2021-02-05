@@ -3,7 +3,7 @@
 #include <config/panel_config.h>
 #include <config/parsed_panel_config.h>
 #include <resources/resource.h>
-#include <ui/impl/ui_file_drop_list_box.h>
+#include <ui/impl/ui_file_drop_control.h>
 
 #include <qwr/ui_ddx.h>
 

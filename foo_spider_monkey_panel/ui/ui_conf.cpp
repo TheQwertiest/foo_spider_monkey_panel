@@ -383,7 +383,7 @@ void CDialogConf::ReinitializeTabControls()
 {
     // do not recreate the first tab
 
-    for ( auto&& i: ranges::views::ints( 1, cTabs_.GetItemCount() ) )
+    for ( const auto i: ranges::views::ints( 1, cTabs_.GetItemCount() ) )
     {
         cTabs_.DeleteItem( 1 );
     }

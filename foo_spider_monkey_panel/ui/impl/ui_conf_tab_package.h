@@ -3,7 +3,7 @@
 #include <config/parsed_panel_config.h>
 #include <panel/user_message.h>
 #include <resources/resource.h>
-#include <ui/impl/ui_file_drop_list_box.h>
+#include <ui/impl/ui_file_drop_control.h>
 #include <ui/impl/ui_itab.h>
 
 #include <qwr/ui_ddx.h>
@@ -28,8 +28,8 @@ public:
     };
 
     BEGIN_DLGRESIZE_MAP( CConfigTabPackage )
-        DLGRESIZE_CONTROL( IDC_GROUP_PKG_FILES, DLSZ_SIZE_Y )
         DLGRESIZE_CONTROL( IDC_LIST_PACKAGE_FILES, DLSZ_SIZE_Y )
+        DLGRESIZE_CONTROL( IDC_GROUP_PKG_FILES, DLSZ_SIZE_Y )
         DLGRESIZE_CONTROL( IDC_BUTTON_NEW_SCRIPT, DLSZ_MOVE_Y )
         DLGRESIZE_CONTROL( IDC_BUTTON_ADD_FILE, DLSZ_MOVE_Y )
         DLGRESIZE_CONTROL( IDC_BUTTON_REMOVE_FILE, DLSZ_MOVE_Y )
@@ -48,6 +48,7 @@ public:
 
     BEGIN_MSG_MAP( CConfigTabPackage )
         MSG_WM_INITDIALOG( OnInitDialog )
+        MSG_WM_DESTROY( OnDestroy )
         MESSAGE_HANDLER_EX( static_cast<int>( InternalSyncMessage::ui_script_editor_saved ), OnScriptSaved );
         COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_NAME, EN_CHANGE, OnDdxUiChange )
         COMMAND_HANDLER_EX( IDC_EDIT_PACKAGE_VERSION, EN_CHANGE, OnDdxUiChange )
@@ -84,6 +85,7 @@ public:
 
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
+    void OnDestroy();
     void OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl );
 
     void OnNewScript( UINT uNotifyCode, int nID, CWindow wndCtl );
@@ -105,6 +107,8 @@ private:
     void InitializeFilesListBox();
     void SortFiles();
     void UpdateListBoxFromData();
+
+    void AddFile( const std::filesystem::path& path );
 
 private:
     bool suppressDdxFromUi_ = true;
@@ -130,7 +134,7 @@ private:
     std::array<std::unique_ptr<qwr::ui::IUiDdx>, 7> ddx_;
 
     std::vector<std::filesystem::path> files_;
-    CListBox filesListBox_;
+    CComPtr<CFileDropListBox> pFilesListBox_;
 };
 
 } // namespace smp::ui

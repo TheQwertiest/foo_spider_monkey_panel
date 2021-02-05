@@ -218,7 +218,6 @@
     <ClCompile Include="ui\impl\ui_conf_tab_package.cpp" />
     <ClCompile Include="ui\impl\ui_conf_tab_properties.cpp" />
     <ClCompile Include="ui\impl\ui_conf_tab_script_source.cpp" />
-    <ClCompile Include="ui\impl\ui_file_drop_list_box.cpp" />
     <ClCompile Include="ui\scintilla\sci_config.cpp" />
     <ClCompile Include="ui\scintilla\sci_prop_sets.cpp" />
     <ClCompile Include="ui\scintilla\ui_sci_editor.cpp" />
@@ -349,7 +348,7 @@
     <ClInclude Include="ui\impl\ui_conf_tab_package.h" />
     <ClInclude Include="ui\impl\ui_conf_tab_properties.h" />
     <ClInclude Include="ui\impl\ui_conf_tab_script_source.h" />
-    <ClInclude Include="ui\impl\ui_file_drop_list_box.h" />
+    <ClInclude Include="ui\impl\ui_file_drop_control.h" />
     <ClInclude Include="ui\impl\ui_itab.h" />
     <ClInclude Include="ui\scintilla\sci_config.h" />
     <ClInclude Include="ui\scintilla\sci_prop_sets.h" />

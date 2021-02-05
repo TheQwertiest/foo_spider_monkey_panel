@@ -86,6 +86,13 @@ BOOL CConfigTabPackage::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return TRUE; // set focus to default control
 }
 
+void CConfigTabPackage::OnDestroy()
+{
+    assert( pFilesListBox_ );
+    pFilesListBox_->RevokeDragDrop();
+    pFilesListBox_.Release();
+}
+
 void CConfigTabPackage::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     if ( suppressDdxFromUi_ )
@@ -191,43 +198,7 @@ void CConfigTabPackage::OnAddFile( UINT uNotifyCode, int nID, CWindow wndCtl )
         return;
     }
 
-    try
-    {
-        const fs::path path( *pathOpt );
-        const fs::path newPath = packagePath_ / "assets" / path.filename();
-
-        const auto it = ranges::find( files_, newPath );
-        if ( it != files_.cend() )
-        {
-            const int iRet = MessageBox(
-                L"File already exists\n\n"
-                L"Do you want to rewrite it?",
-                L"Adding file",
-                MB_YESNO | MB_ICONWARNING );
-            if ( IDYES != iRet )
-            {
-                return;
-            }
-        }
-        else
-        {
-            fs::create_directories( newPath.parent_path() );
-            fs::copy( path, newPath );
-            files_.emplace_back( newPath );
-        }
-        focusedFile_ = newPath;
-
-        UpdateListBoxFromData();
-        DoFullDdxToUi();
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
-    }
-    catch ( const qwr::QwrException& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
-    }
+    AddFile( *pathOpt );
 }
 
 void CConfigTabPackage::OnRemoveFile( UINT uNotifyCode, int nID, CWindow wndCtl )
@@ -432,6 +403,40 @@ LRESULT CConfigTabPackage::OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lPara
 
 LRESULT CConfigTabPackage::OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
+    auto pDataObj = reinterpret_cast<IDataObject*>( lParam );
+    const auto autoDrop = qwr::final_action( [pDataObj] {
+        pDataObj->Release();
+    } );
+
+    FORMATETC fmte = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+    STGMEDIUM stgm;
+    if ( !SUCCEEDED( pDataObj->GetData( &fmte, &stgm ) ) )
+    {
+        return 0;
+    }
+    const auto autoStgm = qwr::final_action( [&stgm] {
+        ReleaseStgMedium( &stgm );
+    } );
+
+    const auto hDrop = reinterpret_cast<HDROP>( stgm.hGlobal );
+
+    const auto fileCount = DragQueryFile( hDrop, 0xFFFFFFFF, nullptr, 0 );
+    if ( !fileCount )
+    {
+        return 0;
+    }
+
+    for ( const auto i: ranges::views::ints( 0, (int)fileCount ) )
+    {
+        const auto pathLength = DragQueryFile( hDrop, i, nullptr, 0 );
+        std::wstring path;
+        path.resize( pathLength + 1 );
+
+        DragQueryFile( hDrop, i, path.data(), path.size() );
+        path.resize( path.size() - 1 );
+
+        AddFile( path );
+    }
 
     return 0;
 }
@@ -466,7 +471,24 @@ void CConfigTabPackage::InitializeFilesListBox()
 {
     try
     {
-        filesListBox_ = GetDlgItem( IDC_LIST_PACKAGE_FILES );
+        // !!! Important !!!
+        // Groupbox *MUST* be *ABOVE* listbox in z-order for drag-n-drop on listbox to work
+        // (makes no sense, but it doesn't work otherwise).
+        // Check .rc and adjust if needed:
+        // z-order in .rc is in reverse - last item is the top item.
+        // !!! Important !!!
+
+        pFilesListBox_.Attach( new com_object_impl_t<CFileDropListBox>( GetDlgItem( IDC_LIST_PACKAGE_FILES ) ) );
+
+        try
+        {
+            HRESULT hr = pFilesListBox_->RegisterDragDrop();
+            qwr::error::CheckHR( hr, "RegisterDragDrop" );
+        }
+        catch ( qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        }
 
         files_ = config::GetPackageFiles( settings_ );
         UpdateListBoxFromData();
@@ -517,15 +539,55 @@ void CConfigTabPackage::UpdateListBoxFromData()
 
         focusedFileIdx_ = ranges::distance( files_.cbegin(), it );
 
-        filesListBox_.ResetContent();
+        pFilesListBox_->ResetContent();
         for ( const auto& file: files_ )
         {
-            filesListBox_.AddString( fs::relative( file, packagePath_ ).c_str() );
+            pFilesListBox_->AddString( fs::relative( file, packagePath_ ).c_str() );
         }
     }
     catch ( const fs::filesystem_error& e )
     {
         qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+    }
+}
+
+void CConfigTabPackage::AddFile( const std::filesystem::path& path )
+{
+    try
+    {
+        const fs::path newPath = packagePath_ / "assets" / path.filename();
+
+        const auto it = ranges::find( files_, newPath );
+        if ( it != files_.cend() )
+        {
+            const int iRet = MessageBox(
+                L"File already exists\n\n"
+                L"Do you want to rewrite it?",
+                L"Adding file",
+                MB_YESNO | MB_ICONWARNING );
+            if ( IDYES != iRet )
+            {
+                return;
+            }
+        }
+        else
+        {
+            fs::create_directories( newPath.parent_path() );
+            fs::copy( path, newPath );
+            files_.emplace_back( newPath );
+        }
+        focusedFile_ = newPath;
+
+        UpdateListBoxFromData();
+        DoFullDdxToUi();
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
     }
 }
 
