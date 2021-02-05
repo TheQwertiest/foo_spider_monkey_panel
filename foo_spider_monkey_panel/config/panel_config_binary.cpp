@@ -69,8 +69,10 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
         {
             GUID guid;
             HRESULT hr = IIDFromString( qwr::unicode::ToWide( settings.id ).c_str(), &guid );
-            qwr::error::CheckHR( hr, "IIDFromString" );
-
+            if ( FAILED( hr ) )
+            {                                // panel id is not a guid, generate one for backcompat
+                (void)CoCreateGuid( &guid ); //< should not fail
+            }
             writer.write_object_t( guid, abort );
         }
         writer.write_object_t( static_cast<uint8_t>( settings.edgeStyle ), abort );
