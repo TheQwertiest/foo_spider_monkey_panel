@@ -50,11 +50,12 @@ LRESULT CDialogPackageManager::OnInitDialog( HWND, LPARAM )
         ddx->SetHwnd( m_hWnd );
     }
 
-    pPackagesListBox_.Attach( new com_object_impl_t<CFileDropListBox>( GetDlgItem( IDC_LIST_PACKAGES ) ) );
+    packagesListBox_ = GetDlgItem( IDC_LIST_PACKAGES );
+    pPackagesListBoxDrop_.Attach( new com_object_impl_t<com::FileDropTarget>( packagesListBox_, *this ) );
 
     try
     {
-        HRESULT hr = pPackagesListBox_->RegisterDragDrop();
+        HRESULT hr = pPackagesListBoxDrop_->RegisterDragDrop();
         qwr::error::CheckHR( hr, "RegisterDragDrop" );
     }
     catch ( qwr::QwrException& e )
@@ -72,7 +73,7 @@ LRESULT CDialogPackageManager::OnInitDialog( HWND, LPARAM )
     SetWindowText( L"Script package manager" );
 
     CenterWindow();
-    ::SetFocus( *pPackagesListBox_ );
+    ::SetFocus( packagesListBox_ );
 
     LoadPackages();
     UpdateListBoxFromData();
@@ -83,8 +84,9 @@ LRESULT CDialogPackageManager::OnInitDialog( HWND, LPARAM )
 
 void CDialogPackageManager::OnDestroy()
 {
-    assert( pPackagesListBox_ );
-    pPackagesListBox_->RevokeDragDrop();
+    assert( pPackagesListBoxDrop_ );
+    pPackagesListBoxDrop_->RevokeDragDrop();
+    pPackagesListBoxDrop_.Release();
 }
 
 void CDialogPackageManager::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
@@ -471,10 +473,10 @@ void CDialogPackageManager::UpdateListBoxFromData()
         focusedPackageIdx_ = ranges::distance( packages_.cbegin(), it );
     }
 
-    pPackagesListBox_->ResetContent();
+    packagesListBox_.ResetContent();
     for ( const auto& package: packages_ )
     {
-        pPackagesListBox_->AddString( package.displayedName.c_str() );
+        packagesListBox_.AddString( package.displayedName.c_str() );
     }
 }
 

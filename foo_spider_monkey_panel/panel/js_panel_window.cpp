@@ -2,7 +2,7 @@
 
 #include "js_panel_window.h"
 
-#include <com_objects/host_drop_target.h>
+#include <com_objects/track_drop_target.h>
 #include <config/package_utils.h>
 #include <js_engine/js_container.h>
 #include <panel/com_message_scope.h>
@@ -1046,7 +1046,7 @@ void js_panel_window::SetDragAndDropStatus( bool isEnabled )
     settings_.enableDragDrop = isEnabled;
     if ( isEnabled )
     {
-        dropTargetHandler_.Attach( new com_object_impl_t<com::HostDropTarget>( wnd_ ) );
+        dropTargetHandler_.Attach( new com_object_impl_t<com::TrackDropTarget>( wnd_ ) );
 
         HRESULT hr = dropTargetHandler_->RegisterDragDrop();
         qwr::error::CheckHR( hr, "RegisterDragDrop" );

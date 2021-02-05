@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "host_drop_target.h"
+#include "track_drop_target.h"
 
 #include <com_objects/internal/drag_utils.h>
 #include <js_engine/js_container.h>
@@ -56,16 +56,16 @@ const wchar_t* GetDropTextFromEffect( DWORD dwEffect )
 namespace smp::com
 {
 
-HostDropTarget::HostDropTarget( HWND hWnd )
+TrackDropTarget::TrackDropTarget( HWND hWnd )
     : IDropTargetImpl( hWnd )
 {
 }
 
-void HostDropTarget::FinalRelease()
+void TrackDropTarget::FinalRelease()
 {
 }
 
-HRESULT HostDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+HRESULT TrackDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
 {
     if ( !pdwEffect )
     {
@@ -99,7 +99,7 @@ HRESULT HostDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, P
     return S_OK;
 }
 
-HRESULT HostDropTarget::OnDragLeave()
+HRESULT TrackDropTarget::OnDragLeave()
 {
     SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::wnd_drag_leave ), 0, 0 );
     drag::SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
@@ -107,7 +107,7 @@ HRESULT HostDropTarget::OnDragLeave()
     return S_OK;
 }
 
-HRESULT HostDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+HRESULT TrackDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
 {
     if ( !pdwEffect )
     {
@@ -127,7 +127,7 @@ HRESULT HostDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffe
     return S_OK;
 }
 
-HRESULT HostDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+HRESULT TrackDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
 {
     if ( !pdwEffect )
     {
@@ -161,7 +161,7 @@ HRESULT HostDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL
     return S_OK;
 }
 
-void HostDropTarget::SendDragMessage( DWORD msgId, DWORD grfKeyState, POINTL pt )
+void TrackDropTarget::SendDragMessage( DWORD msgId, DWORD grfKeyState, POINTL pt )
 {
     panel::DropActionMessageParams msgParams;
     msgParams.actionParams = actionParams_;

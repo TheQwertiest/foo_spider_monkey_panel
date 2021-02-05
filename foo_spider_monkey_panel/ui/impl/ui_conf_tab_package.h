@@ -1,9 +1,9 @@
 #pragma once
 
+#include <com_objects/file_drop_target.h>
 #include <config/parsed_panel_config.h>
 #include <panel/user_message.h>
 #include <resources/resource.h>
-#include <ui/impl/ui_file_drop_control.h>
 #include <ui/impl/ui_itab.h>
 
 #include <qwr/ui_ddx.h>
@@ -66,7 +66,7 @@ public:
         COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
         NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
-        MESSAGE_HANDLER_EX( CFileDropListBox::GetOnDropMsg(), OnDropFiles )
+        MESSAGE_HANDLER_EX( com::FileDropTarget::GetOnDropMsg(), OnDropFiles )
         CHAIN_MSG_MAP( CDialogResize<CConfigTabPackage> )
     END_MSG_MAP()
 
@@ -134,7 +134,8 @@ private:
     std::array<std::unique_ptr<qwr::ui::IUiDdx>, 7> ddx_;
 
     std::vector<std::filesystem::path> files_;
-    CComPtr<CFileDropListBox> pFilesListBox_;
+    CListBox filesListBox_;
+    CComPtr<com::FileDropTarget> pFilesListBoxDrop_;
 };
 
 } // namespace smp::ui

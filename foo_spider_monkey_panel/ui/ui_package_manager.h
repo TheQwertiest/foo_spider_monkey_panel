@@ -1,9 +1,9 @@
 #pragma once
 
+#include <com_objects/file_drop_target.h>
 #include <config/panel_config.h>
 #include <config/parsed_panel_config.h>
 #include <resources/resource.h>
-#include <ui/impl/ui_file_drop_control.h>
 
 #include <qwr/ui_ddx.h>
 
@@ -31,7 +31,7 @@ public:
         COMMAND_HANDLER_EX( IDC_BUTTON_OPEN_FOLDER, BN_CLICKED, OnOpenFolder )
         COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
         NOTIFY_HANDLER_EX( IDC_RICHEDIT_PACKAGE_INFO, EN_LINK, OnRichEditLinkClick )
-        MESSAGE_HANDLER_EX( CFileDropListBox::GetOnDropMsg(), OnDropFiles )
+        MESSAGE_HANDLER_EX( com::FileDropTarget::GetOnDropMsg(), OnDropFiles )
     END_MSG_MAP()
 
     CDialogPackageManager( const std::u8string& currentPackageId );
@@ -78,7 +78,8 @@ private:
     std::array<std::unique_ptr<qwr::ui::IUiDdx>, 1> ddx_;
 
     std::vector<PackageData> packages_;
-    CComPtr<CFileDropListBox> pPackagesListBox_;
+    CListBox packagesListBox_;
+    CComPtr<com::FileDropTarget> pPackagesListBoxDrop_;
 
     CRichEditCtrl packageInfoEdit_;
 };

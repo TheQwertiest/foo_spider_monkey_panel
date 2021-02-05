@@ -131,6 +131,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="com_objects\file_drop_target.cpp" />
     <ClCompile Include="config\package_utils.cpp" />
     <ClCompile Include="config\panel_config.cpp" />
     <ClCompile Include="config\panel_config_binary.cpp" />
@@ -141,7 +142,7 @@
     <ClCompile Include="com_objects\com_tools.cpp" />
     <ClCompile Include="com_objects\drop_source_impl.cpp" />
     <ClCompile Include="com_objects\drop_target_impl.cpp" />
-    <ClCompile Include="com_objects\host_drop_target.cpp" />
+    <ClCompile Include="com_objects\track_drop_target.cpp" />
     <ClCompile Include="com_objects\host_external.cpp" />
     <ClCompile Include="com_objects\internal\drag_image.cpp" />
     <ClCompile Include="com_objects\internal\drag_utils.cpp" />
@@ -257,7 +258,8 @@
     <ClInclude Include="com_objects\dispatch_ptr.h" />
     <ClInclude Include="com_objects\drop_source_impl.h" />
     <ClInclude Include="com_objects\drop_target_impl.h" />
-    <ClInclude Include="com_objects\host_drop_target.h" />
+    <ClInclude Include="com_objects\file_drop_target.h" />
+    <ClInclude Include="com_objects\track_drop_target.h" />
     <ClInclude Include="com_objects\host_external.h" />
     <ClInclude Include="com_objects\internal\drag_image.h" />
     <ClInclude Include="com_objects\internal\drag_utils.h" />
@@ -348,7 +350,6 @@
     <ClInclude Include="ui\impl\ui_conf_tab_package.h" />
     <ClInclude Include="ui\impl\ui_conf_tab_properties.h" />
     <ClInclude Include="ui\impl\ui_conf_tab_script_source.h" />
-    <ClInclude Include="ui\impl\ui_file_drop_control.h" />
     <ClInclude Include="ui\impl\ui_itab.h" />
     <ClInclude Include="ui\scintilla\sci_config.h" />
     <ClInclude Include="ui\scintilla\sci_prop_sets.h" />

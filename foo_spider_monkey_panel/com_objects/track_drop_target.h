@@ -7,7 +7,7 @@
 namespace smp::com
 {
 
-class HostDropTarget
+class TrackDropTarget
     : public IDropTargetImpl
 {
 protected:
@@ -15,8 +15,8 @@ protected:
 
 public:
     /// @throw qwr::QwrException
-    HostDropTarget( HWND hWnd );
-    ~HostDropTarget() override = default;
+    TrackDropTarget( HWND hWnd );
+    ~TrackDropTarget() override = default;
 
     // IDropTarget
     HRESULT OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;

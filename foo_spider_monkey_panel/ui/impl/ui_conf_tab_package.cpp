@@ -88,9 +88,9 @@ BOOL CConfigTabPackage::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
 void CConfigTabPackage::OnDestroy()
 {
-    assert( pFilesListBox_ );
-    pFilesListBox_->RevokeDragDrop();
-    pFilesListBox_.Release();
+    assert( pFilesListBoxDrop_ );
+    pFilesListBoxDrop_->RevokeDragDrop();
+    pFilesListBoxDrop_.Release();
 }
 
 void CConfigTabPackage::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
@@ -222,7 +222,7 @@ void CConfigTabPackage::OnRemoveFile( UINT uNotifyCode, int nID, CWindow wndCtl 
     }
 
     files_.erase( files_.cbegin() + focusedFileIdx_ );
-    focusedFile_ = files_[focusedFileIdx_ - 1];
+    focusedFile_ = files_[std::min<size_t>( focusedFileIdx_, files_.size() - 1 )];
 
     UpdateListBoxFromData();
     UpdateUiButtons();
@@ -478,11 +478,12 @@ void CConfigTabPackage::InitializeFilesListBox()
         // z-order in .rc is in reverse - last item is the top item.
         // !!! Important !!!
 
-        pFilesListBox_.Attach( new com_object_impl_t<CFileDropListBox>( GetDlgItem( IDC_LIST_PACKAGE_FILES ) ) );
+        filesListBox_ = GetDlgItem( IDC_LIST_PACKAGE_FILES );
+        pFilesListBoxDrop_.Attach( new com_object_impl_t<com::FileDropTarget>( filesListBox_, *this ) );
 
         try
         {
-            HRESULT hr = pFilesListBox_->RegisterDragDrop();
+            HRESULT hr = pFilesListBoxDrop_->RegisterDragDrop();
             qwr::error::CheckHR( hr, "RegisterDragDrop" );
         }
         catch ( qwr::QwrException& e )
@@ -539,10 +540,10 @@ void CConfigTabPackage::UpdateListBoxFromData()
 
         focusedFileIdx_ = ranges::distance( files_.cbegin(), it );
 
-        pFilesListBox_->ResetContent();
+        filesListBox_.ResetContent();
         for ( const auto& file: files_ )
         {
-            pFilesListBox_->AddString( fs::relative( file, packagePath_ ).c_str() );
+            filesListBox_.AddString( fs::relative( file, packagePath_ ).c_str() );
         }
     }
     catch ( const fs::filesystem_error& e )

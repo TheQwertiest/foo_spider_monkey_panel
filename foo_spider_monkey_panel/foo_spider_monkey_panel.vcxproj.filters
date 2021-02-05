@@ -139,9 +139,6 @@
     <ClCompile Include="js_engine\js_gc.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\host_drop_target.cpp">
-      <Filter>com_objects</Filter>
-    </ClCompile>
     <ClCompile Include="com_objects\com_tools.cpp">
       <Filter>com_objects</Filter>
     </ClCompile>
@@ -336,6 +333,12 @@
     <ClCompile Include="ui\impl\ui_conf_tab_package.cpp">
       <Filter>ui\impl</Filter>
     </ClCompile>
+    <ClCompile Include="com_objects\track_drop_target.cpp">
+      <Filter>com_objects</Filter>
+    </ClCompile>
+    <ClCompile Include="com_objects\file_drop_target.cpp">
+      <Filter>com_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -490,9 +493,6 @@
     </ClInclude>
     <ClInclude Include="js_engine\js_gc.h">
       <Filter>js_engine</Filter>
-    </ClInclude>
-    <ClInclude Include="com_objects\host_drop_target.h">
-      <Filter>com_objects</Filter>
     </ClInclude>
     <ClInclude Include="com_objects\drop_source_impl.h">
       <Filter>com_objects</Filter>
@@ -728,8 +728,11 @@
     <ClInclude Include="ui\impl\ui_conf_tab_package.h">
       <Filter>ui\impl</Filter>
     </ClInclude>
-    <ClInclude Include="ui\impl\ui_file_drop_control.h">
-      <Filter>ui\impl</Filter>
+    <ClInclude Include="com_objects\file_drop_target.h">
+      <Filter>com_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="com_objects\track_drop_target.h">
+      <Filter>com_objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
