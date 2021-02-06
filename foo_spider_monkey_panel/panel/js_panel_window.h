@@ -45,7 +45,7 @@ public:
     bool UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel = true );
     bool SaveSettings( stream_writer& writer, abort_callback& abort ) const;
 
-    void JsEngineFail( const std::u8string& errorText );
+    void Fail( const std::u8string& errorText );
 
     void Repaint( bool force = false );
     void RepaintRect( const CRect& rc, bool force = false );
@@ -90,7 +90,7 @@ protected:
 private:
     bool ReloadSettings();
     bool LoadScript( bool isFirstLoad );
-    void UnloadScript();
+    void UnloadScript( bool force = false );
     void CreateDrawContext();
     void DeleteDrawContext();
 
@@ -109,7 +109,6 @@ private: // callback handling
     void on_erase_background();
     void on_panel_create( HWND hWnd );
     void on_panel_destroy();
-    void on_script_error();
     void on_js_task( CallbackData& callbackData );
 
     // JS callbacks
@@ -187,6 +186,7 @@ private:
     CBitmap bmp_ = nullptr;   // used only internally
     CBitmap bmpBg_ = nullptr; // used only internally
 
+    bool hasFailed_ = false;                   // // used only internally
     bool isBgRepaintNeeded_ = false;           // used only internally
     bool isPaintInProgress_ = false;           // used only internally
     bool isMouseTracked_ = false;              // used only internally

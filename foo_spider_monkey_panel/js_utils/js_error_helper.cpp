@@ -243,33 +243,46 @@ std::u8string JsErrorToText( JSContext* cx )
         assert( !JSREPORT_IS_WARNING( pReport->flags ) );
 
         errorText = pReport->message().c_str();
-        if ( pReport->filename )
+
+        const auto additionalInfo = [&] {
+            std::u8string additionalInfo;
+
+            if ( pReport->filename )
+            {
+                additionalInfo += "\n";
+                additionalInfo += fmt::format( "File: {}\n", pReport->filename );
+                additionalInfo += fmt::format( "Line: {}, Column: {}", std::to_string( pReport->lineno ), std::to_string( pReport->column ) );
+                if ( pReport->linebufLength() )
+                {
+                    additionalInfo += "\n";
+                    additionalInfo += "Source: ";
+                    additionalInfo += [pReport] {
+                        pfc::string8_fast tmpBuf = pfc::stringcvt::string_utf8_from_utf16( pReport->linebuf(), pReport->linebufLength() ).get_ptr();
+                        tmpBuf.truncate_eol();
+                        return tmpBuf;
+                    }();
+                }
+            }
+
+            if ( excn.isObject() )
+            {
+                JS::RootedObject excnObject( cx, &excn.toObject() );
+                std::u8string stackTrace = GetStackTraceString( cx, excnObject );
+                if ( !stackTrace.empty() )
+                {
+                    additionalInfo += "\n";
+                    additionalInfo += "Stack trace:\n";
+                    additionalInfo += stackTrace;
+                }
+            }
+
+            return additionalInfo;
+        }();
+
+        if ( !additionalInfo.empty() )
         {
             errorText += "\n";
-            errorText += fmt::format( "File: {}\n", pReport->filename );
-            errorText += fmt::format( "Line: {}, Column: {}", std::to_string( pReport->lineno ), std::to_string( pReport->column ) );
-            if ( pReport->linebufLength() )
-            {
-                errorText += "\n";
-                errorText += "Source: ";
-                errorText += [pReport] {
-                    pfc::string8_fast tmpBuf = pfc::stringcvt::string_utf8_from_utf16( pReport->linebuf(), pReport->linebufLength() ).get_ptr();
-                    tmpBuf.truncate_eol();
-                    return tmpBuf;
-                }();
-            }
-        }
-
-        if ( excn.isObject() )
-        {
-            JS::RootedObject excnObject( cx, &excn.toObject() );
-            std::u8string stackTrace = GetStackTraceString( cx, excnObject );
-            if ( !stackTrace.empty() )
-            {
-                errorText += "\n";
-                errorText += "Stack trace:\n";
-                errorText += stackTrace;
-            }
+            errorText += additionalInfo;
         }
     }
 

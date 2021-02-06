@@ -76,7 +76,7 @@ enum class InternalSyncMessage : UINT
 {
     first_message = static_cast<int>( InternalAsyncMessage::last_message ) + 1,
     notify_data = first_message,
-    script_error,
+    script_fail,
     terminate_script,
     ui_script_editor_saved,
     update_size_on_reload,

@@ -159,7 +159,7 @@ void JsContainer::Fail( const std::u8string& errorText )
         return text;
     }();
 
-    pParentPanel_->JsEngineFail( errorTextPadded );
+    pParentPanel_->Fail( errorTextPadded );
 }
 
 JsContainer::JsStatus JsContainer::GetStatus() const

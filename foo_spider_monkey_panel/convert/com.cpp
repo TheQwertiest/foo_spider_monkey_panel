@@ -11,7 +11,9 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <panel/user_message.h>
 
+#include <qwr/error_popup.h>
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
 
@@ -83,7 +85,7 @@ protected:
     /// @details Executed on the main thread
     STDMETHODIMP ExecuteValue( VARIANT arg1, VARIANT arg2, VARIANT arg3, VARIANT arg4, VARIANT arg5, VARIANT arg6, VARIANT arg7,
                                VARIANT* pResult ) override
-    { // TODO: set JS fail somehow
+    {
         if ( !pResult )
         {
             return E_POINTER;
@@ -126,9 +128,17 @@ protected:
         }
         catch ( ... )
         {
-            // can't report through usual means, so at least log errors in the console
-            FB2K_console_formatter() << SMP_UNDERSCORE_NAME << ":\n"
-                                     << mozjs::error::ExceptionToText( pJsCtx_ ) << "\n";
+            const auto hWnd = pNativeGlobal_->GetPanelHwnd();
+            if ( !hWnd )
+            {
+                mozjs::error::SuppressException( pJsCtx_ );
+            }
+            else
+            {
+                const auto errorMsg = mozjs::error::ExceptionToText( pJsCtx_ );
+                SendMessage( hWnd, static_cast<UINT>( InternalSyncMessage::script_fail ), 0, reinterpret_cast<LPARAM>( &errorMsg ) );
+            }
+
             pResult->vt = VT_ERROR;
             pResult->scode = E_FAIL;
             return E_FAIL;

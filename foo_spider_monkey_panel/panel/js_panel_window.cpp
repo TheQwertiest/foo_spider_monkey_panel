@@ -72,13 +72,13 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
     return my_class_data;
 }
 
-void js_panel_window::JsEngineFail( const std::u8string& errorText )
+void js_panel_window::Fail( const std::u8string& errorText )
 {
+    hasFailed_ = true;
     qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
-    if ( wnd_ )
-    {
-        wnd_.SendMessage( static_cast<UINT>( InternalSyncMessage::script_error ), 0, 0 );
-    }
+
+    Repaint(); ///< repaint to display error message
+    UnloadScript( true );
 }
 
 const config::ParsedPanelSettings& js_panel_window::GetSettings() const
@@ -141,7 +141,7 @@ bool js_panel_window::UpdateSettings( const smp::config::PanelSettings& settings
     }
     catch ( const qwr::QwrException& e )
     {
-        JsEngineFail( e.what() );
+        Fail( e.what() );
         return false;
     }
 
@@ -180,7 +180,7 @@ bool js_panel_window::ReloadSettings()
     }
     catch ( const qwr::QwrException& e )
     {
-        JsEngineFail( e.what() );
+        Fail( e.what() );
         return false;
     }
 }
@@ -694,9 +694,9 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
         on_notify_data( wp, lp );
         return 0;
     }
-    case InternalSyncMessage::script_error:
+    case InternalSyncMessage::script_fail:
     {
-        on_script_error();
+        Fail( *reinterpret_cast<const std::u8string*>( lp ) );
         return 0;
     }
     case InternalSyncMessage::terminate_script:
@@ -1144,6 +1144,8 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     pfc::hires_timer timer;
     timer.start();
 
+    hasFailed_ = false;
+
     message_manager::instance().EnableAsyncMessages( wnd_ );
 
     const auto extstyle = [&]() {
@@ -1196,9 +1198,13 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     return true;
 }
 
-void js_panel_window::UnloadScript()
+void js_panel_window::UnloadScript( bool force )
 {
-    pJsContainer_->InvokeJsCallback( "on_script_unload" );
+    if ( !force )
+    { // should not go in JS again when forced to unload (e.g. in case of an error)
+        pJsContainer_->InvokeJsCallback( "on_script_unload" );
+    }
+
     message_manager::instance().DisableAsyncMessages( wnd_ );
     selectionHolder_.release();
     try
@@ -1289,12 +1295,6 @@ void js_panel_window::on_panel_destroy()
     message_manager::instance().RemoveWindow( wnd_ );
     DeleteDrawContext();
     ReleaseDC( wnd_, hDc_ );
-}
-
-void js_panel_window::on_script_error()
-{
-    Repaint();
-    UnloadScript();
 }
 
 void js_panel_window::on_js_task( CallbackData& callbackData )
@@ -1649,7 +1649,8 @@ void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
     CDC memDc{ CreateCompatibleDC( dc ) };
     gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
 
-    if ( mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
+    if ( hasFailed_
+         || mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
          || mozjs::JsContainer::JsStatus::Failed == pJsContainer_->GetStatus() )
     {
         on_paint_error( memDc );
