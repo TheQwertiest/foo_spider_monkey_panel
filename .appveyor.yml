@@ -178,6 +178,8 @@ on_success:
           git clone -q --depth=1 -b gh-pages https://github.com/$($env:APPVEYOR_REPO_NAME).git gh-pages
           py -u scripts\update_gh_pages.py
           cd gh-pages
+          py -u build_scripts\update_layout.py
+          py -u build_scripts\generate_third_party.py
           git add -A 2>&1
           git commit -q -m "Updated documentation: $env:APPVEYOR_REPO_TAG_NAME ($env:APPVEYOR_REPO_COMMIT)"
           git push -q origin gh-pages
