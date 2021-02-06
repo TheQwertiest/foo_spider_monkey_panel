@@ -68,9 +68,10 @@ void CDialogConf::OnScriptTypeChange()
     // package data is saved by the caller
     Apply( false );
 
+    // TODO: replace tab recreation with data only reinitialization
+    ReinitializeTabData(); ///< always reinitialize tab data to reset settings
     if ( tabLayoutChanged )
     {
-        ReinitializeTabData();
         ReinitializeTabControls();
     }
 

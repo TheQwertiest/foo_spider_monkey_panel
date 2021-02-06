@@ -312,6 +312,9 @@ void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name
         return;
     }
 
+    qwr::QwrException::ExpectTrue(
+        parentPanel_.GetSettings().GetSourceType() != config::ScriptSourceType::Package,
+        "`DefinePanel` can't be used to change package script information - use `Configure` instead" );
     qwr::QwrException::ExpectTrue( !isScriptDefined_, "DefinePanel/DefineScript can't be called twice" );
 
     const auto parsedOptions = ParseDefineScriptOptions( options );
@@ -331,6 +334,9 @@ void JsWindow::DefineScript( const std::u8string& name, JS::HandleValue options 
         return;
     }
 
+    qwr::QwrException::ExpectTrue(
+        parentPanel_.GetSettings().GetSourceType() != config::ScriptSourceType::Package,
+        "`DefineScript` can't be used to change package script information - use `Configure` instead" );
     qwr::QwrException::ExpectTrue( !isScriptDefined_, "DefineScript can't be called twice" );
 
     const auto parsedOptions = ParseDefineScriptOptions( options );

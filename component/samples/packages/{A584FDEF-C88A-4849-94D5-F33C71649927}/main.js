@@ -18,7 +18,7 @@ function on_paint(gr) {
     
     gr.DrawLine(0, 2*wh/3, ww, 2*wh/3, 2, 0xFF000000);
     gr.GdiDrawText('Quick-access all package scripts via `Edit script` submenu of context menu\n' +
-                   'Access package configuration via `Package` - accessible through `Configure` in context menu\n' +
+                   'View and modify package configuration via `Package` tab - accessible through `Configure` in context menu\n' +
                    '(right click to open it)', font, 0xFF000000, 8, 2*wh/3 + 8, ww, 2*wh/3 + 8);
 }
 
