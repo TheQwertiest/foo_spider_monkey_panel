@@ -2,6 +2,8 @@
 
 #include "package_utils.h"
 
+#include <component_paths.h>
+
 #include <nlohmann/json.hpp>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
@@ -34,7 +36,7 @@ void Parse_PackageFromPath( const std::filesystem::path& packageDir, config::Par
         qwr::QwrException::ExpectTrue( fs::exists( packageJsonFile ), "Corrupted package: can't find `package.json`" );
 
         parsedSettings.scriptPath = ( packageDir / "main.js" ).u8string();
-        parsedSettings.isSample = ( packageDir.parent_path() == qwr::path::Component() / "samples" / "packages" );
+        parsedSettings.isSample = ( packageDir.parent_path() == path::Packages_Sample() );
 
         const json jsonMain = json::parse( qwr::file::ReadFile( packageJsonFile, false ) );
         qwr::QwrException::ExpectTrue( jsonMain.is_object(), "Corrupted `package.json`: not a JSON object" );
@@ -138,7 +140,7 @@ ParsedPanelSettings GetNewPackageSettings( const std::u8string& name )
             StringFromGUID2( guid, guidStr.data(), guidStr.size() );
             guidStr.resize( wcslen( guidStr.c_str() ) );
             id = qwr::unicode::ToU8( guidStr );
-            packagePath = qwr::path::Profile() / SMP_UNDERSCORE_NAME / "packages" / id;
+            packagePath = path::Packages_Profile() / id;
         } while ( fs::exists( packagePath ) );
 
         settings.packageId = id;
@@ -158,9 +160,9 @@ std::optional<std::filesystem::path> FindPackage( const std::u8string& packageId
 
     try
     {
-        for ( const auto& path: { qwr::path::Component() / "samples" / "packages",
-                                  qwr::path::Profile() / SMP_UNDERSCORE_NAME / "packages",
-                                  qwr::path::Foobar2000() / SMP_UNDERSCORE_NAME / "packages" } )
+        for ( const auto& path: { path::Packages_Sample(),
+                                  path::Packages_Profile(),
+                                  path::Packages_Foobar2000() } )
         {
             const auto targetPath = path / packageId;
             if ( fs::exists( targetPath ) && fs::is_directory( targetPath ) )

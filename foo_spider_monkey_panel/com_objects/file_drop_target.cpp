@@ -42,7 +42,10 @@ HRESULT FileDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL
     *pdwEffect = GetEffect();
 
     pDataObj->AddRef();
-    ::PostMessage( hNotifyWnd_, GetOnDropMsg(), reinterpret_cast<WPARAM>( hDropWnd_ ), reinterpret_cast<LPARAM>( pDataObj ) );
+    if ( !PostMessage( hNotifyWnd_, GetOnDropMsg(), reinterpret_cast<WPARAM>( hDropWnd_ ), reinterpret_cast<LPARAM>( pDataObj ) ) )
+    {
+        pDataObj->Release();
+    }
 
     return S_OK;
 }

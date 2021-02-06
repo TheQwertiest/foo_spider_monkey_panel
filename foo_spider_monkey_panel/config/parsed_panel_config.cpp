@@ -4,6 +4,8 @@
 
 #include <config/package_utils.h>
 
+#include <component_paths.h>
+
 #include <nlohmann/json.hpp>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
@@ -43,7 +45,7 @@ void Parse_Sample( const config::PanelSettings_Sample& settings, config::ParsedP
     namespace fs = std::filesystem;
     try
     {
-        parsedSettings.scriptPath = ( qwr::path::Component() / "samples" / settings.sampleName ).u8string();
+        parsedSettings.scriptPath = ( path::ScriptSamples() / settings.sampleName ).u8string();
         parsedSettings.isSample = true;
     }
     catch ( const fs::filesystem_error& e )
@@ -133,9 +135,7 @@ config::PanelSettings_Sample GetPayload_Sample( const config::ParsedPanelSetting
     config::PanelSettings_Sample payload;
 
     assert( parsedSettings.scriptPath );
-    // TODO: extract to proper place
-    auto sampleDirPath = qwr::path::Component() / "samples";
-    payload.sampleName = fs::relative( *parsedSettings.scriptPath, sampleDirPath ).u8string();
+    payload.sampleName = fs::relative( *parsedSettings.scriptPath, path::Packages_Sample() ).u8string();
 
     return payload;
 }

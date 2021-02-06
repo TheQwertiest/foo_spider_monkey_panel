@@ -9,6 +9,8 @@
 #include <ui/impl/ui_conf_tab_properties.h>
 #include <ui/impl/ui_conf_tab_script_source.h>
 
+#include <component_paths.h>
+
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
 
@@ -303,8 +305,7 @@ void CDialogConf::OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl )
 
 LRESULT CDialogConf::OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 {
-    const auto path = qwr::path::Component() / L"docs/html/index.html";
-    ShellExecute( nullptr, L"open", path.c_str(), nullptr, nullptr, SW_SHOW );
+    ShellExecute( nullptr, L"open", path::JsDocsIndex().c_str(), nullptr, nullptr, SW_SHOW );
     return 0;
 }
 

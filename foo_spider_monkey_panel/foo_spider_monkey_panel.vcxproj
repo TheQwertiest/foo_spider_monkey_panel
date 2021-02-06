@@ -131,6 +131,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="component_paths.cpp" />
     <ClCompile Include="com_objects\file_drop_target.cpp" />
     <ClCompile Include="config\package_utils.cpp" />
     <ClCompile Include="config\panel_config.cpp" />
@@ -254,6 +255,7 @@
   <ItemGroup>
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="component_guids.h" />
+    <ClInclude Include="component_paths.h" />
     <ClInclude Include="com_objects\com_tools.h" />
     <ClInclude Include="com_objects\dispatch_ptr.h" />
     <ClInclude Include="com_objects\drop_source_impl.h" />

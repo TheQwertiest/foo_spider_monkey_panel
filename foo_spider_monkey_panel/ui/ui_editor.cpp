@@ -7,6 +7,8 @@
 #include <ui/ui_editor_config.h>
 #include <utils/array_x.h>
 
+#include <component_paths.h>
+
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
 #include <qwr/pfc_helpers_ui.h>
@@ -224,8 +226,7 @@ LRESULT CEditor::OnOptionProperties( WORD wNotifyCode, WORD wID, HWND hWndCtl )
 
 LRESULT CEditor::OnHelp( WORD, WORD, HWND )
 {
-    const auto path = qwr::path::Component() / L"docs/html/index.html";
-    ShellExecute( nullptr, L"open", path.c_str(), nullptr, nullptr, SW_SHOW );
+    ShellExecute( nullptr, L"open", path::JsDocsIndex().c_str(), nullptr, nullptr, SW_SHOW );
     return 0;
 }
 

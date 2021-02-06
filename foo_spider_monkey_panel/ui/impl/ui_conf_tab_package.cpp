@@ -403,42 +403,11 @@ LRESULT CConfigTabPackage::OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lPara
 
 LRESULT CConfigTabPackage::OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-    auto pDataObj = reinterpret_cast<IDataObject*>( lParam );
-    const auto autoDrop = qwr::final_action( [pDataObj] {
-        pDataObj->Release();
-    } );
-
-    FORMATETC fmte = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-    STGMEDIUM stgm;
-    if ( !SUCCEEDED( pDataObj->GetData( &fmte, &stgm ) ) )
-    {
-        return 0;
-    }
-    const auto autoStgm = qwr::final_action( [&stgm] {
-        ReleaseStgMedium( &stgm );
-    } );
-
-    const auto hDrop = reinterpret_cast<HDROP>( stgm.hGlobal );
-
-    const auto fileCount = DragQueryFile( hDrop, 0xFFFFFFFF, nullptr, 0 );
-    if ( !fileCount )
-    {
-        return 0;
-    }
-
-    for ( const auto i: ranges::views::ints( 0, (int)fileCount ) )
-    {
-        const auto pathLength = DragQueryFile( hDrop, i, nullptr, 0 );
-        std::wstring path;
-        path.resize( pathLength + 1 );
-
-        DragQueryFile( hDrop, i, path.data(), path.size() );
-        path.resize( path.size() - 1 );
-
-        AddFile( path );
-    }
-
-    return 0;
+    return pFilesListBoxDrop_->ProcessMessage(
+        filesListBox_,
+        wParam,
+        lParam,
+        [&]( const auto& path ) { AddFile( path ); } );
 }
 
 void CConfigTabPackage::DoFullDdxToUi()

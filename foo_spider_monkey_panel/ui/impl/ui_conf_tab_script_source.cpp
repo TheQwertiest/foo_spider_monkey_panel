@@ -7,6 +7,8 @@
 #include <ui/ui_conf.h>
 #include <ui/ui_package_manager.h>
 
+#include <component_paths.h>
+
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
@@ -22,11 +24,6 @@ namespace
 using namespace smp;
 using namespace smp::ui;
 
-auto GetSampleFolderPath()
-{
-    return qwr::path::Component() / "samples";
-}
-
 /// @throw qwr::QwrException
 std::vector<CConfigTabScriptSource::SampleComboBoxElem> GetSampleFileData()
 {
@@ -36,7 +33,7 @@ std::vector<CConfigTabScriptSource::SampleComboBoxElem> GetSampleFileData()
     {
         std::vector<CConfigTabScriptSource::SampleComboBoxElem> elems;
 
-        const auto sampleFolderPath = GetSampleFolderPath();
+        const auto sampleFolderPath = path::ScriptSamples();
 
         for ( const auto& subdir: { "complete", "jsplaylist-mod", "js-smooth", "basic" } )
         {
@@ -431,7 +428,7 @@ void CConfigTabScriptSource::InitializeLocalOptions()
 
         assert( settings_.scriptPath );
 
-        const auto sampleName = fs::relative( *settings_.scriptPath, GetSampleFolderPath() ).wstring();
+        const auto sampleName = fs::relative( *settings_.scriptPath, path::ScriptSamples() ).wstring();
         if ( sampleName.empty() )
         {
             return 0;

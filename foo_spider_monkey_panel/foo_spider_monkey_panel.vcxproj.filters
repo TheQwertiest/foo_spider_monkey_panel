@@ -339,6 +339,7 @@
     <ClCompile Include="com_objects\file_drop_target.cpp">
       <Filter>com_objects</Filter>
     </ClCompile>
+    <ClCompile Include="component_paths.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -734,6 +735,7 @@
     <ClInclude Include="com_objects\track_drop_target.h">
       <Filter>com_objects</Filter>
     </ClInclude>
+    <ClInclude Include="component_paths.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

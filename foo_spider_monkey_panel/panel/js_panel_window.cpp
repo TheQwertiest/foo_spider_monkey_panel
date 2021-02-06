@@ -15,6 +15,8 @@
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 
+#include <component_paths.h>
+
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
 #include <qwr/final_action.h>
@@ -923,8 +925,7 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         }
         case 3:
         {
-            const auto htmlHelp = qwr::path::Component() / L"docs/html/index.html";
-            ShellExecute( nullptr, L"open", htmlHelp.c_str(), nullptr, nullptr, SW_SHOW );
+            ShellExecute( nullptr, L"open", path::JsDocsIndex().c_str(), nullptr, nullptr, SW_SHOW );
             break;
         }
         case 4:

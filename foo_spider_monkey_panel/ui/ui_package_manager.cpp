@@ -7,6 +7,8 @@
 #include <utils/array_x.h>
 #include <utils/zip_utils.h>
 
+#include <component_paths.h>
+
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
@@ -306,42 +308,11 @@ LRESULT CDialogPackageManager::OnRichEditLinkClick( LPNMHDR pnmh )
 
 LRESULT CDialogPackageManager::OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-    auto pDataObj = reinterpret_cast<IDataObject*>( lParam );
-    const auto autoDrop = qwr::final_action( [pDataObj] {
-        pDataObj->Release();
-    } );
-
-    FORMATETC fmte = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
-    STGMEDIUM stgm;
-    if ( !SUCCEEDED( pDataObj->GetData( &fmte, &stgm ) ) )
-    {
-        return 0;
-    }
-    const auto autoStgm = qwr::final_action( [&stgm] {
-        ReleaseStgMedium( &stgm );
-    } );
-
-    const auto hDrop = reinterpret_cast<HDROP>( stgm.hGlobal );
-
-    const auto fileCount = DragQueryFile( hDrop, 0xFFFFFFFF, nullptr, 0 );
-    if ( !fileCount )
-    {
-        return 0;
-    }
-
-    for ( const auto i: ranges::views::ints( 0, (int)fileCount ) )
-    {
-        const auto pathLength = DragQueryFile( hDrop, i, nullptr, 0 );
-        std::wstring path;
-        path.resize( pathLength + 1 );
-
-        DragQueryFile( hDrop, i, path.data(), path.size() );
-        path.resize( path.size() - 1 );
-
-        ImportPackage( path );
-    }
-
-    return 0;
+    return pPackagesListBoxDrop_->ProcessMessage(
+        packagesListBox_,
+        wParam,
+        lParam,
+        [&]( const auto& path ) { ImportPackage( path ); } );
 }
 
 void CDialogPackageManager::DoFullDdxToUi()
@@ -386,11 +357,11 @@ void CDialogPackageManager::LoadPackages()
     try
     {
         // TODO: consider extracting this code
-        std::vector<fs::path> packagesDirs{ qwr::path::Profile() / SMP_UNDERSCORE_NAME / "packages",
-                                            qwr::path::Component() / "samples" / "packages" };
+        std::vector<fs::path> packagesDirs{ path::Packages_Profile(),
+                                            path::Packages_Sample() };
         if ( qwr::path::Profile() != qwr::path::Foobar2000() )
         { // these paths might be the same when fb2k is in portable mode
-            packagesDirs.emplace_back( qwr::path::Foobar2000() / SMP_UNDERSCORE_NAME / "packages" );
+            packagesDirs.emplace_back( path::Packages_Foobar2000() );
         }
 
         std::vector<std::u8string> packageIds;
@@ -576,7 +547,7 @@ void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
 
     try
     {
-        const auto tmpPath = qwr::path::Profile() / SMP_UNDERSCORE_NAME / "tmp" / "unpacked_package";
+        const auto tmpPath = path::TempFolder_PackageUnpack();
         if ( fs::exists( tmpPath ) )
         {
             fs::remove_all( tmpPath );
@@ -596,7 +567,7 @@ void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
 
         const auto newSettings = [&tmpPath] {
             auto settings = config::GetPackageSettingsFromPath( tmpPath );
-            settings.scriptPath = qwr::path::Profile() / SMP_UNDERSCORE_NAME / "packages" / *settings.packageId / "main.js";
+            settings.scriptPath = path::Packages_Profile() / *settings.packageId / "main.js";
             return settings;
         }();
 
