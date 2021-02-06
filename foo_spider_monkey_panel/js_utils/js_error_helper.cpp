@@ -245,7 +245,7 @@ std::u8string JsErrorToText( JSContext* cx )
         errorText = pReport->message().c_str();
         if ( pReport->filename )
         {
-            errorText += "\n\n";
+            errorText += "\n";
             errorText += fmt::format( "File: {}\n", pReport->filename );
             errorText += fmt::format( "Line: {}, Column: {}", std::to_string( pReport->lineno ), std::to_string( pReport->column ) );
             if ( pReport->linebufLength() )
@@ -266,7 +266,7 @@ std::u8string JsErrorToText( JSContext* cx )
             std::u8string stackTrace = GetStackTraceString( cx, excnObject );
             if ( !stackTrace.empty() )
             {
-                errorText += "\n\n";
+                errorText += "\n";
                 errorText += "Stack trace:\n";
                 errorText += stackTrace;
             }
@@ -312,6 +312,43 @@ void ExceptionToJsError( JSContext* cx )
     {
         JS_ClearPendingException( cx );
         JS_ReportAllocationOverflow( cx );
+    }
+    // SM is not designed to handle uncaught exceptions, so we are risking here,
+    // hoping that this exception will reach fb2k handler.
+}
+
+std::u8string ExceptionToText( JSContext* cx )
+{
+    try
+    {
+        throw;
+    }
+    catch ( const JsException& )
+    {
+        return JsErrorToText( cx );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        JS_ClearPendingException( cx );
+        return e.what();
+    }
+    catch ( const _com_error& e )
+    {
+        const auto errorMsg8 = qwr::unicode::ToU8( std::wstring_view{ e.ErrorMessage() ? e.ErrorMessage() : L"<none>" } );
+        const auto errorSource8 = qwr::unicode::ToU8( std::wstring_view{ e.Source().length() ? static_cast<const wchar_t*>( e.Source() ) : L"<none>" } );
+        const auto errorDesc8 = qwr::unicode::ToU8( std::wstring_view{ e.Description().length() ? static_cast<const wchar_t*>( e.Description() ) : L"<none>" } );
+        return fmt::format( "COM error:\n"
+                            "  message {}\n"
+                            "  source: {}\n"
+                            "  description: {}",
+                            errorMsg8,
+                            errorSource8,
+                            errorDesc8 );
+    }
+    catch ( const std::bad_alloc& e )
+    {
+        JS_ClearPendingException( cx );
+        return e.what();
     }
     // SM is not designed to handle uncaught exceptions, so we are risking here,
     // hoping that this exception will reach fb2k handler.

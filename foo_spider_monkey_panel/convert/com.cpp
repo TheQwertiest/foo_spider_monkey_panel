@@ -90,7 +90,9 @@ protected:
         }
 
         if ( !isJsAvailable_ )
-        {
+        { // shutting down, no need to log errors here
+            pResult->vt = VT_ERROR;
+            pResult->scode = E_FAIL;
             return E_FAIL;
         }
 
@@ -113,30 +115,22 @@ protected:
             {
                 convert::com::VariantToJs( pJsCtx_, *args[i], wrappedArgs[i] );
             }
-        }
-        catch ( ... )
-        {
-            mozjs::error::SuppressException( pJsCtx_ ); ///< reset, since we can't report
-            return E_FAIL;
-        }
 
-        JS::RootedValue retVal( pJsCtx_ );
-        if ( !JS::Call( pJsCtx_, jsGlobal, rFunc, wrappedArgs, &retVal ) )
-        {
-            JS_ClearPendingException( pJsCtx_ ); ///< reset, since we can't report
-            return E_FAIL;
-        }
+            JS::RootedValue retVal( pJsCtx_ );
+            if ( !JS::Call( pJsCtx_, jsGlobal, rFunc, wrappedArgs, &retVal ) )
+            {
+                throw JsException();
+            }
 
-        try
-        {
             convert::com::JsToVariant( pJsCtx_, retVal, *pResult );
         }
         catch ( ... )
         {
-            mozjs::error::SuppressException( pJsCtx_ ); ///< reset, since we can't report
-
+            // can't report through usual means, so at least log errors in the console
+            FB2K_console_formatter() << SMP_UNDERSCORE_NAME << ":\n"
+                                     << mozjs::error::ExceptionToText( pJsCtx_ ) << "\n";
             pResult->vt = VT_ERROR;
-            pResult->scode = 0;
+            pResult->scode = E_FAIL;
             return E_FAIL;
         }
 

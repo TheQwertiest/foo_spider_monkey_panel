@@ -26,6 +26,7 @@ void Execute_JsWithSehStackTrace( JSContext* cx, F&& func, Args&&... args )
 
 std::u8string JsErrorToText( JSContext* cx );
 void ExceptionToJsError( JSContext* cx );
+std::u8string ExceptionToText( JSContext* cx );
 void SuppressException( JSContext* cx );
 void PrependTextToJsError( JSContext* cx, const std::u8string& text );
 
