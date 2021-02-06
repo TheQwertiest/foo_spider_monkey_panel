@@ -71,11 +71,9 @@ const JSPropertySpec* JsEnumerator::JsProperties = jsProperties.data();
 const JsPrototypeId JsEnumerator::PrototypeId = JsPrototypeId::Enumerator;
 const JSNative JsEnumerator::JsConstructor = ::Enumerator_Constructor;
 
-JsEnumerator::JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum, bool hasElements )
+JsEnumerator::JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum )
     : pJsCtx_( cx )
     , pEnum_( pEnum )
-    , hasElements_( hasElements )
-    , isAtEnd_( !hasElements )
 {
 }
 
@@ -85,11 +83,10 @@ JsEnumerator::CreateNative( JSContext* cx, IUnknown* pUnknown )
     assert( pUnknown );
 
     CDispatchPtr pCollection( pUnknown );
-    uint32_t collectionSize = pCollection.Get( L"Count" );
     EnumVARIANTComPtr pEnum( pCollection.Get( static_cast<DISPID>( DISPID_NEWENUM ) ) );
 
-    auto pNative = std::unique_ptr<JsEnumerator>( new JsEnumerator( cx, pEnum, !!collectionSize ) );
-    pNative->GetCurrentElement();
+    auto pNative = std::unique_ptr<JsEnumerator>( new JsEnumerator( cx, pEnum ) );
+    pNative->LoadCurrentElement();
 
     return pNative;
 }
@@ -106,12 +103,12 @@ JSObject* JsEnumerator::Constructor( JSContext* cx, ActiveXObject* pActiveXObjec
 
 bool JsEnumerator::AtEnd()
 {
-    return !hasElements_ || isAtEnd_;
+    return isAtEnd_;
 }
 
 JS::Value JsEnumerator::Item()
 {
-    if ( !hasElements_ || isAtEnd_ )
+    if ( isAtEnd_ )
     {
         return JS::UndefinedValue();
     }
@@ -127,36 +124,26 @@ void JsEnumerator::MoveFirst()
     HRESULT hr = pEnum_->Reset();
     qwr::error::CheckHR( hr, "Reset" );
 
-    GetCurrentElement();
+    LoadCurrentElement();
 }
 
 void JsEnumerator::MoveNext()
 {
-    GetCurrentElement();
+    LoadCurrentElement();
 }
 
-void JsEnumerator::GetCurrentElement()
+void JsEnumerator::LoadCurrentElement()
 {
-    if ( !hasElements_ || isAtEnd_ )
-    {
-        return;
-    }
-
-    ULONG fetchedElements = 0;
-    HRESULT hr = pEnum_->Next( 1, curElem_.GetAddress(), &fetchedElements );
+    HRESULT hr = pEnum_->Next( 1, curElem_.GetAddress(), nullptr );
     if ( S_FALSE == hr )
-    { // meaning that we've reached the end
-        fetchedElements = 0;
+    { // means that we've reached the end
+        curElem_.Clear();
+        isAtEnd_ = true;
     }
     else
     {
         qwr::error::CheckHR( hr, "Next" );
-    }
-
-    if ( !fetchedElements )
-    {
-        isAtEnd_ = true;
-        curElem_.Clear();
+        isAtEnd_ = false;
     }
 }
 

@@ -56,16 +56,15 @@ private:
     // alias for IEnumVARIANTPtr: don't want to drag extra com headers
     using EnumVARIANTComPtr = _com_ptr_t<_com_IIID<IEnumVARIANT, &__uuidof( IEnumVARIANT )>>;
 
-    JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum, bool hasElements );
+    JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum );
 
-    void GetCurrentElement();
+    void LoadCurrentElement();
 
 private:
     JSContext* pJsCtx_ = nullptr;
     EnumVARIANTComPtr pEnum_ = nullptr;
     _variant_t curElem_;
-    bool hasElements_ = false;
-    bool isAtEnd_ = false;
+    bool isAtEnd_ = true;
 };
 
 } // namespace mozjs
