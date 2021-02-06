@@ -12,12 +12,12 @@
 #lightbox .img img {opacity: 0; pointer-events: none; width: auto;}
 @media screen and (min-width: 1200px) {
     #lightbox .img {
-        max-width: 1200px;
+        max-width: 85vw;
     }
 }
 @media screen and (min-height: 1200px) {
     #lightbox .img {
-        max-height: 1200px;
+        max-height: 85vh;
     }
 }
 #lightbox span {display: block; position: fixed; bottom: 13px; height: 1.5em; line-height: 1.4em; width: 100%; text-align: center; color: white; text-shadow:
@@ -85,6 +85,9 @@ transform-origin: 50% 50%;
 -ms-transform: rotate(45deg);
 /* Opera */
 -o-transform: rotate(45deg);
+}
+#lightbox #original-img {
+    position: fixed; z-index: 99; right: 100px; top: 25px;
 }
 #lightbox, #lightbox * {
     -webkit-user-select: none;  

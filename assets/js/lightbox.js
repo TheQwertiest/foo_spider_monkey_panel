@@ -140,7 +140,15 @@ document.addEventListener("DOMContentLoaded", function() {
     elements.forEach(element => {
         element.addEventListener("click", function(event) {
             event.preventDefault();
-            document.getElementById('lightbox').innerHTML = '<a id="close"></a><a id="next">&rsaquo;</a><a id="prev">&lsaquo;</a><div class="img" style="background: url(\''+this.getAttribute('href')+'\') center center / contain no-repeat;" title="'+this.getAttribute('title')+'" ><img src="'+this.getAttribute('href')+'" alt="'+this.getAttribute('title')+'" /></div><span>'+this.getAttribute('title')+'</span>';
+            document.getElementById('lightbox').innerHTML = 
+                '<a id="original-img" href="' + this.getAttribute('href') + '">View original image</a>' +
+                '<a id="close"></a>' +
+                '<a id="next">&rsaquo;</a>' +
+                '<a id="prev">&lsaquo;</a>' +
+                '<div class="img" style="background: url(\'' + this.getAttribute('href') + '\') center center / contain no-repeat;" title="' + this.getAttribute('title')+'" >' +
+                '<img src="' + this.getAttribute('href') + '" alt="' + this.getAttribute('title') + '" />' +
+                '</div>' +
+                '<span>' + this.getAttribute('title') + '</span>';
             document.getElementById('lightbox').style.display = 'block';
 
             setGallery(this);
