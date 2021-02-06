@@ -58,7 +58,9 @@ JSClass jsClass = {
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CheckComponent, JsUtils::CheckComponent, JsUtils::CheckComponentWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( CheckFont, JsUtils::CheckFont );
 MJS_DEFINE_JS_FN_FROM_NATIVE( ColourPicker, JsUtils::ColourPicker );
+MJS_DEFINE_JS_FN_FROM_NATIVE( DetectCharset, JsUtils::DetectCharset );
 MJS_DEFINE_JS_FN_FROM_NATIVE( EditTextFile, JsUtils::EditTextFile );
+MJS_DEFINE_JS_FN_FROM_NATIVE( FileExists, JsUtils::FileExists );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FileTest, JsUtils::FileTest );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FormatDuration, JsUtils::FormatDuration );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FormatFileSize, JsUtils::FormatFileSize );
@@ -66,17 +68,21 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsync, JsUtils::GetAlbumArtAsy
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2WithOpt, 4 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbeddedWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtV2, JsUtils::GetAlbumArtV2, JsUtils::GetAlbumArtV2WithOpt, 2 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetFileSize, JsUtils::GetFileSize );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPackagePath, JsUtils::GetPackagePath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetSysColour, JsUtils::GetSysColour );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetSystemMetrics, JsUtils::GetSystemMetrics );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Glob, JsUtils::Glob, JsUtils::GlobWithOpt, 2 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( InputBox, JsUtils::InputBox, JsUtils::InputBoxWithOpt, 2 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsDirectory, JsUtils::IsDirectory );
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsFile, JsUtils::IsFile );
 MJS_DEFINE_JS_FN_FROM_NATIVE( IsKeyPressed, JsUtils::IsKeyPressed );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MapString, JsUtils::MapString );
 MJS_DEFINE_JS_FN_FROM_NATIVE( PathWildcardMatch, JsUtils::PathWildcardMatch );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ReadINI, JsUtils::ReadINI, JsUtils::ReadINIWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ReadTextFile, JsUtils::ReadTextFile, JsUtils::ReadTextFileWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ShowHtmlDialog, JsUtils::ShowHtmlDialog, JsUtils::ShowHtmlDialogWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( SplitFilePath, JsUtils::SplitFilePath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( WriteINI, JsUtils::WriteINI );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( WriteTextFile, JsUtils::WriteTextFile, JsUtils::WriteTextFileWithOpt, 1 );
 
@@ -85,7 +91,9 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "CheckComponent", CheckComponent, 1, kDefaultPropsFlags ),
         JS_FN( "CheckFont", CheckFont, 1, kDefaultPropsFlags ),
         JS_FN( "ColourPicker", ColourPicker, 2, kDefaultPropsFlags ),
+        JS_FN( "DetectCharset", DetectCharset, 1, kDefaultPropsFlags ),
         JS_FN( "EditTextFile", ::EditTextFile, 2, kDefaultPropsFlags ),
+        JS_FN( "FileExists", FileExists, 1, kDefaultPropsFlags ),
         JS_FN( "FileTest", FileTest, 2, kDefaultPropsFlags ),
         JS_FN( "FormatDuration", FormatDuration, 1, kDefaultPropsFlags ),
         JS_FN( "FormatFileSize", FormatFileSize, 1, kDefaultPropsFlags ),
@@ -93,17 +101,21 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FN( "GetAlbumArtAsyncV2", GetAlbumArtAsyncV2, 2, kDefaultPropsFlags ),
         JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, kDefaultPropsFlags ),
         JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, kDefaultPropsFlags ),
+        JS_FN( "GetFileSize", GetFileSize, 1, kDefaultPropsFlags ),
         JS_FN( "GetPackagePath", GetPackagePath, 1, kDefaultPropsFlags ),
         JS_FN( "GetSysColour", GetSysColour, 1, kDefaultPropsFlags ),
         JS_FN( "GetSystemMetrics", GetSystemMetrics, 1, kDefaultPropsFlags ),
         JS_FN( "Glob", Glob, 1, kDefaultPropsFlags ),
         JS_FN( "InputBox", InputBox, 3, kDefaultPropsFlags ),
+        JS_FN( "IsDirectory", IsDirectory, 1, kDefaultPropsFlags ),
+        JS_FN( "IsFile", IsFile, 1, kDefaultPropsFlags ),
         JS_FN( "IsKeyPressed", IsKeyPressed, 1, kDefaultPropsFlags ),
         JS_FN( "MapString", MapString, 3, kDefaultPropsFlags ),
         JS_FN( "PathWildcardMatch", PathWildcardMatch, 2, kDefaultPropsFlags ),
         JS_FN( "ReadINI", ReadINI, 3, kDefaultPropsFlags ),
         JS_FN( "ReadTextFile", ReadTextFile, 1, kDefaultPropsFlags ),
         JS_FN( "ShowHtmlDialog", ShowHtmlDialog, 3, kDefaultPropsFlags ),
+        JS_FN( "SplitFilePath", SplitFilePath, 1, kDefaultPropsFlags ),
         JS_FN( "WriteINI", WriteINI, 4, kDefaultPropsFlags ),
         JS_FN( "WriteTextFile", WriteTextFile, 2, kDefaultPropsFlags ),
         JS_FS_END,
@@ -222,6 +234,14 @@ uint32_t JsUtils::ColourPicker( uint32_t hWnd, uint32_t default_colour )
     return smp::colour::convert_colorref_to_argb( colour );
 }
 
+uint32_t JsUtils::DetectCharset( const std::wstring& path )
+{
+    namespace fs = std::filesystem;
+    const auto cleanedPath = fs::path( path ).lexically_normal();
+
+    return static_cast<uint32_t>( qwr::file::DetectFileCharset( cleanedPath ) );
+}
+
 void JsUtils::EditTextFile( const std::wstring& path )
 {
     const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
@@ -238,86 +258,39 @@ void JsUtils::EditTextFile( const std::wstring& path )
     smp::EditTextFile( hPanel, std::filesystem::path{ path }, false, false );
 }
 
+bool JsUtils::FileExists( const std::wstring& path )
+{
+    return std::filesystem::exists( path );
+}
+
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
 {
-    namespace fs = std::filesystem;
-    const auto cleanedPath = fs::path( path ).lexically_normal();
-
-    const auto getFileStatus = []( const fs::path& path ) {
-        try
-        {
-            return fs::status( path );
-        }
-        catch ( const fs::filesystem_error& e )
-        {
-            throw qwr::QwrException( fmt::format( "Failed to get the status of `{}`:\n"
-                                                  "  {}",
-                                                  path.u8string(),
-                                                  qwr::unicode::ToU8_FromAcpToWide( e.what() ) ) );
-        }
-    };
-
     if ( L"e" == mode ) // exists
     {
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setBoolean( fs::exists( getFileStatus( cleanedPath ) ) );
+        convert::to_js::ToValue( pJsCtx_, FileExists( path ), &jsValue );
         return jsValue;
     }
     else if ( L"s" == mode )
     {
-        const auto filesize = [&cleanedPath] {
-            try
-            {
-                return fs::file_size( cleanedPath );
-            }
-            catch ( const fs::filesystem_error& e )
-            {
-                throw qwr::QwrException( fmt::format( "Failed to get the size of `{}`:\n"
-                                                      "  {}",
-                                                      cleanedPath.u8string(),
-                                                      qwr::unicode::ToU8_FromAcpToWide( e.what() ) ) );
-            }
-        }();
-
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setNumber( static_cast<double>( filesize ) );
+        convert::to_js::ToValue( pJsCtx_, GetFileSize( path ), &jsValue );
         return jsValue;
     }
     else if ( L"d" == mode )
     {
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setBoolean( fs::is_directory( getFileStatus( cleanedPath ) ) );
+        convert::to_js::ToValue( pJsCtx_, IsDirectory( path ), &jsValue );
         return jsValue;
     }
     else if ( L"split" == mode )
     {
-        std::vector<std::wstring> out( 3 );
-        if ( PathIsFileSpec( cleanedPath.filename().c_str() ) )
-        {
-            out[0] = cleanedPath.parent_path() / "";
-            out[1] = cleanedPath.filename();
-            out[2] = cleanedPath.extension();
-        }
-        else
-        {
-            out[0] = cleanedPath / "";
-        }
-
-        JS::RootedValue jsValue( pJsCtx_ );
-        convert::to_js::ToArrayValue(
-            pJsCtx_,
-            out,
-            []( const auto& vec, auto index ) {
-                return vec[index];
-            },
-            &jsValue );
-
-        return jsValue;
+        return SplitFilePath( path );
     }
     else if ( L"chardet" == mode )
     {
         JS::RootedValue jsValue( pJsCtx_ );
-        jsValue.setNumber( static_cast<uint32_t>( qwr::file::DetectFileCharset( cleanedPath.u8string() ) ) );
+        convert::to_js::ToValue( pJsCtx_, DetectCharset( path ), &jsValue );
         return jsValue;
     }
     else
@@ -447,6 +420,11 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
     }
 }
 
+uint64_t JsUtils::GetFileSize( const std::wstring& path )
+{
+    return std::filesystem::file_size( path );
+}
+
 std::u8string JsUtils::GetPackagePath( const std::u8string& packageId )
 {
     const auto packagePathOpt = config::FindPackage( packageId );
@@ -563,6 +541,16 @@ std::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const
     default:
         throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
+}
+
+bool JsUtils::IsDirectory( const std::wstring& path )
+{
+    return std::filesystem::is_directory( path );
+}
+
+bool JsUtils::IsFile( const std::wstring& path )
+{
+    return std::filesystem::is_regular_file( path );
 }
 
 bool JsUtils::IsKeyPressed( uint32_t vkey )
@@ -705,6 +693,34 @@ JS::Value JsUtils::ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, con
     default:
         throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
+}
+
+JS::Value JsUtils::SplitFilePath( const std::wstring& path )
+{
+    const auto cleanedPath = std::filesystem::path( path ).lexically_normal();
+
+    std::vector<std::wstring> out( 3 );
+    if ( PathIsFileSpec( cleanedPath.filename().c_str() ) )
+    {
+        out[0] = cleanedPath.parent_path() / "";
+        out[1] = cleanedPath.stem();
+        out[2] = cleanedPath.extension();
+    }
+    else
+    {
+        out[0] = cleanedPath / "";
+    }
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    convert::to_js::ToArrayValue(
+        pJsCtx_,
+        out,
+        []( const auto& vec, auto index ) {
+            return vec[index];
+        },
+        &jsValue );
+
+    return jsValue;
 }
 
 bool JsUtils::WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val )

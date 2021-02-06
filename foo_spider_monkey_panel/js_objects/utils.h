@@ -35,7 +35,9 @@ public:
     bool CheckComponentWithOpt( size_t optArgCount, const std::u8string& name, bool is_dll );
     bool CheckFont( const std::wstring& name );
     uint32_t ColourPicker( uint32_t hWnd, uint32_t default_colour );
+    uint32_t DetectCharset( const std::wstring& path );
     void EditTextFile( const std::wstring& path );
+    bool FileExists( const std::wstring& path );
     JS::Value FileTest( const std::wstring& path, const std::wstring& mode );
     std::u8string FormatDuration( double p );
     std::u8string FormatFileSize( uint64_t p );
@@ -47,6 +49,7 @@ public:
     JSObject* GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::u8string& rawpath, uint32_t art_id );
     JSObject* GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true );
     JSObject* GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub );
+    uint64_t GetFileSize( const std::wstring& path );
     std::u8string GetPackagePath( const std::u8string& packageId );
     uint32_t GetSysColour( uint32_t index );
     uint32_t GetSystemMetrics( uint32_t index );
@@ -54,6 +57,8 @@ public:
     JSObject* GlobWithOpt( size_t optArgCount, const std::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask );
     std::u8string InputBox( uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def = "", bool error_on_cancel = false );
     std::u8string InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def, bool error_on_cancel );
+    bool IsDirectory( const std::wstring& path );
+    bool IsFile( const std::wstring& path );
     bool IsKeyPressed( uint32_t vkey );
     std::wstring MapString( const std::wstring& str, uint32_t lcid, uint32_t flags );
     bool PathWildcardMatch( const std::wstring& pattern, const std::wstring& str );
@@ -63,6 +68,7 @@ public:
     std::wstring ReadTextFileWithOpt( size_t optArgCount, const std::wstring& filePath, uint32_t codepage );
     JS::Value ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options = JS::UndefinedHandleValue );
     JS::Value ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options );
+    JS::Value SplitFilePath( const std::wstring& path );
     bool WriteINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& val );
     bool WriteTextFile( const std::wstring& filename, const std::u8string& content, bool write_bom = true );
     bool WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const std::u8string& content, bool write_bom );
