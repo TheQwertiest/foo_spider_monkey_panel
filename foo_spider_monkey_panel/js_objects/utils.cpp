@@ -472,6 +472,8 @@ JSObject* JsUtils::Glob( const std::u8string& pattern, uint32_t exc_mask, uint32
 {
     std::vector<std::u8string> files;
     {
+        const auto wPattern = qwr::unicode::ToWide( pattern );
+
         std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
         if ( ff )
         {
@@ -481,6 +483,14 @@ JSObject* JsUtils::Glob( const std::u8string& pattern, uint32_t exc_mask, uint32
                 const DWORD attr = ff->GetAttributes();
                 if ( ( attr & inc_mask ) && !( attr & exc_mask ) )
                 {
+                    const auto wPath = qwr::unicode::ToWide( dir + ff->GetFileName() );
+                    if ( !PathMatchSpec( wPath.c_str(), wPattern.c_str() ) )
+                    {
+                        // workaround for FindFirstFile() bug:
+                        // https://stackoverflow.com/a/44933735
+                        continue;
+                    }
+
                     files.emplace_back( dir + ff->GetFileName() );
                 }
             } while ( ff->FindNext() );
