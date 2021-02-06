@@ -5,7 +5,7 @@
 {% for showcase in sorted_scripts %}
 <div class="showcase">
 {% if showcase.img %}
-<div class="scriptimgwrap" markdown="0">
+<div class="scriptimgwrap" id="{% include functions/custom_slugify.md name = showcase.name %}" markdown="0">
   {%- assign screenshots_dir = include.screenshots_dir | relative_url -%}
   {%- capture screenshot_path -%}
     {{ screenshots_dir }}/{%if showcase.img == "" %}{{ showcase.name }}.png{% else %}{{ showcase.img }}{% endif %}
@@ -15,7 +15,7 @@
   </a>
 </div>
 {% elsif showcase.gallery %}
-<div class="scriptimgwrap" markdown="0">
+<div class="scriptimgwrap" id="{% include functions/custom_slugify.md name = showcase.name %}" markdown="0">
   {%- assign screenshots_dir = include.screenshots_dir | relative_url -%}
   {%- capture gallery_name -%}
     {%if showcase.gallery == "" %}{{ showcase.name }}{% else %}{{ showcase.gallery }}{% endif %}

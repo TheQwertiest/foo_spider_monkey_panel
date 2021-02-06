@@ -1,0 +1,1 @@
+{{ include.name | replace: ".", "" | replace: "&", "" | replace: "`", "" |replace: "(", "" | replace: ")", ""| replace: " ", "qqq" | slugify | replace: "qqq", "-" }}
