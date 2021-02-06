@@ -127,9 +127,14 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
                 propName = std::to_wstring( JSID_TO_INT( id ) );
             }
 
-            if ( pNativeTarget->IsGet( propName ) || JSID_IS_INT( id ) )
+            if ( pNativeTarget->IsGet( propName ) )
             {
-                pNativeTarget->Get( propName, vp );
+                pNativeTarget->GetProperty( propName, vp );
+                return true;
+            }
+            else if ( JSID_IS_INT( id ) )
+            {
+                pNativeTarget->GetItem( JSID_TO_INT( id ), vp );
                 return true;
             }
         }
@@ -557,6 +562,42 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
     return dispId;
 }
 
+void ActiveXObject::GetImpl( int dispId, nonstd::span<_variant_t> args, JS::MutableHandleValue vp, std::optional<std::function<void()>> refreshFn )
+{
+    DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
+    if ( !args.empty() )
+    {
+        dispparams.rgvarg = args.data();
+        dispparams.cArgs = args.size();
+    }
+
+    _variant_t varResult;
+    EXCEPINFO exception{};
+    UINT argerr = 0;
+
+    // don't use DispInvoke, because we don't know the TypeInfo
+    HRESULT hresult = pDispatch_->Invoke( dispId,
+                                          IID_NULL,
+                                          LOCALE_USER_DEFAULT,
+                                          DISPATCH_PROPERTYGET,
+                                          &dispparams,
+                                          &varResult,
+                                          &exception,
+                                          &argerr );
+
+    if ( refreshFn )
+    {
+        std::invoke( *refreshFn );
+    }
+
+    if ( FAILED( hresult ) )
+    {
+        qwr::error::ReportActiveXError( hresult, exception, argerr );
+    }
+
+    convert::com::VariantToJs( pJsCtx_, varResult, vp );
+}
+
 bool ActiveXObject::Has( const std::wstring& name )
 {
     return members_.count( name );
@@ -591,12 +632,23 @@ std::wstring ActiveXObject::ToString()
 {
     JS::RootedValue jsValue( pJsCtx_ );
     auto dispRet = GetDispId( L"toString", false );
-    Get( ( dispRet ? L"toString" : L"" ), &jsValue );
+    GetProperty( ( dispRet ? L"toString" : L"" ), &jsValue );
 
     return convert::to_native::ToValue<std::wstring>( pJsCtx_, jsValue );
 }
 
-void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp )
+void ActiveXObject::GetItem( int32_t index, JS::MutableHandleValue vp )
+{
+    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+
+    const auto dispRet = GetDispId( L"item" );
+    qwr::QwrException::ExpectTrue( dispRet.has_value(), L"Object is not subscriptable" );
+
+    std::array args{ _variant_t{ index } };
+    GetImpl( *dispRet, args, vp );
+}
+
+void ActiveXObject::GetProperty( const std::wstring& propName, JS::MutableHandleValue vp )
 {
     qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
@@ -607,25 +659,7 @@ void ActiveXObject::Get( const std::wstring& propName, JS::MutableHandleValue vp
         return;
     }
 
-    DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
-    _variant_t varResult;
-    EXCEPINFO exception = { 0 };
-    UINT argerr = 0;
-
-    HRESULT hresult = pDispatch_->Invoke( *dispRet,
-                                          IID_NULL,
-                                          LOCALE_USER_DEFAULT,
-                                          DISPATCH_PROPERTYGET,
-                                          &dispparams,
-                                          &varResult,
-                                          &exception,
-                                          &argerr );
-    if ( FAILED( hresult ) )
-    {
-        qwr::error::ReportActiveXError( hresult, exception, argerr );
-    }
-
-    convert::com::VariantToJs( pJsCtx_, varResult, vp );
+    GetImpl( *dispRet, {}, vp );
 }
 
 void ActiveXObject::Get( JS::CallArgs& callArgs )
@@ -645,38 +679,14 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
         JsToVariantSafe( pJsCtx_, callArgs[argc - i], arg );
     }
 
-    DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
-    if ( !args.empty() )
-    {
-        dispparams.rgvarg = args.data();
-        dispparams.cArgs = args.size();
-    }
-
-    _variant_t varResult;
-    EXCEPINFO exception = { 0 };
-    UINT argerr = 0;
-
-    // don't use DispInvoke, because we don't know the TypeInfo
-    HRESULT hresult = pDispatch_->Invoke( *dispRet,
-                                          IID_NULL,
-                                          LOCALE_USER_DEFAULT,
-                                          DISPATCH_PROPERTYGET,
-                                          &dispparams,
-                                          &varResult,
-                                          &exception,
-                                          &argerr );
-
-    for ( auto i: ranges::views::indices( callArgs.length() - 1 ) )
-    {
-        RefreshValue( pJsCtx_, callArgs[1 + i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
-    }
-
-    if ( FAILED( hresult ) )
-    {
-        qwr::error::ReportActiveXError( hresult, exception, argerr );
-    }
-
-    convert::com::VariantToJs( pJsCtx_, varResult, callArgs.rval() );
+    const auto refreshValues = [&] {
+        // in case any empty ActiveXObject objects were filled in by Invoke()
+        for ( auto i: ranges::views::indices( callArgs.length() - 1 ) )
+        {
+            RefreshValue( pJsCtx_, callArgs[1 + i] );
+        }
+    };
+    GetImpl( *dispRet, args, callArgs.rval(), refreshValues );
 }
 
 void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
@@ -699,7 +709,7 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
         flag = DISPATCH_PROPERTYPUTREF;
     }
 
-    EXCEPINFO exception = { 0 };
+    EXCEPINFO exception{};
     UINT argerr = 0;
 
     HRESULT hresult = pDispatch_->Invoke( *dispRet,
@@ -744,7 +754,7 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
         dispparams.cArgs = args.size();
     }
 
-    EXCEPINFO exception = { 0 };
+    EXCEPINFO exception{};
     UINT argerr = 0;
 
     WORD flag = DISPATCH_PROPERTYPUT;
@@ -797,7 +807,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
     }
 
     _variant_t varResult;
-    EXCEPINFO exception = { 0 };
+    EXCEPINFO exception{};
     UINT argerr = 0;
 
     // don't use DispInvoke, because we don't know the TypeInfo

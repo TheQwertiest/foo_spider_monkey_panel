@@ -6,6 +6,8 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <oleauto.h>
 
+#include <nonstd/span.hpp>
+
 #include <map>
 #include <optional>
 
@@ -57,7 +59,8 @@ public:
 
     std::wstring ToString();
 
-    void Get( const std::wstring& propName, JS::MutableHandleValue vp );
+    void GetItem( int32_t index, JS::MutableHandleValue vp );
+    void GetProperty( const std::wstring& propName, JS::MutableHandleValue vp );
     void Get( JS::CallArgs& args );
     void Set( const std::wstring& propName, JS::HandleValue v );
     void Set( const JS::CallArgs& args );
@@ -78,6 +81,8 @@ private:
 
 private:
     std::optional<DISPID> GetDispId( const std::wstring& name, bool reportError = true );
+
+    void GetImpl( int dispId, nonstd::span<_variant_t> args, JS::MutableHandleValue vp, std::optional<std::function<void()>> refreshFn = {} );
 
     void SetupMembers( JS::HandleObject jsObject );
     static void ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo, MemberMap& members );
