@@ -2,14 +2,27 @@
 
 import fileinput
 import os
+import subprocess
 import sys
 import urllib.request 
 from pathlib import Path
 
+def get_cwd_repo_root():
+    repo_dir = Path(os.getcwd()).absolute()
+    cmd_get_root = [
+        'git',
+        '-C',
+        str(repo_dir),
+        'rev-parse',
+        '--show-toplevel'
+    ]
+
+    root = subprocess.check_output(cmd_get_root, text=True, env=os.environ, cwd=repo_dir).strip()
+    return Path(root)
+
 print('Downloading new default layout')
 
-cur_dir = Path(__file__).parent.absolute()
-root_dir = cur_dir.parent
+root_dir = get_cwd_repo_root()
 layouts_dir = root_dir/"_layouts"
 if (not layouts_dir.exists()):
     os.makedirs(layouts_dir)
