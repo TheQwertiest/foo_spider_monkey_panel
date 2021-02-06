@@ -24,9 +24,47 @@
 ___
 
 ## [Unreleased][]
+### Added
+- Added a brand new `Configure` dialog!
+- Added more ways to consume scripts:
+  - Quick access to built-in script samples.
+  - Load scripts by path.
+  - Use script packages (see below for more info).
+- Implemented script package support:
+  - Can contain multiple scripts and assets.
+  - Can be easily exported and imported as a single file.
+  - Has a package manager to view and manage all installed packages.
+- Panel name can be changed now via `Configure` dialog.
+- Default script editor can be changed now via drop-down menu of `Edit` button in `Configure` dialog.
+- Added a link to component docs to foobar2000 `Help` main menu.
+- API changes:
+  - Added `type` argument to `FbUiSelectionHolder.SetSelection()`.
+  - Added `fb.Version` property.
+  - Added `utils.EditTextFile()` method.
+  - Added `utils.GetPackagePath()` method.
+  - Added `window.DefineScript()` method.
+  - Added `window.EditScript()` method.
+  - Added `window.ShowConfigureV2()` method.
+  - Added `window.JsMemoryStats` property.
+  - Added `window.ScriptInfo` property.
+
 ### Changed 
-- `window.Name` now returns panel name instead of script name.
-- `window.DefinePanel()` is marked as **\[Deprecated]**. Use `window.DefineScript()` instead.
+- Moved `Properties` dialog to a separate tab of `Configure` dialog.
+- `Grab focus` is now a script property and is defined via `window.DefineScript()`.
+- Extracted `Edge style` and `Pseudo-transparency` options to a separate tab of `Configure` dialog.
+- API changes:
+  - `window.ID` is now optional and unused in all methods that required it.
+  - `window.Name` now returns panel name instead of script name. Use `window.ScriptInfo.Name` to retrieve script name.
+  - `window.DefinePanel()` is marked as **\[Deprecated]**. Use `window.DefineScript()` instead.
+  - `window.MemoryLimit`, `window.PanelMemoryUsage` and `window.TotalMemoryUsage` are marked as **\[Deprecated]**. Use `window.JsMemoryStats` instead.
+
+### Fixed
+- Fixed component crash when passing objects to `console.log()`.
+- Fixed the weird image offset when using `fb.DoDragDrop()` with custom image and theming disabled.
+- Errors in callbacks passed to `ActiveXObject` are now properly propagated to the script. 
+- Fixed inability to use subscripts with some `ActiveXObject`.
+- `Enumerator` now accepts all `ActiveXObject` that can be treated as collections.
+- Fixed various errors in `complete` samples (by marc2003).
 
 ## [1.3.1][] - 2020-07-18
 ### Fixed
