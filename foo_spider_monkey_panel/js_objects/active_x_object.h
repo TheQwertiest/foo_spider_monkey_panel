@@ -60,6 +60,7 @@ public:
     std::wstring ToString();
 
     void GetItem( int32_t index, JS::MutableHandleValue vp );
+    bool TryGetProperty( const std::wstring& propName, JS::MutableHandleValue vp );
     void GetProperty( const std::wstring& propName, JS::MutableHandleValue vp );
     void Get( JS::CallArgs& args );
     void Set( const std::wstring& propName, JS::HandleValue v );

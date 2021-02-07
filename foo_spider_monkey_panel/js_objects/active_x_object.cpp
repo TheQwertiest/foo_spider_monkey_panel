@@ -108,21 +108,24 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
 {
     try
     {
-        if ( JSID_IS_STRING( id ) || JSID_IS_INT( id ) )
+        const auto isString = JSID_IS_STRING( id );
+        const auto isInt = JSID_IS_INT( id );
+
+        if ( isString || isInt )
         {
             JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
             auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
             assert( pNativeTarget );
 
             std::wstring propName;
-            if ( JSID_IS_STRING( id ) )
+            if ( isString )
             {
                 JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
                 assert( jsString );
 
                 propName = convert::to_native::ToValue<std::wstring>( cx, jsString );
             }
-            else if ( JSID_IS_INT( id ) )
+            else if ( isInt )
             {
                 propName = std::to_wstring( JSID_TO_INT( id ) );
             }
@@ -132,9 +135,13 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
                 pNativeTarget->GetProperty( propName, vp );
                 return true;
             }
-            else if ( JSID_IS_INT( id ) )
+            else if ( isInt )
             {
-                pNativeTarget->GetItem( JSID_TO_INT( id ), vp );
+                const auto fetchedAsProperty = pNativeTarget->TryGetProperty( propName, vp );
+                if ( !fetchedAsProperty )
+                {
+                    pNativeTarget->GetItem( JSID_TO_INT( id ), vp );
+                }
                 return true;
             }
         }
@@ -632,7 +639,7 @@ std::wstring ActiveXObject::ToString()
 {
     JS::RootedValue jsValue( pJsCtx_ );
     auto dispRet = GetDispId( L"toString", false );
-    GetProperty( ( dispRet ? L"toString" : L"" ), &jsValue );
+    TryGetProperty( ( dispRet ? L"toString" : L"" ), &jsValue );
 
     return convert::to_native::ToValue<std::wstring>( pJsCtx_, jsValue );
 }
@@ -648,18 +655,26 @@ void ActiveXObject::GetItem( int32_t index, JS::MutableHandleValue vp )
     GetImpl( *dispRet, args, vp );
 }
 
-void ActiveXObject::GetProperty( const std::wstring& propName, JS::MutableHandleValue vp )
+bool ActiveXObject::TryGetProperty( const std::wstring& propName, JS::MutableHandleValue vp )
 {
     qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
     auto dispRet = GetDispId( propName, false );
     if ( !dispRet )
     { // not an error
-        vp.setUndefined();
-        return;
+        return false;
     }
 
     GetImpl( *dispRet, {}, vp );
+    return true;
+}
+
+void ActiveXObject::GetProperty( const std::wstring& propName, JS::MutableHandleValue vp )
+{
+    if ( !TryGetProperty( propName, vp ) )
+    {
+        vp.setUndefined();
+    }
 }
 
 void ActiveXObject::Get( JS::CallArgs& callArgs )
