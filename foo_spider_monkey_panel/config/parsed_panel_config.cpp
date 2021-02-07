@@ -135,7 +135,7 @@ config::PanelSettings_Sample GetPayload_Sample( const config::ParsedPanelSetting
     config::PanelSettings_Sample payload;
 
     assert( parsedSettings.scriptPath );
-    payload.sampleName = fs::relative( *parsedSettings.scriptPath, path::Packages_Sample() ).u8string();
+    payload.sampleName = fs::relative( *parsedSettings.scriptPath, path::ScriptSamples() ).u8string();
 
     return payload;
 }
