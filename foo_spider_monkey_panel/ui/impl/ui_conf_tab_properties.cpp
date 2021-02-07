@@ -125,7 +125,7 @@ LRESULT CConfigTabProperties::OnPinItemChanged( LPNMHDR pnmh )
                 static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
             }
 
-            return ( prevArgValue == arg );
+            return ( prevArgValue != arg );
         },
                            val );
     }();
