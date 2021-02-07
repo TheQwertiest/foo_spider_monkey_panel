@@ -260,7 +260,15 @@ void JsUtils::EditTextFile( const std::wstring& path )
 
 bool JsUtils::FileExists( const std::wstring& path )
 {
-    return std::filesystem::exists( path );
+    namespace fs = std::filesystem;
+    try
+    {
+        return fs::exists( path );
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( e );
+    }
 }
 
 JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode )
@@ -422,7 +430,16 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
 
 uint64_t JsUtils::GetFileSize( const std::wstring& path )
 {
-    return std::filesystem::file_size( path );
+    namespace fs = std::filesystem;
+    try
+    {
+        qwr::QwrException::ExpectTrue( fs::exists( path ), L"Path does not point to a file: {}", path );
+        return fs::file_size( path );
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( e );
+    }
 }
 
 std::u8string JsUtils::GetPackagePath( const std::u8string& packageId )
@@ -545,12 +562,30 @@ std::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const
 
 bool JsUtils::IsDirectory( const std::wstring& path )
 {
-    return std::filesystem::is_directory( path );
+    namespace fs = std::filesystem;
+    try
+    {
+        qwr::QwrException::ExpectTrue( fs::exists( path ), L"Path does not point to a valid location: {}", path );
+        return fs::is_directory( path );
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( e );
+    }
 }
 
 bool JsUtils::IsFile( const std::wstring& path )
 {
-    return std::filesystem::is_regular_file( path );
+    namespace fs = std::filesystem;
+    try
+    {
+        qwr::QwrException::ExpectTrue( fs::exists( path ), L"Path does not point to a valid location: {}", path );
+        return fs::is_regular_file( path );
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( e );
+    }
 }
 
 bool JsUtils::IsKeyPressed( uint32_t vkey )

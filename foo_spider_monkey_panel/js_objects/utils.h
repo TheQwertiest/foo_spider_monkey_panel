@@ -38,6 +38,7 @@ public:
     uint32_t DetectCharset( const std::wstring& path );
     void EditTextFile( const std::wstring& path );
     bool FileExists( const std::wstring& path );
+    // TODO v2: remove
     JS::Value FileTest( const std::wstring& path, const std::wstring& mode );
     std::u8string FormatDuration( double p );
     std::u8string FormatFileSize( uint64_t p );
