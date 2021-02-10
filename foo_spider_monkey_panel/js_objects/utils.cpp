@@ -565,7 +565,6 @@ bool JsUtils::IsDirectory( const std::wstring& path )
     namespace fs = std::filesystem;
     try
     {
-        qwr::QwrException::ExpectTrue( fs::exists( path ), L"Path does not point to a valid location: {}", path );
         return fs::is_directory( path );
     }
     catch ( const fs::filesystem_error& e )
@@ -579,7 +578,6 @@ bool JsUtils::IsFile( const std::wstring& path )
     namespace fs = std::filesystem;
     try
     {
-        qwr::QwrException::ExpectTrue( fs::exists( path ), L"Path does not point to a valid location: {}", path );
         return fs::is_regular_file( path );
     }
     catch ( const fs::filesystem_error& e )
