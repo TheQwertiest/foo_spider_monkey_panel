@@ -161,7 +161,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         }
 #endif
 
-        CreateAndInstallPrototype<ActiveXObject>( cx, JsPrototypeId::ActiveX );
+        CreateAndInstallPrototype<JsActiveXObject>( cx, JsPrototypeId::ActiveX );
         CreateAndInstallPrototype<JsGdiBitmap>( cx, JsPrototypeId::GdiBitmap );
         CreateAndInstallPrototype<JsGdiFont>( cx, JsPrototypeId::GdiFont );
         CreateAndInstallPrototype<JsEnumerator>( cx, JsPrototypeId::Enumerator );

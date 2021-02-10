@@ -167,6 +167,7 @@
     <ClCompile Include="js_engine\js_monitor.cpp" />
     <ClCompile Include="js_engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_objects\active_x_object.cpp" />
+    <ClCompile Include="js_objects\active_x_object_iterator.cpp" />
     <ClCompile Include="js_objects\console.cpp" />
     <ClCompile Include="js_objects\context_menu_manager.cpp" />
     <ClCompile Include="js_objects\drop_source_action.cpp" />
@@ -291,6 +292,7 @@
     <ClInclude Include="js_engine\js_to_native_invoker.h" />
     <ClInclude Include="js_engine\native_to_js_invoker.h" />
     <ClInclude Include="js_objects\active_x_object.h" />
+    <ClInclude Include="js_objects\active_x_object_iterator.h" />
     <ClInclude Include="js_objects\enumerator.h" />
     <ClInclude Include="js_objects\fb_playlist_recycler.h" />
     <ClInclude Include="js_objects\fb_window.h" />
@@ -328,6 +330,7 @@
     <ClInclude Include="js_utils\js_art_helpers.h" />
     <ClInclude Include="js_utils\js_async_task.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
+    <ClInclude Include="js_utils\js_heap_helper.h" />
     <ClInclude Include="js_utils\js_hwnd_helpers.h" />
     <ClInclude Include="js_utils\js_image_helpers.h" />
     <ClInclude Include="js_utils\js_object_helper.h" />

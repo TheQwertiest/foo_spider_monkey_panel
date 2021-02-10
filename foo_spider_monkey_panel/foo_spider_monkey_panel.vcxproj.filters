@@ -340,6 +340,9 @@
       <Filter>com_objects</Filter>
     </ClCompile>
     <ClCompile Include="component_paths.cpp" />
+    <ClCompile Include="js_objects\active_x_object_iterator.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -736,6 +739,12 @@
       <Filter>com_objects</Filter>
     </ClInclude>
     <ClInclude Include="component_paths.h" />
+    <ClInclude Include="js_objects\active_x_object_iterator.h">
+      <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\js_heap_helper.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

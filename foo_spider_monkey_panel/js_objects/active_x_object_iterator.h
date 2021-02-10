@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_objects/object_base.h>
+#include <js_utils/js_heap_helper.h>
 
 #include <optional>
 #include <string>
@@ -16,13 +17,12 @@ namespace mozjs
 
 class JsActiveXObject;
 
-class JsEnumerator
-    : public JsObjectBase<JsEnumerator>
+class JsActiveXObject_Iterator
+    : public JsObjectBase<JsActiveXObject_Iterator>
 {
 public:
     static constexpr bool HasProto = true;
-    static constexpr bool HasGlobalProto = true;
-    static constexpr bool HasStaticFunctions = false;
+    static constexpr bool HasGlobalProto = false;
     static constexpr bool HasProxy = false;
     static constexpr bool HasPostCreate = false;
 
@@ -30,34 +30,34 @@ public:
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
-    static const JSNative JsConstructor;
 
 public:
-    ~JsEnumerator() override = default;
+    ~JsActiveXObject_Iterator() override;
 
-    static std::unique_ptr<JsEnumerator> CreateNative( JSContext* cx, IUnknown* pUnknown );
-    static size_t GetInternalSize( IUnknown* pUnknown );
-
-public: // ctor
-    static JSObject* Constructor( JSContext* cx, JsActiveXObject* pActiveXObject );
+    static std::unique_ptr<JsActiveXObject_Iterator> CreateNative( JSContext* cx, JsActiveXObject& activeXObject );
+    static size_t GetInternalSize( JsActiveXObject& activeXObject );
 
 public:
-    bool AtEnd();
-    JS::Value Item();
-    void MoveFirst();
-    void MoveNext();
+    JSObject* Next();
+
+public:
+    static bool IsIterable( const JsActiveXObject& activeXObject );
 
 private:
     // alias for IEnumVARIANTPtr: don't want to drag extra com headers
     using EnumVARIANTComPtr = _com_ptr_t<_com_IIID<IEnumVARIANT, &__uuidof( IEnumVARIANT )>>;
 
-    JsEnumerator( JSContext* cx, EnumVARIANTComPtr pEnum );
+    JsActiveXObject_Iterator( JSContext* cx, EnumVARIANTComPtr pEnum );
 
     void LoadCurrentElement();
 
 private:
     JSContext* pJsCtx_ = nullptr;
     EnumVARIANTComPtr pEnum_ = nullptr;
+
+    HeapHelper heapHelper_;
+    std::optional<uint32_t> jsNextId_;
+
     _variant_t curElem_;
     bool isAtEnd_ = true;
 };

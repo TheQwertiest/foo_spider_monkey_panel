@@ -342,8 +342,8 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
             break;
         }
 
-        std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, FETCH( punkVal ), true ) );
-        JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
+        std::unique_ptr<JsActiveXObject> x( new JsActiveXObject( cx, FETCH( punkVal ), true ) );
+        JS::RootedObject jsObject( cx, JsActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
         assert( jsObject );
 
         rval.setObjectOrNull( jsObject );
@@ -357,8 +357,8 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
             break;
         }
 
-        std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, FETCH( pdispVal ), true ) );
-        JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
+        std::unique_ptr<JsActiveXObject> x( new JsActiveXObject( cx, FETCH( pdispVal ), true ) );
+        JS::RootedObject jsObject( cx, JsActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
         assert( jsObject );
 
         rval.setObjectOrNull( jsObject );
@@ -384,7 +384,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         {
             qwr::QwrException::ExpectTrue( type <= VT_CLSID || type == ( VT_ARRAY | VT_UI1 ), "ActiveX: unsupported object type: {:#x}", type );
 
-            JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::make_unique<ActiveXObject>( cx, var ) ) );
+            JS::RootedObject jsObject( cx, JsActiveXObject::CreateJsFromNative( cx, std::make_unique<JsActiveXObject>( cx, var ) ) );
             assert( jsObject );
 
             rval.setObjectOrNull( jsObject );
@@ -402,10 +402,10 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     {
         JS::RootedObject j0( cx, &rval.toObject() );
 
-        auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, j0 );
+        auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, j0 );
         if ( pNative )
         {
-            ActiveXObject* x = pNative;
+            JsActiveXObject* x = pNative;
             if ( x->variant_.vt != VT_EMPTY )
             {
                 //1.7.2.3

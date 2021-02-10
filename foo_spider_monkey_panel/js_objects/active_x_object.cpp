@@ -10,6 +10,7 @@
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
 #include <js_engine/js_to_native_invoker.h>
+#include <js_objects/active_x_object_iterator.h>
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
@@ -36,7 +37,7 @@ using namespace mozjs;
 
 void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
 {
-    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, valToCheck );
+    auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, valToCheck );
     if ( !pNative )
     {
         return;
@@ -51,6 +52,8 @@ void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
         }
     }
 }
+
+MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveX_Iterator, JsActiveXObject::CreateNewIterator )
 
 // Wrapper to intercept indexed gets/sets.
 class ActiveXObjectProxyHandler : public js::ForwardingProxyHandler
@@ -82,7 +85,7 @@ ActiveXObjectProxyHandler::has( JSContext* cx, JS::HandleObject proxy, JS::Handl
     }
 
     JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-    auto pNativeTarget = static_cast<ActiveXObject*>(JS_GetPrivate( target ));
+    auto pNativeTarget = static_cast<JsActiveXObject*>(JS_GetPrivate( target ));
     assert( pNativeTarget );
 
     JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
@@ -110,11 +113,32 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
     {
         const auto isString = JSID_IS_STRING( id );
         const auto isInt = JSID_IS_INT( id );
+        const auto isEnumSymbol = [&] {
+            if ( !JSID_IS_SYMBOL( id ) )
+            {
+                return false;
+            }
+            JS::RootedSymbol sym( cx, JSID_TO_SYMBOL( id ) );
+            return ( JS::GetSymbolCode( sym ) == JS::SymbolCode::iterator );
+        }();
 
-        if ( isString || isInt )
+        if ( isEnumSymbol )
         {
             JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-            auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
+            auto pNativeTarget = static_cast<JsActiveXObject*>( JS_GetPrivate( target ) );
+            assert( pNativeTarget );
+
+            if ( pNativeTarget->HasIterator() )
+            {
+                JS::RootedFunction jsFunc( cx, JS_NewFunction( cx, ActiveX_Iterator, 0, kDefaultPropsFlags, "iterator_impl" ) );
+                vp.setObject( *JS_GetFunctionObject( jsFunc ) );
+                return true;
+            }
+        }
+        else if ( isString || isInt )
+        {
+            JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
+            auto pNativeTarget = static_cast<JsActiveXObject*>( JS_GetPrivate( target ) );
             assert( pNativeTarget );
 
             std::wstring propName;
@@ -166,7 +190,7 @@ bool ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
         }
 
         JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-        auto pNativeTarget = static_cast<ActiveXObject*>( JS_GetPrivate( target ) );
+        auto pNativeTarget = static_cast<JsActiveXObject*>( JS_GetPrivate( target ) );
         assert( pNativeTarget );
 
         JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
@@ -193,7 +217,7 @@ bool ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
 bool ActiveXObjectProxyHandler::ownPropertyKeys( JSContext* cx, JS::HandleObject proxy, JS::AutoIdVector& props ) const
 {
     JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-    auto pNativeTarget = static_cast<ActiveXObject*>(JS_GetPrivate( target ));
+    auto pNativeTarget = static_cast<JsActiveXObject*>(JS_GetPrivate( target ));
     assert( pNativeTarget );
 
     const auto memberList = pNativeTarget->GetAllMembers();
@@ -242,7 +266,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    ActiveXObject::FinalizeJsObject,
+    JsActiveXObject::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,
@@ -259,7 +283,7 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
-    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
+    auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, args.thisv() );
     qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     JS::RootedString jsString( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
@@ -273,7 +297,7 @@ bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
-    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
+    auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, args.thisv() );
     qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     pNative->Get( args );
@@ -284,7 +308,7 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
-    auto pNative = GetInnerInstancePrivate<ActiveXObject>( cx, args.thisv() );
+    auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, args.thisv() );
     qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     pNative->Set( args );
@@ -294,8 +318,8 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 MJS_DEFINE_JS_FN( ActiveX_Run, ActiveX_Run_Impl )
 MJS_DEFINE_JS_FN( ActiveX_Get, ActiveX_Get_Impl )
 MJS_DEFINE_JS_FN( ActiveX_Set, ActiveX_Set_Impl )
-MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveX_CreateArray, ActiveXObject::CreateFromArray )
-MJS_DEFINE_JS_FN_FROM_NATIVE( ToString, ActiveXObject::ToString )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveX_CreateArray, JsActiveXObject::CreateFromArray )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ToString, JsActiveXObject::ToString )
 
 constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
     {
@@ -317,22 +341,22 @@ constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
         JS_PS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveXObject_Constructor, ActiveXObject::Constructor )
+MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveXObject_Constructor, JsActiveXObject::Constructor )
 
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass ActiveXObject::JsClass = jsClass;
-const JSFunctionSpec* ActiveXObject::JsFunctions = jsFunctions.data();
-const JSFunctionSpec* ActiveXObject::JsStaticFunctions = jsStaticFunctions.data();
-const JSPropertySpec* ActiveXObject::JsProperties = jsProperties.data();
-const JsPrototypeId ActiveXObject::PrototypeId = JsPrototypeId::ActiveX;
-const JSNative ActiveXObject::JsConstructor = ::ActiveXObject_Constructor;
-const js::BaseProxyHandler& ActiveXObject::JsProxy = ActiveXObjectProxyHandler::singleton;
+const JSClass JsActiveXObject::JsClass = jsClass;
+const JSFunctionSpec* JsActiveXObject::JsFunctions = jsFunctions.data();
+const JSFunctionSpec* JsActiveXObject::JsStaticFunctions = jsStaticFunctions.data();
+const JSPropertySpec* JsActiveXObject::JsProperties = jsProperties.data();
+const JsPrototypeId JsActiveXObject::PrototypeId = JsPrototypeId::ActiveX;
+const JSNative JsActiveXObject::JsConstructor = ::ActiveXObject_Constructor;
+const js::BaseProxyHandler& JsActiveXObject::JsProxy = ActiveXObjectProxyHandler::singleton;
 
-ActiveXObject::ActiveXObject( JSContext* cx, VARIANTARG& var )
+JsActiveXObject::JsActiveXObject( JSContext* cx, VARIANTARG& var )
     : pJsCtx_( cx )
 {
     HRESULT hr = VariantCopyInd( &variant_, &var );
@@ -344,7 +368,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, VARIANTARG& var )
     hasVariant_ = true;
 }
 
-ActiveXObject::ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
+JsActiveXObject::JsActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
     : pJsCtx_( cx )
     , pDispatch_( pDispatch )
 {
@@ -366,7 +390,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
     }
 }
 
-ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
+JsActiveXObject::JsActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
     : pJsCtx_( cx )
     , pUnknown_( pUnknown )
 {
@@ -395,7 +419,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
     }
 }
 
-ActiveXObject::ActiveXObject( JSContext* cx, CLSID& clsid )
+JsActiveXObject::JsActiveXObject( JSContext* cx, CLSID& clsid )
     : pJsCtx_( cx )
 {
     HRESULT hresult = CoCreateInstance( clsid, nullptr, CLSCTX_INPROC_SERVER, IID_IUnknown, reinterpret_cast<void**>( &pUnknown_ ) );
@@ -422,7 +446,7 @@ ActiveXObject::ActiveXObject( JSContext* cx, CLSID& clsid )
     }
 }
 
-ActiveXObject::~ActiveXObject()
+JsActiveXObject::~JsActiveXObject()
 {
     smp::ComMessageScope cms;
 
@@ -449,7 +473,7 @@ ActiveXObject::~ActiveXObject()
     CoFreeUnusedLibraries();
 }
 
-std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const std::wstring& name )
+std::unique_ptr<JsActiveXObject> JsActiveXObject::CreateNative( JSContext* cx, const std::wstring& name )
 {
     CLSID clsid;
     HRESULT hresult = ( name[0] == L'{' )
@@ -457,42 +481,42 @@ std::unique_ptr<ActiveXObject> ActiveXObject::CreateNative( JSContext* cx, const
                           : CLSIDFromProgID( name.c_str(), &clsid );
     qwr::QwrException::ExpectTrue( SUCCEEDED( hresult ), L"Invalid CLSID: {}", name );
 
-    std::unique_ptr<ActiveXObject> nativeObject;
+    std::unique_ptr<JsActiveXObject> nativeObject;
     IUnknown* unk = nullptr;
     hresult = GetActiveObject( clsid, nullptr, &unk );
     if ( SUCCEEDED( hresult ) && unk )
     {
-        nativeObject = std::make_unique<ActiveXObject>( cx, unk );
+        nativeObject = std::make_unique<JsActiveXObject>( cx, unk );
         qwr::QwrException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via IUnknown: {}", name );
     }
 
     if ( !nativeObject )
     {
-        nativeObject = std::make_unique<ActiveXObject>( cx, clsid );
+        nativeObject = std::make_unique<JsActiveXObject>( cx, clsid );
         qwr::QwrException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via CLSID: {}", name );
     }
 
     return nativeObject;
 }
 
-size_t ActiveXObject::GetInternalSize( const std::wstring& /*name*/ )
+size_t JsActiveXObject::GetInternalSize( const std::wstring& /*name*/ )
 {
     return 0;
 }
 
-void ActiveXObject::PostCreate( JSContext* cx, JS::HandleObject self )
+void JsActiveXObject::PostCreate( JSContext* cx, JS::HandleObject self )
 {
-    auto pNative = static_cast<ActiveXObject*>( JS_GetInstancePrivate( cx, self, &ActiveXObject::JsClass, nullptr ) );
+    auto pNative = static_cast<JsActiveXObject*>( JS_GetInstancePrivate( cx, self, &JsActiveXObject::JsClass, nullptr ) );
     assert( pNative );
     return pNative->SetupMembers( self );
 }
 
-JSObject* ActiveXObject::Constructor( JSContext* cx, const std::wstring& name )
+JSObject* JsActiveXObject::Constructor( JSContext* cx, const std::wstring& name )
 {
-    return ActiveXObject::CreateJs( cx, name );
+    return JsActiveXObject::CreateJs( cx, name );
 }
 
-JSObject* ActiveXObject::CreateFromArray( JSContext* cx, JS::HandleValue arr, uint32_t elementVariantType )
+JSObject* JsActiveXObject::CreateFromArray( JSContext* cx, JS::HandleValue arr, uint32_t elementVariantType )
 {
     JS::RootedObject jsObjectIn( cx, arr.toObjectOrNull() );
     qwr::QwrException::ExpectTrue( jsObjectIn, "Value is not a JS object" );
@@ -507,14 +531,33 @@ JSObject* ActiveXObject::CreateFromArray( JSContext* cx, JS::HandleValue arr, ui
     _variant_t var;
     convert::com::JsArrayToVariantArray( cx, jsObjectIn, elementVariantType, var );
 
-    std::unique_ptr<ActiveXObject> x( new ActiveXObject( cx, var ) );
-    JS::RootedObject jsObject( cx, ActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
+    std::unique_ptr<JsActiveXObject> x( new JsActiveXObject( cx, var ) );
+    JS::RootedObject jsObject( cx, JsActiveXObject::CreateJsFromNative( cx, std::move( x ) ) );
     assert( jsObject );
 
     return jsObject;
 }
 
-std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool reportError )
+std::wstring JsActiveXObject::ToString()
+{
+    JS::RootedValue jsValue( pJsCtx_ );
+    auto dispRet = GetDispId( L"toString", false );
+    TryGetProperty( ( dispRet ? L"toString" : L"" ), &jsValue );
+
+    return convert::to_native::ToValue<std::wstring>( pJsCtx_, jsValue );
+}
+
+JSObject* JsActiveXObject::CreateNewIterator()
+{
+    return JsActiveXObject_Iterator::CreateJs( pJsCtx_, *this );
+}
+
+bool JsActiveXObject::HasIterator() const
+{
+    return JsActiveXObject_Iterator::IsIterable( *this );
+}
+
+std::optional<DISPID> JsActiveXObject::GetDispId( const std::wstring& name, bool reportError )
 {
     if ( !pDispatch_ )
     {
@@ -569,7 +612,7 @@ std::optional<DISPID> ActiveXObject::GetDispId( const std::wstring& name, bool r
     return dispId;
 }
 
-void ActiveXObject::GetImpl( int dispId, nonstd::span<_variant_t> args, JS::MutableHandleValue vp, std::optional<std::function<void()>> refreshFn )
+void JsActiveXObject::GetImpl( int dispId, nonstd::span<_variant_t> args, JS::MutableHandleValue vp, std::optional<std::function<void()>> refreshFn )
 {
     DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
     if ( !args.empty() )
@@ -605,27 +648,27 @@ void ActiveXObject::GetImpl( int dispId, nonstd::span<_variant_t> args, JS::Muta
     convert::com::VariantToJs( pJsCtx_, varResult, vp );
 }
 
-bool ActiveXObject::Has( const std::wstring& name )
+bool JsActiveXObject::Has( const std::wstring& name )
 {
     return members_.count( name );
 }
 
-bool ActiveXObject::IsGet( const std::wstring& name )
+bool JsActiveXObject::IsGet( const std::wstring& name )
 {
     return members_.count( name ) && members_[name]->isGet;
 }
 
-bool ActiveXObject::IsSet( const std::wstring& name )
+bool JsActiveXObject::IsSet( const std::wstring& name )
 {
     return members_.count( name ) && ( members_[name]->isPut || members_[name]->isPutRef );
 }
 
-bool ActiveXObject::IsInvoke( const std::wstring& name )
+bool JsActiveXObject::IsInvoke( const std::wstring& name )
 {
     return members_.count( name ) && members_[name]->isInvoke;
 }
 
-std::vector<std::wstring> ActiveXObject::GetAllMembers()
+std::vector<std::wstring> JsActiveXObject::GetAllMembers()
 {
     std::vector<std::wstring> memberList;
     for ( const auto& member: members_ )
@@ -635,16 +678,7 @@ std::vector<std::wstring> ActiveXObject::GetAllMembers()
     return memberList;
 }
 
-std::wstring ActiveXObject::ToString()
-{
-    JS::RootedValue jsValue( pJsCtx_ );
-    auto dispRet = GetDispId( L"toString", false );
-    TryGetProperty( ( dispRet ? L"toString" : L"" ), &jsValue );
-
-    return convert::to_native::ToValue<std::wstring>( pJsCtx_, jsValue );
-}
-
-void ActiveXObject::GetItem( int32_t index, JS::MutableHandleValue vp )
+void JsActiveXObject::GetItem( int32_t index, JS::MutableHandleValue vp )
 {
     qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
@@ -655,7 +689,7 @@ void ActiveXObject::GetItem( int32_t index, JS::MutableHandleValue vp )
     GetImpl( *dispRet, args, vp );
 }
 
-bool ActiveXObject::TryGetProperty( const std::wstring& propName, JS::MutableHandleValue vp )
+bool JsActiveXObject::TryGetProperty( const std::wstring& propName, JS::MutableHandleValue vp )
 {
     qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
@@ -669,7 +703,7 @@ bool ActiveXObject::TryGetProperty( const std::wstring& propName, JS::MutableHan
     return true;
 }
 
-void ActiveXObject::GetProperty( const std::wstring& propName, JS::MutableHandleValue vp )
+void JsActiveXObject::GetProperty( const std::wstring& propName, JS::MutableHandleValue vp )
 {
     if ( !TryGetProperty( propName, vp ) )
     {
@@ -677,7 +711,7 @@ void ActiveXObject::GetProperty( const std::wstring& propName, JS::MutableHandle
     }
 }
 
-void ActiveXObject::Get( JS::CallArgs& callArgs )
+void JsActiveXObject::Get( JS::CallArgs& callArgs )
 {
     qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
     qwr::QwrException::ExpectTrue( callArgs.length(), "Property name is missing" );
@@ -704,7 +738,7 @@ void ActiveXObject::Get( JS::CallArgs& callArgs )
     GetImpl( *dispRet, args, callArgs.rval(), refreshValues );
 }
 
-void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
+void JsActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 {
     qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
@@ -744,7 +778,7 @@ void ActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
     }
 }
 
-void ActiveXObject::Set( const JS::CallArgs& callArgs )
+void JsActiveXObject::Set( const JS::CallArgs& callArgs )
 {
     qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
     qwr::QwrException::ExpectTrue( callArgs.length(), "Property name is missing" );
@@ -800,7 +834,7 @@ void ActiveXObject::Set( const JS::CallArgs& callArgs )
     }
 }
 
-void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& callArgs )
+void JsActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& callArgs )
 {
     qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
 
@@ -848,7 +882,7 @@ void ActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& ca
     convert::com::VariantToJs( pJsCtx_, varResult, callArgs.rval() );
 }
 
-void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
+void JsActiveXObject::SetupMembers( JS::HandleObject jsObject )
 {
     if ( areMembersSetup_ )
     {
@@ -884,7 +918,7 @@ void ActiveXObject::SetupMembers( JS::HandleObject jsObject )
     areMembersSetup_ = true;
 }
 
-void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo, MemberMap& members )
+void JsActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo, MemberMap& members )
 {
     ParseTypeInfo( pTypeInfo, members );
 
@@ -928,7 +962,7 @@ void ActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInfo,
     }
 }
 
-void ActiveXObject::ParseTypeInfo( ITypeInfo* pTypeInfo, MemberMap& members )
+void JsActiveXObject::ParseTypeInfo( ITypeInfo* pTypeInfo, MemberMap& members )
 {
     VARDESC* vardesc;
     for ( size_t i = 0; pTypeInfo->GetVarDesc( i, &vardesc ) == S_OK; ++i )
@@ -983,7 +1017,7 @@ void ActiveXObject::ParseTypeInfo( ITypeInfo* pTypeInfo, MemberMap& members )
     }
 }
 
-void ActiveXObject::SetupMembers_Impl( JS::HandleObject jsObject )
+void JsActiveXObject::SetupMembers_Impl( JS::HandleObject jsObject )
 {
     for ( const auto& [name, member]: members_ )
     {

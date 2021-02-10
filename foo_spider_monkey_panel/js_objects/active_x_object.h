@@ -15,8 +15,8 @@ namespace mozjs
 {
 
 /// @details Takes ownership, calls Release() at the end
-class ActiveXObject
-    : public JsObjectBase<ActiveXObject>
+class JsActiveXObject
+    : public JsObjectBase<JsActiveXObject>
 {
 public:
     static constexpr bool HasProto = true;
@@ -34,30 +34,33 @@ public:
     static const js::BaseProxyHandler& JsProxy;
 
 public:
-    ActiveXObject( JSContext* cx, CLSID& clsid );
-    ActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref = false );
-    ActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref = false );
-    ActiveXObject( JSContext* cx, VARIANTARG& var );
-    ~ActiveXObject() override;
+    JsActiveXObject( JSContext* cx, CLSID& clsid );
+    JsActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref = false );
+    JsActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref = false );
+    JsActiveXObject( JSContext* cx, VARIANTARG& var );
+    ~JsActiveXObject() override;
 
-    ActiveXObject( const ActiveXObject& ) = delete;
-    ActiveXObject& operator=( const ActiveXObject& ) = delete;
+    JsActiveXObject( const JsActiveXObject& ) = delete;
+    JsActiveXObject& operator=( const JsActiveXObject& ) = delete;
 
-    static std::unique_ptr<ActiveXObject> CreateNative( JSContext* cx, const std::wstring& name );
+    static std::unique_ptr<JsActiveXObject> CreateNative( JSContext* cx, const std::wstring& name );
     static size_t GetInternalSize( const std::wstring& name );
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
 public:
     static JSObject* Constructor( JSContext* cx, const std::wstring& name );
     static JSObject* CreateFromArray( JSContext* cx, JS::HandleValue arr, uint32_t elementVariantType );
+    std::wstring ToString();
+
+public:
+    JSObject* CreateNewIterator();
+    bool HasIterator() const;
 
     bool Has( const std::wstring& name );
     bool IsGet( const std::wstring& name );
     bool IsSet( const std::wstring& name );
     bool IsInvoke( const std::wstring& name );
     std::vector<std::wstring> GetAllMembers();
-
-    std::wstring ToString();
 
     void GetItem( int32_t index, JS::MutableHandleValue vp );
     bool TryGetProperty( const std::wstring& propName, JS::MutableHandleValue vp );

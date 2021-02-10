@@ -38,12 +38,44 @@ std::optional<T> GetOptionalProperty( JSContext* cx, JS::HandleObject jsObject, 
 template <typename T>
 void AddProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& propName, const T& propValue )
 {
-    JS::RootedValue jsProperty( cx );
-    convert::to_js::ToValue( cx, propValue, &jsProperty );
-
-    if ( !JS_DefineProperty( cx, jsObject, propName.c_str(), jsProperty, kDefaultPropsFlags ) )
+    if constexpr ( std::is_same_v<T, JS::RootedValue> )
     {
-        throw smp::JsException();
+        if ( !JS_DefineProperty( cx, jsObject, propName.c_str(), propValue, kDefaultPropsFlags ) )
+        {
+            throw smp::JsException();
+        }
+    }
+    else
+    {
+        JS::RootedValue jsProperty( cx );
+        convert::to_js::ToValue( cx, propValue, &jsProperty );
+
+        if ( !JS_DefineProperty( cx, jsObject, propName.c_str(), jsProperty, kDefaultPropsFlags ) )
+        {
+            throw smp::JsException();
+        }
+    }
+};
+
+template <typename T>
+void SetProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& propName, const T& propValue )
+{
+    if constexpr ( std::is_same_v<T, JS::RootedValue> )
+    {
+        if ( !JS_SetProperty( cx, jsObject, propName.c_str(), propValue ) )
+        {
+            throw smp::JsException();
+        }
+    }
+    else
+    {
+        JS::RootedValue jsProperty( cx );
+        convert::to_js::ToValue( cx, propValue, &jsProperty );
+
+        if ( !JS_SetProperty( cx, jsObject, propName.c_str(), jsProperty ) )
+        {
+            throw smp::JsException();
+        }
     }
 };
 

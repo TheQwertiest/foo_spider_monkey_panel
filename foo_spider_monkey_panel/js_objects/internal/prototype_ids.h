@@ -8,6 +8,7 @@ namespace mozjs
 enum class JsPrototypeId : uint32_t
 {
     ActiveX,
+    ActiveX_Iterator,
     ContextMenuManager,
     DropSourceAction,
     Enumerator,

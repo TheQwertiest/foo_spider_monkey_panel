@@ -12,8 +12,6 @@
 
 #include <qwr/winapi_error_helpers.h>
 
-// TODO: add font caching
-
 namespace
 {
 
@@ -83,7 +81,16 @@ JsEnumerator::CreateNative( JSContext* cx, IUnknown* pUnknown )
     assert( pUnknown );
 
     CDispatchPtr pCollection( pUnknown );
-    EnumVARIANTComPtr pEnum( pCollection.Get( static_cast<DISPID>( DISPID_NEWENUM ) ) );
+    auto pEnum = [&] {
+        try
+        {
+            return EnumVARIANTComPtr( pCollection.Get( static_cast<DISPID>( DISPID_NEWENUM ) ) );
+        }
+        catch ( const _com_error& )
+        {
+            throw qwr::QwrException( "Object is not enumerable" );
+        }
+    }();
 
     auto pNative = std::unique_ptr<JsEnumerator>( new JsEnumerator( cx, pEnum ) );
     pNative->LoadCurrentElement();
@@ -96,7 +103,7 @@ size_t JsEnumerator::GetInternalSize( IUnknown* /*pUnknown*/ )
     return 0;
 }
 
-JSObject* JsEnumerator::Constructor( JSContext* cx, ActiveXObject* pActiveXObject )
+JSObject* JsEnumerator::Constructor( JSContext* cx, JsActiveXObject* pActiveXObject )
 {
     return JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) );
 }
