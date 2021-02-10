@@ -85,15 +85,16 @@ LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
             pOleInPlaceHandler_ = pBrowser;
         }
 
-        if ( const std::wstring filePrefix = L"file://";
-             htmlCodeOrPath_.length() > filePrefix.length()
-             && !wmemcmp( htmlCodeOrPath_.c_str(), filePrefix.c_str(), filePrefix.length() ) )
+        if ( static_cast<std::wstring_view>( htmlCodeOrPath_ )._Starts_with( L"file://" ) )
         {
             hr = pBrowser->Navigate( _bstr_t( htmlCodeOrPath_.c_str() ), &v, &v, &v, &v );
             qwr::error::CheckHR( hr, "Navigate" );
         }
         else
         {
+            hr = pDocument->put_designMode( _bstr_t( L"on" ) );
+            qwr::error::CheckHR( hr, "put_designMode" );
+
             SAFEARRAY* pSaStrings = SafeArrayCreateVector( VT_VARIANT, 0, 1 );
             qwr::final_action autoPsa( [pSaStrings]() {
                 SafeArrayDestroy( pSaStrings );
@@ -111,6 +112,9 @@ LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
 
             hr = pDocument->write( pSaStrings );
             qwr::error::CheckHR( hr, "write" );
+
+            hr = pDocument->put_designMode( _bstr_t( L"off" ) );
+            qwr::error::CheckHR( hr, "put_designMode" );
 
             hr = pDocument->close();
             qwr::error::CheckHR( hr, "close" );
