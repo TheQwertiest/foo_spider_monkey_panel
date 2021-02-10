@@ -15,6 +15,7 @@ enum class JsPrototypeId : uint32_t
     FbFileInfo,
     FbMetadbHandle,
     FbMetadbHandleList,
+    FbMetadbHandleList_Iterator,
     FbPlaybackQueueItem,
     FbPlayingItemLocation,
     FbProfiler,

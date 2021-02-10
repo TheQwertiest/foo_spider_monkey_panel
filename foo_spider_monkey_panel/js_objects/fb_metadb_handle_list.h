@@ -90,6 +90,8 @@ public: // methods
     void Sort();
     void UpdateFileInfoFromJSON( const std::u8string& str );
 
+    JSObject* CreateIterator();
+
 public: // props
     uint32_t get_Count();
     JSObject* get_Item( uint32_t index );

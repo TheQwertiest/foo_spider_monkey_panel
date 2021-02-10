@@ -60,22 +60,12 @@ void AddProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& p
 template <typename T>
 void SetProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& propName, const T& propValue )
 {
-    if constexpr ( std::is_same_v<T, JS::RootedValue> )
-    {
-        if ( !JS_SetProperty( cx, jsObject, propName.c_str(), propValue ) )
-        {
-            throw smp::JsException();
-        }
-    }
-    else
-    {
-        JS::RootedValue jsProperty( cx );
-        convert::to_js::ToValue( cx, propValue, &jsProperty );
+    JS::RootedValue jsProperty( cx );
+    convert::to_js::ToValue( cx, propValue, &jsProperty );
 
-        if ( !JS_SetProperty( cx, jsObject, propName.c_str(), jsProperty ) )
-        {
-            throw smp::JsException();
-        }
+    if ( !JS_SetProperty( cx, jsObject, propName.c_str(), jsProperty ) )
+    {
+        throw smp::JsException();
     }
 };
 
