@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.4.0](#140---2021-02-11)
 - [1.3.1](#131---2020-07-18)
 - [1.3.0](#130---2020-07-10)
 - [1.2.3](#123---2020-01-04)
@@ -24,6 +25,8 @@
 ___
 
 ## [Unreleased][]
+
+## [1.4.0][] - 2021-02-11
 ### Added
 - Added a brand new `Configure` dialog!
 - Added more ways to consume scripts:
@@ -359,7 +362,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.3.1...HEAD
+[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.3...v1.3.0
 [1.2.3]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.2-preview...v1.2.3

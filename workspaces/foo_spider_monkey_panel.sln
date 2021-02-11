@@ -25,6 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{544844FF-3
 		..\LICENSE = ..\LICENSE
 		..\README.md = ..\README.md
 		..\THIRD_PARTY_NOTICES.md = ..\THIRD_PARTY_NOTICES.md
+		..\VERSION = ..\VERSION
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "js_docs", "js_docs", "{324E062D-0AF2-42F1-874B-82CE61D9B2FD}"
@@ -130,7 +131,7 @@ Global
 		{1B0654F2-3FEC-43B8-8C0A-6206C64BD6B2} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionNewStyle = 1
 		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
+		SolutionNewStyle = 1
 	EndGlobalSection
 EndGlobal
