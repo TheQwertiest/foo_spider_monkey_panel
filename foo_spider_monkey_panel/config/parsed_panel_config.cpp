@@ -167,6 +167,11 @@ config::PanelSettings_InMemory GetPayload_InMemory( const config::ParsedPanelSet
 namespace smp::config
 {
 
+ParsedPanelSettings ParsedPanelSettings::GetDefault()
+{
+    return Parse( PanelSettings{} );
+}
+
 ParsedPanelSettings ParsedPanelSettings::Parse( const PanelSettings& settings )
 {
     ParsedPanelSettings parsedSettings;
@@ -244,11 +249,6 @@ PanelSettings ParsedPanelSettings::GeneratePanelSettings() const
     }();
 
     return settings;
-}
-
-ParsedPanelSettings ParsedPanelSettings::GetDefault()
-{
-    return Parse( PanelSettings{} );
 }
 
 ScriptSourceType ParsedPanelSettings::GetSourceType() const

@@ -101,6 +101,9 @@ void CDialogConf::Apply( bool savePackageData )
 
     OnDataChangedImpl( false );
 
+    DoFullDdxToUi();
+    DisablePanelNameControls();
+
     if ( savePackageData )
     {
         try
@@ -190,7 +193,10 @@ void CDialogConf::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
         return;
     }
 
-    panelNameDdx_->ReadFromUi();
+    if ( nID == IDC_EDIT_PANEL_NAME )
+    {
+        panelNameDdx_->ReadFromUi();
+    }
     OnDataChanged();
 }
 

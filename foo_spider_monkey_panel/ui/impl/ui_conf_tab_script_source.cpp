@@ -54,6 +54,14 @@ std::vector<CConfigTabScriptSource::SampleComboBoxElem> GetSampleFileData()
     }
 }
 
+void UpdateOnSrcChange( config::ParsedPanelSettings& settings, const config::ParsedPanelSettings& newSettings )
+{
+    // panel id is persistent across src changes
+    const auto oldPanelId = settings.panelId;
+    settings = newSettings;
+    settings.panelId = oldPanelId;
+}
+
 } // namespace
 
 namespace smp::ui
@@ -212,7 +220,7 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
         newSettings.payload = *newPayloadOpt;
         try
         {
-            settings_ = config::ParsedPanelSettings::Parse( newSettings );
+            UpdateOnSrcChange( settings_, config::ParsedPanelSettings::Parse( newSettings ) );
 
             DoButtonsDdxToUi();
             DoFullDdxToUi();
@@ -262,7 +270,7 @@ void CConfigTabScriptSource::OnBrowseFile( UINT uNotifyCode, int nID, CWindow wn
     config::PanelSettings newSettings;
     newSettings.payload = config::PanelSettings_File{ path_ };
 
-    settings_ = config::ParsedPanelSettings::Parse( newSettings );
+    UpdateOnSrcChange( settings_, config::ParsedPanelSettings::Parse( newSettings ) );
 
     DoFullDdxToUi();
     DoButtonsDdxToUi();
@@ -300,7 +308,7 @@ void CConfigTabScriptSource::OnOpenPackageManager( UINT uNotifyCode, int nID, CW
     }
 
     packageName_ = parsedSettingsOpt->scriptName;
-    settings_ = *parsedSettingsOpt;
+    UpdateOnSrcChange( settings_, *parsedSettingsOpt );
 
     DoFullDdxToUi();
     DoButtonsDdxToUi();
@@ -441,7 +449,7 @@ void CConfigTabScriptSource::InitializeLocalOptions()
         if ( it == sampleData_.cend() )
         {
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't find sample `{}`. Your settings will be reset.", qwr::unicode::ToU8( sampleName ) ) );
-            settings_ = smp::config::ParsedPanelSettings::GetDefault();
+            UpdateOnSrcChange( settings_, smp::config::ParsedPanelSettings::GetDefault() );
             return 0;
         }
 

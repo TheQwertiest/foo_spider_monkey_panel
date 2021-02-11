@@ -35,12 +35,12 @@ struct ParsedPanelSettings
     bool shouldGrabFocus = true;
     bool enableDragDrop = false;
 
+    static [[nodiscard]] ParsedPanelSettings GetDefault();
+
     /// @throw qwr::QwrException
     [[nodiscard]] static ParsedPanelSettings Parse( const PanelSettings& settings );
     /// @throw qwr::QwrException
     [[nodiscard]] static ParsedPanelSettings Reparse( const ParsedPanelSettings& parsedSettings );
-
-    static [[nodiscard]] ParsedPanelSettings GetDefault();
 
     [[nodiscard]] PanelSettings GeneratePanelSettings() const;
 
