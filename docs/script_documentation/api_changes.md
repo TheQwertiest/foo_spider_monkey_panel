@@ -24,6 +24,49 @@ Legend:
 ___
 
 
+## v1.4.0
+
+### Added
+- Added iterator protocol support to `FbMetadbHandleList`: see <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Iteration_protocols> for more info.
+- Added iterator protocol support to enumerable `ActiveXObject` objects.
+- Added `type` argument to `FbUiSelectionHolder.SetSelection()`. Where `type` can be one of the following values:
+  - 0: undefined (no item), default value.
+  - 1: active_playlist_selection.
+  - 2: caller_active_playlist.
+  - 3: playlist_manager.
+  - 4: now_playing.
+  - 5: keyboard_shortcut_list.
+  - 6: media_library_viewer.
+- Added `fb.Version` property: returns foobar2000 version as a string, e.g. `1.4.1`.
+- Added `utils.DetectCharset(path)` method. Does the same thing as `utils.FileTest(path, 'chardet')`.
+- Added `utils.EditTextFile(path)` method. It uses the same editor as the one that is set for editing scripts in `window.ShowConfigureV2()`.
+- Added `utils.FileExists(path)` method. Does the same thing as `utils.FileTest(path, 'e')`.
+- Added `utils.GetFileSize(path)` method. Does the same thing as `utils.FileTest(path, 's')`.
+- Added `utils.GetPackagePath(package_id)` method. Package id can be retrieved from `window.ScriptInfo` (only if the panel actually uses script package).
+- Added `utils.IsDirectory(path)` method. Does the same thing as `utils.FileTest(path, 'd')`.
+- Added `utils.IsFile(path)` method.
+- Added `utils.SplitFilePath(path)` method. Does the same thing as `utils.FileTest(path, 'split')`.
+- Added `window.DefineScript(script_name, { author: author_name, version: version_string, features: {drag_n_drop: boolean, grab_focus: boolean} })` method.
+  - `grab_focus` has the same behaviour as the checkbox in the old `window.Configure()` dialog, i.e. if true, grabs user input when mouse is over the panel. `true` by default.
+- Added `window.EditScript()` method. Uses editor that is set in `window.ShowConfigureV2()`. By default works the same as the old `window.Configure()` dialog.
+- Added `window.ShowConfigureV2()` method. This dialog contains only various panel settings. Script editing is now invoked via `Edit` buttons or  `window.EditScript()`.
+- Added `window.JsMemoryStats` property. 
+  - 'memory_usage': same values as `window.PanelMemoryUsage`.
+  - 'total_memory_usage': same values as `window.TotalMemoryUsage`.
+  - 'total_memory_limit': same values as `window.MemoryLimit`.
+- Added `window.ScriptInfo` property. 
+  Contains all the info about the script that was either set up with `window.DefineScript()` or was defined in script package.
+
+### Changed 
+- `utils.FileTest()` is marked as **\[Deprecated]**. Use new corresponding methods instead.
+- `window.ID` is now optional and unused in all methods that required it.
+- `window.DefinePanel()` is marked as **\[Deprecated]**.
+  Use `window.DefineScript()` instead.
+  Note: to retain backward compatibility this method sets *both* script name and panel name.
+- `window.MemoryLimit`, `window.PanelMemoryUsage` and `window.TotalMemoryUsage` are marked as **\[Deprecated]**. Use `window.JsMemoryStats` instead.
+- `window.Name` now returns panel name instead of script name. Use `window.ScriptInfo.Name` to retrieve script name.
+- `window.ShowConfigure()` is marked as **\[Deprecated]**. Use `window.ShowConfigureV2()` to configure panel and `window.EditScript` to edit script.
+
 ## v1.3.0
 
 #### Added
@@ -141,7 +184,7 @@ Note: despite changing scripting engine to `SpiderMonkey`, the file-system and w
 - All methods that returned `VBArray` before return a proper JS array now.
 - `FbMetadbHandleList` items now can be accessed with [ ] operator.
 - Added global `include('path/to/script.js')` method.  
-  This method is like `eval(ReadFile('path/to/script.js'))`, but provides better error reporting and might have more features in the future (e.g. script caching; one time include only aka include guard).
+  This method is like `eval(ReadFile('path/to/script.js'))`, but provides better error reporting and might have more features in the future (like script caching or include guards).
 - Added `window.DefinePanel()` method.  
   A replacement for the old `==PREPROCESSOR==` header.  
   `window.DefinePanel(panel_name, { author: author_name, version: version_string, features: {drag_n_drop: boolean} } )`.  
@@ -154,13 +197,13 @@ Note: despite changing scripting engine to `SpiderMonkey`, the file-system and w
 | Change | Reason | Workaround |
 | ------------- | -------------| ----- |
 | Dropped support for Windows XP/Vista (Windows 7 is the minimum requirement) | SpiderMonkey engine and CUI SDK require Windows 7 or higher | Use [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel) or upgrade your OS |
-| All methods and properties are case-sensitive | Required by ECMAScript standard | Fix the wrong case :) |
-| Removed `Dispose()` | Not needed anymore: JS GC destroys those by itself now when corresponding reference count is zero | Remove those methods and assign `null` or `undefined` to variables if needed |
+| All methods and properties are case-sensitive | Required by ECMAScript standard | Fix the wrong casing :) |
+| Removed `Dispose()` | Not needed anymore: JS GC destroys all objects by itself when corresponding reference count is zero | Remove those methods and assign `null` or `undefined` to variables if needed |
 | Removed `toArray()` | Not needed anymore: all corresponding methods return a proper JS array now | Remove those methods |
 | Removed `FbMetadbHandleList.Item()` | Not needed anymore: `FbMetadbHandleList` has proper array accessors now | Replace `.Item(i)` with `[i]` |
-| Changed `utils.Version` return type: returns `string` instead of `number` | Component uses [semantic versioning](https://semver.org/), which  requires string representation | Remove all version checks - the versioning is different from JSP anyway | 
+| Changed `utils.Version` return type: returns `string` instead of `number` | Component uses [semantic versioning](https://semver.org/), which requires string representation | Remove all version checks - the versioning is different from JSP anyway | 
 | New limitations imposed on `on_notify_data` callback regarding `data` argument(see [docs][callbacks_js]) | Limitations are brought by the JS engine | Don't modify `data` and make a deep clone when storing it |
-| Removed old `==PREPROCESSOR==` panel header support | Old header could only be used in the main configure panel and was not a proper JS method | Replace with the following:<br>`window.DefinePanel('Panel Name', { author: 'Author', version: 'Version', features: {drag_n_drop: true\|false}} );` |
+| Removed old `==PREPROCESSOR==` panel header support | Old header could only be used in the main configure panel and was not a proper JS method | Replace with the following:<br>`window.DefinePanel('Panel Name', { author: 'Author', version: 'Version', features: {drag_n_drop: true|false}} );` |
 | Most methods have much stricter error checks | Before, methods could fail silently without doing anything, which made diagnosing errors unnecessary hard | Fix incorrect calls and arguments |
 
 [callbacks_js]: https://github.com/TheQwertiest/foo_spider_monkey_panel/blob/master/component/docs/Callbacks.js

@@ -65,14 +65,16 @@ ___
 - API changes:
   - `utils.FileTest()` is marked as **\[Deprecated]**. Use new corresponding methods instead.
   - `window.ID` is now optional and unused in all methods that required it.
-  - `window.Name` now returns panel name instead of script name. Use `window.ScriptInfo.Name` to retrieve script name.
   - `window.DefinePanel()` is marked as **\[Deprecated]**. Use `window.DefineScript()` instead.
   - `window.MemoryLimit`, `window.PanelMemoryUsage` and `window.TotalMemoryUsage` are marked as **\[Deprecated]**. Use `window.JsMemoryStats` instead.
+  - `window.Name` now returns panel name instead of script name. Use `window.ScriptInfo.Name` to retrieve script name.
+  - `window.ShowConfigure()` is marked as **\[Deprecated]**. Use `window.ShowConfigureV2()` to configure panel and `window.EditScript` to edit script.
 
 ### Fixed
 - Fixed component crash when passing objects to `console.log()`.
 - Fixed component crash when there is a stack overflow in JS.
 - Fixed the weird image offset when using `fb.DoDragDrop()` with custom image and theming disabled.
+- Fixed `utils.ShowHtmlDialog()` not applying IE mode, when HTML code is passed directly to the method.
 - Various `ActiveXObject` fixes:
   - Errors in callbacks passed to `ActiveXObject` objects and methods are now properly propagated to the script. 
   - Fixed inability to use subscripts with some `ActiveXObject` objects.

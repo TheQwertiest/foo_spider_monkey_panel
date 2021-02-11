@@ -62,7 +62,7 @@ Or just use the [Migration Guide](guides/jsp_to_smp_migration_guide.md) to make 
 [Changelog][changelog]  
 [Detailed list of API Changes][api_changes]  
 [Current tasks and plans][todo]  
-[Nightly build](https://ci.appveyor.com/api/projects/theqwertiest/foo-spider-monkey-panel/artifacts/_result%2FWin32_Release%2Ffoo_spider_monkey_panel.fb2k-component?branch=master&job=Configuration%3A%20Release)
+[Dev build](https://ci.appveyor.com/api/projects/theqwertiest/foo-spider-monkey-panel/artifacts/_result%2FWin32_Release%2Ffoo_spider_monkey_panel.fb2k-component?branch=master&job=Configuration%3A%20Release)
 
 ## Credits
 - [marc2003](https://github.com/marc2k3): original [foo_jscript_panel](https://github.com/marc2k3/foo_jscript_panel), [sample scripts](https://github.com/TheQwertiest/smp_2003) and multiple contributions to this project.
