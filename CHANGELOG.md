@@ -38,10 +38,17 @@ ___
 - Default script editor can be changed now via drop-down menu of `Edit` button in `Configure` dialog.
 - Added a link to component docs to foobar2000 `Help` main menu.
 - API changes:
+  - Added iterator protocol support to `FbMetadbHandleList`.
   - Added `type` argument to `FbUiSelectionHolder.SetSelection()`.
   - Added `fb.Version` property.
+  - Added `utils.DetectCharset()` method.
   - Added `utils.EditTextFile()` method.
+  - Added `utils.FileExists()` method.
+  - Added `utils.GetFileSize()` method.
   - Added `utils.GetPackagePath()` method.
+  - Added `utils.IsDirectory()` method.
+  - Added `utils.IsFile()` method.
+  - Added `utils.SplitFilePath()` method.
   - Added `window.DefineScript()` method.
   - Added `window.EditScript()` method.
   - Added `window.ShowConfigureV2()` method.
@@ -53,6 +60,7 @@ ___
 - `Grab focus` is now a script property and is defined via `window.DefineScript()`.
 - Extracted `Edge style` and `Pseudo-transparency` options to a separate tab of `Configure` dialog.
 - API changes:
+  - `utils.FileTest()` is marked as **\[Deprecated]**. Use new corresponding methods instead.
   - `window.ID` is now optional and unused in all methods that required it.
   - `window.Name` now returns panel name instead of script name. Use `window.ScriptInfo.Name` to retrieve script name.
   - `window.DefinePanel()` is marked as **\[Deprecated]**. Use `window.DefineScript()` instead.
@@ -60,10 +68,12 @@ ___
 
 ### Fixed
 - Fixed component crash when passing objects to `console.log()`.
+- Fixed component crash when there is a stack overflow in JS.
 - Fixed the weird image offset when using `fb.DoDragDrop()` with custom image and theming disabled.
-- Errors in callbacks passed to `ActiveXObject` are now properly propagated to the script. 
-- Fixed inability to use subscripts with some `ActiveXObject`.
-- `Enumerator` now accepts all `ActiveXObject` that can be treated as collections.
+- Various `ActiveXObject` fixes:
+  - Errors in callbacks passed to `ActiveXObject` objects and methods are now properly propagated to the script. 
+  - Fixed inability to use subscripts with some `ActiveXObject` objects.
+  - Added iterator protocol support to enumerable `ActiveXObject` objects.
 - Fixed various errors in `complete` samples (by marc2003).
 
 ## [1.3.1][] - 2020-07-18
