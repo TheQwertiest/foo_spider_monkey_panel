@@ -28,6 +28,9 @@ namespace
 constexpr uint32_t kHeartbeatRateMs = 73;
 [[maybe_unused]] constexpr uint32_t kJobsMaxBudgetMs = 500;
 
+// Half the size of the actual C stack, to be safe (default stack size in VS is 1MB).
+constexpr size_t kMaxStackLimit = 1024LL * 1024 / 2;
+
 } // namespace
 
 namespace
@@ -229,6 +232,8 @@ bool JsEngine::Initialize()
         qwr::QwrException::ExpectTrue( autoJsCtx.get(), "JS_NewContext failed" );
 
         JSContext* cx = autoJsCtx.get();
+
+        JS_SetNativeStackQuota( cx, kMaxStackLimit );
 
         if ( !JS_AddInterruptCallback( cx, InterruptHandler ) )
         {
