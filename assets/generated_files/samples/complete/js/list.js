@@ -385,7 +385,8 @@ function _list(mode, x, y, w, h) {
 			panel.item_focus_change();
 			break;
 		case 1400:
-			this.properties.tf.value = utils.InputBox(window.ID, 'Enter title formatting', window.Name, this.properties.tf.value);
+			let tmp = utils.InputBox(window.ID, 'Enter title formatting', window.Name, this.properties.tf.value);
+			this.properties.tf.value = tmp || this.properties.tf.default_;
 			this.tfo = fb.TitleFormat(this.properties.tf.value);
 			this.update();
 			break;

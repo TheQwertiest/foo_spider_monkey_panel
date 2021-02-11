@@ -9,16 +9,6 @@ include(fb.ComponentPath + 'samples\\complete\\js\\list.js');
 let panel = new _panel();
 let list = new _list('queue_viewer', LM, TM, 0, 0);
 
-function on_colours_changed() {
-	panel.colours_changed();
-	window.Repaint();
-}
-
-function on_font_changed() {
-	panel.font_changed();
-	window.Repaint();
-}
-
 function on_playback_queue_changed() {
 	list.playback_queue_changed();
 }
@@ -55,4 +45,14 @@ function on_key_down(k) {
 
 function on_mouse_rbtn_up(x, y) {
 	return panel.rbtn_up(x, y, list);
+}
+
+function on_colours_changed() {
+	panel.colours_changed();
+	window.Repaint();
+}
+
+function on_font_changed() {
+	panel.font_changed();
+	window.Repaint();
 }

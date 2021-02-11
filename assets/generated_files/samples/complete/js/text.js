@@ -70,7 +70,7 @@ function _text(mode, x, y, w, h) {
 					return;
 				}
 				this.filename = temp_filename;
-				if (_isFolder(this.filename)) { // yes really!
+				if (_isFolder(this.filename)) { // if folder, use first txt/log file
 					this.content = _open(_.first(_getFiles(this.filename, this.exts)));
 				} else {
 					this.content = _open(this.filename);
@@ -373,7 +373,7 @@ function _text(mode, x, y, w, h) {
 			this.properties.filename_tf = new _p('2K3.TEXT.FILENAME.TF', '$directory_path(%path%)');
 			this.properties.title_tf = new _p('2K3.TEXT.TITLE.TF', '$directory_path(%path%)');
 			this.properties.fixed = new _p('2K3.TEXT.FONTS.FIXED', true);
-			this.exts = 'txt|log';
+			this.exts = ['txt', 'log'];
 			break;
 		}
 	}

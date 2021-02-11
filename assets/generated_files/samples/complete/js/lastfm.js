@@ -197,7 +197,11 @@ function _lastfm() {
 	this.tfo = {
 		key : fb.TitleFormat('$lower(%artist% - %title%)'),
 		artist : fb.TitleFormat('%artist%'),
-		title : fb.TitleFormat('%title%')
+		title : fb.TitleFormat('%title%'),
+		album : fb.TitleFormat('[%album%]'),
+		loved : fb.TitleFormat('$if2(%SMP_LOVED%,0)'),
+		playcount : fb.TitleFormat('$if2(%SMP_PLAYCOUNT%,0)'),
+		first_played : fb.TitleFormat('%SMP_FIRST_PLAYED%')
 	};
 	
 	_createFolder(folders.data);

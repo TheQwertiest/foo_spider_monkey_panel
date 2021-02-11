@@ -535,8 +535,8 @@ function _thumbs() {
 	}
 	
 	this.success = (base) => {
-		_(_getElementsByTagName(this.xmlhttp.responseText, 'a'))
-			.filter({ className : 'image-list-item' })
+		_(_getElementsByTagName(this.xmlhttp.responseText, 'li'))
+			.filter({ className : 'image-list-item-wrapper' })
 			.take(this.properties.limit.value)
 			.forEach((item) => {
 				const url = item.getElementsByTagName('img')[0].src.replace('avatar170s/', '');

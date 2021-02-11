@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.4.0](#140---2021-02-11)
 - [1.3.1](#131---2020-07-18)
 - [1.3.0](#130---2020-07-10)
 - [1.2.3](#123---2020-01-04)
@@ -25,6 +26,59 @@ ___
 
 ## [Unreleased][]
 
+## [1.4.0][] - 2021-02-11
+### Added
+- Added a brand new `Configure` dialog!
+- Added more ways to consume scripts:
+  - Quick access to built-in script samples.
+  - Load scripts by path.
+  - Use script packages (see below for more info).
+- Implemented script package support:
+  - Can contain multiple scripts and assets.
+  - Can be easily exported and imported as a single file.
+  - Has a package manager to view and manage all installed packages.
+- Panel name can be changed now via `Configure` dialog.
+- Default script editor can be changed now via drop-down menu of `Edit` button in `Configure` dialog.
+- Added a link to component docs to foobar2000 `Help` main menu.
+- API changes:
+  - Added iterator protocol support to `FbMetadbHandleList`.
+  - Added `type` argument to `FbUiSelectionHolder.SetSelection()`.
+  - Added `fb.Version` property.
+  - Added `utils.DetectCharset()` method.
+  - Added `utils.EditTextFile()` method.
+  - Added `utils.FileExists()` method.
+  - Added `utils.GetFileSize()` method.
+  - Added `utils.GetPackagePath()` method.
+  - Added `utils.IsDirectory()` method.
+  - Added `utils.IsFile()` method.
+  - Added `utils.SplitFilePath()` method.
+  - Added `window.DefineScript()` method.
+  - Added `window.EditScript()` method.
+  - Added `window.ShowConfigureV2()` method.
+  - Added `window.JsMemoryStats` property.
+  - Added `window.ScriptInfo` property.
+
+### Changed 
+- Moved `Properties` dialog to a separate tab of `Configure` dialog.
+- `Grab focus` is now a script property and is defined via `window.DefineScript()`.
+- Extracted `Edge style` and `Pseudo-transparency` options to a separate tab of `Configure` dialog.
+- API changes:
+  - `utils.FileTest()` is marked as **\[Deprecated]**. Use new corresponding methods instead.
+  - `window.ID` is now optional and unused in all methods that required it.
+  - `window.Name` now returns panel name instead of script name. Use `window.ScriptInfo.Name` to retrieve script name.
+  - `window.DefinePanel()` is marked as **\[Deprecated]**. Use `window.DefineScript()` instead.
+  - `window.MemoryLimit`, `window.PanelMemoryUsage` and `window.TotalMemoryUsage` are marked as **\[Deprecated]**. Use `window.JsMemoryStats` instead.
+
+### Fixed
+- Fixed component crash when passing objects to `console.log()`.
+- Fixed component crash when there is a stack overflow in JS.
+- Fixed the weird image offset when using `fb.DoDragDrop()` with custom image and theming disabled.
+- Various `ActiveXObject` fixes:
+  - Errors in callbacks passed to `ActiveXObject` objects and methods are now properly propagated to the script. 
+  - Fixed inability to use subscripts with some `ActiveXObject` objects.
+  - Added iterator protocol support to enumerable `ActiveXObject` objects.
+- Fixed various errors in `complete` samples (by marc2003).
+
 ## [1.3.1][] - 2020-07-18
 ### Fixed
 - Fixed `FbTooltip.SetFont()` not working.
@@ -40,7 +94,7 @@ ___
   - Added `ActiveXObject.ActiveX_CreateArray()` method.
   - Added `window.Tooltip` property.
   - Added `FbTooltip.SetFont()` method.
-  - Deprecated `window.CreateTooltip()` method.
+  - `window.CreateTooltip()` method is marked as **\[Deprecated]**. Use `window.Tooltip` instead.
 
 ### Changed
 - Updated SpiderMonkey JavaScript engine to 68.8.0 ESR:
@@ -308,7 +362,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/theqwertiest/foo_spider_monkey_panel/compare/v1.3.1...HEAD
+[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.0...HEAD
+[1.4.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.3...v1.3.0
 [1.2.3]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.2-preview...v1.2.3

@@ -15,21 +15,25 @@ function on_focus(is_focused) {
 	}
 }
 
-function on_colours_changed() {
-	panel.colours_changed();
-	window.Repaint();
+function on_size() {
+	panel.size();
 }
 
-function on_mouse_lbtn_up(x, y, mask) {
-	buttons.lbtn_up(x, y, mask);
+function on_paint(gr) {
+	panel.paint(gr);
+	buttons.paint(gr);
+}
+
+function on_mouse_move(x, y) {
+	buttons.move(x, y);
 }
 
 function on_mouse_leave() {
 	buttons.leave();
 }
 
-function on_mouse_move(x, y) {
-	buttons.move(x, y);
+function on_mouse_lbtn_up(x, y, mask) {
+	buttons.lbtn_up(x, y, mask);
 }
 
 function on_mouse_rbtn_up(x, y) {
@@ -41,11 +45,7 @@ function on_mouse_rbtn_up(x, y) {
 	}
 }
 
-function on_paint(gr) {
-	panel.paint(gr);
-	buttons.paint(gr);
-}
-
-function on_size() {
-	panel.size();
+function on_colours_changed() {
+	panel.colours_changed();
+	window.Repaint();
 }

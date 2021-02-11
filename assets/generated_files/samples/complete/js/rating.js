@@ -5,7 +5,7 @@ function _rating(x, y, size, colour) {
 		if (panel.metadb) {
 			gr.SetTextRenderingHint(4);
 			for (let i = 0; i < this.get_max(); i++) {
-				gr.DrawString(i + 1 > (this.hover ? this.hrating : this.rating) ? chars.rating_off : chars.rating_on, this.font, this.colour, this.x + (i * this.size), this.y, this.size, this.size, SF_CENTRE);
+				gr.DrawString(i + 1 > (this.hover ? this.hrating : this.rating) ? chars.rating_off : chars.rating_on, this.font, this.colour, this.x + (i * this.h), this.y, this.h, this.h, SF_CENTRE);
 			}
 		}
 	}
@@ -21,7 +21,7 @@ function _rating(x, y, size, colour) {
 	}
 	
 	this.trace = (x, y) => {
-		return x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.size;
+		return x > this.x && x < this.x + this.w && y > this.y && y < this.y + this.h;
 	}
 	
 	this.move = (x, y) => {
@@ -29,8 +29,8 @@ function _rating(x, y, size, colour) {
 			if (panel.metadb) {
 				_tt(this.tiptext);
 				this.hover = true;
-				this.hrating = Math.ceil((x - this.x) / this.size);
-				window.RepaintRect(this.x, this.y, this.w, this.size);
+				this.hrating = Math.ceil((x - this.x) / this.h);
+				window.RepaintRect(this.x, this.y, this.w, this.h);
 			}
 			return true;
 		} else {
@@ -43,7 +43,7 @@ function _rating(x, y, size, colour) {
 		if (this.hover) {
 			_tt('');
 			this.hover = false;
-			window.RepaintRect(this.x, this.y, this.w, this.size);
+			window.RepaintRect(this.x, this.y, this.w, this.h);
 		}
 	}
 	
@@ -77,14 +77,14 @@ function _rating(x, y, size, colour) {
 			break;
 		case idx == 1004:
 			tmp = utils.InputBox(window.ID, 'Enter a custom tag name. Do not use %%. Defaults to "rating" if left blank.', window.Name, this.properties.tag.value);
-			this.properties.tag.value = tmp || 'rating';
+			this.properties.tag.value = tmp || this.properties.tag.default_;
 			break;
 		case idx == 1005:
 			tmp = utils.InputBox(window.ID, 'Enter a maximum value. Defaults to "5" if left blank.', window.Name, this.properties.max.value);
-			this.properties.max.value = tmp || 5;
+			this.properties.max.value = tmp || this.properties.max.default_;
 			break;
 		}
-		this.w = this.size * this.get_max();
+		this.w = this.h * this.get_max();
 		panel.item_focus_change();
 	}
 	
@@ -107,7 +107,7 @@ function _rating(x, y, size, colour) {
 	this.set_rating = () => {
 		switch (this.properties.mode.value) {
 		case 1: // foo_playcount
-			fb.RunContextCommandWithMetadb('Rating/' + (this.hrating == this.rating ? '<not set>' : this.hrating), panel.metadb, 8);
+			fb.RunContextCommandWithMetadb('Playback Statistics/Rating/' + (this.hrating == this.rating ? '<not set>' : this.hrating), panel.metadb, 8);
 			break;
 		case 2: // file tag
 			const tmp = this.hrating == this.rating ? '' : this.hrating;
@@ -134,13 +134,13 @@ function _rating(x, y, size, colour) {
 	};
 	this.x = x;
 	this.y = y;
-	this.size = _scale(size);
-	this.w = this.size * this.get_max();
+	this.h = _scale(size);
+	this.w = this.h * this.get_max();
 	this.colour = colour;
 	this.hover = false;
 	this.rating = 0;
 	this.hrating = 0;
-	this.font = gdi.Font('FontAwesome', this.size - 2);
+	this.font = gdi.Font('FontAwesome', this.h - 2);
 	this.modes = ['Not Set', 'foo_playcount', 'File Tag', 'Spider Monkey Panel DB'];
 	this.foo_playcount = _cc('foo_playcount');
 	window.SetTimeout(() => {

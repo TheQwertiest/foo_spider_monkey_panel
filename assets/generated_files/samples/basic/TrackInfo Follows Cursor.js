@@ -1,6 +1,6 @@
-// @name "SimpleFollowCursor"
-include(`${fb.ComponentPath}docs\\Flags.js`);
-include(`${fb.ComponentPath}docs\\Helpers.js`);
+window.DefineScript('TrackInfo follows cursor');
+include('docs/Flags.js');
+include('docs/Helpers.js');
 
 const font = gdi.Font('Segoe UI', 14, 0);
 const tfo = fb.TitleFormat('%title%[ - %artist%]');
