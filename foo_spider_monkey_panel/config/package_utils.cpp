@@ -226,8 +226,13 @@ std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSetti
         if ( const auto scriptsDir = packagePath / "scripts";
              fs::exists( scriptsDir ) )
         {
-            for ( const auto& it: fs::directory_iterator( scriptsDir ) )
+            for ( const auto it: fs::recursive_directory_iterator( scriptsDir ) )
             {
+                if ( it.is_directory() )
+                {
+                    continue;
+                }
+
                 if ( it.path().extension() == ".js" && it.path() != mainScript )
                 {
                     files.emplace_back( it.path() );
@@ -254,8 +259,13 @@ std::vector<std::filesystem::path> GetPackageFiles( const ParsedPanelSettings& s
         if ( const auto assetsDir = packagePath / "assets";
              fs::exists( assetsDir ) )
         {
-            for ( const auto& it: fs::directory_iterator( assetsDir ) )
+            for ( const auto it: fs::recursive_directory_iterator( assetsDir ) )
             {
+                if ( it.is_directory() )
+                {
+                    continue;
+                }
+
                 files.emplace_back( it.path() );
             }
         }

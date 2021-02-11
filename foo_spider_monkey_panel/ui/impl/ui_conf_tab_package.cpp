@@ -15,6 +15,68 @@
 
 namespace fs = std::filesystem;
 
+namespace
+{
+
+/// @throw qwr::QwrException
+std::optional<fs::path> GetFileFromPath( const fs::path& path )
+{
+    try
+    {
+        if ( fs::is_regular_file( path ) )
+        {
+            return path;
+        }
+        else
+        {
+            for ( const auto it: fs::recursive_directory_iterator( path ) )
+            {
+                if ( it.is_regular_file() )
+                {
+                    return it.path();
+                }
+            }
+            return std::nullopt;
+        }
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( e );
+    }
+}
+
+/// @throw qwr::QwrException
+std::vector<fs::path> GetAllFilesFromPath( const fs::path& path )
+{
+    try
+    {
+        if ( fs::is_regular_file( path ) )
+        {
+            return { path };
+        }
+        else
+        {
+            std::vector<fs::path> files;
+            for ( const auto it: fs::recursive_directory_iterator( path ) )
+            {
+                if ( it.is_directory() )
+                {
+                    continue;
+                }
+
+                files.emplace_back( it.path() );
+            }
+            return files;
+        }
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( e );
+    }
+}
+
+} // namespace
+
 namespace smp::ui
 {
 
@@ -213,12 +275,12 @@ void CConfigTabPackage::OnRemoveFile( UINT uNotifyCode, int nID, CWindow wndCtl 
     {
         if ( fs::exists( files_[focusedFileIdx_] ) )
         {
-            fs::remove( files_[focusedFileIdx_] );
+            fs::remove_all( files_[focusedFileIdx_] );
         }
     }
     catch ( const fs::filesystem_error& e )
     {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
     }
 
     files_.erase( files_.cbegin() + focusedFileIdx_ );
@@ -407,7 +469,9 @@ LRESULT CConfigTabPackage::OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam 
         filesListBox_,
         wParam,
         lParam,
-        [&]( const auto& path ) { AddFile( path ); } );
+        [&]( const auto& path ) {
+            AddFile( path );
+        } );
 }
 
 void CConfigTabPackage::DoFullDdxToUi()
@@ -461,6 +525,12 @@ void CConfigTabPackage::InitializeFilesListBox()
         }
 
         files_ = config::GetPackageFiles( settings_ );
+        if ( const auto it = ranges::find( files_, focusedFile_ );
+             it == files_.cend() )
+        { // in case file was deleted
+            focusedFile_ = mainScriptPath_;
+        }
+
         UpdateListBoxFromData();
     }
     catch ( const fs::filesystem_error& e )
@@ -525,28 +595,44 @@ void CConfigTabPackage::AddFile( const std::filesystem::path& path )
 {
     try
     {
-        const fs::path newPath = packagePath_ / "assets" / path.filename();
-
-        const auto it = ranges::find( files_, newPath );
-        if ( it != files_.cend() )
-        {
-            const int iRet = MessageBox(
-                L"File already exists\n\n"
-                L"Do you want to rewrite it?",
-                L"Adding file",
-                MB_YESNO | MB_ICONWARNING );
-            if ( IDYES != iRet )
+        const auto newPath = [&] {
+            if ( path.extension() == ".js" )
             {
-                return;
+                return packagePath_ / "scripts" / path.filename();
             }
-        }
-        else
+            else
+            {
+                return packagePath_ / "assets" / path.filename();
+            }
+        }();
+
+        auto lastNewFile = focusedFile_;
+        for ( const auto& file: GetAllFilesFromPath( path ) )
         {
-            fs::create_directories( newPath.parent_path() );
-            fs::copy( path, newPath );
-            files_.emplace_back( newPath );
+            const auto newFile = ( file == path ? newPath : newPath / fs::relative( file, path ) );
+            if ( fs::exists( newFile ) )
+            {
+                const int iRet = MessageBox(
+                    fmt::format( L"File already exists:\n"
+                                 L"{}\n\n"
+                                 L"Do you want to rewrite it?",
+                                 newFile.c_str() )
+                        .c_str(),
+                    L"Adding file",
+                    MB_YESNO | MB_ICONWARNING );
+                if ( IDYES != iRet )
+                {
+                    continue;
+                }
+            }
+
+            fs::create_directories( newFile.parent_path() );
+            fs::copy( file, newFile, fs::copy_options::overwrite_existing );
+            files_.emplace_back( newFile );
+            lastNewFile = newFile;
         }
-        focusedFile_ = newPath;
+
+        focusedFile_ = lastNewFile;
 
         UpdateListBoxFromData();
         DoFullDdxToUi();
