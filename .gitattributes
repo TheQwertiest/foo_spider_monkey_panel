@@ -16,4 +16,5 @@
 *.zip filter=lfs diff=lfs merge=lfs -text
 
 component/* linguist-detectable=false
+miniz/* linguist-detectable=false
 scripts/* linguist-detectable=false
