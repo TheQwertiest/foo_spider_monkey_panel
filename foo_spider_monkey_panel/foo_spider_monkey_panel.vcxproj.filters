@@ -346,6 +346,9 @@
     <ClCompile Include="js_objects\fb_metadb_handle_list_iterator.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="utils\path_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -750,6 +753,9 @@
     </ClInclude>
     <ClInclude Include="js_objects\fb_metadb_handle_list_iterator.h">
       <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\path_helpers.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

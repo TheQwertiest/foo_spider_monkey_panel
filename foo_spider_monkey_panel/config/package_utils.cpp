@@ -2,6 +2,9 @@
 
 #include "package_utils.h"
 
+#include <utils/path_helpers.h>
+#include <utils/relative_filepath_trie.h>
+
 #include <component_paths.h>
 
 #include <nlohmann/json.hpp>
@@ -214,32 +217,25 @@ std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSetti
 {
     try
     {
-        std::vector<std::filesystem::path> files;
+        std::vector<fs::path> files;
 
         const auto packagePath = GetPackagePath( settings );
+
+        std::list<fs::path> dirsToProcess;
+        if ( const auto scriptsDir = packagePath / "scripts";
+             fs::exists( scriptsDir ) )
+        {
+            files = smp::utils::GetFilesRecursive( scriptsDir );
+            ranges::actions::sort( files, []( const auto& a, const auto& b ) {
+                return ( a < b );
+            } );
+        }
 
         assert( settings.scriptPath );
         const auto mainScript = *settings.scriptPath;
 
-        files.emplace_back( mainScript );
-
-        if ( const auto scriptsDir = packagePath / "scripts";
-             fs::exists( scriptsDir ) )
-        {
-            for ( const auto it: fs::recursive_directory_iterator( scriptsDir ) )
-            {
-                if ( it.is_directory() )
-                {
-                    continue;
-                }
-
-                if ( it.path().extension() == ".js" && it.path() != mainScript )
-                {
-                    files.emplace_back( it.path() );
-                }
-            }
-        }
-
+        ranges::actions::remove_if( files, [&mainScript]( const auto& path ) { return ( path.extension() != ".js" || path == mainScript ); } );
+        files.insert( files.begin(), mainScript );
         return files;
     }
     catch ( const fs::filesystem_error& e )
@@ -256,18 +252,16 @@ std::vector<std::filesystem::path> GetPackageFiles( const ParsedPanelSettings& s
 
         const auto packagePath = GetPackagePath( settings );
 
+        std::list<fs::path> dirsToProcess;
         if ( const auto assetsDir = packagePath / "assets";
              fs::exists( assetsDir ) )
         {
-            for ( const auto it: fs::recursive_directory_iterator( assetsDir ) )
-            {
-                if ( it.is_directory() )
-                {
-                    continue;
-                }
+            auto assetFiles = smp::utils::GetFilesRecursive( assetsDir );
+            ranges::actions::sort( files, []( const auto& a, const auto& b ) {
+                return ( a < b );
+            } );
 
-                files.emplace_back( it.path() );
-            }
+            ranges::actions::push_back( files, std::move( assetFiles ) );
         }
 
         return files;

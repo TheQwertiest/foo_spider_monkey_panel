@@ -7,6 +7,7 @@
 #include <ui/ui_conf.h>
 #include <ui/ui_input_box.h>
 #include <utils/edit_text.h>
+#include <utils/path_helpers.h>
 
 #include <qwr/error_popup.h>
 #include <qwr/file_helpers.h>
@@ -56,17 +57,7 @@ std::vector<fs::path> GetAllFilesFromPath( const fs::path& path )
         }
         else
         {
-            std::vector<fs::path> files;
-            for ( const auto it: fs::recursive_directory_iterator( path ) )
-            {
-                if ( it.is_directory() )
-                {
-                    continue;
-                }
-
-                files.emplace_back( it.path() );
-            }
-            return files;
+            return smp::utils::GetFilesRecursive( path );
         }
     }
     catch ( const fs::filesystem_error& e )
@@ -547,7 +538,7 @@ void CConfigTabPackage::SortFiles()
     }
     // skip first file (that is main file)
     std::sort( files_.begin() + 1, files_.end(), []( const auto& a, const auto& b ) {
-        return ( StrCmpLogicalW( a.c_str(), b.c_str() ) < 0 );
+        return ( a < b );
     } );
 
     // move assets to the end

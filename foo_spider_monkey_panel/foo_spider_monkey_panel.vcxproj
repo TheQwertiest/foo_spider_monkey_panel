@@ -248,6 +248,7 @@
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\location_processor.cpp" />
     <ClCompile Include="utils\menu_helpers.cpp" />
+    <ClCompile Include="utils\path_helpers.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\stacktrace.cpp" />
     <ClCompile Include="utils\text_helpers.cpp" />
@@ -386,6 +387,7 @@
     <ClInclude Include="utils\location_processor.h" />
     <ClInclude Include="utils\make_unique_ptr.h" />
     <ClInclude Include="utils\menu_helpers.h" />
+    <ClInclude Include="utils\path_helpers.h" />
     <ClInclude Include="utils\relative_filepath_trie.h" />
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\stacktrace.h" />
