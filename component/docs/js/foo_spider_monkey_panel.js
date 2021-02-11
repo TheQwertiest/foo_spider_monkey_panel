@@ -123,6 +123,10 @@ function ActiveXObject(name) {
 }
 
 /**
+ * Deprecated: use `for ... of` loop instead.
+ * 
+ * @deprecated
+ * 
  * @constructor
  * @param {ActiveXObject} active_x_object Any ActiveX collection object.
  * 
@@ -344,6 +348,7 @@ let fb = {
      * Deprecated: use {@link FbMetadbHandleList} constructor instead.
      *
      * @deprecated
+     * 
      * @return {FbMetadbHandleList}
      */
     CreateHandleList: function () { }, // (FbMetadbHandleList)
@@ -1362,6 +1367,18 @@ let utils = {
     ColourPicker: function (window_id, default_colour) { }, // (uint)
 
     /**
+     * Detect the codepage of the file.\n
+     * Note: detection algorithm is probability based (unless there is a UTF BOM),
+     * i.e. even though the returned codepage is the most likely one, 
+     * there's no 100% guarantee it's the correct one.\n
+     * Performance note: detection algorithm is quite slow, so results should be cached as much as possible.
+     *
+     * @param {number} path Path to file
+     * @return {number} Codepage number on success, 0 if codepage detection failed
+     */
+    DetectCharset: function (path) { },
+
+    /**
      * Edit a text file with the default text editor. <br>
      * Default text editor can be changed via `Edit` button on the main tab of {@link window.ShowConfigureV2}.
      *
@@ -1370,8 +1387,19 @@ let utils = {
     EditTextFile: function (path) { }, // (uint)
 
     /**
-     * Various utility functions for working with file.
+     * @param {number} path Path to file
+     * @return {boolean} true, if file exists.
+     */
+    FileExists: function (path) { },
+
+    /**
+     * Various utility functions for working with file.<br>
+     * <br>
+     * Deprecated: use {@link utils.DetectCharset}, {@link utils.FileExists}, {@link utils.GetFileSize},
+     * {@link utils.IsDirectory}, {@link utils.IsFile} and {@link utils.SplitFilePath} instead.
      *
+     * @deprecated
+     * 
      * @param {string} path
      * @param {string} mode
      *     "chardet" - Detects the codepage of the given file. Returns a corresponding codepage number on success, 0 if codepage detection failed.<br>
@@ -1478,6 +1506,12 @@ let utils = {
     GetAlbumArtV2: function (handle, art_id, need_stub) { }, // (GdiBitmap) [, art_id][, need_stub]
 
     /**
+     * @param {string} path
+     * @return {number} File size, in bytes
+     */
+    GetFileSize: function (path) { },
+
+    /**
      * Get path to a package directory with the specified id.<br>
      * Throws exception if package is not found.
      * 
@@ -1539,6 +1573,18 @@ let utils = {
      * }
      */
     InputBox: function (window_id, prompt, caption, default_val, error_on_cancel) { }, // (string)
+
+    /**
+     * @param {string} path
+     * @return {boolean} true, if location exists and it's a directory
+     */
+    IsDirectory: function (path) { },
+
+    /**
+     * @param {string} path
+     * @return {boolean} true, if location exists and it's a file
+     */
+    IsFile: function (path) { },
 
     /**
      * @param {number} vkey {@link https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes}. Some are defined in Flags.js > Used with utils.IsKeyPressed().
@@ -1607,7 +1653,7 @@ let utils = {
      *   - Basic types: number, string, boolean, null, undefined.<br>
      *   - Objects as string: the only way to pass objects is to convert them to string and back with `JSON.stringify()` and `JSON.parse()`.<br>
      *   - Arrays: must be cast via `.toArray()` inside html. Each element has same type limitations as options.data.<br>
-     *   - Functions: with maximum of 7 arguments. Each argument has same type limitations as options.data.
+     *   - Functions: has maximum of 7 arguments. Each argument has same type limitations as options.data.
      *
      * @param {number} window_id unused
      * @param {string} code_or_path Html code or file path. File path must begin with `file://` prefix.
@@ -1631,6 +1677,18 @@ let utils = {
      * utils.ShowHtmlDialog(0, `file://${fb.ComponentPath}samples/basic/html/PopupWithCheckBox.html`);
      */
     ShowHtmlDialog: function (window_id, code_or_path, options) { },
+
+    /**
+     * @param {string} path
+     * @return {Array<string>} An array of [directory, filename, filename_extension]
+     *
+     * @example
+     * let arr = utils.SplitFilePath('D:\\Somedir\\Somefile.txt');
+     * // arr[0] <= 'D:\\Somedir\\' (always includes backslash at the end)
+     * // arr[1] <= 'Somefile'
+     * // arr[2] <= '.txt'
+     */
+    SplitFilePath: function (path) { }, // (boolean)
 
     /**
      * @param {string} filename
@@ -1765,6 +1823,7 @@ let window = {
      * Deprecated: use {@link window.JsMemoryStats.total_memory_limit} instead.
      *
      * @deprecated
+     * 
      * @type {number}
      * @readonly
      */
@@ -1797,6 +1856,8 @@ let window = {
      * <br>
      * Deprecated: use {@link window.JsMemoryStats.memory_usage} instead.
      *
+     * @deprecated
+     * 
      * @type {number}
      * @readonly
      */
@@ -1834,6 +1895,8 @@ let window = {
      * <br>
      * Deprecated: use {@link window.JsMemoryStats.total_memory_usage} instead.
      *
+     * @deprecated
+     * 
      * @type {number}
      * @readonly
      */
@@ -1860,12 +1923,12 @@ let window = {
     ClearInterval: function (timerID) { }, // (void)
 
     /**
-     * Setups the panel and script information and available features.<br>
+     * Setups panel and script information and available features.<br>
      * Can be called only once, so it's better to define it
      * directly in the panel Configure menu.<br>
      * <br>
-     * Deprecated: use {@link window.DefineScript} instead.<br>
-     * Panel name can be changed via {@link window.ShowConfigureV2}.<br>
+     * Deprecated: use {@link window.DefineScript} instead.
+     * Panel name can be changed via {@link window.ShowConfigureV2}.
      *
      * @deprecated
      *
@@ -1917,8 +1980,8 @@ let window = {
 
     /**
      * Note: a single panel can have only a single tooltip object.
-     * Creating a new tooltip will replace the previous one.
-     * 
+     * Creating a new tooltip will replace the previous one.<br>
+     * <br>
      * Deprecated: use {@link fb.Tooltip} and {@link FbTooltip.SetFont} instead.
      *
      * @deprecated
@@ -2060,12 +2123,13 @@ let window = {
     SetTimeout: function (func, delay) { }, // (uint)
 
     /**
-     * Show configuration window of current panel
-     * @method
-     * 
+     * Show configuration window of current panel.
+     * <br>
      * Deprecated: use {@link window.ShowConfigureV2} to configure panel and {@link window.EditScript} to edit script.
      *
      * @deprecated
+     * 
+     * @method
      */
     ShowConfigure: function () { }, // (void)
 
