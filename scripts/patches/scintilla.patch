@@ -77,6 +77,18 @@ index 4a652f42..d51c77af 100644
  
  # Define how to build all the objects and what they depend on
  
+--- a/submodules/scintilla/win32/PlatWin.cxx
++++ b/submodules/scintilla/win32/PlatWin.cxx
+@@ -2530,7 +2530,7 @@ public:
+        }
+ };
+ 
+-const TCHAR ListBoxX_ClassName[] = TEXT("ListBoxX");
++const TCHAR ListBoxX_ClassName[] = TEXT("SMP_ListBoxX");
+ 
+ ListBox::ListBox() noexcept {
+ }
+
 --- a/submodules/scintilla/win32/ScintillaWin.cxx
 +++ b/submodules/scintilla/win32/ScintillaWin.cxx
 @@ -150,7 +150,7 @@
