@@ -1780,9 +1780,9 @@ let window = {
     * Return value of {@link window.JsMemoryStats}.<br>
     * 
     * @typedef {Object} JsMemoryStats
-    * @property {number} memory_usage Memory usage of the current panel (in bytes)
-    * @property {number} total_memory_usage Total memory usage of all panels (in bytes)
-    * @property {number} total_memory_limit 
+    * @property {number} MemoryUsage Memory usage of the current panel (in bytes)
+    * @property {number} TotalMemoryUsage Total memory usage of all panels (in bytes)
+    * @property {number} TotalMemoryLimit 
     *    Maximum allowed memory usage for the component (in bytes).<br>
     *    If the total memory usage exceeds this value, all panels will fail with OOM error.
     */

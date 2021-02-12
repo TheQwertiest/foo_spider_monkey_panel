@@ -770,9 +770,9 @@ JSObject* JsWindow::get_JsMemoryStats()
     JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
 
     JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
-    AddProperty( pJsCtx_, jsObject, "memory_usage", JsGc::GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal ) );
-    AddProperty( pJsCtx_, jsObject, "total_memory_usage", JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage() );
-    AddProperty( pJsCtx_, jsObject, "total_memory_limit", JsGc::GetMaxHeap() );
+    AddProperty( pJsCtx_, jsObject, "MemoryUsage", JsGc::GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal ) );
+    AddProperty( pJsCtx_, jsObject, "TotalMemoryUsage", JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage() );
+    AddProperty( pJsCtx_, jsObject, "TotalMemoryLimit", JsGc::GetMaxHeap() );
 
     return jsObject;
 }
