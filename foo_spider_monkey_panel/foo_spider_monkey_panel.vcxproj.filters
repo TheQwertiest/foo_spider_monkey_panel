@@ -349,6 +349,9 @@
     <ClCompile Include="utils\path_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="utils\guid_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -755,6 +758,9 @@
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="utils\path_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\guid_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

@@ -187,6 +187,11 @@ bool js_panel_window::ReloadSettings()
     }
 }
 
+bool js_panel_window::IsPanelIdOverridenByScript() const
+{
+    return isPanelIdOverridenByScript_;
+}
+
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
     static uint32_t nestedCounter = 0;
@@ -1040,6 +1045,7 @@ void js_panel_window::SetScriptInfo( const std::u8string& scriptName, const std:
 void js_panel_window::SetPanelName( const std::u8string& panelName )
 {
     settings_.panelId = panelName;
+    isPanelIdOverridenByScript_ = true;
 }
 
 void js_panel_window::SetDragAndDropStatus( bool isEnabled )
@@ -1146,6 +1152,7 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     timer.start();
 
     hasFailed_ = false;
+    isPanelIdOverridenByScript_ = false;
 
     message_manager::instance().EnableAsyncMessages( wnd_ );
 

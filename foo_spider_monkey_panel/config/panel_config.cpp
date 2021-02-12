@@ -6,6 +6,7 @@
 #include <config/panel_config_com.h>
 #include <config/panel_config_json.h>
 #include <resources/resource.h>
+#include <utils/guid_helpers.h>
 
 #include <qwr/string_helpers.h>
 
@@ -80,14 +81,7 @@ void PanelSettings::ResetToDefault()
     isPseudoTransparent = false;
     edgeStyle = EdgeStyle::NoEdge;
     id = [] {
-        GUID guid;
-        (void)CoCreateGuid( &guid ); //< should not fail
-
-        std::wstring guidStr;
-        guidStr.resize( 64 );
-        StringFromGUID2( guid, guidStr.data(), guidStr.size() );
-        guidStr.resize( wcslen( guidStr.c_str() ) );
-
+        const auto guidStr = utils::GuidToStr( utils::GenerateGuid() );
         return qwr::unicode::ToU8( guidStr );
     }();
 }

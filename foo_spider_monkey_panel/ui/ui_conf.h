@@ -100,6 +100,7 @@ private:
     void InitializeLocalData();
 
     void InitializeTabData( CDialogConf::Tab tabId = CDialogConf::Tab::def );
+    void ReinitializeTabData();
     void RefreshTabData();
     void InitializeTabControls();
     void ReinitializeTabControls();

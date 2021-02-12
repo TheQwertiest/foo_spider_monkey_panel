@@ -8,11 +8,13 @@
 #include <ui/impl/ui_conf_tab_package.h>
 #include <ui/impl/ui_conf_tab_properties.h>
 #include <ui/impl/ui_conf_tab_script_source.h>
+#include <utils/guid_helpers.h>
 
 #include <component_paths.h>
 
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
+#include <qwr/string_helpers.h>
 
 namespace
 {
@@ -68,6 +70,7 @@ void CDialogConf::OnScriptTypeChange()
 
     if ( tabLayoutChanged )
     {
+        ReinitializeTabData();
         ReinitializeTabControls();
     }
 
@@ -153,6 +156,10 @@ BOOL CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     InitializeTabControls();
 
     DisablePanelNameControls();
+    if ( pParent_->IsPanelIdOverridenByScript() )
+    {
+        CButton{ GetDlgItem( IDC_BUTTON_EDIT_PANEL_NAME ) }.EnableWindow( false );
+    }
 
     CButton{ GetDlgItem( IDAPPLY ) }.EnableWindow( false );
 
@@ -310,6 +317,14 @@ void CDialogConf::OnStartEditPanelName( UINT uNotifyCode, int nID, CWindow wndCt
 void CDialogConf::OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     DisablePanelNameControls();
+    if ( localSettings_.panelId.empty() )
+    {
+        localSettings_.panelId = qwr::unicode::ToU8( utils::GuidToStr( utils::GenerateGuid() ) );
+
+        suppressDdxFromUi_ = true;
+        const auto ddxSuppress = qwr::final_action( [&] { suppressDdxFromUi_ = false; } );
+        panelNameDdx_->WriteToUi();
+    }
 }
 
 LRESULT CDialogConf::OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl )
@@ -355,6 +370,26 @@ void CDialogConf::InitializeLocalData()
     localSettings_ = oldSettings_;
     oldProperties_ = pParent_->GetPanelProperties();
     localProperties_ = oldProperties_;
+
+    constexpr std::string_view kOverridenSuffix = " (overriden by script)";
+    if ( pParent_->IsPanelIdOverridenByScript() )
+    {
+        localSettings_.panelId += kOverridenSuffix;
+
+        if ( m_hWnd )
+        {
+            DisablePanelNameControls();
+            CButton{ GetDlgItem( IDC_BUTTON_EDIT_PANEL_NAME ) }.EnableWindow( false );
+        }
+    }
+    else
+    {
+        if ( qwr::string::EndsWith( static_cast<std::u8string_view>( localSettings_.panelId ),
+                                    kOverridenSuffix ) )
+        {
+            localSettings_.panelId.resize( localSettings_.panelId.size() - kOverridenSuffix.size() );
+        }
+    }
 }
 
 void CDialogConf::InitializeTabData( smp::ui::CDialogConf::Tab tabId )
@@ -370,6 +405,19 @@ void CDialogConf::InitializeTabData( smp::ui::CDialogConf::Tab tabId )
     tabs_.emplace_back( std::make_unique<CConfigTabProperties>( *this, localProperties_ ) );
 
     SetActiveTabIdx( tabId );
+}
+
+void CDialogConf::ReinitializeTabData()
+{
+    if ( localSettings_.GetSourceType() == config::ScriptSourceType::Package )
+    {
+        tabs_.insert( tabs_.cbegin() + GetTabIdx( Tab::package ),
+                      std::make_unique<CConfigTabPackage>( *this, localSettings_ ) );
+    }
+    else
+    {
+        tabs_.erase( tabs_.cbegin() + GetTabIdx( Tab::package ) );
+    }
 }
 
 void CDialogConf::RefreshTabData()

@@ -121,7 +121,8 @@ void CConfigTabPackage::Revert()
 
 void CConfigTabPackage::Refresh()
 {
-    if ( packagePath_ != config::GetPackagePath( settings_ ) )
+    if ( settings_.GetSourceType() == config::ScriptSourceType::Package
+         && packagePath_ != config::GetPackagePath( settings_ ) )
     {
         InitializeLocalData();
     }

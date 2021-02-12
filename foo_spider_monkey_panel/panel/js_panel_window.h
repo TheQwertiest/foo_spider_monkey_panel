@@ -45,6 +45,8 @@ public:
     bool UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel = true );
     bool SaveSettings( stream_writer& writer, abort_callback& abort ) const;
 
+    bool IsPanelIdOverridenByScript() const;
+
     void Fail( const std::u8string& errorText );
 
     void Repaint( bool force = false );
@@ -193,6 +195,8 @@ private:
     ui_selection_holder::ptr selectionHolder_; // used only internally
 
     CComPtr<smp::com::IDropTargetImpl> dropTargetHandler_; // used only internally
+
+    bool isPanelIdOverridenByScript_ = false; // used only internally
 
     size_t dlgCode_ = 0;                   // modified only from external
     POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external

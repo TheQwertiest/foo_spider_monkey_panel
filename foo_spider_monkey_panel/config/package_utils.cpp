@@ -2,6 +2,7 @@
 
 #include "package_utils.h"
 
+#include <utils/guid_helpers.h>
 #include <utils/path_helpers.h>
 #include <utils/relative_filepath_trie.h>
 
@@ -136,12 +137,7 @@ ParsedPanelSettings GetNewPackageSettings( const std::u8string& name )
         std::u8string id;
         do
         {
-            GUID guid;
-            (void)CoCreateGuid( &guid ); //< should not fail
-            std::wstring guidStr;
-            guidStr.resize( 64 );
-            StringFromGUID2( guid, guidStr.data(), guidStr.size() );
-            guidStr.resize( wcslen( guidStr.c_str() ) );
+            const auto guidStr = utils::GuidToStr( utils::GenerateGuid() );
             id = qwr::unicode::ToU8( guidStr );
             packagePath = path::Packages_Profile() / id;
         } while ( fs::exists( packagePath ) );

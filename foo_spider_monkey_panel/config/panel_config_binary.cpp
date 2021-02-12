@@ -2,6 +2,8 @@
 
 #include "panel_config_binary.h"
 
+#include <utils/guid_helpers.h>
+
 #include <qwr/string_helpers.h>
 #include <qwr/winapi_error_helpers.h>
 
@@ -33,11 +35,7 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
             GUID guid;
             reader.read_object_t( guid, abort );
 
-            std::wstring guidStr;
-            guidStr.resize( 64 );
-            StringFromGUID2( guid, guidStr.data(), guidStr.size() );
-            guidStr.resize( wcslen( guidStr.c_str() ) );
-
+            const auto guidStr = utils::GuidToStr( guid );
             return qwr::unicode::ToU8( guidStr );
         }();
         reader.read_object( &panelSettings.edgeStyle, sizeof( panelSettings.edgeStyle ), abort );
@@ -67,12 +65,17 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
 
         writer.write_object_t( false, abort ); // skip "delay load"
         {
-            GUID guid;
-            HRESULT hr = IIDFromString( qwr::unicode::ToWide( settings.id ).c_str(), &guid );
-            if ( FAILED( hr ) )
-            {                                // panel id is not a guid, generate one for backcompat
-                (void)CoCreateGuid( &guid ); //< should not fail
-            }
+            const auto guid = [&] {
+                const auto guidOpt = utils::StrToGuid( qwr::unicode::ToWide( settings.id ) );
+                if ( guidOpt )
+                {
+                    return *guidOpt;
+                }
+                else
+                {
+                    return utils::GenerateGuid();
+                }
+            }();
             writer.write_object_t( guid, abort );
         }
         writer.write_object_t( static_cast<uint8_t>( settings.edgeStyle ), abort );

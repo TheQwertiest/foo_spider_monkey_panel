@@ -302,16 +302,6 @@ JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring
 
 void JsWindow::DefinePanel( const std::u8string& name, JS::HandleValue options )
 {
-    DefineScript( name, options );
-}
-
-void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options )
-{
-    if ( isFinalized_ )
-    {
-        return;
-    }
-
     qwr::QwrException::ExpectTrue(
         parentPanel_.GetSettings().GetSourceType() != config::ScriptSourceType::Package,
         "`DefinePanel` can't be used to change package script information - use `Configure` instead" );
@@ -325,6 +315,19 @@ void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name
     parentPanel_.SetCaptureFocusStatus( parsedOptions.features.grabFocus );
 
     isScriptDefined_ = true;
+}
+
+void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return DefinePanel( name, options );
+    case 1:
+        return DefinePanel( name );
+    default:
+        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+    }
 }
 
 void JsWindow::DefineScript( const std::u8string& name, JS::HandleValue options )
