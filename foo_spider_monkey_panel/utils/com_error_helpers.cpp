@@ -15,7 +15,7 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
     {
     case DISP_E_BADVARTYPE:
     {
-        throw qwr::QwrException( fmt::format( "ActiveXObject: CBad variable type `{}`", argerr ) );
+        throw qwr::QwrException( fmt::format( "ActiveXObject: Bad variable type `{}`", argerr ) );
     }
     case DISP_E_EXCEPTION:
     {
@@ -25,20 +25,15 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
             SysFreeString( exception.bstrHelpFile );
         } );
 
-        if ( exception.bstrDescription )
-        {
-            const auto errorSource8 = qwr::unicode::ToU8( std::wstring_view{ exception.bstrSource ? exception.bstrSource : L"<none>" } );
-            const auto errorDesc8 = qwr::unicode::ToU8( std::wstring_view{ exception.bstrDescription ? exception.bstrDescription : L"<none>" } );
-            throw qwr::QwrException( fmt::format( "ActiveXObject:\nsource: {}\ndescription: {}", errorSource8, errorDesc8 ) );
-        }
-        else if ( FAILED( exception.scode ) )
-        {
-            CheckHR( exception.scode, "ActiveXObject" );
-        }
-        else
-        {
-            throw qwr::QwrException( "ActiveXObject: exception was thrown" );
-        }
+        const auto errorSource8 = qwr::unicode::ToU8( std::wstring_view{ exception.bstrSource ? exception.bstrSource : L"<none>" } );
+        const auto errorDesc8 = qwr::unicode::ToU8( std::wstring_view{ exception.bstrDescription ? exception.bstrDescription : L"<none>" } );
+        throw qwr::QwrException( fmt::format( "ActiveXObject:\n"
+                                              "  code: {:#x}\n"
+                                              "  description: {}\n"
+                                              "  source: {}",
+                                              static_cast<uint32_t>( exception.scode ? exception.scode : exception.wCode ),
+                                              errorDesc8,
+                                              errorSource8 ) );
     }
     case DISP_E_OVERFLOW:
     {

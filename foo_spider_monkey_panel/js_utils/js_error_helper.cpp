@@ -313,12 +313,14 @@ void ExceptionToJsError( JSContext* cx )
         const auto errorDesc8 = qwr::unicode::ToU8( std::wstring_view{ e.Description().length() ? static_cast<const wchar_t*>( e.Description() ) : L"<none>" } );
         JS_ReportErrorUTF8( cx,
                             fmt::format( "COM error:\n"
-                                         "  message {}\n"
-                                         "  source: {}\n"
-                                         "  description: {}",
+                                         "  hresult: {:#x}\n"
+                                         "  message: {}\n"
+                                         "  description: {}\n"
+                                         "  source: {}",
+                                         static_cast<uint32_t>( e.Error() ),
                                          errorMsg8,
-                                         errorSource8,
-                                         errorDesc8 )
+                                         errorDesc8,
+                                         errorSource8 )
                                 .c_str() );
     }
     catch ( const std::bad_alloc& )
@@ -347,16 +349,20 @@ std::u8string ExceptionToText( JSContext* cx )
     }
     catch ( const _com_error& e )
     {
+        JS_ClearPendingException( cx );
+
         const auto errorMsg8 = qwr::unicode::ToU8( std::wstring_view{ e.ErrorMessage() ? e.ErrorMessage() : L"<none>" } );
         const auto errorSource8 = qwr::unicode::ToU8( std::wstring_view{ e.Source().length() ? static_cast<const wchar_t*>( e.Source() ) : L"<none>" } );
         const auto errorDesc8 = qwr::unicode::ToU8( std::wstring_view{ e.Description().length() ? static_cast<const wchar_t*>( e.Description() ) : L"<none>" } );
         return fmt::format( "COM error:\n"
-                            "  message {}\n"
-                            "  source: {}\n"
-                            "  description: {}",
+                            "  hresult: {:#x}\n"
+                            "  message: {}\n"
+                            "  description: {}\n"
+                            "  source: {}",
+                            static_cast<uint32_t>( e.Error() ),
                             errorMsg8,
-                            errorSource8,
-                            errorDesc8 );
+                            errorDesc8,
+                            errorSource8 );
     }
     catch ( const std::bad_alloc& e )
     {
