@@ -48,7 +48,7 @@ pfc::string8 SmpSource::get_owner()
 
 pfc::string8 SmpSource::get_repo()
 {
-    return "https://github.com/TheQwertiest/" SMP_UNDERSCORE_NAME;
+    return SMP_UNDERSCORE_NAME;
 }
 
 std::string SmpSource::GetComponentName() const
