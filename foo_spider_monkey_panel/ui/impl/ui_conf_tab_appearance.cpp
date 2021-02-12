@@ -105,6 +105,10 @@ void CConfigTabAppearance::Revert()
 {
 }
 
+void CConfigTabAppearance::Refresh()
+{
+}
+
 BOOL CConfigTabAppearance::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
     for ( auto& ddx: ddx_ )

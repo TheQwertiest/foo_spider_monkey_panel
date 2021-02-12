@@ -36,15 +36,12 @@ namespace smp::ui
 
 CDialogConf::CDialogConf( smp::panel::js_panel_window* pParent, Tab tabId )
     : pParent_( pParent )
-    , oldSettings_( pParent->GetSettings() )
-    , localSettings_( oldSettings_ )
-    , oldProperties_( pParent->GetPanelProperties() )
-    , localProperties_( oldProperties_ )
     , isCleanSlate_( ::IsCleanSlate( pParent->GetSettings() ) )
     , panelNameDdx_(
           qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( localSettings_.panelId, IDC_EDIT_PANEL_NAME ) )
     , startingTabId_( tabId )
 {
+    InitializeLocalData();
 }
 
 bool CDialogConf::IsCleanSlate() const
@@ -65,11 +62,10 @@ void CDialogConf::OnScriptTypeChange()
 
     OnDataChangedImpl( true );
 
+    localProperties_.values.clear();
     // package data is saved by the caller
     Apply( false );
 
-    // TODO: replace tab recreation with data only reinitialization
-    ReinitializeTabData(); ///< always reinitialize tab data to reset settings
     if ( tabLayoutChanged )
     {
         ReinitializeTabControls();
@@ -100,8 +96,6 @@ void CDialogConf::Apply( bool savePackageData )
     }
 
     OnDataChangedImpl( false );
-
-    DoFullDdxToUi();
     DisablePanelNameControls();
 
     if ( savePackageData )
@@ -119,6 +113,14 @@ void CDialogConf::Apply( bool savePackageData )
     auto updatedSettings = oldSettings_.GeneratePanelSettings();
     updatedSettings.properties = oldProperties_;
     pParent_->UpdateSettings( updatedSettings );
+
+    // setting might've been modified by the script
+    InitializeLocalData();
+
+    suppressDdxFromUi_ = true;
+    const auto ddxSuppress = qwr::final_action( [&] { suppressDdxFromUi_ = false; } );
+    DoFullDdxToUi();
+    RefreshTabData();
 }
 
 void CDialogConf::Revert()
@@ -136,7 +138,7 @@ void CDialogConf::Revert()
 
 void CDialogConf::SwitchTab( CDialogConf::Tab tabId )
 {
-    SetTabIdx( tabId );
+    SetActiveTabIdx( tabId );
     cTabs_.SetCurSel( activeTabIdx_ );
     CreateChildTab();
 }
@@ -158,7 +160,7 @@ BOOL CDialogConf::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 
     DoFullDdxToUi();
 
-    suppressUiDdx_ = false;
+    suppressDdxFromUi_ = false;
 
     return TRUE; // set focus to default control
 }
@@ -188,7 +190,7 @@ LRESULT CDialogConf::OnSize( UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL& bHan
 
 void CDialogConf::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
-    if ( suppressUiDdx_ )
+    if ( suppressDdxFromUi_ )
     {
         return;
     }
@@ -347,6 +349,14 @@ void CDialogConf::OnDataChangedImpl( bool hasChanged )
     CButton{ GetDlgItem( IDAPPLY ) }.EnableWindow( hasChanged );
 }
 
+void CDialogConf::InitializeLocalData()
+{
+    oldSettings_ = pParent_->GetSettings();
+    localSettings_ = oldSettings_;
+    oldProperties_ = pParent_->GetPanelProperties();
+    localProperties_ = oldProperties_;
+}
+
 void CDialogConf::InitializeTabData( smp::ui::CDialogConf::Tab tabId )
 {
     tabs_.clear();
@@ -359,19 +369,15 @@ void CDialogConf::InitializeTabData( smp::ui::CDialogConf::Tab tabId )
     tabs_.emplace_back( std::make_unique<CConfigTabAppearance>( *this, localSettings_ ) );
     tabs_.emplace_back( std::make_unique<CConfigTabProperties>( *this, localProperties_ ) );
 
-    SetTabIdx( tabId );
+    SetActiveTabIdx( tabId );
 }
 
-void CDialogConf::ReinitializeTabData()
+void CDialogConf::RefreshTabData()
 {
-    tabs_.resize( 1 );
-
-    if ( localSettings_.GetSourceType() == config::ScriptSourceType::Package )
+    for ( auto& pTab: tabs_ )
     {
-        tabs_.emplace_back( std::make_unique<CConfigTabPackage>( *this, localSettings_ ) );
+        pTab->Refresh();
     }
-    tabs_.emplace_back( std::make_unique<CConfigTabAppearance>( *this, localSettings_ ) );
-    tabs_.emplace_back( std::make_unique<CConfigTabProperties>( *this, localProperties_ ) );
 }
 
 void CDialogConf::InitializeTabControls()
@@ -441,24 +447,25 @@ void CDialogConf::DestroyChildTab()
     }
 }
 
-void CDialogConf::SetTabIdx( CDialogConf::Tab tabId )
+size_t CDialogConf::GetTabIdx( CDialogConf::Tab tabId ) const
 {
     switch ( tabId )
     {
     case Tab::script:
-        activeTabIdx_ = 0;
-        break;
+        return 0;
     case Tab::package:
-        activeTabIdx_ = 1;
-        break;
+        return 1;
     case Tab::properties:
-        activeTabIdx_ = tabs_.size() - 1;
-        break;
+        return tabs_.size() - 1;
     default:
         assert( false );
-        activeTabIdx_ = 0;
-        break;
+        return 0;
     }
+}
+
+void CDialogConf::SetActiveTabIdx( CDialogConf::Tab tabId )
+{
+    activeTabIdx_ = GetTabIdx( tabId );
 }
 
 } // namespace smp::ui

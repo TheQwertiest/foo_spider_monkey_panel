@@ -90,22 +90,26 @@ private:
     void OnStartEditPanelName( UINT uNotifyCode, int nID, CWindow wndCtl );
     void OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl );
     LRESULT OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl );
+
     void DisablePanelNameControls();
 
     void DoFullDdxToUi();
 
     void OnDataChangedImpl( bool hasChanged = true );
 
+    void InitializeLocalData();
+
     void InitializeTabData( CDialogConf::Tab tabId = CDialogConf::Tab::def );
-    void ReinitializeTabData();
+    void RefreshTabData();
     void InitializeTabControls();
     void ReinitializeTabControls();
     void CreateChildTab();
     void DestroyChildTab();
-    void SetTabIdx( CDialogConf::Tab tabId );
+    size_t GetTabIdx( CDialogConf::Tab tabId ) const;
+    void SetActiveTabIdx( CDialogConf::Tab tabId );
 
 private:
-    bool suppressUiDdx_ = true;
+    bool suppressDdxFromUi_ = true;
 
     panel::js_panel_window* pParent_ = nullptr;
     config::ParsedPanelSettings oldSettings_;

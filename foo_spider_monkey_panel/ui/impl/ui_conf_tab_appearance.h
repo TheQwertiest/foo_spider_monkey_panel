@@ -42,6 +42,7 @@ public:
     bool HasChanged() override;
     void Apply() override;
     void Revert() override;
+    void Refresh() override;
     // < IUiTab
 
 private:

@@ -81,6 +81,7 @@ public:
     bool HasChanged() override;
     void Apply() override;
     void Revert() override;
+    void Refresh() override;
     // < IUiTab
 
 private:
@@ -104,6 +105,8 @@ private:
     void DoFullDdxToUi();
     void UpdateUiButtons();
 
+    void InitializeLocalData();
+
     void InitializeFilesListBox();
     void SortFiles();
     void UpdateListBoxFromData();
@@ -116,9 +119,9 @@ private:
     CDialogConf& parent_;
     config::ParsedPanelSettings& settings_; ///< used only for package data save
 
-    const std::filesystem::path packagePath_;
-    const bool isSample_;
-    const std::filesystem::path mainScriptPath_;
+    std::filesystem::path packagePath_;
+    bool isSample_;
+    std::filesystem::path mainScriptPath_;
 
     std::u8string& scriptName_;
     std::u8string& scriptVersion_;

@@ -74,16 +74,12 @@ namespace smp::ui
 CConfigTabPackage::CConfigTabPackage( CDialogConf& parent, config::ParsedPanelSettings& settings )
     : parent_( parent )
     , settings_( settings )
-    , packagePath_( config::GetPackagePath( settings ) )
-    , isSample_( settings.isSample )
-    , mainScriptPath_( *settings.scriptPath )
     , scriptName_( settings.scriptName )
     , scriptVersion_( settings.scriptVersion )
     , scriptAuthor_( settings.scriptAuthor )
     , scriptDescription_( settings.scriptDescription )
     , shouldGrabFocus_( settings.shouldGrabFocus )
     , enableDragDrop_( settings.enableDragDrop )
-    , focusedFile_( mainScriptPath_ )
     , ddx_( { qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( scriptName_, IDC_EDIT_PACKAGE_NAME ),
               qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( scriptVersion_, IDC_EDIT_PACKAGE_VERSION ),
               qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( scriptAuthor_, IDC_EDIT_PACKAGE_AUTHOR ),
@@ -92,6 +88,7 @@ CConfigTabPackage::CConfigTabPackage( CDialogConf& parent, config::ParsedPanelSe
               qwr::ui::CreateUiDdx<qwr::ui::UiDdx_CheckBox>( shouldGrabFocus_, IDC_CHECK_ENABLE_DRAG_N_DROP ),
               qwr::ui::CreateUiDdx<qwr::ui::UiDdx_ListBox>( focusedFileIdx_, IDC_LIST_PACKAGE_FILES ) } )
 {
+    InitializeLocalData();
 }
 
 HWND CConfigTabPackage::CreateTab( HWND hParent )
@@ -120,6 +117,14 @@ void CConfigTabPackage::Apply()
 
 void CConfigTabPackage::Revert()
 {
+}
+
+void CConfigTabPackage::Refresh()
+{
+    if ( packagePath_ != config::GetPackagePath( settings_ ) )
+    {
+        InitializeLocalData();
+    }
 }
 
 BOOL CConfigTabPackage::OnInitDialog( HWND hwndFocus, LPARAM lParam )
@@ -489,6 +494,14 @@ void CConfigTabPackage::UpdateUiButtons()
     const bool enableFileActions = !!focusedFileIdx_; ///< fileIdx == 0 <> main script file is selected
     CWindow{ GetDlgItem( IDC_BUTTON_REMOVE_FILE ) }.EnableWindow( enableFileActions );
     CWindow{ GetDlgItem( IDC_BUTTON_RENAME_FILE ) }.EnableWindow( enableFileActions );
+}
+
+void CConfigTabPackage::InitializeLocalData()
+{
+    packagePath_ = config::GetPackagePath( settings_ );
+    isSample_ = settings_.isSample;
+    mainScriptPath_ = *settings_.scriptPath;
+    focusedFile_ = mainScriptPath_;
 }
 
 void CConfigTabPackage::InitializeFilesListBox()

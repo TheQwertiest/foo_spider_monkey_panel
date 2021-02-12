@@ -54,6 +54,14 @@ void CConfigTabProperties::Revert()
 {
 }
 
+void CConfigTabProperties::Refresh()
+{
+    if ( m_hWnd )
+    { // might be called while tab is inactive
+        UpdateUiFromData();
+    }
+}
+
 LRESULT CConfigTabProperties::OnInitDialog( HWND, LPARAM )
 {
     DlgResize_Init( false, false, WS_CHILD );

@@ -128,6 +128,10 @@ void CConfigTabScriptSource::Revert()
 {
 }
 
+void CConfigTabScriptSource::Refresh()
+{
+}
+
 BOOL CConfigTabScriptSource::OnInitDialog( HWND hwndFocus, LPARAM lParam )
 {
     DlgResize_Init( false, true, WS_CHILD );

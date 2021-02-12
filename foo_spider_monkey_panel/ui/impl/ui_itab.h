@@ -15,6 +15,7 @@ public:
     virtual bool HasChanged() = 0;
     virtual void Apply() = 0;
     virtual void Revert() = 0;
+    virtual void Refresh() = 0;
 };
 
 } // namespace smp::ui
