@@ -23,6 +23,12 @@ Legend:
 
 ___
 
+## v1.4.1
+### Changed 
+- **\[BREAKING]** Changed casing of `window.JsMemoryStats` fields for consistency with the rest of API: 
+  - `memory_usage` to `MemoryUsage`.
+  - `total_memory_usage` to `TotalMemoryUsage`.
+  - `total_memory_limit` to `TotalMemoryLimit`.
 
 ## v1.4.0
 
@@ -51,9 +57,9 @@ ___
 - Added `window.EditScript()` method. Uses editor that is set in `window.ShowConfigureV2()`. By default works the same as the old `window.Configure()` dialog.
 - Added `window.ShowConfigureV2()` method. This dialog contains only various panel settings. Script editing is now invoked via `Edit` buttons or  `window.EditScript()`.
 - Added `window.JsMemoryStats` property. 
-  - 'memory_usage': same values as `window.PanelMemoryUsage`.
-  - 'total_memory_usage': same values as `window.TotalMemoryUsage`.
-  - 'total_memory_limit': same values as `window.MemoryLimit`.
+  - `memory_usage`: same values as `window.PanelMemoryUsage`.
+  - `total_memory_usage`: same values as `window.TotalMemoryUsage`.
+  - `total_memory_limit`: same values as `window.MemoryLimit`.
 - Added `window.ScriptInfo` property. 
   Contains all the info about the script that was either set up with `window.DefineScript()` or was defined in script package.
 
