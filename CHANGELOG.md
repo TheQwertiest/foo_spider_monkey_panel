@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.4.1](#141---2021-02-14)
 - [1.4.0](#140---2021-02-11)
 - [1.3.1](#131---2020-07-18)
 - [1.3.0](#130---2020-07-10)
@@ -25,6 +26,8 @@
 ___
 
 ## [Unreleased][]
+
+## [1.4.1][] - 2021-02-14
 ### Changed
 - Changed casing of `window.JsMemoryStats` fields for consistency with the rest of API.
 - Added indicator when panel name is overriden by the script in `Configure` dialog.
@@ -375,7 +378,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.0...HEAD
+[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.1...HEAD
+[1.4.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.3.0...v1.3.1
 [1.3.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.2.3...v1.3.0
