@@ -25,6 +25,17 @@
 ___
 
 ## [Unreleased][]
+### Changed
+- Changed casing of `window.JsMemoryStats` fields for consistency with the rest of API.
+- Added indicator when panel name is overriden by the script in `Configure` dialog.
+- Improved package manager behaviour in various scenarios.
+
+### Fixed
+- Fixed various bugs in `Package` tab of `Configure` dialog.
+- Fixed sorting of package files.
+- Fixed conflict with `foo_wave_seekbar`.
+- Fixed `foo_acfu` integration.
+- Fixed data not refreshing on `Apply` in `Configure` dialog.
 
 ## [1.4.0][] - 2021-02-11
 ### Added
