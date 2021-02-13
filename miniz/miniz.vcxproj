@@ -14,10 +14,10 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="miniz.h" />
+    <ClCompile Include="miniz.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="miniz.c" />
+    <ClInclude Include="miniz\miniz.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>

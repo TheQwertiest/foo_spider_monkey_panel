@@ -50,6 +50,7 @@
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\span.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\timsort.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\wtl.props" />
+    <Import Project="$(SolutionDir)\..\props\local_dependencies\miniz.props" />
     <Import Project="$(SolutionDir)\..\props\local_dependencies\mozjs.props" />
     <Import Project="$(SolutionDir)\..\props\local_dependencies\property_list.props" />
   </ImportGroup>
@@ -59,6 +60,10 @@
   </PropertyGroup>
   <PropertyGroup>
     <CAExcludePath>$(IncludePath);$(ProjectDir)..\PropertyList\;$(CAExcludePath)</CAExcludePath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)'=='Debug'">
+    <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
