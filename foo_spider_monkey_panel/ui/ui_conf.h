@@ -71,7 +71,7 @@ public:
     bool IsCleanSlate() const;
 
     void OnDataChanged();
-    void OnScriptTypeChange();
+    void OnWholeScriptChange();
     bool HasChanged();
 
     void Apply( bool savePackageData = true );

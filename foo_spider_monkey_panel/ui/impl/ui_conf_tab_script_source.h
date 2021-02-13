@@ -101,6 +101,7 @@ private:
     void InitializeSamplesComboBox();
 
     bool RequestConfirmationForReset();
+    bool RequestConfirmationOnPackageChange();
 
 private:
     bool suppressUiDdx_ = true;

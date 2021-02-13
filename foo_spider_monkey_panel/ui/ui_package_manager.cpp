@@ -563,50 +563,24 @@ void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
             }
         } );
 
-        UnpackZip( fs::path( path ), tmpPath );
+        UnpackZip( path, tmpPath );
 
         const auto newSettings = [&tmpPath] {
             auto settings = config::GetPackageSettingsFromPath( tmpPath );
-            settings.scriptPath = path::Packages_Profile() / *settings.packageId / "main.js";
+
+            // Adjust script path to point to the target directory
+            const auto relativeMainScriptPath = fs::relative( *settings.scriptPath, tmpPath );
+            settings.scriptPath = path::Packages_Profile() / *settings.packageId / relativeMainScriptPath;
+
             return settings;
         }();
 
         if ( const auto oldPackagePathOpt = config::FindPackage( *newSettings.packageId );
              oldPackagePathOpt )
         {
-            const int iRet = MessageBox(
-                L"Another version of this package is present.\n"
-                L"Do you want to update?",
-                L"Importing package",
-                MB_YESNO );
-            if ( iRet != IDYES )
+            if ( !ConfirmPackageOverwrite( *oldPackagePathOpt, newSettings ) )
             {
                 return;
-            }
-
-            try
-            {
-                const auto oldSettings = config::GetPackageSettingsFromPath( *oldPackagePathOpt );
-                if ( oldSettings.scriptName != newSettings.scriptName )
-                {
-                    const int iRet = MessageBox(
-                        qwr::unicode::ToWide(
-                            fmt::format( "Currently installed package has a different name from the new one:\n"
-                                         "old: '{}' vs new: '{}'\n\n"
-                                         "Do you want to continue?",
-                                         oldSettings.scriptName,
-                                         newSettings.scriptName ) )
-                            .c_str(),
-                        L"Importing package",
-                        MB_YESNO | MB_ICONWARNING );
-                    if ( iRet != IDYES )
-                    {
-                        return;
-                    }
-                }
-            }
-            catch ( const qwr::QwrException& )
-            {
             }
 
             fs::remove_all( *oldPackagePathOpt );
@@ -640,6 +614,63 @@ void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
     {
         qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
     }
+}
+
+bool CDialogPackageManager::ConfirmPackageOverwrite( const std::filesystem::path& oldPackagePath, const config::ParsedPanelSettings& newSettings )
+{
+    try
+    {
+        const auto oldSettings = config::GetPackageSettingsFromPath( oldPackagePath );
+
+        const int iRet = MessageBox(
+            qwr::unicode::ToWide(
+                fmt::format( "Another version of this package is present:\n"
+                             "old: '{}' vs new: '{}'\n\n"
+                             "Do you want to update?",
+                             oldSettings.scriptVersion.empty() ? "<none>" : oldSettings.scriptVersion,
+                             newSettings.scriptVersion.empty() ? "<none>" : newSettings.scriptVersion ) )
+                .c_str(),
+            L"Importing package",
+            MB_YESNO );
+        if ( iRet != IDYES )
+        {
+            return false;
+        }
+
+        if ( oldSettings.scriptName != newSettings.scriptName )
+        {
+            const int iRet = MessageBox(
+                qwr::unicode::ToWide(
+                    fmt::format( "Currently installed package has a different name from the new one:\n"
+                                 "old: '{}' vs new: '{}'\n\n"
+                                 "Do you want to continue?",
+                                 oldSettings.scriptName.empty() ? "<none>" : oldSettings.scriptName,
+                                 newSettings.scriptName.empty() ? "<none>" : newSettings.scriptName ) )
+                    .c_str(),
+                L"Importing package",
+                MB_YESNO | MB_ICONWARNING );
+            if ( iRet != IDYES )
+            {
+                return false;
+            }
+        }
+    }
+    catch ( const qwr::QwrException& )
+    {
+        // old package might be broken and unparseable,
+        // but we still need to confirm
+        const int iRet = MessageBox(
+            L"Another version of this package is present.\n"
+            L"Do you want to update?",
+            L"Importing package",
+            MB_YESNO );
+        if ( iRet != IDYES )
+        {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace smp::ui

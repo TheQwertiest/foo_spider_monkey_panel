@@ -56,11 +56,11 @@ void CDialogConf::OnDataChanged()
     OnDataChangedImpl( true );
 }
 
-void CDialogConf::OnScriptTypeChange()
+void CDialogConf::OnWholeScriptChange()
 {
-    bool tabLayoutChanged = ( oldSettings_.GetSourceType() != localSettings_.GetSourceType()
-                              && ( oldSettings_.GetSourceType() == config::ScriptSourceType::Package
-                                   || localSettings_.GetSourceType() == config::ScriptSourceType::Package ) );
+    const auto tabLayoutChanged = ( oldSettings_.GetSourceType() != localSettings_.GetSourceType()
+                                    && ( oldSettings_.GetSourceType() == config::ScriptSourceType::Package
+                                         || localSettings_.GetSourceType() == config::ScriptSourceType::Package ) );
 
     OnDataChangedImpl( true );
 

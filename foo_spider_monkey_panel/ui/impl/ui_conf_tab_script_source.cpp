@@ -228,7 +228,7 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
 
             DoButtonsDdxToUi();
             DoFullDdxToUi();
-            parent_.OnScriptTypeChange();
+            parent_.OnWholeScriptChange();
 
             return;
         }
@@ -278,7 +278,7 @@ void CConfigTabScriptSource::OnBrowseFile( UINT uNotifyCode, int nID, CWindow wn
 
     DoFullDdxToUi();
     DoButtonsDdxToUi();
-    parent_.OnScriptTypeChange();
+    parent_.OnWholeScriptChange();
 }
 
 std::optional<std::filesystem::path> CConfigTabScriptSource::OnBrowseFileImpl()
@@ -311,15 +311,29 @@ void CConfigTabScriptSource::OnOpenPackageManager( UINT uNotifyCode, int nID, CW
         return;
     }
 
+    const auto isDifferentPackage = ( parsedSettingsOpt->packageId != settings_.packageId );
+
+    if ( !parent_.IsCleanSlate()
+         && isDifferentPackage
+         && !RequestConfirmationOnPackageChange() )
+    {
+        return;
+    }
+
     packageName_ = parsedSettingsOpt->scriptName;
     UpdateOnSrcChange( settings_, *parsedSettingsOpt );
 
     DoFullDdxToUi();
     DoButtonsDdxToUi();
-    parent_.OnScriptTypeChange();
+
+    if ( isDifferentPackage )
+    {
+        parent_.OnWholeScriptChange();
+    }
 }
 
-std::optional<config::ParsedPanelSettings> CConfigTabScriptSource::OnOpenPackageManagerImpl( const std::u8string packageId )
+std::optional<config::ParsedPanelSettings>
+CConfigTabScriptSource::OnOpenPackageManagerImpl( const std::u8string packageId )
 {
     CDialogPackageManager pkgMgr( packageId );
     pkgMgr.DoModal( m_hWnd );
@@ -666,6 +680,41 @@ bool CConfigTabScriptSource::RequestConfirmationForReset()
 
         return true;
     }
+}
+
+bool CConfigTabScriptSource::RequestConfirmationOnPackageChange()
+{
+    assert( settings_.packageId );
+    assert( sourceTypeId_ == IDC_RADIO_SRC_PACKAGE );
+
+    const int iRet = MessageBox(
+        L"!!! Changing package will reset all panel settings !!!\n\n"
+        L"Are you sure?",
+        L"Changing script type",
+        MB_YESNO | MB_ICONWARNING );
+    if ( iRet != IDYES )
+    {
+        return false;
+    }
+
+    if ( parent_.HasChanged() )
+    {
+        const int iRet = uMessageBox( m_hWnd, "Do you want to save your changes to package?", SMP_NAME, MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
+        switch ( iRet )
+        {
+        case IDYES:
+            parent_.Apply();
+            break;
+        case IDNO:
+            parent_.Revert();
+            break;
+        case IDCANCEL:
+        default:
+            return false;
+        }
+    }
+
+    return true;
 }
 
 } // namespace smp::ui

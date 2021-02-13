@@ -7,6 +7,7 @@
 
 #include <qwr/ui_ddx.h>
 
+#include <filesystem>
 #include <optional>
 
 namespace smp::ui
@@ -71,6 +72,8 @@ private:
 
     PackageData GeneratePackageData( const config::ParsedPanelSettings& parsedSettings );
     void ImportPackage( const std::filesystem::path& path );
+
+    bool ConfirmPackageOverwrite( const std::filesystem::path& oldPackagePath, const config::ParsedPanelSettings& newSettings );
 
 private:
     std::u8string focusedPackageId_;
