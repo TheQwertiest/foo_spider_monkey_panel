@@ -5,8 +5,8 @@
 namespace smp::utils
 {
 
-GUID GenerateGuid();
-std::wstring GuidToStr( const GUID& guid );
-std::optional<GUID> StrToGuid( const std::wstring& str );
+[[nodiscard]] GUID GenerateGuid();
+[[nodiscard]] std::wstring GuidToStr( const GUID& guid );
+[[nodiscard]] std::optional<GUID> StrToGuid( const std::wstring& str );
 
 } // namespace smp::utils

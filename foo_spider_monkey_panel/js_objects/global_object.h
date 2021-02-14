@@ -39,7 +39,7 @@ public:
 
 public: // methods
     /// @remark HWND might be null, if called before fb2k initialization is completed
-    HWND GetPanelHwnd() const;
+    [[nodiscard]] HWND GetPanelHwnd() const;
 
     void ClearInterval( uint32_t intervalId );
     void ClearTimeout( uint32_t timeoutId );

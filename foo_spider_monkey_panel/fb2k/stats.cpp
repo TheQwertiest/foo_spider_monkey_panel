@@ -307,7 +307,7 @@ fields GetStats( metadb_index_hash hash )
     }
 }
 
-void SetStats( metadb_index_hash hash, fields f )
+void SetStats( metadb_index_hash hash, const fields& f )
 {
     stream_writer_formatter_simple<false> writer;
     writer << f.playcount;

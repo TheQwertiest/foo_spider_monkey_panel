@@ -152,15 +152,15 @@ public:
     }
 };
 
-template <typename _Base, bool _AddRef = true>
-class com_object_impl_t : public _Base
+template <typename T, bool ShouldAddRef = true>
+class com_object_impl_t : public T
 {
 public:
     template <typename... Args>
     com_object_impl_t( Args&&... args )
-        : _Base( std::forward<Args>( args )... )
+        : T( std::forward<Args>( args )... )
     {
-        if constexpr ( _AddRef )
+        if constexpr ( ShouldAddRef )
         {
             ++m_dwRef;
         }

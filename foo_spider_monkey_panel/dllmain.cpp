@@ -26,7 +26,9 @@ ULONG_PTR g_pGdiToken = 0;
 CAppModule g_wtlModule;
 HMODULE g_hRichEdit = nullptr;
 
-enum SubsystemId : uint32_t
+namespace SubsystemId
+{
+enum Type : uint32_t
 {
     SMP_OLE,
     SMP_TYPELIB,
@@ -37,6 +39,7 @@ enum SubsystemId : uint32_t
     SMP_RICHEDIT,
     ENUM_END
 };
+}
 
 struct SubsystemError
 {
@@ -44,31 +47,31 @@ struct SubsystemError
     uint32_t errorCode = 0;
 };
 
-std::unordered_map<SubsystemId, SubsystemError> g_subsystem_failures;
+std::unordered_map<SubsystemId::Type, SubsystemError> g_subsystem_failures;
 
 void InitializeSubsystems( HINSTANCE ins )
 {
     if ( HRESULT hr = OleInitialize( nullptr );
          FAILED( hr ) )
     {
-        g_subsystem_failures[SMP_OLE] = { "OleInitialize failed", static_cast<uint32_t>( hr ) };
+        g_subsystem_failures[SubsystemId::SMP_OLE] = { "OleInitialize failed", static_cast<uint32_t>( hr ) };
     }
 
     {
-        std::array<wchar_t, MAX_PATH> path;
+        std::array<wchar_t, MAX_PATH> path{};
         (void)GetModuleFileName( ins, path.data(), path.size() ); // NULL-terminated in OS newer than WinXP
 
         if ( HRESULT hr = LoadTypeLibEx( path.data(), REGKIND_NONE, &g_typelib );
              FAILED( hr ) )
         {
-            g_subsystem_failures[SMP_TYPELIB] = { "LoadTypeLibEx failed", static_cast<uint32_t>( hr ) };
+            g_subsystem_failures[SubsystemId::SMP_TYPELIB] = { "LoadTypeLibEx failed", static_cast<uint32_t>( hr ) };
         }
     }
 
     if ( int iRet = Scintilla_RegisterClasses( ins );
          !iRet )
     {
-        g_subsystem_failures[SMP_SCINTILLA] = { "Scintilla_RegisterClasses failed", static_cast<uint32_t>( iRet ) };
+        g_subsystem_failures[SubsystemId::SMP_SCINTILLA] = { "Scintilla_RegisterClasses failed", static_cast<uint32_t>( iRet ) };
     }
 
     {
@@ -76,50 +79,50 @@ void InitializeSubsystems( HINSTANCE ins )
         if ( Gdiplus::Status gdiRet = Gdiplus::GdiplusStartup( &g_pGdiToken, &gdip_input, nullptr );
              Gdiplus::Ok != gdiRet )
         {
-            g_subsystem_failures[SMP_GDIPLUS] = { "OleInitialize failed", static_cast<uint32_t>( gdiRet ) };
+            g_subsystem_failures[SubsystemId::SMP_GDIPLUS] = { "OleInitialize failed", static_cast<uint32_t>( gdiRet ) };
         }
     }
 
     if ( HRESULT hr = g_wtlModule.Init( nullptr, ins );
          FAILED( hr ) )
     {
-        g_subsystem_failures[SMP_WTL] = { "WTL module Init failed", static_cast<uint32_t>( hr ) };
+        g_subsystem_failures[SubsystemId::SMP_WTL] = { "WTL module Init failed", static_cast<uint32_t>( hr ) };
     }
 
     // WTL ActiveX support
     if ( !AtlAxWinInit() )
     {
-        g_subsystem_failures[SMP_WTL_AX] = { "AtlAxWinInit failed", static_cast<uint32_t>( GetLastError() ) };
+        g_subsystem_failures[SubsystemId::SMP_WTL_AX] = { "AtlAxWinInit failed", static_cast<uint32_t>( GetLastError() ) };
     }
 
     {
         g_hRichEdit = LoadLibrary( CRichEditCtrl::GetLibraryName() );
         if ( !g_hRichEdit )
         {
-            g_subsystem_failures[SMP_RICHEDIT] = { "Failed to load RichEdit library", static_cast<uint32_t>( GetLastError() ) };
+            g_subsystem_failures[SubsystemId::SMP_RICHEDIT] = { "Failed to load RichEdit library", static_cast<uint32_t>( GetLastError() ) };
         }
     }
 }
 
 void FinalizeSubsystems()
 {
-    if ( !g_subsystem_failures.count( SMP_RICHEDIT ) )
+    if ( !g_subsystem_failures.count( SubsystemId::SMP_RICHEDIT ) )
     {
         FreeLibrary( g_hRichEdit );
     }
-    if ( !g_subsystem_failures.count( SMP_WTL ) )
+    if ( !g_subsystem_failures.count( SubsystemId::SMP_WTL ) )
     {
         g_wtlModule.Term();
     }
-    if ( !g_subsystem_failures.count( SMP_GDIPLUS ) )
+    if ( !g_subsystem_failures.count( SubsystemId::SMP_GDIPLUS ) )
     {
         Gdiplus::GdiplusShutdown( g_pGdiToken );
     }
-    if ( !g_subsystem_failures.count( SMP_SCINTILLA ) )
+    if ( !g_subsystem_failures.count( SubsystemId::SMP_SCINTILLA ) )
     {
         Scintilla_ReleaseResources();
     }
-    if ( !g_subsystem_failures.count( SMP_OLE ) )
+    if ( !g_subsystem_failures.count( SubsystemId::SMP_OLE ) )
     {
         OleUninitialize();
     }

@@ -5,7 +5,7 @@
 namespace smp
 {
 
-qwr::ThreadPool& smp::GetThreadPoolInstance()
+qwr::ThreadPool& GetThreadPoolInstance()
 {
     static qwr::ThreadPool tp;
     return tp;

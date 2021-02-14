@@ -5,6 +5,7 @@
 #include <utils/guid_helpers.h>
 
 #include <qwr/string_helpers.h>
+#include <qwr/type_traits.h>
 #include <qwr/winapi_error_helpers.h>
 
 namespace
@@ -106,6 +107,8 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
 
         for ( auto i: ranges::views::indices( count ) )
         {
+            (void)i;
+
             mozjs::SerializedJsValue serializedValue;
 
             const std::u8string u8PropName = qwr::pfc_x::ReadString( reader, abort );
@@ -191,7 +194,7 @@ void SaveProperties( stream_writer& writer, abort_callback& abort, const PanelPr
                 }
                 else
                 {
-                    static_assert( false, "non-exhaustive visitor!" );
+                    static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
                 }
             },
                                                       serializedValue );

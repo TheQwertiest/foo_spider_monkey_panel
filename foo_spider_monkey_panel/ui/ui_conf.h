@@ -60,7 +60,10 @@ public:
         COMMAND_HANDLER_EX( IDC_BUTTON_COMMIT_PANEL_NAME, BN_CLICKED, OnCommitPanelName )
         COMMAND_ID_HANDLER_EX( ID_HELP, OnHelp )
         MESSAGE_HANDLER( WM_WINDOWPOSCHANGED, OnWindowPosChanged )
+#pragma warning( push )
+#pragma warning( disable : 26454 ) // Arithmetic overflow
         NOTIFY_HANDLER_EX( IDC_TAB_CONF, TCN_SELCHANGE, OnSelectionChanged )
+#pragma warning( pop )
         CHAIN_MSG_MAP( CDialogResize<CDialogConf> )
     END_MSG_MAP()
 

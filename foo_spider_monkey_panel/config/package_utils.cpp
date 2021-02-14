@@ -29,9 +29,6 @@ void Parse_PackageFromPath( const std::filesystem::path& packageDir, config::Par
 
     try
     {
-        const auto valueOrEmpty = []( const std::u8string& str ) -> std::u8string {
-            return ( str.empty() ? "<empty>" : str );
-        };
         qwr::QwrException::ExpectTrue( fs::exists( packageDir ),
                                        "Can't find the required package: `{}'",
                                        packageDir.u8string() );
@@ -217,7 +214,6 @@ std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSetti
 
         const auto packagePath = GetPackagePath( settings );
 
-        std::list<fs::path> dirsToProcess;
         if ( const auto scriptsDir = packagePath / "scripts";
              fs::exists( scriptsDir ) )
         {
@@ -248,7 +244,6 @@ std::vector<std::filesystem::path> GetPackageFiles( const ParsedPanelSettings& s
 
         const auto packagePath = GetPackagePath( settings );
 
-        std::list<fs::path> dirsToProcess;
         if ( const auto assetsDir = packagePath / "assets";
              fs::exists( assetsDir ) )
         {

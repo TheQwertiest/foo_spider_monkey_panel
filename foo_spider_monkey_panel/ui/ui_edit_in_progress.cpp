@@ -37,9 +37,8 @@ BOOL CALLBACK EnumWndCallback( HWND hWnd, LPARAM lParam )
 
 HWND GetMainWndFromProcId( unsigned long process_id )
 {
-    EnumHandleData data;
+    EnumHandleData data{};
     data.procId = process_id;
-    data.hWnd = nullptr;
     EnumWindows( EnumWndCallback, (LPARAM)&data );
     return data.hWnd;
 }
@@ -137,7 +136,7 @@ LRESULT CEditInProgress::OnCloseCmd( WORD, WORD wID, HWND )
         if ( wID == IDCANCEL )
         {
             const auto errorMsg = ( errorMessage_.empty() ? std::string{ "Unknown error caused by editor" } : errorMessage_ );
-            const int ret = uMessageBox( m_hWnd, errorMsg.c_str(), "Editor error", MB_ICONWARNING | MB_SETFOREGROUND | MB_OK );
+            uMessageBox( m_hWnd, errorMsg.c_str(), "Editor error", MB_ICONWARNING | MB_SETFOREGROUND | MB_OK );
         }
 
         if ( editorThread_.joinable() )
@@ -172,6 +171,7 @@ void CEditInProgress::EditorHandler()
 
         BOOL bRet = ShellExecuteEx( &ShExecInfo );
         qwr::error::CheckWinApi( bRet, "ShellExecuteEx" );
+        qwr::QwrException::ExpectTrue( !!ShExecInfo.hProcess, "Failed to get editor handle" );
 
         WaitForInputIdle( ShExecInfo.hProcess, INFINITE );
 

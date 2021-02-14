@@ -279,7 +279,7 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     assert( pBitmap );
 
     const Gdiplus::Rect rect{ 0, 0, static_cast<int>( pBitmap->GetWidth() ), static_cast<int>( pBitmap->GetHeight() ) };
-    Gdiplus::BitmapData bmpdata;
+    Gdiplus::BitmapData bmpdata{};
 
     Gdiplus::Status gdiRet = pBitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
     qwr::error::CheckGdi( gdiRet, "LockBits" );
@@ -337,7 +337,7 @@ std::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     assert( pBitmap );
 
     const Gdiplus::Rect rect{ 0, 0, static_cast<int>( pBitmap->GetWidth() ), static_cast<int>( pBitmap->GetHeight() ) };
-    Gdiplus::BitmapData bmpdata;
+    Gdiplus::BitmapData bmpdata{};
 
     Gdiplus::Status gdiRet = pBitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
     qwr::error::CheckGdi( gdiRet, "LockBits" );

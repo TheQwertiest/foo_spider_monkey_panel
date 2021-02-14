@@ -9,6 +9,7 @@
 #include <nlohmann/json.hpp>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
+#include <qwr/type_traits.h>
 
 #include <filesystem>
 #include <optional>
@@ -199,7 +200,7 @@ ParsedPanelSettings ParsedPanelSettings::Parse( const PanelSettings& settings )
         }
         else
         {
-            static_assert( false, "non-exhaustive visitor!" );
+            static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
         }
     },
                 settings.payload );

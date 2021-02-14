@@ -65,7 +65,10 @@ public:
         COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
+#pragma warning( push )
+#pragma warning( disable : 26454 ) // Arithmetic overflow
         NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
+#pragma warning( pop )
         MESSAGE_HANDLER_EX( com::FileDropTarget::GetOnDropMsg(), OnDropFiles )
         CHAIN_MSG_MAP( CDialogResize<CConfigTabPackage> )
     END_MSG_MAP()
@@ -76,9 +79,9 @@ public:
 
     // > IUiTab
     HWND CreateTab( HWND hParent ) override;
-    CDialogImplBase& Dialog() override;
-    const wchar_t* Name() const override;
-    bool HasChanged() override;
+    [[nodiscard]] CDialogImplBase& Dialog() override;
+    [[nodiscard]] const wchar_t* Name() const override;
+    [[nodiscard]] bool HasChanged() override;
     void Apply() override;
     void Revert() override;
     void Refresh() override;

@@ -15,7 +15,7 @@ struct fields
 
 bool HashHandle( metadb_handle_ptr const& pMetadb, metadb_index_hash& hash );
 fields GetStats( metadb_index_hash hash );
-void SetStats( metadb_index_hash hash, fields f );
+void SetStats( metadb_index_hash hash, const fields& f );
 void RefreshStats( const pfc::list_base_const_t<metadb_index_hash>& hashes );
 void RefreshStats( const metadb_index_hash& hash );
 

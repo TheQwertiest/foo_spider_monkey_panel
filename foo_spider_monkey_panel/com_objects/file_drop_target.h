@@ -74,9 +74,9 @@ private:
     HRESULT OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
     HRESULT OnDragLeave() override;
 
-    DWORD GetEffect() const;
+    [[nodiscard]] DWORD GetEffect() const;
 
-    static bool IsFile( IDataObject* pDataObj );
+    [[nodiscard]] static bool IsFile( IDataObject* pDataObj );
 
 private:
     HWND hDropWnd_ = nullptr;

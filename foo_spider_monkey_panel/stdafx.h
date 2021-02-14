@@ -58,12 +58,36 @@ using std::max;
 #   include <columns_ui-sdk/ui_extension.h>
 #pragma warning( pop ) 
 
+#if defined(__clang__)
+
+#define SMP_DO_PRAGMA_(x) _Pragma (#x)
+#define SMP_DO_PRAGMA(x) SMP_DO_PRAGMA_(x)
+
+#define SMP_CLANG_WARNING_PUSH \
+    _Pragma( "clang diagnostic push" )
+
+#define SMP_CLANG_SUPPRESS_WARNING(w) \
+    SMP_DO_PRAGMA(clang diagnostic ignored w)
+
+#define SMP_CLANG_WARNING_POP \
+    _Pragma( "clang diagnostic pop" )
+
+#else
+
+#define SMP_CLANG_WARNING_PUSH
+#define SMP_CLANG_SUPPRESS_WARNING(w)
+#define SMP_CLANG_WARNING_POP
+
+#endif
+
+// 4251: dll interface warning
 #define SMP_MJS_SUPPRESS_WARNINGS_PUSH \
     __pragma( warning( push ) )        \
-    __pragma( warning( disable : 4251 ) ) /* dll interface warning */
+    __pragma( warning( disable : 4251 ) ) 
 
 #define SMP_MJS_SUPPRESS_WARNINGS_POP \
     __pragma( warning( pop ) )
+
 
 // Mozilla SpiderMonkey
 SMP_MJS_SUPPRESS_WARNINGS_PUSH

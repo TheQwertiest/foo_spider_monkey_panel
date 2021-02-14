@@ -31,17 +31,17 @@ public:
     static size_t GetInternalSize();
 
 public:
-    bool CheckComponent( const std::u8string& name, bool is_dll = true );
-    bool CheckComponentWithOpt( size_t optArgCount, const std::u8string& name, bool is_dll );
-    bool CheckFont( const std::wstring& name );
+    bool CheckComponent( const std::u8string& name, bool is_dll = true ) const;
+    bool CheckComponentWithOpt( size_t optArgCount, const std::u8string& name, bool is_dll ) const;
+    bool CheckFont( const std::wstring& name ) const;
     uint32_t ColourPicker( uint32_t hWnd, uint32_t default_colour );
-    uint32_t DetectCharset( const std::wstring& path );
+    uint32_t DetectCharset( const std::wstring& path ) const;
     void EditTextFile( const std::wstring& path );
-    bool FileExists( const std::wstring& path );
+    bool FileExists( const std::wstring& path ) const;
     // TODO v2: remove
     JS::Value FileTest( const std::wstring& path, const std::wstring& mode );
-    std::u8string FormatDuration( double p );
-    std::u8string FormatFileSize( uint64_t p );
+    std::u8string FormatDuration( double p ) const;
+    std::u8string FormatFileSize( uint64_t p ) const;
     void GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true, bool only_embed = false, bool no_load = false );
     void GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load );
     JSObject* GetAlbumArtAsyncV2( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true, bool only_embed = false, bool no_load = false );
@@ -50,17 +50,17 @@ public:
     JSObject* GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::u8string& rawpath, uint32_t art_id );
     JSObject* GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true );
     JSObject* GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub );
-    uint64_t GetFileSize( const std::wstring& path );
-    std::u8string GetPackagePath( const std::u8string& packageId );
-    uint32_t GetSysColour( uint32_t index );
-    uint32_t GetSystemMetrics( uint32_t index );
+    uint64_t GetFileSize( const std::wstring& path ) const;
+    std::u8string GetPackagePath( const std::u8string& packageId ) const;
+    uint32_t GetSysColour( uint32_t index ) const;
+    uint32_t GetSystemMetrics( uint32_t index ) const;
     JSObject* Glob( const std::u8string& pattern, uint32_t exc_mask = FILE_ATTRIBUTE_DIRECTORY, uint32_t inc_mask = 0xFFFFFFFF );
     JSObject* GlobWithOpt( size_t optArgCount, const std::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask );
     std::u8string InputBox( uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def = "", bool error_on_cancel = false );
     std::u8string InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def, bool error_on_cancel );
-    bool IsDirectory( const std::wstring& path );
-    bool IsFile( const std::wstring& path );
-    bool IsKeyPressed( uint32_t vkey );
+    bool IsDirectory( const std::wstring& path ) const;
+    bool IsFile( const std::wstring& path ) const;
+    bool IsKeyPressed( uint32_t vkey ) const;
     std::wstring MapString( const std::wstring& str, uint32_t lcid, uint32_t flags );
     bool PathWildcardMatch( const std::wstring& pattern, const std::wstring& str );
     std::wstring ReadINI( const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval = L"" );
@@ -75,7 +75,7 @@ public:
     bool WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const std::u8string& content, bool write_bom );
 
 public:
-    std::u8string get_Version();
+    std::u8string get_Version() const;
 
 private:
     JsUtils( JSContext* cx );

@@ -140,7 +140,7 @@ uint32_t JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    const HDC hDc = pGdi_->GetHDC();
+    const auto hDc = pGdi_->GetHDC();
     qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
@@ -152,7 +152,7 @@ uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font 
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    const HDC hDc = pGdi_->GetHDC();
+    const auto hDc = pGdi_->GetHDC();
     qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
@@ -340,7 +340,7 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
 
     std::vector<smp::utils::wrapped_item> result;
     {
-        const HDC hDc = pGdi_->GetHDC();
+        const auto hDc = pGdi_->GetHDC();
         qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
         gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
@@ -450,10 +450,10 @@ void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( bitmap, "bitmap argument is null" );
 
-    const HDC srcDc = bitmap->GetHDC();
+    const auto srcDc = bitmap->GetHDC();
     assert( srcDc );
 
-    const HDC hDc = pGdi_->GetHDC();
+    const auto hDc = pGdi_->GetHDC();
     qwr::final_action autoHdcReleaser( [pGdi = pGdi_, hDc]() { pGdi->ReleaseHDC( hDc ); } );
 
     BOOL bRet = ::GdiAlphaBlend( hDc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, BLENDFUNCTION{ AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA } );
@@ -513,7 +513,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    const HDC hDc = pGdi_->GetHDC();
+    const auto hDc = pGdi_->GetHDC();
     qwr::final_action autoHdcReleaser( [pGdi = pGdi_, hDc] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
@@ -679,7 +679,7 @@ void JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mo
     }
 }
 
-void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, const Gdiplus::RectF& rect, float arc_width, float arc_height )
+void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& gp, const Gdiplus::RectF& rect, float arc_width, float arc_height ) const
 {
     const float arc_dia_w = arc_width * 2;
     const float arc_dia_h = arc_height * 2;

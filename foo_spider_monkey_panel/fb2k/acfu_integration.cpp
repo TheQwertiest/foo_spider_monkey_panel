@@ -14,16 +14,16 @@ class SmpSource
 {
 public:
     // ::acfu::source
-    GUID get_guid() override;
+    [[nodiscard]] GUID get_guid() override;
     ::acfu::request::ptr create_request() override;
 
     // qwr::acfu::github_conf
-    static pfc::string8 get_owner();
-    static pfc::string8 get_repo();
+    [[nodiscard]] static pfc::string8 get_owner();
+    [[nodiscard]] static pfc::string8 get_repo();
 
     // qwr::acfu::QwrSource
-    std::string GetComponentName() const override;
-    std::string GetComponentFilename() const override;
+    [[nodiscard]] std::string GetComponentName() const override;
+    [[nodiscard]] std::string GetComponentFilename() const override;
 };
 
 } // namespace

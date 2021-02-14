@@ -7,7 +7,7 @@ namespace smp::utils
 
 GUID GenerateGuid()
 {
-    GUID guid;
+    GUID guid{};
     (void)CoCreateGuid( &guid ); //< should not fail
     return guid;
 }
@@ -17,8 +17,8 @@ std::wstring GuidToStr( const GUID& guid )
     std::wstring guidStr;
 
     guidStr.resize( 64 );
-    StringFromGUID2( guid, guidStr.data(), guidStr.size() );
-    guidStr.resize( wcslen( guidStr.c_str() ) );
+    const auto strSizeWithTerminator = StringFromGUID2( guid, guidStr.data(), guidStr.size() );
+    guidStr.resize( strSizeWithTerminator - 1 );
 
     return guidStr;
 }

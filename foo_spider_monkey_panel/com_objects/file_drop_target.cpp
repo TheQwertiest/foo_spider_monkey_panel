@@ -22,7 +22,7 @@ void FileDropTarget::FinalRelease()
 {
 }
 
-HRESULT FileDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+HRESULT FileDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect )
 {
     isFile_ = IsFile( pDataObj );
     *pdwEffect = GetEffect();
@@ -30,13 +30,13 @@ HRESULT FileDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, P
     return S_OK;
 }
 
-HRESULT FileDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+HRESULT FileDropTarget::OnDragOver( DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect )
 {
     *pdwEffect = GetEffect();
     return S_OK;
 }
 
-HRESULT FileDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+HRESULT FileDropTarget::OnDrop( IDataObject* pDataObj, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect )
 {
     isFile_ = IsFile( pDataObj );
     *pdwEffect = GetEffect();

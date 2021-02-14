@@ -132,7 +132,7 @@ void CConfigTabScriptSource::Refresh()
 {
 }
 
-BOOL CConfigTabScriptSource::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+BOOL CConfigTabScriptSource::OnInitDialog( HWND /*hwndFocus*/, LPARAM /*lParam*/ )
 {
     DlgResize_Init( false, true, WS_CHILD );
 
@@ -149,7 +149,7 @@ BOOL CConfigTabScriptSource::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return TRUE; // set focus to default control
 }
 
-void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CConfigTabScriptSource::OnScriptSrcChange( UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/ )
 {
     if ( suppressUiDdx_ )
     {
@@ -168,7 +168,6 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
         ( *it )->ReadFromUi();
     }
 
-    bool isCanceled = false;
     const auto newPayloadOpt = [&]() -> std::optional<config::PanelSettings::ScriptVariant> {
         switch ( sourceTypeId_ )
         {
@@ -194,7 +193,6 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
             {
                 return std::nullopt;
             }
-            break;
         }
         case IDC_RADIO_SRC_PACKAGE:
         {
@@ -208,7 +206,6 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT uNotifyCode, int nID, CWind
             {
                 return std::nullopt;
             }
-            break;
         }
         default:
         {
@@ -256,7 +253,7 @@ void CConfigTabScriptSource::OnDdxValueChange( int nID )
     ( *it )->WriteToUi();
 }
 
-void CConfigTabScriptSource::OnBrowseFile( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CConfigTabScriptSource::OnBrowseFile( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     if ( !parent_.IsCleanSlate() && !RequestConfirmationForReset() )
     {
@@ -301,7 +298,7 @@ std::optional<std::filesystem::path> CConfigTabScriptSource::OnBrowseFileImpl()
     return pathOpt;
 }
 
-void CConfigTabScriptSource::OnOpenPackageManager( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CConfigTabScriptSource::OnOpenPackageManager( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     assert( settings_.packageId );
 
@@ -333,7 +330,7 @@ void CConfigTabScriptSource::OnOpenPackageManager( UINT uNotifyCode, int nID, CW
 }
 
 std::optional<config::ParsedPanelSettings>
-CConfigTabScriptSource::OnOpenPackageManagerImpl( const std::u8string packageId )
+CConfigTabScriptSource::OnOpenPackageManagerImpl( const std::u8string& packageId )
 {
     CDialogPackageManager pkgMgr( packageId );
     pkgMgr.DoModal( m_hWnd );
@@ -341,7 +338,7 @@ CConfigTabScriptSource::OnOpenPackageManagerImpl( const std::u8string packageId 
     return pkgMgr.GetPackage();
 }
 
-void CConfigTabScriptSource::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CConfigTabScriptSource::OnEditScript( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     if ( settings_.GetSourceType() == config::ScriptSourceType::Package )
     {
@@ -426,7 +423,7 @@ void CConfigTabScriptSource::OnEditScriptWith( UINT uNotifyCode, int nID, CWindo
     OnEditScript( uNotifyCode, nID, wndCtl );
 }
 
-LRESULT CConfigTabScriptSource::OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lParam )
+LRESULT CConfigTabScriptSource::OnScriptSaved( UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/ )
 {
     parent_.OnDataChanged();
     parent_.Apply();

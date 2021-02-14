@@ -42,7 +42,7 @@ public: // ctor
     static JSObject* Constructor( JSContext* cx, JsActiveXObject* pActiveXObject );
 
 public:
-    bool AtEnd();
+    bool AtEnd() const;
     JS::Value Item();
     void MoveFirst();
     void MoveNext();

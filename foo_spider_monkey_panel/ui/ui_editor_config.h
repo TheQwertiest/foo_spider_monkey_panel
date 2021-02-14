@@ -46,8 +46,6 @@ private:
     std::u8string GetItemTextStr( int nItem, int nSubItem );
 
 private:
-    bool hasChanged_ = false;
-
     CListViewCtrl propertiesListView_;
 };
 

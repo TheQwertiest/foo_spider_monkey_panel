@@ -46,7 +46,10 @@ public:
         COMMAND_HANDLER_EX( IDC_BUTTON_BROWSE, BN_CLICKED, OnBrowseFile )
         COMMAND_HANDLER_EX( IDC_BUTTON_OPEN_PKG_MGR, BN_CLICKED, OnOpenPackageManager )
         COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
+#pragma warning( push )
+#pragma warning( disable : 26454 ) // Arithmetic overflow
         NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
+#pragma warning( pop )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
         CHAIN_MSG_MAP( CDialogResize<CConfigTabScriptSource> )
@@ -69,9 +72,9 @@ public:
 
     // > IUiTab
     HWND CreateTab( HWND hParent ) override;
-    CDialogImplBase& Dialog() override;
-    const wchar_t* Name() const override;
-    bool HasChanged() override;
+    [[nodiscard]] CDialogImplBase& Dialog() override;
+    [[nodiscard]] const wchar_t* Name() const override;
+    [[nodiscard]] bool HasChanged() override;
     void Apply() override;
     void Revert() override;
     void Refresh() override;
@@ -85,7 +88,7 @@ private:
     void OnBrowseFile( UINT uNotifyCode, int nID, CWindow wndCtl );
     std::optional<std::filesystem::path> OnBrowseFileImpl();
     void OnOpenPackageManager( UINT uNotifyCode, int nID, CWindow wndCtl );
-    std::optional<config::ParsedPanelSettings> OnOpenPackageManagerImpl( const std::u8string packageId );
+    std::optional<config::ParsedPanelSettings> OnOpenPackageManagerImpl( const std::u8string& packageId );
 
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     LONG OnEditScriptDropDown( LPNMHDR pnmh ) const;

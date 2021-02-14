@@ -108,7 +108,7 @@ public:
 private:
     JsGdiGraphics( JSContext* cx );
 
-    void GetRoundRectPath( Gdiplus::GraphicsPath& gp, const Gdiplus::RectF& rect, float arc_width, float arc_height );
+    void GetRoundRectPath( Gdiplus::GraphicsPath& gp, const Gdiplus::RectF& rect, float arc_width, float arc_height ) const;
     void ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::PointF>& gdiPoints );
 
 private:

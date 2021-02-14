@@ -54,8 +54,8 @@ FmtResultIt PrintSymbolName( HANDLE hProcess, DWORD64 stackFramePtr, nonstd::spa
     // Converting an address to a symbol is documented here:
     // https://docs.microsoft.com/en-us/windows/win32/debug/retrieving-symbol-information-by-address
 
-    char symbolInfoBuffer[sizeof( SYMBOL_INFOW ) + MAX_SYM_NAME * sizeof( wchar_t )];
-    auto* pSymbolInfo = reinterpret_cast<SYMBOL_INFOW*>( symbolInfoBuffer );
+    std::array<char, sizeof( SYMBOL_INFOW ) + MAX_SYM_NAME * sizeof( wchar_t )> symbolInfoBuffer;
+    auto* pSymbolInfo = reinterpret_cast<SYMBOL_INFOW*>( symbolInfoBuffer.data() );
     pSymbolInfo->SizeOfStruct = sizeof( SYMBOL_INFOW );
     pSymbolInfo->MaxNameLen = MAX_SYM_NAME;
 
@@ -155,7 +155,7 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
     qwr::final_action autoSymCleanup{ [&hProcess] { SymCleanup( hProcess ); } };
 
     {
-        std::array<wchar_t, 512> pathBuffer;
+        std::array<wchar_t, 512> pathBuffer{};
         if ( nonstd::span<wchar_t> path{ pathBuffer };
              !GetComponentPathNoExcept( path ) )
         {

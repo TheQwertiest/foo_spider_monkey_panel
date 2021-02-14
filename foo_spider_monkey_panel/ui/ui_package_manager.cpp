@@ -91,7 +91,7 @@ void CDialogPackageManager::OnDestroy()
     pPackagesListBoxDrop_.Release();
 }
 
-void CDialogPackageManager::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CDialogPackageManager::OnDdxUiChange( UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/ )
 {
     auto it = ranges::find_if( ddx_, [nID]( auto& ddx ) {
         return ddx->IsMatchingId( nID );
@@ -109,7 +109,7 @@ void CDialogPackageManager::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wn
     }
 }
 
-void CDialogPackageManager::OnNewPackage( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CDialogPackageManager::OnNewPackage( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     std::u8string curName;
     while ( true )
@@ -150,7 +150,7 @@ void CDialogPackageManager::OnNewPackage( UINT uNotifyCode, int nID, CWindow wnd
     }
 }
 
-void CDialogPackageManager::OnDeletePackage( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CDialogPackageManager::OnDeletePackage( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     if ( packages_.empty() )
     {
@@ -185,14 +185,14 @@ void CDialogPackageManager::OnDeletePackage( UINT uNotifyCode, int nID, CWindow 
     }
 
     packages_.erase( packages_.cbegin() + focusedPackageIdx_ );
-    focusedPackageIdx_ = ( packages_.size() ? std::max( 0, focusedPackageIdx_ - 1 ) : -1 );
+    focusedPackageIdx_ = ( packages_.empty() ? -1 : std::max( 0, focusedPackageIdx_ - 1 ) );
     focusedPackageId_ = ( focusedPackageIdx_ == -1 ? std::u8string{} : packages_[focusedPackageIdx_].id );
 
     UpdateListBoxFromData();
     DoFullDdxToUi();
 }
 
-void CDialogPackageManager::OnImportPackage( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CDialogPackageManager::OnImportPackage( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     qwr::file::FileDialogOptions fdOpts{};
     fdOpts.savePathGuid = guid::dialog_path;
@@ -209,7 +209,7 @@ void CDialogPackageManager::OnImportPackage( UINT uNotifyCode, int nID, CWindow 
     ImportPackage( *pathOpt );
 }
 
-void CDialogPackageManager::OnExportPackage( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CDialogPackageManager::OnExportPackage( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     assert( focusedPackageIdx_ >= 0 && static_cast<size_t>( focusedPackageIdx_ ) < packages_.size() );
     assert( packages_[focusedPackageIdx_].parsedSettings );
@@ -257,7 +257,7 @@ void CDialogPackageManager::OnExportPackage( UINT uNotifyCode, int nID, CWindow 
     }
 }
 
-void CDialogPackageManager::OnOpenFolder( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CDialogPackageManager::OnOpenFolder( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     assert( focusedPackageIdx_ >= 0 && static_cast<size_t>( focusedPackageIdx_ ) < packages_.size() );
     assert( packages_[focusedPackageIdx_].parsedSettings );
@@ -285,7 +285,7 @@ void CDialogPackageManager::OnOpenFolder( UINT uNotifyCode, int nID, CWindow wnd
     }
 }
 
-LRESULT CDialogPackageManager::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogPackageManager::OnCloseCmd( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/ )
 {
     EndDialog( wID );
     return 0;
@@ -306,7 +306,7 @@ LRESULT CDialogPackageManager::OnRichEditLinkClick( LPNMHDR pnmh )
     return 0;
 }
 
-LRESULT CDialogPackageManager::OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam )
+LRESULT CDialogPackageManager::OnDropFiles( UINT /*uMsg*/, WPARAM wParam, LPARAM lParam )
 {
     return pPackagesListBoxDrop_->ProcessMessage(
         packagesListBox_,
@@ -372,7 +372,7 @@ void CDialogPackageManager::LoadPackages()
                 continue;
             }
 
-            for ( const auto dirIt: fs::directory_iterator( packagesDir ) )
+            for ( const auto& dirIt: fs::directory_iterator( packagesDir ) )
             {
                 const auto packageJson = dirIt.path() / L"package.json";
                 if ( !fs::exists( packageJson ) || !fs::is_regular_file( packageJson ) )

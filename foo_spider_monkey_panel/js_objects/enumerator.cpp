@@ -108,7 +108,7 @@ JSObject* JsEnumerator::Constructor( JSContext* cx, JsActiveXObject* pActiveXObj
     return JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) );
 }
 
-bool JsEnumerator::AtEnd()
+bool JsEnumerator::AtEnd() const
 {
     return isAtEnd_;
 }

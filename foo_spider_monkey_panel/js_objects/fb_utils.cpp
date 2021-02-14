@@ -346,14 +346,14 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWnd, JsFbMetadbHandleList* handles, ui
     return ( DRAGDROP_S_CANCEL == hr ? DROPEFFECT_NONE : returnEffect );
 }
 
-uint32_t JsFbUtils::DoDragDropWithOpt( size_t optArgCount, uint32_t hWindow, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options )
+uint32_t JsFbUtils::DoDragDropWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandleList* handles, uint32_t okEffects, JS::HandleValue options )
 {
     switch ( optArgCount )
     {
     case 0:
-        return DoDragDrop( hWindow, handles, okEffects, options );
+        return DoDragDrop( hWnd, handles, okEffects, options );
     case 1:
-        return DoDragDrop( hWindow, handles, okEffects );
+        return DoDragDrop( hWnd, handles, okEffects );
     default:
         throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
     }
@@ -495,7 +495,7 @@ std::u8string JsFbUtils::GetOutputDevices()
     json j = json::array();
     auto api = output_manager_v2::get();
 
-    outputCoreConfig_t config;
+    outputCoreConfig_t config{};
     api->getCoreConfig( config );
 
     api->listDevices( [&j, &config]( const std::u8string& name, const GUID& output_id, const GUID& device_id ) {

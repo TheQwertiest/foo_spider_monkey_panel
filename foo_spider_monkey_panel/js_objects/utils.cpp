@@ -154,7 +154,7 @@ size_t JsUtils::GetInternalSize()
     return 0;
 }
 
-bool JsUtils::CheckComponent( const std::u8string& name, bool is_dll )
+bool JsUtils::CheckComponent( const std::u8string& name, bool is_dll ) const
 {
     pfc::string8_fast temp;
     for ( service_enum_t<componentversion> e; !e.finished(); ++e )
@@ -178,7 +178,7 @@ bool JsUtils::CheckComponent( const std::u8string& name, bool is_dll )
     return false;
 }
 
-bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const std::u8string& name, bool is_dll )
+bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const std::u8string& name, bool is_dll ) const
 {
     switch ( optArgCount )
     {
@@ -191,7 +191,7 @@ bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const std::u8string& na
     }
 }
 
-bool JsUtils::CheckFont( const std::wstring& name )
+bool JsUtils::CheckFont( const std::wstring& name ) const
 {
     Gdiplus::InstalledFontCollection font_collection;
     const int count = font_collection.GetFamilyCount();
@@ -234,7 +234,7 @@ uint32_t JsUtils::ColourPicker( uint32_t hWnd, uint32_t default_colour )
     return smp::colour::convert_colorref_to_argb( colour );
 }
 
-uint32_t JsUtils::DetectCharset( const std::wstring& path )
+uint32_t JsUtils::DetectCharset( const std::wstring& path ) const
 {
     namespace fs = std::filesystem;
     const auto cleanedPath = fs::path( path ).lexically_normal();
@@ -258,7 +258,7 @@ void JsUtils::EditTextFile( const std::wstring& path )
     smp::EditTextFile( hPanel, std::filesystem::path{ path }, false, false );
 }
 
-bool JsUtils::FileExists( const std::wstring& path )
+bool JsUtils::FileExists( const std::wstring& path ) const
 {
     namespace fs = std::filesystem;
     try
@@ -307,12 +307,12 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     }
 }
 
-std::u8string JsUtils::FormatDuration( double p )
+std::u8string JsUtils::FormatDuration( double p ) const
 {
     return std::u8string( pfc::format_time_ex( p, 0 ) );
 }
 
-std::u8string JsUtils::FormatFileSize( uint64_t p )
+std::u8string JsUtils::FormatFileSize( uint64_t p ) const
 {
     return std::u8string( pfc::format_file_size_short( p ) );
 }
@@ -428,7 +428,7 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
     }
 }
 
-uint64_t JsUtils::GetFileSize( const std::wstring& path )
+uint64_t JsUtils::GetFileSize( const std::wstring& path ) const
 {
     namespace fs = std::filesystem;
     try
@@ -442,7 +442,7 @@ uint64_t JsUtils::GetFileSize( const std::wstring& path )
     }
 }
 
-std::u8string JsUtils::GetPackagePath( const std::u8string& packageId )
+std::u8string JsUtils::GetPackagePath( const std::u8string& packageId ) const
 {
     const auto packagePathOpt = config::FindPackage( packageId );
     qwr::QwrException::ExpectTrue( packagePathOpt.has_value(), "Unknown package: {}", packageId );
@@ -450,7 +450,7 @@ std::u8string JsUtils::GetPackagePath( const std::u8string& packageId )
     return packagePathOpt->u8string();
 }
 
-uint32_t JsUtils::GetSysColour( uint32_t index )
+uint32_t JsUtils::GetSysColour( uint32_t index ) const
 {
     const auto hBrush = ::GetSysColorBrush( index ); ///< no need to call DeleteObject here
     qwr::QwrException::ExpectTrue( hBrush, "Invalid color index: {}", index );
@@ -458,7 +458,7 @@ uint32_t JsUtils::GetSysColour( uint32_t index )
     return smp::colour::convert_colorref_to_argb( ::GetSysColor( index ) );
 }
 
-uint32_t JsUtils::GetSystemMetrics( uint32_t index )
+uint32_t JsUtils::GetSystemMetrics( uint32_t index ) const
 {
     return ::GetSystemMetrics( index );
 }
@@ -560,7 +560,7 @@ std::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const
     }
 }
 
-bool JsUtils::IsDirectory( const std::wstring& path )
+bool JsUtils::IsDirectory( const std::wstring& path ) const
 {
     namespace fs = std::filesystem;
     try
@@ -573,7 +573,7 @@ bool JsUtils::IsDirectory( const std::wstring& path )
     }
 }
 
-bool JsUtils::IsFile( const std::wstring& path )
+bool JsUtils::IsFile( const std::wstring& path ) const
 {
     namespace fs = std::filesystem;
     try
@@ -586,7 +586,7 @@ bool JsUtils::IsFile( const std::wstring& path )
     }
 }
 
-bool JsUtils::IsKeyPressed( uint32_t vkey )
+bool JsUtils::IsKeyPressed( uint32_t vkey ) const
 {
     return ::IsKeyPressed( vkey );
 }
@@ -789,7 +789,7 @@ bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& file
     }
 }
 
-std::u8string JsUtils::get_Version()
+std::u8string JsUtils::get_Version() const
 {
     return SMP_VERSION;
 }

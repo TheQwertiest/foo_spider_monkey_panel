@@ -158,6 +158,10 @@ const JSClass JsWindow::JsClass = jsClass;
 const JSFunctionSpec* JsWindow::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsWindow::JsProperties = jsProperties.data();
 
+JsWindow::~JsWindow()
+{
+}
+
 JsWindow::JsWindow( JSContext* cx, smp::panel::js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties )
     : pJsCtx_( cx )
     , parentPanel_( parentPanel )
@@ -219,7 +223,7 @@ HWND JsWindow::GetHwnd() const
     return parentPanel_.GetHWND();
 }
 
-void JsWindow::ClearInterval( uint32_t intervalId )
+void JsWindow::ClearInterval( uint32_t intervalId ) const
 {
     if ( isFinalized_ )
     {
@@ -229,7 +233,7 @@ void JsWindow::ClearInterval( uint32_t intervalId )
     HostTimerDispatcher::Get().killTimer( intervalId );
 }
 
-void JsWindow::ClearTimeout( uint32_t timeoutId )
+void JsWindow::ClearTimeout( uint32_t timeoutId ) const
 {
     if ( isFinalized_ )
     {
@@ -727,7 +731,7 @@ uint32_t JsWindow::get_Height()
     return parentPanel_.GetHeight();
 }
 
-uint32_t JsWindow::get_ID()
+uint32_t JsWindow::get_ID() const
 {
     // Such cast works properly only on x86
     return reinterpret_cast<uint32_t>( GetHwnd() );
@@ -800,7 +804,7 @@ uint32_t JsWindow::get_MaxWidth()
     return parentPanel_.MaxSize().x;
 }
 
-uint32_t JsWindow::get_MemoryLimit()
+uint32_t JsWindow::get_MemoryLimit() const
 {
     if ( isFinalized_ )
     {
@@ -879,7 +883,7 @@ JSObject* JsWindow::get_ScriptInfo()
     return jsObject;
 }
 
-uint64_t JsWindow::get_TotalMemoryUsage()
+uint64_t JsWindow::get_TotalMemoryUsage() const
 {
     if ( isFinalized_ )
     {

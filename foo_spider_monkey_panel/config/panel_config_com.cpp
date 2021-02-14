@@ -19,6 +19,8 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
 
         for ( auto i: ranges::views::indices( count ) )
         {
+            (void)i;
+
             const std::u8string u8propName = qwr::string::Trim<char8_t>( qwr::pfc_x::ReadString( reader, abort ) );
 
             VARTYPE vt;

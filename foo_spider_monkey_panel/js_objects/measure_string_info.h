@@ -32,12 +32,12 @@ public:
     static size_t GetInternalSize( float x, float y, float w, float h, uint32_t l, uint32_t c );
 
 public:
-    uint32_t get_Chars();
-    float get_Height();
-    uint32_t get_Lines();
-    float get_Width();
-    float get_X();
-    float get_Y();
+    [[nodiscard]] uint32_t get_Chars() const;
+    [[nodiscard]] float get_Height() const;
+    [[nodiscard]] uint32_t get_Lines() const;
+    [[nodiscard]] float get_Width() const;
+    [[nodiscard]] float get_X() const;
+    [[nodiscard]] float get_Y() const;
 
 private:
     JsMeasureStringInfo( JSContext* cx, float x, float y, float w, float h, uint32_t l, uint32_t c );

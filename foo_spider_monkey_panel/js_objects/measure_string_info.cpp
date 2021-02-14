@@ -87,32 +87,32 @@ size_t JsMeasureStringInfo::GetInternalSize( float /*x*/, float /*y*/, float /*w
     return 0;
 }
 
-uint32_t JsMeasureStringInfo::get_Chars()
+uint32_t JsMeasureStringInfo::get_Chars() const
 {
     return characters_;
 }
 
-float JsMeasureStringInfo::get_Height()
+float JsMeasureStringInfo::get_Height() const
 {
     return h_;
 }
 
-uint32_t JsMeasureStringInfo::get_Lines()
+uint32_t JsMeasureStringInfo::get_Lines() const
 {
     return lines_;
 }
 
-float JsMeasureStringInfo::get_Width()
+float JsMeasureStringInfo::get_Width() const
 {
     return w_;
 }
 
-float JsMeasureStringInfo::get_X()
+float JsMeasureStringInfo::get_X() const
 {
     return x_;
 }
 
-float JsMeasureStringInfo::get_Y()
+float JsMeasureStringInfo::get_Y() const
 {
     return y_;
 }

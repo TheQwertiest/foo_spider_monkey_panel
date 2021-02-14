@@ -212,13 +212,16 @@ bool JsMonitor::OnInterrupt()
                 auto& parentPanel = pContainer->GetParentPanel();
                 panelName = parentPanel.GetPanelDescription( false );
                 parentHwnd = parentPanel.GetHWND();
+                break;
             }
             case JsContainer::JsStatus::Ready:
             { // possible if script destroyed the parent panel (e.g. by switching layout)
                 parentHwnd = GetActiveWindow();
+                break;
             }
             default:
-                assert( 0 );
+                assert( false );
+                parentHwnd = GetActiveWindow();
             }
 
             std::u8string scriptInfo;

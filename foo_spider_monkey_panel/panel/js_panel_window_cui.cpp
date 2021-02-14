@@ -84,11 +84,13 @@ LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
     {
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
+    {
         if ( uie::window::g_process_keydown_keyboard_shortcuts( wp ) )
             return 0;
         break;
-
+    }
     case WM_CREATE:
+    {
         try
         {
             static_api_ptr_t<cui::fonts::manager>()->register_common_callback( this );
@@ -98,8 +100,9 @@ LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
         {
         }
         break;
-
+    }
     case WM_DESTROY:
+    {
         try
         {
             static_api_ptr_t<cui::fonts::manager>()->deregister_common_callback( this );
@@ -109,6 +112,7 @@ LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
         {
         }
         break;
+    }
     case static_cast<UINT>( smp::MiscMessage::size_limit_changed ):
     {
         notify_size_limit_changed( wp );

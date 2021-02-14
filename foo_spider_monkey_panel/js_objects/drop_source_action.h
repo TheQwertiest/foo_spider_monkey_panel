@@ -36,7 +36,7 @@ public:
     smp::panel::DropActionParams& GetDropActionParams();
 
 public:
-    uint32_t get_Effect();
+    uint32_t get_Effect() const;
     void put_Base( uint32_t base );
     void put_Effect( uint32_t effect );
     void put_Playlist( int32_t id );

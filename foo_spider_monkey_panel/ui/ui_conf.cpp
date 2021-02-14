@@ -447,6 +447,7 @@ void CDialogConf::ReinitializeTabControls()
 
     for ( const auto i: ranges::views::ints( 1, cTabs_.GetItemCount() ) )
     {
+        (void)i;
         cTabs_.DeleteItem( 1 );
     }
 

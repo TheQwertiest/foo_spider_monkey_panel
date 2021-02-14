@@ -31,13 +31,16 @@ public:
         COMMAND_HANDLER_EX( IDC_BUTTON_EXPORT_PACKAGE, BN_CLICKED, OnExportPackage )
         COMMAND_HANDLER_EX( IDC_BUTTON_OPEN_FOLDER, BN_CLICKED, OnOpenFolder )
         COMMAND_RANGE_HANDLER_EX( IDOK, IDCANCEL, OnCloseCmd )
+#pragma warning( push )
+#pragma warning( disable : 26454 ) // Arithmetic overflow
         NOTIFY_HANDLER_EX( IDC_RICHEDIT_PACKAGE_INFO, EN_LINK, OnRichEditLinkClick )
+#pragma warning( pop )
         MESSAGE_HANDLER_EX( com::FileDropTarget::GetOnDropMsg(), OnDropFiles )
     END_MSG_MAP()
 
     CDialogPackageManager( const std::u8string& currentPackageId );
 
-    std::optional<config::ParsedPanelSettings> GetPackage() const;
+    [[nodiscard]] std::optional<config::ParsedPanelSettings> GetPackage() const;
 
 private:
     struct PackageData

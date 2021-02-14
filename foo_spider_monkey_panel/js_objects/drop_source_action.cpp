@@ -84,7 +84,7 @@ smp::panel::DropActionParams& JsDropSourceAction::GetDropActionParams()
     return actionParams_;
 }
 
-uint32_t JsDropSourceAction::get_Effect()
+uint32_t JsDropSourceAction::get_Effect() const
 {
     return actionParams_.effect;
 }

@@ -214,7 +214,7 @@ LRESULT CEditor::OnFileExport( WORD, WORD, HWND )
     return 0;
 }
 
-LRESULT CEditor::OnOptionProperties( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CEditor::OnOptionProperties( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/ )
 {
     CDialogEditorConfig config;
     config.DoModal( m_hWnd );

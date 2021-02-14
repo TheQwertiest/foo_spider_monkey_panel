@@ -83,7 +83,7 @@ void ZipPacker::AddFolder( const fs::path& srcFolder, const std::u8string& destF
 {
     try
     {
-        for ( const auto it: fs::recursive_directory_iterator( srcFolder ) )
+        for ( const auto& it: fs::recursive_directory_iterator( srcFolder ) )
         {
             if ( it.is_directory() )
             {

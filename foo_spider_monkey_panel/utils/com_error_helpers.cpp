@@ -31,7 +31,13 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
                                               "  code: {:#x}\n"
                                               "  description: {}\n"
                                               "  source: {}",
-                                              static_cast<uint32_t>( exception.scode ? exception.scode : exception.wCode ),
+#pragma warning( push )
+#pragma warning( disable : 6217 ) // Consider using SUCCEEDED or FAILED macro
+                                              static_cast<uint32_t>(
+                                                  !!exception.scode
+                                                      ? exception.scode
+                                                      : _com_error::WCodeToHRESULT( exception.wCode ) ),
+#pragma warning( pop )
                                               errorDesc8,
                                               errorSource8 ) );
     }

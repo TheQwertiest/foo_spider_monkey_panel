@@ -15,7 +15,7 @@ std::vector<fs::path> GetFilesRecursive( const fs::path& path )
 
         std::vector<fs::path> files;
 
-        for ( const auto it: fs::recursive_directory_iterator( path ) )
+        for ( const auto& it: fs::recursive_directory_iterator( path ) )
         {
             if ( it.is_directory() )
             {

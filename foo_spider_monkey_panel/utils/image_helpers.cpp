@@ -113,8 +113,8 @@ std::tuple<uint32_t, uint32_t>
 GetResizedImageSize( const std::tuple<uint32_t, uint32_t>& currentDimension,
                      const std::tuple<uint32_t, uint32_t>& maxDimensions ) noexcept
 {
-    const auto [maxWidth, maxHeight] = maxDimensions;
-    const auto [imgWidth, imgHeight] = currentDimension;
+    const auto& [maxWidth, maxHeight] = maxDimensions;
+    const auto& [imgWidth, imgHeight] = currentDimension;
 
     uint32_t newWidth;
     uint32_t newHeight;

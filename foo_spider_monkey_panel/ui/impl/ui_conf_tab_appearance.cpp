@@ -109,7 +109,7 @@ void CConfigTabAppearance::Refresh()
 {
 }
 
-BOOL CConfigTabAppearance::OnInitDialog( HWND hwndFocus, LPARAM lParam )
+BOOL CConfigTabAppearance::OnInitDialog( HWND /*hwndFocus*/, LPARAM /*lParam*/ )
 {
     for ( auto& ddx: ddx_ )
     {
@@ -121,7 +121,7 @@ BOOL CConfigTabAppearance::OnInitDialog( HWND hwndFocus, LPARAM lParam )
     return TRUE; // set focus to default control
 }
 
-void CConfigTabAppearance::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CConfigTabAppearance::OnDdxUiChange( UINT /*uNotifyCode*/, int nID, CWindow /*wndCtl*/ )
 {
     auto it = ranges::find_if( ddx_, [nID]( auto& ddx ) {
         return ddx->IsMatchingId( nID );
@@ -141,6 +141,8 @@ void CConfigTabAppearance::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wnd
         edgeStyle_ = GetEdgeEnumFromId( edgeStyleId_ );
         break;
     }
+    default:
+        assert( false );
     }
 
     parent_.OnDataChanged();

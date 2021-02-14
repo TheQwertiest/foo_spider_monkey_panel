@@ -163,7 +163,7 @@ AutoJsReport::AutoJsReport( JSContext* cx )
 {
 }
 
-AutoJsReport::~AutoJsReport()
+AutoJsReport::~AutoJsReport() noexcept
 {
     if ( isDisabled_ )
     {

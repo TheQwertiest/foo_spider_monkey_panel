@@ -20,33 +20,6 @@ namespace
 {
 
 /// @throw qwr::QwrException
-std::optional<fs::path> GetFileFromPath( const fs::path& path )
-{
-    try
-    {
-        if ( fs::is_regular_file( path ) )
-        {
-            return path;
-        }
-        else
-        {
-            for ( const auto it: fs::recursive_directory_iterator( path ) )
-            {
-                if ( it.is_regular_file() )
-                {
-                    return it.path();
-                }
-            }
-            return std::nullopt;
-        }
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        throw qwr::QwrException( e );
-    }
-}
-
-/// @throw qwr::QwrException
 std::vector<fs::path> GetAllFilesFromPath( const fs::path& path )
 {
     try
@@ -85,7 +58,7 @@ CConfigTabPackage::CConfigTabPackage( CDialogConf& parent, config::ParsedPanelSe
               qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( scriptAuthor_, IDC_EDIT_PACKAGE_AUTHOR ),
               qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( scriptDescription_, IDC_EDIT_PACKAGE_DESCRIPTION ),
               qwr::ui::CreateUiDdx<qwr::ui::UiDdx_CheckBox>( shouldGrabFocus_, IDC_CHECK_SHOULD_GRAB_FOCUS ),
-              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_CheckBox>( shouldGrabFocus_, IDC_CHECK_ENABLE_DRAG_N_DROP ),
+              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_CheckBox>( enableDragDrop_, IDC_CHECK_ENABLE_DRAG_N_DROP ),
               qwr::ui::CreateUiDdx<qwr::ui::UiDdx_ListBox>( focusedFileIdx_, IDC_LIST_PACKAGE_FILES ) } )
 {
     InitializeLocalData();
@@ -187,8 +160,6 @@ void CConfigTabPackage::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl
 void CConfigTabPackage::OnNewScript( UINT uNotifyCode, int nID, CWindow wndCtl )
 {
     assert( static_cast<size_t>( focusedFileIdx_ ) < files_.size() );
-
-    auto& filepath = files_[focusedFileIdx_];
 
     try
     {

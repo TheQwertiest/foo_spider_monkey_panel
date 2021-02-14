@@ -26,6 +26,8 @@
 ___
 
 ## [Unreleased][]
+### Fixed
+- Fixed `Enable drag-n-drop` checkbox value being ignored.
 
 ## [1.4.1][] - 2021-02-14
 ### Changed

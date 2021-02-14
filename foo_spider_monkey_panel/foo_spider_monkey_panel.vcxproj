@@ -63,7 +63,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <EnableMicrosoftCodeAnalysis>true</EnableMicrosoftCodeAnalysis>
-    <EnableClangTidyCodeAnalysis>true</EnableClangTidyCodeAnalysis>
+    <EnableClangTidyCodeAnalysis>false</EnableClangTidyCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
@@ -71,7 +71,7 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AdditionalOptions>/Zm200 /Zc:__cplusplus /Zc:preprocessor /experimental:newLambdaProcessor %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <DisableSpecificWarnings>5105</DisableSpecificWarnings>
+      <DisableSpecificWarnings>5105;26812;33005</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
       <EnforceTypeConversionRules>true</EnforceTypeConversionRules>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>

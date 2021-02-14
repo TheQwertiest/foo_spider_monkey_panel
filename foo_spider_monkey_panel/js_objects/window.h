@@ -33,7 +33,7 @@ public:
 
 public:
     // @remark No need to cleanup JS here, since it must be performed manually beforehand anyway
-    ~JsWindow() override = default;
+    ~JsWindow() override;
 
     static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, smp::panel::js_panel_window& parentPanel );
     static size_t GetInternalSize( const smp::panel::js_panel_window& parentPanel );
@@ -41,11 +41,11 @@ public:
 public:
     static void Trace( JSTracer* trc, JSObject* obj );
     void PrepareForGc();
-    HWND GetHwnd() const;
+    [[nodiscard]] HWND GetHwnd() const;
 
 public: // methods
-    void ClearInterval( uint32_t intervalId );
-    void ClearTimeout( uint32_t timeoutId );
+    void ClearInterval( uint32_t intervalId ) const;
+    void ClearTimeout( uint32_t timeoutId ) const;
     JSObject* CreatePopupMenu();
     JSObject* CreateThemeManager( const std::wstring& classid );
     // TODO v2: remove
@@ -87,7 +87,7 @@ public: // methods
 public: // props
     uint32_t get_DlgCode();
     uint32_t get_Height();
-    uint32_t get_ID();
+    uint32_t get_ID() const;
     uint32_t get_InstanceType();
     bool get_IsTransparent();
     bool get_IsVisible();
@@ -95,7 +95,7 @@ public: // props
     uint32_t get_MaxHeight();
     uint32_t get_MaxWidth();
     // TODO v2: remove
-    uint32_t get_MemoryLimit();
+    uint32_t get_MemoryLimit() const;
     uint32_t get_MinHeight();
     uint32_t get_MinWidth();
     std::u8string get_Name();
@@ -104,7 +104,7 @@ public: // props
     JSObject* get_ScriptInfo();
     JSObject* get_Tooltip();
     // TODO v2: remove
-    uint64_t get_TotalMemoryUsage();
+    uint64_t get_TotalMemoryUsage() const;
     uint32_t get_Width();
     void put_DlgCode( uint32_t code );
     void put_MaxHeight( uint32_t height );

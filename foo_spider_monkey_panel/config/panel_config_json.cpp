@@ -5,6 +5,7 @@
 #include <nlohmann/json.hpp>
 #include <qwr/fb2k_paths.h>
 #include <qwr/string_helpers.h>
+#include <qwr/type_traits.h>
 #include <qwr/winapi_error_helpers.h>
 
 #include <filesystem>
@@ -314,7 +315,7 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
             }
             else
             {
-                static_assert( false, "non-exhaustive visitor!" );
+                static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
             }
         },
                                             settings.payload );

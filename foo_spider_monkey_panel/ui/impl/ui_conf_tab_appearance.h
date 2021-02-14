@@ -37,9 +37,9 @@ public:
 
     // > IUiTab
     HWND CreateTab( HWND hParent ) override;
-    CDialogImplBase& Dialog() override;
-    const wchar_t* Name() const override;
-    bool HasChanged() override;
+    [[nodiscard]] CDialogImplBase& Dialog() override;
+    [[nodiscard]] const wchar_t* Name() const override;
+    [[nodiscard]] bool HasChanged() override;
     void Apply() override;
     void Revert() override;
     void Refresh() override;
