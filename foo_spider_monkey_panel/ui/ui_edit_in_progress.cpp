@@ -83,9 +83,9 @@ LRESULT CEditInProgress::OnInitDialog( HWND, LPARAM )
 
 LRESULT CEditInProgress::OnEditorFocusCmd( WORD, WORD, HWND )
 {
-    //We can just call ShowWindow & SetForegroundWindow to bring hwnd to front.
-    //But that would also take maximized window out of maximized state.
-    //Using GetWindowPlacement preserves maximized state
+    // We can just call ShowWindow & SetForegroundWindow to bring hwnd to front.
+    // But that would also take maximized window out of maximized state.
+    // Using GetWindowPlacement preserves maximized state
     WINDOWPLACEMENT place{};
     place.length = sizeof( place );
     ::GetWindowPlacement( hEditorWnd_, &place );
@@ -102,6 +102,8 @@ LRESULT CEditInProgress::OnEditorFocusCmd( WORD, WORD, HWND )
         ::ShowWindow( hEditorWnd_, SW_NORMAL );
         break;
     }
+
+    SetForegroundWindow( hEditorWnd_ );
 
     ::MessageBeep( MB_OK );
 
