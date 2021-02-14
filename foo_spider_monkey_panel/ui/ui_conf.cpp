@@ -209,7 +209,7 @@ void CDialogConf::OnDdxUiChange( UINT uNotifyCode, int nID, CWindow wndCtl )
     OnDataChanged();
 }
 
-LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogConf::OnCloseCmd( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/ )
 {
     { // Window position
         WINDOWPLACEMENT tmpPlacement{};
@@ -224,6 +224,7 @@ LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     {
     case IDOK:
     {
+        OnDataChangedImpl(); ///< mark as changed to reload the panel
         Apply();
         EndDialog( IDOK );
         break;
@@ -265,7 +266,7 @@ LRESULT CDialogConf::OnCloseCmd( WORD wNotifyCode, WORD wID, HWND hWndCtl )
     return 0;
 }
 
-void CDialogConf::OnParentNotify( UINT message, UINT nChildID, LPARAM lParam )
+void CDialogConf::OnParentNotify( UINT message, UINT /*nChildID*/, LPARAM lParam )
 {
     if ( WM_DESTROY == message && pcCurTab_ && reinterpret_cast<HWND>( lParam ) == static_cast<HWND>( *pcCurTab_ ) )
     {
@@ -273,7 +274,7 @@ void CDialogConf::OnParentNotify( UINT message, UINT nChildID, LPARAM lParam )
     }
 }
 
-LRESULT CDialogConf::OnSelectionChanged( LPNMHDR pNmhdr )
+LRESULT CDialogConf::OnSelectionChanged( LPNMHDR /*pNmhdr*/ )
 {
     activeTabIdx_ = cTabs_.GetCurSel();
     CreateChildTab();
@@ -298,7 +299,7 @@ LRESULT CDialogConf::OnWindowPosChanged( UINT, WPARAM, LPARAM lp, BOOL& bHandled
     return 0;
 }
 
-void CDialogConf::OnStartEditPanelName( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CDialogConf::OnStartEditPanelName( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     CButton edit{ GetDlgItem( IDC_BUTTON_EDIT_PANEL_NAME ) };
     edit.EnableWindow( false );
@@ -314,7 +315,7 @@ void CDialogConf::OnStartEditPanelName( UINT uNotifyCode, int nID, CWindow wndCt
     panelName.SetFocus();
 }
 
-void CDialogConf::OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl )
+void CDialogConf::OnCommitPanelName( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     DisablePanelNameControls();
     if ( localSettings_.panelId.empty() )
@@ -327,7 +328,7 @@ void CDialogConf::OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl )
     }
 }
 
-LRESULT CDialogConf::OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl )
+LRESULT CDialogConf::OnHelp( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/ )
 {
     ShellExecute( nullptr, L"open", path::JsDocsIndex().c_str(), nullptr, nullptr, SW_SHOW );
     return 0;
