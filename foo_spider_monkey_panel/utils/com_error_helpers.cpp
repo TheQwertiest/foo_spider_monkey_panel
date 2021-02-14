@@ -25,21 +25,31 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
             SysFreeString( exception.bstrHelpFile );
         } );
 
-        const auto errorSource8 = qwr::unicode::ToU8( std::wstring_view{ exception.bstrSource ? exception.bstrSource : L"<none>" } );
-        const auto errorDesc8 = qwr::unicode::ToU8( std::wstring_view{ exception.bstrDescription ? exception.bstrDescription : L"<none>" } );
-        throw qwr::QwrException( fmt::format( "ActiveXObject:\n"
-                                              "  code: {:#x}\n"
-                                              "  description: {}\n"
-                                              "  source: {}",
+        if ( exception.bstrDescription )
+        {
+            const auto errorDesc8 = qwr::unicode::ToU8( std::wstring_view{ exception.bstrDescription ? exception.bstrDescription : L"<none>" } );
+            const auto errorSource8 = qwr::unicode::ToU8( std::wstring_view{ exception.bstrSource ? exception.bstrSource : L"<none>" } );
+            throw qwr::QwrException( fmt::format( "ActiveXObject:\n"
+                                                  "  code: {:#x}\n"
+                                                  "  description: {}\n"
+                                                  "  source: {}",
 #pragma warning( push )
 #pragma warning( disable : 6217 ) // Consider using SUCCEEDED or FAILED macro
-                                              static_cast<uint32_t>(
-                                                  !!exception.scode
-                                                      ? exception.scode
-                                                      : _com_error::WCodeToHRESULT( exception.wCode ) ),
+                                                  static_cast<uint32_t>(
+                                                      !!exception.scode
+                                                          ? exception.scode
+                                                          : _com_error::WCodeToHRESULT( exception.wCode ) ),
 #pragma warning( pop )
-                                              errorDesc8,
-                                              errorSource8 ) );
+                                                  errorDesc8,
+                                                  errorSource8 ) );
+        }
+        else
+        {
+            qwr::error::CheckHR( !!exception.scode
+                                     ? exception.scode
+                                     : _com_error::WCodeToHRESULT( exception.wCode ),
+                                 "ActiveXObject call" );
+        }
     }
     case DISP_E_OVERFLOW:
     {
