@@ -287,6 +287,10 @@ void CDialogPackageManager::OnOpenFolder( UINT /*uNotifyCode*/, int /*nID*/, CWi
 
 LRESULT CDialogPackageManager::OnCloseCmd( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*/ )
 {
+    if ( wID != IDOK )
+    {
+        focusedPackageIdx_ = -1;
+    }
     EndDialog( wID );
     return 0;
 }

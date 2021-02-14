@@ -892,15 +892,15 @@ void js_panel_window::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t i
                 cSubMenu.AppendMenu( MF_STRING, ++scriptIdx, relativePath.c_str() );
             }
 
-            menu.AppendMenu( MF_STRING, cSubMenu, L"&Edit script" );
-            cSubMenu.Detach();
+            menu.AppendMenu( MF_STRING, cSubMenu, L"&Edit panel script" );
+            cSubMenu.Detach(); ///< AppendMenu takes ownership
         }
         else
         {
-            menu.AppendMenu( MF_STRING, ++curIdx, L"&Edit script..." );
+            menu.AppendMenu( MF_STRING, ++curIdx, L"&Edit panel script..." );
         }
-        menu.AppendMenu( MF_STRING, ++curIdx, L"&Properties..." );
-        menu.AppendMenu( MF_STRING, ++curIdx, L"&Configure..." );
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Panel properties..." );
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Configure panel..." );
     }
     catch ( const fs::filesystem_error& e )
     {
@@ -1263,6 +1263,7 @@ void js_panel_window::on_context_menu( int x, int y )
     constexpr uint32_t base_id = 0;
     GenerateContextMenu( menu, x, y, base_id );
 
+    // yup, WinAPI at it's best: BOOL is used as an integer index here
     const uint32_t ret = menu.TrackPopupMenu( TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, wnd_, nullptr );
     ExecuteContextMenu( ret, base_id );
 }
