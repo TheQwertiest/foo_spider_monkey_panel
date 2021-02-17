@@ -10,7 +10,6 @@
 #include <js_objects/fb_playlist_recycler.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 #include <utils/location_processor.h>
 #include <utils/text_helpers.h>
 
@@ -90,7 +89,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortByFormatV2, JsFbPlaylistManager::Sort
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByNameWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( UndoBackup, JsFbPlaylistManager::UndoBackup );
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "AddItemToPlaybackQueue", AddItemToPlaybackQueue, 1, kDefaultPropsFlags ),
         JS_FN( "AddLocations", AddLocations, 2, kDefaultPropsFlags ),
@@ -149,7 +148,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_ActivePlaylist, JsFbPlaylistManager::put_Activ
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_PlaybackOrder, JsFbPlaylistManager::put_PlaybackOrder );
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_PlayingPlaylist, JsFbPlaylistManager::put_PlayingPlaylist );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSGS( "ActivePlaylist", get_ActivePlaylist, put_ActivePlaylist, kDefaultPropsFlags ),
         JS_PSGS( "PlaybackOrder", get_PlaybackOrder, put_PlaybackOrder, kDefaultPropsFlags ),
@@ -204,7 +203,7 @@ void JsFbPlaylistManager::AddItemToPlaybackQueue( JsFbMetadbHandle* handle )
 void JsFbPlaylistManager::AddLocations( uint32_t playlistIndex, JS::HandleValue locations, bool select )
 {
     pfc::string_list_impl location_list;
-    convert::to_native::ProcessArray<std::u8string>(
+    convert::to_native::ProcessArray<qwr::u8string>(
         pJsCtx_,
         locations,
         [&location_list]( const auto& location ) { location_list.add_item( location.c_str() ); } );
@@ -228,7 +227,7 @@ void JsFbPlaylistManager::AddLocationsWithOpt( size_t optArgCount, uint32_t play
     case 1:
         return AddLocations( playlistIndex, locations );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -247,7 +246,7 @@ void JsFbPlaylistManager::ClearPlaylistSelection( uint32_t playlistIndex )
     playlist_manager::get()->playlist_clear_selection( playlistIndex );
 }
 
-uint32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const std::u8string& name, const std::u8string& query, const std::u8string& sort, uint32_t flags )
+uint32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const qwr::u8string& name, const qwr::u8string& query, const qwr::u8string& sort, uint32_t flags )
 {
     const uint32_t upos = CreatePlaylist( playlistIndex, name );
     assert( pfc_infinite != upos );
@@ -264,7 +263,7 @@ uint32_t JsFbPlaylistManager::CreateAutoPlaylist( uint32_t playlistIndex, const 
     }
 }
 
-uint32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const std::u8string& name, const std::u8string& query, const std::u8string& sort, uint32_t flags )
+uint32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const qwr::u8string& name, const qwr::u8string& query, const qwr::u8string& sort, uint32_t flags )
 {
     switch ( optArgCount )
     {
@@ -275,11 +274,11 @@ uint32_t JsFbPlaylistManager::CreateAutoPlaylistWithOpt( size_t optArgCount, uin
     case 2:
         return CreateAutoPlaylist( playlistIndex, name, query );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-uint32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const std::u8string& name )
+uint32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const qwr::u8string& name )
 {
     auto api = playlist_manager::get();
 
@@ -296,7 +295,7 @@ uint32_t JsFbPlaylistManager::CreatePlaylist( uint32_t playlistIndex, const std:
     return upos;
 }
 
-uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const std::u8string& name )
+uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const qwr::u8string& name )
 {
     auto api = playlist_manager_v4::get();
 
@@ -319,7 +318,7 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylist( uint32_t from, const std::u8str
     return upos;
 }
 
-uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint32_t from, const std::u8string& name )
+uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint32_t from, const qwr::u8string& name )
 {
     switch ( optArgCount )
     {
@@ -328,7 +327,7 @@ uint32_t JsFbPlaylistManager::DuplicatePlaylistWithOpt( size_t optArgCount, uint
     case 1:
         return DuplicatePlaylist( from );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -342,7 +341,7 @@ bool JsFbPlaylistManager::ExecutePlaylistDefaultAction( uint32_t playlistIndex, 
     return playlist_manager::get()->playlist_execute_default_action( playlistIndex, playlistItemIndex );
 }
 
-uint32_t JsFbPlaylistManager::FindOrCreatePlaylist( const std::u8string& name, bool unlocked )
+uint32_t JsFbPlaylistManager::FindOrCreatePlaylist( const qwr::u8string& name, bool unlocked )
 {
     auto api = playlist_manager::get();
 
@@ -373,7 +372,7 @@ int32_t JsFbPlaylistManager::FindPlaybackQueueItemIndex( JsFbMetadbHandle* handl
     return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
 }
 
-int32_t JsFbPlaylistManager::FindPlaylist( const std::u8string& name )
+int32_t JsFbPlaylistManager::FindPlaylist( const qwr::u8string& name )
 {
     const uint32_t upos = playlist_manager::get()->find_playlist( name.c_str(), name.length() );
     return ( pfc_infinite == upos ? -1 : static_cast<int32_t>( upos ) );
@@ -470,7 +469,7 @@ void JsFbPlaylistManager::InsertPlaylistItemsWithOpt( size_t optArgCount, uint32
     case 1:
         return InsertPlaylistItems( playlistIndex, base, handles );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -490,7 +489,7 @@ void JsFbPlaylistManager::InsertPlaylistItemsFilterWithOpt( size_t optArgCount, 
     case 1:
         return InsertPlaylistItemsFilter( playlistIndex, base, handles );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -586,7 +585,7 @@ void JsFbPlaylistManager::RemovePlaylistSelectionWithOpt( size_t optArgCount, ui
     case 1:
         return RemovePlaylistSelection( playlistIndex );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -595,7 +594,7 @@ bool JsFbPlaylistManager::RemovePlaylistSwitch( uint32_t playlistIndex )
     return playlist_manager::get()->remove_playlist_switch( playlistIndex );
 }
 
-bool JsFbPlaylistManager::RenamePlaylist( uint32_t playlistIndex, const std::u8string& name )
+bool JsFbPlaylistManager::RenamePlaylist( uint32_t playlistIndex, const qwr::u8string& name )
 {
     return playlist_manager::get()->playlist_rename( playlistIndex, name.c_str(), name.length() );
 }
@@ -652,12 +651,12 @@ bool JsFbPlaylistManager::ShowAutoPlaylistUI( uint32_t playlistIndex )
     return true;
 }
 
-bool JsFbPlaylistManager::SortByFormat( uint32_t playlistIndex, const std::u8string& pattern, bool selOnly )
+bool JsFbPlaylistManager::SortByFormat( uint32_t playlistIndex, const qwr::u8string& pattern, bool selOnly )
 {
     return playlist_manager::get()->playlist_sort_by_format( playlistIndex, pattern.empty() ? nullptr : pattern.c_str(), selOnly );
 }
 
-bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistIndex, const std::u8string& pattern, bool selOnly )
+bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t playlistIndex, const qwr::u8string& pattern, bool selOnly )
 {
     switch ( optArgCount )
     {
@@ -666,11 +665,11 @@ bool JsFbPlaylistManager::SortByFormatWithOpt( size_t optArgCount, uint32_t play
     case 1:
         return SortByFormat( playlistIndex, pattern );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-bool JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const std::u8string& pattern, int8_t direction )
+bool JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const qwr::u8string& pattern, int8_t direction )
 {
     auto api = playlist_manager::get();
 
@@ -687,7 +686,7 @@ bool JsFbPlaylistManager::SortByFormatV2( uint32_t playlistIndex, const std::u8s
     return api->playlist_reorder_items( playlistIndex, order.data(), order.size() );
 }
 
-bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const std::u8string& pattern, int8_t direction )
+bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const qwr::u8string& pattern, int8_t direction )
 {
     switch ( optArgCount )
     {
@@ -696,7 +695,7 @@ bool JsFbPlaylistManager::SortByFormatV2WithOpt( size_t optArgCount, uint32_t pl
     case 1:
         return SortByFormatV2( playlistIndex, pattern );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -714,7 +713,7 @@ void JsFbPlaylistManager::SortPlaylistsByName( int8_t direction )
     for ( size_t i = 0; i < count; ++i )
     {
         api->playlist_get_name( i, temp );
-        data.emplace_back( std::u8string_view{ temp.c_str(), temp.length() }, i );
+        data.emplace_back( qwr::u8string_view{ temp.c_str(), temp.length() }, i );
     }
 
     std::sort( data.begin(), data.end(), (direction > 0 ? smp::utils::StrCmpLogicalCmp<1> : smp::utils::StrCmpLogicalCmp<-1>));
@@ -732,7 +731,7 @@ void JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t
     case 1:
         return SortPlaylistsByName();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

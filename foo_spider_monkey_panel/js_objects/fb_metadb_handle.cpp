@@ -7,7 +7,6 @@
 #include <js_objects/fb_file_info.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 using namespace smp;
 
@@ -46,7 +45,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetLoved, JsFbMetadbHandle::SetLoved )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaycount, JsFbMetadbHandle::SetPlaycount )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetRating, JsFbMetadbHandle::SetRating )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "ClearStats", ClearStats, 0, kDefaultPropsFlags ),
         JS_FN( "Compare", Compare, 1, kDefaultPropsFlags ),
@@ -66,7 +65,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Path, JsFbMetadbHandle::get_Path )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_RawPath, JsFbMetadbHandle::get_RawPath )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_SubSong, JsFbMetadbHandle::get_SubSong )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "FileSize", get_FileSize, kDefaultPropsFlags ),
         JS_PSG( "Length", get_Length, kDefaultPropsFlags ),
@@ -146,7 +145,7 @@ void JsFbMetadbHandle::RefreshStats()
     }
 }
 
-void JsFbMetadbHandle::SetFirstPlayed( const std::u8string& first_played )
+void JsFbMetadbHandle::SetFirstPlayed( const qwr::u8string& first_played )
 {
     if ( metadb_index_hash hash;
          stats::HashHandle( metadbHandle_, hash ) )
@@ -160,7 +159,7 @@ void JsFbMetadbHandle::SetFirstPlayed( const std::u8string& first_played )
     }
 }
 
-void JsFbMetadbHandle::SetLastPlayed( const std::u8string& last_played )
+void JsFbMetadbHandle::SetLastPlayed( const qwr::u8string& last_played )
 {
     if ( metadb_index_hash hash;
          stats::HashHandle( metadbHandle_, hash ) )
@@ -226,12 +225,12 @@ double JsFbMetadbHandle::get_Length()
     return metadbHandle_->get_length();
 }
 
-std::u8string JsFbMetadbHandle::get_Path()
+qwr::u8string JsFbMetadbHandle::get_Path()
 {
-    return std::u8string( file_path_display( metadbHandle_->get_path() ) );
+    return qwr::u8string( file_path_display( metadbHandle_->get_path() ) );
 }
 
-std::u8string JsFbMetadbHandle::get_RawPath()
+qwr::u8string JsFbMetadbHandle::get_RawPath()
 {
     return metadbHandle_->get_path();
 }

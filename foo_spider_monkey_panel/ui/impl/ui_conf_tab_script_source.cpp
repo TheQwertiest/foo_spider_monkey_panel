@@ -330,7 +330,7 @@ void CConfigTabScriptSource::OnOpenPackageManager( UINT /*uNotifyCode*/, int /*n
 }
 
 std::optional<config::ParsedPanelSettings>
-CConfigTabScriptSource::OnOpenPackageManagerImpl( const std::u8string& packageId )
+CConfigTabScriptSource::OnOpenPackageManagerImpl( const qwr::u8string& packageId )
 {
     CDialogPackageManager pkgMgr( packageId );
     pkgMgr.DoModal( m_hWnd );
@@ -437,11 +437,11 @@ void CConfigTabScriptSource::InitializeLocalOptions()
 
     path_ = ( settings_.scriptPath && settings_.GetSourceType() == config::ScriptSourceType::File
                   ? settings_.scriptPath->u8string()
-                  : std::u8string{} );
+                  : qwr::u8string{} );
 
     packageName_ = ( settings_.GetSourceType() == config::ScriptSourceType::Package
                          ? settings_.scriptName
-                         : std::u8string{} );
+                         : qwr::u8string{} );
 
     sampleIdx_ = [&] {
         if ( settings_.GetSourceType() != config::ScriptSourceType::Sample )

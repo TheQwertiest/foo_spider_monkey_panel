@@ -19,7 +19,6 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <panel/message_blocking_scope.h>
-#include <utils/array_x.h>
 #include <utils/art_helpers.h>
 #include <utils/menu_helpers.h>
 
@@ -103,7 +102,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeDown, JsFbUtils::VolumeDown )
 MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeMute, JsFbUtils::VolumeMute )
 MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeUp, JsFbUtils::VolumeUp )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "AcquireUiSelectionHolder", AcquireUiSelectionHolder, 0, kDefaultPropsFlags ),
         JS_FN( "AddDirectory", AddDirectory, 0, kDefaultPropsFlags ),
@@ -178,7 +177,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_ReplaygainMode, JsFbUtils::put_ReplaygainMode 
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_StopAfterCurrent, JsFbUtils::put_StopAfterCurrent )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Volume, JsFbUtils::put_Volume )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSGS( "AlwaysOnTop", get_AlwaysOnTop, put_AlwaysOnTop, kDefaultPropsFlags ),
         JS_PSG( "ComponentPath", get_ComponentPath, kDefaultPropsFlags ),
@@ -280,12 +279,12 @@ JSObject* JsFbUtils::CreateMainMenuManager()
     return JsMainMenuManager::CreateJs( pJsCtx_ );
 }
 
-JSObject* JsFbUtils::CreateProfiler( const std::u8string& name )
+JSObject* JsFbUtils::CreateProfiler( const qwr::u8string& name )
 {
     return JsFbProfiler::Constructor( pJsCtx_, name );
 }
 
-JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const std::u8string& name )
+JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const qwr::u8string& name )
 {
     switch ( optArgCount )
     {
@@ -294,7 +293,7 @@ JSObject* JsFbUtils::CreateProfilerWithOpt( size_t optArgCount, const std::u8str
     case 1:
         return CreateProfiler();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -355,7 +354,7 @@ uint32_t JsFbUtils::DoDragDropWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMe
     case 1:
         return DoDragDrop( hWnd, handles, okEffects );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -401,11 +400,11 @@ JSObject* JsFbUtils::GetClipboardContentsWithOpt( size_t optArgCount, uint32_t h
     case 1:
         return GetClipboardContents();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-std::u8string JsFbUtils::GetDSPPresets()
+qwr::u8string JsFbUtils::GetDSPPresets()
 {
     qwr::QwrException::ExpectTrue( static_api_test_t<dsp_config_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
@@ -454,7 +453,7 @@ JSObject* JsFbUtils::GetFocusItemWithOpt( size_t optArgCount, bool force )
     case 1:
         return GetFocusItem();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -486,7 +485,7 @@ JSObject* JsFbUtils::GetNowPlaying()
     return JsFbMetadbHandle::CreateJs( pJsCtx_, metadb );
 }
 
-std::u8string JsFbUtils::GetOutputDevices()
+qwr::u8string JsFbUtils::GetOutputDevices()
 {
     qwr::QwrException::ExpectTrue( static_api_test_t<output_manager_v2>(), "This method requires foobar2000 v1.4 or later" );
 
@@ -498,9 +497,9 @@ std::u8string JsFbUtils::GetOutputDevices()
     outputCoreConfig_t config{};
     api->getCoreConfig( config );
 
-    api->listDevices( [&j, &config]( const std::u8string& name, const GUID& output_id, const GUID& device_id ) {
-        const std::u8string output_string = fmt::format( "{{{}}}", pfc::print_guid( output_id ) );
-        const std::u8string device_string = fmt::format( "{{{}}}", pfc::print_guid( device_id ) );
+    api->listDevices( [&j, &config]( const qwr::u8string& name, const GUID& output_id, const GUID& device_id ) {
+        const qwr::u8string output_string = fmt::format( "{{{}}}", pfc::print_guid( output_id ) );
+        const qwr::u8string device_string = fmt::format( "{{{}}}", pfc::print_guid( device_id ) );
 
         j.push_back(
             { { "name", name },
@@ -512,7 +511,7 @@ std::u8string JsFbUtils::GetOutputDevices()
     return j.dump( 2 );
 }
 
-JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const std::u8string& query )
+JSObject* JsFbUtils::GetQueryItems( JsFbMetadbHandleList* handles, const qwr::u8string& query )
 {
     qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
@@ -569,7 +568,7 @@ JSObject* JsFbUtils::GetSelectionsWithOpt( size_t optArgCount, uint32_t flags )
     case 1:
         return GetSelections();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -586,7 +585,7 @@ bool JsFbUtils::IsLibraryEnabled()
     return library_manager::get()->is_library_enabled();
 }
 
-bool JsFbUtils::IsMainMenuCommandChecked( const std::u8string& command )
+bool JsFbUtils::IsMainMenuCommandChecked( const qwr::u8string& command )
 {
     t_uint32 status;
     utils::get_mainmenu_command_status_by_name( command, status );
@@ -637,13 +636,13 @@ void JsFbUtils::Random()
     standard_commands::main_random();
 }
 
-bool JsFbUtils::RunContextCommand( const std::u8string& command, uint32_t flags )
+bool JsFbUtils::RunContextCommand( const qwr::u8string& command, uint32_t flags )
 {
     metadb_handle_list dummy_list;
     return utils::execute_context_command_by_name( command, dummy_list, flags );
 }
 
-bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const std::u8string& command, uint32_t flags )
+bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const qwr::u8string& command, uint32_t flags )
 {
     switch ( optArgCount )
     {
@@ -652,11 +651,11 @@ bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const std::u8strin
     case 1:
         return RunContextCommand( command );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-bool JsFbUtils::RunContextCommandWithMetadb( const std::u8string& command, JS::HandleValue handle, uint32_t flags )
+bool JsFbUtils::RunContextCommandWithMetadb( const qwr::u8string& command, JS::HandleValue handle, uint32_t flags )
 {
     qwr::QwrException::ExpectTrue( handle.isObject(), "handle argument is invalid" );
 
@@ -679,7 +678,7 @@ bool JsFbUtils::RunContextCommandWithMetadb( const std::u8string& command, JS::H
     return utils::execute_context_command_by_name( command, handle_list, flags );
 }
 
-bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const std::u8string& command, JS::HandleValue handle, uint32_t flags )
+bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const qwr::u8string& command, JS::HandleValue handle, uint32_t flags )
 {
     switch ( optArgCount )
     {
@@ -688,11 +687,11 @@ bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const st
     case 1:
         return RunContextCommandWithMetadb( command, handle );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-bool JsFbUtils::RunMainMenuCommand( const std::u8string& command )
+bool JsFbUtils::RunMainMenuCommand( const qwr::u8string& command )
 {
     return utils::execute_mainmenu_command_by_name( command );
 }
@@ -733,19 +732,19 @@ void JsFbUtils::ShowConsole()
     standard_commands::run_main( guid_main_show_console );
 }
 
-void JsFbUtils::ShowLibrarySearchUI( const std::u8string& query )
+void JsFbUtils::ShowLibrarySearchUI( const qwr::u8string& query )
 {
     library_search_ui::get()->show( query.c_str() );
 }
 
-void JsFbUtils::ShowPopupMessage( const std::u8string& msg, const std::u8string& title )
+void JsFbUtils::ShowPopupMessage( const qwr::u8string& msg, const qwr::u8string& title )
 {
     qwr::DelayedExecutor::GetInstance().AddTask( [msg, title] {
         popup_message::g_show( msg.c_str(), title.c_str() );
     } );
 }
 
-void JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const std::u8string& msg, const std::u8string& title )
+void JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const qwr::u8string& msg, const qwr::u8string& title )
 {
     switch ( optArgCount )
     {
@@ -754,7 +753,7 @@ void JsFbUtils::ShowPopupMessageWithOpt( size_t optArgCount, const std::u8string
     case 1:
         return ShowPopupMessage( msg );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -768,7 +767,7 @@ void JsFbUtils::Stop()
     standard_commands::main_stop();
 }
 
-JSObject* JsFbUtils::TitleFormat( const std::u8string& expression )
+JSObject* JsFbUtils::TitleFormat( const qwr::u8string& expression )
 {
     return JsFbTitleFormat::Constructor( pJsCtx_, expression );
 }
@@ -793,7 +792,7 @@ bool JsFbUtils::get_AlwaysOnTop()
     return config_object::g_get_data_bool_simple( standard_config_objects::bool_ui_always_on_top, false );
 }
 
-std::u8string JsFbUtils::get_ComponentPath()
+qwr::u8string JsFbUtils::get_ComponentPath()
 {
     return ( qwr::path::Component() / "" ).u8string();
 }
@@ -803,7 +802,7 @@ bool JsFbUtils::get_CursorFollowPlayback()
     return config_object::g_get_data_bool_simple( standard_config_objects::bool_cursor_follows_playback, false );
 }
 
-std::u8string JsFbUtils::get_FoobarPath()
+qwr::u8string JsFbUtils::get_FoobarPath()
 {
     return ( qwr::path::Foobar2000() / "" ).u8string();
 }
@@ -833,7 +832,7 @@ double JsFbUtils::get_PlaybackTime()
     return playback_control::get()->playback_get_position();
 }
 
-std::u8string JsFbUtils::get_ProfilePath()
+qwr::u8string JsFbUtils::get_ProfilePath()
 {
     return ( qwr::path::Profile() / "" ).u8string();
 }
@@ -850,7 +849,7 @@ bool JsFbUtils::get_StopAfterCurrent()
     return playback_control::get()->get_stop_after_current();
 }
 
-std::u8string JsFbUtils::get_Version()
+qwr::u8string JsFbUtils::get_Version()
 {
     return core_version_info_v2::get()->get_version_as_text();
 }

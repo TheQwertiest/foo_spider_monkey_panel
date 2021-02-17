@@ -31,10 +31,10 @@ struct PanelProperties
 
 public:
     /// @throw qwr::QwrException
-    [[nodiscard]] static PanelProperties FromJson( const std::u8string& jsonString );
+    [[nodiscard]] static PanelProperties FromJson( const qwr::u8string& jsonString );
 
     /// @throw qwr::QwrException
-    [[nodiscard]] std::u8string ToJson() const;
+    [[nodiscard]] qwr::u8string ToJson() const;
 
     /// @throw qwr::QwrException
     [[nodiscard]] static PanelProperties Load( stream_reader& reader, abort_callback& abort, SerializationFormat format = SerializationFormat::Json );
@@ -45,34 +45,34 @@ public:
 
 struct PanelSettings_InMemory
 {
-    std::u8string script = GetDefaultScript();
+    qwr::u8string script = GetDefaultScript();
     bool shouldGrabFocus = true;
     bool enableDragDrop = false;
 
-    [[nodiscard]] static std::u8string GetDefaultScript();
+    [[nodiscard]] static qwr::u8string GetDefaultScript();
 };
 
 struct PanelSettings_File
 {
-    std::u8string path;
+    qwr::u8string path;
 };
 
 struct PanelSettings_Sample
 {
-    std::u8string sampleName;
+    qwr::u8string sampleName;
 };
 
 struct PanelSettings_Package
 {
-    std::u8string id;      ///< unique package id
-    std::u8string name;    ///< used for logging only
-    std::u8string author;  ///< used for logging only
-    std::u8string version; ///< used for logging only
+    qwr::u8string id;      ///< unique package id
+    qwr::u8string name;    ///< used for logging only
+    qwr::u8string author;  ///< used for logging only
+    qwr::u8string version; ///< used for logging only
 };
 
 struct PanelSettings
 {
-    std::u8string id;
+    qwr::u8string id;
     EdgeStyle edgeStyle;
     bool isPseudoTransparent;
     PanelProperties properties;

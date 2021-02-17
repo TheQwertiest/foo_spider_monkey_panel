@@ -36,10 +36,10 @@ constexpr size_t kMaxStackLimit = 1024LL * 1024 / 2;
 namespace
 {
 
-void ReportException( const std::u8string& errorText )
+void ReportException( const qwr::u8string& errorText )
 {
-    const std::u8string errorTextPadded = [&errorText]() {
-        std::u8string text = "Critical JS engine error: " SMP_NAME_WITH_VERSION;
+    const qwr::u8string errorTextPadded = [&errorText]() {
+        qwr::u8string text = "Critical JS engine error: " SMP_NAME_WITH_VERSION;
         if ( !errorText.empty() )
         {
             text += "\n";
@@ -91,7 +91,7 @@ bool JsEngine::RegisterContainer( JsContainer& jsContainer )
 
     jsContainer.SetJsCtx( pJsCtx_ );
 
-    assert( !registeredContainers_.count( &jsContainer ) );
+    assert( !registeredContainers_.contains( &jsContainer ) );
     registeredContainers_.emplace( &jsContainer, jsContainer );
 
     jsMonitor_.AddContainer( jsContainer );

@@ -19,7 +19,7 @@ std::vector<smp::utils::wrapped_item> estimate_line_wrap( HDC hdc, const std::ws
 struct StrCmpLogicalCmpData
 {
     StrCmpLogicalCmpData( const std::wstring& textId, size_t index );
-    StrCmpLogicalCmpData( const std::u8string_view& textId, size_t index );
+    StrCmpLogicalCmpData( const qwr::u8string_view& textId, size_t index );
 
     std::wstring textId; ///< if set manually (not via ctor), must be prepended with ` ` for StrCmpLogicalW bug workaround
     size_t index;

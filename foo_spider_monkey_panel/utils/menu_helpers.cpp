@@ -30,7 +30,7 @@ namespace
 
 using GuidMenuMap = std::unordered_map<GUID, mainmenu_group::ptr>;
 
-bool match_menu_command( const std::u8string& path, const std::u8string& command )
+bool match_menu_command( const qwr::u8string& path, const qwr::u8string& command )
 {
     const auto commandLen = command.length();
     const auto pathLen = path.length();
@@ -48,7 +48,7 @@ bool match_menu_command( const std::u8string& path, const std::u8string& command
     return ( ( path[pathLen - commandLen - 1] == '/' ) && !_stricmp( path.c_str() + pathLen - commandLen, command.c_str() ) );
 }
 
-contextmenu_node* find_context_command_recur( const std::u8string& p_command, std::u8string& basePath, contextmenu_node* p_parent )
+contextmenu_node* find_context_command_recur( const qwr::u8string& p_command, qwr::u8string& basePath, contextmenu_node* p_parent )
 {
     assert( p_parent && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP );
 
@@ -60,7 +60,7 @@ contextmenu_node* find_context_command_recur( const std::u8string& p_command, st
             continue;
         }
 
-        std::u8string curPath = basePath;
+        qwr::u8string curPath = basePath;
         curPath += child->get_name();
 
         switch ( child->get_type() )
@@ -96,7 +96,7 @@ contextmenu_node* find_context_command_recur( const std::u8string& p_command, st
 }
 
 /// @throw pfc::exception
-bool execute_context_command_by_name_unsafe( const std::u8string& name, const metadb_handle_list& p_handles, unsigned flags )
+bool execute_context_command_by_name_unsafe( const qwr::u8string& name, const metadb_handle_list& p_handles, unsigned flags )
 {
     contextmenu_manager::ptr cm;
     contextmenu_manager::g_create( cm );
@@ -116,7 +116,7 @@ bool execute_context_command_by_name_unsafe( const std::u8string& name, const me
         return false;
     }
 
-    std::u8string emptyPath;
+    qwr::u8string emptyPath;
     if ( auto retVal = find_context_command_recur( name, emptyPath, pRoot );
          retVal )
     {
@@ -139,12 +139,12 @@ GuidMenuMap GenerateGuidMainmenuMap()
     return guidMap;
 }
 
-std::u8string generate_mainmenu_command_path( const GuidMenuMap& group_guid_map, const service_ptr_t<mainmenu_commands>& ptr )
+qwr::u8string generate_mainmenu_command_path( const GuidMenuMap& group_guid_map, const service_ptr_t<mainmenu_commands>& ptr )
 {
-    std::u8string path;
+    qwr::u8string path;
 
     GUID group_guid = ptr->get_parent();
-    while ( group_guid_map.count( group_guid ) )
+    while ( group_guid_map.contains( group_guid ) )
     {
         const auto& group_ptr = group_guid_map.at( group_guid );
 
@@ -166,11 +166,11 @@ std::u8string generate_mainmenu_command_path( const GuidMenuMap& group_guid_map,
     return path;
 }
 
-mainmenu_node::ptr find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node, const std::u8string& basePath, const std::u8string& name )
+mainmenu_node::ptr find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node, const qwr::u8string& basePath, const qwr::u8string& name )
 {
     assert( node.is_valid() );
 
-    std::u8string curPath = basePath;
+    qwr::u8string curPath = basePath;
 
     if ( mainmenu_node::type_separator == node->get_type() )
     {
@@ -224,7 +224,7 @@ mainmenu_node::ptr find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node,
 
 /// @throw pfc::exception
 template <typename F_New, typename F_Old>
-bool ApplyFnOnMainmenuNode( const std::u8string& name, F_New fnNew, F_Old fnOld )
+bool ApplyFnOnMainmenuNode( const qwr::u8string& name, F_New fnNew, F_Old fnOld )
 {
     const GuidMenuMap group_guid_text_map = GenerateGuidMainmenuMap();
 
@@ -234,7 +234,7 @@ bool ApplyFnOnMainmenuNode( const std::u8string& name, F_New fnNew, F_Old fnOld 
 
         for ( auto idx: ranges::views::indices( mmc->get_command_count() ) )
         {
-            std::u8string path = generate_mainmenu_command_path( group_guid_text_map, mmc );
+            qwr::u8string path = generate_mainmenu_command_path( group_guid_text_map, mmc );
 
             if ( mainmenu_commands_v2::ptr mmc_v2;
                  mmc->service_query_t( mmc_v2 ) && mmc_v2->is_command_dynamic( idx ) )
@@ -272,7 +272,7 @@ bool ApplyFnOnMainmenuNode( const std::u8string& name, F_New fnNew, F_Old fnOld 
 namespace smp::utils
 {
 
-bool execute_context_command_by_name( const std::u8string& name, const metadb_handle_list& p_handles, unsigned flags )
+bool execute_context_command_by_name( const qwr::u8string& name, const metadb_handle_list& p_handles, unsigned flags )
 {
     try
     {
@@ -283,7 +283,7 @@ bool execute_context_command_by_name( const std::u8string& name, const metadb_ha
         return false;
     }
 }
-bool execute_mainmenu_command_by_name( const std::u8string& name )
+bool execute_mainmenu_command_by_name( const qwr::u8string& name )
 {
     try
     {
@@ -297,7 +297,7 @@ bool execute_mainmenu_command_by_name( const std::u8string& name )
         return false;
     }
 }
-void get_mainmenu_command_status_by_name( const std::u8string& name, uint32_t& status )
+void get_mainmenu_command_status_by_name( const qwr::u8string& name, uint32_t& status )
 {
     try
     {

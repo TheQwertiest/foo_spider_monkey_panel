@@ -53,11 +53,11 @@ public: // methods
     // TODO v2: remove
     JSObject* CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style );
     // TODO v2: remove
-    void DefinePanel( const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void DefinePanel( const qwr::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     // TODO v2: remove
-    void DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
-    void DefineScript( const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
-    void DefineScriptWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void DefinePanelWithOpt( size_t optArgCount, const qwr::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void DefineScript( const qwr::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
+    void DefineScriptWithOpt( size_t optArgCount, const qwr::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     void EditScript();
     uint32_t GetColourCUI( uint32_t type, const std::wstring& guidstr = L"" );
     uint32_t GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
@@ -98,7 +98,7 @@ public: // props
     uint32_t get_MemoryLimit() const;
     uint32_t get_MinHeight();
     uint32_t get_MinWidth();
-    std::u8string get_Name();
+    qwr::u8string get_Name();
     // TODO v2: remove
     uint64_t get_PanelMemoryUsage();
     JSObject* get_ScriptInfo();
@@ -117,8 +117,8 @@ private:
 
     struct DefineScriptOptions
     {
-        std::u8string author;
-        std::u8string version;
+        qwr::u8string author;
+        qwr::u8string version;
         struct Features
         {
             bool dragAndDrop = false;

@@ -22,12 +22,12 @@ public:
 
     LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
     LRESULT OnCommand( UINT codeNotify, int id, HWND hwndCtl );
-    std::u8string GetValue();
+    qwr::u8string GetValue();
 
 private:
-    std::u8string m_prompt;
-    std::u8string m_caption;
-    std::u8string m_value;
+    qwr::u8string m_prompt;
+    qwr::u8string m_caption;
+    qwr::u8string m_value;
 };
 
 } // namespace smp::ui

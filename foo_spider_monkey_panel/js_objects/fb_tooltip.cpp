@@ -5,7 +5,6 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
@@ -45,7 +44,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetFont, JsFbTooltip::SetFont, JsFbToolti
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetMaxWidth, JsFbTooltip::SetMaxWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( TrackPosition, JsFbTooltip::TrackPosition )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "Activate", Activate, 0, kDefaultPropsFlags ),
         JS_FN( "Deactivate", Deactivate, 0, kDefaultPropsFlags ),
@@ -61,7 +60,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Text, JsFbTooltip::get_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Text, JsFbTooltip::put_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_TrackActivate, JsFbTooltip::put_TrackActivate )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSGS( "Text", get_Text, put_Text, kDefaultPropsFlags ),
         JS_PSGS( "TrackActivate", DummyGetter, put_TrackActivate, kDefaultPropsFlags ),
@@ -215,7 +214,7 @@ void JsFbTooltip::SetFontWithOpt( size_t optArgCount, const std::wstring& name, 
     case 2:
         return SetFont( name );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

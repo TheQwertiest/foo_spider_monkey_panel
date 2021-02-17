@@ -9,7 +9,6 @@
 #include <js_objects/measure_string_info.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 #include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/text_helpers.h>
@@ -67,7 +66,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetInterpolationMode, JsGdiGraphics::SetI
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetSmoothingMode, JsGdiGraphics::SetSmoothingMode, JsGdiGraphics::SetSmoothingModeWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetTextRenderingHint, JsGdiGraphics::SetTextRenderingHint, JsGdiGraphics::SetTextRenderingHintWithOpt, 1 )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "CalcTextHeight", CalcTextHeight, 2, kDefaultPropsFlags ),
         JS_FN( "CalcTextWidth", CalcTextWidth, 2, kDefaultPropsFlags ),
@@ -94,7 +93,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
@@ -235,7 +234,7 @@ void JsGdiGraphics::DrawImageWithOpt( size_t optArgCount, JsGdiBitmap* image,
     case 2:
         return DrawImage( image, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -329,7 +328,7 @@ void JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& s
     case 1:
         return DrawString( str, font, colour, x, y, w, h );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -402,7 +401,7 @@ void JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount, float x, float y, f
     case 1:
         return FillGradRect( x, y, w, h, angle, colour1, colour2 );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -472,7 +471,7 @@ void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bi
     case 1:
         return GdiAlphaBlend( bitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -571,7 +570,7 @@ void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& 
     case 1:
         return GdiDrawText( str, font, colour, x, y, w, h );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -612,7 +611,7 @@ JSObject* JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::ws
     case 1:
         return MeasureString( str, font, x, y, w, h );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -633,7 +632,7 @@ void JsGdiGraphics::SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mo
     case 1:
         return SetInterpolationMode();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -654,7 +653,7 @@ void JsGdiGraphics::SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode )
     case 1:
         return SetSmoothingMode();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -675,7 +674,7 @@ void JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mo
     case 1:
         return SetTextRenderingHint();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

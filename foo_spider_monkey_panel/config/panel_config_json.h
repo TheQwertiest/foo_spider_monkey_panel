@@ -18,9 +18,9 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
 void SaveProperties( stream_writer& writer, abort_callback& abort, const PanelProperties& properties );
 
 /// @throw qwr::QwrException
-[[nodiscard]] PanelProperties DeserializeProperties( const std::u8string& str );
+[[nodiscard]] PanelProperties DeserializeProperties( const qwr::u8string& str );
 
 /// @throw qwr::QwrException
-[[nodiscard]] std::u8string SerializeProperties( const PanelProperties& properties );
+[[nodiscard]] qwr::u8string SerializeProperties( const PanelProperties& properties );
 
 } // namespace smp::config::json

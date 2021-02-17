@@ -5,7 +5,6 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 namespace
 {
@@ -32,7 +31,7 @@ constexpr JSClass jsClass = {
     &jsOps
 };
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FS_END,
     } );
@@ -44,7 +43,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsMeasureStringInfo::get_Width )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_X, JsMeasureStringInfo::get_X )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Y, JsMeasureStringInfo::get_Y )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "Chars", get_Chars, kDefaultPropsFlags ),
         JS_PSG( "Height", get_Height, kDefaultPropsFlags ),

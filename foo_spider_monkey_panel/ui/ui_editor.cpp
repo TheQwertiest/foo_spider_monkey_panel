@@ -5,7 +5,6 @@
 #include <panel/js_panel_window.h>
 #include <ui/scintilla/sci_config.h>
 #include <ui/ui_editor_config.h>
-#include <utils/array_x.h>
 
 #include <component_paths.h>
 
@@ -16,7 +15,7 @@
 namespace
 {
 
-constexpr auto k_DialogExtFilter = smp::to_array<COMDLG_FILTERSPEC>( {
+constexpr auto k_DialogExtFilter = std::to_array<COMDLG_FILTERSPEC>( {
     { L"JavaScript files", L"*.js" },
     { L"Text files", L"*.txt" },
     { L"All files", L"*.*" },
@@ -29,7 +28,7 @@ WINDOWPLACEMENT g_WindowPlacement{};
 namespace smp::ui
 {
 
-CEditor::CEditor( const std::u8string& caption, std::u8string& text, SaveCallback callback )
+CEditor::CEditor( const qwr::u8string& caption, qwr::u8string& text, SaveCallback callback )
     : callback_( callback )
     , text_( text )
     , caption_( caption )
@@ -203,7 +202,7 @@ LRESULT CEditor::OnFileExport( WORD, WORD, HWND )
         return 0;
     }
 
-    std::u8string text;
+    qwr::u8string text;
     text.resize( sciEditor_.GetTextLength() + 1 );
 
     sciEditor_.GetText( text.data(), text.size() );

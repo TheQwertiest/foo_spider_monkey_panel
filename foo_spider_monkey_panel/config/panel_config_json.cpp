@@ -362,7 +362,7 @@ void SaveProperties( stream_writer& writer, abort_callback& abort, const PanelPr
     }
 }
 
-PanelProperties DeserializeProperties( const std::u8string& str )
+PanelProperties DeserializeProperties( const qwr::u8string& str )
 {
     using json = nlohmann::json;
 
@@ -376,7 +376,7 @@ PanelProperties DeserializeProperties( const std::u8string& str )
     }
 }
 
-std::u8string SerializeProperties( const PanelProperties& properties )
+qwr::u8string SerializeProperties( const PanelProperties& properties )
 {
     using json = nlohmann::json;
 

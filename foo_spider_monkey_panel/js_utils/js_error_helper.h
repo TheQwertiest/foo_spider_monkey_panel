@@ -24,11 +24,11 @@ void Execute_JsWithSehStackTrace( JSContext* cx, F&& func, Args&&... args )
 
 } // namespace internal
 
-std::u8string JsErrorToText( JSContext* cx );
+qwr::u8string JsErrorToText( JSContext* cx );
 void ExceptionToJsError( JSContext* cx );
-std::u8string ExceptionToText( JSContext* cx );
+qwr::u8string ExceptionToText( JSContext* cx );
 void SuppressException( JSContext* cx );
-void PrependTextToJsError( JSContext* cx, const std::u8string& text );
+void PrependTextToJsError( JSContext* cx, const qwr::u8string& text );
 
 template <typename F, typename... Args>
 bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Args&&... args )
@@ -53,9 +53,7 @@ bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Arg
 
     if ( JS_IsExceptionPending( cx ) )
     {
-        std::u8string additionalText = std::u8string( functionName.data(), functionName.size() );
-        additionalText += " failed";
-        mozjs::error::PrependTextToJsError( cx, additionalText );
+        mozjs::error::PrependTextToJsError( cx, fmt::format( "{} failed", functionName ) );
         return false;
     }
 

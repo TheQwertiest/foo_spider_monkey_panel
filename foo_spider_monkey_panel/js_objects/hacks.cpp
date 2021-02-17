@@ -6,7 +6,6 @@
 #include <js_objects/fb_window.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 #include <utils/gdi_error_helpers.h>
 
 namespace
@@ -34,12 +33,12 @@ JSClass jsClass = {
     &jsOps
 };
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );

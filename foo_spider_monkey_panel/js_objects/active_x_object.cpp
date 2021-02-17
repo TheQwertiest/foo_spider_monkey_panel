@@ -16,7 +16,6 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_prototype_helpers.h>
 #include <panel/com_message_scope.h>
-#include <utils/array_x.h>
 #include <utils/com_error_helpers.h>
 
 #include <qwr/final_action.h>
@@ -321,7 +320,7 @@ MJS_DEFINE_JS_FN( ActiveX_Set, ActiveX_Set_Impl )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ActiveX_CreateArray, JsActiveXObject::CreateFromArray )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ToString, JsActiveXObject::ToString )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "toString", ToString, 0, kDefaultPropsFlags ),
         JS_FN( "ActiveX_CreateArray", ActiveX_CreateArray, 2, kDefaultPropsFlags ),
@@ -330,13 +329,13 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsStaticFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsStaticFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "ActiveX_CreateArray", ActiveX_CreateArray, 2, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
@@ -589,7 +588,7 @@ std::optional<DISPID> JsActiveXObject::GetDispId( const std::wstring& name, bool
         {
             if ( reportError )
             {
-                throw qwr::QwrException( fmt::format( "Failed to get DISPID for `{}`", qwr::unicode::ToU8( name ) ) );
+                throw qwr::QwrException( "Failed to get DISPID for `{}`", qwr::unicode::ToU8( name ) );
             }
             return std::nullopt;
         }
@@ -612,7 +611,7 @@ std::optional<DISPID> JsActiveXObject::GetDispId( const std::wstring& name, bool
     return dispId;
 }
 
-void JsActiveXObject::GetImpl( int dispId, nonstd::span<_variant_t> args, JS::MutableHandleValue vp, std::optional<std::function<void()>> refreshFn )
+void JsActiveXObject::GetImpl( int dispId, std::span<_variant_t> args, JS::MutableHandleValue vp, std::optional<std::function<void()>> refreshFn )
 {
     DISPPARAMS dispparams = { nullptr, nullptr, 0, 0 };
     if ( !args.empty() )
@@ -650,22 +649,22 @@ void JsActiveXObject::GetImpl( int dispId, nonstd::span<_variant_t> args, JS::Mu
 
 bool JsActiveXObject::Has( const std::wstring& name )
 {
-    return members_.count( name );
+    return members_.contains( name );
 }
 
 bool JsActiveXObject::IsGet( const std::wstring& name )
 {
-    return members_.count( name ) && members_[name]->isGet;
+    return members_.contains( name ) && members_[name]->isGet;
 }
 
 bool JsActiveXObject::IsSet( const std::wstring& name )
 {
-    return members_.count( name ) && ( members_[name]->isPut || members_[name]->isPutRef );
+    return members_.contains( name ) && ( members_[name]->isPut || members_[name]->isPutRef );
 }
 
 bool JsActiveXObject::IsInvoke( const std::wstring& name )
 {
-    return members_.count( name ) && members_[name]->isInvoke;
+    return members_.contains( name ) && members_[name]->isInvoke;
 }
 
 std::vector<std::wstring> JsActiveXObject::GetAllMembers()
@@ -753,7 +752,7 @@ void JsActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 
     WORD flag = DISPATCH_PROPERTYPUT;
     if ( ( arg.vt == VT_DISPATCH || arg.vt == VT_UNKNOWN )
-         && members_.count( propName ) && members_[propName]->isPutRef )
+         && members_.contains( propName ) && members_[propName]->isPutRef )
     { //must be passed by name
         flag = DISPATCH_PROPERTYPUTREF;
     }
@@ -808,7 +807,7 @@ void JsActiveXObject::Set( const JS::CallArgs& callArgs )
 
     WORD flag = DISPATCH_PROPERTYPUT;
     if ( ( args[argc - 1].vt == VT_DISPATCH || args[argc - 1].vt == VT_UNKNOWN )
-         && members_.count( propName ) && members_[propName]->isPutRef )
+         && members_.contains( propName ) && members_[propName]->isPutRef )
     { //must be passed by name
         flag = DISPATCH_PROPERTYPUTREF;
     }

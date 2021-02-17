@@ -106,23 +106,23 @@ void InitializeSubsystems( HINSTANCE ins )
 
 void FinalizeSubsystems()
 {
-    if ( !g_subsystem_failures.count( SubsystemId::SMP_RICHEDIT ) )
+    if ( !g_subsystem_failures.contains( SubsystemId::SMP_RICHEDIT ) )
     {
         FreeLibrary( g_hRichEdit );
     }
-    if ( !g_subsystem_failures.count( SubsystemId::SMP_WTL ) )
+    if ( !g_subsystem_failures.contains( SubsystemId::SMP_WTL ) )
     {
         g_wtlModule.Term();
     }
-    if ( !g_subsystem_failures.count( SubsystemId::SMP_GDIPLUS ) )
+    if ( !g_subsystem_failures.contains( SubsystemId::SMP_GDIPLUS ) )
     {
         Gdiplus::GdiplusShutdown( g_pGdiToken );
     }
-    if ( !g_subsystem_failures.count( SubsystemId::SMP_SCINTILLA ) )
+    if ( !g_subsystem_failures.contains( SubsystemId::SMP_SCINTILLA ) )
     {
         Scintilla_ReleaseResources();
     }
-    if ( !g_subsystem_failures.count( SubsystemId::SMP_OLE ) )
+    if ( !g_subsystem_failures.contains( SubsystemId::SMP_OLE ) )
     {
         OleUninitialize();
     }

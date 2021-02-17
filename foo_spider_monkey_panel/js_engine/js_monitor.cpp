@@ -58,13 +58,13 @@ void JsMonitor::Stop()
 
 void JsMonitor::AddContainer( JsContainer& jsContainer )
 {
-    assert( !monitoredContainers_.count( &jsContainer ) );
+    assert( !monitoredContainers_.contains( &jsContainer ) );
     monitoredContainers_.emplace( &jsContainer, &jsContainer );
 }
 
 void JsMonitor::RemoveContainer( JsContainer& jsContainer )
 {
-    assert( monitoredContainers_.count( &jsContainer ) );
+    assert( monitoredContainers_.contains( &jsContainer ) );
     monitoredContainers_.erase( &jsContainer );
 }
 
@@ -203,7 +203,7 @@ bool JsMonitor::OnInterrupt()
 
         smp::ui::CDialogSlowScript::Data dlgData;
         {
-            std::u8string panelName;
+            qwr::u8string panelName;
             HWND parentHwnd;
             switch ( pContainer->GetStatus() )
             {
@@ -224,7 +224,7 @@ bool JsMonitor::OnInterrupt()
                 parentHwnd = GetActiveWindow();
             }
 
-            std::u8string scriptInfo;
+            qwr::u8string scriptInfo;
             JS::AutoFilename filename;
             unsigned lineno;
             if ( !JS::DescribeScriptedCaller( pJsCtx_, &filename, &lineno ) )

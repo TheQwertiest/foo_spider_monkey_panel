@@ -118,9 +118,6 @@
     <ClCompile Include="js_objects\fb_window.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\hacks.cpp">
-      <Filter>js_objects</Filter>
-    </ClCompile>
     <ClCompile Include="js_objects\enumerator.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
@@ -352,6 +349,9 @@
     <ClCompile Include="utils\guid_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="js_objects\hacks.cpp">
+      <Filter>js_objects</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -442,9 +442,6 @@
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\fb_utils.h">
-      <Filter>js_objects</Filter>
-    </ClInclude>
-    <ClInclude Include="js_objects\hacks.h">
       <Filter>js_objects</Filter>
     </ClInclude>
     <ClInclude Include="js_objects\main_menu_manager.h">
@@ -612,9 +609,6 @@
     <ClInclude Include="js_engine\js_realm_inner.h">
       <Filter>js_engine</Filter>
     </ClInclude>
-    <ClInclude Include="utils\array_x.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="fb2k\stats.h">
       <Filter>fb2k</Filter>
     </ClInclude>
@@ -762,6 +756,9 @@
     </ClInclude>
     <ClInclude Include="utils\guid_helpers.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_objects\hacks.h">
+      <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

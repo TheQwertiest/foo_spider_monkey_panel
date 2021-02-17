@@ -5,7 +5,6 @@
 #include <ui/scintilla/sci_config.h>
 #include <ui/scintilla/sci_prop_sets.h>
 #include <ui/scintilla/ui_sci_goto.h>
-#include <utils/array_x.h>
 #include <utils/colour_helpers.h>
 
 #include <qwr/fb2k_paths.h>
@@ -39,7 +38,7 @@ struct ScintillaStyle
     bool italics{};
     bool bold{};
     bool underlined{};
-    std::u8string font;
+    qwr::u8string font;
     unsigned size{};
     DWORD fore{};
     DWORD back{};
@@ -91,7 +90,7 @@ bool IsCSym( int ch )
     return __iswcsym( static_cast<wint_t>( ch ) );
 }
 
-DWORD GetColourFromHex( std::u8string_view hex )
+DWORD GetColourFromHex( qwr::u8string_view hex )
 {
     // Value format: #XXXXXX
     if ( hex.size() != 7 )
@@ -99,14 +98,14 @@ DWORD GetColourFromHex( std::u8string_view hex )
         return 0;
     }
 
-    const std::u8string_view hexView{ hex.substr( 1 ) }; // skip '#'
+    const qwr::u8string_view hexView{ hex.substr( 1 ) }; // skip '#'
 
     const auto colour = qwr::string::GetNumber<uint32_t>( hexView, 16 ).value_or( 0 );
 
     return smp::colour::convert_argb_to_colorref( colour );
 }
 
-ScintillaStyle ParseStyle( std::u8string_view p_definition )
+ScintillaStyle ParseStyle( qwr::u8string_view p_definition )
 {
     ScintillaStyle p_style;
 
@@ -198,7 +197,7 @@ ScintillaStyle ParseStyle( std::u8string_view p_definition )
 
             if ( values.size() >= 2 && !values[1].empty() )
             {
-                const char8_t ch = values[1][0];
+                const char ch = values[1][0];
                 if ( ch == 'u' )
                 {
                     p_style.case_force = SC_CASE_UPPER;
@@ -215,21 +214,21 @@ ScintillaStyle ParseStyle( std::u8string_view p_definition )
 }
 
 template <typename T>
-std::u8string JoinWithSpace( const T& cont )
+qwr::u8string JoinWithSpace( const T& cont )
 {
-    static_assert( std::is_same_v<typename T::value_type, std::u8string> || std::is_same_v<typename T::value_type, std::u8string_view> || std::is_same_v<typename T::value_type, const char8_t*> );
+    static_assert( std::is_same_v<typename T::value_type, qwr::u8string> || std::is_same_v<typename T::value_type, qwr::u8string_view> || std::is_same_v<typename T::value_type, const char*> );
 
-    std::u8string words_str;
+    qwr::u8string words_str;
     words_str.reserve( cont.size() * 6 );
     for ( const auto& word: cont )
     {
-        if constexpr ( std::is_constructible_v<std::u8string, typename T::value_type> )
+        if constexpr ( std::is_constructible_v<qwr::u8string, typename T::value_type> )
         {
             words_str += word;
         }
         else
         {
-            words_str += std::u8string{ word.data(), word.size() };
+            words_str += qwr::u8string{ word.data(), word.size() };
         }
         words_str += ' ';
     }
@@ -240,7 +239,7 @@ std::u8string JoinWithSpace( const T& cont )
     return words_str;
 }
 
-bool StartsWith_CaseInsensitive( const std::u8string_view& a, const std::u8string_view& b )
+bool StartsWith_CaseInsensitive( const qwr::u8string_view& a, const qwr::u8string_view& b )
 {
     return ( ( a.size() >= b.size() ) && !pfc::stricmp_ascii_ex( a.data(), b.size(), b.data(), b.size() ) );
 }
@@ -250,7 +249,7 @@ bool StartsWith_CaseInsensitive( const std::u8string_view& a, const std::u8strin
 namespace smp::ui::sci
 {
 
-bool CScriptEditorCtrl::KeyWordComparator::operator()( const std::u8string& a, const std::u8string& b ) const
+bool CScriptEditorCtrl::KeyWordComparator::operator()( const qwr::u8string& a, const qwr::u8string& b ) const
 {
     const int result = _stricmp( a.c_str(), b.c_str() );
     if ( !result && !a.empty() && !b.empty() && std::isalpha( a[0] ) && ( a[0] != b[0] ) )
@@ -486,11 +485,11 @@ void CScriptEditorCtrl::ReadAPI()
         SMP_CLANG_WARNING_POP
         if ( puRes )
         {
-            return std::u8string{ static_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
+            return qwr::u8string{ static_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
         }
         else
         {
-            return std::u8string{};
+            return qwr::u8string{};
         }
     };
 
@@ -503,18 +502,18 @@ void CScriptEditorCtrl::ReadAPI()
         return;
     }
 
-    const auto files = qwr::string::Split<char8_t>( *propvalRet, ';' );
-    std::u8string content;
+    const auto files = qwr::string::Split<char>( *propvalRet, ';' );
+    qwr::u8string content;
     for ( const auto& file: files )
     {
         try
         {
-            const auto content = qwr::file::ReadFile( fs::u8path( std::u8string{ file.data(), file.size() } ), CP_UTF8 );
+            const auto content = qwr::file::ReadFile( fs::u8path( qwr::u8string{ file.data(), file.size() } ), CP_UTF8 );
             readApi( content );
         }
         catch ( const qwr::QwrException& e )
         {
-            FB2K_console_formatter() << "Warning: " SMP_NAME_WITH_VERSION ": Could not load file " << std::u8string{ file.data(), file.size() };
+            FB2K_console_formatter() << "Warning: " SMP_NAME_WITH_VERSION ": Could not load file " << qwr::u8string{ file.data(), file.size() };
             FB2K_console_formatter() << e.what();
         }
     }
@@ -654,9 +653,9 @@ int CScriptEditorCtrl::GetCaretInLine()
     return caret - lineStart;
 }
 
-std::u8string CScriptEditorCtrl::GetCurrentLine()
+qwr::u8string CScriptEditorCtrl::GetCurrentLine()
 {
-    std::u8string buf;
+    qwr::u8string buf;
 
     buf.resize( GetCurLine( nullptr, 0 ) + 1 );
     GetCurLine( buf.data(), buf.size() );
@@ -718,12 +717,12 @@ CScriptEditorCtrl::IndentationStatus CScriptEditorCtrl::GetIndentState( int line
     return IndentationStatus::isNone;
 }
 
-std::vector<CScriptEditorCtrl::StyledPart> CScriptEditorCtrl::GetStyledParts( int line, nonstd::span<const int> styles, size_t maxParts )
+std::vector<CScriptEditorCtrl::StyledPart> CScriptEditorCtrl::GetStyledParts( int line, std::span<const int> styles, size_t maxParts )
 {
     std::vector<StyledPart> parts;
     parts.reserve( maxParts );
 
-    std::u8string curPart;
+    qwr::u8string curPart;
     const int thisLineStart = PositionFromLine( line );
     const int nextLineStart = PositionFromLine( line + 1 );
     int lastStyle = 0;
@@ -731,7 +730,7 @@ std::vector<CScriptEditorCtrl::StyledPart> CScriptEditorCtrl::GetStyledParts( in
     for ( int pos = thisLineStart; pos < nextLineStart; ++pos )
     {
         const auto curStyle = GetStyleAt( pos );
-        if ( ranges::find( styles, curStyle ) != styles.cend() )
+        if ( ranges::find( styles, curStyle ) != styles.end() )
         {
             if ( curStyle != lastStyle && !curPart.empty() )
             {
@@ -788,7 +787,7 @@ bool CScriptEditorCtrl::StartCallTip()
 {
     m_nCurrentCallTip = 0;
     m_szCurrentCallTipWord.clear();
-    std::u8string line = GetCurrentLine();
+    qwr::u8string line = GetCurrentLine();
     int current = GetCaretInLine();
     int pos = GetCurrentPos();
     int braces = 0;
@@ -847,7 +846,7 @@ bool CScriptEditorCtrl::StartCallTip()
 
 void CScriptEditorCtrl::ContinueCallTip()
 {
-    const std::u8string line = GetCurrentLine();
+    const qwr::u8string line = GetCurrentLine();
     int current = GetCaretInLine();
     int braces = 0;
     int commas = 0;
@@ -933,7 +932,7 @@ void CScriptEditorCtrl::FillFunctionDefinition( int pos )
         return;
     }
 
-    m_szFunctionDefinition = std::u8string{ definitionRet->data(), definitionRet->size() };
+    m_szFunctionDefinition = qwr::u8string{ definitionRet->data(), definitionRet->size() };
 
     CallTipShow( m_nLastPosCallTip - m_szCurrentCallTipWord.length(), m_szFunctionDefinition.c_str() );
     ContinueCallTip();
@@ -946,11 +945,11 @@ bool CScriptEditorCtrl::StartAutoComplete()
         return false;
     }
 
-    const std::u8string line = GetCurrentLine();
+    const qwr::u8string line = GetCurrentLine();
     const auto curPos = static_cast<size_t>( GetCaretInLine() );
 
-    const std::u8string_view word = [&line, curPos] {
-        std::u8string_view wordBuffer{ line.c_str(), curPos };
+    const qwr::u8string_view word = [&line, curPos] {
+        qwr::u8string_view wordBuffer{ line.c_str(), curPos };
 
         const auto it = std::find_if( wordBuffer.crbegin(), wordBuffer.crend(), []( char ch ) {
             return ( !IsCSym( ch ) && ch != '.' );
@@ -1132,28 +1131,28 @@ CScriptEditorCtrl::BracePosition CScriptEditorCtrl::FindBraceMatchPos()
     return position;
 }
 
-std::optional<std::vector<std::u8string_view>> CScriptEditorCtrl::GetNearestWords( std::u8string_view wordPart, std::optional<char8_t> separator )
+std::optional<std::vector<qwr::u8string_view>> CScriptEditorCtrl::GetNearestWords( qwr::u8string_view wordPart, std::optional<char> separator )
 {
     if ( m_apis.empty() )
     {
         return std::nullopt;
     }
 
-    const auto startsWithPart = [&wordPart]( std::u8string_view word ) -> bool {
+    const auto startsWithPart = [&wordPart]( qwr::u8string_view word ) -> bool {
         return StartsWith_CaseInsensitive( word, wordPart );
     };
 
-    std::vector<std::u8string_view> words;
+    std::vector<qwr::u8string_view> words;
     for ( auto it = ranges::find_if( m_apis, startsWithPart ); it != m_apis.end() && startsWithPart( *it ); ++it )
     {
         const auto& word = *it;
-        std::u8string_view wordToPlace;
+        qwr::u8string_view wordToPlace;
         if ( separator )
         {
             const auto charIt = ranges::find( word, *separator );
             if ( word.cend() != charIt )
             {
-                wordToPlace = std::u8string_view( word.c_str(), static_cast<size_t>( std::distance( word.cbegin(), charIt ) ) );
+                wordToPlace = qwr::u8string_view( word.c_str(), static_cast<size_t>( std::distance( word.cbegin(), charIt ) ) );
             }
         }
         if ( wordToPlace.empty() )
@@ -1171,15 +1170,15 @@ std::optional<std::vector<std::u8string_view>> CScriptEditorCtrl::GetNearestWord
     return words;
 }
 
-std::optional<std::u8string_view> CScriptEditorCtrl::GetFullDefinitionForWord( std::u8string_view word )
+std::optional<qwr::u8string_view> CScriptEditorCtrl::GetFullDefinitionForWord( qwr::u8string_view word )
 {
     if ( m_apis.empty() )
     {
         return std::nullopt;
     }
 
-    const std::u8string wordWithBrace = std::u8string{ word.data(), word.size() } + '(';
-    const auto startsWithPart = [&wordWithBrace]( std::u8string_view word ) -> bool {
+    const qwr::u8string wordWithBrace = qwr::u8string{ word.data(), word.size() } + '(';
+    const auto startsWithPart = [&wordWithBrace]( qwr::u8string_view word ) -> bool {
         return StartsWith_CaseInsensitive( word, wordWithBrace );
     };
 
@@ -1215,7 +1214,7 @@ void CScriptEditorCtrl::Init()
     UsePopUp( true );
 
     // Disable Ctrl + some char
-    constexpr auto ctrlcode = smp::to_array<int>( { 'Q', 'W', 'E', 'R', 'I', 'O', 'P', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'B', 'N', 'M', 186, 187, 226 } );
+    constexpr auto ctrlcode = std::to_array<int>( { 'Q', 'W', 'E', 'R', 'I', 'O', 'P', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', 'B', 'N', 'M', 186, 187, 226 } );
 
     for ( auto code: ctrlcode )
     {
@@ -1329,7 +1328,7 @@ void CScriptEditorCtrl::TrackWidth()
 
 void CScriptEditorCtrl::LoadStyleFromProperties()
 {
-    std::u8string propval;
+    qwr::u8string propval;
     for ( const auto [style_num, propname]: js_style_table )
     {
         const auto propvalRet = GetPropertyExpanded_Opt( propname );
@@ -1460,7 +1459,7 @@ void CScriptEditorCtrl::SetIndentation( int line, int indent )
     SetSel( crange.cpMin, crange.cpMax );
 }
 
-std::optional<std::u8string> CScriptEditorCtrl::GetPropertyExpanded_Opt( const char8_t* key )
+std::optional<qwr::u8string> CScriptEditorCtrl::GetPropertyExpanded_Opt( const char* key )
 {
     int len = GetPropertyExpanded( key, nullptr );
     if ( !len )
@@ -1468,7 +1467,7 @@ std::optional<std::u8string> CScriptEditorCtrl::GetPropertyExpanded_Opt( const c
         return std::nullopt;
     }
 
-    std::u8string propval;
+    qwr::u8string propval;
     propval.resize( len + 1 );
     GetPropertyExpanded( key, propval.data() );
     propval.resize( strlen( propval.c_str() ) );

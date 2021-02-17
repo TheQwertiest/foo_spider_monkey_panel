@@ -9,7 +9,6 @@
 #include <js_objects/fb_title_format.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 #include <utils/art_helpers.h>
 #include <utils/text_helpers.h>
 
@@ -79,7 +78,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( UpdateFileInfoFromJSON, JsFbMetadbHandleList::Upda
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreateIterator, JsFbMetadbHandleList::CreateIterator );
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "Add", Add, 1, kDefaultPropsFlags ),
         JS_FN( "AddRange", AddRange, 1, kDefaultPropsFlags ),
@@ -114,7 +113,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbMetadbHandleList::get_Count );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "Count", get_Count, kDefaultPropsFlags ),
         JS_PS_END,
@@ -296,7 +295,7 @@ JSObject* JsFbMetadbHandleList::ConstructorWithOpt( JSContext* cx, size_t optArg
     case 1:
         return Constructor( cx );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -317,7 +316,7 @@ void JsFbMetadbHandleList::AddRange( JsFbMetadbHandleList* handles )
     metadbHandleList_.add_items( handles->GetHandleList() );
 }
 
-void JsFbMetadbHandleList::AttachImage( const std::u8string& image_path, uint32_t art_id )
+void JsFbMetadbHandleList::AttachImage( const qwr::u8string& image_path, uint32_t art_id )
 {
     t_size count = metadbHandleList_.get_count();
     if ( !count )
@@ -605,7 +604,7 @@ void JsFbMetadbHandleList::Sort()
     metadbHandleList_.sort_by_pointer_remove_duplicates();
 }
 
-void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
+void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const qwr::u8string& str )
 {
     using json = nlohmann::json;
 
@@ -622,7 +621,7 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const std::u8string& str )
         }
         catch ( const json::parse_error& e )
         {
-            throw qwr::QwrException( fmt::format( "JSON parsing failed: {}", e.what() ) );
+            throw qwr::QwrException( "JSON parsing failed: {}", e.what() );
         }
     }();
 

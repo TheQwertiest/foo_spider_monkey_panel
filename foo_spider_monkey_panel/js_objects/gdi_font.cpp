@@ -5,7 +5,6 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 #include <utils/gdi_error_helpers.h>
 
 #include <qwr/final_action.h>
@@ -40,7 +39,7 @@ JSClass jsClass = {
     &jsOps
 };
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FS_END,
     } );
@@ -50,7 +49,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Name, JsGdiFont::get_Name )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Size, JsGdiFont::get_Size )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Style, JsGdiFont::get_Style )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
         JS_PSG( "Name", get_Name, kDefaultPropsFlags ),
@@ -157,7 +156,7 @@ JSObject* JsGdiFont::ConstructorWithOpt( JSContext* cx, size_t optArgCount, cons
     case 1:
         return Constructor( cx, fontName, pxSize );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

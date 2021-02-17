@@ -46,7 +46,7 @@ JS::Value FbProperties::GetProperty( const std::wstring& propName, JS::HandleVal
     const std::wstring trimmedPropName( qwr::string::Trim<wchar_t>( propName ) );
 
     bool hasProperty = false;
-    if ( properties_.count( trimmedPropName ) )
+    if ( properties_.contains( trimmedPropName ) )
     {
         hasProperty = true;
     }

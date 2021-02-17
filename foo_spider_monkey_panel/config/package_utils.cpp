@@ -56,7 +56,7 @@ void Parse_PackageFromPath( const std::filesystem::path& packageDir, config::Par
     }
     catch ( const json::exception& e )
     {
-        throw qwr::QwrException( fmt::format( "Corrupted `package.json`: {}", e.what() ) );
+        throw qwr::QwrException( "Corrupted `package.json`: {}", e.what() );
     }
 }
 
@@ -115,7 +115,7 @@ void Save_PackageData( const config::ParsedPanelSettings& parsedSettings )
     }
     catch ( const json::exception& e )
     {
-        throw qwr::QwrException( fmt::format( "Corrupted settings: {}", e.what() ) );
+        throw qwr::QwrException( "Corrupted settings: {}", e.what() );
     }
 }
 
@@ -124,14 +124,14 @@ void Save_PackageData( const config::ParsedPanelSettings& parsedSettings )
 namespace smp::config
 {
 
-ParsedPanelSettings GetNewPackageSettings( const std::u8string& name )
+ParsedPanelSettings GetNewPackageSettings( const qwr::u8string& name )
 {
     ParsedPanelSettings settings;
 
     try
     {
         fs::path packagePath;
-        std::u8string id;
+        qwr::u8string id;
         do
         {
             const auto guidStr = utils::GuidToStr( utils::GenerateGuid() );
@@ -151,7 +151,7 @@ ParsedPanelSettings GetNewPackageSettings( const std::u8string& name )
     return settings;
 }
 
-std::optional<std::filesystem::path> FindPackage( const std::u8string& packageId )
+std::optional<std::filesystem::path> FindPackage( const qwr::u8string& packageId )
 {
 
     try

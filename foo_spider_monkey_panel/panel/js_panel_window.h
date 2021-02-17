@@ -47,7 +47,7 @@ public:
 
     bool IsPanelIdOverridenByScript() const;
 
-    void Fail( const std::u8string& errorText );
+    void Fail( const qwr::u8string& errorText );
 
     void Repaint( bool force = false );
     void RepaintRect( const CRect& rc, bool force = false );
@@ -55,8 +55,8 @@ public:
     void RepaintBackground( const CRect& updateRc );
 
 public: // accessors
-    [[nodiscard]] std::u8string GetPanelId();
-    [[nodiscard]] std::u8string GetPanelDescription( bool includeVersionAndAuthor = true );
+    [[nodiscard]] qwr::u8string GetPanelId();
+    [[nodiscard]] qwr::u8string GetPanelDescription( bool includeVersionAndAuthor = true );
     [[nodiscard]] HDC GetHDC() const;
     [[nodiscard]] HWND GetHWND() const;
     [[nodiscard]] POINT& MaxSize();
@@ -71,8 +71,8 @@ public: // accessors
     virtual DWORD GetColour( unsigned type, const GUID& guid ) = 0;
     virtual HFONT GetFont( unsigned type, const GUID& guid ) = 0;
 
-    void SetScriptInfo( const std::u8string& scriptName, const std::u8string& scriptAuthor, const std::u8string& scriptVersion );
-    void SetPanelName( const std::u8string& panelName );
+    void SetScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion );
+    void SetPanelName( const qwr::u8string& panelName );
     /// @throw qwr::QwrException
     void SetDragAndDropStatus( bool isEnabled );
     void SetCaptureFocusStatus( bool isEnabled );

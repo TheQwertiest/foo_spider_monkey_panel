@@ -5,7 +5,6 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 namespace
 {
@@ -36,7 +35,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_IsValid, JsFbPlayingItemLocation::get_IsValid 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlayingItemLocation::get_PlaylistIndex )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlayingItemLocation::get_PlaylistItemIndex )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "IsValid", get_IsValid, kDefaultPropsFlags ),
         JS_PSG( "PlaylistIndex", get_PlaylistIndex, kDefaultPropsFlags ),
@@ -44,7 +43,7 @@ constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
         JS_PS_END,
     } );
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FS_END,
     } );

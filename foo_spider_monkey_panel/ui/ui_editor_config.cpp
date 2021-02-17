@@ -4,7 +4,6 @@
 
 #include <ui/scintilla/sci_config.h>
 #include <ui/ui_name_value_edit.h>
-#include <utils/array_x.h>
 
 #include <qwr/file_helpers.h>
 
@@ -15,7 +14,7 @@ namespace fs = std::filesystem;
 namespace
 {
 
-constexpr auto k_DialogExtFilter = smp::to_array<COMDLG_FILTERSPEC>(
+constexpr auto k_DialogExtFilter = std::to_array<COMDLG_FILTERSPEC>(
     {
         { L"Configuration files", L"*.cfg" },
         { L"All files", L"*.*" },
@@ -161,7 +160,7 @@ void CDialogEditorConfig::LoadProps( bool reset )
     }
 }
 
-std::u8string CDialogEditorConfig::GetItemTextStr( int nItem, int nSubItem )
+qwr::u8string CDialogEditorConfig::GetItemTextStr( int nItem, int nSubItem )
 {
     constexpr size_t kBufferLen = 256;
     std::wstring buffer;

@@ -12,7 +12,6 @@
 #include <js_utils/js_object_helper.h>
 #include <ui/ui_html.h>
 #include <ui/ui_input_box.h>
-#include <utils/array_x.h>
 #include <utils/art_helpers.h>
 #include <utils/colour_helpers.h>
 #include <utils/edit_text.h>
@@ -86,7 +85,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SplitFilePath, JsUtils::SplitFilePath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( WriteINI, JsUtils::WriteINI );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( WriteTextFile, JsUtils::WriteTextFile, JsUtils::WriteTextFileWithOpt, 1 );
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "CheckComponent", CheckComponent, 1, kDefaultPropsFlags ),
         JS_FN( "CheckFont", CheckFont, 1, kDefaultPropsFlags ),
@@ -123,7 +122,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Version, JsUtils::get_Version )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "Version", get_Version, kDefaultPropsFlags ),
         JS_PS_END,
@@ -154,7 +153,7 @@ size_t JsUtils::GetInternalSize()
     return 0;
 }
 
-bool JsUtils::CheckComponent( const std::u8string& name, bool is_dll ) const
+bool JsUtils::CheckComponent( const qwr::u8string& name, bool is_dll ) const
 {
     pfc::string8_fast temp;
     for ( service_enum_t<componentversion> e; !e.finished(); ++e )
@@ -178,7 +177,7 @@ bool JsUtils::CheckComponent( const std::u8string& name, bool is_dll ) const
     return false;
 }
 
-bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const std::u8string& name, bool is_dll ) const
+bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const qwr::u8string& name, bool is_dll ) const
 {
     switch ( optArgCount )
     {
@@ -187,7 +186,7 @@ bool JsUtils::CheckComponentWithOpt( size_t optArgCount, const std::u8string& na
     case 1:
         return CheckComponent( name );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -303,18 +302,18 @@ JS::Value JsUtils::FileTest( const std::wstring& path, const std::wstring& mode 
     }
     else
     {
-        throw qwr::QwrException( fmt::format( "Invalid value of mode argument: '{}'", qwr::unicode::ToU8( mode ) ) );
+        throw qwr::QwrException( "Invalid value of mode argument: '{}'", qwr::unicode::ToU8( mode ) );
     }
 }
 
-std::u8string JsUtils::FormatDuration( double p ) const
+qwr::u8string JsUtils::FormatDuration( double p ) const
 {
-    return std::u8string( pfc::format_time_ex( p, 0 ) );
+    return qwr::u8string( pfc::format_time_ex( p, 0 ) );
 }
 
-std::u8string JsUtils::FormatFileSize( uint64_t p ) const
+qwr::u8string JsUtils::FormatFileSize( uint64_t p ) const
 {
-    return std::u8string( pfc::format_file_size_short( p ) );
+    return qwr::u8string( pfc::format_file_size_short( p ) );
 }
 
 void JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
@@ -343,7 +342,7 @@ void JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMe
     case 4:
         return GetAlbumArtAsync( hWnd, handle );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -372,11 +371,11 @@ JSObject* JsUtils::GetAlbumArtAsyncV2WithOpt( size_t optArgCount, uint32_t hWnd,
     case 4:
         return GetAlbumArtAsyncV2( hWnd, handle );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-JSObject* JsUtils::GetAlbumArtEmbedded( const std::u8string& rawpath, uint32_t art_id )
+JSObject* JsUtils::GetAlbumArtEmbedded( const qwr::u8string& rawpath, uint32_t art_id )
 {
     std::unique_ptr<Gdiplus::Bitmap> artImage( smp::art::GetBitmapFromEmbeddedData( rawpath, art_id ) );
     if ( !artImage )
@@ -387,7 +386,7 @@ JSObject* JsUtils::GetAlbumArtEmbedded( const std::u8string& rawpath, uint32_t a
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( artImage ) );
 }
 
-JSObject* JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::u8string& rawpath, uint32_t art_id )
+JSObject* JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const qwr::u8string& rawpath, uint32_t art_id )
 {
     switch ( optArgCount )
     {
@@ -396,7 +395,7 @@ JSObject* JsUtils::GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const std::u8
     case 1:
         return GetAlbumArtEmbedded( rawpath );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -424,7 +423,7 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
     case 2:
         return GetAlbumArtV2( handle );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -442,7 +441,7 @@ uint64_t JsUtils::GetFileSize( const std::wstring& path ) const
     }
 }
 
-std::u8string JsUtils::GetPackagePath( const std::u8string& packageId ) const
+qwr::u8string JsUtils::GetPackagePath( const qwr::u8string& packageId ) const
 {
     const auto packagePathOpt = config::FindPackage( packageId );
     qwr::QwrException::ExpectTrue( packagePathOpt.has_value(), "Unknown package: {}", packageId );
@@ -463,16 +462,16 @@ uint32_t JsUtils::GetSystemMetrics( uint32_t index ) const
     return ::GetSystemMetrics( index );
 }
 
-JSObject* JsUtils::Glob( const std::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JSObject* JsUtils::Glob( const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
-    std::vector<std::u8string> files;
+    std::vector<qwr::u8string> files;
     {
         const auto wPattern = qwr::unicode::ToWide( pattern );
 
         std::unique_ptr<uFindFile> ff( uFindFirstFile( pattern.c_str() ) );
         if ( ff )
         {
-            const std::u8string dir( pattern.c_str(), pfc::scan_filename( pattern.c_str() ) );
+            const qwr::u8string dir( pattern.c_str(), pfc::scan_filename( pattern.c_str() ) );
             do
             {
                 const DWORD attr = ff->GetAttributes();
@@ -504,7 +503,7 @@ JSObject* JsUtils::Glob( const std::u8string& pattern, uint32_t exc_mask, uint32
     return &jsValue.toObject();
 }
 
-JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const std::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     switch ( optArgCount )
     {
@@ -515,11 +514,11 @@ JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const std::u8string& pattern
     case 2:
         return Glob( pattern );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-std::u8string JsUtils::InputBox( uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def, bool error_on_cancel )
+qwr::u8string JsUtils::InputBox( uint32_t hWnd, const qwr::u8string& prompt, const qwr::u8string& caption, const qwr::u8string& def, bool error_on_cancel )
 {
     (void)hWnd;
     const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
@@ -545,7 +544,7 @@ std::u8string JsUtils::InputBox( uint32_t hWnd, const std::u8string& prompt, con
     return def;
 }
 
-std::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const std::u8string& prompt, const std::u8string& caption, const std::u8string& def, bool error_on_cancel )
+qwr::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const qwr::u8string& prompt, const qwr::u8string& caption, const qwr::u8string& def, bool error_on_cancel )
 {
     switch ( optArgCount )
     {
@@ -556,7 +555,7 @@ std::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const
     case 2:
         return InputBox( hWnd, prompt, caption );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -664,7 +663,7 @@ std::wstring JsUtils::ReadINIWithOpt( size_t optArgCount, const std::wstring& fi
     case 1:
         return ReadINI( filename, section, key );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -682,7 +681,7 @@ std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::wstrin
     case 1:
         return ReadTextFile( filePath );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -706,7 +705,7 @@ JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, 
             }
             else
             {
-                throw qwr::QwrException( fmt::format( "DoModal failed: {}", iRet ) );
+                throw qwr::QwrException( "DoModal failed: {}", iRet );
             }
         }
     }
@@ -724,7 +723,7 @@ JS::Value JsUtils::ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, con
     case 1:
         return ShowHtmlDialog( hWnd, htmlCode );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -761,7 +760,7 @@ bool JsUtils::WriteINI( const std::wstring& filename, const std::wstring& sectio
     return WritePrivateProfileString( section.c_str(), key.c_str(), val.c_str(), filename.c_str() );
 }
 
-bool JsUtils::WriteTextFile( const std::wstring& filename, const std::u8string& content, bool write_bom )
+bool JsUtils::WriteTextFile( const std::wstring& filename, const qwr::u8string& content, bool write_bom )
 {
     qwr::QwrException::ExpectTrue( !filename.empty(), "Invalid filename" );
 
@@ -776,7 +775,7 @@ bool JsUtils::WriteTextFile( const std::wstring& filename, const std::u8string& 
     }
 }
 
-bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const std::u8string& content, bool write_bom )
+bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& filename, const qwr::u8string& content, bool write_bom )
 {
     switch ( optArgCount )
     {
@@ -785,11 +784,11 @@ bool JsUtils::WriteTextFileWithOpt( size_t optArgCount, const std::wstring& file
     case 1:
         return WriteTextFile( filename, content );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-std::u8string JsUtils::get_Version() const
+qwr::u8string JsUtils::get_Version() const
 {
     return SMP_VERSION;
 }

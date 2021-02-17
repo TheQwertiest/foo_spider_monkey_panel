@@ -7,7 +7,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/final_action.h>
 
@@ -38,13 +37,13 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( next, JsFbMetadbHandleList_Iterator::Next )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "next", next, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );

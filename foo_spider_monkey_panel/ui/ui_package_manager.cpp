@@ -4,7 +4,6 @@
 
 #include <config/package_utils.h>
 #include <ui/ui_input_box.h>
-#include <utils/array_x.h>
 #include <utils/zip_utils.h>
 
 #include <component_paths.h>
@@ -24,7 +23,7 @@ namespace fs = std::filesystem;
 namespace smp::ui
 {
 
-CDialogPackageManager::CDialogPackageManager( const std::u8string& currentPackageId )
+CDialogPackageManager::CDialogPackageManager( const qwr::u8string& currentPackageId )
     : focusedPackageId_( currentPackageId )
     , ddx_( {
           qwr::ui::CreateUiDdx<qwr::ui::UiDdx_ListBox>( focusedPackageIdx_, IDC_LIST_PACKAGES ),
@@ -111,7 +110,7 @@ void CDialogPackageManager::OnDdxUiChange( UINT /*uNotifyCode*/, int nID, CWindo
 
 void CDialogPackageManager::OnNewPackage( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
-    std::u8string curName;
+    qwr::u8string curName;
     while ( true )
     {
         CInputBox dlg( "Enter new package name", "Creating new package", curName.c_str() );
@@ -186,7 +185,7 @@ void CDialogPackageManager::OnDeletePackage( UINT /*uNotifyCode*/, int /*nID*/, 
 
     packages_.erase( packages_.cbegin() + focusedPackageIdx_ );
     focusedPackageIdx_ = ( packages_.empty() ? -1 : std::max( 0, focusedPackageIdx_ - 1 ) );
-    focusedPackageId_ = ( focusedPackageIdx_ == -1 ? std::u8string{} : packages_[focusedPackageIdx_].id );
+    focusedPackageId_ = ( focusedPackageIdx_ == -1 ? qwr::u8string{} : packages_[focusedPackageIdx_].id );
 
     UpdateListBoxFromData();
     DoFullDdxToUi();
@@ -368,7 +367,7 @@ void CDialogPackageManager::LoadPackages()
             packagesDirs.emplace_back( path::Packages_Foobar2000() );
         }
 
-        std::vector<std::u8string> packageIds;
+        std::vector<qwr::u8string> packageIds;
         for ( const auto& packagesDir: packagesDirs )
         {
             if ( !fs::exists( packagesDir ) )
@@ -486,7 +485,7 @@ void CDialogPackageManager::UpdatedUiPackageInfo()
     }
     else
     {
-        const auto valueOrEmpty = []( const std::u8string& str ) -> std::wstring {
+        const auto valueOrEmpty = []( const qwr::u8string& str ) -> std::wstring {
             return ( str.empty() ? L"<empty>" : qwr::unicode::ToWide( str ) );
         };
 
@@ -527,7 +526,7 @@ CDialogPackageManager::PackageData CDialogPackageManager::GeneratePackageData( c
                      ? parsedSettings.scriptName
                      : fmt::format( "{} (by {})", parsedSettings.scriptName, parsedSettings.scriptAuthor ) );
     }();
-    const auto valueOrEmpty = []( const std::u8string& str ) -> std::u8string {
+    const auto valueOrEmpty = []( const qwr::u8string& str ) -> qwr::u8string {
         return ( str.empty() ? "<empty>" : str );
     };
     const auto displayedDescription = fmt::format( "Name: {}\r\n"

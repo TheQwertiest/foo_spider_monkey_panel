@@ -47,7 +47,7 @@ std::filesystem::path GetFixedEditorPath()
 
     try
     {
-        const auto editorPath = fs::u8path( static_cast<const std::u8string&>( smp::config::default_editor ) );
+        const auto editorPath = fs::u8path( static_cast<const qwr::u8string&>( smp::config::default_editor ) );
         if ( editorPath.empty() || !fs::exists( editorPath ) )
         {
             smp::config::default_editor = "";
@@ -112,7 +112,7 @@ bool EditTextFileExternal( HWND hParent, const std::filesystem::path& file, cons
     }
 }
 
-void EditTextInternal( HWND hParent, std::u8string& text, bool isPanelScript )
+void EditTextInternal( HWND hParent, qwr::u8string& text, bool isPanelScript )
 {
     ConditionalModalScope scope( hParent );
     smp::ui::CEditor dlg( "Temporary file", text, [&] {  
@@ -123,7 +123,7 @@ void EditTextInternal( HWND hParent, std::u8string& text, bool isPanelScript )
     dlg.DoModal( hParent );
 }
 
-void EditTextExternal( HWND hParent, std::u8string& text, const std::filesystem::path& pathToEditor )
+void EditTextExternal( HWND hParent, qwr::u8string& text, const std::filesystem::path& pathToEditor )
 {
     namespace fs = std::filesystem;
 
@@ -199,7 +199,7 @@ void EditTextFile( HWND hParent, const std::filesystem::path& file, bool isPanel
     }
 }
 
-void EditText( HWND hParent, std::u8string& text, bool isPanelScript )
+void EditText( HWND hParent, qwr::u8string& text, bool isPanelScript )
 {
     const auto editorPath = GetFixedEditorPath();
     if ( editorPath.empty() )

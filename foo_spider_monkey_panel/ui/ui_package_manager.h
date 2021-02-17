@@ -38,7 +38,7 @@ public:
         MESSAGE_HANDLER_EX( com::FileDropTarget::GetOnDropMsg(), OnDropFiles )
     END_MSG_MAP()
 
-    CDialogPackageManager( const std::u8string& currentPackageId );
+    CDialogPackageManager( const qwr::u8string& currentPackageId );
 
     [[nodiscard]] std::optional<config::ParsedPanelSettings> GetPackage() const;
 
@@ -46,7 +46,7 @@ private:
     struct PackageData
     {
         std::wstring displayedName;
-        std::u8string id;
+        qwr::u8string id;
         std::optional<config::ParsedPanelSettings> parsedSettings;
         std::wstring errorText;
     };
@@ -79,7 +79,7 @@ private:
     bool ConfirmPackageOverwrite( const std::filesystem::path& oldPackagePath, const config::ParsedPanelSettings& newSettings );
 
 private:
-    std::u8string focusedPackageId_;
+    qwr::u8string focusedPackageId_;
     int focusedPackageIdx_ = -1;
     std::array<std::unique_ptr<qwr::ui::IUiDdx>, 1> ddx_;
 

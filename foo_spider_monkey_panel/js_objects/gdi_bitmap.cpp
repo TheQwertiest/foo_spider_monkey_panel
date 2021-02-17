@@ -7,18 +7,17 @@
 #include <js_objects/gdi_raw_bitmap.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/kmeans.h>
 #include <utils/stackblur.h>
 
 #include <nlohmann/json.hpp>
-#include <nonstd/span.hpp>
 #include <qwr/final_action.h>
 
 #include <cmath>
 #include <map>
+#include <span>
 
 using namespace smp;
 
@@ -61,7 +60,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( RotateFlip, JsGdiBitmap::RotateFlip )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SaveAs, JsGdiBitmap::SaveAs, JsGdiBitmap::SaveAsWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( StackBlur, JsGdiBitmap::StackBlur )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "ApplyAlpha", ApplyAlpha, 1, kDefaultPropsFlags ),
         JS_FN( "ApplyMask", ApplyMask, 1, kDefaultPropsFlags ),
@@ -82,7 +81,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiBitmap::get_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiBitmap::get_Width )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
         JS_PSG( "Width", get_Width, kDefaultPropsFlags ),
@@ -326,7 +325,7 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
     return &jsValue.toObject();
 }
 
-std::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
+qwr::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 {
     using json = nlohmann::json;
     namespace kmeans = smp::utils::kmeans;
@@ -491,7 +490,7 @@ JSObject* JsGdiBitmap::ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h
     case 1:
         return Resize( w, h );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -521,9 +520,9 @@ bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )
             return std::nullopt;
         }
 
-        nonstd::span<Gdiplus::ImageCodecInfo> codecSpan{ pImageCodecInfo, num };
+        std::span<Gdiplus::ImageCodecInfo> codecSpan{ pImageCodecInfo, num };
         const auto it = ranges::find_if( codecSpan, [&format]( const auto& codec ) { return ( format == codec.MimeType ); } );
-        if ( it == codecSpan.cend() )
+        if ( it == codecSpan.end() )
         {
             return std::nullopt;
         }
@@ -549,7 +548,7 @@ bool JsGdiBitmap::SaveAsWithOpt( size_t optArgCount, const std::wstring& path, c
     case 1:
         return SaveAs( path );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

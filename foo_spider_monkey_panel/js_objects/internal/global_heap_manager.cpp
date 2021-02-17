@@ -23,7 +23,7 @@ void GlobalHeapManager::RegisterUser( IHeapUser* heapUser )
 {
     std::scoped_lock sl( heapUsersLock_ );
 
-    assert( !heapUsers_.count( heapUser ) );
+    assert( !heapUsers_.contains( heapUser ) );
     heapUsers_.emplace( heapUser, heapUser );
 }
 
@@ -31,7 +31,7 @@ void GlobalHeapManager::UnregisterUser( IHeapUser* heapUser )
 {
     std::scoped_lock sl( heapUsersLock_ );
 
-    assert( heapUsers_.count( heapUser ) );
+    assert( heapUsers_.contains( heapUser ) );
     heapUsers_.erase( heapUser );
 }
 
@@ -44,7 +44,7 @@ uint32_t GlobalHeapManager::Store( JS::HandleValue valueToStore )
         unusedHeapElements_.clear();
     }
 
-    while ( heapElements_.count( currentHeapId_ ) )
+    while ( heapElements_.contains( currentHeapId_ ) )
     {
         ++currentHeapId_;
     }
@@ -74,7 +74,7 @@ JS::Heap<JS::Value>& GlobalHeapManager::Get( uint32_t id )
         unusedHeapElements_.clear();
     }
 
-    assert( heapElements_.count( id ) );
+    assert( heapElements_.contains( id ) );
     return *heapElements_[id];
 }
 
@@ -82,7 +82,7 @@ void GlobalHeapManager::Remove( uint32_t id )
 { // Can be called in worker thread, outside of JS ctx, so we can't GC or destroy JS objects here
     std::scoped_lock sl( heapElementsLock_ );
 
-    assert( heapElements_.count( id ) );
+    assert( heapElements_.contains( id ) );
     unusedHeapElements_.emplace_back( std::move( heapElements_[id] ) );
     heapElements_.erase( id );
 }

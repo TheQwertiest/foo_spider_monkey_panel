@@ -4,7 +4,6 @@
 
 #include <panel/js_panel_window.h>
 #include <ui/ui_conf.h>
-#include <utils/array_x.h>
 
 #include <qwr/abort_callback.h>
 #include <qwr/error_popup.h>
@@ -85,7 +84,7 @@ LRESULT CConfigTabProperties::OnPinItemChanged( LPNMHDR pnmh )
     const auto hasChanged = [pnpi, &properties = properties_]() {
         auto& propValues = properties.values;
 
-        if ( !propValues.count( pnpi->prop->GetName() ) )
+        if ( !propValues.contains( pnpi->prop->GetName() ) )
         {
             return false;
         }
@@ -123,7 +122,7 @@ LRESULT CConfigTabProperties::OnPinItemChanged( LPNMHDR pnmh )
                     arg = var.dblVal;
                 }
             }
-            else if constexpr ( std::is_same_v<T, std::u8string> )
+            else if constexpr ( std::is_same_v<T, qwr::u8string> )
             {
                 var.ChangeType( VT_BSTR );
                 arg = qwr::unicode::ToU8( std::wstring_view{ var.bstrVal ? var.bstrVal : L"" } );
@@ -334,7 +333,7 @@ void CConfigTabProperties::UpdateUiFromData()
                 }();
                 return PropCreateSimple( name.c_str(), strNumber.c_str() );
             }
-            else if constexpr ( std::is_same_v<T, std::u8string> )
+            else if constexpr ( std::is_same_v<T, qwr::u8string> )
             {
                 return PropCreateSimple( name.c_str(), qwr::unicode::ToWide( arg ).c_str() );
             }

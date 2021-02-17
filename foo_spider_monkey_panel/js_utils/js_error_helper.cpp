@@ -16,7 +16,7 @@ namespace
 
 using namespace mozjs;
 
-std::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
+qwr::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
 {
     try
     { // Must not throw errors in error handler
@@ -24,7 +24,7 @@ std::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
         JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
         if ( !stackObj )
         { // quack?
-            return GetOptionalProperty<std::u8string>( cx, exn, "stack" ).value_or( "" );
+            return GetOptionalProperty<qwr::u8string>( cx, exn, "stack" ).value_or( "" );
         }
 
         JS::RootedString stackStr( cx );
@@ -32,7 +32,7 @@ std::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
         {
             return "";
         }
-        return mozjs::convert::to_native::ToValue<std::u8string>( cx, stackStr );
+        return mozjs::convert::to_native::ToValue<qwr::u8string>( cx, stackStr );
     }
     catch ( ... )
     {
@@ -41,12 +41,12 @@ std::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
     }
 }
 
-bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const std::u8string& text )
+bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const qwr::u8string& text )
 {
-    std::u8string currentMessage;
+    qwr::u8string currentMessage;
     try
     { // Must not throw errors in error handler
-        currentMessage = convert::to_native::ToValue<std::u8string>( cx, excn );
+        currentMessage = convert::to_native::ToValue<qwr::u8string>( cx, excn );
     }
     catch ( const JsException& )
     {
@@ -57,13 +57,13 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
         return false;
     }
 
-    if ( currentMessage == std::u8string( "out of memory" ) )
+    if ( currentMessage == qwr::u8string( "out of memory" ) )
     { // Can't modify the message since we're out of memory
         return true;
     }
 
-    const std::u8string newMessage = [&text, &currentMessage] {
-        std::u8string newMessage;
+    const qwr::u8string newMessage = [&text, &currentMessage] {
+        qwr::u8string newMessage;
         newMessage += text;
         if ( currentMessage.length() )
         {
@@ -77,7 +77,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     JS::RootedValue jsMessage( cx );
     try
     { // Must not throw errors in error handler
-        convert::to_js::ToValue<std::u8string>( cx, newMessage, &jsMessage );
+        convert::to_js::ToValue<qwr::u8string>( cx, newMessage, &jsMessage );
     }
     catch ( const JsException& )
     {
@@ -92,7 +92,7 @@ bool PrependTextToJsStringException( JSContext* cx, JS::HandleValue excn, const 
     return true;
 }
 
-bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const std::u8string& text )
+bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const qwr::u8string& text )
 {
     qwr::final_action autoClearOnError{ [cx] { JS_ClearPendingException( cx ); } };
 
@@ -107,9 +107,9 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
 
     JSErrorReport* pReport = report.report();
 
-    std::u8string currentMessage = pReport->message().c_str();
-    const std::u8string newMessage = [&text, &currentMessage] {
-        std::u8string newMessage;
+    qwr::u8string currentMessage = pReport->message().c_str();
+    const qwr::u8string newMessage = [&text, &currentMessage] {
+        qwr::u8string newMessage;
         newMessage += text;
         if ( currentMessage.length() )
         {
@@ -124,8 +124,8 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
     JS::RootedValue jsMessage( cx );
     try
     { // Must not throw errors in error handler
-        convert::to_js::ToValue<std::u8string>( cx, pReport->filename, &jsFilename );
-        convert::to_js::ToValue<std::u8string>( cx, newMessage, &jsMessage );
+        convert::to_js::ToValue<qwr::u8string>( cx, pReport->filename, &jsFilename );
+        convert::to_js::ToValue<qwr::u8string>( cx, newMessage, &jsMessage );
     }
     catch ( ... )
     {
@@ -177,7 +177,7 @@ AutoJsReport::~AutoJsReport() noexcept
 
     try
     {
-        std::u8string errorText = JsErrorToText( cx );
+        qwr::u8string errorText = JsErrorToText( cx );
         JS_ClearPendingException( cx );
 
         JS::RootedObject global( cx, JS::CurrentGlobalOrNull( cx ) );
@@ -207,7 +207,7 @@ void AutoJsReport::Disable()
     isDisabled_ = true;
 }
 
-std::u8string JsErrorToText( JSContext* cx )
+qwr::u8string JsErrorToText( JSContext* cx )
 {
     assert( JS_IsExceptionPending( cx ) );
 
@@ -219,12 +219,12 @@ std::u8string JsErrorToText( JSContext* cx )
         JS_ClearPendingException( cx );
     } );
 
-    std::u8string errorText;
+    qwr::u8string errorText;
     if ( excn.isString() )
     {
         try
         { // Must not throw errors in error handler
-            errorText = convert::to_native::ToValue<std::u8string>( cx, excn );
+            errorText = convert::to_native::ToValue<qwr::u8string>( cx, excn );
         }
         catch ( ... )
         {
@@ -245,7 +245,7 @@ std::u8string JsErrorToText( JSContext* cx )
         errorText = pReport->message().c_str();
 
         const auto additionalInfo = [&] {
-            std::u8string additionalInfo;
+            qwr::u8string additionalInfo;
 
             if ( pReport->filename )
             {
@@ -267,7 +267,7 @@ std::u8string JsErrorToText( JSContext* cx )
             if ( excn.isObject() )
             {
                 JS::RootedObject excnObject( cx, &excn.toObject() );
-                std::u8string stackTrace = GetStackTraceString( cx, excnObject );
+                qwr::u8string stackTrace = GetStackTraceString( cx, excnObject );
                 if ( !stackTrace.empty() )
                 {
                     additionalInfo += "\n";
@@ -332,7 +332,7 @@ void ExceptionToJsError( JSContext* cx )
     // hoping that this exception will reach fb2k handler.
 }
 
-std::u8string ExceptionToText( JSContext* cx )
+qwr::u8string ExceptionToText( JSContext* cx )
 {
     try
     {
@@ -397,7 +397,7 @@ void SuppressException( JSContext* cx )
     JS_ClearPendingException( cx );
 }
 
-void PrependTextToJsError( JSContext* cx, const std::u8string& text )
+void PrependTextToJsError( JSContext* cx, const qwr::u8string& text )
 {
     qwr::final_action autoJsReport( [cx, text] {
         JS_ReportErrorUTF8( cx, "%s", text.c_str() );

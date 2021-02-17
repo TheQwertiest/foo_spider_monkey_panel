@@ -24,12 +24,12 @@ enum class SettingsType : uint32_t
 namespace smp::config
 {
 
-PanelProperties PanelProperties::FromJson( const std::u8string& jsonString )
+PanelProperties PanelProperties::FromJson( const qwr::u8string& jsonString )
 {
     return smp::config::json::DeserializeProperties( jsonString );
 }
 
-std::u8string PanelProperties::ToJson() const
+qwr::u8string PanelProperties::ToJson() const
 {
     return smp::config::json::SerializeProperties( *this );
 }
@@ -57,16 +57,16 @@ void PanelProperties::Save( stream_writer& writer, abort_callback& abort ) const
     smp::config::json::SaveProperties( writer, abort, *this );
 }
 
-std::u8string PanelSettings_InMemory::GetDefaultScript()
+qwr::u8string PanelSettings_InMemory::GetDefaultScript()
 {
     puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_DEFAULT_SCRIPT ), "SCRIPT" );
     if ( puRes )
     {
-        return std::u8string{ static_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
+        return qwr::u8string{ static_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
     }
     else
     {
-        return std::u8string{};
+        return qwr::u8string{};
     }
 }
 
@@ -117,7 +117,7 @@ PanelSettings PanelSettings::Load( stream_reader& reader, size_t size, abort_cal
         case SettingsType::Json:
             return smp::config::json::LoadSettings( reader, abort );
         default:
-            throw qwr::QwrException( fmt::format( "Unexpected panel settings format: {}", ver ) );
+            throw qwr::QwrException( "Unexpected panel settings format: {}", ver );
         }
     }
     catch ( const pfc::exception& e )

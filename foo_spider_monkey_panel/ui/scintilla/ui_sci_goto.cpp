@@ -53,8 +53,8 @@ LRESULT CDialogGoto::OnCloseCmd( WORD, WORD wID, HWND )
 {
     if ( wID == IDOK )
     {
-        const auto text = qwr::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_LINENUMBER ) );
-        const auto numRet = qwr::string::GetNumber<unsigned>( static_cast<std::u8string_view>( text ) );
+        const auto text = qwr::pfc_x::uGetWindowText<char>( GetDlgItem( IDC_EDIT_LINENUMBER ) );
+        const auto numRet = qwr::string::GetNumber<unsigned>( static_cast<qwr::u8string_view>( text ) );
         if ( numRet )
         {
             ::SendMessage( hParent_, CScintillaGotoImpl::GetGotoMsg(), (WPARAM)GotoMsg::PerformGoto, (LPARAM)*numRet );

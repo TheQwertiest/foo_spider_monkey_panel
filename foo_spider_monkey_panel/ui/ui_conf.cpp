@@ -385,8 +385,7 @@ void CDialogConf::InitializeLocalData()
     }
     else
     {
-        if ( qwr::string::EndsWith( static_cast<std::u8string_view>( localSettings_.panelId ),
-                                    kOverridenSuffix ) )
+        if ( static_cast<qwr::u8string_view>( localSettings_.panelId ).ends_with( kOverridenSuffix ) )
         {
             localSettings_.panelId.resize( localSettings_.panelId.size() - kOverridenSuffix.size() );
         }

@@ -5,7 +5,6 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/gdi_helpers.h>
 
@@ -38,7 +37,7 @@ JSClass jsClass = {
     &jsOps
 };
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FS_END,
     } );
@@ -46,7 +45,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsGdiRawBitmap::get_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, JsGdiRawBitmap::get_Width )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
         JS_PSG( "Width", get_Width, kDefaultPropsFlags ),

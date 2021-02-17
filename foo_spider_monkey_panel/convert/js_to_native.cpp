@@ -103,10 +103,10 @@ double ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 }
 
 template <>
-std::u8string ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
+qwr::u8string ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
 {
     JS::RootedString jsString( cx, JS::ToString( cx, jsValue ) );
-    return ToValue<std::u8string>( cx, jsString );
+    return ToValue<qwr::u8string>( cx, jsString );
 }
 
 template <>
@@ -137,7 +137,7 @@ namespace mozjs::convert::to_native
 {
 
 template <>
-std::u8string ToValue( JSContext* cx, const JS::HandleString& jsString )
+qwr::u8string ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
     return qwr::unicode::ToU8( ToValue<std::wstring>( cx, jsString ) );
 }
@@ -158,7 +158,8 @@ std::wstring ToValue( JSContext* cx, const JS::HandleString& jsString )
 template <>
 pfc::string8_fast ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
-    return ToValue<std::u8string>( cx, jsString ).c_str();
+    const auto str = ToValue<std::string>( cx, jsString );
+    return pfc::string8_fast{ str.c_str(), str.length() };
 }
 
 } // namespace mozjs::convert::to_native

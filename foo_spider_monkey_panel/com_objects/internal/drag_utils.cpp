@@ -66,7 +66,7 @@ HRESULT SetDataBlob( IDataObject* pdtobj, CLIPFORMAT cf, const void* pvBlob, UIN
     return hr;
 }
 
-std::u8string FormatDragText( t_size selectionCount )
+std::string FormatDragText( t_size selectionCount )
 {
     return fmt::format( "{} {}", selectionCount, ( selectionCount > 1 ? "tracks" : "track" ) );
 }

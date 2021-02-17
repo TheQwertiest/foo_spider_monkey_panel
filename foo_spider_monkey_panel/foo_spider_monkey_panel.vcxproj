@@ -47,7 +47,6 @@
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\range.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\pfc.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\scintilla.props" />
-    <Import Project="$(QwrFb2kUtilsPropsDir)submodules\span.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\timsort.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\wtl.props" />
     <Import Project="$(SolutionDir)\..\props\local_dependencies\miniz.props" />
@@ -67,9 +66,10 @@
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
+      <PreprocessorDefinitions>_WINDOWS;_USRDLL;_SILENCE_CXX20_U8PATH_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir);$(IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalOptions>/Zm200 /Zc:__cplusplus /Zc:preprocessor /experimental:newLambdaProcessor %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalOptions>/Zm200 /Zc:__cplusplus /Zc:preprocessor /experimental:newLambdaProcessor /Zc:char8_t- %(AdditionalOptions)</AdditionalOptions>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <DisableSpecificWarnings>5105;26812;33005</DisableSpecificWarnings>
       <TreatWarningAsError>true</TreatWarningAsError>
@@ -85,7 +85,6 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
     </ClCompile>
     <Link>
@@ -95,7 +94,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PreprocessorDefinitions>_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_CRT_NON_CONFORMING_SWPRINTFS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <FloatingPointModel>Fast</FloatingPointModel>
@@ -305,6 +304,7 @@
     <ClInclude Include="js_objects\fb_metadb_handle_list_iterator.h" />
     <ClInclude Include="js_objects\fb_playlist_recycler.h" />
     <ClInclude Include="js_objects\fb_window.h" />
+    <ClInclude Include="js_objects\hacks.h" />
     <ClInclude Include="js_objects\internal\fb_properties.h" />
     <ClInclude Include="js_objects\internal\global_heap_manager.h" />
     <ClInclude Include="js_objects\internal\prototype_ids.h" />
@@ -329,7 +329,6 @@
     <ClInclude Include="js_objects\gdi_utils.h" />
     <ClInclude Include="js_objects\gdi_font.h" />
     <ClInclude Include="js_objects\global_object.h" />
-    <ClInclude Include="js_objects\hacks.h" />
     <ClInclude Include="js_objects\main_menu_manager.h" />
     <ClInclude Include="js_objects\measure_string_info.h" />
     <ClInclude Include="js_objects\menu_object.h" />
@@ -380,7 +379,6 @@
     <ClInclude Include="ui\ui_package_manager.h" />
     <ClInclude Include="ui\ui_editor_config.h" />
     <ClInclude Include="ui\ui_slow_script.h" />
-    <ClInclude Include="utils\array_x.h" />
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\colour_helpers.h" />
     <ClInclude Include="utils\com_error_helpers.h" />

@@ -7,7 +7,6 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 using namespace smp;
 
@@ -40,7 +39,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistSelectionTracking, JsFbUiSelectionHolde
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistTracking, JsFbUiSelectionHolder::SetPlaylistTracking )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetSelection, JsFbUiSelectionHolder::SetSelection, JsFbUiSelectionHolder::SetSelectionWithOpt, 1 )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "SetPlaylistSelectionTracking", SetPlaylistSelectionTracking, 0, kDefaultPropsFlags ),
         JS_FN( "SetPlaylistTracking", SetPlaylistTracking, 0, kDefaultPropsFlags ),
@@ -48,7 +47,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
@@ -111,7 +110,7 @@ void JsFbUiSelectionHolder::SetSelectionWithOpt( size_t optArgCount, JsFbMetadbH
         SetSelection( handles );
         break;
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

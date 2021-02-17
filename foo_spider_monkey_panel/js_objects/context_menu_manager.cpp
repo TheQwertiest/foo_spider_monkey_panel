@@ -7,7 +7,6 @@
 #include <js_objects/menu_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/string_helpers.h>
 
@@ -44,7 +43,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( InitContext, JsContextMenuManager::InitContext )
 MJS_DEFINE_JS_FN_FROM_NATIVE( InitContextPlaylist, JsContextMenuManager::InitContextPlaylist )
 MJS_DEFINE_JS_FN_FROM_NATIVE( InitNowPlaying, JsContextMenuManager::InitNowPlaying )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "BuildMenu", BuildMenu, 2, kDefaultPropsFlags ),
         JS_FN( "ExecuteByID", ExecuteByID, 1, kDefaultPropsFlags ),
@@ -54,7 +53,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
@@ -102,7 +101,7 @@ void JsContextMenuManager::BuildMenuWithOpt( size_t optArgCount, JsMenuObject* m
     case 1:
         return BuildMenu( menuObject, base_id );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

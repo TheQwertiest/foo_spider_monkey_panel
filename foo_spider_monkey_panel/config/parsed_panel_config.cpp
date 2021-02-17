@@ -64,7 +64,7 @@ void Parse_Package( const config::PanelSettings_Package& settings, config::Parse
     try
     {
         const auto packageDirRet = config::FindPackage( settings.id );
-        const auto valueOrEmpty = []( const std::u8string& str ) -> std::u8string {
+        const auto valueOrEmpty = []( const qwr::u8string& str ) -> qwr::u8string {
             return ( str.empty() ? "<empty>" : str );
         };
         qwr::QwrException::ExpectTrue( packageDirRet.has_value(),
@@ -82,7 +82,7 @@ void Parse_Package( const config::PanelSettings_Package& settings, config::Parse
     }
     catch ( const json::exception& e )
     {
-        throw qwr::QwrException( fmt::format( "Corrupted `package.json`: {}", e.what() ) );
+        throw qwr::QwrException( "Corrupted `package.json`: {}", e.what() );
     }
 }
 
@@ -96,7 +96,7 @@ void Reparse_Package( config::ParsedPanelSettings& parsedSettings )
     try
     {
         const auto packageDirRet = config::FindPackage( packageId );
-        const auto valueOrEmpty = []( const std::u8string& str ) -> std::u8string {
+        const auto valueOrEmpty = []( const qwr::u8string& str ) -> qwr::u8string {
             return ( str.empty() ? "<empty>" : str );
         };
         qwr::QwrException::ExpectTrue( packageDirRet.has_value(),
@@ -114,7 +114,7 @@ void Reparse_Package( config::ParsedPanelSettings& parsedSettings )
     }
     catch ( const json::exception& e )
     {
-        throw qwr::QwrException( fmt::format( "Corrupted `package.json`: {}", e.what() ) );
+        throw qwr::QwrException( "Corrupted `package.json`: {}", e.what() );
     }
 }
 

@@ -6,7 +6,6 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/string_helpers.h>
 
@@ -42,7 +41,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( GetName, JsFbPlaylistRecycler::GetName )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Purge, JsFbPlaylistRecycler::Purge )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Restore, JsFbPlaylistRecycler::Restore )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "GetContent", GetContent, 1, kDefaultPropsFlags ),
         JS_FN( "GetName", GetName, 1, kDefaultPropsFlags ),
@@ -53,7 +52,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Count, JsFbPlaylistRecycler::get_Count )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "Count", get_Count, kDefaultPropsFlags ),
         JS_PS_END,

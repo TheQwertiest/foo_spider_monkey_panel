@@ -6,7 +6,6 @@
 #include <js_objects/fb_metadb_handle.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 namespace
 {
@@ -37,7 +36,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_Handle, JsFbPlaybackQueueItem::get_Handle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistIndex, JsFbPlaybackQueueItem::get_PlaylistIndex )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_PlaylistItemIndex, JsFbPlaybackQueueItem::get_PlaylistItemIndex )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "Handle", get_Handle, kDefaultPropsFlags ),
         JS_PSG( "PlaylistIndex", get_PlaylistIndex, kDefaultPropsFlags ),
@@ -45,7 +44,7 @@ constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
         JS_PS_END,
     } );
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FS_END,
     } );

@@ -19,16 +19,16 @@ public:
     };
 
     CNameValueEdit( const char* name, const char* value, const char* caption );
-    std::u8string GetValue();
+    qwr::u8string GetValue();
 
 private:
     LRESULT OnInitDialog( HWND hwndFocus, LPARAM lParam );
     LRESULT OnCommand( UINT codeNotify, int id, HWND hwndCtl );
 
 private:
-    std::u8string name_;
-    std::u8string value_;
-    std::u8string caption_;
+    qwr::u8string name_;
+    qwr::u8string value_;
+    qwr::u8string caption_;
 };
 
 } // namespace smp::ui

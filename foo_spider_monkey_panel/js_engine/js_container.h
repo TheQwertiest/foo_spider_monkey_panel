@@ -50,11 +50,11 @@ public:
     bool Initialize();
     void Finalize();
 
-    void Fail( const std::u8string& errorText );
+    void Fail( const qwr::u8string& errorText );
 
     JsStatus GetStatus() const;
 
-    bool ExecuteScript( const std::u8string& scriptCode );
+    bool ExecuteScript( const qwr::u8string& scriptCode );
     bool ExecuteScriptFile( const std::filesystem::path& scriptPath );
 
     static void RunJobs();
@@ -64,7 +64,7 @@ public:
 
 public:
     template <typename ReturnType = std::nullptr_t, typename... ArgTypes>
-    std::optional<ReturnType> InvokeJsCallback( std::u8string functionName,
+    std::optional<ReturnType> InvokeJsCallback( qwr::u8string functionName,
                                                 ArgTypes&&... args )
     {
         if ( !IsReadyForCallback() )
@@ -80,7 +80,7 @@ public:
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>( args )... );
     }
 
-    void InvokeOnDragAction( const std::u8string& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DropActionParams& actionParams );
+    void InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DropActionParams& actionParams );
     void InvokeOnNotify( WPARAM wp, LPARAM lp );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
     void InvokeJsAsyncTask( JsAsyncTask& jsTask );

@@ -25,8 +25,8 @@ struct FindReplaceState
     [[nodiscard]] DWORD ToFrFlags( DWORD currentFlags = 0 ) const;
     void FromFrFlags( DWORD frFlags );
 
-    std::u8string findText;
-    std::u8string replaceText;
+    qwr::u8string findText;
+    qwr::u8string replaceText;
     Direction findDirection = Direction::down;
     bool isCaseSensitive = false;
     bool findWholeWord = false;
@@ -310,7 +310,7 @@ public:
     {
         const size_t textSize = static_cast<size_t>( sciEditor_.GetSelectedText( nullptr ) );
 
-        std::u8string text;
+        qwr::u8string text;
         text.resize( textSize + 1 );
         int iRet = sciEditor_.GetSelectedText( text.data() );
         text.resize( strlen( text.c_str() ) );
@@ -406,7 +406,7 @@ private:
         return pos;
     }
 
-    bool ProcessFindResult( int pos, const std::u8string& which )
+    bool ProcessFindResult( int pos, const qwr::u8string& which )
     {
         if ( pos != -1 )
         {

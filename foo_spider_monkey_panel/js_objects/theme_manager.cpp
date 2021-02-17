@@ -6,7 +6,6 @@
 #include <js_objects/gdi_graphics.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
@@ -42,7 +41,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeBackground, JsThemeManager::Draw
 MJS_DEFINE_JS_FN_FROM_NATIVE( IsThemePartDefined, JsThemeManager::IsThemePartDefined )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPartAndStateID, JsThemeManager::SetPartAndStateIDWithOpt, 1 )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, kDefaultPropsFlags ),
         JS_FN( "IsThemePartDefined", IsThemePartDefined, 1, kDefaultPropsFlags ),
@@ -50,7 +49,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
@@ -122,7 +121,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
     LPCRECT pclip_rc = ( !clip_x && !clip_y && !clip_w && !clip_h ) ? nullptr : &clip_rc;
 
     HRESULT hr = ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rc, pclip_rc );
-    qwr::error::CheckHR( hr, "DrawThemeBackground" );
+    qwr::error::CheckHR( hr, u8"DrawThemeBackground" );
 }
 
 void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr,
@@ -142,7 +141,7 @@ void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphi
     case 4:
         return DrawThemeBackground( gr, x, y, w, h );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -166,7 +165,7 @@ void JsThemeManager::SetPartAndStateIDWithOpt( size_t optArgCount, int32_t parti
     case 1:
         return SetPartAndStateID( partid );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

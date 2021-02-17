@@ -4,7 +4,6 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/final_action.h>
 
@@ -22,11 +21,11 @@ namespace
 
 using namespace mozjs;
 
-std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth, bool isParentObject );
+qwr::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth, bool isParentObject );
 
-std::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth )
+qwr::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth )
 {
-    std::u8string output;
+    qwr::u8string output;
 
     output += "[";
 
@@ -56,9 +55,9 @@ std::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::Mutabl
     return output;
 }
 
-std::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth )
+qwr::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth )
 {
-    std::u8string output;
+    qwr::u8string output;
 
     {
         JS::RootedObject jsUnwrappedObject( cx, jsObject );
@@ -99,7 +98,7 @@ std::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::Mutab
         else
         {
             jsIdValue = js::IdToValue( jsId );
-            output += convert::to_native::ToValue<std::u8string>( cx, jsIdValue );
+            output += convert::to_native::ToValue<qwr::u8string>( cx, jsIdValue );
             output += "=";
             output += ParseJsValue( cx, jsValue, curObjects, logDepth, true );
             if ( i != length - 1 || hasFunctions )
@@ -119,9 +118,9 @@ std::u8string ParseJsObject( JSContext* cx, JS::HandleObject jsObject, JS::Mutab
     return output;
 }
 
-std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth, bool isParentObject )
+qwr::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth, bool isParentObject )
 {
-    std::u8string output;
+    qwr::u8string output;
 
     ++logDepth;
     qwr::final_action autoDecrement( [&logDepth] { --logDepth; } );
@@ -134,7 +133,7 @@ std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableH
         {
             output += "\"";
         }
-        output += convert::to_native::ToValue<std::u8string>( cx, jsValue );
+        output += convert::to_native::ToValue<qwr::u8string>( cx, jsValue );
         if ( showQuotes )
         {
             output += "\"";
@@ -188,14 +187,14 @@ std::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableH
     return output;
 }
 
-std::optional<std::u8string> ParseLogArgs( JSContext* cx, JS::CallArgs& args )
+std::optional<qwr::u8string> ParseLogArgs( JSContext* cx, JS::CallArgs& args )
 {
     if ( !args.length() )
     {
         return std::nullopt;
     }
 
-    std::u8string outputString;
+    qwr::u8string outputString;
     JS::RootedObjectVector curObjects( cx );
     uint32_t logDepth = 0;
     for ( size_t i = 0; i < args.length(); ++i )
@@ -230,7 +229,7 @@ bool LogImpl( JSContext* cx, unsigned argc, JS::Value* vp )
 
 MJS_DEFINE_JS_FN( Log, LogImpl )
 
-constexpr auto console_functions = smp::to_array<JSFunctionSpec>(
+constexpr auto console_functions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "log", Log, 0, kDefaultPropsFlags ),
         JS_FS_END,

@@ -27,7 +27,6 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <panel/js_panel_window.h>
-#include <utils/array_x.h>
 
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
@@ -89,7 +88,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( clearTimeout, JsGlobalObject::ClearTimeout )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setInterval, JsGlobalObject::SetInterval, JsGlobalObject::SetIntervalWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "clearInterval", clearInterval, 1, kDefaultPropsFlags ),
         JS_FN( "clearTimeout", clearTimeout, 1, kDefaultPropsFlags ),
@@ -146,7 +145,9 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" );
         CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" );
         CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentPanel );
-        // CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" ) ;
+#ifdef _DEBUG
+        CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" );
+#endif
 
         if ( !JS_DefineFunctions( cx, jsObj, jsFunctions.data() ) )
         {
@@ -184,7 +185,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
     return jsObj;
 }
 
-void JsGlobalObject::Fail( const std::u8string& errorText )
+void JsGlobalObject::Fail( const qwr::u8string& errorText )
 {
     parentContainer_.Fail( errorText );
 }
@@ -228,7 +229,7 @@ void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
     pJsWindow_->ClearInterval( timeoutId );
 }
 
-void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue options )
+void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue options )
 {
     namespace fs = std::filesystem;
 
@@ -272,17 +273,17 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
         }
         catch ( const fs::filesystem_error& e )
         {
-            throw qwr::QwrException( fmt::format( "Failed to open file `{}`:\n"
-                                                  "  {}",
-                                                  path,
-                                                  qwr::unicode::ToU8_FromAcpToWide( e.what() ) ) );
+            throw qwr::QwrException( "Failed to open file `{}`:\n"
+                                     "  {}",
+                                     path,
+                                     qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
         }
     }();
 
     const auto parsedOptions = ParseIncludeOptions( options );
 
     const auto u8Path = fsPath.u8string();
-    if ( !parsedOptions.alwaysEvaluate && includedFiles_.count( u8Path ) )
+    if ( !parsedOptions.alwaysEvaluate && includedFiles_.contains( u8Path ) )
     {
         return;
     }
@@ -301,7 +302,7 @@ void JsGlobalObject::IncludeScript( const std::u8string& path, JS::HandleValue o
     }
 }
 
-void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const std::u8string& path, JS::HandleValue options )
+void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const qwr::u8string& path, JS::HandleValue options )
 {
     switch ( optArgCount )
     {
@@ -310,7 +311,7 @@ void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const std::u8stri
     case 1:
         return IncludeScript( path );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

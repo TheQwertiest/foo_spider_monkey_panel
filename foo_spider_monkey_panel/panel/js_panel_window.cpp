@@ -74,7 +74,7 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
     return my_class_data;
 }
 
-void js_panel_window::Fail( const std::u8string& errorText )
+void js_panel_window::Fail( const qwr::u8string& errorText )
 {
     hasFailed_ = true;
     qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
@@ -703,7 +703,7 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
     }
     case InternalSyncMessage::script_fail:
     {
-        Fail( *reinterpret_cast<const std::u8string*>( lp ) );
+        Fail( *reinterpret_cast<const qwr::u8string*>( lp ) );
         return 0;
     }
     case InternalSyncMessage::terminate_script:
@@ -967,14 +967,14 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
     }
 }
 
-std::u8string js_panel_window::GetPanelId()
+qwr::u8string js_panel_window::GetPanelId()
 {
     return settings_.panelId;
 }
 
-std::u8string js_panel_window::GetPanelDescription( bool includeVersionAndAuthor )
+qwr::u8string js_panel_window::GetPanelDescription( bool includeVersionAndAuthor )
 {
-    std::u8string ret = fmt::format( "{}", settings_.panelId );
+    qwr::u8string ret = fmt::format( "{}", settings_.panelId );
 
     if ( !settings_.scriptName.empty() )
     {
@@ -1035,14 +1035,14 @@ PanelType js_panel_window::GetPanelType() const
     return panelType_;
 }
 
-void js_panel_window::SetScriptInfo( const std::u8string& scriptName, const std::u8string& scriptAuthor, const std::u8string& scriptVersion )
+void js_panel_window::SetScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion )
 {
     settings_.scriptName = scriptName;
     settings_.scriptAuthor = scriptAuthor;
     settings_.scriptVersion = scriptVersion;
 }
 
-void js_panel_window::SetPanelName( const std::u8string& panelName )
+void js_panel_window::SetPanelName( const qwr::u8string& panelName )
 {
     settings_.panelId = panelName;
     isPanelIdOverridenByScript_ = true;
@@ -1393,7 +1393,7 @@ void js_panel_window::on_font_changed()
 
 void js_panel_window::on_get_album_art_done( CallbackData& callbackData )
 {
-    auto& data = callbackData.GetData<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, std::u8string>();
+    auto& data = callbackData.GetData<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, qwr::u8string>();
     pJsContainer_->InvokeJsCallback( "on_get_album_art_done",
                                      std::get<0>( data ),
                                      std::get<1>( data ),
@@ -1431,7 +1431,7 @@ void js_panel_window::on_key_up( WPARAM wp )
 
 void js_panel_window::on_load_image_done( CallbackData& callbackData )
 {
-    auto& data = callbackData.GetData<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, std::u8string>();
+    auto& data = callbackData.GetData<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, qwr::u8string>();
     pJsContainer_->InvokeJsCallback( "on_load_image_done",
                                      std::get<0>( data ),
                                      std::move( std::get<1>( data ) ),

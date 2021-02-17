@@ -85,7 +85,7 @@ LRESULT CDialogHtml::OnInitDialog( HWND, LPARAM )
             pOleInPlaceHandler_ = pBrowser;
         }
 
-        if ( static_cast<std::wstring_view>( htmlCodeOrPath_ )._Starts_with( L"file://" ) )
+        if ( static_cast<std::wstring_view>( htmlCodeOrPath_ ).starts_with( L"file://" ) )
         {
             hr = pBrowser->Navigate( _bstr_t( htmlCodeOrPath_.c_str() ), &v, &v, &v, &v );
             qwr::error::CheckHR( hr, "Navigate" );

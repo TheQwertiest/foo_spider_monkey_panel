@@ -5,7 +5,6 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 namespace
 {
@@ -39,7 +38,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_Playlist, JsDropSourceAction::put_Playlist )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Text, JsDropSourceAction::put_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_ToSelect, JsDropSourceAction::put_ToSelect )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSGS( "Base", DummyGetter, put_Base, kDefaultPropsFlags ),
         JS_PSGS( "Effect", get_Effect, put_Effect, kDefaultPropsFlags ),
@@ -49,7 +48,7 @@ constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
         JS_PS_END,
     } );
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>( {
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>( {
     JS_FS_END,
 } );
 

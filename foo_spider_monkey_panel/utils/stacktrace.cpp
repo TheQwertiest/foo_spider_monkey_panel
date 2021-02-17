@@ -11,17 +11,16 @@
 #    include <qwr/final_action.h>
 #    pragma comment( lib, "dbghelp.lib" )
 
-#    include <nonstd/span.hpp>
-
 #    include <new>
+#    include <span>
 #    include <string_view>
 
 namespace
 {
 
-using FmtResultIt = fmt::format_to_n_result<nonstd::span<wchar_t>::iterator>;
+using FmtResultIt = fmt::format_to_n_result<std::span<wchar_t>::iterator>;
 
-bool GetComponentPathNoExcept( nonstd::span<wchar_t>& pathBuffer ) noexcept
+bool GetComponentPathNoExcept( std::span<wchar_t>& pathBuffer ) noexcept
 {
     DWORD nRet = ::GetModuleFileName( core_api::get_my_instance(), pathBuffer.data(), pathBuffer.size() );
     if ( !nRet )
@@ -49,7 +48,7 @@ bool GetComponentPathNoExcept( nonstd::span<wchar_t>& pathBuffer ) noexcept
     return true;
 }
 
-FmtResultIt PrintSymbolName( HANDLE hProcess, DWORD64 stackFramePtr, nonstd::span<wchar_t> buffer )
+FmtResultIt PrintSymbolName( HANDLE hProcess, DWORD64 stackFramePtr, std::span<wchar_t> buffer )
 {
     // Converting an address to a symbol is documented here:
     // https://docs.microsoft.com/en-us/windows/win32/debug/retrieving-symbol-information-by-address
@@ -61,13 +60,13 @@ FmtResultIt PrintSymbolName( HANDLE hProcess, DWORD64 stackFramePtr, nonstd::spa
 
     if ( !SymFromAddrW( hProcess, stackFramePtr, nullptr, pSymbolInfo ) )
     {
-        return fmt::format_to_n( buffer.data(), buffer.size(), L"(unknown)" );
+        return fmt::format_to_n( buffer.begin(), buffer.size(), L"(unknown)" );
     }
 
-    return fmt::format_to_n( buffer.data(), buffer.size(), L"{}", pSymbolInfo->Name );
+    return fmt::format_to_n( buffer.begin(), buffer.size(), L"{}", pSymbolInfo->Name );
 };
 
-FmtResultIt PrintFileLine( HANDLE hProcess, DWORD64 stackFramePtr, nonstd::span<wchar_t> buffer )
+FmtResultIt PrintFileLine( HANDLE hProcess, DWORD64 stackFramePtr, std::span<wchar_t> buffer )
 {
     IMAGEHLP_LINEW64 lineStruct{};
     lineStruct.SizeOfStruct = sizeof( lineStruct );
@@ -76,7 +75,7 @@ FmtResultIt PrintFileLine( HANDLE hProcess, DWORD64 stackFramePtr, nonstd::span<
 
     if ( !SymGetLineFromAddrW64( hProcess, stackFramePtr, &byteOffset, &lineStruct ) )
     {
-        return fmt::format_to_n( buffer.data(), buffer.size(), L"(unknown)" );
+        return fmt::format_to_n( buffer.begin(), buffer.size(), L"(unknown)" );
     }
 
     std::wstring_view filenameView( lineStruct.FileName );
@@ -86,7 +85,7 @@ FmtResultIt PrintFileLine( HANDLE hProcess, DWORD64 stackFramePtr, nonstd::span<
         filenameView.remove_prefix( pos + 1 );
     }
 
-    return fmt::format_to_n( buffer.data(), buffer.size(), L"{} : {}", filenameView, lineStruct.LineNumber );
+    return fmt::format_to_n( buffer.begin(), buffer.size(), L"{} : {}", filenameView, lineStruct.LineNumber );
 };
 
 } // namespace
@@ -103,11 +102,11 @@ LONG WINAPI SehHandler_ConsoleStacktrace( EXCEPTION_POINTERS* pExp, DWORD )
     auto stackTraceBuffer = [&localBuffer, &dynamicBuffer] {
         if ( dynamicBuffer )
         {
-            return nonstd::span{ dynamicBuffer.get(), kDynamicBufferSize };
+            return std::span{ dynamicBuffer.get(), kDynamicBufferSize };
         }
         else
         {
-            return static_cast<nonstd::span<wchar_t>>( localBuffer );
+            return static_cast<std::span<wchar_t>>( localBuffer );
         }
     }();
 
@@ -117,7 +116,7 @@ LONG WINAPI SehHandler_ConsoleStacktrace( EXCEPTION_POINTERS* pExp, DWORD )
     return EXCEPTION_CONTINUE_SEARCH;
 }
 
-void GetStackTrace( nonstd::span<wchar_t> stackTrace,
+void GetStackTrace( std::span<wchar_t> stackTrace,
                     HANDLE hProcess,
                     HANDLE hThread,
                     const CONTEXT* pContext )
@@ -126,7 +125,7 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
 
     assert( !stackTrace.empty() );
 
-    nonstd::span<wchar_t> curView = stackTrace.subspan( 0, stackTrace.size() - 1 );
+    std::span<wchar_t> curView = stackTrace.subspan( 0, stackTrace.size() - 1 );
     qwr::final_action autoZeroTermination{
         [&curView] {
             curView[0] = L'\0'; ///< curView.size() is always < stackTrace.size()
@@ -148,26 +147,26 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
     SymSetOptions( SYMOPT_UNDNAME | SYMOPT_DEFERRED_LOADS | SYMOPT_FAIL_CRITICAL_ERRORS | SYMOPT_LOAD_LINES );
     if ( !SymInitialize( hProcess, nullptr, TRUE ) )
     {
-        auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "<failed to fetch backtrace>: SymInitialize" );
-        curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+        auto fmtRet = fmt::format_to_n( curView.begin(), curView.size(), "<failed to fetch backtrace>: SymInitialize" );
+        curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
         return;
     }
     qwr::final_action autoSymCleanup{ [&hProcess] { SymCleanup( hProcess ); } };
 
     {
         std::array<wchar_t, 512> pathBuffer{};
-        if ( nonstd::span<wchar_t> path{ pathBuffer };
+        if ( std::span<wchar_t> path{ pathBuffer };
              !GetComponentPathNoExcept( path ) )
         {
-            auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "<failed to fetch backtrace>: GetComponentPathNoExcept" );
-            curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+            auto fmtRet = fmt::format_to_n( curView.begin(), curView.size(), "<failed to fetch backtrace>: GetComponentPathNoExcept" );
+            curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
             return;
         }
 
         if ( !SymSetSearchPathW( hProcess, pathBuffer.data() ) )
         {
-            auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "<failed to fetch backtrace>: SymSetSearchPath" );
-            curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+            auto fmtRet = fmt::format_to_n( curView.begin(), curView.size(), "<failed to fetch backtrace>: SymSetSearchPath" );
+            curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
             return;
         }
     }
@@ -197,8 +196,8 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
     frame.AddrStack.Offset = context.Esp;
     frame.AddrStack.Mode = AddrModeFlat;
 
-    auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), "SMP C++ stack trace:\n" );
-    curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+    auto fmtRet = fmt::format_to_n( curView.begin(), curView.size(), "SMP C++ stack trace:\n" );
+    curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
 
     DWORD curStackFramePtr{};
     uint32_t curRecurCounter{};
@@ -209,15 +208,15 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
     {
         if ( stackCounter )
         {
-            fmtRet = fmt::format_to_n( curView.data(), curView.size(), L"\n" );
-            curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+            fmtRet = fmt::format_to_n( curView.begin(), curView.size(), L"\n" );
+            curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
         }
 
         ++stackCounter;
         if ( stackCounter > maxDepth )
         {
-            auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), L"\t<...>" );
-            curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+            auto fmtRet = fmt::format_to_n( curView.begin(), curView.size(), L"\t<...>" );
+            curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
             break;
         }
         if ( frame.AddrPC.Offset == curStackFramePtr )
@@ -225,35 +224,35 @@ void GetStackTrace( nonstd::span<wchar_t> stackTrace,
             ++curRecurCounter;
             if ( curRecurCounter > maxRecurCount )
             {
-                auto fmtRet = fmt::format_to_n( curView.data(), curView.size(), L"\t<recursion...>" );
-                curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+                auto fmtRet = fmt::format_to_n( curView.begin(), curView.size(), L"\t<recursion...>" );
+                curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
                 break;
             }
         }
 
-        fmtRet = fmt::format_to_n( curView.data(), curView.size(), L"\t" );
-        curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+        fmtRet = fmt::format_to_n( curView.begin(), curView.size(), L"\t" );
+        curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
         if ( curView.empty() )
         {
             break;
         }
 
         fmtRet = PrintSymbolName( hProcess, frame.AddrPC.Offset, curView );
-        curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+        curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
         if ( curView.empty() )
         {
             break;
         }
 
-        fmtRet = fmt::format_to_n( curView.data(), curView.size(), L"\n\t\t" );
-        curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+        fmtRet = fmt::format_to_n( curView.begin(), curView.size(), L"\n\t\t" );
+        curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
         if ( curView.empty() )
         {
             break;
         }
 
         fmtRet = PrintFileLine( hProcess, frame.AddrPC.Offset, curView );
-        curView = nonstd::span<wchar_t>{ fmtRet.out, curView.end() };
+        curView = std::span<wchar_t>{ fmtRet.out, curView.end() };
         if ( curView.empty() )
         {
             break;

@@ -53,7 +53,7 @@ public: //methods
     JSObject* Clone( float x, float y, float w, float h );
     JSObject* CreateRawBitmap();
     JSObject* GetColourScheme( uint32_t count );
-    std::u8string GetColourSchemeJSON( uint32_t count );
+    qwr::u8string GetColourSchemeJSON( uint32_t count );
     JSObject* GetGraphics();
     JSObject* InvertColours();
     void ReleaseGraphics( JsGdiGraphics* graphics );

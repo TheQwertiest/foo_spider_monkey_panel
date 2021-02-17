@@ -111,7 +111,7 @@ PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort )
 
             mozjs::SerializedJsValue serializedValue;
 
-            const std::u8string u8PropName = qwr::pfc_x::ReadString( reader, abort );
+            const qwr::u8string u8PropName = qwr::pfc_x::ReadString( reader, abort );
 
             uint32_t valueType;
             reader.read_lendian_t( valueType, abort );
@@ -188,7 +188,7 @@ void SaveProperties( stream_writer& writer, abort_callback& abort, const PanelPr
                 {
                     return JsValueType::pt_double;
                 }
-                else if constexpr ( std::is_same_v<T, std::u8string> )
+                else if constexpr ( std::is_same_v<T, qwr::u8string> )
                 {
                     return JsValueType::pt_string;
                 }
@@ -203,10 +203,9 @@ void SaveProperties( stream_writer& writer, abort_callback& abort, const PanelPr
 
             std::visit( [&writer, &abort]( auto&& arg ) {
                 using T = std::decay_t<decltype( arg )>;
-                if constexpr ( std::is_same_v<T, std::u8string> )
+                if constexpr ( std::is_same_v<T, qwr::u8string> )
                 {
-                    const auto& value = arg;
-                    writer.write_string( value.c_str(), value.length(), abort );
+                    qwr::pfc_x::WriteString( writer, arg, abort );
                 }
                 else
                 {

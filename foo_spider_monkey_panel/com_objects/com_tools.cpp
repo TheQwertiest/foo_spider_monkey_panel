@@ -2,7 +2,7 @@
 
 #include "com_tools.h"
 
-#include <nonstd/span.hpp>
+#include <span>
 
 namespace internal
 {
@@ -45,8 +45,8 @@ HRESULT type_info_cache_holder::GetIDsOfNames( LPOLESTR* rgszNames, UINT cNames,
 {
     assert( m_type_info != NULL );
 
-    nonstd::span<LPOLESTR> names( rgszNames, cNames );
-    nonstd::span<MEMBERID> memIds( pMemId, cNames );
+    std::span<LPOLESTR> names( rgszNames, cNames );
+    std::span<MEMBERID> memIds( pMemId, cNames );
 
     for ( auto&& [name, memId]: ranges::views::zip( names, memIds ) )
     {

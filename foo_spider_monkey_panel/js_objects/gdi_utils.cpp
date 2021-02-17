@@ -9,7 +9,6 @@
 #include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_image_helpers.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
@@ -49,7 +48,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Image, JsGdiUtils::Image )
 MJS_DEFINE_JS_FN_FROM_NATIVE( LoadImageAsync, JsGdiUtils::LoadImageAsync )
 MJS_DEFINE_JS_FN_FROM_NATIVE( LoadImageAsyncV2, JsGdiUtils::LoadImageAsyncV2 )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "CreateImage", CreateImage, 2, kDefaultPropsFlags ),
         JS_FN( "Font", Font, 2, kDefaultPropsFlags ),
@@ -59,7 +58,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
@@ -111,7 +110,7 @@ JSObject* JsGdiUtils::FontWithOpt( size_t optArgCount, const std::wstring& fontN
     case 1:
         return Font( fontName, pxSize );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

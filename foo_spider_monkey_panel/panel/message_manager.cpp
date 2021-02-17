@@ -15,7 +15,7 @@ void message_manager::AddWindow( HWND hWnd )
 {
     std::scoped_lock sl( wndDataMutex_ );
 
-    assert( !wndDataMap_.count( hWnd ) );
+    assert( !wndDataMap_.contains( hWnd ) );
     wndDataMap_.emplace( hWnd, WindowData{} );
 }
 
@@ -23,7 +23,7 @@ void message_manager::RemoveWindow( HWND hWnd )
 {
     std::scoped_lock sl( wndDataMutex_ );
 
-    assert( wndDataMap_.count( hWnd ) );
+    assert( wndDataMap_.contains( hWnd ) );
     wndDataMap_.erase( hWnd );
 }
 
@@ -33,7 +33,7 @@ void message_manager::EnableAsyncMessages( HWND hWnd )
 
     std::scoped_lock sl( wndDataMutex_ );
 
-    assert( wndDataMap_.count( hWnd ) );
+    assert( wndDataMap_.contains( hWnd ) );
     auto& windowData = wndDataMap_[hWnd];
 
     ++( windowData.currentGeneration );
@@ -44,7 +44,7 @@ void message_manager::DisableAsyncMessages( HWND hWnd )
 {
     std::scoped_lock sl( wndDataMutex_ );
 
-    assert( wndDataMap_.count( hWnd ) );
+    assert( wndDataMap_.contains( hWnd ) );
     auto& windowData = wndDataMap_[hWnd];
 
     windowData.callbackMsgQueue.clear();
@@ -62,7 +62,7 @@ std::optional<message_manager::AsyncMessage> message_manager::ClaimAsyncMessage(
     assert( IsAsyncMessage( msg ) );
     std::scoped_lock sl( wndDataMutex_ );
 
-    assert( wndDataMap_.count( hWnd ) );
+    assert( wndDataMap_.contains( hWnd ) );
     auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
 
     if ( currentGeneration != static_cast<uint32_t>( wp ) || asyncMsgQueue.empty() )
@@ -79,7 +79,7 @@ std::shared_ptr<CallbackData> message_manager::ClaimCallbackMessageData( HWND hW
 {
     std::scoped_lock sl( wndDataMutex_ );
 
-    assert( wndDataMap_.count( hWnd ) );
+    assert( wndDataMap_.contains( hWnd ) );
     auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
 
     const auto it = ranges::find_if( callbackMsgQueue, [msgId = msg]( const auto& msg ) {
@@ -97,7 +97,7 @@ void message_manager::RequestNextAsyncMessage( HWND hWnd )
 {
     std::scoped_lock sl( wndDataMutex_ );
 
-    if ( !wndDataMap_.count( hWnd ) )
+    if ( !wndDataMap_.contains( hWnd ) )
     { // this is possible when invoked before window initialization
         return;
     }
@@ -115,7 +115,7 @@ void message_manager::post_msg( HWND hWnd, UINT msg, WPARAM wp, LPARAM lp )
     assert( IsAllowedAsyncMessage( msg ) );
     std::scoped_lock sl( wndDataMutex_ );
 
-    assert( wndDataMap_.count( hWnd ) );
+    assert( wndDataMap_.contains( hWnd ) );
     post_msg_impl( hWnd, wndDataMap_[hWnd], msg, wp, lp );
 }
 
@@ -135,7 +135,7 @@ void message_manager::post_callback_msg( HWND hWnd, CallbackMessage msg, std::un
     std::shared_ptr<CallbackData> sharedData( data.release() );
 
     std::scoped_lock sl( wndDataMutex_ );
-    assert( wndDataMap_.count( hWnd ) );
+    assert( wndDataMap_.contains( hWnd ) );
 
     post_callback_msg_impl( hWnd, wndDataMap_[hWnd], msg, sharedData );
 }

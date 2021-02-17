@@ -17,9 +17,9 @@ public:
     ~ZipPacker();
 
     /// @throw SmpException
-    void AddFile( const std::filesystem::path& srcFile, const std::u8string& destFileName );
+    void AddFile( const std::filesystem::path& srcFile, const qwr::u8string& destFileName );
     /// @throw SmpException
-    void AddFolder( const std::filesystem::path& srcFolder, const std::u8string& destFolderName = "" );
+    void AddFolder( const std::filesystem::path& srcFolder, const qwr::u8string& destFolderName = "" );
     /// @throw SmpException
     void Finish();
 

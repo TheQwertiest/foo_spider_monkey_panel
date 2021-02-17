@@ -21,7 +21,7 @@ bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );
 const void* GetSmpProxyFamily();
 
 template <typename JsObjectType, typename... ArgsType>
-void CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const std::u8string& propertyName, ArgsType&&... args )
+void CreateAndInstallObject( JSContext* cx, JS::HandleObject parentObject, const qwr::u8string& propertyName, ArgsType&&... args )
 {
     JS::RootedObject objectToInstall( cx, JsObjectType::CreateJs( cx, args... ) );
     assert( objectToInstall );

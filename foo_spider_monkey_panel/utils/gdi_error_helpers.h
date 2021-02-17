@@ -38,7 +38,7 @@ void CheckGdiPlusObject( const std::unique_ptr<T>& obj, const T_Parent* pParentO
 
     if ( status )
     {
-        throw qwr::QwrException( fmt::format( "Failed to create GdiPlus object ({:#x}): {}", *status, GdiErrorCodeToText( *status ) ) );
+        throw qwr::QwrException( "Failed to create GdiPlus object ({:#x}): {}", *status, GdiErrorCodeToText( *status ) );
     }
     else
     {

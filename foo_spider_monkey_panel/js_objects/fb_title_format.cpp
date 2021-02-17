@@ -7,7 +7,6 @@
 #include <js_objects/fb_metadb_handle_list.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/string_helpers.h>
 
@@ -42,7 +41,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Eval, JsFbTitleFormat::Eval, JsFbTitleFor
 MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadb, JsFbTitleFormat::EvalWithMetadb )
 MJS_DEFINE_JS_FN_FROM_NATIVE( EvalWithMetadbs, JsFbTitleFormat::EvalWithMetadbs )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "Eval", Eval, 0, kDefaultPropsFlags ),
         JS_FN( "EvalWithMetadb", EvalWithMetadb, 1, kDefaultPropsFlags ),
@@ -50,7 +49,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
@@ -68,19 +67,19 @@ const JSPropertySpec* JsFbTitleFormat::JsProperties = jsProperties.data();
 const JsPrototypeId JsFbTitleFormat::PrototypeId = JsPrototypeId::FbTitleFormat;
 const JSNative JsFbTitleFormat::JsConstructor = ::FbTitleFormat_Constructor;
 
-JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const std::u8string& expr )
+JsFbTitleFormat::JsFbTitleFormat( JSContext* cx, const qwr::u8string& expr )
     : pJsCtx_( cx )
 {
     titleformat_compiler::get()->compile_safe( titleFormatObject_, expr.c_str() );
 }
 
 std::unique_ptr<JsFbTitleFormat>
-JsFbTitleFormat::CreateNative( JSContext* cx, const std::u8string& expr )
+JsFbTitleFormat::CreateNative( JSContext* cx, const qwr::u8string& expr )
 {
     return std::unique_ptr<JsFbTitleFormat>( new JsFbTitleFormat( cx, expr ) );
 }
 
-size_t JsFbTitleFormat::GetInternalSize( const std::u8string& /*expr*/ )
+size_t JsFbTitleFormat::GetInternalSize( const qwr::u8string& /*expr*/ )
 {
     return sizeof( titleformat_object );
 }
@@ -90,7 +89,7 @@ titleformat_object::ptr JsFbTitleFormat::GetTitleFormat()
     return titleFormatObject_;
 }
 
-JSObject* JsFbTitleFormat::Constructor( JSContext* cx, const std::u8string& expr )
+JSObject* JsFbTitleFormat::Constructor( JSContext* cx, const qwr::u8string& expr )
 {
     return JsFbTitleFormat::CreateJs( cx, expr );
 }
@@ -122,7 +121,7 @@ pfc::string8_fast JsFbTitleFormat::EvalWithOpt( size_t optArgCount, bool force )
     case 1:
         return Eval();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

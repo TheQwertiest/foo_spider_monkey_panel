@@ -6,7 +6,6 @@
 #include <js_objects/menu_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/string_helpers.h>
 
@@ -41,7 +40,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( BuildMenu, JsMainMenuManager::BuildMenu )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ExecuteByID, JsMainMenuManager::ExecuteByID )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Init, JsMainMenuManager::Init )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "BuildMenu", BuildMenu, 3, kDefaultPropsFlags ),
         JS_FN( "ExecuteByID", ExecuteByID, 1, kDefaultPropsFlags ),
@@ -49,7 +48,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
@@ -102,7 +101,7 @@ bool JsMainMenuManager::ExecuteByID( uint32_t id )
     return menuManager_->execute_command( id );
 }
 
-void JsMainMenuManager::Init( const std::u8string& root_name )
+void JsMainMenuManager::Init( const qwr::u8string& root_name )
 {
     const auto preparedRootName = [&root_name]() {
         // Don't care about UTF8 here: we need exact match
@@ -119,7 +118,7 @@ void JsMainMenuManager::Init( const std::u8string& root_name )
 
     // In mainmenu_groups:
     // static const GUID file,view,edit,playback,library,help;
-    const auto validRoots = smp::to_array<RootElement>(
+    const auto validRoots = std::to_array<RootElement>(
         {
             { "file", &mainmenu_groups::file },
             { "view", &mainmenu_groups::view },

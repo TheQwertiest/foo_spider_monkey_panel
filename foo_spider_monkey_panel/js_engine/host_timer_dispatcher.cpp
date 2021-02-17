@@ -112,7 +112,7 @@ uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRep
 
     const uint32_t id = [&] {
         uint32_t id = m_curTimerId++;
-        while ( m_timerMap.count( id ) )
+        while ( m_timerMap.contains( id ) )
         {
             id = m_curTimerId++;
         }

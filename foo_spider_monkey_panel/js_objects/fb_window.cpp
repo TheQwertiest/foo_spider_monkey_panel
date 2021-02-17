@@ -5,7 +5,6 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/winapi_error_helpers.h>
 
@@ -34,7 +33,7 @@ JSClass jsClass = {
     &jsOps
 };
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FS_END,
     } );
@@ -53,7 +52,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_FullScreen, JsFbWindow::put_FullScreen )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_MainWindowState, JsFbWindow::put_MainWindowState )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Sizing, JsFbWindow::put_Sizing )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "Aero", get_Aero, kDefaultPropsFlags ),
         JS_PSGS( "BlockMaximize", get_BlockMaximize, put_BlockMaximize, kDefaultPropsFlags ),
@@ -224,8 +223,7 @@ void JsFbWindow::put_FrameStyle( uint8_t style )
     }
     default:
     {
-        JS_ReportErrorUTF8( pJsCtx_, "Unknown style: %u", style );
-        throw qwr::QwrException( "" );
+        throw qwr::QwrException( "Unknown style: %u", style );
     }
     }
 
@@ -238,7 +236,7 @@ void JsFbWindow::put_FullScreen( bool is )
 }
 
 void JsFbWindow::put_MainWindowState( uint8_t state )
-{ // TODO: azaza
+{
 }
 
 void JsFbWindow::put_Sizing( bool enable )

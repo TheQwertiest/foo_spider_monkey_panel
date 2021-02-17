@@ -49,7 +49,7 @@ private:
             JS::Heap<JSScript*> script;
             std::filesystem::file_time_type writeTime;
         };
-        std::unordered_map<std::string, ValueType> data;
+        std::unordered_map<qwr::u8string, ValueType> data;
 
         void trace( JSTracer* trc )
         {

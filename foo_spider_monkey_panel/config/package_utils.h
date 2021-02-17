@@ -6,10 +6,10 @@ namespace smp::config
 {
 
 /// @throw qwr::QwrException
-std::optional<std::filesystem::path> FindPackage( const std::u8string& packageId );
+std::optional<std::filesystem::path> FindPackage( const qwr::u8string& packageId );
 
 /// @throw qwr::QwrException
-ParsedPanelSettings GetNewPackageSettings( const std::u8string& name );
+ParsedPanelSettings GetNewPackageSettings( const qwr::u8string& name );
 
 /// @throw qwr::QwrException
 ParsedPanelSettings GetPackageSettingsFromPath( const std::filesystem::path& packagePath );

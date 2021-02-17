@@ -74,12 +74,12 @@ ZipPacker::~ZipPacker()
     }
 }
 
-void ZipPacker::AddFile( const fs::path& srcFile, const std::u8string& destFileName )
+void ZipPacker::AddFile( const fs::path& srcFile, const qwr::u8string& destFileName )
 {
     auto zRet = mz_zip_writer_add_file( pZip_.get(), destFileName.c_str(), srcFile.u8string().c_str(), "", 0, MZ_BEST_COMPRESSION );
     CheckMZip( zRet, *pZip_, "mz_zip_writer_init_file", "Failed to add file to archive: `{}`\n  ", srcFile.filename().u8string() );
 }
-void ZipPacker::AddFolder( const fs::path& srcFolder, const std::u8string& destFolderName )
+void ZipPacker::AddFolder( const fs::path& srcFolder, const qwr::u8string& destFolderName )
 {
     try
     {
@@ -148,7 +148,7 @@ void UnpackZip( const fs::path& zipFile, const fs::path& dstFolder )
             CheckMZip( zRet, mzZip, "mz_zip_reader_file_stat" );
 
             assert( zFileStat.m_filename );
-            const fs::path curPath = dstFolder / qwr::unicode::ToWide( std::u8string_view{ zFileStat.m_filename, strlen( zFileStat.m_filename ) } );
+            const fs::path curPath = dstFolder / qwr::unicode::ToWide( qwr::u8string_view{ zFileStat.m_filename, strlen( zFileStat.m_filename ) } );
             if ( zFileStat.m_is_directory )
             {
                 if ( !fs::exists( curPath ) )

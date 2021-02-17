@@ -34,7 +34,7 @@ LRESULT CInputBox::OnCommand( UINT, int id, HWND )
     {
         if ( id == IDOK )
         {
-            m_value = qwr::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_INPUT_VALUE ) );
+            m_value = qwr::pfc_x::uGetWindowText<char>( GetDlgItem( IDC_INPUT_VALUE ) );
         }
 
         EndDialog( id );
@@ -43,7 +43,7 @@ LRESULT CInputBox::OnCommand( UINT, int id, HWND )
     return 0;
 }
 
-std::u8string CInputBox::GetValue()
+qwr::u8string CInputBox::GetValue()
 {
     return m_value;
 }

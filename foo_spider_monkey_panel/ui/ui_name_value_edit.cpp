@@ -33,7 +33,7 @@ LRESULT CNameValueEdit::OnCommand( UINT, int id, HWND )
     {
     case IDOK:
     {
-        value_ = qwr::pfc_x::uGetWindowText<char8_t>( GetDlgItem( IDC_EDIT_VALUE ) );
+        value_ = qwr::pfc_x::uGetWindowText<char>( GetDlgItem( IDC_EDIT_VALUE ) );
         EndDialog( id );
         break;
     }
@@ -49,7 +49,7 @@ LRESULT CNameValueEdit::OnCommand( UINT, int id, HWND )
     return 0;
 }
 
-std::u8string CNameValueEdit::GetValue()
+qwr::u8string CNameValueEdit::GetValue()
 {
     return value_;
 }

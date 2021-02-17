@@ -16,7 +16,6 @@
 #include <panel/js_panel_window.h>
 #include <panel/message_manager.h>
 #include <panel/user_message.h>
-#include <utils/array_x.h>
 #include <utils/gdi_helpers.h>
 
 #include <qwr/winapi_error_helpers.h>
@@ -73,7 +72,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigure, JsWindow::ShowConfigure )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigureV2, JsWindow::ShowConfigureV2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowProperties, JsWindow::ShowProperties )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "ClearInterval", ClearInterval, 1, kDefaultPropsFlags ),
         JS_FN( "ClearTimeout", ClearTimeout, 1, kDefaultPropsFlags ),
@@ -126,7 +125,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_MaxWidth, JsWindow::put_MaxWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_MinHeight, JsWindow::put_MinHeight )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_MinWidth, JsWindow::put_MinWidth )
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSGS( "DlgCode", get_DlgCode, put_DlgCode, kDefaultPropsFlags ),
         JS_PSG( "Height", get_Height, kDefaultPropsFlags ),
@@ -300,11 +299,11 @@ JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring
     case 3:
         return CreateTooltip();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-void JsWindow::DefinePanel( const std::u8string& name, JS::HandleValue options )
+void JsWindow::DefinePanel( const qwr::u8string& name, JS::HandleValue options )
 {
     qwr::QwrException::ExpectTrue(
         parentPanel_.GetSettings().GetSourceType() != config::ScriptSourceType::Package,
@@ -321,7 +320,7 @@ void JsWindow::DefinePanel( const std::u8string& name, JS::HandleValue options )
     isScriptDefined_ = true;
 }
 
-void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options )
+void JsWindow::DefinePanelWithOpt( size_t optArgCount, const qwr::u8string& name, JS::HandleValue options )
 {
     switch ( optArgCount )
     {
@@ -330,11 +329,11 @@ void JsWindow::DefinePanelWithOpt( size_t optArgCount, const std::u8string& name
     case 1:
         return DefinePanel( name );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-void JsWindow::DefineScript( const std::u8string& name, JS::HandleValue options )
+void JsWindow::DefineScript( const qwr::u8string& name, JS::HandleValue options )
 {
     if ( isFinalized_ )
     {
@@ -355,7 +354,7 @@ void JsWindow::DefineScript( const std::u8string& name, JS::HandleValue options 
     isScriptDefined_ = true;
 }
 
-void JsWindow::DefineScriptWithOpt( size_t optArgCount, const std::u8string& name, JS::HandleValue options )
+void JsWindow::DefineScriptWithOpt( size_t optArgCount, const qwr::u8string& name, JS::HandleValue options )
 {
     switch ( optArgCount )
     {
@@ -364,7 +363,7 @@ void JsWindow::DefineScriptWithOpt( size_t optArgCount, const std::u8string& nam
     case 1:
         return DefineScript( name );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -395,7 +394,7 @@ uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
     else
     {
         HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
-        qwr::error::CheckHR( hr, "CLSIDFromString" );
+        qwr::error::CheckHR( hr, u8"CLSIDFromString" );
     }
 
     return parentPanel_.GetColour( type, guid );
@@ -410,7 +409,7 @@ uint32_t JsWindow::GetColourCUIWithOpt( size_t optArgCount, uint32_t type, const
     case 1:
         return GetColourCUI( type );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -443,7 +442,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     else
     {
         HRESULT hr = CLSIDFromString( guidstr.c_str(), &guid );
-        qwr::error::CheckHR( hr, "CLSIDFromString" );
+        qwr::error::CheckHR( hr, u8"CLSIDFromString" );
     }
 
     auto hFont = gdi::CreateUniquePtr( parentPanel_.GetFont( type, guid ) );
@@ -470,7 +469,7 @@ JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const 
     case 1:
         return GetFontCUI( type );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -517,7 +516,7 @@ JS::Value JsWindow::GetPropertyWithOpt( size_t optArgCount, const std::wstring& 
     case 1:
         return GetProperty( name );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -565,7 +564,7 @@ void JsWindow::RepaintWithOpt( size_t optArgCount, bool force )
     case 1:
         return Repaint();
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -588,7 +587,7 @@ void JsWindow::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, u
     case 1:
         return RepaintRect( x, y, w, h );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -627,7 +626,7 @@ uint32_t JsWindow::SetIntervalWithOpt( size_t optArgCount, JS::HandleValue func,
     case 1:
         return SetInterval( func, delay );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -650,7 +649,7 @@ void JsWindow::SetPropertyWithOpt( size_t optArgCount, const std::wstring& name,
     case 1:
         return SetProperty( name );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -677,7 +676,7 @@ uint32_t JsWindow::SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, 
     case 1:
         return SetTimeout( func, delay );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
@@ -834,11 +833,11 @@ uint32_t JsWindow::get_MinWidth()
     return parentPanel_.MinSize().x;
 }
 
-std::u8string JsWindow::get_Name()
+qwr::u8string JsWindow::get_Name()
 {
     if ( isFinalized_ )
     {
-        return std::u8string{};
+        return qwr::u8string{};
     }
 
     return parentPanel_.GetPanelId();
@@ -970,8 +969,8 @@ JsWindow::DefineScriptOptions JsWindow::ParseDefineScriptOptions( JS::HandleValu
         qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
-        parsedOptions.author = GetOptionalProperty<std::u8string>( pJsCtx_, jsOptions, "author" ).value_or( "" );
-        parsedOptions.version = GetOptionalProperty<std::u8string>( pJsCtx_, jsOptions, "version" ).value_or( "" );
+        parsedOptions.author = GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "author" ).value_or( "" );
+        parsedOptions.version = GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "version" ).value_or( "" );
 
         bool hasProperty;
         if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )

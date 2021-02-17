@@ -6,7 +6,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <panel/message_blocking_scope.h>
-#include <utils/array_x.h>
 
 #include <qwr/winapi_error_helpers.h>
 
@@ -44,7 +43,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CheckMenuItem, JsMenuObject::CheckMenuItem )
 MJS_DEFINE_JS_FN_FROM_NATIVE( CheckMenuRadioItem, JsMenuObject::CheckMenuRadioItem )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( TrackPopupMenu, JsMenuObject::TrackPopupMenu, JsMenuObject::TrackPopupMenuWithOpt, 1 )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "AppendMenuItem", AppendMenuItem, 3, kDefaultPropsFlags ),
         JS_FN( "AppendMenuSeparator", AppendMenuSeparator, 0, kDefaultPropsFlags ),
@@ -55,7 +54,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
@@ -179,7 +178,7 @@ uint32_t JsMenuObject::TrackPopupMenuWithOpt( size_t optArgCount, int32_t x, int
     case 1:
         return TrackPopupMenu( x, y );
     default:
-        throw qwr::QwrException( fmt::format( "Internal error: invalid number of optional arguments specified: {}", optArgCount ) );
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 

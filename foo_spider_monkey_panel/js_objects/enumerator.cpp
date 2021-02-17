@@ -8,7 +8,6 @@
 #include <js_objects/active_x_object.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <utils/array_x.h>
 
 #include <qwr/winapi_error_helpers.h>
 
@@ -42,7 +41,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( item, JsEnumerator::Item )
 MJS_DEFINE_JS_FN_FROM_NATIVE( moveFirst, JsEnumerator::MoveFirst )
 MJS_DEFINE_JS_FN_FROM_NATIVE( moveNext, JsEnumerator::MoveNext )
 
-constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "atEnd", atEnd, 0, kDefaultPropsFlags ),
         JS_FN( "item", item, 0, kDefaultPropsFlags ),
@@ -51,7 +50,7 @@ constexpr auto jsFunctions = smp::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-constexpr auto jsProperties = smp::to_array<JSPropertySpec>(
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );

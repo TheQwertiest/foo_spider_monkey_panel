@@ -5,14 +5,14 @@ namespace smp::panel
 
 struct PanelInfo
 {
-    std::u8string panelId;
-    std::u8string scriptName;
-    std::u8string scriptVersion;
-    std::u8string scriptAuthor;
+    qwr::u8string panelId;
+    qwr::u8string scriptName;
+    qwr::u8string scriptVersion;
+    qwr::u8string scriptAuthor;
 
-    std::u8string BuildInfoString( bool full = true ) const
+    qwr::u8string BuildInfoString( bool full = true ) const
     {
-        std::u8string ret = fmt::format( "{{{}}}", panelId );
+        qwr::u8string ret = fmt::format( "{{{}}}", panelId );
 
         if ( !scriptName.empty() )
         {

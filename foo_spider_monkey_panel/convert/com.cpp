@@ -257,7 +257,7 @@ void PutVariantInSafeArrayData( void* arr, size_t idx, VARIANTARG& var )
         PutCastedElementInSafeArrayData<uint32_t>( arr, idx, var.ulVal );
         break;
     default:
-        throw qwr::QwrException( fmt::format( "ActiveX: unsupported array type: {:#x}", var.vt ) );
+        throw qwr::QwrException( "ActiveX: unsupported array type: {:#x}", var.vt );
     }
 }
 

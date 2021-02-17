@@ -1,17 +1,16 @@
 #pragma once
 
-#include <nonstd/span.hpp>
-
 #include <map>
+#include <span>
 
 namespace smp::config::sci
 {
 
 struct ScintillaProp
 {
-    std::u8string key;
-    std::u8string defaultval;
-    std::u8string val;
+    qwr::u8string key;
+    qwr::u8string defaultval;
+    qwr::u8string val;
 };
 
 using ScintillaPropList = std::vector<ScintillaProp>;
@@ -42,13 +41,13 @@ public:
 private:
     struct StriCmpAscii
     {
-        bool operator()( const std::u8string& a, const std::u8string& b ) const;
+        bool operator()( const qwr::u8string& a, const qwr::u8string& b ) const;
     };
 
-    using ScintillaPropValues = std::map<std::u8string, std::u8string, StriCmpAscii>;
+    using ScintillaPropValues = std::map<qwr::u8string, qwr::u8string, StriCmpAscii>;
 
 private:
-    void init_data( nonstd::span<const DefaultPropValue> p_default );
+    void init_data( std::span<const DefaultPropValue> p_default );
     void merge_data( const ScintillaPropValues& data_map );
 
 private:

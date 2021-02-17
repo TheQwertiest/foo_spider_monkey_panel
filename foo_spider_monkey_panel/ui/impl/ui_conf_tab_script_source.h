@@ -88,7 +88,7 @@ private:
     void OnBrowseFile( UINT uNotifyCode, int nID, CWindow wndCtl );
     std::optional<std::filesystem::path> OnBrowseFileImpl();
     void OnOpenPackageManager( UINT uNotifyCode, int nID, CWindow wndCtl );
-    std::optional<config::ParsedPanelSettings> OnOpenPackageManagerImpl( const std::u8string& packageId );
+    std::optional<config::ParsedPanelSettings> OnOpenPackageManagerImpl( const qwr::u8string& packageId );
 
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     LONG OnEditScriptDropDown( LPNMHDR pnmh ) const;
@@ -114,8 +114,8 @@ private:
 
     int sourceTypeId_ = 0;
     int sampleIdx_ = 0;
-    std::u8string path_;
-    std::u8string packageName_;
+    qwr::u8string path_;
+    qwr::u8string packageName_;
 
     std::array<std::unique_ptr<qwr::ui::IUiDdx>, 4> ddx_;
 

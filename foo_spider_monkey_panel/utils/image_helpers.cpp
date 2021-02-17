@@ -56,14 +56,14 @@ uint32_t LoadImageTask::GetTaskId() const
 
 void LoadImageTask::run()
 {
-    const std::u8string path = file_path_display( qwr::unicode::ToU8( imagePath_ ).c_str() ).get_ptr();
+    const qwr::u8string path = file_path_display( qwr::unicode::ToU8( imagePath_ ).c_str() ).get_ptr();
     panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
                                                           smp::CallbackMessage::internal_load_image_done,
                                                           std::make_unique<
                                                               smp::panel::CallbackDataImpl<
                                                                   uint32_t,
                                                                   std::unique_ptr<Gdiplus::Bitmap>,
-                                                                  std::u8string>>( taskId_,
+                                                                  qwr::u8string>>( taskId_,
                                                                                    image::LoadImage( imagePath_ ),
                                                                                    path ) );
 }

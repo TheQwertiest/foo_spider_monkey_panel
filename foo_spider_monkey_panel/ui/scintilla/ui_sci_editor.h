@@ -8,10 +8,9 @@
 #include <ui/scintilla/ui_sci_goto.h>
 #include <ui/scintilla/wtlscintilla.h>
 
-#include <nonstd/span.hpp>
-
 #include <optional>
 #include <set>
+#include <span>
 
 namespace smp::config::sci
 {
@@ -64,8 +63,8 @@ private:
 
     struct KeyWordComparator
     {
-        bool operator()( const std::u8string& a,
-                         const std::u8string& b ) const;
+        bool operator()( const qwr::u8string& a,
+                         const qwr::u8string& b ) const;
     };
 
     struct BracePosition
@@ -76,12 +75,12 @@ private:
 
     struct StyledPart
     {
-        StyledPart( std::u8string value, int style )
+        StyledPart( qwr::u8string value, int style )
             : value( std::move( value ) )
             , style( style )
         {
         }
-        std::u8string value;
+        qwr::u8string value;
         int style;
     };
 
@@ -89,9 +88,9 @@ private:
     // Operations and Implementation
     Sci_CharacterRange GetSelection();
     int GetCaretInLine();
-    std::u8string GetCurrentLine();
+    qwr::u8string GetCurrentLine();
     IndentationStatus GetIndentState( int line );
-    std::vector<StyledPart> GetStyledParts( int line, nonstd::span<const int> styles, size_t maxParts );
+    std::vector<StyledPart> GetStyledParts( int line, std::span<const int> styles, size_t maxParts );
     bool RangeIsAllWhitespace( int start, int end );
     std::optional<DWORD> GetPropertyColor( const char* key );
     void Init();
@@ -106,10 +105,10 @@ private:
     int IndentOfBlock( int line );
     void AutomaticIndentation( char ch );
     BracePosition FindBraceMatchPos();
-    std::optional<std::vector<std::u8string_view>> GetNearestWords( std::u8string_view wordPart, std::optional<char8_t> separator = std::nullopt );
-    std::optional<std::u8string_view> GetFullDefinitionForWord( std::u8string_view word );
+    std::optional<std::vector<qwr::u8string_view>> GetNearestWords( qwr::u8string_view wordPart, std::optional<char> separator = std::nullopt );
+    std::optional<qwr::u8string_view> GetFullDefinitionForWord( qwr::u8string_view word );
     void SetIndentation( int line, int indent );
-    std::optional<std::u8string> GetPropertyExpanded_Opt( const char8_t* key );
+    std::optional<qwr::u8string> GetPropertyExpanded_Opt( const char* key );
 
 private:
     int m_nBraceCount = 0;
@@ -118,10 +117,10 @@ private:
     int m_nLastPosCallTip = 0;
     const int m_nStatementLookback = 10;
 
-    std::u8string m_szCurrentCallTipWord;
-    std::u8string m_szFunctionDefinition;
+    qwr::u8string m_szCurrentCallTipWord;
+    qwr::u8string m_szFunctionDefinition;
 
-    std::set<std::u8string, KeyWordComparator> m_apis;
+    std::set<qwr::u8string, KeyWordComparator> m_apis;
 };
 
 } // namespace smp::ui::sci

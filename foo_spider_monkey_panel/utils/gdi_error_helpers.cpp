@@ -62,7 +62,7 @@ void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName )
 {
     if ( gdiStatus > 0 )
     {
-        throw qwr::QwrException( fmt::format( "GdiPlus error: {} failed with error ({:#x}): {}", functionName, gdiStatus, GdiErrorCodeToText( gdiStatus ) ) );
+        throw qwr::QwrException( "GdiPlus error: {} failed with error ({:#x}): {}", functionName, gdiStatus, GdiErrorCodeToText( gdiStatus ) );
     }
 }
 
