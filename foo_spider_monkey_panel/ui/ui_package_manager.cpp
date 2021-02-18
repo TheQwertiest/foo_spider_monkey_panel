@@ -589,7 +589,9 @@ void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
             fs::remove_all( *oldPackagePathOpt );
         }
 
-        fs::copy( tmpPath, config::GetPackagePath( newSettings ), fs::copy_options::recursive );
+        const auto newPackagePath = config::GetPackagePath( newSettings );
+        fs::create_directories( newPackagePath );
+        fs::copy( tmpPath, newPackagePath, fs::copy_options::recursive );
 
         auto it =
             ranges::find_if( packages_,
