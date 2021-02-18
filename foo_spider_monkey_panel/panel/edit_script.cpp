@@ -6,6 +6,7 @@
 #include <utils/edit_text.h>
 
 #include <qwr/error_popup.h>
+#include <qwr/ui_centered_message_box.h>
 #include <qwr/winapi_error_helpers.h>
 
 namespace fs = std::filesystem;
@@ -21,7 +22,7 @@ void EditScript( HWND hParent, config::ParsedPanelSettings& settings )
         {
         case config::ScriptSourceType::Sample:
         {
-            const int iRet = MessageBox(
+            const int iRet = qwr::ui::MessageBoxCentered(
                 hParent,
                 L"Are you sure?\n\n"
                 L"You are trying to edit a sample script.\n"
@@ -77,7 +78,7 @@ void EditPackageScript( HWND hParent, const std::filesystem::path& script, const
         assert( settings.GetSourceType() == config::ScriptSourceType::Package );
         if ( settings.isSample )
         {
-            const int iRet = MessageBox(
+            const int iRet = qwr::ui::MessageBoxCentered(
                 hParent,
                 L"Are you sure?\n\n"
                 L"You are trying to edit a sample script.\n"

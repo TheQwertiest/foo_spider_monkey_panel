@@ -3,6 +3,7 @@
 #include "ui_edit_in_progress.h"
 
 #include <qwr/thread_helpers.h>
+#include <qwr/ui_centered_message_box.h>
 #include <qwr/winapi_error_helpers.h>
 
 namespace
@@ -138,7 +139,10 @@ LRESULT CEditInProgress::OnCloseCmd( WORD, WORD wID, HWND )
         if ( wID == IDCANCEL )
         {
             const auto errorMsg = ( errorMessage_.empty() ? std::string{ "Unknown error caused by editor" } : errorMessage_ );
-            uMessageBox( m_hWnd, errorMsg.c_str(), "Editor error", MB_ICONWARNING | MB_SETFOREGROUND | MB_OK );
+            qwr::ui::MessageBoxCentered( *this,
+                                         qwr::unicode::ToWide( errorMsg ).c_str(),
+                                         L"Editor error",
+                                         MB_ICONWARNING | MB_SETFOREGROUND | MB_OK );
         }
 
         if ( editorThread_.joinable() )

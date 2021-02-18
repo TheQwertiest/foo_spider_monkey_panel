@@ -12,6 +12,7 @@
 #include <qwr/error_popup.h>
 #include <qwr/file_helpers.h>
 #include <qwr/final_action.h>
+#include <qwr/ui_centered_message_box.h>
 #include <qwr/winapi_error_helpers.h>
 
 namespace fs = std::filesystem;
@@ -182,7 +183,8 @@ void CConfigTabPackage::OnNewScript( UINT uNotifyCode, int nID, CWindow wndCtl )
 
                 if ( fs::exists( path ) )
                 {
-                    MessageBox(
+                    qwr::ui::MessageBoxCentered(
+                        *this,
                         L"File with this name already exists!",
                         L"Creating file",
                         MB_OK | MB_ICONWARNING );
@@ -331,7 +333,8 @@ void CConfigTabPackage::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl 
     {
         if ( isSample_ )
         {
-            const int iRet = MessageBox(
+            const int iRet = qwr::ui::MessageBoxCentered(
+                *this,
                 L"Are you sure?\n\n"
                 L"You are trying to edit a sample script.\n"
                 L"Any changes performed to the script will be applied to every panel that are using this sample.\n"
@@ -588,7 +591,8 @@ void CConfigTabPackage::AddFile( const std::filesystem::path& path )
             const auto newFile = ( file == path ? newPath : newPath / fs::relative( file, path ) );
             if ( fs::exists( newFile ) )
             {
-                const int iRet = MessageBox(
+                const int iRet = qwr::ui::MessageBoxCentered(
+                    *this,
                     fmt::format( L"File already exists:\n"
                                  L"{}\n\n"
                                  L"Do you want to rewrite it?",

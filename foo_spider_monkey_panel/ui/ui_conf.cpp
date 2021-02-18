@@ -15,6 +15,7 @@
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
 #include <qwr/string_helpers.h>
+#include <qwr/ui_centered_message_box.h>
 
 namespace
 {
@@ -238,7 +239,7 @@ LRESULT CDialogConf::OnCloseCmd( WORD /*wNotifyCode*/, WORD wID, HWND /*hWndCtl*
     {
         if ( HasChanged() )
         {
-            const int ret = uMessageBox( m_hWnd, "Do you want to apply your changes?", "Panel configuration", MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
+            const int ret = qwr::ui::MessageBoxCentered( m_hWnd, L"Do you want to apply your changes?", L"Panel configuration", MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
             switch ( ret )
             {
             case IDYES:

@@ -14,6 +14,7 @@
 #include <qwr/file_helpers.h>
 #include <qwr/final_action.h>
 #include <qwr/type_traits.h>
+#include <qwr/ui_centered_message_box.h>
 #include <qwr/winapi_error_helpers.h>
 
 #include <filesystem>
@@ -637,7 +638,8 @@ bool CConfigTabScriptSource::RequestConfirmationForReset()
         }
         else
         {
-            const int iRet = MessageBox(
+            const int iRet = qwr::ui::MessageBoxCentered(
+                *this,
                 L"!!! Changing script type will reset all panel settings !!!\n"
                 L"!!! Your whole script will be unrecoverably lost !!!\n\n"
                 L"Are you sure?",
@@ -648,7 +650,8 @@ bool CConfigTabScriptSource::RequestConfirmationForReset()
     }
     else
     {
-        const int iRet = MessageBox(
+        const int iRet = qwr::ui::MessageBoxCentered(
+            *this,
             L"!!! Changing script type will reset all panel settings !!!\n\n"
             L"Are you sure?",
             L"Changing script type",
@@ -660,7 +663,11 @@ bool CConfigTabScriptSource::RequestConfirmationForReset()
 
         if ( sourceTypeId_ == IDC_RADIO_SRC_PACKAGE && parent_.HasChanged() )
         {
-            const int iRet = uMessageBox( m_hWnd, "Do you want to save your changes to package?", SMP_NAME, MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
+            const int iRet = qwr::ui::MessageBoxCentered(
+                *this,
+                L"Do you want to save your changes to package?",
+                TEXT( SMP_NAME ),
+                MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
             switch ( iRet )
             {
             case IDYES:
@@ -684,7 +691,8 @@ bool CConfigTabScriptSource::RequestConfirmationOnPackageChange()
     assert( settings_.packageId );
     assert( sourceTypeId_ == IDC_RADIO_SRC_PACKAGE );
 
-    const int iRet = MessageBox(
+    const int iRet = qwr::ui::MessageBoxCentered(
+        *this,
         L"!!! Changing package will reset all panel settings !!!\n\n"
         L"Are you sure?",
         L"Changing script type",
@@ -696,7 +704,7 @@ bool CConfigTabScriptSource::RequestConfirmationOnPackageChange()
 
     if ( parent_.HasChanged() )
     {
-        const int iRet = uMessageBox( m_hWnd, "Do you want to save your changes to package?", SMP_NAME, MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
+        const int iRet = qwr::ui::MessageBoxCentered( m_hWnd, L"Do you want to save your changes to package?", TEXT( SMP_NAME ), MB_ICONWARNING | MB_SETFOREGROUND | MB_YESNOCANCEL );
         switch ( iRet )
         {
         case IDYES:
