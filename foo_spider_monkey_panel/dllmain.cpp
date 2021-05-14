@@ -18,6 +18,7 @@ VALIDATE_COMPONENT_FILENAME( SMP_DLL_NAME );
 
 // Script TypeLib
 ITypeLibPtr g_typelib;
+HINSTANCE savedIns;
 
 namespace
 {
@@ -79,7 +80,7 @@ void InitializeSubsystems( HINSTANCE ins )
         if ( Gdiplus::Status gdiRet = Gdiplus::GdiplusStartup( &g_pGdiToken, &gdip_input, nullptr );
              Gdiplus::Ok != gdiRet )
         {
-            g_subsystem_failures[SubsystemId::SMP_GDIPLUS] = { "OleInitialize failed", static_cast<uint32_t>( gdiRet ) };
+            g_subsystem_failures[SubsystemId::SMP_GDIPLUS] = { "GdiplusStartup failed", static_cast<uint32_t>( gdiRet ) };
         }
     }
 
@@ -133,6 +134,7 @@ class js_initquit : public initquit
 public:
     void on_init() override
     {
+        InitializeSubsystems( savedIns );
         qwr::DelayedExecutor::GetInstance().EnableExecution(); ///< Enable task processing (e.g. error popups)
         CheckSubsystemStatus();
     }
@@ -177,7 +179,7 @@ extern "C" BOOL WINAPI DllMain( HINSTANCE ins, DWORD reason, [[maybe_unused]] LP
     {
     case DLL_PROCESS_ATTACH:
     {
-        InitializeSubsystems( ins );
+        savedIns = ins; // defer InitializeSubsystems to on_init to avoid bogging down UI thread at startup
         break;
     }
     case DLL_PROCESS_DETACH:
