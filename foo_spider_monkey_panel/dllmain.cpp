@@ -76,7 +76,6 @@ void InitializeSubsystems( HINSTANCE ins )
             g_subsystem_failures[SubsystemId::SMP_GDIPLUS] = { "GdiplusStartup failed", static_cast<uint32_t>( gdiRet ) };
         }
     }
-
 }
 
 void InitializeDelayedSubsystems( HINSTANCE ins )
