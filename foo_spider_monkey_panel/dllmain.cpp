@@ -18,7 +18,6 @@ VALIDATE_COMPONENT_FILENAME( SMP_DLL_NAME );
 
 // Script TypeLib
 ITypeLibPtr g_typelib;
-HINSTANCE savedIns;
 
 namespace
 {
@@ -69,12 +68,6 @@ void InitializeSubsystems( HINSTANCE ins )
         }
     }
 
-    if ( int iRet = Scintilla_RegisterClasses( ins );
-         !iRet )
-    {
-        g_subsystem_failures[SubsystemId::SMP_SCINTILLA] = { "Scintilla_RegisterClasses failed", static_cast<uint32_t>( iRet ) };
-    }
-
     {
         Gdiplus::GdiplusStartupInput gdip_input;
         if ( Gdiplus::Status gdiRet = Gdiplus::GdiplusStartup( &g_pGdiToken, &gdip_input, nullptr );
@@ -82,6 +75,16 @@ void InitializeSubsystems( HINSTANCE ins )
         {
             g_subsystem_failures[SubsystemId::SMP_GDIPLUS] = { "GdiplusStartup failed", static_cast<uint32_t>( gdiRet ) };
         }
+    }
+
+}
+
+void InitializeDelayedSubsystems( HINSTANCE ins )
+{
+    if ( int iRet = Scintilla_RegisterClasses( ins );
+         !iRet )
+    {
+        g_subsystem_failures[SubsystemId::SMP_SCINTILLA] = { "Scintilla_RegisterClasses failed", static_cast<uint32_t>( iRet ) };
     }
 
     if ( HRESULT hr = g_wtlModule.Init( nullptr, ins );
@@ -104,6 +107,7 @@ void InitializeSubsystems( HINSTANCE ins )
         }
     }
 }
+
 
 void FinalizeSubsystems()
 {
@@ -134,7 +138,8 @@ class js_initquit : public initquit
 public:
     void on_init() override
     {
-        InitializeSubsystems( savedIns );
+        HINSTANCE ins = core_api::get_my_instance();
+        InitializeDelayedSubsystems( ins );
         qwr::DelayedExecutor::GetInstance().EnableExecution(); ///< Enable task processing (e.g. error popups)
         CheckSubsystemStatus();
     }
@@ -179,7 +184,7 @@ extern "C" BOOL WINAPI DllMain( HINSTANCE ins, DWORD reason, [[maybe_unused]] LP
     {
     case DLL_PROCESS_ATTACH:
     {
-        savedIns = ins; // defer InitializeSubsystems to on_init to avoid bogging down UI thread at startup
+        InitializeSubsystems( ins );
         break;
     }
     case DLL_PROCESS_DETACH:
