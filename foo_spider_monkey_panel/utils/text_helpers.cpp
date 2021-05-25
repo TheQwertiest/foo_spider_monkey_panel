@@ -114,8 +114,20 @@ size_t get_text_height( HDC hdc, std::wstring_view text )
 size_t get_text_width( HDC hdc, std::wstring_view text )
 {
     SIZE size;
-    // TODO: add error checks
-    GetTextExtentPoint32( hdc, text.data(), static_cast<int>( text.size() ), &size );
+    size_t count = GetKerningPairs( hdc, 0, 0 );
+    if ( count > 0 )
+    {
+        // If font has kerning pairs then GetTextExtentPoint32 will return an incorrect width if those pairs exist in text.
+        // Use DrawText in this case to provide more accurate values.
+        RECT rc_calc{ 0, 0, 0, 0 };
+        DrawText( hdc, text.data(), -1, &rc_calc, DT_CALCRECT );
+        return rc_calc.right;
+    }
+    else
+    {
+        // TODO: add error checks
+        GetTextExtentPoint32( hdc, text.data(), static_cast<int>( text.size() ), &size );
+    }
     return static_cast<size_t>( size.cx );
 }
 
