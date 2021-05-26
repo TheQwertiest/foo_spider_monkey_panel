@@ -155,7 +155,7 @@ uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font 
     qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
-    return smp::utils::get_text_width( hDc, str );
+    return smp::utils::get_text_width( hDc, str, true );
 }
 
 void JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )

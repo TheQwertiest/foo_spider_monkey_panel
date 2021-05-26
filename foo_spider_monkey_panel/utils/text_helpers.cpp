@@ -111,14 +111,13 @@ size_t get_text_height( HDC hdc, std::wstring_view text )
     return static_cast<size_t>( size.cy );
 }
 
-size_t get_text_width( HDC hdc, std::wstring_view text )
+size_t get_text_width( HDC hdc, std::wstring_view text, bool accurate )
 {
     SIZE size;
-    size_t count = GetKerningPairs( hdc, 0, 0 );
-    if ( count > 0 )
+    // If font has kerning pairs then GetTextExtentPoint32 will return an inaccurate width if those pairs exist in text.
+    // DrawText returns a completely accurate value, but is slower and should not be called from inside estimate_line_wrap
+    if ( accurate && GetKerningPairs( hdc, 0, 0 ) > 0 )
     {
-        // If font has kerning pairs then GetTextExtentPoint32 will return an incorrect width if those pairs exist in text.
-        // Use DrawText in this case to provide more accurate values.
         RECT rc_calc{ 0, 0, 0, 0 };
         DrawText( hdc, text.data(), -1, &rc_calc, DT_CALCRECT );
         return rc_calc.right;
