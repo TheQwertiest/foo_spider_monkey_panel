@@ -35,6 +35,8 @@ using std::max;
 
 // ATL/WTL
 /// atlstr.h (includes atlbase.h) must be included first for CString to LPTSTR conversion to work.
+/// windowsx.h must be included first to avoid conflicts.
+#include <windowsx.h>
 #include <atlstr.h> 
 #include <atlapp.h>
 #include <atlcom.h>
@@ -47,6 +49,14 @@ using std::max;
 #include <atltheme.h>
 #include <atltypes.h>
 #include <atlwin.h>
+
+/// Restore some windowsx.h macros
+#ifndef SelectFont
+#    define SelectFont(hdc, hfont) ((HFONT)SelectObject((hdc), (HGDIOBJ)(HFONT)(hfont)))
+#endif
+#ifndef SelectBitmap
+#    define SelectBitmap(hdc, hbm) ((HBITMAP)SelectObject((hdc), (HGDIOBJ)(HBITMAP)(hbm)))
+#endif
 
 // foobar2000 SDK
 #pragma warning( push, 0 )
@@ -101,11 +111,6 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 
 // range v3
 #include <range/v3/all.hpp>
-
-// Some macros defined by windowsx.h should be removed
-#ifdef _INC_WINDOWSX
-#undef SubclassWindow
-#endif
 
 #include <string>
 namespace qwr

@@ -17,7 +17,6 @@ The linked notices are provided for information only.
 - [Scintilla - HPND](licenses/Scintilla.txt)
 - [SpiderMonkey - MPL](licenses/SpiderMonkey.txt)
 - [StackBlur - MIT](licenses/StackBlur.txt)
-- [span lite - BSL-1.0](licenses/span%20lite.txt)
 - [timsort-cpp - MIT](licenses/timsort-cpp.txt)
 - [UI Helpers - BSD](licenses/UI%20Helpers.txt)
 - [WTL - MS-PL](licenses/WTL.txt)
