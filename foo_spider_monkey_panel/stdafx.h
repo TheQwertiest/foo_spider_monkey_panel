@@ -108,6 +108,8 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 // fmt
 #define FMT_HEADER_ONLY
 #include <fmt/format.h>
+/// wchar_t support
+#include <fmt/xchar.h>
 
 // range v3
 #include <range/v3/all.hpp>
