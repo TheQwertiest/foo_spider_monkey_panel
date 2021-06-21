@@ -212,11 +212,26 @@ void track_property_provider_impl::enumerate_properties( metadb_handle_list_cref
         if ( g_client->hashHandle( stlHandleList.front(), hash ) )
         {
             fields tmp = GetStats( hash );
-            if ( tmp.playcount > 0 ) p_out.set_property( SMP_NAME, 0, "Playcount", std::to_string( tmp.playcount ).c_str() );
-            if ( tmp.loved > 0 ) p_out.set_property( SMP_NAME, 1, "Loved", std::to_string( tmp.loved ).c_str() );
-            if ( !tmp.first_played.empty() ) p_out.set_property( SMP_NAME, 2, "First Played", tmp.first_played.c_str() );
-            if ( !tmp.last_played.empty() ) p_out.set_property( SMP_NAME, 3, "Last Played", tmp.last_played.c_str() );
-            if ( tmp.rating > 0 ) p_out.set_property( SMP_NAME, 4, "Rating", std::to_string( tmp.rating ).c_str() );
+            if ( tmp.playcount > 0 )
+            {
+                p_out.set_property( SMP_NAME, 0, "Playcount", std::to_string( tmp.playcount ).c_str() );
+            }
+            if ( tmp.loved > 0 )
+            {
+                p_out.set_property( SMP_NAME, 1, "Loved", std::to_string( tmp.loved ).c_str() );
+            }
+            if ( !tmp.first_played.empty() )
+            {
+                p_out.set_property( SMP_NAME, 2, "First Played", tmp.first_played.c_str() );
+            }
+            if ( !tmp.last_played.empty() )
+            {
+                p_out.set_property( SMP_NAME, 3, "Last Played", tmp.last_played.c_str() );
+            }
+            if ( tmp.rating > 0 )
+            {
+                p_out.set_property( SMP_NAME, 4, "Rating", std::to_string( tmp.rating ).c_str() );
+            }
         }
     }
     else
