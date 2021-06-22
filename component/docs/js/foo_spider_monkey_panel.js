@@ -3380,7 +3380,7 @@ function GdiGraphics() {
      * this will result in visual artifacts caused by ClearType hinting.<br>
      * Use {@link GdiGraphics#DrawString} instead in such cases.<br>
      * <br>
-     * To calculate text dimensions use {@link GdiGraphics#CalcTextHeight}, {@link GdiGraphics#CalcTextWidth} or DT_CALCRECT flag.<br>
+     * To calculate text dimensions use {@link GdiGraphics#CalcTextHeight}, {@link GdiGraphics#CalcTextWidth}.<br>
      * <br>
      * Note: uses special rules for `&` character by default, which consumes the `&` and causes the next character to be underscored.
      * This behaviour can be changed (or disabled) via `format` parameter.
@@ -3393,15 +3393,8 @@ function GdiGraphics() {
      * @param {number} w
      * @param {number} h
      * @param {number=} [format=0] See Flags.js > DT_*
-     * @return {Array<number>}
-     *     index | meaning <br>
-     *     [0] left   (DT_CALCRECT) <br>
-     *     [1] top    (DT_CALCRECT) <br>
-     *     [2] right  (DT_CALCRECT) <br>
-     *     [3] bottom (DT_CALCRECT) <br>
-     *     [4] characters drawn
      */
-    this.GdiDrawText = function (str, font, colour, x, y, w, h, format) { }; // (Array) [, format]
+    this.GdiDrawText = function (str, font, colour, x, y, w, h, format) { };
 
     /**
      * Calculates text dimensions for {@link GdiGraphics#DrawString}.
