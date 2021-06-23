@@ -80,7 +80,10 @@ void js_panel_window::Fail( const qwr::u8string& errorText )
     hasFailed_ = true;
     qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
 
-    Repaint(); ///< repaint to display error message
+    if ( wnd_ )
+    {              // can be null during startup
+        Repaint(); ///< repaint to display error message
+    }
     UnloadScript( true );
 }
 
@@ -116,7 +119,7 @@ void js_panel_window::LoadSettings( stream_reader& reader, t_size size, abort_ca
         }
         catch ( const qwr::QwrException& e )
         {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be reset!\n"
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!\n"
                                                                          "Error: {}",
                                                                          e.what() ) );
             return config::PanelSettings{};
@@ -125,7 +128,7 @@ void js_panel_window::LoadSettings( stream_reader& reader, t_size size, abort_ca
 
     if ( !UpdateSettings( settings, reloadPanel ) )
     {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be reset!" ) );
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!" ) );
         UpdateSettings( config::PanelSettings{}, reloadPanel );
     }
 }
@@ -1215,6 +1218,11 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
 
 void js_panel_window::UnloadScript( bool force )
 {
+    if ( !pJsContainer_ )
+    { // possible during startup config load
+        return;
+    }
+
     if ( !force )
     { // should not go in JS again when forced to unload (e.g. in case of an error)
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
