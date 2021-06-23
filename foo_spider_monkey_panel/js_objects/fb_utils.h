@@ -74,6 +74,7 @@ public:
     void PlayOrPause();
     void Prev();
     void Random();
+    void Restart();
     bool RunContextCommand( const qwr::u8string& command, uint32_t flags = 0 );
     bool RunContextCommandWithOpt( size_t optArgCount, const qwr::u8string& command, uint32_t flags );
     bool RunContextCommandWithMetadb( const qwr::u8string& command, JS::HandleValue handle, uint32_t flags = 0 );

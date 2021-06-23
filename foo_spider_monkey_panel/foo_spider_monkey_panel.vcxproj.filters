@@ -352,6 +352,9 @@
     <ClCompile Include="js_objects\hacks.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="config\delayed_package_utils.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -759,6 +762,9 @@
     </ClInclude>
     <ClInclude Include="js_objects\hacks.h">
       <Filter>js_objects</Filter>
+    </ClInclude>
+    <ClInclude Include="config\delayed_package_utils.h">
+      <Filter>config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

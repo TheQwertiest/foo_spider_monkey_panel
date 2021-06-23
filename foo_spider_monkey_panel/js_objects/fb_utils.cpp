@@ -86,6 +86,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Play, JsFbUtils::Play )
 MJS_DEFINE_JS_FN_FROM_NATIVE( PlayOrPause, JsFbUtils::PlayOrPause )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Prev, JsFbUtils::Prev )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Random, JsFbUtils::Random )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Restart, JsFbUtils::Restart )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( RunContextCommand, JsFbUtils::RunContextCommand, JsFbUtils::RunContextCommandWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( RunContextCommandWithMetadb, JsFbUtils::RunContextCommandWithMetadb, JsFbUtils::RunContextCommandWithMetadbWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( RunMainMenuCommand, JsFbUtils::RunMainMenuCommand )
@@ -137,6 +138,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "PlayOrPause", PlayOrPause, 0, kDefaultPropsFlags ),
         JS_FN( "Prev", Prev, 0, kDefaultPropsFlags ),
         JS_FN( "Random", Random, 0, kDefaultPropsFlags ),
+        JS_FN( "Restart", Restart, 0, kDefaultPropsFlags ),
         JS_FN( "RunContextCommand", RunContextCommand, 1, kDefaultPropsFlags ),
         JS_FN( "RunContextCommandWithMetadb", RunContextCommandWithMetadb, 2, kDefaultPropsFlags ),
         JS_FN( "RunMainMenuCommand", RunMainMenuCommand, 1, kDefaultPropsFlags ),
@@ -634,6 +636,11 @@ void JsFbUtils::Prev()
 void JsFbUtils::Random()
 {
     standard_commands::main_random();
+}
+
+void JsFbUtils::Restart()
+{
+    standard_commands::main_restart();
 }
 
 bool JsFbUtils::RunContextCommand( const qwr::u8string& command, uint32_t flags )

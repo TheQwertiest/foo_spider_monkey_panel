@@ -34,12 +34,27 @@ std::filesystem::path Packages_Foobar2000()
 
 std::filesystem::path TempFolder()
 {
-    return qwr::path::Foobar2000() / SMP_UNDERSCORE_NAME / "tmp";
+    return qwr::path::Profile() / SMP_UNDERSCORE_NAME / "tmp";
 }
 
 std::filesystem::path TempFolder_PackageUnpack()
 {
     return TempFolder() / "unpacked_package";
+}
+
+std::filesystem::path TempFolder_PackagesToInstall()
+{
+    return TempFolder() / "packages_to_install";
+}
+
+std::filesystem::path TempFolder_PackagesToRemove()
+{
+    return TempFolder() / "packages_to_remove";
+}
+
+std::filesystem::path TempFolder_PackagesInUse()
+{
+    return TempFolder() / "packages_in_use";
 }
 
 } // namespace smp::path

@@ -637,6 +637,9 @@ let fb = {
     /** @method */
     Random: function () { }, // (void)
 
+    /** @method */
+    Restart: function () { }, // (void)
+
     /**
      * Shows context menu for currently played track.
      *

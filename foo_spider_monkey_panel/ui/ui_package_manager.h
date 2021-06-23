@@ -1,6 +1,7 @@
 #pragma once
 
 #include <com_objects/file_drop_target.h>
+#include <config/delayed_package_utils.h>
 #include <config/panel_config.h>
 #include <config/parsed_panel_config.h>
 #include <resources/resource.h>
@@ -49,6 +50,7 @@ private:
         qwr::u8string id;
         std::optional<config::ParsedPanelSettings> parsedSettings;
         std::wstring errorText;
+        config::PackageDelayStatus status;
     };
 
 private:
@@ -74,9 +76,11 @@ private:
     void UpdatedUiPackageInfo();
 
     PackageData GeneratePackageData( const config::ParsedPanelSettings& parsedSettings );
-    void ImportPackage( const std::filesystem::path& path );
+    /// @return true if restart is needed
+    bool ImportPackage( const std::filesystem::path& path );
 
     bool ConfirmPackageOverwrite( const std::filesystem::path& oldPackagePath, const config::ParsedPanelSettings& newSettings );
+    bool ConfirmRebootOnPackageInUse();
 
 private:
     qwr::u8string focusedPackageId_;

@@ -3,6 +3,7 @@
 #include "js_panel_window.h"
 
 #include <com_objects/track_drop_target.h>
+#include <config/delayed_package_utils.h>
 #include <config/package_utils.h>
 #include <js_engine/js_container.h>
 #include <panel/com_message_scope.h>
@@ -1185,6 +1186,12 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     }
     else
     {
+        if ( settings_.GetSourceType() == config::ScriptSourceType::Package )
+        {
+            assert( settings_.packageId );
+            config::MarkPackageAsInUse( *settings_.packageId );
+        }
+
         assert( settings_.scriptPath );
         if ( !pJsContainer_->ExecuteScriptFile( *settings_.scriptPath ) )
         { // error reporting handled inside

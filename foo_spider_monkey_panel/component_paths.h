@@ -15,5 +15,8 @@ std::filesystem::path Packages_Foobar2000();
 
 std::filesystem::path TempFolder();
 std::filesystem::path TempFolder_PackageUnpack();
+std::filesystem::path TempFolder_PackagesToInstall();
+std::filesystem::path TempFolder_PackagesToRemove();
+std::filesystem::path TempFolder_PackagesInUse();
 
 } // namespace smp::path

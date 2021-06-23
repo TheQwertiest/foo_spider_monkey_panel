@@ -243,10 +243,7 @@ void CConfigTabPackage::OnRemoveFile( UINT uNotifyCode, int nID, CWindow wndCtl 
     assert( static_cast<size_t>( focusedFileIdx_ ) < files_.size() );
     try
     {
-        if ( fs::exists( files_[focusedFileIdx_] ) )
-        {
-            fs::remove_all( files_[focusedFileIdx_] );
-        }
+        fs::remove_all( files_[focusedFileIdx_] );
     }
     catch ( const fs::filesystem_error& e )
     {

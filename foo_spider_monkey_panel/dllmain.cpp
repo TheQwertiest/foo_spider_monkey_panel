@@ -1,5 +1,6 @@
 #include <stdafx.h>
 
+#include <config/package_utils.h>
 #include <js_engine/js_engine.h>
 #include <panel/message_manager.h>
 #include <panel/user_message.h>

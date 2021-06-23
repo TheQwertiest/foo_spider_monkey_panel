@@ -167,9 +167,35 @@ void CDialogPackageManager::OnDeletePackage( UINT /*uNotifyCode*/, int /*nID*/, 
 
     try
     {
+        const auto packageId = packages_[focusedPackageIdx_].id;
         const auto packagePathOpt = config::FindPackage( packages_[focusedPackageIdx_].id );
         if ( packagePathOpt )
         {
+            if ( config::IsPackageInUse( packageId ) )
+            {
+                config::MarkPackageAsToBeRemoved( packageId );
+
+                auto it =
+                    ranges::find_if( packages_,
+                                     [&]( const auto& elem ) {
+                                         return ( packageId == elem.id );
+                                     } );
+                if ( it != packages_.cend() )
+                {
+                    focusedPackageId_ = packageId;
+                    it->status = config::PackageDelayStatus::ToBeRemoved;
+                }
+
+                if ( ConfirmRebootOnPackageInUse() )
+                {
+                    standard_commands::main_restart();
+                }
+
+                UpdateListBoxFromData();
+                DoFullDdxToUi();
+                return;
+            }
+
             fs::remove_all( *packagePathOpt );
         }
     }
@@ -204,7 +230,11 @@ void CDialogPackageManager::OnImportPackage( UINT /*uNotifyCode*/, int /*nID*/, 
         return;
     }
 
-    ImportPackage( *pathOpt );
+    const auto isRestartNeeded = ImportPackage( *pathOpt );
+    if ( isRestartNeeded && ConfirmRebootOnPackageInUse() )
+    {
+        standard_commands::main_restart();
+    }
 }
 
 void CDialogPackageManager::OnExportPackage( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
@@ -310,11 +340,18 @@ LRESULT CDialogPackageManager::OnRichEditLinkClick( LPNMHDR pnmh )
 
 LRESULT CDialogPackageManager::OnDropFiles( UINT /*uMsg*/, WPARAM wParam, LPARAM lParam )
 {
-    return pPackagesListBoxDrop_->ProcessMessage(
+    bool isRestartNeeded = false;
+    const auto result = pPackagesListBoxDrop_->ProcessMessage(
         packagesListBox_,
         wParam,
         lParam,
-        [&]( const auto& path ) { ImportPackage( path ); } );
+        [&]( const auto& path ) { isRestartNeeded |= ImportPackage( path ); } );
+    if ( isRestartNeeded && ConfirmRebootOnPackageInUse() )
+    {
+        standard_commands::main_restart();
+    }
+
+    return result;
 }
 
 void CDialogPackageManager::DoFullDdxToUi()
@@ -345,10 +382,11 @@ void CDialogPackageManager::UpdateUiButtons()
     }
 
     const auto& currentPackageData = packages_[focusedPackageIdx_];
+    const auto isSample = ( currentPackageData.parsedSettings && currentPackageData.parsedSettings->isSample );
 
     CButton{ GetDlgItem( IDOK ) }.EnableWindow( !!currentPackageData.parsedSettings );
-    CButton{ GetDlgItem( IDC_BUTTON_DELETE_PACKAGE ) }.EnableWindow( currentPackageData.parsedSettings && !currentPackageData.parsedSettings->isSample );
-    CButton{ GetDlgItem( IDC_BUTTON_EXPORT_PACKAGE ) }.EnableWindow( currentPackageData.parsedSettings && !currentPackageData.parsedSettings->isSample );
+    CButton{ GetDlgItem( IDC_BUTTON_DELETE_PACKAGE ) }.EnableWindow( currentPackageData.status != config::PackageDelayStatus::ToBeRemoved && !isSample );
+    CButton{ GetDlgItem( IDC_BUTTON_EXPORT_PACKAGE ) }.EnableWindow( !isSample );
     CButton{ GetDlgItem( IDC_BUTTON_OPEN_FOLDER ) }.EnableWindow( !!currentPackageData.parsedSettings );
 }
 
@@ -405,6 +443,8 @@ void CDialogPackageManager::LoadPackages()
                                          qwr::unicode::ToWide( fmt::format( "Package parsing failed:\r\n{}", e.what() ) ) };
                 parsedPackages.emplace_back( packageData );
             }
+
+            parsedPackages.back().status = config::GetPackageDelayStatus( packageId );
         }
 
         packages_ = std::move( parsedPackages );
@@ -447,9 +487,21 @@ void CDialogPackageManager::UpdateListBoxFromData()
     }
 
     packagesListBox_.ResetContent();
+
     for ( const auto& package: packages_ )
     {
-        packagesListBox_.AddString( package.displayedName.c_str() );
+        const auto prefix = [&]() -> std::wstring {
+            switch ( package.status )
+            {
+            case config::PackageDelayStatus::ToBeRemoved:
+                return L"(will be removed) ";
+            case config::PackageDelayStatus::ToBeUpdated:
+                return L"(will be updated) ";
+            default:
+                return L"";
+            }
+        }();
+        packagesListBox_.AddString( ( prefix + package.displayedName ).c_str() );
     }
 }
 
@@ -543,17 +595,14 @@ CDialogPackageManager::PackageData CDialogPackageManager::GeneratePackageData( c
                         L"" };
 }
 
-void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
+bool CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
 {
     assert( fs::exists( path ) );
 
     try
     {
         const auto tmpPath = path::TempFolder_PackageUnpack();
-        if ( fs::exists( tmpPath ) )
-        {
-            fs::remove_all( tmpPath );
-        }
+        fs::remove_all( tmpPath );
         fs::create_directories( tmpPath );
         qwr::final_action autoTmp( [&] {
             try
@@ -567,34 +616,47 @@ void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
 
         UnpackZip( path, tmpPath );
 
-        const auto newSettings = [&tmpPath] {
-            auto settings = config::GetPackageSettingsFromPath( tmpPath );
+        const auto newSettings = config::GetPackageSettingsFromPath( tmpPath );
+        const auto& packageId = *newSettings.packageId;
 
-            // Adjust script path to point to the target directory
-            const auto relativeMainScriptPath = fs::relative( *settings.scriptPath, tmpPath );
-            settings.scriptPath = path::Packages_Profile() / *settings.packageId / relativeMainScriptPath;
-
-            return settings;
-        }();
-
-        if ( const auto oldPackagePathOpt = config::FindPackage( *newSettings.packageId );
+        if ( const auto oldPackagePathOpt = config::FindPackage( packageId );
              oldPackagePathOpt )
         {
             if ( !ConfirmPackageOverwrite( *oldPackagePathOpt, newSettings ) )
             {
-                return;
+                return false;
+            }
+
+            if ( config::IsPackageInUse( packageId ) )
+            {
+                config::MarkPackageAsToBeInstalled( packageId, tmpPath );
+
+                auto it =
+                    ranges::find_if( packages_,
+                                     [&]( const auto& elem ) {
+                                         return ( packageId == elem.id );
+                                     } );
+                if ( it != packages_.cend() )
+                {
+                    focusedPackageId_ = packageId;
+                    it->status = config::PackageDelayStatus::ToBeUpdated;
+                }
+
+                UpdateListBoxFromData();
+                DoFullDdxToUi();
+                return true;
             }
 
             fs::remove_all( *oldPackagePathOpt );
         }
 
-        const auto newPackagePath = config::GetPackagePath( newSettings );
+        const auto newPackagePath = path::Packages_Profile() / packageId;
         fs::create_directories( newPackagePath );
         fs::copy( tmpPath, newPackagePath, fs::copy_options::recursive );
 
         auto it =
             ranges::find_if( packages_,
-                             [packageId = *newSettings.packageId]( const auto& elem ) {
+                             [&]( const auto& elem ) {
                                  return ( packageId == elem.id );
                              } );
         if ( it != packages_.cend() )
@@ -605,7 +667,7 @@ void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
         {
             packages_.emplace_back( GeneratePackageData( newSettings ) );
         }
-        focusedPackageId_ = *newSettings.packageId;
+        focusedPackageId_ = packageId;
 
         UpdateListBoxFromData();
         DoFullDdxToUi();
@@ -618,6 +680,8 @@ void CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
     {
         qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
     }
+
+    return false;
 }
 
 bool CDialogPackageManager::ConfirmPackageOverwrite( const std::filesystem::path& oldPackagePath, const config::ParsedPanelSettings& newSettings )
@@ -678,6 +742,17 @@ bool CDialogPackageManager::ConfirmPackageOverwrite( const std::filesystem::path
     }
 
     return true;
+}
+
+bool CDialogPackageManager::ConfirmRebootOnPackageInUse()
+{
+    const int iRet = qwr::ui::MessageBoxCentered(
+        *this,
+        L"The package is currently in use. Changes will be applied on the next foobar2000 start.\n"
+        L"Do you want to restart foobar2000 now?",
+        L"Changing package",
+        MB_YESNO );
+    return ( iRet == IDYES );
 }
 
 } // namespace smp::ui

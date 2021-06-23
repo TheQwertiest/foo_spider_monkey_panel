@@ -137,6 +137,7 @@
   <ItemGroup>
     <ClCompile Include="component_paths.cpp" />
     <ClCompile Include="com_objects\file_drop_target.cpp" />
+    <ClCompile Include="config\delayed_package_utils.cpp" />
     <ClCompile Include="config\package_utils.cpp" />
     <ClCompile Include="config\panel_config.cpp" />
     <ClCompile Include="config\panel_config_binary.cpp" />
@@ -275,6 +276,7 @@
     <ClInclude Include="com_objects\internal\drag_utils.h" />
     <ClInclude Include="com_objects\internal\handle.h" />
     <ClInclude Include="com_objects\com_interface.h" />
+    <ClInclude Include="config\delayed_package_utils.h" />
     <ClInclude Include="config\package_utils.h" />
     <ClInclude Include="config\panel_config.h" />
     <ClInclude Include="config\panel_config_binary.h" />
