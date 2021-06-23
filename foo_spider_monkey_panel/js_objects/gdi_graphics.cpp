@@ -531,9 +531,28 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     {
         format &= ~DT_MODIFYSTRING;
     }
+
+    // Well, magic :P
     if ( format & DT_CALCRECT )
     {
+        const RECT rc_old = rc;
+
+        RECT rc_calc = rc;
+        iRet = DrawText( hDc, str.c_str(), -1, &rc_calc, format );
+        qwr::error::CheckWinApi( iRet, "DrawText" );
+
         format &= ~DT_CALCRECT;
+
+        // adjust vertical align
+        if ( format & DT_VCENTER )
+        {
+            rc.top = rc_old.top + ( ( ( rc_old.bottom - rc_old.top ) - ( rc_calc.bottom - rc_calc.top ) ) >> 1 );
+            rc.bottom = rc.top + ( rc_calc.bottom - rc_calc.top );
+        }
+        else if ( format & DT_BOTTOM )
+        {
+            rc.top = rc_old.bottom - ( rc_calc.bottom - rc_calc.top );
+        }
     }
 
     iRet = DrawTextEx( hDc, const_cast<wchar_t*>( str.c_str() ), -1, &rc, format, &dpt );
