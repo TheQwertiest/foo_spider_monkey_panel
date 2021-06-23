@@ -2034,6 +2034,18 @@ let window = {
     GetFontDUI: function (type) { }, // (GdiFont)
 
     /**
+     * Get path to a directory for the current package.<br>
+     * Note: always returns the path, even if the directory does not exist.
+     * 
+     * @param {string} directoryType Possible values:<br>
+     * - 'scripts': corresponding directory inside package folder.<br>
+     * - 'assets': corresponding directory inside package folder.<br>
+     * - 'config': unique directory in fb2k profile.
+     * @return {string} path to a requested directory.
+     */
+    GetPackageDir: function (directoryType) { },
+
+    /**
      * Get value of property.<br>
      * If property does not exist and default_val is not undefined and not null,
      * it will be created with the value of default_val.<br>

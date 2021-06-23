@@ -206,6 +206,17 @@ std::filesystem::path GetPackageScriptsDir( const ParsedPanelSettings& settings 
     return GetPackagePath( settings ) / "scripts";
 }
 
+std::filesystem::path GetPackageAssetsDir( const ParsedPanelSettings& settings )
+{
+    return GetPackagePath( settings ) / "assets";
+}
+
+std::filesystem::path GetPackageConfigDir( const ParsedPanelSettings& settings )
+{
+    assert( settings.packageId );
+    return path::Packages_Config() / *settings.packageId;
+}
+
 std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSettings& settings )
 {
     try

@@ -65,6 +65,7 @@ public: // methods
     JSObject* GetFontCUI( uint32_t type, const std::wstring& guidstr = L"" );
     JSObject* GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr );
     JSObject* GetFontDUI( uint32_t type );
+    std::wstring GetPackageDir( const std::wstring& directoryType );
     JS::Value GetProperty( const std::wstring& name, JS::HandleValue defaultval = JS::NullHandleValue );
     JS::Value GetPropertyWithOpt( size_t optArgCount, const std::wstring& name, JS::HandleValue defaultval );
     void NotifyOthers( const std::wstring& name, JS::HandleValue info );

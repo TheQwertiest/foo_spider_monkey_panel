@@ -29,6 +29,12 @@ std::filesystem::path GetPackagePath( const ParsedPanelSettings& settings );
 std::filesystem::path GetPackageScriptsDir( const ParsedPanelSettings& settings );
 
 /// @throw qwr::QwrException
+std::filesystem::path GetPackageAssetsDir( const ParsedPanelSettings& settings );
+
+/// @throw qwr::QwrException
+std::filesystem::path GetPackageConfigDir( const ParsedPanelSettings& settings );
+
+/// @throw qwr::QwrException
 std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSettings& settings );
 
 /// @throw qwr::QwrException

@@ -32,6 +32,11 @@ std::filesystem::path Packages_Foobar2000()
     return qwr::path::Foobar2000() / SMP_UNDERSCORE_NAME / "packages";
 }
 
+std::filesystem::path Packages_Config()
+{
+    return qwr::path::Profile() / SMP_UNDERSCORE_NAME / "package_configs";
+}
+
 std::filesystem::path TempFolder()
 {
     return qwr::path::Profile() / SMP_UNDERSCORE_NAME / "tmp";
