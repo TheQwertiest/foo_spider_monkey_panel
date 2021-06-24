@@ -140,13 +140,13 @@ void ProcessDelayedPackagesOnce()
                     continue;
                 }
 
-                const auto packageId = packageContent.path().filename().wstring();
+                const auto packageId = packageContent.path().filename().u8string();
                 const auto packagePath = packageDirPath / packageId;
                 fs::remove_all( packagePath );
                 fs::create_directories( packagePath );
                 fs::copy( packageContent, packagePath, fs::copy_options::recursive );
 
-                ClearPackageDelayStatus( qwr::unicode::ToU8( packageId ) );
+                ClearPackageDelayStatus( packageId );
             }
 
             fs::remove_all( packagesToProcessDir );
@@ -163,10 +163,10 @@ void ProcessDelayedPackagesOnce()
 
             for ( const auto& packageContent: fs::directory_iterator( packagesToProcessDir ) )
             {
-                const auto packageId = packageContent.path().filename().wstring();
+                const auto packageId = packageContent.path().filename().u8string();
                 fs::remove_all( packagePath / packageId );
 
-                ClearPackageDelayStatus( qwr::unicode::ToU8( packageId ) );
+                ClearPackageDelayStatus( packageId );
             }
 
             fs::remove_all( packagesToProcessDir );

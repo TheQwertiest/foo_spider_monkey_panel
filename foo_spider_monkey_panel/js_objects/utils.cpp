@@ -10,6 +10,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/js_property_helper.h>
 #include <ui/ui_html.h>
 #include <ui/ui_input_box.h>
 #include <utils/art_helpers.h>
@@ -68,6 +69,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsyncV2, JsUtils::GetAlbumArtA
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbeddedWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtV2, JsUtils::GetAlbumArtV2, JsUtils::GetAlbumArtV2WithOpt, 2 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetFileSize, JsUtils::GetFileSize );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPackageInfo, JsUtils::GetPackageInfo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPackagePath, JsUtils::GetPackagePath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetSysColour, JsUtils::GetSysColour );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetSystemMetrics, JsUtils::GetSystemMetrics );
@@ -101,6 +103,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, kDefaultPropsFlags ),
         JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, kDefaultPropsFlags ),
         JS_FN( "GetFileSize", GetFileSize, 1, kDefaultPropsFlags ),
+        JS_FN( "GetPackageInfo", GetPackageInfo, 1, kDefaultPropsFlags ),
         JS_FN( "GetPackagePath", GetPackagePath, 1, kDefaultPropsFlags ),
         JS_FN( "GetSysColour", GetSysColour, 1, kDefaultPropsFlags ),
         JS_FN( "GetSystemMetrics", GetSystemMetrics, 1, kDefaultPropsFlags ),
@@ -439,6 +442,29 @@ uint64_t JsUtils::GetFileSize( const std::wstring& path ) const
     {
         throw qwr::QwrException( e );
     }
+}
+
+JSObject* JsUtils::GetPackageInfo( const qwr::u8string& packageId ) const
+{
+    const auto packagePathOpt = config::FindPackage( packageId );
+    if ( !packagePathOpt )
+    {
+        return nullptr;
+    }
+
+    const auto settings = config::GetPackageSettingsFromPath( *packagePathOpt );
+
+    JS::RootedObject jsDirs( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
+    AddProperty( pJsCtx_, jsDirs, "Root", config::GetPackagePath( settings ).wstring() );
+    AddProperty( pJsCtx_, jsDirs, "Assets", config::GetPackageAssetsDir( settings ).wstring() );
+    AddProperty( pJsCtx_, jsDirs, "Scripts", config::GetPackageScriptsDir( settings ).wstring() );
+    AddProperty( pJsCtx_, jsDirs, "Config", config::GetPackageConfigDir( settings ).wstring() );
+
+    JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
+    AddProperty( pJsCtx_, jsObject, "Directories", static_cast<JS::HandleObject>( jsDirs ) );
+    AddProperty( pJsCtx_, jsObject, "Version", settings.scriptVersion );
+
+    return jsObject;
 }
 
 qwr::u8string JsUtils::GetPackagePath( const qwr::u8string& packageId ) const

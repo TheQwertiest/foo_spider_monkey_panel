@@ -60,7 +60,6 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetColourCUI, JsWindow::GetColourCUI, JsW
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetColourDUI, JsWindow::GetColourDUI )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetFontCUI, JsWindow::GetFontCUI, JsWindow::GetFontCUIWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetFontDUI, JsWindow::GetFontDUI )
-MJS_DEFINE_JS_FN_FROM_NATIVE( GetPackageDir, JsWindow::GetPackageDir )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetProperty, JsWindow::GetProperty, JsWindow::GetPropertyWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( NotifyOthers, JsWindow::NotifyOthers )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Reload, JsWindow::Reload )
@@ -88,7 +87,6 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "GetColourDUI", GetColourDUI, 1, kDefaultPropsFlags ),
         JS_FN( "GetFontCUI", GetFontCUI, 1, kDefaultPropsFlags ),
         JS_FN( "GetFontDUI", GetFontDUI, 1, kDefaultPropsFlags ),
-        JS_FN( "GetPackageDir", GetPackageDir, 1, kDefaultPropsFlags ),
         JS_FN( "GetProperty", GetProperty, 1, kDefaultPropsFlags ),
         JS_FN( "NotifyOthers", NotifyOthers, 2, kDefaultPropsFlags ),
         JS_FN( "Reload", Reload, 0, kDefaultPropsFlags ),
@@ -498,36 +496,6 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
     }
 
     return JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false );
-}
-
-std::wstring JsWindow::GetPackageDir( const std::wstring& directoryType )
-{
-    if ( isFinalized_ )
-    {
-        return {};
-    }
-
-    qwr::QwrException::ExpectTrue(
-        parentPanel_.GetSettings().GetSourceType() == config::ScriptSourceType::Package,
-        "Can only be invoked in package scripts" );
-
-    const auto& settings = parentPanel_.GetSettings();
-    if ( directoryType == L"assets" )
-    {
-        return config::GetPackageAssetsDir( settings );
-    }
-    else if ( directoryType == L"scripts" )
-    {
-        return config::GetPackageScriptsDir( settings );
-    }
-    else if ( directoryType == L"config" )
-    {
-        return config::GetPackageConfigDir( settings );
-    }
-    else
-    {
-        throw qwr::QwrException( L"Unknown directory type: {}", directoryType );
-    }
 }
 
 JS::Value JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )

@@ -51,6 +51,8 @@ public:
     JSObject* GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true );
     JSObject* GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub );
     uint64_t GetFileSize( const std::wstring& path ) const;
+    JSObject* GetPackageInfo( const qwr::u8string& packageId ) const;
+    // TODO: remove in the next version (not necessarily v2)
     qwr::u8string GetPackagePath( const qwr::u8string& packageId ) const;
     uint32_t GetSysColour( uint32_t index ) const;
     uint32_t GetSystemMetrics( uint32_t index ) const;

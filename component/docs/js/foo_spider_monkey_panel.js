@@ -1515,8 +1515,38 @@ let utils = {
     GetFileSize: function (path) { },
 
     /**
+     * Note: returned directories are not guaranteed to exist.
+     * 
+     * @typedef {Object} JsPackageDirs
+     * @property {string} Root Root directory of the package
+     * @property {string} Assets Directory inside package folder that contains assets
+     * @property {string} Scripts Directory inside package folder that contains scripts
+     * @property {string} Config Persistent and unique directory inside foobar2000 profile folder
+     */
+
+    /**
+     * Return value of {@link window.GetPackageInfo}.<br>
+     *
+     * @typedef {Object} JsPackageInfo
+     * @property {string} Version Package version
+     * @property {JsPackageDirs} Directories Package directories
+     */
+
+    /**
+     * Get information about a package with the specified id.<br>
+     * 
+     * @param {string} package_id
+     * @return {?JsPackageInfo} null if not found, package information otherwise
+     */
+    GetPackageInfo: function (package_id) { },
+
+    /**
      * Get path to a package directory with the specified id.<br>
-     * Throws exception if package is not found.
+     * Throws exception if package is not found. <br>
+     * <br>
+     * Deprecated: use {@link window.GetPackageInfo} instead.
+     * 
+     * @deprecated
      * 
      * @param {string} package_id
      * @return {string}
@@ -2032,18 +2062,6 @@ let window = {
      * }
      */
     GetFontDUI: function (type) { }, // (GdiFont)
-
-    /**
-     * Get path to a directory for the current package.<br>
-     * Note: always returns the path, even if the directory does not exist.
-     * 
-     * @param {string} directoryType Possible values:<br>
-     * - 'scripts': corresponding directory inside package folder.<br>
-     * - 'assets': corresponding directory inside package folder.<br>
-     * - 'config': unique directory in fb2k profile.
-     * @return {string} path to a requested directory.
-     */
-    GetPackageDir: function (directoryType) { },
 
     /**
      * Get value of property.<br>
