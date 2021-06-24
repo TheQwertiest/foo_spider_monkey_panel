@@ -22,8 +22,7 @@ enum class CallbackMessage : UINT
     internal_get_album_art_promise_done,
     internal_load_image_done,
     internal_load_image_promise_done,
-    internal_timer_proc,
-    last_message = internal_timer_proc,
+    last_message = internal_load_image_promise_done,
 };
 
 /// @details These messages are asynchronous
@@ -78,6 +77,7 @@ enum class InternalSyncMessage : UINT
     notify_data = first_message,
     script_fail,
     terminate_script,
+    timer_proc,
     ui_script_editor_saved,
     update_size_on_reload,
     wnd_drag_drop,

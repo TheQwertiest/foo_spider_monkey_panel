@@ -37,25 +37,23 @@ public:
 
     void Finalize();
 
-    uint32_t setInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs );
-    uint32_t setTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs );
+    uint32_t SetInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs );
+    uint32_t SetTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs );
 
-    void killTimer( uint32_t timerId );
+    void StopTimer( uint32_t timerId );
+    void StopTimersForPanel( HWND hWnd );
 
-public: // callbacks
-    void onPanelUnload( HWND hWnd );
-
-    /// @brief Callback from KT: when timer is expired
-    void onTimerExpire( uint32_t timerId );
-
-    /// @brief Callback from WT: from HostTimer when timer proc finished execution
-    void onTimerStopRequest( HWND hWnd, HANDLE hTimer, uint32_t timerId );
+    /// @brief Called from WT: from HostTimer when timer proc finished execution
+    void QueueActualTimerStop( HWND hWnd, HANDLE hTimer, uint32_t timerId );
 
 private:
     HostTimerDispatcher();
 
     /// @throw smp::JsException
-    uint32_t createTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs );
+    uint32_t CreateTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs );
+
+    /// @brief Called from KT: when timer is expired
+    void EraseTimer( uint32_t timerId );
 
 private: //thread
     enum class ThreadTaskId
@@ -64,18 +62,18 @@ private: //thread
         shutdownTask
     };
 
-    void createThread();
-    void stopThread();
+    void CreateThread();
+    void StopThread();
 
-    void threadMain();
+    void ThreadMain();
 
 private:
     using TimerMap = std::map<uint32_t, std::unique_ptr<HostTimer>>;
 
-    HANDLE m_hTimerQueue = nullptr;
-    std::mutex m_timerMutex;
-    TimerMap m_timerMap;
-    uint32_t m_curTimerId = 1;
+    HANDLE hTimerQueue_ = nullptr;
+    std::mutex timerMutex_;
+    TimerMap timerMap_;
+    uint32_t curTimerId_ = 1;
 
 private: // thread
     struct ThreadTask
@@ -86,10 +84,10 @@ private: // thread
         HANDLE hTimer;
     };
 
-    std::unique_ptr<std::thread> m_thread;
-    std::mutex m_threadTaskMutex;
-    std::list<ThreadTask> m_threadTaskList;
-    std::condition_variable m_cv;
+    std::unique_ptr<std::thread> thread_;
+    std::mutex threadTaskMutex_;
+    std::list<ThreadTask> threadTaskList_;
+    std::condition_variable cv_;
 };
 
 /// @brief Task that should be executed on timer proc
@@ -102,7 +100,7 @@ public:
     ~HostTimerTask() override = default;
 
 private:
-    /// throws JsException
+    /// @throw JsException
     bool InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue, JS::HandleValue argArrayValue ) override;
 };
 
@@ -112,30 +110,30 @@ public:
     HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated, std::shared_ptr<HostTimerTask> task );
     ~HostTimer() = default;
 
-    void start( HANDLE hTimerQueue );
-    void stop();
+    void Start( HANDLE hTimerQueue );
+    void Stop();
 
     /// @brief Timer proc.
     /// @details Delegates task execution to the main thread via window message.
     ///          If it's a timeout timer, requests self-removal from killer thread.
     ///
     /// @param[in] lpParameter Pointer to HostTimer object
-    static VOID CALLBACK timerProc( PVOID lpParameter, BOOLEAN TimerOrWaitFired );
+    static VOID CALLBACK TimerProc( PVOID lpParameter, BOOLEAN TimerOrWaitFired );
 
     HWND GetHwnd() const;
 
 private:
     std::shared_ptr<HostTimerTask> task_;
 
-    HWND hWnd_ = nullptr;
+    const HWND hWnd_;
     HANDLE hTimer_ = nullptr;
 
-    uint32_t id_;
-    uint32_t delay_;
-    bool isRepeated_;
+    const uint32_t id_;
+    const uint32_t delay_;
+    const bool isRepeated_;
 
     std::atomic_bool isStopRequested_ = false;
-    bool isStopped_ = false;
+    std::atomic_bool isStopped_ = false;
 };
 
 } // namespace smp

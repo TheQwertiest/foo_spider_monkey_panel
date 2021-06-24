@@ -17,14 +17,14 @@ namespace smp
 {
 
 HostTimerDispatcher::HostTimerDispatcher()
-    : m_hTimerQueue( CreateTimerQueue() )
+    : hTimerQueue_( CreateTimerQueue() )
 {
-    createThread();
+    CreateThread();
 }
 
 HostTimerDispatcher::~HostTimerDispatcher()
 {
-    assert( !m_thread );
+    assert( !thread_ );
 }
 
 HostTimerDispatcher& HostTimerDispatcher::Get()
@@ -35,38 +35,38 @@ HostTimerDispatcher& HostTimerDispatcher::Get()
 
 void HostTimerDispatcher::Finalize()
 {
-    stopThread();
+    StopThread();
 }
 
-uint32_t HostTimerDispatcher::setInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
+uint32_t HostTimerDispatcher::SetInterval( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
 {
-    return createTimer( hWnd, delay, true, cx, jsFunction, jsFuncArgs );
+    return CreateTimer( hWnd, delay, true, cx, jsFunction, jsFuncArgs );
 }
 
-uint32_t HostTimerDispatcher::setTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
+uint32_t HostTimerDispatcher::SetTimeout( HWND hWnd, uint32_t delay, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
 {
-    return createTimer( hWnd, delay, false, cx, jsFunction, jsFuncArgs );
+    return CreateTimer( hWnd, delay, false, cx, jsFunction, jsFuncArgs );
 }
 
-void HostTimerDispatcher::killTimer( uint32_t timerId )
+void HostTimerDispatcher::StopTimer( uint32_t timerId )
 {
-    std::lock_guard<std::mutex> lock( m_timerMutex );
+    std::lock_guard<std::mutex> lock( timerMutex_ );
 
-    auto it = m_timerMap.find( timerId );
-    if ( m_timerMap.end() != it )
+    auto it = timerMap_.find( timerId );
+    if ( timerMap_.end() != it )
     {
-        it->second->stop();
+        it->second->Stop();
     }
 }
 
-void HostTimerDispatcher::onPanelUnload( HWND hWnd )
+void HostTimerDispatcher::StopTimersForPanel( HWND hWnd )
 {
     std::vector<uint32_t> timersToDelete;
 
     {
-        std::lock_guard<std::mutex> lock( m_timerMutex );
+        std::lock_guard<std::mutex> lock( timerMutex_ );
 
-        for ( const auto& [timerId, timer]: m_timerMap )
+        for ( const auto& [timerId, timer]: timerMap_ )
         {
             if ( timer->GetHwnd() == hWnd )
             {
@@ -77,21 +77,21 @@ void HostTimerDispatcher::onPanelUnload( HWND hWnd )
 
     for ( auto timerId: timersToDelete )
     {
-        killTimer( timerId );
+        StopTimer( timerId );
     }
 }
 
-void HostTimerDispatcher::onTimerExpire( uint32_t timerId )
+void HostTimerDispatcher::EraseTimer( uint32_t timerId )
 {
-    std::lock_guard<std::mutex> lock( m_timerMutex );
+    std::lock_guard<std::mutex> lock( timerMutex_ );
 
-    m_timerMap.erase( timerId );
+    timerMap_.erase( timerId );
 }
 
-void HostTimerDispatcher::onTimerStopRequest( HWND hWnd, HANDLE hTimer, uint32_t timerId )
+void HostTimerDispatcher::QueueActualTimerStop( HWND hWnd, HANDLE hTimer, uint32_t timerId )
 {
     {
-        std::unique_lock lock( m_threadTaskMutex );
+        std::unique_lock lock( threadTaskMutex_ );
 
         ThreadTask threadTask = {};
         threadTask.taskId = ThreadTaskId::killTimerTask;
@@ -99,22 +99,22 @@ void HostTimerDispatcher::onTimerStopRequest( HWND hWnd, HANDLE hTimer, uint32_t
         threadTask.hTimer = hTimer;
         threadTask.timerId = timerId;
 
-        m_threadTaskList.push_front( threadTask );
+        threadTaskList_.push_front( threadTask );
     }
-    m_cv.notify_all();
+    cv_.notify_all();
 }
 
-uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
+uint32_t HostTimerDispatcher::CreateTimer( HWND hWnd, uint32_t delay, bool isRepeated, JSContext* cx, JS::HandleFunction jsFunction, JS::HandleValueArray jsFuncArgs )
 {
     assert( jsFunction );
 
-    std::lock_guard<std::mutex> lock( m_timerMutex );
+    std::lock_guard<std::mutex> lock( timerMutex_ );
 
     const uint32_t id = [&] {
-        uint32_t id = m_curTimerId++;
-        while ( m_timerMap.contains( id ) )
+        uint32_t id = curTimerId_++;
+        while ( timerMap_.contains( id ) )
         {
-            id = m_curTimerId++;
+            id = curTimerId_++;
         }
         return id;
     }();
@@ -124,57 +124,57 @@ uint32_t HostTimerDispatcher::createTimer( HWND hWnd, uint32_t delay, bool isRep
     smp::JsException::ExpectTrue( jsArrayObject );
     JS::RootedValue jsArrayValue( cx, JS::ObjectValue( *jsArrayObject ) );
 
-    auto [it, bDummy] = m_timerMap.emplace( id, std::make_unique<HostTimer>( hWnd, id, delay, isRepeated, std::make_unique<HostTimerTask>( cx, jsFuncValue, jsArrayValue ) ) );
+    auto [it, bDummy] = timerMap_.emplace( id, std::make_unique<HostTimer>( hWnd, id, delay, isRepeated, std::make_unique<HostTimerTask>( cx, jsFuncValue, jsArrayValue ) ) );
     auto& [iDummy, timer] = *it;
-    auto autoTimer = qwr::final_action( [&] { m_timerMap.erase( id ); } );
+    auto autoTimer = qwr::final_action( [&] { timerMap_.erase( id ); } );
 
-    timer->start( m_hTimerQueue );
+    timer->Start( hTimerQueue_ );
 
     autoTimer.cancel();
     return id;
 }
 
-void HostTimerDispatcher::createThread()
+void HostTimerDispatcher::CreateThread()
 {
-    m_thread = std::make_unique<std::thread>( &HostTimerDispatcher::threadMain, this );
-    qwr::SetThreadName( *m_thread, "SMP TimerHandler" );
+    thread_ = std::make_unique<std::thread>( &HostTimerDispatcher::ThreadMain, this );
+    qwr::SetThreadName( *thread_, "SMP TimerHandler" );
 }
 
-void HostTimerDispatcher::stopThread()
+void HostTimerDispatcher::StopThread()
 {
-    if ( !m_thread )
+    if ( !thread_ )
     {
         return;
     }
 
     {
-        std::unique_lock<std::mutex> lock( m_threadTaskMutex );
+        std::unique_lock<std::mutex> lock( threadTaskMutex_ );
         ThreadTask threadTask = {};
         threadTask.taskId = ThreadTaskId::shutdownTask;
 
-        m_threadTaskList.push_front( threadTask );
+        threadTaskList_.push_front( threadTask );
     }
-    m_cv.notify_all();
+    cv_.notify_all();
 
-    if ( m_thread->joinable() )
+    if ( thread_->joinable() )
     {
-        m_thread->join();
+        thread_->join();
     }
 
-    m_thread.reset();
+    thread_.reset();
 }
 
-void HostTimerDispatcher::threadMain()
+void HostTimerDispatcher::ThreadMain()
 {
     while ( true )
     {
         const ThreadTask threadTask = [&] {
-            std::unique_lock<std::mutex> lock( m_threadTaskMutex );
+            std::unique_lock<std::mutex> lock( threadTaskMutex_ );
 
-            m_cv.wait( lock, [&threadTaskList = m_threadTaskList] { return !threadTaskList.empty(); } );
+            cv_.wait( lock, [&threadTaskList = threadTaskList_] { return !threadTaskList.empty(); } );
 
-            const auto threadTask = m_threadTaskList.front();
-            m_threadTaskList.pop_front();
+            const auto threadTask = threadTaskList_.front();
+            threadTaskList_.pop_front();
             return threadTask;
         }();
 
@@ -182,17 +182,17 @@ void HostTimerDispatcher::threadMain()
         {
         case ThreadTaskId::killTimerTask:
         {
-            assert( m_hTimerQueue );
+            assert( hTimerQueue_ );
             assert( threadTask.hTimer );
-            (void)DeleteTimerQueueTimer( m_hTimerQueue, threadTask.hTimer, INVALID_HANDLE_VALUE );
-            onTimerExpire( threadTask.timerId );
+            (void)DeleteTimerQueueTimer( hTimerQueue_, threadTask.hTimer, INVALID_HANDLE_VALUE );
+            EraseTimer( threadTask.timerId );
             break;
         }
         case ThreadTaskId::shutdownTask:
         {
-            assert( m_hTimerQueue );
-            (void)DeleteTimerQueueEx( m_hTimerQueue, INVALID_HANDLE_VALUE );
-            m_hTimerQueue = nullptr;
+            assert( hTimerQueue_ );
+            (void)DeleteTimerQueueEx( hTimerQueue_, INVALID_HANDLE_VALUE );
+            hTimerQueue_ = nullptr;
             return;
         }
         default:
@@ -265,12 +265,12 @@ HostTimer::HostTimer( HWND hWnd, uint32_t id, uint32_t delay, bool isRepeated, s
     assert( task );
 }
 
-void HostTimer::start( HANDLE hTimerQueue )
+void HostTimer::Start( HANDLE hTimerQueue )
 {
     BOOL bRet = CreateTimerQueueTimer(
         &hTimer_,
         hTimerQueue,
-        HostTimer::timerProc,
+        HostTimer::TimerProc,
         this,
         delay_,
         ( isRepeated_ ? delay_ : 0 ),
@@ -278,12 +278,12 @@ void HostTimer::start( HANDLE hTimerQueue )
     qwr::error::CheckWinApi( bRet, "CreateTimerQueueTimer" );
 }
 
-void HostTimer::stop()
+void HostTimer::Stop()
 {
     isStopRequested_ = true;
 }
 
-VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFired*/ )
+VOID CALLBACK HostTimer::TimerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFired*/ )
 {
     auto* timer = static_cast<HostTimer*>( lpParameter );
 
@@ -295,16 +295,17 @@ VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFire
     if ( timer->isStopRequested_ )
     {
         timer->isStopped_ = true;
-        HostTimerDispatcher::Get().onTimerStopRequest( timer->hWnd_, timer->hTimer_, timer->id_ );
+        HostTimerDispatcher::Get().QueueActualTimerStop( timer->hWnd_, timer->hTimer_, timer->id_ );
 
         return;
     }
 
     auto postTimerTask = [&timer] {
-        smp::panel::message_manager::instance().post_callback_msg(
+        SendMessage(
             timer->hWnd_,
-            smp::CallbackMessage::internal_timer_proc,
-            std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );
+            static_cast<int>( smp::InternalSyncMessage::timer_proc ),
+            0,
+            ( LPARAM )( timer->task_.get() ) );
     };
 
     if ( timer->isRepeated_ )
@@ -315,7 +316,7 @@ VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFire
     {
         timer->isStopped_ = true;
         postTimerTask();
-        HostTimerDispatcher::Get().onTimerStopRequest( timer->hWnd_, timer->hTimer_, timer->id_ );
+        HostTimerDispatcher::Get().QueueActualTimerStop( timer->hWnd_, timer->hTimer_, timer->id_ );
     }
 }
 

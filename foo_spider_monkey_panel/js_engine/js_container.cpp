@@ -118,7 +118,7 @@ void JsContainer::Finalize()
         return;
     }
 
-    HostTimerDispatcher::Get().onPanelUnload( pParentPanel_->GetHWND() );
+    HostTimerDispatcher::Get().StopTimersForPanel( pParentPanel_->GetHWND() );
 
     {
         JSAutoRealm ac( pJsCtx_, jsGlobal_ );

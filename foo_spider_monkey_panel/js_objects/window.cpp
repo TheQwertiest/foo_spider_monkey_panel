@@ -230,7 +230,7 @@ void JsWindow::ClearInterval( uint32_t intervalId ) const
         return;
     }
 
-    HostTimerDispatcher::Get().killTimer( intervalId );
+    HostTimerDispatcher::Get().StopTimer( intervalId );
 }
 
 void JsWindow::ClearTimeout( uint32_t timeoutId ) const
@@ -240,7 +240,7 @@ void JsWindow::ClearTimeout( uint32_t timeoutId ) const
         return;
     }
 
-    HostTimerDispatcher::Get().killTimer( timeoutId );
+    HostTimerDispatcher::Get().StopTimer( timeoutId );
 }
 
 JSObject* JsWindow::CreatePopupMenu()
@@ -615,7 +615,7 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay, JS::Handle
     qwr::QwrException::ExpectTrue( delay > 0, "`delay` must be non-zero" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
-    return HostTimerDispatcher::Get().setInterval( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction, funcArgs );
+    return HostTimerDispatcher::Get().SetInterval( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction, funcArgs );
 }
 
 uint32_t JsWindow::SetIntervalWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
@@ -665,7 +665,7 @@ uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleV
                                    "func argument is not a JS function" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
-    return HostTimerDispatcher::Get().setTimeout( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction, funcArgs );
+    return HostTimerDispatcher::Get().SetTimeout( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction, funcArgs );
 }
 
 uint32_t JsWindow::SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
