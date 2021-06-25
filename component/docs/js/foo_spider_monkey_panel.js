@@ -1521,7 +1521,7 @@ let utils = {
      * @property {string} Root Root directory of the package
      * @property {string} Assets Directory inside package folder that contains assets
      * @property {string} Scripts Directory inside package folder that contains scripts
-     * @property {string} Config Persistent and unique directory inside foobar2000 profile folder
+     * @property {string} Storage Persistent and unique directory inside foobar2000 profile folder that can be used to store runtime data (e.g. cache)
      */
 
     /**

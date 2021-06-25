@@ -458,7 +458,7 @@ JSObject* JsUtils::GetPackageInfo( const qwr::u8string& packageId ) const
     AddProperty( pJsCtx_, jsDirs, "Root", config::GetPackagePath( settings ).wstring() );
     AddProperty( pJsCtx_, jsDirs, "Assets", config::GetPackageAssetsDir( settings ).wstring() );
     AddProperty( pJsCtx_, jsDirs, "Scripts", config::GetPackageScriptsDir( settings ).wstring() );
-    AddProperty( pJsCtx_, jsDirs, "Config", config::GetPackageConfigDir( settings ).wstring() );
+    AddProperty( pJsCtx_, jsDirs, "Storage", config::GetPackageStorageDir( settings ).wstring() );
 
     JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
     AddProperty( pJsCtx_, jsObject, "Directories", static_cast<JS::HandleObject>( jsDirs ) );

@@ -211,10 +211,10 @@ std::filesystem::path GetPackageAssetsDir( const ParsedPanelSettings& settings )
     return GetPackagePath( settings ) / "assets";
 }
 
-std::filesystem::path GetPackageConfigDir( const ParsedPanelSettings& settings )
+std::filesystem::path GetPackageStorageDir( const ParsedPanelSettings& settings )
 {
     assert( settings.packageId );
-    return path::Packages_Config() / *settings.packageId;
+    return path::Packages_Storage() / *settings.packageId;
 }
 
 std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSettings& settings )
