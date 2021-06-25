@@ -7,6 +7,8 @@
 #include <map>
 #include <mutex>
 
+// TODO: try to replace `worker-thread` implementation with a `single-thread` one (use self shared-ptr for HostTimer, DeleteTimerQueueEx in HostTimer dtor and etc)
+
 namespace mozjs
 {
 class JsGlobalObject;
