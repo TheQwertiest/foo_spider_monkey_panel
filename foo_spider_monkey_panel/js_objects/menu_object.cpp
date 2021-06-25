@@ -5,7 +5,7 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <panel/message_blocking_scope.h>
+#include <panel/modal_blocking_scope.h>
 
 #include <qwr/winapi_error_helpers.h>
 
@@ -158,12 +158,12 @@ uint32_t JsMenuObject::TrackPopupMenu( int32_t x, int32_t y, uint32_t flags )
     BOOL bRet = ClientToScreen( hParentWnd_, &pt );
     qwr::error::CheckWinApi( bRet, "ClientToScreen" );
 
-    if ( MessageBlockingScope::IsBlocking() )
+    if ( modal::IsModalBlocked() )
     {
         return 0;
     }
 
-    MessageBlockingScope scope;
+    modal::MessageBlockingScope scope;
 
     // Don't bother with error checking, since TrackPopupMenu returns numerous errors when clicked outside of menu
     return ::TrackPopupMenu( hMenu_, flags, pt.x, pt.y, 0, hParentWnd_, nullptr );

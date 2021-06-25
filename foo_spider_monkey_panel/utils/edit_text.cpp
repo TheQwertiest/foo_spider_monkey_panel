@@ -3,6 +3,7 @@
 #include "edit_text.h"
 
 #include <fb2k/config.h>
+#include <panel/modal_blocking_scope.h>
 #include <ui/ui_edit_in_progress.h>
 #include <ui/ui_editor.h>
 
@@ -16,29 +17,6 @@ namespace
 {
 
 using namespace smp;
-
-/// @remark For cases when modal might be called from another modal
-class ConditionalModalScope
-{
-public:
-    ConditionalModalScope( HWND hParent )
-        : needsModalScope_( modal_dialog_scope::can_create() )
-    {
-        if ( needsModalScope_ )
-        {
-            scope_.initialize( hParent );
-        }
-    }
-
-    ~ConditionalModalScope()
-    {
-        scope_.deinitialize();
-    }
-
-private:
-    modal_dialog_scope scope_;
-    bool needsModalScope_;
-};
 
 /// @throw qwr::QwrException
 std::filesystem::path GetFixedEditorPath()
@@ -74,7 +52,7 @@ void EditTextFileInternal( HWND hParent, const std::filesystem::path& file, bool
     // TODO: handle BOM
     auto text = qwr::file::ReadFile( file, CP_ACP, true );
     {
-        ConditionalModalScope scope( hParent );
+        modal::ConditionalModalScope scope( hParent, isPanelScript );
         smp::ui::CEditor dlg( file.filename().u8string(), text, [&] {
             qwr::file::WriteFile( file, text );
             if ( isPanelScript )
@@ -86,11 +64,11 @@ void EditTextFileInternal( HWND hParent, const std::filesystem::path& file, bool
     }
 }
 
-bool EditTextFileExternal( HWND hParent, const std::filesystem::path& file, const std::filesystem::path& pathToEditor, bool isModal )
+bool EditTextFileExternal( HWND hParent, const std::filesystem::path& file, const std::filesystem::path& pathToEditor, bool isModal, bool isPanelScript )
 {
     if ( isModal )
     {
-        ConditionalModalScope scope( hParent );
+        modal::ConditionalModalScope scope( hParent, isPanelScript );
         ui::CEditInProgress dlg{ pathToEditor, file };
         return ( dlg.DoModal( hParent ) == IDOK );
     }
@@ -114,7 +92,7 @@ bool EditTextFileExternal( HWND hParent, const std::filesystem::path& file, cons
 
 void EditTextInternal( HWND hParent, qwr::u8string& text, bool isPanelScript )
 {
-    ConditionalModalScope scope( hParent );
+    modal::ConditionalModalScope scope( hParent, isPanelScript );
     smp::ui::CEditor dlg( "Temporary file", text, [&] {  
         if (isPanelScript)
             {
@@ -123,7 +101,7 @@ void EditTextInternal( HWND hParent, qwr::u8string& text, bool isPanelScript )
     dlg.DoModal( hParent );
 }
 
-void EditTextExternal( HWND hParent, qwr::u8string& text, const std::filesystem::path& pathToEditor )
+void EditTextExternal( HWND hParent, qwr::u8string& text, const std::filesystem::path& pathToEditor, bool isPanelScript )
 {
     namespace fs = std::filesystem;
 
@@ -169,7 +147,7 @@ void EditTextExternal( HWND hParent, qwr::u8string& text, const std::filesystem:
             {
             } } );
 
-    if ( !EditTextFileExternal( hParent, fsJsTmpFilePath, pathToEditor, true ) )
+    if ( !EditTextFileExternal( hParent, fsJsTmpFilePath, pathToEditor, true, isPanelScript ) )
     {
         return;
     }
@@ -191,7 +169,7 @@ void EditTextFile( HWND hParent, const std::filesystem::path& file, bool isPanel
     }
     else
     {
-        EditTextFileExternal( hParent, file, editorPath, isModal );
+        EditTextFileExternal( hParent, file, editorPath, isModal, isPanelScript );
         if ( isPanelScript )
         {
             NotifyParentPanel( hParent );
@@ -208,7 +186,7 @@ void EditText( HWND hParent, qwr::u8string& text, bool isPanelScript )
     }
     else
     {
-        EditTextExternal( hParent, text, editorPath );
+        EditTextExternal( hParent, text, editorPath, isPanelScript );
         if ( isPanelScript )
         {
             NotifyParentPanel( hParent );

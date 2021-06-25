@@ -18,7 +18,7 @@
 #include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
-#include <panel/message_blocking_scope.h>
+#include <panel/modal_blocking_scope.h>
 #include <utils/art_helpers.h>
 #include <utils/menu_helpers.h>
 
@@ -327,12 +327,12 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWnd, JsFbMetadbHandleList* handles, ui
         }
     }
 
-    if ( MessageBlockingScope::IsBlocking() || !handleCount || okEffects == DROPEFFECT_NONE )
+    if ( modal::IsModalBlocked() || !handleCount || okEffects == DROPEFFECT_NONE )
     {
         return DROPEFFECT_NONE;
     }
 
-    MessageBlockingScope scope;
+    modal::MessageBlockingScope scope;
 
     pfc::com_ptr_t<IDataObject> pDO = ole_interaction::get()->create_dataobject( handleList );
     pfc::com_ptr_t<com::IDropSourceImpl> pIDropSource = new com::IDropSourceImpl( hPanel,

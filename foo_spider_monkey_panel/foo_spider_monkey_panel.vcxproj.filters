@@ -226,7 +226,7 @@
     <ClCompile Include="fb2k\mainmenu.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="panel\message_blocking_scope.cpp">
+    <ClCompile Include="panel\modal_blocking_scope.cpp">
       <Filter>panel</Filter>
     </ClCompile>
     <ClCompile Include="panel\message_manager.cpp">
@@ -615,7 +615,7 @@
     <ClInclude Include="fb2k\stats.h">
       <Filter>fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="panel\message_blocking_scope.h">
+    <ClInclude Include="panel\modal_blocking_scope.h">
       <Filter>panel</Filter>
     </ClInclude>
     <ClInclude Include="panel\message_manager.h">

@@ -8,7 +8,7 @@
 #include <js_engine/js_container.h>
 #include <js_engine/js_engine.h>
 #include <panel/js_panel_window.h>
-#include <panel/message_blocking_scope.h>
+#include <panel/modal_blocking_scope.h>
 #include <ui/ui_slow_script.h>
 
 #include <qwr/delayed_executor.h>
@@ -196,11 +196,6 @@ bool JsMonitor::OnInterrupt()
             continue;
         }
 
-        if ( !modal_dialog_scope::can_create() )
-        {
-            continue;
-        }
-
         smp::ui::CDialogSlowScript::Data dlgData;
         {
             qwr::u8string panelName;
@@ -248,7 +243,6 @@ bool JsMonitor::OnInterrupt()
                 }
             }
 
-            modal_dialog_scope scope( parentHwnd );
             smp::ui::CDialogSlowScript dlg( panelName, scriptInfo, dlgData );
             // TODO: fix dialog centering (that is lack of thereof)
             (void)dlg.DoModal( parentHwnd );
@@ -350,7 +344,12 @@ void JsMonitor::StopMonitorThread()
 
 bool JsMonitor::HasActivePopup( bool isMainThread ) const
 {
-    if ( isMainThread && MessageBlockingScope::IsBlocking() )
+    if ( modal::IsInWhitelistedModal() )
+    {
+        return false;
+    }
+
+    if ( isMainThread && !modal_dialog_scope::can_create() )
     {
         return true;
     }

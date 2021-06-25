@@ -9,8 +9,8 @@
 #include <panel/com_message_scope.h>
 #include <panel/drop_action_params.h>
 #include <panel/edit_script.h>
-#include <panel/message_blocking_scope.h>
 #include <panel/message_manager.h>
+#include <panel/modal_blocking_scope.h>
 #include <ui/ui_conf.h>
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>
@@ -209,7 +209,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
             mozjs::JsContainer::RunJobs();
         }
-        if ( !nestedCounter || MessageBlockingScope::IsBlocking() )
+        if ( !nestedCounter || ( modal::IsModalBlocked() && !modal::IsInWhitelistedModal() ) )
         {
             message_manager::instance().RequestNextAsyncMessage( hWnd );
         }
@@ -217,7 +217,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     if ( message_manager::IsAsyncMessage( msg ) )
     {
-        if ( nestedCounter == 1 || MessageBlockingScope::IsBlocking() )
+        if ( nestedCounter == 1 || ( modal::IsModalBlocked() && !modal::IsInWhitelistedModal() ) )
         {
             auto optMessage = message_manager::instance().ClaimAsyncMessage( wnd_, msg, wp, lp );
             if ( optMessage )
@@ -853,7 +853,7 @@ void js_panel_window::ShowConfigure( HWND parent, ui::CDialogConf::Tab tab )
         return;
     }
 
-    modal_dialog_scope scope( parent );
+    modal::ModalBlockingScope scope( parent, true );
 
     ui::CDialogConf dlg( this, tab );
     (void)dlg.DoModal( parent );
@@ -1271,12 +1271,12 @@ void js_panel_window::DeleteDrawContext()
 
 void js_panel_window::on_context_menu( int x, int y )
 {
-    if ( MessageBlockingScope::IsBlocking() )
+    if ( modal::IsModalBlocked() )
     {
         return;
     }
 
-    MessageBlockingScope scope;
+    modal::MessageBlockingScope scope;
 
     CMenu menu = CreatePopupMenu();
     constexpr uint32_t base_id = 0;
