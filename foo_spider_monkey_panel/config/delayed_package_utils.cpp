@@ -4,10 +4,169 @@
 
 #include <component_paths.h>
 
+#include <qwr/error_popup.h>
+#include <qwr/final_action.h>
+
 #include <filesystem>
 #include <fstream>
 
 namespace fs = std::filesystem;
+
+namespace
+{
+
+using namespace smp;
+
+/// @throw std::filesystem::filesystem_error
+void ForceRemoveDir( const fs::path& dir )
+{
+    if ( !fs::exists( dir ) )
+    {
+        return;
+    }
+
+    assert( fs::is_directory( dir ) );
+    const auto dirToRemove = dir;
+    try
+    {
+        fs::remove_all( dirToRemove );
+    }
+    catch ( const fs::filesystem_error& )
+    {
+        for ( const auto& it: fs::recursive_directory_iterator( dirToRemove ) )
+        { // Try to clear read-only flags
+            try
+            {
+                fs::permissions( it, fs::perms::owner_write, fs::perm_options::add );
+            }
+            catch ( const fs::filesystem_error& )
+            {
+            }
+        }
+        fs::remove_all( dirToRemove );
+    }
+}
+
+/// @throw std::filesystem::filesystem_error
+void UpdatePackages()
+{
+    const auto packagesToProcessDir = path::TempFolder_PackagesToInstall();
+    if ( !fs::exists( packagesToProcessDir ) || !fs::is_directory( packagesToProcessDir ) )
+    {
+        fs::remove_all( packagesToProcessDir );
+        return;
+    }
+
+    const auto packagesDir = path::Packages_Profile();
+    const auto savedPackageDir = path::TempFolder_PackageUnpack();
+
+    for ( const auto& newPackageDir: fs::directory_iterator( packagesToProcessDir ) )
+    {
+        if ( !fs::is_directory( packagesToProcessDir ) )
+        {
+            continue;
+        }
+
+        const auto packageId = newPackageDir.path().filename().u8string();
+        const auto packageToUpdateDir = packagesDir / packageId;
+
+        // Save old version
+        fs::remove_all( savedPackageDir );
+        fs::create_directories( savedPackageDir );
+        fs::copy( packageToUpdateDir, savedPackageDir, fs::copy_options::recursive );
+        qwr::final_action autoTmp( [&] {
+            try
+            {
+                ForceRemoveDir( savedPackageDir );
+            }
+            catch ( const fs::filesystem_error& )
+            {
+            }
+        } );
+
+        try
+        {
+            // Try to update
+            fs::remove_all( packageToUpdateDir );
+            fs::create_directories( packageToUpdateDir );
+            fs::copy( newPackageDir, packageToUpdateDir, fs::copy_options::recursive );
+            smp::config::ClearPackageDelayStatus( packageId );
+        }
+        catch ( const fs::filesystem_error& )
+        {
+            // Try to restore old version
+            for ( const auto& it: fs::recursive_directory_iterator( packageToUpdateDir ) )
+            { // Clean up first
+                try
+                {
+                    if ( fs::is_directory( it ) )
+                    {
+                        continue;
+                    }
+                    else
+                    {
+                        fs::remove( it );
+                    }
+                }
+                catch ( const fs::filesystem_error& )
+                {
+                }
+            }
+
+            for ( const auto& it: fs::recursive_directory_iterator( savedPackageDir ) )
+            { // Restore
+                try
+                {
+                    const auto dstPath = packageToUpdateDir / fs::relative( it.path(), savedPackageDir );
+                    if ( fs::is_directory( it ) )
+                    {
+                        fs::create_directories( dstPath );
+                    }
+                    else
+                    {
+                        fs::copy( it, dstPath, fs::copy_options::overwrite_existing );
+                    }
+                }
+                catch ( const fs::filesystem_error& )
+                {
+                }
+            }
+
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME,
+                                       fmt::format( "Failed to update package `{}`.\n"
+                                                    "Restoration of old version was attempted...",
+                                                    packageId ) );
+            throw;
+        }
+    }
+
+    fs::remove_all( packagesToProcessDir );
+}
+
+/// @throw std::filesystem::filesystem_error
+void RemovePackages()
+{
+    const auto packagesToProcessDir = path::TempFolder_PackagesToRemove();
+    if ( !fs::exists( packagesToProcessDir ) || !fs::is_directory( packagesToProcessDir ) )
+    {
+        fs::remove_all( packagesToProcessDir );
+        return;
+    }
+
+    const auto packagesDir = path::Packages_Profile();
+
+    for ( const auto& packageContent: fs::directory_iterator( packagesToProcessDir ) )
+    {
+        const auto packageId = packageContent.path().filename().u8string();
+        fs::remove_all( packagesDir / packageId );
+
+        smp::config::ClearPackageDelayStatus( packageId );
+    }
+
+    fs::remove_all( packagesToProcessDir );
+}
+
+} // namespace
 
 namespace smp::config
 {
@@ -123,54 +282,9 @@ void ProcessDelayedPackagesOnce()
     try
     {
         fs::remove_all( path::TempFolder_PackagesInUse() );
-        []() {
-            const auto packagesToProcessDir = path::TempFolder_PackagesToInstall();
-            if ( !fs::exists( packagesToProcessDir ) || !fs::is_directory( packagesToProcessDir ) )
-            {
-                fs::remove_all( packagesToProcessDir );
-                return;
-            }
-
-            const auto packageDirPath = path::Packages_Profile();
-
-            for ( const auto& packageContent: fs::directory_iterator( packagesToProcessDir ) )
-            {
-                if ( !fs::is_directory( packagesToProcessDir ) )
-                {
-                    continue;
-                }
-
-                const auto packageId = packageContent.path().filename().u8string();
-                const auto packagePath = packageDirPath / packageId;
-                fs::remove_all( packagePath );
-                fs::create_directories( packagePath );
-                fs::copy( packageContent, packagePath, fs::copy_options::recursive );
-
-                ClearPackageDelayStatus( packageId );
-            }
-
-            fs::remove_all( packagesToProcessDir );
-        }();
-        []() {
-            const auto packagesToProcessDir = path::TempFolder_PackagesToRemove();
-            if ( !fs::exists( packagesToProcessDir ) || !fs::is_directory( packagesToProcessDir ) )
-            {
-                fs::remove_all( packagesToProcessDir );
-                return;
-            }
-
-            const auto packagePath = path::Packages_Profile();
-
-            for ( const auto& packageContent: fs::directory_iterator( packagesToProcessDir ) )
-            {
-                const auto packageId = packageContent.path().filename().u8string();
-                fs::remove_all( packagePath / packageId );
-
-                ClearPackageDelayStatus( packageId );
-            }
-
-            fs::remove_all( packagesToProcessDir );
-        }();
+        ::ForceRemoveDir( path::TempFolder_PackageUnpack() );
+        ::UpdatePackages();
+        ::RemovePackages();
     }
     catch ( const fs::filesystem_error& e )
     {
