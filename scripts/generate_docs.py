@@ -29,6 +29,7 @@ def generate(is_debug = False):
                            "--readme", str(readme),
                            "--destination", str(output_dir),
                            "--package", str(pack_json),
+                           "--pedantic",
                            *jsdocs],
                            cwd=root_dir, shell=True)
     print(f"Generated docs: {output_dir}")

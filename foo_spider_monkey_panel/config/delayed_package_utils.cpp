@@ -95,26 +95,38 @@ void UpdatePackages()
         catch ( const fs::filesystem_error& )
         {
             // Try to restore old version
-            for ( const auto& it: fs::recursive_directory_iterator( packageToUpdateDir ) )
-            { // Clean up first
-                try
+            // Clean up first
+            if ( fs::exists( packageToUpdateDir ) )
+            {
+                for ( const auto& it: fs::recursive_directory_iterator( packageToUpdateDir ) )
                 {
-                    if ( fs::is_directory( it ) )
+                    try
                     {
-                        continue;
+                        if ( fs::is_directory( it ) )
+                        {
+                            continue;
+                        }
+                        else
+                        {
+                            fs::remove( it );
+                        }
                     }
-                    else
+                    catch ( const fs::filesystem_error& )
                     {
-                        fs::remove( it );
                     }
-                }
-                catch ( const fs::filesystem_error& )
-                {
                 }
             }
 
+            // Restore
+            try
+            {
+                fs::create_directories( packageToUpdateDir );
+            }
+            catch ( const fs::filesystem_error& )
+            {
+            }
             for ( const auto& it: fs::recursive_directory_iterator( savedPackageDir ) )
-            { // Restore
+            {
                 try
                 {
                     const auto dstPath = packageToUpdateDir / fs::relative( it.path(), savedPackageDir );

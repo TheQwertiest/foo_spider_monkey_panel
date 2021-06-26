@@ -209,7 +209,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
             mozjs::JsContainer::RunJobs();
         }
-        if ( !nestedCounter || ( modal::IsModalBlocked() && !modal::IsInWhitelistedModal() ) )
+        if ( !nestedCounter || modal::IsModalBlocked() )
         {
             message_manager::instance().RequestNextAsyncMessage( hWnd );
         }
@@ -217,7 +217,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     if ( message_manager::IsAsyncMessage( msg ) )
     {
-        if ( nestedCounter == 1 || ( modal::IsModalBlocked() && !modal::IsInWhitelistedModal() ) )
+        if ( nestedCounter == 1 || modal::IsModalBlocked() )
         {
             auto optMessage = message_manager::instance().ClaimAsyncMessage( wnd_, msg, wp, lp );
             if ( optMessage )

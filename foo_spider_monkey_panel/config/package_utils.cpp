@@ -30,7 +30,7 @@ void Parse_PackageFromPath( const std::filesystem::path& packageDir, config::Par
     try
     {
         qwr::QwrException::ExpectTrue( fs::exists( packageDir ),
-                                       "Can't find the required package: `{}'",
+                                       "Can't find the required package: `{}`",
                                        packageDir.u8string() );
 
         const auto packageJsonFile = packageDir / "package.json";
