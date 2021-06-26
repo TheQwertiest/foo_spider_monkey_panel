@@ -5,9 +5,11 @@
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
 #include <js_objects/global_object.h>
+#include <js_utils/cached_utf8_paths_hack.h>
 #include <js_utils/js_property_helper.h>
 
 #include <qwr/final_action.h>
+#include <qwr/string_helpers.h>
 
 using namespace smp;
 
@@ -28,11 +30,36 @@ qwr::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
         }
 
         JS::RootedString stackStr( cx );
-        if ( !JS::BuildStackString( cx, nullptr, stackObj, &stackStr, 2 ) )
+        if ( !JS::BuildStackString( cx, nullptr, stackObj, &stackStr, 0 ) )
         {
             return "";
         }
-        return mozjs::convert::to_native::ToValue<qwr::u8string>( cx, stackStr );
+        const auto stdStackStr = mozjs::convert::to_native::ToValue<qwr::u8string>( cx, stackStr );
+        const auto stackLines = qwr::string::SplitByLines( stdStackStr );
+        qwr::u8string fixedStackStr;
+        for ( const auto& line: stackLines )
+        { // replace ids with paths
+            constexpr auto atOffset = 1;
+            auto cleanedLine = line.substr( atOffset );
+
+            const auto pos = cleanedLine.find_first_of( ":" );
+            if ( pos == std::string_view::npos )
+            {
+                fixedStackStr += fmt::format( "  @{}\n", cleanedLine );
+                continue;
+            }
+
+            const auto pathOpt = hack::GetCachedUtf8Path( cleanedLine.substr( 0, pos ) );
+            if ( !pathOpt )
+            {
+                fixedStackStr += fmt::format( "  @{}\n", cleanedLine );
+                continue;
+            }
+
+            fixedStackStr += fmt::format( "  @{}{}\n", pathOpt->filename().u8string(), cleanedLine.substr( pos ) );
+        }
+
+        return fixedStackStr;
     }
     catch ( ... )
     {
@@ -249,8 +276,23 @@ qwr::u8string JsErrorToText( JSContext* cx )
 
             if ( pReport->filename )
             {
+                const auto stdPath = [&]() -> qwr::u8string {
+                    if ( qwr::u8string{ pReport->filename } == "" )
+                    {
+                        return "<main>";
+                    }
+
+                    const auto pathOpt = hack::GetCachedUtf8Path( pReport->filename );
+                    if ( pathOpt )
+                    {
+                        return pathOpt->filename().u8string();
+                    }
+
+                    return pReport->filename;
+                }();
+
                 additionalInfo += "\n";
-                additionalInfo += fmt::format( "File: {}\n", pReport->filename );
+                additionalInfo += fmt::format( "File: {}\n", stdPath );
                 additionalInfo += fmt::format( "Line: {}, Column: {}", std::to_string( pReport->lineno ), std::to_string( pReport->column ) );
                 if ( pReport->linebufLength() )
                 {

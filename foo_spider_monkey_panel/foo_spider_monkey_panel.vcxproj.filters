@@ -355,6 +355,15 @@
     <ClCompile Include="config\delayed_package_utils.cpp">
       <Filter>config</Filter>
     </ClCompile>
+    <ClCompile Include="js_utils\current_script_path_hack.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="js_utils\cached_utf8_paths_hack.cpp">
+      <Filter>js_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="utils\md5.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -765,6 +774,15 @@
     </ClInclude>
     <ClInclude Include="config\delayed_package_utils.h">
       <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\current_script_path_hack.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_utils\cached_utf8_paths_hack.h">
+      <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\md5.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

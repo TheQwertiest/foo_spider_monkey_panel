@@ -3,6 +3,7 @@
 #include "js_internal_global.h"
 
 #include <js_engine/js_realm_inner.h>
+#include <js_utils/cached_utf8_paths_hack.h>
 
 #include <qwr/file_helpers.h>
 
@@ -115,7 +116,6 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
     }
 
     const std::wstring scriptCode = qwr::file::ReadFileW( cleanPath, CP_ACP, false );
-    const auto filename = absolutePath.filename().u8string();
 
     JS::SourceText<char16_t> source;
     if ( !source.init( pJsCtx_, reinterpret_cast<const char16_t*>( scriptCode.c_str() ), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
@@ -124,7 +124,10 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
     }
 
     JS::CompileOptions opts( pJsCtx_ );
-    opts.setFileAndLine( filename.c_str(), 1 );
+    const auto pathId = hack::CacheUtf8Path( absolutePath.u8string() );
+    // use ids instead of filepaths to work around https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/1
+    // and https://bugzilla.mozilla.org/show_bug.cgi?id=1492090
+    opts.setFileAndLine( pathId.c_str(), 1 );
 
     JS::RootedScript parsedScript( pJsCtx_, JS::Compile( pJsCtx_, opts, source ) );
     JsException::ExpectTrue( parsedScript );

@@ -206,6 +206,8 @@
     <ClCompile Include="js_objects\theme_manager.cpp" />
     <ClCompile Include="js_objects\utils.cpp" />
     <ClCompile Include="js_objects\window.cpp" />
+    <ClCompile Include="js_utils\cached_utf8_paths_hack.cpp" />
+    <ClCompile Include="js_utils\current_script_path_hack.cpp" />
     <ClCompile Include="js_utils\js_art_helpers.cpp" />
     <ClCompile Include="js_utils\js_error_helper.cpp" />
     <ClCompile Include="js_utils\js_hwnd_helpers.cpp" />
@@ -253,6 +255,7 @@
     <ClCompile Include="utils\js_exception.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\location_processor.cpp" />
+    <ClCompile Include="utils\md5.cpp" />
     <ClCompile Include="utils\menu_helpers.cpp" />
     <ClCompile Include="utils\path_helpers.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
@@ -337,6 +340,8 @@
     <ClInclude Include="js_objects\theme_manager.h" />
     <ClInclude Include="js_objects\utils.h" />
     <ClInclude Include="js_objects\window.h" />
+    <ClInclude Include="js_utils\cached_utf8_paths_hack.h" />
+    <ClInclude Include="js_utils\current_script_path_hack.h" />
     <ClInclude Include="js_utils\js_art_helpers.h" />
     <ClInclude Include="js_utils\js_async_task.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
@@ -393,6 +398,7 @@
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\location_processor.h" />
     <ClInclude Include="utils\make_unique_ptr.h" />
+    <ClInclude Include="utils\md5.h" />
     <ClInclude Include="utils\menu_helpers.h" />
     <ClInclude Include="utils\path_helpers.h" />
     <ClInclude Include="utils\relative_filepath_trie.h" />

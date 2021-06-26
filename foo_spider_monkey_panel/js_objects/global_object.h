@@ -91,7 +91,6 @@ private:
 
     JsWindow* pJsWindow_ = nullptr;
 
-    std::vector<std::string> parentFilepaths_;
     std::unordered_set<std::string> includedFiles_;
 
     std::unique_ptr<GlobalHeapManager> heapManager_;

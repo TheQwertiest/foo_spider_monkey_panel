@@ -23,6 +23,7 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_objects/utils.h>
 #include <js_objects/window.h>
+#include <js_utils/current_script_path_hack.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
@@ -235,9 +236,10 @@ void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue o
 
     const auto allSearchPaths = [&] {
         std::vector<fs::path> paths;
-        if ( !parentFilepaths_.empty() )
+        if ( const auto currentPathOpt = hack::GetCurrentScriptPath( pJsCtx_ );
+             currentPathOpt )
         {
-            paths.emplace_back( fs::u8path( parentFilepaths_.back() ) );
+            paths.emplace_back( currentPathOpt->parent_path() );
         }
         if ( const auto& setting = parentContainer_.GetParentPanel().GetSettings();
              setting.packageId )
@@ -289,8 +291,6 @@ void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue o
     }
 
     includedFiles_.emplace( u8Path );
-    parentFilepaths_.emplace_back( fsPath.parent_path().u8string() );
-    qwr::final_action autoPath{ [&parentFilesPaths = parentFilepaths_] { parentFilesPaths.pop_back(); } };
 
     JS::RootedScript jsScript( pJsCtx_, JsEngine::GetInstance().GetInternalGlobal().GetCachedScript( fsPath ) );
     assert( jsScript );

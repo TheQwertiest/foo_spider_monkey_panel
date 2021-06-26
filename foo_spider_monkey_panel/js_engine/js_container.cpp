@@ -187,7 +187,7 @@ bool JsContainer::ExecuteScript( const qwr::u8string& scriptCode )
         }
 
         JS::CompileOptions opts( pJsCtx_ );
-        opts.setFileAndLine( "<main>", 1 );
+        opts.setFileAndLine( "", 1 );
 
         OnJsActionStart();
         qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
