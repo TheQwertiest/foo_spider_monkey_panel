@@ -7,8 +7,8 @@
 namespace
 {
 
-std::atomic<int32_t> whitelistedModalCounter = 0;
-std::atomic<int32_t> modalBlockingCounter = 0;
+std::atomic<int32_t> g_whitelistedModalCounter = 0;
+std::atomic<int32_t> g_modalBlockingCounter = 0;
 
 } // namespace
 
@@ -24,14 +24,14 @@ ConditionalModalScope::ConditionalModalScope( HWND hParent, bool isWhitelistedMo
         scope_.initialize( hParent );
     }
 
-    ++modalBlockingCounter;
-    whitelistedModalCounter += ( isWhitelistedModal_ ? 1 : 0 );
+    ++g_modalBlockingCounter;
+    g_whitelistedModalCounter += ( isWhitelistedModal_ ? 1 : 0 );
 }
 
 ConditionalModalScope::~ConditionalModalScope()
 {
-    --modalBlockingCounter;
-    whitelistedModalCounter -= ( isWhitelistedModal_ ? 1 : 0 );
+    --g_modalBlockingCounter;
+    g_whitelistedModalCounter -= ( isWhitelistedModal_ ? 1 : 0 );
 }
 
 MessageBlockingScope::MessageBlockingScope()
@@ -46,24 +46,34 @@ ModalBlockingScope::ModalBlockingScope( HWND hParent, bool isWhitelistedModal )
     : isWhitelistedModal_( isWhitelistedModal )
 {
     scope_.initialize( hParent );
-    ++modalBlockingCounter;
-    whitelistedModalCounter += ( isWhitelistedModal_ ? 1 : 0 );
+    ++g_modalBlockingCounter;
+    g_whitelistedModalCounter += ( isWhitelistedModal_ ? 1 : 0 );
 }
 
 ModalBlockingScope::~ModalBlockingScope()
 {
-    --modalBlockingCounter;
-    whitelistedModalCounter -= ( isWhitelistedModal_ ? 1 : 0 );
+    --g_modalBlockingCounter;
+    g_whitelistedModalCounter -= ( isWhitelistedModal_ ? 1 : 0 );
 }
 
 bool IsModalBlocked()
 {
-    return ( !modal_dialog_scope::can_create() || modalBlockingCounter );
+    return ( !modal_dialog_scope::can_create() || g_modalBlockingCounter );
 }
 
 bool IsInWhitelistedModal()
 {
-    return whitelistedModalCounter;
+    return g_whitelistedModalCounter;
+}
+
+WhitelistedScope::WhitelistedScope()
+{
+    ++g_whitelistedModalCounter;
+}
+
+WhitelistedScope::~WhitelistedScope()
+{
+    --g_whitelistedModalCounter;
 }
 
 } // namespace smp::modal

@@ -38,6 +38,13 @@ private:
     bool isWhitelistedModal_;
 };
 
+class WhitelistedScope
+{
+public:
+    WhitelistedScope();
+    ~WhitelistedScope();
+};
+
 bool IsModalBlocked();
 bool IsInWhitelistedModal();
 
