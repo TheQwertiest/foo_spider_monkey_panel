@@ -518,13 +518,7 @@ JSObject* JsUtils::Glob( const qwr::u8string& pattern, uint32_t exc_mask, uint32
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue(
-        pJsCtx_,
-        files,
-        []( auto& vec, auto idx ) {
-            return vec[idx];
-        },
-        &jsValue );
+    convert::to_js::ToArrayValue( pJsCtx_, files, &jsValue );
 
     return &jsValue.toObject();
 }
@@ -770,13 +764,7 @@ JS::Value JsUtils::SplitFilePath( const std::wstring& path )
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue(
-        pJsCtx_,
-        out,
-        []( const auto& vec, auto index ) {
-            return vec[index];
-        },
-        &jsValue );
+    convert::to_js::ToArrayValue( pJsCtx_, out, &jsValue );
 
     return jsValue;
 }

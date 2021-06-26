@@ -2,33 +2,15 @@
 
 #include "menu_helpers.h"
 
+#include <utils/guid_helpers.h>
+
 #include <optional>
 #include <unordered_map>
-
-namespace std
-{
-template <>
-struct hash<GUID>
-{
-    size_t operator()( const GUID& guid ) const noexcept
-    {
-        const uint64_t guid64_1 =
-            ( static_cast<uint64_t>( guid.Data1 ) << 32 )
-            | ( static_cast<uint64_t>( guid.Data2 ) << 16 )
-            | guid.Data3;
-        uint64_t guid64_2;
-        memcpy( &guid64_2, guid.Data4, sizeof( guid.Data4 ) );
-
-        std::hash<std::uint64_t> hash;
-        return hash( guid64_1 ) ^ hash( guid64_2 );
-    }
-};
-} // namespace std
 
 namespace
 {
 
-using GuidMenuMap = std::unordered_map<GUID, mainmenu_group::ptr>;
+using GuidMenuMap = std::unordered_map<GUID, mainmenu_group::ptr, smp::utils::GuidHasher>;
 
 bool match_menu_command( const qwr::u8string& path, const qwr::u8string& command )
 {

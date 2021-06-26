@@ -10,7 +10,7 @@ namespace mozjs
 class JsAutoRealmWithErrorReport
 {
 public:
-    JsAutoRealmWithErrorReport( JSContext* cx, JS::HandleObject global )
+    [[nodiscard]] JsAutoRealmWithErrorReport( JSContext* cx, JS::HandleObject global )
         : ac_( cx, global )
         , are_( cx )
     {

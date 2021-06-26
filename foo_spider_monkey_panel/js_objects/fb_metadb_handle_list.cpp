@@ -389,13 +389,7 @@ JSObject* JsFbMetadbHandleList::Clone()
 JSObject* JsFbMetadbHandleList::Convert()
 {
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue(
-        pJsCtx_,
-        qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ),
-        []( const auto& vec, auto index ) {
-            return vec[index];
-        },
-        &jsValue );
+    convert::to_js::ToArrayValue( pJsCtx_, qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ), &jsValue );
 
     return &jsValue.toObject();
 }

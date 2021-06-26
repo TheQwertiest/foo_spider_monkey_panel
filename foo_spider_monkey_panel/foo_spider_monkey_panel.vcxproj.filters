@@ -364,6 +364,9 @@
     <ClCompile Include="utils\md5.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="fb2k\playlist_lock.cpp">
+      <Filter>fb2k</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -783,6 +786,9 @@
     </ClInclude>
     <ClInclude Include="utils\md5.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fb2k\playlist_lock.h">
+      <Filter>fb2k</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

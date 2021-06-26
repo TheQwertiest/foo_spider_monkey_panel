@@ -1,6 +1,9 @@
 #include <stdafx.h>
 
+#include <fb2k/playlist_lock.h>
 #include <panel/message_manager.h>
+
+#include <qwr/error_popup.h>
 
 namespace
 {
@@ -8,10 +11,9 @@ namespace
 using namespace smp;
 using namespace smp::panel;
 
-class my_dsp_config_callback : public dsp_config_callback
+class InitStageCallbackSmp : public init_stage_callback
 {
-public:
-    void on_core_settings_change( const dsp_chain_config& p_newdata ) override;
+    void on_init_stage( t_uint32 stage ) override;
 };
 
 class my_initquit
@@ -26,6 +28,12 @@ public:
     void on_changed( t_replaygain_config const& cfg ) override;
     void on_selection_changed( metadb_handle_list_cref p_selection ) override;
     void outputConfigChanged() override;
+};
+
+class my_dsp_config_callback : public dsp_config_callback
+{
+public:
+    void on_core_settings_change( const dsp_chain_config& p_newdata ) override;
 };
 
 class my_library_callback : public library_callback
@@ -117,9 +125,20 @@ private:
 namespace
 {
 
-void my_dsp_config_callback::on_core_settings_change( const dsp_chain_config& )
+void InitStageCallbackSmp::on_init_stage( t_uint32 stage )
 {
-    panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_dsp_preset_changed ) );
+    if ( stage == init_stages::before_ui_init )
+    { // SMP is invoked during ui initialization, hence we must init locks before that,
+        // so that scripts would receive correct lock states
+        try
+        {
+            smp::PlaylistLockManager::Get().InitializeLocks();
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Failed to initialize playlist locks: {}", e.what() ) );
+        }
+    }
 }
 
 void my_initquit::on_selection_changed( metadb_handle_list_cref )
@@ -161,6 +180,11 @@ void my_initquit::on_changed( t_replaygain_config const& cfg )
 void my_initquit::outputConfigChanged()
 {
     panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_output_device_changed ) );
+}
+
+void my_dsp_config_callback::on_core_settings_change( const dsp_chain_config& )
+{
+    panel::message_manager::instance().post_msg_to_all( static_cast<UINT>( PlayerMessage::fb_dsp_preset_changed ) );
 }
 
 void my_library_callback::on_items_added( metadb_handle_list_cref p_data )
@@ -410,6 +434,7 @@ void my_playlist_callback_static::on_playlists_changed()
 namespace
 {
 
+FB2K_SERVICE_FACTORY( InitStageCallbackSmp );
 FB2K_SERVICE_FACTORY( my_initquit );
 FB2K_SERVICE_FACTORY( my_library_callback );
 FB2K_SERVICE_FACTORY( my_play_callback_static );

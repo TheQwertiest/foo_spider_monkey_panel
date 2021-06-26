@@ -2,6 +2,7 @@
 
 #include "fb_playlist_manager.h"
 
+#include <fb2k/playlist_lock.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_metadb_handle.h>
 #include <js_objects/fb_metadb_handle_list.h>
@@ -10,6 +11,7 @@
 #include <js_objects/fb_playlist_recycler.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/js_property_helper.h>
 #include <utils/location_processor.h>
 #include <utils/text_helpers.h>
 
@@ -62,6 +64,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaybackQueueHandles, JsFbPlaylistManager::GetP
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlayingItemLocation, JsFbPlaylistManager::GetPlayingItemLocation );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistFocusItemIndex, JsFbPlaylistManager::GetPlaylistFocusItemIndex );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistItems, JsFbPlaylistManager::GetPlaylistItems );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistLockedActions, JsFbPlaylistManager::GetPlaylistLockedActions );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistName, JsFbPlaylistManager::GetPlaylistName );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistSelectedItems, JsFbPlaylistManager::GetPlaylistSelectedItems );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( InsertPlaylistItems, JsFbPlaylistManager::InsertPlaylistItems, JsFbPlaylistManager::InsertPlaylistItemsWithOpt, 1 );
@@ -81,6 +84,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( RenamePlaylist, JsFbPlaylistManager::RenamePlaylis
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetActivePlaylistContext, JsFbPlaylistManager::SetActivePlaylistContext );
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistFocusItem, JsFbPlaylistManager::SetPlaylistFocusItem );
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistFocusItemByHandle, JsFbPlaylistManager::SetPlaylistFocusItemByHandle );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPlaylistLockedActions, JsFbPlaylistManager::SetPlaylistLockedActions, JsFbPlaylistManager::SetPlaylistLockedActionsWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistSelection, JsFbPlaylistManager::SetPlaylistSelection );
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetPlaylistSelectionSingle, JsFbPlaylistManager::SetPlaylistSelectionSingle );
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowAutoPlaylistUI, JsFbPlaylistManager::ShowAutoPlaylistUI );
@@ -110,6 +114,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "GetPlayingItemLocation", GetPlayingItemLocation, 0, kDefaultPropsFlags ),
         JS_FN( "GetPlaylistFocusItemIndex", GetPlaylistFocusItemIndex, 1, kDefaultPropsFlags ),
         JS_FN( "GetPlaylistItems", GetPlaylistItems, 1, kDefaultPropsFlags ),
+        JS_FN( "GetPlaylistLockedActions", GetPlaylistLockedActions, 1, kDefaultPropsFlags ),
         JS_FN( "GetPlaylistName", GetPlaylistName, 1, kDefaultPropsFlags ),
         JS_FN( "GetPlaylistSelectedItems", GetPlaylistSelectedItems, 1, kDefaultPropsFlags ),
         JS_FN( "InsertPlaylistItems", InsertPlaylistItems, 3, kDefaultPropsFlags ),
@@ -129,6 +134,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "SetActivePlaylistContext", SetActivePlaylistContext, 0, kDefaultPropsFlags ),
         JS_FN( "SetPlaylistFocusItem", SetPlaylistFocusItem, 2, kDefaultPropsFlags ),
         JS_FN( "SetPlaylistFocusItemByHandle", SetPlaylistFocusItemByHandle, 2, kDefaultPropsFlags ),
+        JS_FN( "SetPlaylistLockedActions", SetPlaylistLockedActions, 1, kDefaultPropsFlags ),
         JS_FN( "SetPlaylistSelection", SetPlaylistSelection, 3, kDefaultPropsFlags ),
         JS_FN( "SetPlaylistSelectionSingle", SetPlaylistSelectionSingle, 3, kDefaultPropsFlags ),
         JS_FN( "ShowAutoPlaylistUI", ShowAutoPlaylistUI, 1, kDefaultPropsFlags ),
@@ -389,13 +395,7 @@ JSObject* JsFbPlaylistManager::GetPlaybackQueueContents()
     playlist_manager::get()->queue_get_contents( contents );
 
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue(
-        pJsCtx_,
-        qwr::pfc_x::Make_Stl_CRef( contents ),
-        []( const auto& vec, auto index ) {
-            return vec[index];
-        },
-        &jsValue );
+    convert::to_js::ToArrayValue( pJsCtx_, qwr::pfc_x::Make_Stl_CRef( contents ), &jsValue );
 
     return &jsValue.toObject();
 }
@@ -435,6 +435,33 @@ JSObject* JsFbPlaylistManager::GetPlaylistItems( uint32_t playlistIndex )
     playlist_manager::get()->playlist_get_all_items( playlistIndex, items );
 
     return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
+}
+
+JSObject* JsFbPlaylistManager::GetPlaylistLockedActions( uint32_t playlistIndex )
+{
+    qwr::QwrException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
+
+    static std::unordered_map<int, qwr::u8string> maskToAction = {
+        { playlist_lock::filter_add, "AddItems" },
+        { playlist_lock::filter_remove, "RemoveItems" },
+        { playlist_lock::filter_reorder, "ReorderItems" },
+        { playlist_lock::filter_replace, "ReplaceItems" },
+        { playlist_lock::filter_rename, "RenamePlaylist" },
+        { playlist_lock::filter_remove_playlist, "RemovePlaylist" },
+        { playlist_lock::filter_default_action, "ExecuteDefaultAction" }
+    };
+
+    const auto lockMask = playlist_manager::get()->playlist_lock_get_filter_mask( playlistIndex );
+    const auto actions =
+        maskToAction
+        | ranges::views::filter( [&]( const auto& elem ) { return !!( lockMask & elem.first ); } )
+        | ranges::views::transform( [&]( const auto& elem ) { return elem.second; } )
+        | ranges::to_vector;
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    convert::to_js::ToArrayValue( pJsCtx_, actions, &jsValue );
+
+    return &jsValue.toObject();
 }
 
 pfc::string8_fast JsFbPlaylistManager::GetPlaylistName( uint32_t playlistIndex )
@@ -614,6 +641,64 @@ void JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, 
     qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
     playlist_manager::get()->playlist_set_focus_by_handle( playlistIndex, handle->GetHandle() );
+}
+
+void JsFbPlaylistManager::SetPlaylistLockedActions( uint32_t playlistIndex, JS::HandleValue lockedActions )
+{
+    qwr::QwrException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( lockedActions.isObjectOrNull(), "lockedActions argument is not an object nor null" );
+
+    auto& playlistLockManager = PlaylistLockManager::Get();
+
+    uint32_t newLockMask = 0;
+    if ( lockedActions.isObject() )
+    {
+        static std::unordered_map<qwr::u8string, int> actionToMask = {
+            { "AddItems", playlist_lock::filter_add },
+            { "RemoveItems", playlist_lock::filter_remove },
+            { "ReorderItems", playlist_lock::filter_reorder },
+            { "ReplaceItems", playlist_lock::filter_replace },
+            { "RenamePlaylist", playlist_lock::filter_rename },
+            { "RemovePlaylist", playlist_lock::filter_remove_playlist },
+            { "ExecuteDefaultAction", playlist_lock::filter_default_action }
+        };
+
+        const auto lockedActionsVec = convert::to_native::ToValue<std::vector<qwr::u8string>>( pJsCtx_, lockedActions );
+        for ( const auto& action: lockedActionsVec )
+        {
+            qwr::QwrException::ExpectTrue( actionToMask.count( action ), "Unknown action name: {}", action );
+            newLockMask |= actionToMask.at( action );
+        }
+    }
+
+    const auto currentLockMask = playlist_manager::get()->playlist_lock_get_filter_mask( playlistIndex );
+    if ( newLockMask == currentLockMask )
+    {
+        return;
+    }
+
+    if ( playlistLockManager.HasLock( playlistIndex ) )
+    {
+        playlistLockManager.RemoveLock( playlistIndex );
+    }
+
+    if ( newLockMask )
+    {
+        playlistLockManager.InstallLock( playlistIndex, newLockMask );
+    }
+}
+
+void JsFbPlaylistManager::SetPlaylistLockedActionsWithOpt( size_t optArgCount, uint32_t playlistIndex, JS::HandleValue lockedActions )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return SetPlaylistLockedActions( playlistIndex, lockedActions );
+    case 1:
+        return SetPlaylistLockedActions( playlistIndex );
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
 }
 
 void JsFbPlaylistManager::SetPlaylistSelection( uint32_t playlistIndex, JS::HandleValue affectedItems, bool state )

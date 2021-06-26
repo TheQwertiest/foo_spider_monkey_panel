@@ -60,6 +60,7 @@ public:
     JSObject* GetPlayingItemLocation();
     int32_t GetPlaylistFocusItemIndex( uint32_t playlistIndex );
     JSObject* GetPlaylistItems( uint32_t playlistIndex );
+    JSObject* GetPlaylistLockedActions( uint32_t playlistIndex );
     pfc::string8_fast GetPlaylistName( uint32_t playlistIndex );
     JSObject* GetPlaylistSelectedItems( uint32_t playlistIndex );
     void InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select = false );
@@ -68,6 +69,7 @@ public:
     void InsertPlaylistItemsFilterWithOpt( size_t optArgCount, uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select );
     bool IsAutoPlaylist( uint32_t playlistIndex );
     bool IsPlaylistItemSelected( uint32_t playlistIndex, uint32_t playlistItemIndex );
+    // TODO v2: remove
     bool IsPlaylistLocked( uint32_t playlistIndex );
     bool MovePlaylist( uint32_t from, uint32_t to );
     bool MovePlaylistSelection( uint32_t playlistIndex, int32_t delta );
@@ -82,6 +84,8 @@ public:
     void SetActivePlaylistContext();
     void SetPlaylistFocusItem( uint32_t playlistIndex, uint32_t playlistItemIndex );
     void SetPlaylistFocusItemByHandle( uint32_t playlistIndex, JsFbMetadbHandle* handle );
+    void SetPlaylistLockedActions( uint32_t playlistIndex, JS::HandleValue lockedActions = JS::NullHandleValue );
+    void SetPlaylistLockedActionsWithOpt( size_t optArgCount, uint32_t playlistIndex, JS::HandleValue lockedActions );
     void SetPlaylistSelection( uint32_t playlistIndex, JS::HandleValue affectedItems, bool state );
     void SetPlaylistSelectionSingle( uint32_t playlistIndex, uint32_t playlistItemIndex, bool state );
     bool ShowAutoPlaylistUI( uint32_t playlistIndex );

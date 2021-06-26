@@ -129,7 +129,7 @@ void FinalizeSubsystems()
     }
 }
 
-class js_initquit : public initquit
+class InitQuitSmp : public initquit
 {
 public:
     void on_init() override
@@ -168,7 +168,7 @@ private:
     }
 };
 
-FB2K_SERVICE_FACTORY( js_initquit );
+FB2K_SERVICE_FACTORY( InitQuitSmp );
 
 } // namespace
 

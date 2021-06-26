@@ -84,15 +84,34 @@ template <>
 void ToValue( JSContext* cx, const t_playback_queue_item& inValue, JS::MutableHandleValue wrappedValue );
 
 template <typename T, typename F>
-void ToArrayValue( JSContext* cx, const T& inVector, F&& accessorFunc, JS::MutableHandleValue wrappedValue )
+void ToArrayValue( JSContext* cx, const T& inContainer, F&& accessorFunc, JS::MutableHandleValue wrappedValue )
 {
-    JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, inVector.size() ) );
+    JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, inContainer.size() ) );
     smp::JsException::ExpectTrue( jsArray );
 
     JS::RootedValue jsValue( cx );
-    for ( size_t i = 0; i < inVector.size(); ++i )
+    for ( const auto i: ranges::views::indices( inContainer.size() ) )
     {
-        ToValue( cx, accessorFunc( inVector, i ), &jsValue );
+        ToValue( cx, accessorFunc( inContainer, i ), &jsValue );
+        if ( !JS_SetElement( cx, jsArray, i, jsValue ) )
+        {
+            throw smp::JsException();
+        }
+    }
+
+    wrappedValue.set( JS::ObjectValue( *jsArray ) );
+}
+
+template <typename T>
+void ToArrayValue( JSContext* cx, const T& inContainer, JS::MutableHandleValue wrappedValue )
+{
+    JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, inContainer.size() ) );
+    smp::JsException::ExpectTrue( jsArray );
+
+    JS::RootedValue jsValue( cx );
+    for ( const auto& [i, elem]: ranges::views::enumerate( inContainer ) )
+    {
+        ToValue( cx, elem, &jsValue );
         if ( !JS_SetElement( cx, jsArray, i, jsValue ) )
         {
             throw smp::JsException();

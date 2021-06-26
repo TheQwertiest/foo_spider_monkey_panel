@@ -325,7 +325,7 @@ let fb = {
      *
      * @example <caption>Cut playlist items</caption>
      * let ap = plman.ActivePlaylist;
-     * if (!plman.IsPlaylistLocked(ap)) {
+     * if (!plman.GetPlaylistLockedActions(ap).includes('RemoveItems')) {
      *    let handle_list = plman.GetPlaylistSelectedItems(ap);
      *    if (fb.CopyHandleListToClipboard(handle_list)) {
      *        plman.UndoBackup(ap);
@@ -419,7 +419,7 @@ let fb = {
      * function on_mouse_rbtn_up(x, y) {
      *    let ap = plman.ActivePlaylist;
      *    let menu = window.CreatePopupMenu();
-     *    menu.AppendMenuItem(!plman.IsPlaylistLocked(ap) && fb.CheckClipboardContents() ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.js for MF_* definitions
+     *    menu.AppendMenuItem(!plman.GetPlaylistLockedActions(ap).includes('AddItems') && fb.CheckClipboardContents() ? MF_STRING : MF_GRAYED, 1, "Paste"); // see Flags.js for MF_* definitions
      *    let idx = menu.TrackPopupMenu(x, y);
      *    if (idx == 1) {
      *        let handle_list  = fb.GetClipboardContents();
@@ -1004,6 +1004,21 @@ let plman = {
     GetPlaylistItems: function (playlistIndex) { }, // (FbMetadbHandleList)
 
     /**
+     * Returns the list of blocked actions
+     * 
+     * @param {number} playlistIndex
+     * @return {Array<string>} May contain the following:<br>
+     *   - 'AddItems'<br>
+     *   - 'RemoveItems'<br>
+     *   - 'ReorderItems'<br>
+     *   - 'ReplaceItems'<br>
+     *   - 'RenamePlaylist'<br>
+     *   - 'RemovePlaylist'<br>
+     *   - 'ExecuteDefaultAction'
+     */
+    GetPlaylistLockedActions: function (playlistIndex) { },
+
+    /**
      * @param {number} playlistIndex
      * @return {string}
      *
@@ -1063,7 +1078,11 @@ let plman = {
     /**
      * Note: returns true, if the playlist is an autoplaylist. To determine if a playlist is not an autoplaylist,
      * but locked with something like `foo_utils` or `foo_playlist_attributes`, use with conjunction of {@link plman.IsAutoPlaylist}.
+     * <br>
+     * Deprecated: use {@link plman.GetPlaylistLockedActions}.
      *
+     * @deprecated
+     * 
      * @param {number} playlistIndex
      * @return {boolean}
      */
@@ -1168,6 +1187,21 @@ let plman = {
      * plman.SetPlaylistFocusItemByHandle(ap, handle);
      */
     SetPlaylistFocusItemByHandle: function (playlistIndex, handle) { }, // (void)
+
+    /**
+     * Blocks requested actions
+     * 
+     * @param {number} playlistIndex
+     * @param {Array<string>} lockedActions May contain the following:<br>
+     *   - 'AddItems'<br>
+     *   - 'RemoveItems'<br>
+     *   - 'ReorderItems'<br>
+     *   - 'ReplaceItems'<br>
+     *   - 'RenamePlaylist'<br>
+     *   - 'RemovePlaylist'<br>
+     *   - 'ExecuteDefaultAction'
+    */
+    SetPlaylistLockedActions: function (playlistIndex, lockedActions) { },
 
     /**
      * @param {number} playlistIndex

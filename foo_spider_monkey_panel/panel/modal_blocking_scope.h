@@ -10,7 +10,7 @@ class ConditionalModalScope
 {
 public:
     /// @param isScriptInvoking false, if should not be considered JS blocking
-    ConditionalModalScope( HWND hParent, bool isWhitelistedModal = false );
+    [[nodiscard]] ConditionalModalScope( HWND hParent, bool isWhitelistedModal = false );
     ~ConditionalModalScope();
 
 private:
@@ -22,7 +22,7 @@ private:
 class MessageBlockingScope
 {
 public:
-    MessageBlockingScope();
+    [[nodiscard]] MessageBlockingScope();
     ~MessageBlockingScope();
 };
 
@@ -30,7 +30,7 @@ class ModalBlockingScope
 {
 public:
     /// @param isScriptInvoking false, if should not be considered JS blocking
-    ModalBlockingScope( HWND hParent, bool isWhitelistedModal = false );
+    [[nodiscard]] ModalBlockingScope( HWND hParent, bool isWhitelistedModal = false );
     ~ModalBlockingScope();
 
 private:
@@ -41,11 +41,11 @@ private:
 class WhitelistedScope
 {
 public:
-    WhitelistedScope();
+    [[nodiscard]] WhitelistedScope();
     ~WhitelistedScope();
 };
 
-bool IsModalBlocked();
-bool IsInWhitelistedModal();
+[[nodiscard]] bool IsModalBlocked();
+[[nodiscard]] bool IsInWhitelistedModal();
 
 } // namespace smp::modal
