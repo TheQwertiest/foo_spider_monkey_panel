@@ -175,7 +175,7 @@ private: // callback handling
 
 private:
     const PanelType panelType_;
-    config::ParsedPanelSettings settings_;
+    config::ParsedPanelSettings settings_ = config::ParsedPanelSettings::GetDefault();
     config::PanelProperties properties_;
 
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
