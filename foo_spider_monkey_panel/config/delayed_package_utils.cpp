@@ -160,11 +160,13 @@ void UpdatePackages()
         }
         catch ( const fs::filesystem_error& e )
         {
-            throw qwr::QwrException(
-                "Failed to update package `{}`:\n"
-                "{}",
-                packageId,
-                qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME,
+                                       fmt::format(
+                                           "Failed to update package `{}`:\n"
+                                           "{}",
+                                           packageId,
+                                           qwr::unicode::ToU8_FromAcpToWide( e.what() ) ) );
+            continue;
         }
 
         try
@@ -194,7 +196,7 @@ void UpdatePackages()
             qwr::file::WriteFile( packageToUpdateDir / "package.json", j.dump( 2 ) );
 
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME,
-                                       fmt::format( "Failed to update package `{}`!\n\n"
+                                       fmt::format( "Critical error encountered when updating package `{}`!\n\n"
                                                     "The panel was replaced with recovery package.\n"
                                                     "Follow the instructions to restore your old package.",
                                                     packageId ) );
@@ -339,9 +341,9 @@ void ProcessDelayedPackages()
     {
         fs::remove_all( path::TempFolder_PackagesInUse() );
         fs::remove_all( path::TempFolder_PackageUnpack() );
+        ::RemovePackages();
         ::CheckPackageBackups();
         ::UpdatePackages();
-        ::RemovePackages();
     }
     catch ( const fs::filesystem_error& e )
     {
