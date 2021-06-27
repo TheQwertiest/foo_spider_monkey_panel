@@ -36,10 +36,12 @@ ConditionalModalScope::~ConditionalModalScope()
 
 MessageBlockingScope::MessageBlockingScope()
 {
+    ++g_modalBlockingCounter;
 }
 
 MessageBlockingScope::~MessageBlockingScope()
 {
+    --g_modalBlockingCounter;
 }
 
 ModalBlockingScope::ModalBlockingScope( HWND hParent, bool isWhitelistedModal )
@@ -58,7 +60,7 @@ ModalBlockingScope::~ModalBlockingScope()
 
 bool IsModalBlocked()
 {
-    return ( !modal_dialog_scope::can_create() || g_modalBlockingCounter );
+    return ( ( core_api::is_main_thread() && !modal_dialog_scope::can_create() ) || g_modalBlockingCounter );
 }
 
 bool IsInWhitelistedModal()

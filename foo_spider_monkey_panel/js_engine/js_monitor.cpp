@@ -349,7 +349,7 @@ bool JsMonitor::HasActivePopup( bool isMainThread ) const
         return false;
     }
 
-    if ( isMainThread && !modal_dialog_scope::can_create() )
+    if ( modal::IsModalBlocked() )
     {
         return true;
     }

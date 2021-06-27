@@ -45,6 +45,7 @@ public:
     ~WhitelistedScope();
 };
 
+/// @brief Works like `modal_dialog_scope::can_create()`, but takes pseudo-modals in account as well
 [[nodiscard]] bool IsModalBlocked();
 [[nodiscard]] bool IsInWhitelistedModal();
 
