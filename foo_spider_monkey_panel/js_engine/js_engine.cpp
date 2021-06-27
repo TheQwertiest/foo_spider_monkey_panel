@@ -2,7 +2,6 @@
 
 #include "js_engine.h"
 
-#include <config/delayed_package_utils.h>
 #include <fb2k/advanced_config.h>
 #include <js_engine/heartbeat_window.h>
 #include <js_engine/host_timer_dispatcher.h>
@@ -279,15 +278,6 @@ bool JsEngine::Initialize()
 
     pJsCtx_ = autoJsCtx.release();
     isInitialized_ = true;
-
-    try
-    {
-        smp::config::ProcessDelayedPackagesOnce();
-    }
-    catch ( const qwr::QwrException& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Failed to process delayed packages: {}", e.what() ) );
-    }
 
     return true;
 }

@@ -29,6 +29,6 @@ void MarkPackageAsToBeInstalled( const qwr::u8string& packageId, const std::file
 void MarkPackageAsInUse( const qwr::u8string& packageId );
 
 /// @throw qwr::QwrException
-void ProcessDelayedPackagesOnce();
+void ProcessDelayedPackages();
 
 } // namespace smp::config

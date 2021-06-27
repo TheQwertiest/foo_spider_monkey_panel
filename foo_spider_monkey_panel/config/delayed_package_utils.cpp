@@ -26,14 +26,13 @@ void ForceRemoveDir( const fs::path& dir )
     }
 
     assert( fs::is_directory( dir ) );
-    const auto dirToRemove = dir;
     try
     {
-        fs::remove_all( dirToRemove );
+        fs::remove_all( dir );
     }
     catch ( const fs::filesystem_error& )
     {
-        for ( const auto& it: fs::recursive_directory_iterator( dirToRemove ) )
+        for ( const auto& it: fs::recursive_directory_iterator( dir ) )
         { // Try to clear read-only flags
             try
             {
@@ -43,7 +42,7 @@ void ForceRemoveDir( const fs::path& dir )
             {
             }
         }
-        fs::remove_all( dirToRemove );
+        fs::remove_all( dir );
     }
 }
 
@@ -283,14 +282,8 @@ void MarkPackageAsInUse( const qwr::u8string& packageId )
     }
 }
 
-void ProcessDelayedPackagesOnce()
+void ProcessDelayedPackages()
 {
-    static bool wasCalled = false;
-    if ( wasCalled )
-    {
-        return;
-    }
-
     try
     {
         fs::remove_all( path::TempFolder_PackagesInUse() );
@@ -302,8 +295,6 @@ void ProcessDelayedPackagesOnce()
     {
         throw qwr::QwrException( e );
     }
-
-    wasCalled = true;
 }
 
 } // namespace smp::config

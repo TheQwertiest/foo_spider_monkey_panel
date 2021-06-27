@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include <config/package_utils.h>
+#include <config/delayed_package_utils.h>
 #include <js_engine/js_engine.h>
 #include <panel/message_manager.h>
 #include <panel/user_message.h>
@@ -129,6 +129,24 @@ void FinalizeSubsystems()
     }
 }
 
+class InitStageCallbackSmp : public init_stage_callback
+{
+    void on_init_stage( t_uint32 stage ) override
+    {
+        if ( stage == init_stages::before_config_read )
+        { // process delayed packages here to avoid potential file locks after config reads
+            try
+            {
+                smp::config::ProcessDelayedPackages();
+            }
+            catch ( const qwr::QwrException& e )
+            {
+                qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Failed to process delayed packages: {}", e.what() ) );
+            }
+        }
+    }
+};
+
 class InitQuitSmp : public initquit
 {
 public:
@@ -168,6 +186,7 @@ private:
     }
 };
 
+FB2K_SERVICE_FACTORY( InitStageCallbackSmp );
 FB2K_SERVICE_FACTORY( InitQuitSmp );
 
 } // namespace
