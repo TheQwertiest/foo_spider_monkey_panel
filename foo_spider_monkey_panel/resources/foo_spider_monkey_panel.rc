@@ -600,6 +600,10 @@ IDR_SCINTILLA_INTERFACE_API SCRIPT                  "scintilla_interface.api"
 
 IDR_SCINTILLA_JS_API    SCRIPT                  "scintilla_jscript.api"
 
+IDR_RECOVERY_PACKAGE_SCRIPT SCRIPT "recovery_package_script.js"
+
+IDR_RECOVERY_PACKAGE_JSON SCRIPT "recovery_package_json.json"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

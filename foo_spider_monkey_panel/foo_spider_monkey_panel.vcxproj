@@ -82,6 +82,9 @@
       <SubSystem>Windows</SubSystem>
       <AdditionalOptions>/SOURCELINK:$(IndependentGeneratedDir)source_link.json %(AdditionalOptions)</AdditionalOptions>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -259,6 +262,7 @@
     <ClCompile Include="utils\md5.cpp" />
     <ClCompile Include="utils\menu_helpers.cpp" />
     <ClCompile Include="utils\path_helpers.cpp" />
+    <ClCompile Include="utils\resource_helpers.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\stacktrace.cpp" />
     <ClCompile Include="utils\text_helpers.cpp" />
@@ -404,6 +408,7 @@
     <ClInclude Include="utils\menu_helpers.h" />
     <ClInclude Include="utils\path_helpers.h" />
     <ClInclude Include="utils\relative_filepath_trie.h" />
+    <ClInclude Include="utils\resource_helpers.h" />
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\stacktrace.h" />
     <ClInclude Include="utils\text_helpers.h" />
@@ -413,7 +418,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="resources\default_script.js" />
+    <None Include="resources\recovery_package_json.json" />
     <None Include="resources\foo_spider_monkey_panel.rc2" />
+    <None Include="resources\recovery_package_script.js" />
     <None Include="resources\scintilla_interface.api" />
     <None Include="resources\scintilla_jscript.api" />
   </ItemGroup>

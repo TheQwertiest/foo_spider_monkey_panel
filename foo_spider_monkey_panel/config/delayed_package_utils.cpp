@@ -2,20 +2,64 @@
 
 #include "delayed_package_utils.h"
 
+#include <resources/resource.h>
+#include <utils/resource_helpers.h>
+
 #include <component_paths.h>
 
+#include <nlohmann/json.hpp>
 #include <qwr/error_popup.h>
+#include <qwr/file_helpers.h>
 #include <qwr/final_action.h>
 
 #include <filesystem>
 #include <fstream>
 
 namespace fs = std::filesystem;
+using json = nlohmann::json;
 
 namespace
 {
 
 using namespace smp;
+
+/// @throw std::filesystem::filesystem_error
+void ForceRemoveDirContents( const fs::path& dir )
+{
+    if ( !fs::exists( dir ) )
+    {
+        return;
+    }
+
+    assert( fs::is_directory( dir ) );
+    for ( const auto& it: fs::recursive_directory_iterator( dir ) )
+    { // Try to clear read-only flags
+        try
+        {
+            fs::permissions( it, fs::perms::owner_write, fs::perm_options::add );
+        }
+        catch ( const fs::filesystem_error& )
+        {
+        }
+    }
+    for ( const auto& it: fs::recursive_directory_iterator( dir ) )
+    {
+        try
+        {
+            if ( fs::is_directory( it ) )
+            {
+                continue;
+            }
+            else
+            {
+                fs::remove( it );
+            }
+        }
+        catch ( const fs::filesystem_error& )
+        {
+        }
+    }
+}
 
 /// @throw std::filesystem::filesystem_error
 void ForceRemoveDir( const fs::path& dir )
@@ -32,21 +76,47 @@ void ForceRemoveDir( const fs::path& dir )
     }
     catch ( const fs::filesystem_error& )
     {
-        for ( const auto& it: fs::recursive_directory_iterator( dir ) )
-        { // Try to clear read-only flags
-            try
-            {
-                fs::permissions( it, fs::perms::owner_write, fs::perm_options::add );
-            }
-            catch ( const fs::filesystem_error& )
-            {
-            }
-        }
+        ForceRemoveDirContents( dir );
         fs::remove_all( dir );
     }
 }
 
 /// @throw std::filesystem::filesystem_error
+/// @throw qwr::QwrException
+void CheckPackageBackups()
+{
+    const auto dir = path::TempFolder_PackageBackups();
+    if ( !fs::exists( dir ) || !fs::is_directory( dir ) )
+    {
+        fs::remove_all( dir );
+        return;
+    }
+
+    std::vector<qwr::u8string> backups;
+    for ( const auto& backup: fs::directory_iterator( dir ) )
+    {
+        if ( !fs::is_directory( backup ) )
+        {
+            continue;
+        }
+
+        backups.emplace_back( backup.path().u8string() );
+    }
+
+    if ( !backups.empty() )
+    { // in case user still haven't restored his package
+        throw qwr::QwrException(
+            "The following backups still exist:\n"
+            "{}\n\n"
+            "If you have completed package recovery process, remove them and restart foobar2000 to continue delayed package processing.",
+            fmt::join( backups, ",\n" ) );
+    }
+
+    fs::remove_all( dir );
+}
+
+/// @throw std::filesystem::filesystem_error
+/// @throw qwr::QwrException
 void UpdatePackages()
 {
     const auto packagesToProcessDir = path::TempFolder_PackagesToInstall();
@@ -57,7 +127,7 @@ void UpdatePackages()
     }
 
     const auto packagesDir = path::Packages_Profile();
-    const auto savedPackageDir = path::TempFolder_PackageUnpack();
+    const auto packageBackupsDir = path::TempFolder_PackageBackups();
 
     for ( const auto& newPackageDir: fs::directory_iterator( packagesToProcessDir ) )
     {
@@ -66,86 +136,67 @@ void UpdatePackages()
             continue;
         }
 
-        const auto packageId = newPackageDir.path().filename().u8string();
-        const auto packageToUpdateDir = packagesDir / packageId;
-
-        // Save old version
-        fs::remove_all( savedPackageDir );
-        fs::create_directories( savedPackageDir );
-        fs::copy( packageToUpdateDir, savedPackageDir, fs::copy_options::recursive );
         qwr::final_action autoTmp( [&] {
             try
             {
-                ForceRemoveDir( savedPackageDir );
+                ForceRemoveDir( newPackageDir );
             }
             catch ( const fs::filesystem_error& )
             {
             }
         } );
 
+        const auto packageId = newPackageDir.path().filename().u8string();
+        const auto packageToUpdateDir = packagesDir / packageId;
+        const auto packageBackupDir = packageBackupsDir / packageId;
+
+        // Save old version
+
+        fs::create_directories( packageBackupDir.parent_path() );
+
+        try
+        {
+            fs::rename( packageToUpdateDir, packageBackupDir );
+        }
+        catch ( const fs::filesystem_error& e )
+        {
+            throw qwr::QwrException(
+                "Failed to update package `{}`:\n"
+                "{}",
+                packageId,
+                qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+        }
+
         try
         {
             // Try to update
             fs::remove_all( packageToUpdateDir );
-            fs::create_directories( packageToUpdateDir );
-            fs::copy( newPackageDir, packageToUpdateDir, fs::copy_options::recursive );
+            fs::create_directories( packageToUpdateDir.parent_path() );
+            fs::rename( newPackageDir, packageToUpdateDir );
             smp::config::ClearPackageDelayStatus( packageId );
+            ForceRemoveDir( packageBackupDir );
         }
         catch ( const fs::filesystem_error& )
         {
-            // Try to restore old version
-            // Clean up first
-            if ( fs::exists( packageToUpdateDir ) )
-            {
-                for ( const auto& it: fs::recursive_directory_iterator( packageToUpdateDir ) )
-                {
-                    try
-                    {
-                        if ( fs::is_directory( it ) )
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            fs::remove( it );
-                        }
-                    }
-                    catch ( const fs::filesystem_error& )
-                    {
-                    }
-                }
-            }
+            // Enter in recovery process
+            ForceRemoveDirContents( packageToUpdateDir );
+            fs::create_directories( packageToUpdateDir );
 
-            // Restore
-            try
-            {
-                fs::create_directories( packageToUpdateDir );
-            }
-            catch ( const fs::filesystem_error& )
-            {
-            }
-            for ( const auto& it: fs::recursive_directory_iterator( savedPackageDir ) )
-            {
-                try
-                {
-                    const auto dstPath = packageToUpdateDir / fs::relative( it.path(), savedPackageDir );
-                    if ( fs::is_directory( it ) )
-                    {
-                        fs::create_directories( dstPath );
-                    }
-                    else
-                    {
-                        fs::copy( it, dstPath, fs::copy_options::overwrite_existing );
-                    }
-                }
-                catch ( const fs::filesystem_error& )
-                {
-                }
-            }
+            const auto restorationScriptOpt = LoadStringResource( IDR_RECOVERY_PACKAGE_SCRIPT, "Script" );
+            assert( restorationScriptOpt );
+            const auto restorationJsonOpt = LoadStringResource( IDR_RECOVERY_PACKAGE_JSON, "Script" );
+            assert( restorationJsonOpt );
+
+            auto j = json::parse( *restorationJsonOpt );
+            j["id"] = packageId;
+
+            qwr::file::WriteFile( packageToUpdateDir / "main.js", *restorationScriptOpt );
+            qwr::file::WriteFile( packageToUpdateDir / "package.json", j.dump( 2 ) );
 
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME,
-                                       fmt::format( "Failed to update package `{}`.\n"
-                                                    "Restoration of old version was attempted...",
+                                       fmt::format( "Failed to update package `{}`!\n\n"
+                                                    "The panel was replaced with recovery package.\n"
+                                                    "Follow the instructions to restore your old package.",
                                                     packageId ) );
             throw;
         }
@@ -287,7 +338,8 @@ void ProcessDelayedPackages()
     try
     {
         fs::remove_all( path::TempFolder_PackagesInUse() );
-        ::ForceRemoveDir( path::TempFolder_PackageUnpack() );
+        fs::remove_all( path::TempFolder_PackageUnpack() );
+        ::CheckPackageBackups();
         ::UpdatePackages();
         ::RemovePackages();
     }

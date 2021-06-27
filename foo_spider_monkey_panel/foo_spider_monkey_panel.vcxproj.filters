@@ -367,6 +367,9 @@
     <ClCompile Include="fb2k\playlist_lock.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
+    <ClCompile Include="utils\resource_helpers.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -790,6 +793,9 @@
     <ClInclude Include="fb2k\playlist_lock.h">
       <Filter>fb2k</Filter>
     </ClInclude>
+    <ClInclude Include="utils\resource_helpers.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -803,6 +809,12 @@
       <Filter>resources</Filter>
     </None>
     <None Include="resources\scintilla_jscript.api">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="resources\recovery_package_script.js">
+      <Filter>resources</Filter>
+    </None>
+    <None Include="resources\recovery_package_json.json">
       <Filter>resources</Filter>
     </None>
   </ItemGroup>

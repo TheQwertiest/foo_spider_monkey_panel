@@ -47,6 +47,11 @@ std::filesystem::path TempFolder_PackageUnpack()
     return TempFolder() / "unpacked_package";
 }
 
+std::filesystem::path TempFolder_PackageBackups()
+{
+    return TempFolder() / "package_backups";
+}
+
 std::filesystem::path TempFolder_PackagesToInstall()
 {
     return TempFolder() / "packages_to_install";

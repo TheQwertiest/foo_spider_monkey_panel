@@ -141,7 +141,7 @@ class InitStageCallbackSmp : public init_stage_callback
             }
             catch ( const qwr::QwrException& e )
             {
-                qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Failed to process delayed packages: {}", e.what() ) );
+                qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Failed to process delayed packages:\n{}", e.what() ) );
             }
         }
     }

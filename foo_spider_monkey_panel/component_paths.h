@@ -17,6 +17,7 @@ std::filesystem::path Packages_Storage();
 
 std::filesystem::path TempFolder();
 std::filesystem::path TempFolder_PackageUnpack();
+std::filesystem::path TempFolder_PackageBackups();
 std::filesystem::path TempFolder_PackagesToInstall();
 std::filesystem::path TempFolder_PackagesToRemove();
 std::filesystem::path TempFolder_PackagesInUse();

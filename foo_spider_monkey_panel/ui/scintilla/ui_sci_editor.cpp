@@ -6,6 +6,7 @@
 #include <ui/scintilla/sci_prop_sets.h>
 #include <ui/scintilla/ui_sci_goto.h>
 #include <utils/colour_helpers.h>
+#include <utils/resource_helpers.h>
 
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
@@ -477,24 +478,8 @@ void CScriptEditorCtrl::ReadAPI()
         }
     };
 
-    const auto loadResource = []( int resourceId, const char* resourceType ) {
-        SMP_CLANG_WARNING_PUSH
-        // suppress warning from uMAKEINTRESOURCE
-        SMP_CLANG_SUPPRESS_WARNING( "-Wint-to-pointer-cast" )
-        puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( resourceId ), resourceType );
-        SMP_CLANG_WARNING_POP
-        if ( puRes )
-        {
-            return qwr::u8string{ static_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
-        }
-        else
-        {
-            return qwr::u8string{};
-        }
-    };
-
-    readApi( loadResource( IDR_SCINTILLA_JS_API, "Script" ) );
-    readApi( loadResource( IDR_SCINTILLA_INTERFACE_API, "Script" ) );
+    readApi( LoadStringResource( IDR_SCINTILLA_JS_API, "Script" ).value_or( "" ) );
+    readApi( LoadStringResource( IDR_SCINTILLA_INTERFACE_API, "Script" ).value_or( "" ) );
 
     const auto propvalRet = GetPropertyExpanded_Opt( "api.extra" );
     if ( !propvalRet || propvalRet->empty() )

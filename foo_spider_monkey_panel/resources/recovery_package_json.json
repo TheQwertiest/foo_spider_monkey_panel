@@ -1,0 +1,9 @@
+{
+  "author": "TheQwertiest",
+  "description": "Follow displayed instructions to recover your package.",
+  "enableDragDrop": false,
+  "id": "",
+  "name": "Recovery package",
+  "shouldGrabFocus": true,
+  "version": "1.0.0"
+}
