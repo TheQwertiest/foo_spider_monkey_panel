@@ -537,7 +537,7 @@ void CDialogHtml::ParseOptions( JS::HandleValue options )
         _variant_t data;
         convert::com::JsToVariant( pJsCtx_, jsValue, *data.GetAddress() );
 
-        pExternal_.Attach( new com_object_impl_t<smp::com::HostExternal>( data ) );
+        pExternal_.Attach( new com::ComPtrImpl<com::HostExternal>( data ) );
     }
 }
 

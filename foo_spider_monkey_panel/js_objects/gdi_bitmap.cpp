@@ -153,7 +153,10 @@ JsGdiBitmap::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBi
 
 size_t JsGdiBitmap::GetInternalSize( const std::unique_ptr<Gdiplus::Bitmap>& gdiBitmap )
 {
-    // TODO: GetInternalSize is called before CreateNative (that has argument validation), but gdiBitmap is not checked for null here.
+    if ( !gdiBitmap )
+    { // we don't care about return value, since it will fail in CreateNative later
+        return 0;
+    }
     return sizeof( Gdiplus::Bitmap ) + gdiBitmap->GetWidth() * gdiBitmap->GetHeight() * Gdiplus::GetPixelFormatSize( gdiBitmap->GetPixelFormat() ) / 8;
 }
 

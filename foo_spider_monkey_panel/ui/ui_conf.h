@@ -67,8 +67,6 @@ public:
         CHAIN_MSG_MAP( CDialogResize<CDialogConf> )
     END_MSG_MAP()
 
-    // TODO: add help button
-
     CDialogConf( smp::panel::js_panel_window* pParent, CDialogConf::Tab tabId = CDialogConf::Tab::def );
 
     bool IsCleanSlate() const;

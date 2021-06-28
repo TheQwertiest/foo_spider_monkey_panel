@@ -28,7 +28,7 @@ public:
     // @remark No need to cleanup JS here, since it must be performed manually beforehand anyway
     ~JsGlobalObject() = default;
 
-    static JSObject* CreateNative( JSContext* cx, JsContainer& parentContainer, smp::panel::js_panel_window& parentPanel );
+    static JSObject* CreateNative( JSContext* cx, JsContainer& parentContainer );
 
 public:
     void Fail( const qwr::u8string& errorText );

@@ -222,7 +222,7 @@ bool JsEngine::Initialize()
         return true;
     }
 
-    auto autoJsCtx = utils::make_unique<JSContext>( nullptr, []( auto pCtx ) {
+    auto autoJsCtx = utils::make_unique_with_dtor<JSContext>( nullptr, []( auto pCtx ) {
         JS_DestroyContext( pCtx );
     } );
 

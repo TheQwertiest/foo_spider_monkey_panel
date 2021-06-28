@@ -6,32 +6,6 @@
 
 // TODO: cleanup
 
-namespace internal
-{
-
-class type_info_cache_holder
-{
-public:
-    type_info_cache_holder();
-
-    [[nodiscard]] bool empty();
-
-    void init_from_typelib( ITypeLib* p_typeLib, const GUID& guid );
-
-    // "Expose" some ITypeInfo related methods here
-    HRESULT GetTypeInfo( UINT iTInfo, LCID lcid, ITypeInfo** ppTInfo );
-    HRESULT GetIDsOfNames( LPOLESTR* rgszNames, UINT cNames, MEMBERID* pMemId );
-    HRESULT Invoke( PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr );
-
-protected:
-    std::unordered_map<ULONG, DISPID> m_cache;
-    ITypeInfoPtr m_type_info;
-};
-
-} // namespace internal
-
-extern ITypeLibPtr g_typelib;
-
 // clang-format off
 // protect macro format style
 
@@ -52,7 +26,7 @@ extern ITypeLibPtr g_typelib;
 			COM_QI_ENTRY_MULTI(Iimpl, Iimpl);
 
 #define END_COM_QI_IMPL() \
-			*ppv = NULL; \
+			*ppv = nullptr; \
 			return E_NOINTERFACE; \
 		qi_entry_done: \
 			reinterpret_cast<IUnknown*>(*ppv)->AddRef(); \
@@ -61,119 +35,133 @@ extern ITypeLibPtr g_typelib;
 
 // clang-format on
 
+namespace smp::com
+{
+
+namespace internal
+{
+
+class TypeInfoCacheHolder
+{
+public:
+    TypeInfoCacheHolder();
+
+    [[nodiscard]] bool Empty();
+
+    void InitFromTypelib( ITypeLib* p_typeLib, const GUID& guid );
+
+    // "Expose" some ITypeInfo related methods here
+    HRESULT GetTypeInfo( UINT iTInfo, LCID lcid, ITypeInfo** ppTInfo );
+    HRESULT GetIDsOfNames( LPOLESTR* rgszNames, UINT cNames, MEMBERID* pMemId );
+    HRESULT Invoke( PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr );
+
+protected:
+    std::unordered_map<ULONG, DISPID> cache_;
+    ITypeInfoPtr typeInfo_;
+};
+
+} // namespace internal
+
+extern ITypeLibPtr g_typelib;
+
 //-- IDispatch --
 template <class T>
-class MyIDispatchImpl : public T
+class IDispatchWithCachedTypes : public T
 {
-protected:
-    static ::internal::type_info_cache_holder g_type_info_cache_holder;
-
-    MyIDispatchImpl<T>()
-    {
-        if ( g_type_info_cache_holder.empty() && g_typelib )
-        {
-            g_type_info_cache_holder.init_from_typelib( g_typelib, __uuidof( T ) );
-        }
-    }
-
-    virtual ~MyIDispatchImpl<T>() = default;
-
-    virtual void FinalRelease()
-    {
-    }
-
 public:
     STDMETHOD( GetTypeInfoCount )( unsigned int* n )
     {
         if ( !n )
+        {
             return E_INVALIDARG;
+        }
         *n = 1;
         return S_OK;
     }
 
     STDMETHOD( GetTypeInfo )( unsigned int i, LCID lcid, ITypeInfo** pp )
     {
-        return g_type_info_cache_holder.GetTypeInfo( i, lcid, pp );
+        return g_typeInfoCacheHolder.GetTypeInfo( i, lcid, pp );
     }
 
     STDMETHOD( GetIDsOfNames )( REFIID riid, OLECHAR** names, unsigned int cnames, LCID lcid, DISPID* dispids )
     {
-        if ( g_type_info_cache_holder.empty() )
+        if ( g_typeInfoCacheHolder.Empty() )
+        {
             return E_UNEXPECTED;
-        return g_type_info_cache_holder.GetIDsOfNames( names, cnames, dispids );
+        }
+        return g_typeInfoCacheHolder.GetIDsOfNames( names, cnames, dispids );
     }
 
     STDMETHOD( Invoke )( DISPID dispid, REFIID riid, LCID lcid, WORD flag, DISPPARAMS* params, VARIANT* result, EXCEPINFO* excep, unsigned int* err )
     {
-        if ( g_type_info_cache_holder.empty() )
+        if ( g_typeInfoCacheHolder.Empty() )
+        {
             return E_UNEXPECTED;
-        return g_type_info_cache_holder.Invoke( this, dispid, flag, params, result, excep, err );
+        }
+        return g_typeInfoCacheHolder.Invoke( this, dispid, flag, params, result, excep, err );
     }
+
+protected:
+    IDispatchWithCachedTypes<T>()
+    {
+        if ( g_typeInfoCacheHolder.Empty() && g_typelib )
+        {
+            g_typeInfoCacheHolder.InitFromTypelib( g_typelib, __uuidof( T ) );
+        }
+    }
+
+    virtual ~IDispatchWithCachedTypes<T>() = default;
+
+    virtual void FinalRelease()
+    {
+    }
+
+protected:
+    static smp::com::internal::TypeInfoCacheHolder g_typeInfoCacheHolder;
 };
 
 template <class T>
-__declspec( selectany )::internal::type_info_cache_holder MyIDispatchImpl<T>::g_type_info_cache_holder;
+__declspec( selectany ) smp::com::internal::TypeInfoCacheHolder IDispatchWithCachedTypes<T>::g_typeInfoCacheHolder;
 
 //-- IDispatch impl -- [T] [IDispatch] [IUnknown]
 template <class T>
-class IDispatchImpl3 : public MyIDispatchImpl<T>
+class IDispatchImpl3 : public IDispatchWithCachedTypes<T>
 {
-    BEGIN_COM_QI_IMPL()
-        COM_QI_ENTRY_MULTI( IUnknown, IDispatch )
-        COM_QI_ENTRY( T )
-        COM_QI_ENTRY( IDispatch )
-    END_COM_QI_IMPL()
-
 protected:
     IDispatchImpl3<T>() = default;
-    virtual ~IDispatchImpl3<T>() = default;
-};
+    ~IDispatchImpl3<T>() override = default;
 
-//-- IDisposable impl -- [T] [IDisposable] [IDispatch] [IUnknown]
-template <class T>
-class IDisposableImpl4 : public MyIDispatchImpl<T>
-{
+private:
     BEGIN_COM_QI_IMPL()
         COM_QI_ENTRY_MULTI( IUnknown, IDispatch )
         COM_QI_ENTRY( T )
-        COM_QI_ENTRY( IDisposable )
         COM_QI_ENTRY( IDispatch )
     END_COM_QI_IMPL()
-
-protected:
-    IDisposableImpl4<T>() = default;
-    virtual ~IDisposableImpl4() = default;
-
-public:
-    STDMETHODIMP Dispose()
-    {
-        this->FinalRelease();
-        return S_OK;
-    }
 };
 
 template <typename T, bool ShouldAddRef = true>
-class com_object_impl_t : public T
+class ComPtrImpl : public T
 {
 public:
     template <typename... Args>
-    com_object_impl_t( Args&&... args )
+    ComPtrImpl( Args&&... args )
         : T( std::forward<Args>( args )... )
     {
         if constexpr ( ShouldAddRef )
         {
-            ++m_dwRef;
+            ++refCount_;
         }
     }
 
     STDMETHODIMP_( ULONG ) AddRef()
     {
-        return ++m_dwRef;
+        return ++refCount_;
     }
 
     STDMETHODIMP_( ULONG ) Release()
     {
-        const ULONG n = --m_dwRef;
+        const ULONG n = --refCount_;
         if ( !n )
         {
             this->FinalRelease();
@@ -183,8 +171,10 @@ public:
     }
 
 private:
-    ~com_object_impl_t() override = default;
+    ~ComPtrImpl() override = default;
 
 private:
-    std::atomic<ULONG> m_dwRef = 0;
+    std::atomic<ULONG> refCount_ = 0;
 };
+
+} // namespace smp::com

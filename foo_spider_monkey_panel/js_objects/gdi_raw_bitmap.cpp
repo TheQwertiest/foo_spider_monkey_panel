@@ -92,7 +92,13 @@ JsGdiRawBitmap::CreateNative( JSContext* cx, Gdiplus::Bitmap* pBmp )
 }
 
 size_t JsGdiRawBitmap::GetInternalSize( Gdiplus::Bitmap* pBmp )
-{ // We generate only PixelFormat32bppPARGB images
+{
+    if ( !pBmp )
+    { // we don't care about return value, since it will fail in CreateNative later
+        return 0;
+    }
+
+    // We generate only PixelFormat32bppPARGB images
     return pBmp->GetWidth() * pBmp->GetHeight() * Gdiplus::GetPixelFormatSize( PixelFormat32bppPARGB ) / 8;
 }
 

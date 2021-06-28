@@ -532,8 +532,6 @@ bool JsFbPlaylistManager::IsPlaylistItemSelected( uint32_t playlistIndex, uint32
     return playlist_manager::get()->playlist_is_item_selected( playlistIndex, playlistItemIndex );
 }
 
-// TODO: add ability to check specific lock flag via additional argument
-
 bool JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
 {
     auto api = playlist_manager::get();

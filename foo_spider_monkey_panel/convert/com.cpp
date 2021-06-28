@@ -30,7 +30,7 @@ using namespace mozjs;
 using namespace convert::com;
 
 class WrappedJs
-    : public IDispatchImpl3<IWrappedJs>
+    : public com::IDispatchImpl3<IWrappedJs>
     , public mozjs::IHeapUser
 {
 protected:
@@ -439,7 +439,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
             JS::RootedFunction func( cx, JS_ValueToFunction( cx, rval ) );
 
             arg.vt = VT_DISPATCH;
-            arg.pdispVal = new com_object_impl_t<WrappedJs>( cx, func );
+            arg.pdispVal = new smp::com::ComPtrImpl<WrappedJs>( cx, func );
         }
         else
         {

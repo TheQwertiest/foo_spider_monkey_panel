@@ -17,8 +17,11 @@
 DECLARE_COMPONENT_VERSION( SMP_NAME, SMP_VERSION, SMP_ABOUT );
 VALIDATE_COMPONENT_FILENAME( SMP_DLL_NAME );
 
+namespace smp::com
+{
 // Script TypeLib
 ITypeLibPtr g_typelib;
+} // namespace smp::com
 
 namespace
 {
@@ -62,7 +65,7 @@ void InitializeSubsystems( HINSTANCE ins )
         std::array<wchar_t, MAX_PATH> path{};
         (void)GetModuleFileName( ins, path.data(), path.size() ); // NULL-terminated in OS newer than WinXP
 
-        if ( HRESULT hr = LoadTypeLibEx( path.data(), REGKIND_NONE, &g_typelib );
+        if ( HRESULT hr = LoadTypeLibEx( path.data(), REGKIND_NONE, &smp::com::g_typelib );
              FAILED( hr ) )
         {
             g_subsystem_failures[SubsystemId::SMP_TYPELIB] = { "LoadTypeLibEx failed", static_cast<uint32_t>( hr ) };

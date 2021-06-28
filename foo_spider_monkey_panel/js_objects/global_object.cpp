@@ -113,8 +113,7 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer& parentContainer, JsW
 {
 }
 
-// TODO: remove js_panel_window from ctor (add a method to JsContainer instead)
-JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContainer, smp::panel::js_panel_window& parentPanel )
+JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContainer )
 {
     if ( !jsOps.trace )
     { // JS_GlobalObjectTraceHook address is only accessible after mozjs is loaded.
@@ -145,7 +144,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" );
         CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" );
         CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" );
-        CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentPanel );
+        CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentContainer.GetParentPanel() );
 #ifdef _DEBUG
         CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" );
 #endif

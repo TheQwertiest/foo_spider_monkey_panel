@@ -1061,7 +1061,7 @@ void js_panel_window::SetDragAndDropStatus( bool isEnabled )
     settings_.enableDragDrop = isEnabled;
     if ( isEnabled )
     {
-        dropTargetHandler_.Attach( new com_object_impl_t<com::TrackDropTarget>( wnd_ ) );
+        dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( wnd_ ) );
 
         HRESULT hr = dropTargetHandler_->RegisterDragDrop();
         qwr::error::CheckHR( hr, "RegisterDragDrop" );

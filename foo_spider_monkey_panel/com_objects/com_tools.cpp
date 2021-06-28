@@ -4,27 +4,26 @@
 
 #include <span>
 
-namespace internal
+namespace smp::com::internal
 {
 
-type_info_cache_holder::type_info_cache_holder()
-    : m_type_info( nullptr )
+TypeInfoCacheHolder::TypeInfoCacheHolder()
 {
 }
 
-bool type_info_cache_holder::empty()
+bool TypeInfoCacheHolder::Empty()
 {
-    return !m_type_info;
+    return !typeInfo_;
 }
 
-void type_info_cache_holder::init_from_typelib( ITypeLib* p_typeLib, const GUID& guid )
+void TypeInfoCacheHolder::InitFromTypelib( ITypeLib* p_typeLib, const GUID& guid )
 {
-    p_typeLib->GetTypeInfoOfGuid( guid, &m_type_info );
+    p_typeLib->GetTypeInfoOfGuid( guid, &typeInfo_ );
 }
 
-HRESULT type_info_cache_holder::GetTypeInfo( UINT iTInfo, [[maybe_unused]] LCID lcid, ITypeInfo** ppTInfo )
+HRESULT TypeInfoCacheHolder::GetTypeInfo( UINT iTInfo, LCID /*lcid*/, ITypeInfo** ppTInfo )
 {
-    if ( empty() )
+    if ( Empty() )
     {
         return E_UNEXPECTED;
     }
@@ -36,14 +35,14 @@ HRESULT type_info_cache_holder::GetTypeInfo( UINT iTInfo, [[maybe_unused]] LCID 
     {
         return DISP_E_BADINDEX;
     }
-    m_type_info->AddRef();
-    *ppTInfo = m_type_info.GetInterfacePtr();
+    typeInfo_->AddRef();
+    *ppTInfo = typeInfo_.GetInterfacePtr();
     return S_OK;
 }
 
-HRESULT type_info_cache_holder::GetIDsOfNames( LPOLESTR* rgszNames, UINT cNames, MEMBERID* pMemId )
+HRESULT TypeInfoCacheHolder::GetIDsOfNames( LPOLESTR* rgszNames, UINT cNames, MEMBERID* pMemId )
 {
-    assert( m_type_info != NULL );
+    assert( typeInfo_ != NULL );
 
     std::span<LPOLESTR> names( rgszNames, cNames );
     std::span<MEMBERID> memIds( pMemId, cNames );
@@ -51,32 +50,32 @@ HRESULT type_info_cache_holder::GetIDsOfNames( LPOLESTR* rgszNames, UINT cNames,
     for ( auto&& [name, memId]: ranges::views::zip( names, memIds ) )
     {
         const auto hash = LHashValOfName( LANG_NEUTRAL, name );
-        if ( const auto it = m_cache.find( hash );
-             m_cache.cend() != it )
+        if ( const auto it = cache_.find( hash );
+             cache_.cend() != it )
         {
             memId = it->second;
         }
         else
         {
-            HRESULT hr = m_type_info->GetIDsOfNames( &name, 1, &memId );
+            HRESULT hr = typeInfo_->GetIDsOfNames( &name, 1, &memId );
             if ( FAILED( hr ) )
             {
                 return hr;
             }
 
-            m_cache.emplace( hash, memId );
+            cache_.emplace( hash, memId );
         }
     }
 
     return S_OK;
 }
 
-HRESULT type_info_cache_holder::Invoke( PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr )
+HRESULT TypeInfoCacheHolder::Invoke( PVOID pvInstance, MEMBERID memid, WORD wFlags, DISPPARAMS* pDispParams, VARIANT* pVarResult, EXCEPINFO* pExcepInfo, UINT* puArgErr )
 {
-    assert( m_type_info != NULL );
-    HRESULT hr = m_type_info->Invoke( pvInstance, memid, wFlags, pDispParams, pVarResult, pExcepInfo, puArgErr );
+    assert( typeInfo_ != NULL );
+    HRESULT hr = typeInfo_->Invoke( pvInstance, memid, wFlags, pDispParams, pVarResult, pExcepInfo, puArgErr );
     assert( hr != RPC_E_WRONG_THREAD );
     return hr;
 }
 
-} // namespace internal
+} // namespace smp::com::internal

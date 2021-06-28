@@ -66,7 +66,7 @@ bool JsContainer::Initialize()
 
     try
     {
-        jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this, *pParentPanel_ ) );
+        jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this ) );
         assert( jsGlobal_ );
         qwr::final_action autoGlobal( [&jsGlobal = jsGlobal_] {
             jsGlobal.reset();
