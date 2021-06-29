@@ -21,7 +21,7 @@ SMP JavaScript interface can be integrated in various IDE for early error detect
 - [Visual Studio Code](https://code.visualstudio.com/download): 
    - Either add a comment to the top of each file pointing to `foo_spider_monkey_panel.js` interface file:
      ```javascript
-     /// <reference path="./../../user-components/foo_spider_monkey_panel/docs/js/foo_spider_monkey_panel.js">
+     /// <reference path="./../../user-components/foo_spider_monkey_panel/docs/js/foo_spider_monkey_panel.js"/>
      ```
    - Or add a `jsconfig.json` file in the root of your Visual Studio Code project with the path to `docs\js` directory.
      For example (assuming that project is in `foobar2000/themes/mytheme`):

@@ -18,8 +18,10 @@ nav_order: 1
 ## Built-in scripts
 
 These scripts are automatically installed with the component.  
-To use them replace panel contents with the following line: `include('path_to_script');`  
-For example: `include('samples/js-smooth/JS Smooth Browser.js');`
+To use them:
+- Open `Configure Panel...` dialog.
+- In `Script source` choose `Sample`.
+- Select the desired script in the drop-down menu.
 
 {% include functions/showcase_grid.md collection=site.showcase_sample screenshots_dir='/assets/img/screenshots/samples' description_func='showcase_sample_desc' %}
 
