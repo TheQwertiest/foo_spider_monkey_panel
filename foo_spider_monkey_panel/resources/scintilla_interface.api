@@ -208,7 +208,7 @@ window.ShowProperties()
 
 #Use in on_paint
 gr.CalcTextHeight(str, IGdiFont)
-gr.CalcTextWidth(str, IGdiFont)
+gr.CalcTextWidth(str, IGdiFont[, use_exact])
 gr.DrawEllipse(x, y, w, h, line_width, colour)
 gr.DrawImage(IGdiBitmap, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH[, angle, alpha])
 gr.DrawLine(x1, y1, x2, y2, line_width, colour)
