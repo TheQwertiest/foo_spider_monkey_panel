@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.5.0](#150---2021-06-30)
 - [1.4.1](#141---2021-02-14)
 - [1.4.0](#140---2021-02-11)
 - [1.3.1](#131---2020-07-18)
@@ -26,6 +27,8 @@
 ___
 
 ## [Unreleased][]
+
+## [1.5.0][] - 2021-06-30
 ### Added
 - API changes:
   - Added fine-grained playlist lock control via `plman.GetPlaylistLockedActions()` and `plman.SetPlaylistLockedActions()` ([#144](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/144)).
@@ -403,7 +406,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.1...HEAD
+[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.3.1...v1.4.0
 [1.3.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.3.0...v1.3.1
