@@ -44,7 +44,7 @@ JSClass jsClass = {
 };
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( CalcTextHeight, JsGdiGraphics::CalcTextHeight )
-MJS_DEFINE_JS_FN_FROM_NATIVE( CalcTextWidth, JsGdiGraphics::CalcTextWidth )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CalcTextWidth, JsGdiGraphics::CalcTextWidth, JsGdiGraphics::CalcTextWidthWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( DrawEllipse, JsGdiGraphics::DrawEllipse )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawImage, JsGdiGraphics::DrawImage, JsGdiGraphics::DrawImageWithOpt, 2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( DrawLine, JsGdiGraphics::DrawLine )
@@ -146,7 +146,7 @@ uint32_t JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font
     return smp::utils::get_text_height( hDc, str );
 }
 
-uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font )
+uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font, boolean use_exact )
 {
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
@@ -155,7 +155,21 @@ uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font 
     qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
-    return smp::utils::get_text_width( hDc, str );
+    return smp::utils::get_text_width( hDc, str, use_exact );
+}
+
+uint32_t JsGdiGraphics::CalcTextWidthWithOpt( size_t optArgCount, const std::wstring& str, 
+                                          JsGdiFont* font, boolean use_exact )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return CalcTextWidth( str, font, use_exact );
+    case 1:
+        return CalcTextWidth( str, font );
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
 }
 
 void JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )

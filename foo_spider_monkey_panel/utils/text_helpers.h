@@ -7,7 +7,7 @@ namespace smp::utils
 {
 
 size_t get_text_height( HDC hdc, std::wstring_view text );
-size_t get_text_width( HDC hdc, std::wstring_view text );
+size_t get_text_width( HDC hdc, std::wstring_view text, bool accurate = false );
 
 struct wrapped_item
 {

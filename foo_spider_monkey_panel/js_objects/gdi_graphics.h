@@ -45,7 +45,8 @@ public:
 
 public:
     uint32_t CalcTextHeight( const std::wstring& str, JsGdiFont* font );
-    uint32_t CalcTextWidth( const std::wstring& str, JsGdiFont* font );
+    uint32_t CalcTextWidth( const std::wstring& str, JsGdiFont* font, boolean use_exact = false );
+    uint32_t CalcTextWidthWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, boolean use_exact );
     void DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
     void DrawImage( JsGdiBitmap* image,
                     float dstX, float dstY, float dstW, float dstH,

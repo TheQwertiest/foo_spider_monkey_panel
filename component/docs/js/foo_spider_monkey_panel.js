@@ -3258,12 +3258,17 @@ function GdiGraphics() {
 
     /**
      * Calculates text width for {@link GdiGraphics#GdiDrawText}.
+     * 
+     * Note: When the str contains a kerning pair that is found in the specified 
+     * font, the return value will be larger than the actual drawn width of the
+     * text. If accurate values are required, set use_exact to true.
      *
      * @param {string} str
      * @param {GdiFont} font
+     * @param {boolean=} [use_exact=false] Uses a slower, but more accurate method of calculating text width which accounts for kerning pairs.  
      * @return {number}
      */
-    this.CalcTextWidth = function (str, font) { }; // (uint)
+    this.CalcTextWidth = function (str, font, use_exact) { }; // (uint)
 
     /**
      * @param {number} x
