@@ -13,7 +13,6 @@ PFC: zlib
 Scintilla: HPND
 SpiderMonkey: MPL
 StackBlur: MIT
-span lite: BSL-1.0
 timsort-cpp: MIT
 UI Helpers: BSD
 WTL: MS-PL

@@ -29,7 +29,6 @@ The linked notices are provided for information only.
 - [Scintilla - HPND]({{site.baseurl}}assets/generated_files/licenses/Scintilla.txt)
 - [SpiderMonkey - MPL]({{site.baseurl}}assets/generated_files/licenses/SpiderMonkey.txt)
 - [StackBlur - MIT]({{site.baseurl}}assets/generated_files/licenses/StackBlur.txt)
-- [span lite - BSL-1.0]({{site.baseurl}}assets/generated_files/licenses/span lite.txt)
 - [timsort-cpp - MIT]({{site.baseurl}}assets/generated_files/licenses/timsort-cpp.txt)
 - [UI Helpers - BSD]({{site.baseurl}}assets/generated_files/licenses/UI Helpers.txt)
 - [WTL - MS-PL]({{site.baseurl}}assets/generated_files/licenses/WTL.txt)
