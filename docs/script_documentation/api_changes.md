@@ -23,7 +23,34 @@ Legend:
 
 ___
 
+## v1.5.0
+
+### Added
+- Added `plman.GetPlaylistLockedActions(playlist_index)` method. Returns an array of strings, which represent actions that can't be performed on the specidified playlist.  
+  These actions may be one or multiple of the following: `AddItems`, `RemoveItems`, `ReorderItems`, `ReplaceItems`, `RenamePlaylist`, `RemovePlaylist`, `ExecuteDefaultAction`.
+- Added `plman.SetPlaylistLockedActions(playlist_index, locked_actions)` method. Sets actions that can't be performed on the specified playlist.  
+  Accepts an array of strings that may contain the same items as actions described above for `plman.GetPlaylistLockedActions()`.
+- Added `utils.GetPackageInfo(package_id)` method. Returns `null`, if the package is not found, or, if found, an object of the following format:
+```javascript
+{
+    Version, // Package version
+    Directories: {
+        Root, // Root directory of the package
+        Script, // Directory inside package folder that contains assets
+        Assets, // Directory inside package folder that contains 
+        Storage // Persistent and unique directory inside foobar2000 profile folder that can be used to store runtime data (e.g. cache)
+    }
+}
+```
+- Added `fb.Restart()` method. Restarts the player.
+
+### Changed
+- Addeded an optional `use_exact` argument to `gdi.CalcTextWidth()`. `false` by default. If set to `true` will use a more accurate width calculation algorithm in certain cases. See ([#140](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/140)) for more info on these cases.
+- `utils.GetPackagePath()` is marked as **\[Deprecated]**. Use `utils.GetPackageInfo()` instead.
+- `plman.IsPlaylistLocked()` is marked as **\[Deprecated]**. Use `plman.GetPlaylistLockedActions()` instead.
+
 ## v1.4.1
+
 ### Changed 
 - **\[BREAKING]** Changed casing of `window.JsMemoryStats` fields for consistency with the rest of API: 
   - `memory_usage` to `MemoryUsage`.
