@@ -30,36 +30,26 @@ qwr::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
         }
 
         JS::RootedString stackStr( cx );
-        if ( !JS::BuildStackString( cx, nullptr, stackObj, &stackStr, 0 ) )
+        if ( !JS::BuildStackString( cx, nullptr, stackObj, &stackStr, 2 ) )
         {
             return "";
         }
-        const auto stdStackStr = mozjs::convert::to_native::ToValue<qwr::u8string>( cx, stackStr );
-        const auto stackLines = qwr::string::SplitByLines( stdStackStr );
-        qwr::u8string fixedStackStr;
-        for ( const auto& line: stackLines )
+
+        const auto& cachedPaths = hack::GetAllCachedUtf8Paths();
+        auto stdStackStr = mozjs::convert::to_native::ToValue<qwr::u8string>( cx, stackStr );
+
+        for ( const auto& [id, path]: cachedPaths )
         { // replace ids with paths
-            constexpr auto atOffset = 1;
-            auto cleanedLine = line.substr( atOffset );
-
-            const auto pos = cleanedLine.find_first_of( ":" );
-            if ( pos == std::string_view::npos )
+            const auto filename = path.filename().u8string();
+            size_t pos = 0;
+            while ( ( pos = stdStackStr.find( id, pos ) ) != std::string::npos )
             {
-                fixedStackStr += fmt::format( "  @{}\n", cleanedLine );
-                continue;
+                stdStackStr.replace( pos, id.length(), filename );
+                pos += filename.length();
             }
-
-            const auto pathOpt = hack::GetCachedUtf8Path( cleanedLine.substr( 0, pos ) );
-            if ( !pathOpt )
-            {
-                fixedStackStr += fmt::format( "  @{}\n", cleanedLine );
-                continue;
-            }
-
-            fixedStackStr += fmt::format( "  @{}{}\n", pathOpt->filename().u8string(), cleanedLine.substr( pos ) );
         }
 
-        return fixedStackStr;
+        return stdStackStr;
     }
     catch ( ... )
     {

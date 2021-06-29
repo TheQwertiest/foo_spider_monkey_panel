@@ -35,4 +35,9 @@ std::optional<std::filesystem::path> GetCachedUtf8Path( const std::string_view& 
     return it->second;
 }
 
+const std::unordered_map<std::string, std::filesystem::path>& GetAllCachedUtf8Paths()
+{
+    return g_cachedPaths;
+}
+
 } // namespace mozjs::hack
