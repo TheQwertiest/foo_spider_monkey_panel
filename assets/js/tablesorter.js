@@ -1,0 +1,3 @@
+/* source: https://github.com/tofsjonas/sortable */
+document.addEventListener("click",function(a){function n(d,e){d.className=d.className.replace(r,"")+e}var r=/ dir-(u|d) /,b=/\bsortable\b/;a=a.target;if("TH"===a.nodeName)try{var f=a.parentNode.parentNode.parentNode;if(b.test(f.className)){var g,c=a.parentNode.cells;for(b=0;b<c.length;b++)c[b]===a?g=b:n(c[b],"");c=" dir-d ";-1!==a.className.indexOf(" dir-d ")&&(c=" dir-u ");n(a,c);var h=f.tBodies[0],k=[].slice.call(h.rows,0),p=" dir-u "===c;k.sort(function(d,e){var l=(p?d:e).cells[g].innerText,m=
+    (p?e:d).cells[g].innerText;return isNaN(l-m)?l.localeCompare(m):l-m});for(var q=h.cloneNode();k.length;)q.appendChild(k.splice(0,1)[0]);f.replaceChild(q,h)}}catch(d){}});

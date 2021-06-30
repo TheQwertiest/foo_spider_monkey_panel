@@ -1,0 +1,37 @@
+<div id="showcase-table">
+  <table class="sortable">
+    <thead>
+      <tr>
+        <th>Script</th>
+        <th>Author</th>
+        <th>Type</th>
+        <th>Date added</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% assign collection_type_index = 0 %}
+      {% for collection in include.collections %}
+        {% assign collection_type = include.collection_types[collection_type_index] %}
+        {% assign sorted_authors = collection | sort_natural : "author" | group_by: "author" %}
+        {% for author in sorted_authors %}
+          {% assign sorted_scripts = author.items | sort_natural : "name" %}
+          {% for showcase in sorted_scripts %}
+          <tr>
+<td markdown="1">
+[{{ showcase.name }}](#{% include functions/custom_slugify.md name = showcase.name %})
+</td>
+<td markdown="1">
+{{ showcase.author }}
+</td>
+            <td>{{ collection_type }}</td>
+            <td>{% if showcase.date_added %}{{ showcase.date_added }}{% else %}2019-12-31{% endif -%}</td>
+          </tr>
+          {% endfor %}
+        {% endfor %}
+        {% assign collection_type_index = collection_type_index | plus: 1 %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% assign tablesorter_script = "/assets/js/tablesorter.js" | relative_url %}
+<script src="{{ tablesorter_script }}"></script>

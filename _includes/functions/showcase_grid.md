@@ -1,5 +1,9 @@
 <div id="showcase-grid" data-columns>
-{% assign sorted_authors = include.collection | group_by: "author" | sort_natural : "name" %}
+{% if include.sort_by_authors %}
+{% assign sorted_authors = include.collection | sort_natural : "author" | group_by: "author" %}
+{% else %}
+{% assign sorted_authors = include.collection | group_by: "dont_group" %}
+{% endif %}
 {% for author in sorted_authors %}
 {% assign sorted_scripts = author.items | sort_natural : "name" %}
 {% for showcase in sorted_scripts %}
@@ -18,7 +22,7 @@
 <div class="scriptimgwrap" id="{% include functions/custom_slugify.md name = showcase.name %}" markdown="0">
   {%- assign screenshots_dir = include.screenshots_dir | relative_url -%}
   {%- capture gallery_name -%}
-    {%if showcase.gallery == "" %}{{ showcase.name }}{% else %}{{ showcase.gallery }}{% endif %}
+    {% if showcase.gallery == "" %}{{ showcase.name }}{% else %}{{ showcase.gallery }}{% endif %}
   {%- endcapture -%}
   {%- assign gallery_path = screenshots_dir | append: '/' | append: gallery_name }} -%}
   {% assign gallery_data = site.data.screenshots[gallery_name] %}

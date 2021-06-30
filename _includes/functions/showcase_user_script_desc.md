@@ -1,5 +1,6 @@
 {% assign local_showcase = include.showcase %}
 ### {{ local_showcase.name }}
+{: .no_toc}
 
 Author: {{ author.name }}  
 {% if local_showcase.link %}Link: {{ local_showcase.link }}<br/>{% endif -%}

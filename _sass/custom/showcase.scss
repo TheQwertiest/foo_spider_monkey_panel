@@ -52,6 +52,16 @@
   content: '1 .grid-col.size-1of1';
 }
 
+#showcase-table th {
+  padding-top: 0.2 !important; 
+  padding-bottom: 0.2 !important; 
+}
+
+#showcase-table td {
+  padding-top: 0 !important; 
+  padding-bottom: 0 !important; 
+}
+
 .grid-col {
   display: inline-block;
   vertical-align: top;

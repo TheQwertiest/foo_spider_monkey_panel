@@ -1,0 +1,71 @@
+$sortable-th-color: lighten($body-text-color, 10%);
+$sortable-th-bg: lighten($table-background-color, 10%);
+$sortable-th-color-active: #000;
+$sortable-th-shadow-active: darken(#FFF, 10%);
+$sortable-th-border-color: darken($border-color, 10%);
+
+.sortable {
+  border-spacing: 0;
+
+  td,
+  th {
+    padding: 10px;
+  }
+
+  th {
+    background: $sortable-th-bg;
+    color: $sortable-th-color;
+    border-color: $sortable-th-border-color;
+    cursor: pointer;
+    font-weight: normal;
+    text-align: left;
+    text-transform: capitalize;
+    vertical-align: baseline;
+    white-space: nowrap;
+
+    &:hover {
+      color: $sortable-th-color-active;
+      text-shadow: 0 0 6px $sortable-th-shadow-active;
+
+      &::after {
+        color: inherit;
+        font-size: 1.2em;
+        content: ' \025B8';
+      }
+    }
+
+    &::after {
+      font-size: 1.2em;
+      color: transparent;
+      content: ' \025B8';
+    }
+
+    &.dir-d {
+      color: $sortable-th-color-active;
+      text-shadow: 0 0 4px $sortable-th-shadow-active;
+
+      &:hover {
+        text-shadow: 0 0 6px $sortable-th-shadow-active;
+      }
+
+      &::after {
+        color: inherit;
+        content: ' \025BE';
+      }
+    }
+
+    &.dir-u {
+      color: $sortable-th-color-active;
+      text-shadow: 0 0 4px $sortable-th-shadow-active;
+
+      &:hover {
+        text-shadow: 0 0 6px $sortable-th-shadow-active;
+      }
+
+      &::after {
+        color: inherit;
+        content: ' \025B4';
+      }
+    }
+  }
+}
