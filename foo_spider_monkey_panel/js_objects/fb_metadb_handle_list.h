@@ -69,9 +69,9 @@ public: // methods
     std::uint64_t CalcTotalSize();
     JSObject* Clone();
     // TODO v2: rename to ToArray()
-    JSObject* Convert();
+    JS::Value Convert();
     int32_t Find( JsFbMetadbHandle* handle );
-    JSObject* GetLibraryRelativePaths();
+    JS::Value GetLibraryRelativePaths();
     void Insert( uint32_t index, JsFbMetadbHandle* handle );
     void InsertRange( uint32_t index, JsFbMetadbHandleList* handles );
     void MakeDifference( JsFbMetadbHandleList* handles );

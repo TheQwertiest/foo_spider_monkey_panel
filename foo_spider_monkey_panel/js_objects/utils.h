@@ -56,8 +56,8 @@ public:
     qwr::u8string GetPackagePath( const qwr::u8string& packageId ) const;
     uint32_t GetSysColour( uint32_t index ) const;
     uint32_t GetSystemMetrics( uint32_t index ) const;
-    JSObject* Glob( const qwr::u8string& pattern, uint32_t exc_mask = FILE_ATTRIBUTE_DIRECTORY, uint32_t inc_mask = 0xFFFFFFFF );
-    JSObject* GlobWithOpt( size_t optArgCount, const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask );
+    JS::Value Glob( const qwr::u8string& pattern, uint32_t exc_mask = FILE_ATTRIBUTE_DIRECTORY, uint32_t inc_mask = 0xFFFFFFFF );
+    JS::Value GlobWithOpt( size_t optArgCount, const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask );
     qwr::u8string InputBox( uint32_t hWnd, const qwr::u8string& prompt, const qwr::u8string& caption, const qwr::u8string& def = "", bool error_on_cancel = false );
     qwr::u8string InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const qwr::u8string& prompt, const qwr::u8string& caption, const qwr::u8string& def, bool error_on_cancel );
     bool IsDirectory( const std::wstring& path ) const;

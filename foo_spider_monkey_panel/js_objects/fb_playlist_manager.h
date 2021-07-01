@@ -55,12 +55,12 @@ public:
     int32_t FindPlaybackQueueItemIndex( JsFbMetadbHandle* handle, uint32_t playlistIndex, uint32_t playlistItemIndex );
     int32_t FindPlaylist( const qwr::u8string& name );
     void FlushPlaybackQueue();
-    JSObject* GetPlaybackQueueContents();
+    JS::Value GetPlaybackQueueContents();
     JSObject* GetPlaybackQueueHandles();
     JSObject* GetPlayingItemLocation();
     int32_t GetPlaylistFocusItemIndex( uint32_t playlistIndex );
     JSObject* GetPlaylistItems( uint32_t playlistIndex );
-    JSObject* GetPlaylistLockedActions( uint32_t playlistIndex );
+    JS::Value GetPlaylistLockedActions( uint32_t playlistIndex );
     pfc::string8_fast GetPlaylistName( uint32_t playlistIndex );
     JSObject* GetPlaylistSelectedItems( uint32_t playlistIndex );
     void InsertPlaylistItems( uint32_t playlistIndex, uint32_t base, JsFbMetadbHandleList* handles, bool select = false );

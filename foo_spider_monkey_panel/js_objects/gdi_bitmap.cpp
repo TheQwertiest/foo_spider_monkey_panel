@@ -274,7 +274,7 @@ JSObject* JsGdiBitmap::CreateRawBitmap()
     return JsGdiRawBitmap::CreateJs( pJsCtx_, pGdi_.get() );
 }
 
-JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
+JS::Value JsGdiBitmap::GetColourScheme( uint32_t count )
 {
     constexpr uint32_t kMaxPixelCount = 220 * 220;
     auto pBitmap = CreateDownsizedImage( *pGdi_, kMaxPixelCount );
@@ -324,8 +324,7 @@ JSObject* JsGdiBitmap::GetColourScheme( uint32_t count )
             return vec[index].first;
         },
         &jsValue );
-
-    return &jsValue.toObject();
+    return jsValue;
 }
 
 qwr::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )

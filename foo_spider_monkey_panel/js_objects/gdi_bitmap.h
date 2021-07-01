@@ -52,7 +52,7 @@ public: //methods
     void ApplyMask( JsGdiBitmap* mask );
     JSObject* Clone( float x, float y, float w, float h );
     JSObject* CreateRawBitmap();
-    JSObject* GetColourScheme( uint32_t count );
+    JS::Value GetColourScheme( uint32_t count );
     qwr::u8string GetColourSchemeJSON( uint32_t count );
     JSObject* GetGraphics();
     JSObject* InvertColours();

@@ -389,15 +389,14 @@ void JsFbPlaylistManager::FlushPlaybackQueue()
     playlist_manager::get()->queue_flush();
 }
 
-JSObject* JsFbPlaylistManager::GetPlaybackQueueContents()
+JS::Value JsFbPlaylistManager::GetPlaybackQueueContents()
 {
     pfc::list_t<t_playback_queue_item> contents;
     playlist_manager::get()->queue_get_contents( contents );
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue( pJsCtx_, qwr::pfc_x::Make_Stl_CRef( contents ), &jsValue );
-
-    return &jsValue.toObject();
+    return jsValue;
 }
 
 JSObject* JsFbPlaylistManager::GetPlaybackQueueHandles()
@@ -437,7 +436,7 @@ JSObject* JsFbPlaylistManager::GetPlaylistItems( uint32_t playlistIndex )
     return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
 }
 
-JSObject* JsFbPlaylistManager::GetPlaylistLockedActions( uint32_t playlistIndex )
+JS::Value JsFbPlaylistManager::GetPlaylistLockedActions( uint32_t playlistIndex )
 {
     qwr::QwrException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
 
@@ -460,8 +459,7 @@ JSObject* JsFbPlaylistManager::GetPlaylistLockedActions( uint32_t playlistIndex 
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue( pJsCtx_, actions, &jsValue );
-
-    return &jsValue.toObject();
+    return jsValue;
 }
 
 pfc::string8_fast JsFbPlaylistManager::GetPlaylistName( uint32_t playlistIndex )

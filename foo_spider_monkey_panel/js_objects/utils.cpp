@@ -488,7 +488,7 @@ uint32_t JsUtils::GetSystemMetrics( uint32_t index ) const
     return ::GetSystemMetrics( index );
 }
 
-JSObject* JsUtils::Glob( const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JS::Value JsUtils::Glob( const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     std::vector<qwr::u8string> files;
     {
@@ -519,11 +519,10 @@ JSObject* JsUtils::Glob( const qwr::u8string& pattern, uint32_t exc_mask, uint32
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue( pJsCtx_, files, &jsValue );
-
-    return &jsValue.toObject();
+    return jsValue;
 }
 
-JSObject* JsUtils::GlobWithOpt( size_t optArgCount, const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
+JS::Value JsUtils::GlobWithOpt( size_t optArgCount, const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     switch ( optArgCount )
     {

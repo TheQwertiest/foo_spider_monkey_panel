@@ -386,12 +386,11 @@ JSObject* JsFbMetadbHandleList::Clone()
     return JsFbMetadbHandleList::CreateJs( pJsCtx_, metadbHandleList_ );
 }
 
-JSObject* JsFbMetadbHandleList::Convert()
+JS::Value JsFbMetadbHandleList::Convert()
 {
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue( pJsCtx_, qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ), &jsValue );
-
-    return &jsValue.toObject();
+    return jsValue;
 }
 
 int32_t JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
@@ -404,7 +403,7 @@ int32_t JsFbMetadbHandleList::Find( JsFbMetadbHandle* handle )
     return static_cast<int32_t>( metadbHandleList_.find_item( fbHandle ) );
 }
 
-JSObject* JsFbMetadbHandleList::GetLibraryRelativePaths()
+JS::Value JsFbMetadbHandleList::GetLibraryRelativePaths()
 {
     auto api = library_manager::get();
 
@@ -419,7 +418,7 @@ JSObject* JsFbMetadbHandleList::GetLibraryRelativePaths()
         },
         &jsValue );
 
-    return &jsValue.toObject();
+    return jsValue;
 }
 
 void JsFbMetadbHandleList::Insert( uint32_t index, JsFbMetadbHandle* handle )

@@ -134,7 +134,7 @@ pfc::string8_fast JsFbTitleFormat::EvalWithMetadb( JsFbMetadbHandle* handle )
     return text;
 }
 
-JSObject* JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
+JS::Value JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
 {
     qwr::QwrException::ExpectTrue( handles, "handles argument is null" );
 
@@ -148,8 +148,7 @@ JSObject* JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
             return text;
         },
         &jsValue );
-
-    return &jsValue.toObject();
+    return jsValue;
 }
 
 } // namespace mozjs

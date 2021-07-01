@@ -47,7 +47,7 @@ public:
     pfc::string8_fast Eval( bool force = false );
     pfc::string8_fast EvalWithOpt( size_t optArgCount, bool force );
     pfc::string8_fast EvalWithMetadb( JsFbMetadbHandle* handle );
-    JSObject* EvalWithMetadbs( JsFbMetadbHandleList* handles );
+    JS::Value EvalWithMetadbs( JsFbMetadbHandleList* handles );
 
 private:
     JsFbTitleFormat( JSContext* cx, const qwr::u8string& expr );
