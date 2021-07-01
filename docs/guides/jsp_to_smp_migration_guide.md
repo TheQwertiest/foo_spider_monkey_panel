@@ -35,9 +35,9 @@ Most of these can be automated by using `Find & Replace` command in your favouri
 <details><summary markdown='span'>After</summary>
 
 ```javascript
-window.DefinePanel('MyScript', {author: 'Me', version: '1.2.3', features: {drag_n_drop: true} });
-include(fb.FoobarPath + 'path\\to\\script1.js');
-include(fb.FoobarPath + 'path\\to\\script2.js');
+window.DefineScript('MyScript', {author: 'Me', version: '1.2.3', features: {drag_n_drop: true} });
+include(`${fb.FoobarPath}/path/to/script1.js`);
+include(`${fb.FoobarPath}/path/to/script2.js`);
 ```
 </details><br>
 
@@ -53,8 +53,8 @@ tfo.Dispose();
 <details><summary markdown='span'>After</summary>
 
 ```javascript
-var artists = tfo.EvalWithMetadbs(handle_list);
-var artist = artists[0];
+let artists = tfo.EvalWithMetadbs(handle_list);
+let artist = artists[0];
 ```
 </details><br>
 
@@ -69,8 +69,8 @@ var item = items.Item(0);
 <details><summary markdown='span'>After</summary>
 
 ```javascript
-var items = plman.GetPlaylistItems(plman.ActivePlaylist);
-var item = items[0];
+let items = plman.GetPlaylistItems(plman.ActivePlaylist);
+let item = items[0];
 ```
 </details><br>
 
@@ -85,12 +85,12 @@ var playlist_content = plman.PlaylistRecyclerManager.Content(i);
 <details><summary markdown='span'>After</summary>
 
 ```javascript
-var playlist_name = plman.PlaylistRecycler.GetName(i);
-var playlist_content = plman.PlaylistRecycler.GetContent(i);
+let playlist_name = plman.PlaylistRecycler.GetName(i);
+let playlist_content = plman.PlaylistRecycler.GetContent(i);
 ```
 </details><br>
 
-#### Add `window.ID` argument to `fb.DoDragDrop`:
+#### Add additional argument to `fb.DoDragDrop`:
 <details><summary markdown='span'>Before</summary>
 
 ```javascript
@@ -100,7 +100,7 @@ fb.DoDragDrop(cur_playlist_selection, g_drop_effect.copy);
 <details><summary markdown='span'>After</summary>
 
 ```javascript
-fb.DoDragDrop(window.ID, cur_playlist_selection, g_drop_effect.copy);
+fb.DoDragDrop(0, cur_playlist_selection, g_drop_effect.copy);
 ```
 </details><br>
 
@@ -116,7 +116,7 @@ var items = plman.getPlaylistItems(plman.activePlaylist);
 
 ```javascript
 console.log('Log message');
-var items = plman.GetPlaylistItems(plman.ActivePlaylist);
+let items = plman.GetPlaylistItems(plman.ActivePlaylist);
 ```
 </details><br>
 
