@@ -42,7 +42,9 @@ Base functionality includes:
 - Check out [Samples and User scripts](script_showcase.md).
 - Take a look at [Documentation](script_documentation.md), if you are craving for more!
 
-## JScript Panel users
+## Information for JScript Panel users
+
+<details><summary markdown='span'>\>\>Click\<\<</summary>
 
 The main difference from the excellent `JScript Panel` component by [marc2003](https://github.com/marc2k3) is the underlying JavaScript engine:
 - `foo_jscript_panel` uses closed-source `JScript` engine from Internet Explorer, which was abandoned by Microsoft after the development of IE Edge.
@@ -56,6 +58,7 @@ Main features of `Mozilla SpiderMonkey` engine:
 
 See [the corresponding page][api_changes] for the detailed list of API changes.  
 Or just use the [Migration Guide](guides/jsp_to_smp_migration_guide.md) to make your scripts compatible.
+</details>
 
 ## Links
 [Support thread](https://hydrogenaud.io/index.php/topic,116669.new.html)  
