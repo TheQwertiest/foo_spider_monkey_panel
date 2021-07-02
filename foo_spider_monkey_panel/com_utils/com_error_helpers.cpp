@@ -6,7 +6,7 @@
 #include <qwr/string_helpers.h>
 #include <qwr/winapi_error_helpers.h>
 
-namespace qwr::error
+namespace smp::com
 {
 
 void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
@@ -68,9 +68,9 @@ void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr )
     }
     default:
     {
-        CheckHR( hresult, "ActiveXObject" );
+        qwr::error::CheckHR( hresult, "ActiveXObject" );
     }
     }
 }
 
-} // namespace qwr::error
+} // namespace smp::com

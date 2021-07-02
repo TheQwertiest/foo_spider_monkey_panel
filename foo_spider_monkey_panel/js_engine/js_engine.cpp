@@ -2,6 +2,7 @@
 
 #include "js_engine.h"
 
+#include <com_utils/com_destruction_handler.h>
 #include <fb2k/advanced_config.h>
 #include <js_engine/heartbeat_window.h>
 #include <js_engine/host_timer_dispatcher.h>
@@ -302,6 +303,7 @@ void JsEngine::Finalize()
     {
         HostTimerDispatcher::Get().Finalize();
         JS_ShutDown();
+        smp::com::DeleteAllStoredObject();
     }
 
     isInitialized_ = false;

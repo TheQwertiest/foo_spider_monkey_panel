@@ -406,32 +406,32 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
         if ( pNative )
         {
             JsActiveXObject* x = pNative;
-            if ( x->variant_.vt != VT_EMPTY )
+            if ( x->pStorage_->variant.vt != VT_EMPTY )
             {
                 //1.7.2.3
-                HRESULT hr = VariantCopyInd( &arg, &x->variant_ );
+                HRESULT hr = VariantCopyInd( &arg, &x->pStorage_->variant );
                 qwr::error::CheckHR( hr, "VariantCopyInd" );
                 //VariantCopy(&arg,&x->variant_);
                 //1.7.2.2 could address invalid memory if x is freed before arg
                 // arg.vt = VT_VARIANT | VT_BYREF;
                 // arg.pvarVal = &x->variant_;
             }
-            else if ( x->pDispatch_ )
+            else if ( x->pStorage_->pDispatch )
             {
                 arg.vt = VT_DISPATCH;
-                arg.pdispVal = x->pDispatch_;
-                x->pDispatch_->AddRef();
+                arg.pdispVal = x->pStorage_->pDispatch;
+                x->pStorage_->pDispatch->AddRef();
             }
-            else if ( x->pUnknown_ )
+            else if ( x->pStorage_->pUnknown )
             {
                 arg.vt = VT_UNKNOWN;
-                arg.punkVal = x->pUnknown_;
-                x->pUnknown_->AddRef();
+                arg.punkVal = x->pStorage_->pUnknown;
+                x->pStorage_->pUnknown->AddRef();
             }
             else
             {
                 arg.vt = VT_BYREF | VT_UNKNOWN;
-                arg.ppunkVal = &x->pUnknown_;
+                arg.ppunkVal = &x->pStorage_->pUnknown;
             }
         }
         else if ( JS_ObjectIsFunction( j0 ) )

@@ -172,9 +172,6 @@
     <ClCompile Include="utils\art_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="utils\com_error_helpers.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="js_utils\js_art_helpers.cpp">
       <Filter>js_utils</Filter>
     </ClCompile>
@@ -230,9 +227,6 @@
       <Filter>panel</Filter>
     </ClCompile>
     <ClCompile Include="panel\message_manager.cpp">
-      <Filter>panel</Filter>
-    </ClCompile>
-    <ClCompile Include="panel\com_message_scope.cpp">
       <Filter>panel</Filter>
     </ClCompile>
     <ClCompile Include="panel\js_panel_window.cpp">
@@ -369,6 +363,12 @@
     </ClCompile>
     <ClCompile Include="utils\resource_helpers.cpp">
       <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="com_utils\com_destruction_handler.cpp">
+      <Filter>com_utils</Filter>
+    </ClCompile>
+    <ClCompile Include="com_utils\com_error_helpers.cpp">
+      <Filter>com_utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -567,9 +567,6 @@
     <ClInclude Include="utils\art_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="utils\com_error_helpers.h">
-      <Filter>utils</Filter>
-    </ClInclude>
     <ClInclude Include="js_utils\js_art_helpers.h">
       <Filter>js_utils</Filter>
     </ClInclude>
@@ -637,9 +634,6 @@
       <Filter>panel</Filter>
     </ClInclude>
     <ClInclude Include="panel\user_message.h">
-      <Filter>panel</Filter>
-    </ClInclude>
-    <ClInclude Include="panel\com_message_scope.h">
       <Filter>panel</Filter>
     </ClInclude>
     <ClInclude Include="panel\drop_action_params.h">
@@ -796,6 +790,12 @@
     <ClInclude Include="utils\resource_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="com_utils\com_destruction_handler.h">
+      <Filter>com_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="com_utils\com_error_helpers.h">
+      <Filter>com_utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -863,6 +863,9 @@
     </Filter>
     <Filter Include="ui\impl">
       <UniqueIdentifier>{6470c9be-1e65-41eb-8ed9-74e95928e341}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="com_utils">
+      <UniqueIdentifier>{b23d43d7-b904-4566-bbbe-2d2b677efb7d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -2,9 +2,9 @@
 
 #include <oleauto.h>
 
-namespace qwr::error
+namespace smp::com
 {
 
 void ReportActiveXError( HRESULT hresult, EXCEPINFO& exception, UINT& argerr );
 
-} // namespace qwr::error
+} // namespace smp::com

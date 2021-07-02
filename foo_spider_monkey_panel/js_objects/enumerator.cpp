@@ -104,7 +104,7 @@ size_t JsEnumerator::GetInternalSize( IUnknown* /*pUnknown*/ )
 
 JSObject* JsEnumerator::Constructor( JSContext* cx, JsActiveXObject* pActiveXObject )
 {
-    return JsEnumerator::CreateJs( cx, ( pActiveXObject->pUnknown_ ? pActiveXObject->pUnknown_ : pActiveXObject->pDispatch_ ) );
+    return JsEnumerator::CreateJs( cx, ( pActiveXObject->pStorage_->pUnknown ? pActiveXObject->pStorage_->pUnknown : pActiveXObject->pStorage_->pDispatch ) );
 }
 
 bool JsEnumerator::AtEnd() const

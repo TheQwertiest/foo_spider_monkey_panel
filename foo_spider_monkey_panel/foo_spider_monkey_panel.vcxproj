@@ -140,6 +140,8 @@
   <ItemGroup>
     <ClCompile Include="component_paths.cpp" />
     <ClCompile Include="com_objects\file_drop_target.cpp" />
+    <ClCompile Include="com_utils\com_destruction_handler.cpp" />
+    <ClCompile Include="com_utils\com_error_helpers.cpp" />
     <ClCompile Include="config\delayed_package_utils.cpp" />
     <ClCompile Include="config\package_utils.cpp" />
     <ClCompile Include="config\panel_config.cpp" />
@@ -218,7 +220,6 @@
     <ClCompile Include="js_utils\js_image_helpers.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
-    <ClCompile Include="panel\com_message_scope.cpp" />
     <ClCompile Include="panel\edit_script.cpp" />
     <ClCompile Include="panel\js_panel_window.cpp" />
     <ClCompile Include="panel\js_panel_window_cui.cpp" />
@@ -250,7 +251,6 @@
     <ClCompile Include="ui\ui_editor_config.cpp" />
     <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
-    <ClCompile Include="utils\com_error_helpers.cpp" />
     <ClCompile Include="utils\edit_text.cpp" />
     <ClCompile Include="utils\gdi_error_helpers.cpp" />
     <ClCompile Include="utils\gdi_helpers.cpp" />
@@ -284,6 +284,8 @@
     <ClInclude Include="com_objects\internal\drag_utils.h" />
     <ClInclude Include="com_objects\internal\handle.h" />
     <ClInclude Include="com_objects\com_interface.h" />
+    <ClInclude Include="com_utils\com_destruction_handler.h" />
+    <ClInclude Include="com_utils\com_error_helpers.h" />
     <ClInclude Include="config\delayed_package_utils.h" />
     <ClInclude Include="config\package_utils.h" />
     <ClInclude Include="config\panel_config.h" />
@@ -360,7 +362,6 @@
     <ClInclude Include="js_utils\scope_helper.h" />
     <ClInclude Include="js_utils\serialized_value.h" />
     <ClInclude Include="panel\callback_data.h" />
-    <ClInclude Include="panel\com_message_scope.h" />
     <ClInclude Include="panel\drop_action_params.h" />
     <ClInclude Include="panel\edit_script.h" />
     <ClInclude Include="panel\js_panel_window.h" />
@@ -394,7 +395,6 @@
     <ClInclude Include="ui\ui_slow_script.h" />
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\colour_helpers.h" />
-    <ClInclude Include="utils\com_error_helpers.h" />
     <ClInclude Include="utils\edit_text.h" />
     <ClInclude Include="utils\gdi_error_helpers.h" />
     <ClInclude Include="utils\gdi_helpers.h" />

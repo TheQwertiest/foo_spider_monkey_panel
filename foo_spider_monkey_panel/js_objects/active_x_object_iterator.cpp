@@ -75,7 +75,7 @@ JsActiveXObject_Iterator::~JsActiveXObject_Iterator()
 std::unique_ptr<JsActiveXObject_Iterator>
 JsActiveXObject_Iterator::CreateNative( JSContext* cx, JsActiveXObject& activeXObject )
 {
-    const auto pUnknown = ( activeXObject.pUnknown_ ? activeXObject.pUnknown_ : activeXObject.pDispatch_ );
+    const auto pUnknown = ( activeXObject.pStorage_->pUnknown ? activeXObject.pStorage_->pUnknown : activeXObject.pStorage_->pDispatch );
     qwr::QwrException::ExpectTrue( pUnknown, "Object is not iterable" );
 
     CDispatchPtr pCollection( pUnknown );
@@ -131,7 +131,7 @@ JSObject* JsActiveXObject_Iterator::Next()
 
 bool JsActiveXObject_Iterator::IsIterable( const JsActiveXObject& activeXObject )
 {
-    const auto pUnknown = ( activeXObject.pUnknown_ ? activeXObject.pUnknown_ : activeXObject.pDispatch_ );
+    const auto pUnknown = ( activeXObject.pStorage_->pUnknown ? activeXObject.pStorage_->pUnknown : activeXObject.pStorage_->pDispatch );
     if ( !pUnknown )
     {
         return false;

@@ -3,10 +3,10 @@
 #include "js_panel_window.h"
 
 #include <com_objects/track_drop_target.h>
+#include <com_utils/com_destruction_handler.h>
 #include <config/delayed_package_utils.h>
 #include <config/package_utils.h>
 #include <js_engine/js_container.h>
-#include <panel/com_message_scope.h>
 #include <panel/drop_action_params.h>
 #include <panel/edit_script.h>
 #include <panel/message_manager.h>
@@ -201,6 +201,8 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     static uint32_t nestedCounter = 0;
     ++nestedCounter;
 
+    com::DeleteMarkedObjects();
+
     qwr::final_action jobsRunner( [hWnd = wnd_.m_hWnd] {
         --nestedCounter;
 
@@ -350,13 +352,6 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
             isPaintInProgress_ = false;
 
             Repaint( true );
-            return 0;
-        }
-
-        if ( ComMessageScope::IsInScope() )
-        { // we have entered message loop because of COM messaging, delay repaint event to avoid deadlocks
-            isPaintInProgress_ = false;
-            Repaint();
             return 0;
         }
 

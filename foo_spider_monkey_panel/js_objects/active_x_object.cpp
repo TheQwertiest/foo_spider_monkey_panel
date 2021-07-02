@@ -6,6 +6,7 @@
 
 #include <com_objects/com_interface.h>
 #include <com_objects/com_tools.h>
+#include <com_utils/com_error_helpers.h>
 #include <convert/com.h>
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
@@ -15,8 +16,6 @@
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_prototype_helpers.h>
-#include <panel/com_message_scope.h>
-#include <utils/com_error_helpers.h>
 
 #include <qwr/final_action.h>
 #include <qwr/string_helpers.h>
@@ -42,12 +41,12 @@ void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
         return;
     }
 
-    if ( pNative->pUnknown_ && !pNative->pDispatch_ )
+    if ( pNative->pStorage_->pUnknown && !pNative->pStorage_->pDispatch )
     {
-        HRESULT hresult = pNative->pUnknown_->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pNative->pDispatch_ ) );
+        HRESULT hresult = pNative->pStorage_->pUnknown->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pNative->pStorage_->pDispatch ) );
         if ( FAILED( hresult ) )
         {
-            pNative->pDispatch_ = nullptr;
+            pNative->pStorage_->pDispatch = nullptr;
         }
     }
 }
@@ -358,7 +357,7 @@ const js::BaseProxyHandler& JsActiveXObject::JsProxy = ActiveXObjectProxyHandler
 JsActiveXObject::JsActiveXObject( JSContext* cx, VARIANTARG& var )
     : pJsCtx_( cx )
 {
-    HRESULT hr = VariantCopyInd( &variant_, &var );
+    HRESULT hr = VariantCopyInd( &pStorage_->variant, &var );
     if ( FAILED( hr ) )
     {
         return;
@@ -369,107 +368,86 @@ JsActiveXObject::JsActiveXObject( JSContext* cx, VARIANTARG& var )
 
 JsActiveXObject::JsActiveXObject( JSContext* cx, IDispatch* pDispatch, bool addref )
     : pJsCtx_( cx )
-    , pDispatch_( pDispatch )
 {
-    if ( !pDispatch_ )
+    pStorage_->pDispatch = pDispatch;
+    if ( !pStorage_->pDispatch )
     {
         return;
     }
 
     if ( addref )
     {
-        pDispatch_->AddRef();
+        pStorage_->pDispatch->AddRef();
     }
 
     unsigned ctinfo;
-    HRESULT hresult = pDispatch_->GetTypeInfoCount( &ctinfo );
+    HRESULT hresult = pStorage_->pDispatch->GetTypeInfoCount( &ctinfo );
     if ( SUCCEEDED( hresult ) && ctinfo )
     {
-        pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
+        pStorage_->pDispatch->GetTypeInfo( 0, 0, &pStorage_->pTypeInfo );
     }
 }
 
 JsActiveXObject::JsActiveXObject( JSContext* cx, IUnknown* pUnknown, bool addref )
     : pJsCtx_( cx )
-    , pUnknown_( pUnknown )
 {
-    if ( !pUnknown_ )
+    pStorage_->pUnknown = pUnknown;
+    if ( !pStorage_->pUnknown )
     {
         return;
     }
 
     if ( addref )
     {
-        pUnknown_->AddRef();
+        pStorage_->pUnknown->AddRef();
     }
 
-    HRESULT hresult = pUnknown_->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pDispatch_ ) );
+    HRESULT hresult = pStorage_->pUnknown->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pStorage_->pDispatch ) );
     if ( FAILED( hresult ) )
     {
-        pDispatch_ = nullptr;
+        pStorage_->pDispatch = nullptr;
         return;
     }
 
     unsigned ctinfo;
-    hresult = pDispatch_->GetTypeInfoCount( &ctinfo );
+    hresult = pStorage_->pDispatch->GetTypeInfoCount( &ctinfo );
     if ( SUCCEEDED( hresult ) && ctinfo )
     {
-        pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
+        pStorage_->pDispatch->GetTypeInfo( 0, 0, &pStorage_->pTypeInfo );
     }
 }
 
 JsActiveXObject::JsActiveXObject( JSContext* cx, CLSID& clsid )
     : pJsCtx_( cx )
 {
-    HRESULT hresult = CoCreateInstance( clsid, nullptr, CLSCTX_INPROC_SERVER, IID_IUnknown, reinterpret_cast<void**>( &pUnknown_ ) );
+    HRESULT hresult = CoCreateInstance( clsid, nullptr, CLSCTX_INPROC_SERVER, IID_IUnknown, reinterpret_cast<void**>( &pStorage_->pUnknown ) );
     if ( FAILED( hresult ) )
     {
-        pUnknown_ = nullptr;
+        pStorage_->pUnknown = nullptr;
         return;
     }
 
-    hresult = pUnknown_->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pDispatch_ ) );
+    hresult = pStorage_->pUnknown->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pStorage_->pDispatch ) );
     //maybe I don't know what to do with it, but it might get passed to
     //another COM function
     if ( FAILED( hresult ) )
     {
-        pDispatch_ = nullptr;
+        pStorage_->pDispatch = nullptr;
         return;
     }
 
     unsigned ctinfo;
-    hresult = pDispatch_->GetTypeInfoCount( &ctinfo );
+    hresult = pStorage_->pDispatch->GetTypeInfoCount( &ctinfo );
     if ( SUCCEEDED( hresult ) && ctinfo )
     {
-        pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
+        pStorage_->pDispatch->GetTypeInfo( 0, 0, &pStorage_->pTypeInfo );
     }
 }
 
 JsActiveXObject::~JsActiveXObject()
 {
-    smp::ComMessageScope cms;
-
-    if ( pDispatch_ )
-    {
-        pDispatch_->Release();
-    }
-    if ( pUnknown_ )
-    {
-        pUnknown_->Release();
-    }
-    if ( pTypeInfo_ )
-    {
-        pTypeInfo_->Release();
-    }
-    try
-    {
-        variant_.Clear();
-    }
-    catch ( const _com_error& )
-    {
-    }
-
-    CoFreeUnusedLibraries();
+    MarkStoredObjectAsToBeDeleted( pStorage_ );
+    pStorage_ = nullptr;
 }
 
 std::unique_ptr<JsActiveXObject> JsActiveXObject::CreateNative( JSContext* cx, const std::wstring& name )
@@ -486,13 +464,13 @@ std::unique_ptr<JsActiveXObject> JsActiveXObject::CreateNative( JSContext* cx, c
     if ( SUCCEEDED( hresult ) && unk )
     {
         nativeObject = std::make_unique<JsActiveXObject>( cx, unk );
-        qwr::QwrException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via IUnknown: {}", name );
+        qwr::QwrException::ExpectTrue( nativeObject->pStorage_->pUnknown, L"Failed to create ActiveXObject object via IUnknown: {}", name );
     }
 
     if ( !nativeObject )
     {
         nativeObject = std::make_unique<JsActiveXObject>( cx, clsid );
-        qwr::QwrException::ExpectTrue( nativeObject->pUnknown_, L"Failed to create ActiveXObject object via CLSID: {}", name );
+        qwr::QwrException::ExpectTrue( nativeObject->pStorage_->pUnknown, L"Failed to create ActiveXObject object via CLSID: {}", name );
     }
 
     return nativeObject;
@@ -558,11 +536,11 @@ bool JsActiveXObject::HasIterator() const
 
 std::optional<DISPID> JsActiveXObject::GetDispId( const std::wstring& name, bool reportError )
 {
-    if ( !pDispatch_ )
+    if ( !pStorage_->pDispatch )
     {
         if ( reportError )
         {
-            throw qwr::QwrException( "Internal error: pDispatch_ is null" );
+            throw qwr::QwrException( "Internal error: pStorage_->pDispatch is null" );
         }
         return std::nullopt;
     }
@@ -580,10 +558,10 @@ std::optional<DISPID> JsActiveXObject::GetDispId( const std::wstring& name, bool
 
     DISPID dispId;
     auto* cname = const_cast<wchar_t*>( name.c_str() );
-    HRESULT hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_USER_DEFAULT, &dispId );
+    HRESULT hresult = pStorage_->pDispatch->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_USER_DEFAULT, &dispId );
     if ( FAILED( hresult ) )
     {
-        hresult = pDispatch_->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_SYSTEM_DEFAULT, &dispId );
+        hresult = pStorage_->pDispatch->GetIDsOfNames( IID_NULL, &cname, 1, LOCALE_SYSTEM_DEFAULT, &dispId );
         if ( FAILED( hresult ) )
         {
             if ( reportError )
@@ -625,14 +603,14 @@ void JsActiveXObject::GetImpl( int dispId, std::span<_variant_t> args, JS::Mutab
     UINT argerr = 0;
 
     // don't use DispInvoke, because we don't know the TypeInfo
-    HRESULT hresult = pDispatch_->Invoke( dispId,
-                                          IID_NULL,
-                                          LOCALE_USER_DEFAULT,
-                                          DISPATCH_PROPERTYGET,
-                                          &dispparams,
-                                          &varResult,
-                                          &exception,
-                                          &argerr );
+    HRESULT hresult = pStorage_->pDispatch->Invoke( dispId,
+                                                    IID_NULL,
+                                                    LOCALE_USER_DEFAULT,
+                                                    DISPATCH_PROPERTYGET,
+                                                    &dispparams,
+                                                    &varResult,
+                                                    &exception,
+                                                    &argerr );
 
     if ( refreshFn )
     {
@@ -641,7 +619,7 @@ void JsActiveXObject::GetImpl( int dispId, std::span<_variant_t> args, JS::Mutab
 
     if ( FAILED( hresult ) )
     {
-        qwr::error::ReportActiveXError( hresult, exception, argerr );
+        smp::com::ReportActiveXError( hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, varResult, vp );
@@ -679,7 +657,7 @@ std::vector<std::wstring> JsActiveXObject::GetAllMembers()
 
 void JsActiveXObject::GetItem( int32_t index, JS::MutableHandleValue vp )
 {
-    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( pStorage_->pDispatch, "Internal error: pStorage_->pDispatch is null" );
 
     const auto dispRet = GetDispId( L"item" );
     qwr::QwrException::ExpectTrue( dispRet.has_value(), L"Object is not subscriptable" );
@@ -690,7 +668,7 @@ void JsActiveXObject::GetItem( int32_t index, JS::MutableHandleValue vp )
 
 bool JsActiveXObject::TryGetProperty( const std::wstring& propName, JS::MutableHandleValue vp )
 {
-    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( pStorage_->pDispatch, "Internal error: pStorage_->pDispatch is null" );
 
     auto dispRet = GetDispId( propName, false );
     if ( !dispRet )
@@ -712,7 +690,7 @@ void JsActiveXObject::GetProperty( const std::wstring& propName, JS::MutableHand
 
 void JsActiveXObject::Get( JS::CallArgs& callArgs )
 {
-    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( pStorage_->pDispatch, "Internal error: pStorage_->pDispatch is null" );
     qwr::QwrException::ExpectTrue( callArgs.length(), "Property name is missing" );
 
     const auto propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
@@ -739,7 +717,7 @@ void JsActiveXObject::Get( JS::CallArgs& callArgs )
 
 void JsActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
 {
-    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( pStorage_->pDispatch, "Internal error: pStorage_->pDispatch is null" );
 
     const auto dispRet = GetDispId( propName );
     qwr::QwrException::ExpectTrue( dispRet.has_value(), L"Invalid property name: {}", propName );
@@ -760,26 +738,26 @@ void JsActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
     EXCEPINFO exception{};
     UINT argerr = 0;
 
-    HRESULT hresult = pDispatch_->Invoke( *dispRet,
-                                          IID_NULL,
-                                          LOCALE_USER_DEFAULT,
-                                          flag,
-                                          &dispparams,
-                                          nullptr,
-                                          &exception,
-                                          &argerr );
+    HRESULT hresult = pStorage_->pDispatch->Invoke( *dispRet,
+                                                    IID_NULL,
+                                                    LOCALE_USER_DEFAULT,
+                                                    flag,
+                                                    &dispparams,
+                                                    nullptr,
+                                                    &exception,
+                                                    &argerr );
 
     RefreshValue( pJsCtx_, v );
 
     if ( FAILED( hresult ) )
     {
-        qwr::error::ReportActiveXError( hresult, exception, argerr );
+        smp::com::ReportActiveXError( hresult, exception, argerr );
     }
 }
 
 void JsActiveXObject::Set( const JS::CallArgs& callArgs )
 {
-    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( pStorage_->pDispatch, "Internal error: pStorage_->pDispatch is null" );
     qwr::QwrException::ExpectTrue( callArgs.length(), "Property name is missing" );
 
     const auto propName = convert::to_native::ToValue<std::wstring>( pJsCtx_, callArgs[0] );
@@ -813,14 +791,14 @@ void JsActiveXObject::Set( const JS::CallArgs& callArgs )
     }
 
     // don't use DispInvoke, because we don't know the TypeInfo
-    HRESULT hresult = pDispatch_->Invoke( *dispRet,
-                                          IID_NULL,
-                                          LOCALE_USER_DEFAULT,
-                                          flag,
-                                          &dispparams,
-                                          nullptr,
-                                          &exception,
-                                          &argerr );
+    HRESULT hresult = pStorage_->pDispatch->Invoke( *dispRet,
+                                                    IID_NULL,
+                                                    LOCALE_USER_DEFAULT,
+                                                    flag,
+                                                    &dispparams,
+                                                    nullptr,
+                                                    &exception,
+                                                    &argerr );
 
     for ( auto i: ranges::views::indices( callArgs.length() - 1 ) )
     {
@@ -829,13 +807,13 @@ void JsActiveXObject::Set( const JS::CallArgs& callArgs )
 
     if ( FAILED( hresult ) )
     {
-        qwr::error::ReportActiveXError( hresult, exception, argerr );
+        smp::com::ReportActiveXError( hresult, exception, argerr );
     }
 }
 
 void JsActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& callArgs )
 {
-    qwr::QwrException::ExpectTrue( pDispatch_, "Internal error: pDispatch_ is null" );
+    qwr::QwrException::ExpectTrue( pStorage_->pDispatch, "Internal error: pStorage_->pDispatch is null" );
 
     const auto dispRet = GetDispId( funcName );
     qwr::QwrException::ExpectTrue( dispRet.has_value(), L"Invalid function name: {}", funcName );
@@ -859,14 +837,14 @@ void JsActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& 
     UINT argerr = 0;
 
     // don't use DispInvoke, because we don't know the TypeInfo
-    HRESULT hresult = pDispatch_->Invoke( *dispRet,
-                                          IID_NULL,
-                                          LOCALE_USER_DEFAULT,
-                                          DISPATCH_METHOD,
-                                          &dispparams,
-                                          &varResult,
-                                          &exception,
-                                          &argerr );
+    HRESULT hresult = pStorage_->pDispatch->Invoke( *dispRet,
+                                                    IID_NULL,
+                                                    LOCALE_USER_DEFAULT,
+                                                    DISPATCH_METHOD,
+                                                    &dispparams,
+                                                    &varResult,
+                                                    &exception,
+                                                    &argerr );
 
     for ( auto i: ranges::views::indices( callArgs.length() ) )
     {
@@ -875,7 +853,7 @@ void JsActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& 
 
     if ( FAILED( hresult ) )
     {
-        qwr::error::ReportActiveXError( hresult, exception, argerr );
+        smp::com::ReportActiveXError( hresult, exception, argerr );
     }
 
     convert::com::VariantToJs( pJsCtx_, varResult, callArgs.rval() );
@@ -888,30 +866,30 @@ void JsActiveXObject::SetupMembers( JS::HandleObject jsObject )
         return;
     }
 
-    qwr::QwrException::ExpectTrue( pUnknown_ || pDispatch_ || hasVariant_, "Internal error: pUnknown_ and pDispatch_ are null and variant_ was not set" );
+    qwr::QwrException::ExpectTrue( pStorage_->pUnknown || pStorage_->pDispatch || hasVariant_, "Internal error: pStorage_->pUnknown and pStorage_->pDispatch are null and pStorage_->variant was not set" );
     if ( hasVariant_ )
     { // opaque data
         areMembersSetup_ = true;
         return;
     }
 
-    if ( !pDispatch_ )
+    if ( !pStorage_->pDispatch )
     {
-        HRESULT hr = pUnknown_->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pDispatch_ ) );
+        HRESULT hr = pStorage_->pUnknown->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pStorage_->pDispatch ) );
         qwr::error::CheckHR( hr, "QueryInterface" );
     }
 
-    if ( !pTypeInfo_ )
+    if ( !pStorage_->pTypeInfo )
     {
         unsigned ctinfo;
-        HRESULT hr = pDispatch_->GetTypeInfoCount( &ctinfo );
+        HRESULT hr = pStorage_->pDispatch->GetTypeInfoCount( &ctinfo );
         qwr::error::CheckHR( hr, "GetTypeInfoCount" );
 
-        hr = pDispatch_->GetTypeInfo( 0, 0, &pTypeInfo_ );
+        hr = pStorage_->pDispatch->GetTypeInfo( 0, 0, &pStorage_->pTypeInfo );
         qwr::error::CheckHR( hr, "GetTypeInfo" );
     }
 
-    ParseTypeInfoRecursive( pJsCtx_, pTypeInfo_, members_ );
+    ParseTypeInfoRecursive( pJsCtx_, pStorage_->pTypeInfo, members_ );
     SetupMembers_Impl( jsObject );
 
     areMembersSetup_ = true;

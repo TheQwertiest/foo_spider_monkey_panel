@@ -4,6 +4,8 @@ SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Proxy.h>
 SMP_MJS_SUPPRESS_WARNINGS_POP
 
+#include <com_utils/com_destruction_handler.h>
+
 #include <oleauto.h>
 
 #include <map>
@@ -99,10 +101,7 @@ private:
     MemberMap members_;
 
 public:
-    IDispatch* pDispatch_ = nullptr;
-    IUnknown* pUnknown_ = nullptr;
-    ITypeInfo* pTypeInfo_ = nullptr;
-    _variant_t variant_;
+    smp::com::ComStorageObject* pStorage_ = smp::com::GetNewStoredObject();
     bool hasVariant_ = false;
 };
 
