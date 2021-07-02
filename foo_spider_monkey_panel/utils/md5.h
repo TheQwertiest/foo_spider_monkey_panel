@@ -8,40 +8,31 @@ namespace smp
 
 class MD5
 {
-public:
-    MD5();
+    static constexpr size_t kBlocksize = 64;
 
 public:
-    std::string Digest( std::span<const uint8_t> data );
+    MD5();
+    MD5( std::span<const uint8_t> input );
+
+    void Update( std::span<const uint8_t> input );
+    void Finalize();
+
+    std::string HexDigest() const;
 
 private:
     void Init();
-    void Update( std::span<const uint8_t> input );
-    void Final();
-    void WriteToString();
-
-    // The core of the MD5 algorithm is here.
-    // MD5 basic transformation. Transforms state based on block.
-    static void MD5Transform( uint32_t state[4], const uint8_t block[64] );
-
-    // Encodes input (uint32_t) into output (uint8_t). Assumes len is
-    // a multiple of 4.
-    static void Encode( uint8_t* output, std::span<const uint32_t> input );
-
-    // Decodes input (uint8_t) into output (uint32_t). Assumes len is
-    // a multiple of 4.
-    static void Decode( uint32_t* output, std::span<const uint8_t> input );
+    void Transform( const uint8_t block[kBlocksize] );
+    static void Decode( uint32_t output[], const uint8_t input[], size_t len );
+    static void Encode( uint8_t output[], const uint32_t input[], size_t len );
 
 private:
-    struct __context_t
-    {
-        uint32_t state[4];  /* state (ABCD) */
-        uint32_t count[2];  /* number of bits, modulo 2^64 (lsb first) */
-        uint8_t buffer[64]; /* input buffer */
-    } context;
-
-    std::array<uint8_t, 16> digestRaw;
-    std::string digestChars;
+    bool finalized = false;
+    uint8_t buffer[kBlocksize]; // bytes that didn't fit in last 64 byte chunk
+    uint32_t count[2];          // 64bit counter for number of bits (lo, hi)
+    uint32_t state[4];          // digest so far
+    uint8_t digest[16];         // the result
 };
+
+std::string CalculateMd5( std::span<const uint8_t> input );
 
 } // namespace smp
