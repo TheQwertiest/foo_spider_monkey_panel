@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.5.1](#151---2021-07-03)
 - [1.5.0](#150---2021-06-30)
 - [1.4.1](#141---2021-02-14)
 - [1.4.0](#140---2021-02-11)
@@ -27,6 +28,8 @@
 ___
 
 ## [Unreleased][]
+
+## [1.5.1][] - 2021-07-03
 ### Added
 - API changes:
   - Added `plman.GetPlaylistLockName()` method.
@@ -412,7 +415,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.5.0...HEAD
+[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.5.1...HEAD
+[1.5.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.1...v1.5.0
 [1.4.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.0...v1.4.1
 [1.4.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.3.1...v1.4.0
