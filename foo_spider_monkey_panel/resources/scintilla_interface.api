@@ -1,4 +1,4 @@
-#This file is used for text auto-completion in the Configuration window
+# This file is used for text auto-completion in the Editor dialog
 
 include(path)
 
@@ -106,6 +106,7 @@ plman.GetPlayingItemLocation()
 plman.GetPlaylistFocusItemIndex(playlistIndex)
 plman.GetPlaylistItems(playlistIndex)
 plman.GetPlaylistLockedActions(playlistIndex)
+plman.GetPlaylistLockName(playlistIndex)
 plman.GetPlaylistName(playlistIndex)
 plman.GetPlaylistSelectedItems(playlistIndex)
 plman.InsertPlaylistItems(playlistIndex, base, handle_list[, select])

@@ -65,6 +65,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlayingItemLocation, JsFbPlaylistManager::GetPl
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistFocusItemIndex, JsFbPlaylistManager::GetPlaylistFocusItemIndex );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistItems, JsFbPlaylistManager::GetPlaylistItems );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistLockedActions, JsFbPlaylistManager::GetPlaylistLockedActions );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistLockName, JsFbPlaylistManager::GetPlaylistLockName );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistName, JsFbPlaylistManager::GetPlaylistName );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPlaylistSelectedItems, JsFbPlaylistManager::GetPlaylistSelectedItems );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( InsertPlaylistItems, JsFbPlaylistManager::InsertPlaylistItems, JsFbPlaylistManager::InsertPlaylistItemsWithOpt, 1 );
@@ -115,6 +116,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "GetPlaylistFocusItemIndex", GetPlaylistFocusItemIndex, 1, kDefaultPropsFlags ),
         JS_FN( "GetPlaylistItems", GetPlaylistItems, 1, kDefaultPropsFlags ),
         JS_FN( "GetPlaylistLockedActions", GetPlaylistLockedActions, 1, kDefaultPropsFlags ),
+        JS_FN( "GetPlaylistLockName", GetPlaylistLockName, 1, kDefaultPropsFlags ),
         JS_FN( "GetPlaylistName", GetPlaylistName, 1, kDefaultPropsFlags ),
         JS_FN( "GetPlaylistSelectedItems", GetPlaylistSelectedItems, 1, kDefaultPropsFlags ),
         JS_FN( "InsertPlaylistItems", InsertPlaylistItems, 3, kDefaultPropsFlags ),
@@ -436,9 +438,32 @@ JSObject* JsFbPlaylistManager::GetPlaylistItems( uint32_t playlistIndex )
     return JsFbMetadbHandleList::CreateJs( pJsCtx_, items );
 }
 
+std::optional<pfc::string8_fast>
+JsFbPlaylistManager::GetPlaylistLockName( uint32_t playlistIndex )
+{
+    const auto api = playlist_manager::get();
+
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
+
+    if ( !api->playlist_lock_is_present( playlistIndex ) )
+    {
+        return std::nullopt;
+    }
+
+    pfc::string8_fast lockName;
+    if ( !api->playlist_lock_query_name( playlistIndex, lockName ) )
+    { // should not happen
+        throw qwr::QwrException( "Internal error: `playlist_lock_query_name` failed" );
+    }
+
+    return lockName;
+}
+
 JS::Value JsFbPlaylistManager::GetPlaylistLockedActions( uint32_t playlistIndex )
 {
-    qwr::QwrException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
+    const auto api = playlist_manager::get();
+
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
 
     static std::unordered_map<int, qwr::u8string> maskToAction = {
         { playlist_lock::filter_add, "AddItems" },
@@ -450,7 +475,7 @@ JS::Value JsFbPlaylistManager::GetPlaylistLockedActions( uint32_t playlistIndex 
         { playlist_lock::filter_default_action, "ExecuteDefaultAction" }
     };
 
-    const auto lockMask = playlist_manager::get()->playlist_lock_get_filter_mask( playlistIndex );
+    const auto lockMask = api->playlist_lock_get_filter_mask( playlistIndex );
     const auto actions =
         maskToAction
         | ranges::views::filter( [&]( const auto& elem ) { return !!( lockMask & elem.first ); } )
@@ -641,10 +666,14 @@ void JsFbPlaylistManager::SetPlaylistFocusItemByHandle( uint32_t playlistIndex, 
 
 void JsFbPlaylistManager::SetPlaylistLockedActions( uint32_t playlistIndex, JS::HandleValue lockedActions )
 {
-    qwr::QwrException::ExpectTrue( playlistIndex < playlist_manager::get()->get_playlist_count(), "Index is out of bounds" );
-    qwr::QwrException::ExpectTrue( lockedActions.isObjectOrNull(), "lockedActions argument is not an object nor null" );
+    const auto api = playlist_manager::get();
+
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( lockedActions.isObjectOrNull(), "`lockedActions` argument is not an object nor null" );
 
     auto& playlistLockManager = PlaylistLockManager::Get();
+
+    qwr::QwrException::ExpectTrue( !api->playlist_lock_is_present( playlistIndex ) || playlistLockManager.HasLock( playlistIndex ), "This lock is owned by a different component" );
 
     uint32_t newLockMask = 0;
     if ( lockedActions.isObject() )
@@ -667,7 +696,7 @@ void JsFbPlaylistManager::SetPlaylistLockedActions( uint32_t playlistIndex, JS::
         }
     }
 
-    const auto currentLockMask = playlist_manager::get()->playlist_lock_get_filter_mask( playlistIndex );
+    const auto currentLockMask = api->playlist_lock_get_filter_mask( playlistIndex );
     if ( newLockMask == currentLockMask )
     {
         return;

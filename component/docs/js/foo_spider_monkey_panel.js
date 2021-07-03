@@ -42,7 +42,7 @@ function clearInterval(timerID) { } // (void)
  *
  * @param {function()} func
  * @param {number} delay
- * @param {...*} [func_args]
+ * @param {...*} func_args
  * @return {number}
  */
 function setInterval(func, delay, ...func_args) { } // (uint)
@@ -52,7 +52,7 @@ function setInterval(func, delay, ...func_args) { } // (uint)
  *
  * @param {function()} func
  * @param {number} delay
- * @param {...*} [func_args]
+ * @param {...*} func_args
  * @return {number}
  *
  * @example
@@ -1020,6 +1020,12 @@ let plman = {
 
     /**
      * @param {number} playlistIndex
+     * @return {?string} name of lock owner if there is a lock, null otherwise
+     */
+    GetPlaylistLockName: function (playlistIndex) { },
+
+    /**
+     * @param {number} playlistIndex
      * @return {string}
      *
      * @example
@@ -1189,7 +1195,10 @@ let plman = {
     SetPlaylistFocusItemByHandle: function (playlistIndex, handle) { }, // (void)
 
     /**
-     * Blocks requested actions
+     * Blocks requested actions.<br>
+     * Note: the lock can be changed only if there is no lock or if it's owned by `foo_spider_monkey_panel`.
+     * The owner of the lock can be checked via {@link plman.GetPlaylistLockName}.
+     * 
      * 
      * @param {number} playlistIndex
      * @param {Array<string>} lockedActions May contain the following:<br>

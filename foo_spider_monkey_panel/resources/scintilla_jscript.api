@@ -1,4 +1,4 @@
-#This file is used for text auto-completion in the Configuration window
+# This file is used for text auto-completion in the Editor dialog
 
 Object()
 Object(mixed value) value: The initial value of the Boolean object.

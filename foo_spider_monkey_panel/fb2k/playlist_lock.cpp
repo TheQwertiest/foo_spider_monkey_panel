@@ -144,6 +144,9 @@ void PlaylistLockManager::InstallLock( size_t playlistIndex, uint32_t flags )
     qwr::QwrException::ExpectTrue( !!flags, "Can't install playlist lock with no locks specified" );
 
     const auto api = playlist_manager_v2::get();
+
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
+
     if ( api->playlist_lock_is_present( playlistIndex ) )
     {
         throw qwr::QwrException( "Playlist is already locked" );
@@ -152,7 +155,7 @@ void PlaylistLockManager::InstallLock( size_t playlistIndex, uint32_t flags )
     auto lock = fb2k::service_new<PlaylistLockSmp>( playlistIndex, flags );
     if ( !api->playlist_lock_install( playlistIndex, lock ) )
     { // should not happen
-        throw qwr::QwrException( "`playlist_lock_install` failed" );
+        throw qwr::QwrException( "`Internal error: playlist_lock_install` failed" );
     }
 
     const auto lockId = qwr::unicode::ToU8( utils::GuidToStr( utils::GenerateGuid() ) );

@@ -83,6 +83,18 @@ void ToValue( JSContext* cx, const metadb_handle_list& inValue, JS::MutableHandl
 template <>
 void ToValue( JSContext* cx, const t_playback_queue_item& inValue, JS::MutableHandleValue wrappedValue );
 
+template <typename T>
+void ToValue( JSContext* cx, const std::optional<T>& inValue, JS::MutableHandleValue wrappedValue )
+{
+    if ( !inValue )
+    {
+        wrappedValue.setNull();
+        return;
+    }
+
+    ToValue( cx, *inValue, wrappedValue );
+}
+
 template <typename T, typename F>
 void ToArrayValue( JSContext* cx, const T& inContainer, F&& accessorFunc, JS::MutableHandleValue wrappedValue )
 {
