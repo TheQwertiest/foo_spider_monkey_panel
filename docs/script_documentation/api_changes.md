@@ -23,6 +23,12 @@ Legend:
 
 ___
 
+## v1.5.1
+
+### Added
+- Added `plman.GetPlaylistLockName(playlist_index)` method. Returns the name of the lock. It can be used to check whether the lock is owned by `foo_spider_monkey_panel` and
+  thus can be modified with `plman.SetPlaylistLockedActions()`.
+
 ## v1.5.0
 
 ### Added
