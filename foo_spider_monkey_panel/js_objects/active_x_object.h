@@ -101,7 +101,7 @@ private:
     MemberMap members_;
 
 public:
-    smp::com::ComStorageObject* pStorage_ = smp::com::GetNewStoredObject();
+    smp::com::StorageObject* pStorage_ = smp::com::GetNewStoredObject();
     bool hasVariant_ = false;
 };
 

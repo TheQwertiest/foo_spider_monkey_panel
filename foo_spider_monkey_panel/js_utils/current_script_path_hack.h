@@ -2,6 +2,10 @@
 
 #include <filesystem>
 
+// There is no proper API to retrieve the JSScript object associated
+// with the currently executing script (aside from Debugger API).
+// Hence hacks had to be made...
+
 namespace mozjs::hack
 {
 

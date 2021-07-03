@@ -5,15 +5,15 @@
 namespace
 {
 
-std::unordered_map<void*, std::unique_ptr<smp::com::ComStorageObject>> g_objectStorage;
-std::vector<std::unique_ptr<smp::com::ComStorageObject>> g_objectsToDelete;
+std::unordered_map<void*, std::unique_ptr<smp::com::StorageObject>> g_objectStorage;
+std::vector<std::unique_ptr<smp::com::StorageObject>> g_objectsToDelete;
 
 } // namespace
 
 namespace
 {
 
-void CleanObject( smp::com::ComStorageObject& object )
+void CleanObject( smp::com::StorageObject& object )
 {
     if ( object.pDispatch )
     {
@@ -37,7 +37,7 @@ void CleanObject( smp::com::ComStorageObject& object )
 
     CoFreeUnusedLibraries();
 
-    object = smp::com::ComStorageObject{};
+    object = smp::com::StorageObject{};
 }
 
 } // namespace
@@ -45,20 +45,21 @@ void CleanObject( smp::com::ComStorageObject& object )
 namespace smp::com
 {
 
-ComStorageObject* GetNewStoredObject()
+StorageObject* GetNewStoredObject()
 {
     assert( core_api::is_main_thread() );
 
-    auto pObject = std::make_unique<ComStorageObject>();
+    auto pObject = std::make_unique<StorageObject>();
     auto* pObjectToReturn = pObject.get();
     g_objectStorage.try_emplace( pObjectToReturn, std::move( pObject ) );
 
     return pObjectToReturn;
 }
 
-void MarkStoredObjectAsToBeDeleted( ComStorageObject* pObject )
+void MarkStoredObjectAsToBeDeleted( StorageObject* pObject )
 {
     assert( core_api::is_main_thread() );
+    assert( pObject );
     assert( g_objectStorage.count( pObject ) );
 
     g_objectsToDelete.emplace_back( std::move( g_objectStorage.at( pObject ) ) );

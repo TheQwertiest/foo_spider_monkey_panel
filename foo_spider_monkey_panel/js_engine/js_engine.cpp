@@ -140,6 +140,9 @@ void JsEngine::MaybeRunJobs()
 
     jobsStartTime_ = timeGetTime();
     areJobsInProgress_ = true;
+    const auto autoJobs = qwr::final_action( [&] {
+        areJobsInProgress_ = false;
+    } );
 
     {
         js::RunJobs( pJsCtx_ );
@@ -167,8 +170,6 @@ void JsEngine::MaybeRunJobs()
         }
         rejectedPromises_.get().clear();
     }
-
-    areJobsInProgress_ = false;
 }
 
 void JsEngine::OnJsActionStart( JsContainer& jsContainer )
