@@ -27,6 +27,12 @@
 ___
 
 ## [Unreleased][]
+### Added
+- API changes:
+  - Added `plman.GetPlaylistLockName()` method.
+
+### Fixed
+- Fixed fb2k freeze that could happen when using `ActiveXObject`.
 
 ## [1.5.0][] - 2021-06-30
 ### Added
@@ -35,11 +41,11 @@ ___
   - Added `utils.GetPackageInfo()` method.
   - Added `fb.Restart()` method.
 
-## Changed
+### Changed
 - `utils.InputBox()` now automatically resizes to fit the text ([#71](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/71)).
 - Additional properties provided by component are no longer displayed when not set ([#141](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/141)).
 - API changes:
-  - Added `use_exact` argument to `gdi.CalcTextWidth()` to improve width calculation accuracy in certain cases ([#140](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/140)).
+  - Added `use_exact` argument to `GdiGraphics.CalcTextWidth()` to improve width calculation accuracy in certain cases ([#140](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/140)).
   - `utils.GetPackagePath()` is marked as **\[Deprecated]**. Use `utils.GetPackageInfo()` instead.
   - `plman.IsPlaylistLocked()` is marked as **\[Deprecated]**. Use `plman.GetPlaylistLockedActions()` instead.
 
