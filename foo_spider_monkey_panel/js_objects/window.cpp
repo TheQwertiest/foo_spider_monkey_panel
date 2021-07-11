@@ -375,7 +375,7 @@ void JsWindow::EditScript()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::edit_script ) );
+    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::edit_script ) );
 }
 
 uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
@@ -529,7 +529,7 @@ void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
     }
 
     // TODO: think about replacing with PostMessage
-    panel::message_manager::instance().send_msg_to_others(
+    panel::MessageManager::Get().SendMsgToOthers(
         parentPanel_.GetHWND(),
         static_cast<UINT>( InternalSyncMessage::notify_data ),
         reinterpret_cast<WPARAM>( &name ),
@@ -543,7 +543,7 @@ void JsWindow::Reload()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::reload_script ) );
+    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::reload_script ) );
 }
 
 void JsWindow::Repaint( bool force )
@@ -688,7 +688,7 @@ void JsWindow::ShowConfigure()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure_legacy ) );
+    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure_legacy ) );
 }
 
 void JsWindow::ShowConfigureV2()
@@ -698,7 +698,7 @@ void JsWindow::ShowConfigureV2()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure ) );
+    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure ) );
 }
 
 void JsWindow::ShowProperties()
@@ -708,7 +708,7 @@ void JsWindow::ShowProperties()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_properties ) );
+    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_properties ) );
 }
 
 uint32_t JsWindow::get_DlgCode()

@@ -249,11 +249,11 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_siz
     }
     else if ( p_what == ui_element_notify_font_changed )
     {
-        message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ) );
+        MessageManager::Get().PostMsg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ) );
     }
     else if ( p_what == ui_element_notify_colors_changed )
     {
-        message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_colours_changed ) );
+        MessageManager::Get().PostMsg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_colours_changed ) );
     }
 }
 

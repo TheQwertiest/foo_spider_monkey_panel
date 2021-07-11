@@ -94,6 +94,8 @@ enum class MiscMessage : UINT
     heartbeat = static_cast<int>( InternalSyncMessage::last_message ) + 1,
     key_down,
     run_task_async,
+    run_next_event,
+    stop_idle_algorithm,
     size_limit_changed
 };
 

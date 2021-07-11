@@ -178,12 +178,12 @@ void js_panel_window_cui::on_bool_changed( t_size ) const
 
 void js_panel_window_cui::on_colour_changed( t_size ) const
 {
-    message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_colours_changed ) );
+    MessageManager::Get().PostMsg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_colours_changed ) );
 }
 
 void js_panel_window_cui::on_font_changed( t_size ) const
 {
-    message_manager::instance().post_msg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ) );
+    MessageManager::Get().PostMsg( t_parent::GetHWND(), static_cast<UINT>( smp::PlayerMessage::ui_font_changed ) );
 }
 
 void js_panel_window_cui::set_config( stream_reader* reader, t_size size, abort_callback& abort )

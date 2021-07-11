@@ -93,7 +93,7 @@ void MainMenuNodeCommand_PanelCommand::get_display( pfc::string_base& text, t_ui
 
 void MainMenuNodeCommand_PanelCommand::execute( service_ptr_t<service_base> callback )
 {
-    panel::message_manager::instance().post_msg( panelHwnd_, static_cast<UINT>( InternalAsyncMessage::dynamic_main_menu_item ), commandId_ );
+    panel::MessageManager::Get().PostMsg( panelHwnd_, static_cast<UINT>( InternalAsyncMessage::dynamic_main_menu_item ), commandId_ );
 }
 
 GUID MainMenuNodeCommand_PanelCommand::get_guid()

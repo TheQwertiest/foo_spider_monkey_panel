@@ -1,6 +1,8 @@
 #pragma once
 
 #include <config/parsed_panel_config.h>
+#include <panel/event.h>
+#include <panel/js_callback_invoker.h>
 #include <panel/panel_info.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>
@@ -95,6 +97,9 @@ private:
     void UnloadScript( bool force = false );
     void CreateDrawContext();
     void DeleteDrawContext();
+
+public:
+    void ExecuteJsCallback( EventId id, IEvent_JsCallback& callbackInvoker );
 
 private: // callback handling
     std::optional<LRESULT> process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );

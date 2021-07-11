@@ -301,7 +301,7 @@ VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFire
     }
 
     auto postTimerTask = [&timer] {
-        smp::panel::message_manager::instance().post_callback_msg(
+        smp::panel::MessageManager::Get().PostCallbackMsg(
             timer->hWnd_,
             smp::CallbackMessage::internal_timer_proc,
             std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );

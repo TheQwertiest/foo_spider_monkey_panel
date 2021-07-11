@@ -10,6 +10,7 @@
 #include <js_engine/js_container.h>
 #include <panel/drop_action_params.h>
 #include <panel/edit_script.h>
+#include <panel/event_manager.h>
 #include <panel/message_manager.h>
 #include <panel/modal_blocking_scope.h>
 #include <ui/ui_conf.h>
@@ -204,6 +205,12 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     com::DeleteMarkedObjects();
 
+    if ( msg == static_cast<UINT>( MiscMessage::stop_idle_algorithm ) )
+    { // must be sync
+        // eventLoop.StopIdleAlgorithm();
+        return 0;
+    }
+
     qwr::final_action jobsRunner( [hWnd = wnd_.m_hWnd] {
         --nestedCounter;
 
@@ -214,15 +221,23 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         }
         if ( !nestedCounter || modal::IsModalBlocked() )
         {
-            message_manager::instance().RequestNextAsyncMessage( hWnd );
+            MessageManager::Get().RequestNextAsyncMessage( hWnd );
+            EventManager::Get().RequestNextEvent( hWnd );
         }
     } );
 
-    if ( message_manager::IsAsyncMessage( msg ) )
+    if ( EventManager::IsRequestEventMessage( msg ) )
     {
         if ( nestedCounter == 1 || modal::IsModalBlocked() )
         {
-            auto optMessage = message_manager::instance().ClaimAsyncMessage( wnd_, msg, wp, lp );
+            EventManager::Get().ProcessNextEvent( wnd_ );
+        }
+    }
+    else if ( MessageManager::IsAsyncMessage( msg ) )
+    {
+        if ( nestedCounter == 1 || modal::IsModalBlocked() )
+        {
+            auto optMessage = MessageManager::Get().ClaimAsyncMessage( wnd_, msg, wp, lp );
             if ( optMessage )
             {
                 const auto [asyncMsg, asyncWp, asyncLp] = *optMessage;
@@ -244,6 +259,16 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     }
 
     return DefWindowProc( hwnd, msg, wp, lp );
+}
+
+void js_panel_window::ExecuteJsCallback( EventId id, IEvent_JsCallback& callbackInvoker )
+{
+    if ( !pJsContainer_ )
+    {
+        return;
+    }
+
+    callbackInvoker.InvokeJsCallback( *pJsContainer_ );
 }
 
 std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -472,7 +497,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
 std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessage msg )
 {
-    auto pCallbackData = message_manager::instance().ClaimCallbackMessageData( wnd_, msg );
+    auto pCallbackData = MessageManager::Get().ClaimCallbackMessageData( wnd_, msg );
     auto& callbackData = *pCallbackData;
 
     switch ( msg )
@@ -1161,7 +1186,8 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     isPanelIdOverridenByScript_ = false;
 
     DynamicMainMenuManager::Get().RegisterPanel( wnd_, settings_.panelId );
-    message_manager::instance().EnableAsyncMessages( wnd_ );
+    MessageManager::Get().EnableAsyncMessages( wnd_ );
+    EventManager::Get().EnableEventQueue( wnd_ );
 
     const auto extstyle = [&] {
         DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
@@ -1233,7 +1259,8 @@ void js_panel_window::UnloadScript( bool force )
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
     }
 
-    message_manager::instance().DisableAsyncMessages( wnd_ );
+    MessageManager::Get().DisableAsyncMessages( wnd_ );
+    EventManager::Get().DisableEventQueue( wnd_ );
     selectionHolder_.release();
     try
     {
@@ -1293,7 +1320,7 @@ void js_panel_window::on_erase_background()
 {
     if ( settings_.isPseudoTransparent )
     {
-        message_manager::instance().post_msg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
+        MessageManager::Get().PostMsg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
     }
 }
 
@@ -1309,7 +1336,8 @@ void js_panel_window::on_panel_create( HWND hWnd )
 
     CreateDrawContext();
 
-    message_manager::instance().AddWindow( wnd_ );
+    MessageManager::Get().AddWindow( wnd_ );
+    EventManager::Get().AddWindow( wnd_, *this );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
     LoadScript( true );
@@ -1322,7 +1350,9 @@ void js_panel_window::on_panel_destroy()
     UnloadScript();
     pJsContainer_.reset();
 
-    message_manager::instance().RemoveWindow( wnd_ );
+    MessageManager::Get().RemoveWindow( wnd_ );
+    EventManager::Get().RemoveWindow( wnd_ );
+
     DeleteDrawContext();
     ReleaseDC( wnd_, hDc_ );
 }
@@ -1905,7 +1935,7 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
 
     if ( settings_.isPseudoTransparent )
     {
-        message_manager::instance().post_msg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
+        MessageManager::Get().PostMsg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
     }
     else
     {

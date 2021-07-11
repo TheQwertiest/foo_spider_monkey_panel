@@ -162,7 +162,7 @@ public:
     void on_quit() override
     { // Careful when changing invocation order here!
         mozjs::JsEngine::GetInstance().PrepareForExit();
-        smp::panel::message_manager::instance().send_msg_to_all( static_cast<UINT>( smp::InternalSyncMessage::terminate_script ) );
+        smp::panel::MessageManager::Get().SendMsgToAll( static_cast<UINT>( smp::InternalSyncMessage::terminate_script ) );
         qwr::GlobalAbortCallback::GetInstance().Abort();
         smp::GetThreadPoolInstance().Finalize();
     }

@@ -370,6 +370,12 @@
     <ClCompile Include="com_utils\com_error_helpers.cpp">
       <Filter>com_utils</Filter>
     </ClCompile>
+    <ClCompile Include="panel\event_manager.cpp">
+      <Filter>panel</Filter>
+    </ClCompile>
+    <ClCompile Include="panel\task_controller.cpp">
+      <Filter>panel</Filter>
+    </ClCompile>
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
@@ -798,6 +804,21 @@
     </ClInclude>
     <ClInclude Include="com_utils\com_error_helpers.h">
       <Filter>com_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\event_manager.h">
+      <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\event.h">
+      <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\task_controller.h">
+      <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\event_js_callback.h">
+      <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\js_callback_invoker.h">
+      <Filter>panel</Filter>
     </ClInclude>
     <ClInclude Include="fb2k\mainmenu_dynamic.h">
       <Filter>fb2k</Filter>

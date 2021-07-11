@@ -122,11 +122,11 @@ void AlbumArtV2FetchTask::operator()()
 
     jsTask_->SetData( std::move( bitmap ), imagePath );
 
-    panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
-                                                          smp::CallbackMessage::internal_get_album_art_promise_done,
-                                                          std::make_unique<
-                                                              smp::panel::CallbackDataImpl<
-                                                                  std::shared_ptr<JsAsyncTask>>>( jsTask_ ) );
+    panel::MessageManager::Get().PostCallbackMsg( hNotifyWnd_,
+                                                  smp::CallbackMessage::internal_get_album_art_promise_done,
+                                                  std::make_unique<
+                                                      smp::panel::CallbackDataImpl<
+                                                          std::shared_ptr<JsAsyncTask>>>( jsTask_ ) );
 }
 
 JsAlbumArtTask::JsAlbumArtTask( JSContext* cx,

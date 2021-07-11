@@ -11,7 +11,7 @@
 namespace smp::panel
 {
 
-class message_manager
+class MessageManager
 {
 public:
     struct AsyncMessage
@@ -48,11 +48,11 @@ private:
     };
 
 public:
-    message_manager() = default;
-    message_manager( const message_manager& ) = delete;
-    message_manager& operator=( const message_manager& ) = delete;
+    MessageManager() = default;
+    MessageManager( const MessageManager& ) = delete;
+    MessageManager& operator=( const MessageManager& ) = delete;
 
-    static message_manager& instance();
+    static MessageManager& Get();
 
 public:
     void AddWindow( HWND hWnd );
@@ -67,18 +67,18 @@ public:
     void RequestNextAsyncMessage( HWND hWnd );
 
 public:
-    void post_msg( HWND hWnd, UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
-    void post_msg_to_all( UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
-    void post_callback_msg( HWND hWnd, smp::CallbackMessage msg, std::unique_ptr<smp::panel::CallbackData> data );
-    void post_callback_msg_to_all( smp::CallbackMessage msg, std::unique_ptr<smp::panel::CallbackData> data );
+    void PostMsg( HWND hWnd, UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
+    void PostMsgToAll( UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
+    void PostCallbackMsg( HWND hWnd, smp::CallbackMessage msg, std::unique_ptr<smp::panel::CallbackData> data );
+    void PostCallbackMsgToAll( smp::CallbackMessage msg, std::unique_ptr<smp::panel::CallbackData> data );
 
-    void send_msg_to_all( UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
-    void send_msg_to_others( HWND hWnd_except, UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
+    void SendMsgToAll( UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
+    void SendMsgToOthers( HWND hWnd_except, UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
 
 private:
     static bool IsAllowedAsyncMessage( UINT msg );
-    static void post_msg_impl( HWND hWnd, WindowData& windowData, UINT msg, WPARAM wp, LPARAM lp );
-    static void post_callback_msg_impl( HWND hWnd, WindowData& windowData, CallbackMessage msg, std::shared_ptr<CallbackData> msgData );
+    static void PostMsgImpl( HWND hWnd, WindowData& windowData, UINT msg, WPARAM wp, LPARAM lp );
+    static void PostCallbackMsgImpl( HWND hWnd, WindowData& windowData, CallbackMessage msg, std::shared_ptr<CallbackData> msgData );
 
 private:
     std::mutex wndDataMutex_;
