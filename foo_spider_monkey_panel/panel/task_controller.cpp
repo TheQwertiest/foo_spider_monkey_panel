@@ -57,8 +57,6 @@ void TaskController::AddTask( std::shared_ptr<Task> pTask )
 
 void TaskController::AddRunnable( std::shared_ptr<Runnable> pRunnable, EventPriority priority )
 {
-    std::scoped_lock sl( tasksMutex_ );
-
     assert( pRunnable );
     AddTask( std::make_shared<RunnableTask>( pRunnable, priority ) );
 }

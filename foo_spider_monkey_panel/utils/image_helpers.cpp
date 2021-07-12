@@ -2,8 +2,8 @@
 
 #include "image_helpers.h"
 
-#include <panel/message_manager.h>
-#include <panel/user_message.h>
+#include <panel/event_js_callback.h>
+#include <panel/event_manager.h>
 #include <utils/gdi_helpers.h>
 #include <utils/guid_helpers.h>
 #include <utils/thread_pool_instance.h>
@@ -61,15 +61,13 @@ uint32_t LoadImageTask::GetTaskId() const
 void LoadImageTask::run()
 {
     const qwr::u8string path = file_path_display( qwr::unicode::ToU8( imagePath_ ).c_str() ).get_ptr();
-    panel::MessageManager::Get().PostCallbackMsg( hNotifyWnd_,
-                                                  smp::CallbackMessage::internal_load_image_done,
-                                                  std::make_unique<
-                                                      smp::panel::CallbackDataImpl<
-                                                          uint32_t,
-                                                          std::unique_ptr<Gdiplus::Bitmap>,
-                                                          qwr::u8string>>( taskId_,
-                                                                           image::LoadImage( imagePath_ ),
-                                                                           path ) );
+
+    panel::EventManager::Get().PutEvent( hNotifyWnd_,
+                                         panel::GenerateEvent_JsCallback(
+                                             panel::EventId::kInternalLoadImageDone,
+                                             taskId_,
+                                             image::LoadImage( imagePath_ ),
+                                             path ) );
 }
 
 } // namespace

@@ -261,14 +261,14 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     return DefWindowProc( hwnd, msg, wp, lp );
 }
 
-void js_panel_window::ExecuteJsCallback( EventId id, IEvent_JsCallback& callbackInvoker )
+void js_panel_window::ExecuteJsTask( EventId /* id */, IEvent_JsTask& task )
 {
     if ( !pJsContainer_ )
     {
         return;
     }
 
-    callbackInvoker.InvokeJsCallback( *pJsContainer_ );
+    task.JsExecute( *pJsContainer_ );
 }
 
 std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -304,15 +304,7 @@ std::optional<LRESULT> js_panel_window::process_async_messages( UINT msg, WPARAM
         return std::nullopt;
     }
 
-    if ( IsInEnumRange<CallbackMessage>( msg ) )
-    {
-        return process_callback_messages( static_cast<CallbackMessage>( msg ) );
-    }
-    else if ( IsInEnumRange<PlayerMessage>( msg ) )
-    {
-        return process_player_messages( static_cast<PlayerMessage>( msg ), wp, lp );
-    }
-    else if ( IsInEnumRange<InternalAsyncMessage>( msg ) )
+    if ( IsInEnumRange<InternalAsyncMessage>( msg ) )
     {
         return process_internal_async_messages( static_cast<InternalAsyncMessage>( msg ), wp, lp );
     }
@@ -495,223 +487,6 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessage msg )
-{
-    auto pCallbackData = MessageManager::Get().ClaimCallbackMessageData( wnd_, msg );
-    auto& callbackData = *pCallbackData;
-
-    switch ( msg )
-    {
-    case CallbackMessage::fb_item_focus_change:
-    {
-        on_item_focus_change( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_item_played:
-    {
-        on_item_played( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_library_items_added:
-    {
-        on_library_items_added( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_library_items_changed:
-    {
-        on_library_items_changed( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_library_items_removed:
-    {
-        on_library_items_removed( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_metadb_changed:
-    {
-        on_metadb_changed( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playback_edited:
-    {
-        on_playback_edited( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playback_new_track:
-    {
-        on_playback_new_track( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playback_seek:
-    {
-        on_playback_seek( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playback_time:
-    {
-        on_playback_time( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_volume_change:
-    {
-        on_volume_change( callbackData );
-        return 0;
-    }
-    case CallbackMessage::internal_get_album_art_done:
-    {
-        on_get_album_art_done( callbackData );
-        return 0;
-    }
-    case CallbackMessage::internal_load_image_done:
-    {
-        on_load_image_done( callbackData );
-        return 0;
-    }
-    case CallbackMessage::internal_load_image_promise_done:
-    case CallbackMessage::internal_get_album_art_promise_done:
-    case CallbackMessage::internal_timer_proc:
-    {
-        on_js_task( callbackData );
-        return 0;
-    }
-    default:
-    {
-        return std::nullopt;
-    }
-    }
-}
-
-std::optional<LRESULT> js_panel_window::process_player_messages( PlayerMessage msg, WPARAM wp, LPARAM lp )
-{
-    switch ( msg )
-    {
-    case PlayerMessage::fb_always_on_top_changed:
-    {
-        on_always_on_top_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_cursor_follow_playback_changed:
-    {
-        on_cursor_follow_playback_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_dsp_preset_changed:
-    {
-        on_dsp_preset_changed();
-        return 0;
-    }
-    case PlayerMessage::fb_output_device_changed:
-    {
-        on_output_device_changed();
-        return 0;
-    }
-    case PlayerMessage::fb_playback_dynamic_info:
-    {
-        on_playback_dynamic_info();
-        return 0;
-    }
-    case PlayerMessage::fb_playback_dynamic_info_track:
-    {
-        on_playback_dynamic_info_track();
-        return 0;
-    }
-    case PlayerMessage::fb_playback_follow_cursor_changed:
-    {
-        on_playback_follow_cursor_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_order_changed:
-    {
-        on_playback_order_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_pause:
-    {
-        on_playback_pause( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_queue_changed:
-    {
-        on_playback_queue_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_stop:
-    {
-        on_playback_stop( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_starting:
-    {
-        on_playback_starting( wp, lp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_item_ensure_visible:
-    {
-        on_playlist_item_ensure_visible( wp, lp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_items_added:
-    {
-        on_playlist_items_added( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_items_reordered:
-    {
-        on_playlist_items_reordered( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_items_removed:
-    {
-        on_playlist_items_removed( wp, lp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_items_selection_change:
-    {
-        on_playlist_items_selection_change();
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_stop_after_current_changed:
-    {
-        on_playlist_stop_after_current_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_switch:
-    {
-        on_playlist_switch();
-        return 0;
-    }
-    case PlayerMessage::fb_playlists_changed:
-    {
-        on_playlists_changed();
-        return 0;
-    }
-    case PlayerMessage::fb_replaygain_mode_changed:
-    {
-        on_replaygain_mode_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_selection_changed:
-    {
-        on_selection_changed();
-        return 0;
-    }
-    case PlayerMessage::ui_font_changed:
-    {
-        on_font_changed();
-        return 0;
-    }
-    case PlayerMessage::ui_colours_changed:
-    {
-        on_colours_changed();
-        return 0;
-    }
-    default:
-    {
-        return std::nullopt;
-    }
-    }
-}
-
 std::optional<LRESULT> js_panel_window::process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp )
 {
     if ( !pJsContainer_ )
@@ -780,17 +555,6 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
     case InternalAsyncMessage::edit_script:
     {
         EditScript();
-        return 0;
-    }
-    case InternalAsyncMessage::main_menu_item:
-    {
-        on_main_menu( wp );
-        return 0;
-    }
-    case InternalAsyncMessage::dynamic_main_menu_item:
-    {
-        pJsContainer_->InvokeJsCallback( "on_main_menu_dynamic",
-                                         static_cast<uint32_t>( wp ) );
         return 0;
     }
     case InternalAsyncMessage::refresh_bg:

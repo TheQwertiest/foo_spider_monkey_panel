@@ -105,6 +105,7 @@ void EventManager::PutEvent( HWND hWnd, std::unique_ptr<Runnable> event, EventPr
     }
 
     taskControllerIt->second->AddRunnable( std::move( event ), priority );
+    PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
 }
 
 void EventManager::PutEventToOthers( HWND hWnd, std::unique_ptr<Runnable> event, EventPriority priority )
@@ -120,6 +121,7 @@ void EventManager::PutEventToOthers( HWND hWnd, std::unique_ptr<Runnable> event,
             continue;
         }
         pTaskController->AddTask( pTask );
+        PostMessage( hLocalWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
     }
 }
 
@@ -136,6 +138,7 @@ void EventManager::PutEventToAll( std::unique_ptr<Runnable> event, EventPriority
             continue;
         }
         pTaskController->AddTask( pTask );
+        PostMessage( hLocalWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
     }
 }
 

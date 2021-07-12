@@ -3,7 +3,6 @@
 #include <fb2k/playlist_lock.h>
 #include <panel/event_js_callback.h>
 #include <panel/event_manager.h>
-#include <panel/message_manager.h>
 
 #include <qwr/error_popup.h>
 
@@ -90,7 +89,7 @@ public:
     void on_watched_object_changed( const config_object::ptr& p_object ) override;
 
 private:
-    const std::array<std::pair<GUID, PlayerMessage>, 4> watchedObjects_;
+    const std::array<std::pair<GUID, EventId>, 4> watchedObjects_;
 };
 
 class my_playlist_callback_static : public playlist_callback_static
@@ -145,7 +144,7 @@ void InitStageCallback::on_init_stage( t_uint32 stage )
 
 void my_initquit::on_selection_changed( metadb_handle_list_cref )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_selection_changed ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbSelectionChanged ) );
 }
 
 void my_initquit::on_init()
@@ -176,40 +175,37 @@ void my_initquit::on_quit()
 
 void my_initquit::on_changed( t_replaygain_config const& cfg )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_replaygain_mode_changed ), (WPARAM)cfg.m_source_mode );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbReplaygainModeChanged, static_cast<uint32_t>( cfg.m_source_mode ) ) );
 }
 
 void my_initquit::outputConfigChanged()
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_output_device_changed ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbOutputDeviceChanged ) );
 }
 
 void my_dsp_config_callback::on_core_settings_change( const dsp_chain_config& )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_dsp_preset_changed ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbDspPresetChanged ) );
 }
 
 void my_library_callback::on_items_added( metadb_handle_list_cref p_data )
 {
-    panel::MessageManager::Get().PostCallbackMsgToAll( CallbackMessage::fb_library_items_added,
-                                                       std::make_unique<CallbackDataImpl<metadb_handle_list>>( p_data ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback<metadb_handle_list>( EventId::kFbLibraryItemsAdded, p_data ) );
 }
 
 void my_library_callback::on_items_modified( metadb_handle_list_cref p_data )
 {
-    panel::MessageManager::Get().PostCallbackMsgToAll( CallbackMessage::fb_library_items_changed,
-                                                       std::make_unique<CallbackDataImpl<metadb_handle_list>>( p_data ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback<metadb_handle_list>( EventId::kFbLibraryItemsChanged, p_data ) );
 }
 
 void my_library_callback::on_items_removed( metadb_handle_list_cref p_data )
 {
-    panel::MessageManager::Get().PostCallbackMsgToAll( CallbackMessage::fb_library_items_removed,
-                                                       std::make_unique<CallbackDataImpl<metadb_handle_list>>( p_data ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback<metadb_handle_list>( EventId::kFbLibraryItemsRemoved, p_data ) );
 }
 
 void my_metadb_io_callback::on_changed_sorted( metadb_handle_list_cref p_items_sorted, bool p_fromhook )
 {
-    panel::EventManager::Get().PutEventToAll( std::make_unique<Event_JsCallback<metadb_handle_list, bool>>( EventId::kFbMetadbChanged, p_items_sorted, p_fromhook ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback<metadb_handle_list>( EventId::kFbMetadbChanged, p_items_sorted, p_fromhook ) );
 }
 
 unsigned my_play_callback_static::get_flags()
@@ -219,74 +215,69 @@ unsigned my_play_callback_static::get_flags()
 
 void my_play_callback_static::on_playback_dynamic_info( const file_info& )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playback_dynamic_info ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackDynamicInfo ) );
 }
 
 void my_play_callback_static::on_playback_dynamic_info_track( const file_info& )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playback_dynamic_info_track ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackDynamicInfoTrack ) );
 }
 
 void my_play_callback_static::on_playback_edited( metadb_handle_ptr track )
 {
-    panel::MessageManager::Get().PostCallbackMsgToAll( CallbackMessage::fb_playback_edited,
-                                                       std::make_unique<CallbackDataImpl<metadb_handle_ptr>>( track ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackEdited, track ) );
 }
 
 void my_play_callback_static::on_playback_new_track( metadb_handle_ptr track )
 {
-    panel::EventManager::Get().PutEventToAll( std::make_unique<Event_JsCallback<metadb_handle_ptr>>( EventId::kFbPlaybackNewTrack, track ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackNewTrack, track ) );
 }
 
 void my_play_callback_static::on_playback_pause( bool state )
 {
-    panel::EventManager::Get().PutEventToAll( std::make_unique<Event_JsCallback<bool>>( EventId::kFbPlaybackPause, state ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackPause, state ) );
 }
 
 void my_play_callback_static::on_playback_seek( double time )
 {
-    panel::MessageManager::Get().PostCallbackMsgToAll( CallbackMessage::fb_playback_seek,
-                                                       std::make_unique<CallbackDataImpl<double>>( time ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackSeek, time ) );
 }
 
 void my_play_callback_static::on_playback_starting( play_control::t_track_command cmd, bool paused )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playback_starting ), (WPARAM)cmd, (LPARAM)paused );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackStarting, static_cast<uint32_t>( cmd ), paused ) );
 }
 
 void my_play_callback_static::on_playback_stop( play_control::t_stop_reason reason )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playback_stop ), (WPARAM)reason );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackStop, static_cast<uint32_t>( reason ) ) );
 }
 
 void my_play_callback_static::on_playback_time( double time )
 {
-    panel::MessageManager::Get().PostCallbackMsgToAll( CallbackMessage::fb_playback_time,
-                                                       std::make_unique<CallbackDataImpl<double>>( time ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackTime, time ) );
 }
 
 void my_play_callback_static::on_volume_change( float newval )
 {
-    panel::MessageManager::Get().PostCallbackMsgToAll( CallbackMessage::fb_volume_change,
-                                                       std::make_unique<CallbackDataImpl<float>>( newval ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbVolumeChange, newval ) );
 }
 
 void my_playback_queue_callback::on_changed( t_change_origin p_origin )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playback_queue_changed ), (WPARAM)p_origin );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackQueueChanged, static_cast<uint32_t>( p_origin ) ) );
 }
 
 void my_playback_statistics_collector::on_item_played( metadb_handle_ptr p_item )
 {
-    panel::MessageManager::Get().PostCallbackMsgToAll( CallbackMessage::fb_item_played,
-                                                       std::make_unique<CallbackDataImpl<metadb_handle_ptr>>( p_item ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbItemPlayed, p_item ) );
 }
 
 my_config_object_notify::my_config_object_notify()
-    : watchedObjects_{ { { standard_config_objects::bool_playlist_stop_after_current, PlayerMessage::fb_playlist_stop_after_current_changed },
-                         { standard_config_objects::bool_cursor_follows_playback, PlayerMessage::fb_cursor_follow_playback_changed },
-                         { standard_config_objects::bool_playback_follows_cursor, PlayerMessage::fb_playback_follow_cursor_changed },
-                         { standard_config_objects::bool_ui_always_on_top, PlayerMessage::fb_always_on_top_changed } } }
+    : watchedObjects_{ { { standard_config_objects::bool_playlist_stop_after_current, EventId::kFbPlaylistStopAfterCurrentChanged },
+                         { standard_config_objects::bool_cursor_follows_playback, EventId::kFbCursorFollowPlaybackChanged },
+                         { standard_config_objects::bool_playback_follows_cursor, EventId::kFbPlaybackFollowCursorChanged },
+                         { standard_config_objects::bool_ui_always_on_top, EventId::kFbAlwaysOnTopChanged } } }
 {
 }
 
@@ -314,11 +305,9 @@ void my_config_object_notify::on_watched_object_changed( const config_object::pt
         return;
     }
 
-    const UINT msg = static_cast<UINT>( it->second );
-
     bool boolval;
     p_object->get_data_bool( boolval );
-    panel::MessageManager::Get().PostMsgToAll( msg, static_cast<WPARAM>( boolval ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( it->second, boolval ) );
 }
 
 unsigned my_playlist_callback_static::get_flags()
@@ -332,18 +321,17 @@ void my_playlist_callback_static::on_default_format_changed()
 
 void my_playlist_callback_static::on_item_ensure_visible( t_size p_playlist, t_size p_idx )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playlist_item_ensure_visible ), p_playlist, p_idx );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemEnsureVisible, p_playlist, p_idx ) );
 }
 
 void my_playlist_callback_static::on_item_focus_change( t_size p_playlist, t_size p_from, t_size p_to )
 {
-    panel::MessageManager::Get().PostCallbackMsgToAll( CallbackMessage::fb_item_focus_change,
-                                                       std::make_unique<CallbackDataImpl<t_size, t_size, t_size>>( p_playlist, p_from, p_to ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbItemFocusChange, p_playlist, p_from, p_to ) );
 }
 
 void my_playlist_callback_static::on_items_added( t_size p_playlist, t_size, metadb_handle_list_cref, const pfc::bit_array& )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playlist_items_added ), p_playlist );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsAdded, p_playlist ) );
 }
 
 void my_playlist_callback_static::on_items_removing( t_size p_playlist, const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count )
@@ -352,12 +340,12 @@ void my_playlist_callback_static::on_items_removing( t_size p_playlist, const pf
 
 void my_playlist_callback_static::on_items_removed( t_size p_playlist, const pfc::bit_array&, t_size, t_size p_new_count )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playlist_items_removed ), p_playlist, p_new_count );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsRemoved, p_playlist, p_new_count ) );
 }
 
 void my_playlist_callback_static::on_items_reordered( t_size p_playlist, const t_size*, t_size )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playlist_items_reordered ), p_playlist );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsReordered, p_playlist ) );
 }
 
 void my_playlist_callback_static::on_items_replaced( t_size p_playlist, const pfc::bit_array& p_mask, const pfc::list_base_const_t<t_on_items_replaced_entry>& p_data )
@@ -366,7 +354,7 @@ void my_playlist_callback_static::on_items_replaced( t_size p_playlist, const pf
 
 void my_playlist_callback_static::on_items_selection_change( t_size, const pfc::bit_array&, const pfc::bit_array& )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playlist_items_selection_change ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsSelectionChange ) );
 }
 
 void my_playlist_callback_static::on_items_modified( t_size p_playlist, const pfc::bit_array& p_mask )
@@ -379,7 +367,7 @@ void my_playlist_callback_static::on_items_modified_fromplayback( t_size p_playl
 
 void my_playlist_callback_static::on_playback_order_changed( t_size p_new_index )
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playback_order_changed ), (WPARAM)p_new_index );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackOrderChanged, p_new_index ) );
 }
 
 void my_playlist_callback_static::on_playlist_activate( t_size p_old, t_size p_new )
@@ -421,12 +409,12 @@ void my_playlist_callback_static::on_playlists_reorder( const t_size*, t_size )
 
 void my_playlist_callback_static::on_playlist_switch()
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playlist_switch ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistSwitch ) );
 }
 
 void my_playlist_callback_static::on_playlists_changed()
 {
-    panel::MessageManager::Get().PostMsgToAll( static_cast<UINT>( PlayerMessage::fb_playlists_changed ) );
+    panel::EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistsChanged ) );
 }
 
 } // namespace

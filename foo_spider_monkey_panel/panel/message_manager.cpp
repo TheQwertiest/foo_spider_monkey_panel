@@ -47,7 +47,6 @@ void MessageManager::DisableAsyncMessages( HWND hWnd )
     assert( wndDataMap_.contains( hWnd ) );
     auto& windowData = wndDataMap_[hWnd];
 
-    windowData.callbackMsgQueue.clear();
     windowData.asyncMsgQueue.clear();
     windowData.isAsyncEnabled = false;
 }
@@ -63,7 +62,7 @@ std::optional<MessageManager::AsyncMessage> MessageManager::ClaimAsyncMessage( H
     std::scoped_lock sl( wndDataMutex_ );
 
     assert( wndDataMap_.contains( hWnd ) );
-    auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
+    auto& [currentGeneration, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
 
     if ( currentGeneration != static_cast<uint32_t>( wp ) || asyncMsgQueue.empty() )
     {
@@ -75,24 +74,6 @@ std::optional<MessageManager::AsyncMessage> MessageManager::ClaimAsyncMessage( H
     return curMsg;
 }
 
-std::shared_ptr<CallbackData> MessageManager::ClaimCallbackMessageData( HWND hWnd, CallbackMessage msg )
-{
-    std::scoped_lock sl( wndDataMutex_ );
-
-    assert( wndDataMap_.contains( hWnd ) );
-    auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
-
-    const auto it = ranges::find_if( callbackMsgQueue, [msgId = msg]( const auto& msg ) {
-        return msg.id == msgId;
-    } );
-    assert( it != callbackMsgQueue.cend() );
-
-    auto msgData = it->pData;
-    callbackMsgQueue.erase( it );
-
-    return msgData;
-}
-
 void MessageManager::RequestNextAsyncMessage( HWND hWnd )
 {
     std::scoped_lock sl( wndDataMutex_ );
@@ -102,7 +83,7 @@ void MessageManager::RequestNextAsyncMessage( HWND hWnd )
         return;
     }
 
-    const auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
+    const auto& [currentGeneration, asyncMsgQueue, isAsyncEnabled] = wndDataMap_[hWnd];
 
     if ( !asyncMsgQueue.empty() )
     {
@@ -127,32 +108,6 @@ void MessageManager::PostMsgToAll( UINT msg, WPARAM wp, LPARAM lp )
     for ( auto& [hWnd, wndData]: wndDataMap_ )
     {
         PostMsgImpl( hWnd, wndData, msg, wp, lp );
-    }
-}
-
-void MessageManager::PostCallbackMsg( HWND hWnd, CallbackMessage msg, std::unique_ptr<CallbackData> data )
-{
-    std::shared_ptr<CallbackData> sharedData( data.release() );
-
-    std::scoped_lock sl( wndDataMutex_ );
-    assert( wndDataMap_.contains( hWnd ) );
-
-    PostCallbackMsgImpl( hWnd, wndDataMap_[hWnd], msg, sharedData );
-}
-
-void MessageManager::PostCallbackMsgToAll( CallbackMessage msg, std::unique_ptr<CallbackData> data )
-{
-    if ( wndDataMap_.empty() )
-    {
-        return;
-    }
-
-    std::shared_ptr<CallbackData> sharedData( data.release() );
-
-    std::scoped_lock sl( wndDataMutex_ );
-    for ( auto& [hWnd, wndData]: wndDataMap_ )
-    {
-        PostCallbackMsgImpl( hWnd, wndData, msg, sharedData );
     }
 }
 
@@ -199,14 +154,12 @@ void MessageManager::SendMsgToOthers( HWND hWnd_except, UINT msg, WPARAM wp, LPA
 
 bool MessageManager::IsAllowedAsyncMessage( UINT msg )
 {
-    return ( IsInEnumRange<CallbackMessage>( msg )
-             || IsInEnumRange<PlayerMessage>( msg )
-             || IsInEnumRange<InternalAsyncMessage>( msg ) );
+    return ( IsInEnumRange<InternalAsyncMessage>( msg ) );
 }
 
 void MessageManager::PostMsgImpl( HWND hWnd, WindowData& windowData, UINT msg, WPARAM wp, LPARAM lp )
 {
-    auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = windowData;
+    auto& [currentGeneration, asyncMsgQueue, isAsyncEnabled] = windowData;
     if ( !isAsyncEnabled )
     {
         return;
@@ -216,24 +169,6 @@ void MessageManager::PostMsgImpl( HWND hWnd, WindowData& windowData, UINT msg, W
     if ( !PostMessage( hWnd, static_cast<INT>( MiscMessage::run_task_async ), currentGeneration, 0 ) )
     {
         asyncMsgQueue.pop_back();
-    }
-}
-
-void MessageManager::PostCallbackMsgImpl( HWND hWnd, WindowData& windowData, CallbackMessage msg, std::shared_ptr<CallbackData> msgData )
-{
-    auto& [currentGeneration, callbackMsgQueue, asyncMsgQueue, isAsyncEnabled] = windowData;
-    if ( !isAsyncEnabled )
-    {
-        return;
-    }
-
-    callbackMsgQueue.emplace_back( msg, msgData );
-    asyncMsgQueue.emplace_back( static_cast<INT>( msg ), 0, 0 );
-
-    if ( !PostMessage( hWnd, static_cast<INT>( MiscMessage::run_task_async ), currentGeneration, 0 ) )
-    {
-        asyncMsgQueue.pop_back();
-        callbackMsgQueue.pop_back();
     }
 }
 

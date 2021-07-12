@@ -301,10 +301,11 @@ VOID CALLBACK HostTimer::timerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitFire
     }
 
     auto postTimerTask = [&timer] {
-        smp::panel::MessageManager::Get().PostCallbackMsg(
+        SendMessage(
             timer->hWnd_,
-            smp::CallbackMessage::internal_timer_proc,
-            std::make_unique<smp::panel::CallbackDataImpl<std::shared_ptr<HostTimerTask>>>( timer->task_ ) );
+            static_cast<int>( smp::InternalSyncMessage::timer_proc ),
+            0,
+            (LPARAM)( timer->task_.get() ) );
     };
 
     if ( timer->isRepeated_ )

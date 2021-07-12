@@ -2,7 +2,7 @@
 
 #include <config/parsed_panel_config.h>
 #include <panel/event.h>
-#include <panel/js_callback_invoker.h>
+#include <panel/ievent_js_forwarder.h>
 #include <panel/panel_info.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>
@@ -99,15 +99,13 @@ private:
     void DeleteDrawContext();
 
 public:
-    void ExecuteJsCallback( EventId id, IEvent_JsCallback& callbackInvoker );
+    void ExecuteJsTask( EventId id, IEvent_JsTask& task );
 
 private: // callback handling
     std::optional<LRESULT> process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_async_messages( UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_main_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_window_messages( UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> process_callback_messages( CallbackMessage msg );
-    std::optional<LRESULT> process_player_messages( PlayerMessage msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp );
 

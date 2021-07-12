@@ -7,6 +7,7 @@ class js_panel_window;
 
 enum class EventId
 {
+    // fb
     kFbAlwaysOnTopChanged,
     kFbCursorFollowPlaybackChanged,
     kFbDspPresetChanged,
@@ -40,6 +41,16 @@ enum class EventId
     kFbReplaygainModeChanged,
     kFbSelectionChanged,
     kFbVolumeChange,
+    // internal
+    kInternalGetAlbumArtDone,
+    kInternalGetAlbumArtPromiseDone,
+    kInternalLoadImageDone,
+    kInternalLoadImagePromiseDone,
+    kInternalMainMenu,
+    kInternalMainMenuDynamic,
+    // ui
+    kUiColoursChanged,
+    kUiFontChanged,
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
@@ -76,6 +87,14 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kFbReplaygainModeChanged, "replaygain_mode_changed" },
     { EventId::kFbSelectionChanged, "selection_changed" },
     { EventId::kFbVolumeChange, "volume_change" },
+    // internal
+    { EventId::kInternalGetAlbumArtDone, "get_album_art_done" },
+    { EventId::kInternalLoadImageDone, "load_image_done" },
+    { EventId::kInternalMainMenu, "main_menu" },
+    { EventId::kInternalMainMenuDynamic, "main_menu_dynamic" },
+    // ui
+    { EventId::kUiColoursChanged, "colours_changed" },
+    { EventId::kUiFontChanged, "font_changed" },
 };
 
 enum class EventPriority

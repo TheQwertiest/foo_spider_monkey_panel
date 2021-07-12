@@ -222,6 +222,7 @@
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
     <ClCompile Include="panel\edit_script.cpp" />
+    <ClCompile Include="panel\event_js_task.cpp" />
     <ClCompile Include="panel\event_manager.cpp" />
     <ClCompile Include="panel\js_panel_window.cpp" />
     <ClCompile Include="panel\js_panel_window_cui.cpp" />
@@ -369,9 +370,10 @@
     <ClInclude Include="panel\drop_action_params.h" />
     <ClInclude Include="panel\edit_script.h" />
     <ClInclude Include="panel\event.h" />
+    <ClInclude Include="panel\event_js_task.h" />
     <ClInclude Include="panel\event_manager.h" />
     <ClInclude Include="panel\event_js_callback.h" />
-    <ClInclude Include="panel\js_callback_invoker.h" />
+    <ClInclude Include="panel\ievent_js_forwarder.h" />
     <ClInclude Include="panel\js_panel_window.h" />
     <ClInclude Include="panel\js_panel_window_cui.h" />
     <ClInclude Include="panel\js_panel_window_dui.h" />

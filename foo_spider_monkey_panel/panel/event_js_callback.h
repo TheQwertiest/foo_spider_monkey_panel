@@ -2,7 +2,7 @@
 
 #include <js_engine/js_container.h>
 #include <panel/event.h>
-#include <panel/js_callback_invoker.h>
+#include <panel/ievent_js_forwarder.h>
 #include <panel/js_panel_window.h>
 
 namespace smp::panel
@@ -10,7 +10,7 @@ namespace smp::panel
 
 template <typename... Args>
 class Event_JsCallback : public Runnable
-    , public IEvent_JsCallback
+    , public IEvent_JsTask
 {
 public:
     template <typename... ArgsFwd>
@@ -24,18 +24,24 @@ public:
     void Run( js_panel_window& panelWindow ) override
     {
         assert( core_api::is_main_thread() );
-        panelWindow.ExecuteJsCallback( id_, *this );
+        panelWindow.ExecuteJsTask( id_, *this );
     }
 
-    void InvokeJsCallback( mozjs::JsContainer& jsContainer )
+    void JsExecute( mozjs::JsContainer& jsContainer ) override
     {
         const auto callbackName = fmt::format( "on_{}", kCallbackIdToName.at( id_ ) );
-        std::apply( [&]( auto&&... args ) { jsContainer.InvokeJsCallback( callbackName, args... ); }, data_ );
+        std::apply( [&]( auto&&... args ) { jsContainer.InvokeJsCallback( callbackName, std::forward<decltype( args )>( args )... ); }, std::move( data_ ) );
     }
 
 private:
     const EventId id_;
     std::tuple<Args...> data_;
 };
+
+template <typename... Args>
+auto GenerateEvent_JsCallback( EventId id, Args&&... args )
+{
+    return std::make_unique<Event_JsCallback<std::decay_t<Args>...>>( id, std::forward<Args>( args )... );
+}
 
 } // namespace smp::panel

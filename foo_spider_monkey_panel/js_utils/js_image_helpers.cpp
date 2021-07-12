@@ -9,8 +9,8 @@
 #include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <panel/message_manager.h>
-#include <panel/user_message.h>
+#include <panel/event_js_task.h>
+#include <panel/event_manager.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/thread_pool_instance.h>
@@ -96,15 +96,13 @@ void ImageFetchTask::operator()()
         return;
     }
 
-    std::unique_ptr<Gdiplus::Bitmap> bitmap = smp::image::LoadImage( imagePath_ );
+    auto bitmap = smp::image::LoadImage( imagePath_ );
 
     jsTask_->SetData( std::move( bitmap ) );
 
-    panel::MessageManager::Get().PostCallbackMsg( hNotifyWnd_,
-                                                  smp::CallbackMessage::internal_get_album_art_promise_done,
-                                                  std::make_unique<
-                                                      smp::panel::CallbackDataImpl<
-                                                          std::shared_ptr<JsAsyncTask>>>( jsTask_ ) );
+    panel::EventManager::Get().PutEvent( hNotifyWnd_,
+                                         std::make_unique<smp::panel::Event_JsTask>(
+                                             smp::panel::EventId::kInternalLoadImagePromiseDone, jsTask_ ) );
 }
 
 JsImageTask::JsImageTask( JSContext* cx,

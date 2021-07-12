@@ -12,11 +12,11 @@ class JsContainer;
 namespace smp::panel
 {
 
-class IEvent_JsCallback
+class IEvent_JsTask
 {
 public:
-    virtual ~IEvent_JsCallback() = default;
-    virtual void InvokeJsCallback( mozjs::JsContainer& jsContainer ) = 0;
+    virtual ~IEvent_JsTask() = default;
+    virtual void JsExecute( mozjs::JsContainer& jsContainer ) = 0;
 };
 
 } // namespace smp::panel
