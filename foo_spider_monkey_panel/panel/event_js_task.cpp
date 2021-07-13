@@ -32,4 +32,9 @@ Event_Mouse* Event_JsTask::AsMouseEvent()
     return nullptr;
 }
 
+Event_Focus* Event_JsTask::AsFocusEvent()
+{
+    return nullptr;
+}
+
 } // namespace smp::panel

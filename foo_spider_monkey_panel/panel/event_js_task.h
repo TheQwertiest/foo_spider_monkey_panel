@@ -27,6 +27,7 @@ public:
     std::optional<bool> JsExecute( mozjs::JsContainer& jsContainer ) override;
 
     Event_Mouse* AsMouseEvent() override;
+    Event_Focus* AsFocusEvent() override;
 
 private:
     const EventId id_;

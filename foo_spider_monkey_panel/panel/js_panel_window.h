@@ -111,16 +111,14 @@ private: // callback handling
 
     // Internal callbacks
     void OpenDefaultContextManu( int x, int y );
-    void on_panel_create( HWND hWnd );
-    void on_panel_destroy();
-    void on_js_task( CallbackData& callbackData );
+    void OnCreate( HWND hWnd );
+    void OnDestroy();
 
     // JS callbacks
     void on_drag_drop( LPARAM lp );
     void on_drag_enter( LPARAM lp );
     void on_drag_leave();
     void on_drag_over( LPARAM lp );
-    void on_focus( bool isFocused );
     void on_notify_data( WPARAM wp, LPARAM lp );
     void on_paint( HDC dc, const CRect& updateRc );
     void on_paint_error( HDC memdc );

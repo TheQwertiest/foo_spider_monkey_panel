@@ -4,6 +4,7 @@ namespace smp::panel
 {
 
 class Event_Mouse;
+class Event_Focus;
 class js_panel_window;
 
 enum class EventId
@@ -43,6 +44,8 @@ enum class EventId
     kFbSelectionChanged,
     kFbVolumeChange,
     // input
+    /// control
+    kInputFocus,
     /// keyboard
     kKeyboardChar,
     kKeyboardKeyDown,
@@ -77,6 +80,7 @@ enum class EventId
     kUiColoursChanged,
     kUiFontChanged,
     // window
+    kWndFocus,
     kWndPaint,
     kWndResize,
 };
@@ -116,6 +120,8 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kFbSelectionChanged, "selection_changed" },
     { EventId::kFbVolumeChange, "volume_change" },
     // input
+    /// control
+    { EventId::kInputFocus, "focus" },
     /// keyboard
     { EventId::kKeyboardChar, "char" },
     { EventId::kKeyboardKeyDown, "key_down" },
@@ -171,11 +177,11 @@ public:
 
 class EventBase
 {
-
 public:
     virtual ~EventBase() = default;
 
     virtual Event_Mouse* AsMouseEvent() = 0;
+    virtual Event_Focus* AsFocusEvent() = 0;
 };
 
 } // namespace smp::panel

@@ -382,6 +382,9 @@
     <ClCompile Include="panel\event_mouse.cpp">
       <Filter>panel</Filter>
     </ClCompile>
+    <ClCompile Include="panel\event_focus.cpp">
+      <Filter>panel</Filter>
+    </ClCompile>
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
@@ -830,6 +833,9 @@
       <Filter>panel</Filter>
     </ClInclude>
     <ClInclude Include="panel\event_mouse.h">
+      <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\event_focus.h">
       <Filter>panel</Filter>
     </ClInclude>
     <ClInclude Include="fb2k\mainmenu_dynamic.h">

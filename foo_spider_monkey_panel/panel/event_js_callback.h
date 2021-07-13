@@ -44,6 +44,11 @@ public:
         return nullptr;
     }
 
+    Event_Focus* AsFocusEvent() override
+    {
+        return nullptr;
+    }
+
 private:
     const EventId id_;
     std::tuple<Args...> data_;
