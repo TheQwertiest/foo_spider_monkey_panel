@@ -25,7 +25,6 @@ enum class InternalSyncMessage : UINT
     terminate_script,
     timer_proc,
     ui_script_editor_saved,
-    update_size_on_reload,
     wnd_drag_drop,
     wnd_drag_enter,
     wnd_drag_leave,

@@ -384,6 +384,13 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
         isPaintInProgress_ = false;
         break;
     }
+    case EventId::kWndResize:
+    {
+        CRect rc;
+        wnd_.GetClientRect( &rc );
+        on_size( rc.Width(), rc.Height() );
+        break;
+    }
     default:
         task.JsExecute( *pJsContainer_ );
     }
@@ -481,9 +488,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_SIZE:
     {
-        CRect rc;
-        wnd_.GetClientRect( &rc );
-        on_size( rc.Width(), rc.Height() );
+        EventManager::Get().PutEvent( wnd_, GenerateEvent_JsCallback( EventId::kWndResize ), EventPriority::kResize );
         return 0;
     }
     case WM_GETMINMAXINFO:
@@ -713,11 +718,6 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
     case InternalSyncMessage::ui_script_editor_saved:
     {
         ReloadScript();
-        return 0;
-    }
-    case InternalSyncMessage::update_size_on_reload:
-    {
-        on_size( width_, height_ );
         return 0;
     }
     case InternalSyncMessage::wnd_drag_drop:
@@ -1204,7 +1204,7 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     if ( !isFirstLoad )
     { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
         // We need to go through message loop to handle all JS logic correctly (e.g. jobs).
-        wnd_.SendMessage( static_cast<UINT>( InternalSyncMessage::update_size_on_reload ), 0, 0 );
+        EventManager::Get().PutEvent( wnd_, GenerateEvent_JsCallback( EventId::kWndResize ), EventPriority::kResize );
     }
 
     return true;
