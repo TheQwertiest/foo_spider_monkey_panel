@@ -43,7 +43,12 @@ enum class EventId
     kFbSelectionChanged,
     kFbVolumeChange,
     // input
-    /// buttons
+    /// keyboard
+    kKeyboardChar,
+    kKeyboardKeyDown,
+    kKeyboardKeyUp,
+    /// mouse
+    //// buttons
     kMouseLeftButtonDoubleClick,
     kMouseLeftButtonDown,
     kMouseLeftButtonUp,
@@ -53,13 +58,13 @@ enum class EventId
     kMouseRightButtonDoubleClick,
     kMouseRightButtonDown,
     kMouseRightButtonUp,
-    /// wheel
+    //// wheel
     kMouseHorizontalWheel,
     kMouseVerticalWheel,
-    /// move
+    //// move
     kMouseLeave,
     kMouseMove,
-    /// context
+    //// context
     kMouseContextMenu,
     // internal
     kInternalGetAlbumArtDone,
@@ -111,7 +116,12 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kFbSelectionChanged, "selection_changed" },
     { EventId::kFbVolumeChange, "volume_change" },
     // input
-    /// buttons
+    /// keyboard
+    { EventId::kKeyboardChar, "char" },
+    { EventId::kKeyboardKeyDown, "key_down" },
+    { EventId::kKeyboardKeyUp, "key_up" },
+    /// mouse
+    //// buttons
     { EventId::kMouseLeftButtonDoubleClick, "mouse_lbtn_dblclk" },
     { EventId::kMouseLeftButtonDown, "mouse_lbtn_down" },
     { EventId::kMouseLeftButtonUp, "mouse_lbtn_up" },
@@ -121,13 +131,13 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kMouseRightButtonDoubleClick, "mouse_rbtn_dblclk" },
     { EventId::kMouseRightButtonDown, "mouse_rbtn_down" },
     { EventId::kMouseRightButtonUp, "mouse_rbtn_up" },
-    /// wheel
+    //// wheel
     { EventId::kMouseHorizontalWheel, "mouse_wheel_h" },
     { EventId::kMouseVerticalWheel, "mouse_wheel" },
-    /// move
+    //// move
     { EventId::kMouseLeave, "mouse_leave" },
     { EventId::kMouseMove, "mouse_move" },
-    /// context
+    //// context
     { EventId::kMouseContextMenu, "TODO" },
     // internal
     { EventId::kInternalGetAlbumArtDone, "get_album_art_done" },

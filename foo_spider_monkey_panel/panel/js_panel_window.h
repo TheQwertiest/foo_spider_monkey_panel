@@ -111,70 +111,21 @@ private: // callback handling
 
     // Internal callbacks
     void OpenDefaultContextManu( int x, int y );
-    void EraseBackground();
     void on_panel_create( HWND hWnd );
     void on_panel_destroy();
     void on_js_task( CallbackData& callbackData );
 
     // JS callbacks
-    void on_always_on_top_changed( WPARAM wp );
-    void on_char( WPARAM wp );
-    void on_colours_changed();
-    void on_cursor_follow_playback_changed( WPARAM wp );
     void on_drag_drop( LPARAM lp );
     void on_drag_enter( LPARAM lp );
     void on_drag_leave();
     void on_drag_over( LPARAM lp );
-    void on_dsp_preset_changed();
     void on_focus( bool isFocused );
-    void on_font_changed();
-    void on_get_album_art_done( CallbackData& callbackData );
-    void on_item_focus_change( CallbackData& callbackData );
-    void on_item_played( CallbackData& callbackData );
-    void on_key_down( WPARAM wp );
-    void on_key_up( WPARAM wp );
-    void on_library_items_added( CallbackData& callbackData );
-    void on_library_items_changed( CallbackData& callbackData );
-    void on_library_items_removed( CallbackData& callbackData );
-    void on_load_image_done( CallbackData& callbackData );
-    void on_main_menu( WPARAM wp );
-    void on_metadb_changed( CallbackData& callbackData );
-    void on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp );
-    void on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp );
-    bool on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp );
-    void on_mouse_leave();
-    void on_mouse_move( WPARAM wp, LPARAM lp );
-    void on_mouse_wheel( WPARAM wp );
-    void on_mouse_wheel_h( WPARAM wp );
     void on_notify_data( WPARAM wp, LPARAM lp );
-    void on_output_device_changed();
     void on_paint( HDC dc, const CRect& updateRc );
     void on_paint_error( HDC memdc );
     void on_paint_user( HDC memdc, const CRect& updateRc );
-    void on_playback_dynamic_info();
-    void on_playback_dynamic_info_track();
-    void on_playback_edited( CallbackData& callbackData );
-    void on_playback_follow_cursor_changed( WPARAM wp );
-    void on_playback_new_track( CallbackData& callbackData );
-    void on_playback_order_changed( WPARAM wp );
-    void on_playback_pause( WPARAM wp );
-    void on_playback_queue_changed( WPARAM wp );
-    void on_playback_seek( CallbackData& callbackData );
-    void on_playback_starting( WPARAM wp, LPARAM lp );
-    void on_playback_stop( WPARAM wp );
-    void on_playback_time( CallbackData& callbackData );
-    void on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp );
-    void on_playlist_items_added( WPARAM wp );
-    void on_playlist_items_removed( WPARAM wp, LPARAM lp );
-    void on_playlist_items_reordered( WPARAM wp );
-    void on_playlist_items_selection_change();
-    void on_playlist_stop_after_current_changed( WPARAM wp );
-    void on_playlist_switch();
-    void on_playlists_changed();
-    void on_replaygain_mode_changed( WPARAM wp );
-    void on_selection_changed();
     void on_size( uint32_t w, uint32_t h );
-    void on_volume_change( CallbackData& callbackData );
 
 private:
     const PanelType panelType_;

@@ -474,7 +474,10 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
     case WM_ERASEBKGND:
     {
-        EraseBackground();
+        if ( settings_.isPseudoTransparent )
+        {
+            MessageManager::Get().PostMsg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
+        }
         return 1;
     }
     case WM_PAINT:
@@ -488,6 +491,12 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_SIZE:
     {
+        // Update size immediately in case event fails to execute
+        CRect rc;
+        wnd_.GetClientRect( &rc );
+        width_ = rc.Width();
+        height_ = rc.Height();
+
         EventManager::Get().PutEvent( wnd_, GenerateEvent_JsCallback( EventId::kWndResize ), EventPriority::kResize );
         return 0;
     }
@@ -496,8 +505,8 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         // but we don't need to handle it before panel creation,
         // since default values suit us just fine
         auto pmmi = reinterpret_cast<LPMINMAXINFO>( lp );
-        memcpy( &pmmi->ptMaxTrackSize, &MaxSize(), sizeof( POINT ) );
-        memcpy( &pmmi->ptMinTrackSize, &MinSize(), sizeof( POINT ) );
+        pmmi->ptMaxTrackSize = MaxSize();
+        pmmi->ptMinTrackSize = MinSize();
         return 0;
     }
     case WM_GETDLGCODE:
@@ -605,6 +614,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_CONTEXTMENU:
     {
+        // WM_CONTEXTMENU receives screen coordinates
         POINT p{ GET_X_LPARAM( lp ), GET_Y_LPARAM( lp ) };
         ScreenToClient( wnd_, &p );
         EventManager::Get().PutEvent( wnd_,
@@ -661,17 +671,29 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
     {
-        on_key_down( wp );
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kKeyboardKeyDown,
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
         return 0;
     }
     case WM_KEYUP:
     {
-        on_key_up( wp );
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kKeyboardKeyUp,
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
         return 0;
     }
     case WM_CHAR:
     {
-        on_char( wp );
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kKeyboardChar,
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
         return 0;
     }
     case WM_SETFOCUS:
@@ -1282,14 +1304,6 @@ void js_panel_window::OpenDefaultContextManu( int x, int y )
     ExecuteContextMenu( ret, base_id );
 }
 
-void js_panel_window::EraseBackground()
-{
-    if ( settings_.isPseudoTransparent )
-    {
-        MessageManager::Get().PostMsg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
-    }
-}
-
 void js_panel_window::on_panel_create( HWND hWnd )
 {
     wnd_ = hWnd;
@@ -1329,29 +1343,6 @@ void js_panel_window::on_js_task( CallbackData& callbackData )
     pJsContainer_->InvokeJsAsyncTask( *std::get<0>( data ) );
 }
 
-void js_panel_window::on_always_on_top_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_always_on_top_changed",
-                                     static_cast<bool>( wp ) );
-}
-
-void js_panel_window::on_char( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_char",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_colours_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_colours_changed" );
-}
-
-void js_panel_window::on_cursor_follow_playback_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_cursor_follow_playback_changed",
-                                     static_cast<bool>( wp ) );
-}
-
 void js_panel_window::on_drag_drop( LPARAM lp )
 {
     auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
@@ -1384,11 +1375,6 @@ void js_panel_window::on_drag_over( LPARAM lp )
                                        actionParams->actionParams );
 }
 
-void js_panel_window::on_dsp_preset_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_dsp_preset_changed" );
-}
-
 void js_panel_window::on_focus( bool isFocused )
 {
     if ( isFocused )
@@ -1403,266 +1389,9 @@ void js_panel_window::on_focus( bool isFocused )
                                      static_cast<bool>( isFocused ) );
 }
 
-void js_panel_window::on_font_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_font_changed" );
-}
-
-void js_panel_window::on_get_album_art_done( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, qwr::u8string>();
-    pJsContainer_->InvokeJsCallback( "on_get_album_art_done",
-                                     std::get<0>( data ),
-                                     std::get<1>( data ),
-                                     std::move( std::get<2>( data ) ),
-                                     std::get<3>( data ) );
-}
-
-void js_panel_window::on_item_focus_change( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<t_size, t_size, t_size>();
-    pJsContainer_->InvokeJsCallback( "on_item_focus_change",
-                                     static_cast<int32_t>( std::get<0>( data ) ),
-                                     static_cast<int32_t>( std::get<1>( data ) ),
-                                     static_cast<int32_t>( std::get<2>( data ) ) );
-}
-
-void js_panel_window::on_item_played( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_ptr>();
-    pJsContainer_->InvokeJsCallback( "on_item_played",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_key_down( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_key_down",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_key_up( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_key_up",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_load_image_done( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, qwr::u8string>();
-    pJsContainer_->InvokeJsCallback( "on_load_image_done",
-                                     std::get<0>( data ),
-                                     std::move( std::get<1>( data ) ),
-                                     std::get<2>( data ) );
-}
-
-void js_panel_window::on_library_items_added( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_list>();
-    pJsContainer_->InvokeJsCallback( "on_library_items_added",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_library_items_changed( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_list>();
-    pJsContainer_->InvokeJsCallback( "on_library_items_changed",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_library_items_removed( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_list>();
-    pJsContainer_->InvokeJsCallback( "on_library_items_removed",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_main_menu( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_main_menu",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_metadb_changed( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_list, bool>();
-    pJsContainer_->InvokeJsCallback( "on_metadb_changed",
-                                     std::get<0>( data ),
-                                     std::get<1>( data ) );
-}
-
-void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
-{
-    switch ( msg )
-    {
-    case WM_LBUTTONDBLCLK:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_lbtn_dblclk",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-
-    case WM_MBUTTONDBLCLK:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_mbtn_dblclk",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-
-    case WM_RBUTTONDBLCLK:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_rbtn_dblclk",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    default:
-        assert( false );
-        break;
-    }
-}
-
-void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
-{
-    if ( settings_.shouldGrabFocus )
-    {
-        wnd_.SetFocus();
-    }
-
-    wnd_.SetCapture();
-
-    switch ( msg )
-    {
-    case WM_LBUTTONDOWN:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_lbtn_down",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    case WM_MBUTTONDOWN:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_mbtn_down",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    case WM_RBUTTONDOWN:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_rbtn_down",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    default:
-        assert( false );
-        break;
-    }
-}
-
-bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
-{
-    bool ret = false;
-
-    switch ( msg )
-    {
-    case WM_LBUTTONUP:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_lbtn_up",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    case WM_MBUTTONUP:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_mbtn_up",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    case WM_RBUTTONUP:
-    {
-        // Bypass the user code.
-        if ( IsKeyPressed( VK_LSHIFT ) && IsKeyPressed( VK_LWIN ) )
-        {
-            break;
-        }
-
-        auto autoRet = pJsContainer_->InvokeJsCallback<bool>( "on_mouse_rbtn_up",
-                                                              static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                                              static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                                              static_cast<uint32_t>( wp ) );
-        ret = autoRet.value_or( false );
-        break;
-    }
-    default:
-        assert( false );
-        break;
-    }
-
-    ReleaseCapture();
-    return ret;
-}
-
-void js_panel_window::on_mouse_leave()
-{
-    isMouseTracked_ = false;
-
-    pJsContainer_->InvokeJsCallback( "on_mouse_leave" );
-
-    // Restore default cursor
-    SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
-}
-
-void js_panel_window::on_mouse_move( WPARAM wp, LPARAM lp )
-{
-    if ( !isMouseTracked_ )
-    {
-        TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, wnd_, HOVER_DEFAULT };
-        TrackMouseEvent( &tme );
-        isMouseTracked_ = true;
-
-        // Restore default cursor
-        SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
-    }
-
-    pJsContainer_->InvokeJsCallback( "on_mouse_move",
-                                     static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                     static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_mouse_wheel( WPARAM wp )
-{ // TODO: missing param doc
-    pJsContainer_->InvokeJsCallback( "on_mouse_wheel",
-                                     static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ),
-                                     static_cast<int32_t>( GET_WHEEL_DELTA_WPARAM( wp ) ),
-                                     static_cast<int32_t>( WHEEL_DELTA ) );
-}
-
-void js_panel_window::on_mouse_wheel_h( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_mouse_wheel_h",
-                                     static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ) );
-}
-
 void js_panel_window::on_notify_data( WPARAM wp, LPARAM lp )
 {
     pJsContainer_->InvokeOnNotify( wp, lp );
-}
-
-void js_panel_window::on_output_device_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_output_device_changed" );
 }
 
 void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
@@ -1754,139 +1483,6 @@ void js_panel_window::on_paint_user( HDC memdc, const CRect& updateRc )
     pJsContainer_->InvokeOnPaint( gr );
 }
 
-void js_panel_window::on_playback_dynamic_info()
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_dynamic_info" );
-}
-
-void js_panel_window::on_playback_dynamic_info_track()
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_dynamic_info_track" );
-}
-
-void js_panel_window::on_playback_edited( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_ptr>();
-    pJsContainer_->InvokeJsCallback( "on_playback_edited",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_follow_cursor_changed",
-                                     static_cast<bool>( wp ) );
-}
-
-void js_panel_window::on_playback_new_track( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_ptr>();
-    pJsContainer_->InvokeJsCallback( "on_playback_new_track",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_playback_order_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_order_changed",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_playback_pause( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_pause",
-                                     static_cast<bool>( wp != 0 ) );
-}
-
-void js_panel_window::on_playback_queue_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_queue_changed",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_playback_seek( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<double>();
-    pJsContainer_->InvokeJsCallback( "on_playback_seek",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_playback_starting( WPARAM wp, LPARAM lp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_starting",
-                                     static_cast<uint32_t>( (playback_control::t_track_command)wp ),
-                                     static_cast<bool>( lp != 0 ) );
-}
-
-void js_panel_window::on_playback_stop( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_stop",
-                                     static_cast<uint32_t>( (playback_control::t_stop_reason)wp ) );
-}
-
-void js_panel_window::on_playback_time( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<double>();
-    pJsContainer_->InvokeJsCallback( "on_playback_time",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_item_ensure_visible",
-                                     static_cast<uint32_t>( wp ),
-                                     static_cast<uint32_t>( lp ) );
-}
-
-void js_panel_window::on_playlist_items_added( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_items_added",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_playlist_items_removed( WPARAM wp, LPARAM lp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_items_removed",
-                                     static_cast<uint32_t>( wp ),
-                                     static_cast<uint32_t>( lp ) );
-}
-
-void js_panel_window::on_playlist_items_reordered( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_items_reordered",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_playlist_items_selection_change()
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_items_selection_change" );
-}
-
-void js_panel_window::on_playlist_stop_after_current_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_stop_after_current_changed",
-                                     static_cast<bool>( wp ) );
-}
-
-void js_panel_window::on_playlist_switch()
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_switch" );
-}
-
-void js_panel_window::on_playlists_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_playlists_changed" );
-}
-
-void js_panel_window::on_replaygain_mode_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_replaygain_mode_changed",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_selection_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_selection_changed" );
-}
-
 void js_panel_window::on_size( uint32_t w, uint32_t h )
 {
     width_ = w;
@@ -1907,13 +1503,6 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
     {
         Repaint();
     }
-}
-
-void js_panel_window::on_volume_change( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<float>();
-    pJsContainer_->InvokeJsCallback( "on_volume_change",
-                                     std::get<0>( data ) );
 }
 
 } // namespace smp::panel
