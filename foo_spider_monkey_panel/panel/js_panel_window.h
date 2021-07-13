@@ -111,7 +111,7 @@ private: // callback handling
 
     // Internal callbacks
     void OpenDefaultContextManu( int x, int y );
-    void on_erase_background();
+    void EraseBackground();
     void on_panel_create( HWND hWnd );
     void on_panel_destroy();
     void on_js_task( CallbackData& callbackData );

@@ -266,8 +266,8 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
 
     switch ( id )
     {
-    case smp::panel::EventId::kMouseLeftButtonUp:
-    case smp::panel::EventId::kMouseMiddleButtonUp:
+    case EventId::kMouseLeftButtonUp:
+    case EventId::kMouseMiddleButtonUp:
     {
         task.JsExecute( *pJsContainer_ );
 
@@ -275,7 +275,7 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
 
         break;
     }
-    case smp::panel::EventId::kMouseRightButtonUp:
+    case EventId::kMouseRightButtonUp:
     {
         const auto autoCapture = qwr::final_action( [] { ReleaseCapture(); } );
 
@@ -306,9 +306,9 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
         }
         break;
     }
-    case smp::panel::EventId::kMouseLeftButtonDown:
-    case smp::panel::EventId::kMouseMiddleButtonDown:
-    case smp::panel::EventId::kMouseRightButtonDown:
+    case EventId::kMouseLeftButtonDown:
+    case EventId::kMouseMiddleButtonDown:
+    case EventId::kMouseRightButtonDown:
     {
         if ( settings_.shouldGrabFocus )
         {
@@ -321,7 +321,7 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
 
         break;
     }
-    case smp::panel::EventId::kMouseLeave:
+    case EventId::kMouseLeave:
     {
         isMouseTracked_ = false;
 
@@ -332,7 +332,7 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
 
         break;
     }
-    case smp::panel::EventId::kMouseMove:
+    case EventId::kMouseMove:
     {
         if ( !isMouseTracked_ )
         {
@@ -348,12 +348,40 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
 
         break;
     }
-    case smp::panel::EventId::kMouseContextMenu:
+    case EventId::kMouseContextMenu:
     {
         const auto pMouseEvent = task.AsMouseEvent();
         assert( pMouseEvent );
 
         OpenDefaultContextManu( pMouseEvent->GetX(), pMouseEvent->GetY() );
+        break;
+    }
+    case EventId::kWndPaint:
+    {
+        if ( isPaintInProgress_ )
+        {
+            break;
+        }
+        isPaintInProgress_ = true;
+
+        if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
+        { // Two pass redraw: paint BG > Repaint() > paint FG
+            CRect rc;
+            wnd_.GetUpdateRect( &rc, FALSE );
+            RepaintBackground( &rc ); ///< Calls Repaint() inside
+
+            isBgRepaintNeeded_ = false;
+            isPaintInProgress_ = false;
+
+            Repaint( true );
+            break;
+        }
+        {
+            CPaintDC dc{ wnd_ };
+            on_paint( dc, dc.m_ps.rcPaint );
+        }
+
+        isPaintInProgress_ = false;
         break;
     }
     default:
@@ -439,7 +467,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
     case WM_ERASEBKGND:
     {
-        on_erase_background();
+        EraseBackground();
         return 1;
     }
     case WM_PAINT:
@@ -448,27 +476,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         {
             return std::nullopt;
         }
-        isPaintInProgress_ = true;
-
-        if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
-        { // Two pass redraw: paint BG > Repaint() > paint FG
-            CRect rc;
-            wnd_.GetUpdateRect( &rc, FALSE );
-            RepaintBackground( &rc ); ///< Calls Repaint() inside
-
-            isBgRepaintNeeded_ = false;
-            isPaintInProgress_ = false;
-
-            Repaint( true );
-            return 0;
-        }
-
-        {
-            CPaintDC dc{ wnd_ };
-            on_paint( dc, dc.m_ps.rcPaint );
-        }
-
-        isPaintInProgress_ = false;
+        EventManager::Get().PutEvent( wnd_, GenerateEvent_JsCallback( EventId::kWndPaint ), EventPriority::kRedraw );
         return 0;
     }
     case WM_SIZE:
@@ -1113,7 +1121,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
 
     // Force Repaint
     wnd_.SetWindowRgn( rgn_child, FALSE );
-    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
+    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW );
 
     {
         // Background bitmap
@@ -1274,7 +1282,7 @@ void js_panel_window::OpenDefaultContextManu( int x, int y )
     ExecuteContextMenu( ret, base_id );
 }
 
-void js_panel_window::on_erase_background()
+void js_panel_window::EraseBackground()
 {
     if ( settings_.isPseudoTransparent )
     {

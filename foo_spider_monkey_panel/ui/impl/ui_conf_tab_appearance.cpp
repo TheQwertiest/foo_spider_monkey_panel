@@ -142,7 +142,7 @@ void CConfigTabAppearance::OnDdxUiChange( UINT /*uNotifyCode*/, int nID, CWindow
         break;
     }
     default:
-        assert( false );
+        break;
     }
 
     parent_.OnDataChanged();
