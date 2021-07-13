@@ -40,7 +40,6 @@ enum class MiscMessage : UINT
     key_down,
     run_task_async,
     run_next_event,
-    stop_idle_algorithm,
     size_limit_changed
 };
 

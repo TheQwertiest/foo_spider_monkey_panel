@@ -110,7 +110,7 @@ private: // callback handling
     std::optional<LRESULT> process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp );
 
     // Internal callbacks
-    void on_context_menu( int x, int y );
+    void OpenDefaultContextManu( int x, int y );
     void on_erase_background();
     void on_panel_create( HWND hWnd );
     void on_panel_destroy();

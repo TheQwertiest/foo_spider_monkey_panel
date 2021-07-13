@@ -224,6 +224,7 @@
     <ClCompile Include="panel\edit_script.cpp" />
     <ClCompile Include="panel\event_js_task.cpp" />
     <ClCompile Include="panel\event_manager.cpp" />
+    <ClCompile Include="panel\event_mouse.cpp" />
     <ClCompile Include="panel\js_panel_window.cpp" />
     <ClCompile Include="panel\js_panel_window_cui.cpp" />
     <ClCompile Include="panel\js_panel_window_dui.cpp" />
@@ -373,6 +374,7 @@
     <ClInclude Include="panel\event_js_task.h" />
     <ClInclude Include="panel\event_manager.h" />
     <ClInclude Include="panel\event_js_callback.h" />
+    <ClInclude Include="panel\event_mouse.h" />
     <ClInclude Include="panel\ievent_js_forwarder.h" />
     <ClInclude Include="panel\js_panel_window.h" />
     <ClInclude Include="panel\js_panel_window_cui.h" />

@@ -3,6 +3,7 @@
 namespace smp::panel
 {
 
+class Event_Mouse;
 class js_panel_window;
 
 enum class EventId
@@ -41,6 +42,25 @@ enum class EventId
     kFbReplaygainModeChanged,
     kFbSelectionChanged,
     kFbVolumeChange,
+    // input
+    /// buttons
+    kMouseLeftButtonDoubleClick,
+    kMouseLeftButtonDown,
+    kMouseLeftButtonUp,
+    kMouseMiddleButtonDoubleClick,
+    kMouseMiddleButtonDown,
+    kMouseMiddleButtonUp,
+    kMouseRightButtonDoubleClick,
+    kMouseRightButtonDown,
+    kMouseRightButtonUp,
+    /// wheel
+    kMouseHorizontalWheel,
+    kMouseVerticalWheel,
+    /// move
+    kMouseLeave,
+    kMouseMove,
+    /// context
+    kMouseContextMenu,
     // internal
     kInternalGetAlbumArtDone,
     kInternalGetAlbumArtPromiseDone,
@@ -87,6 +107,25 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kFbReplaygainModeChanged, "replaygain_mode_changed" },
     { EventId::kFbSelectionChanged, "selection_changed" },
     { EventId::kFbVolumeChange, "volume_change" },
+    // input
+    /// buttons
+    { EventId::kMouseLeftButtonDoubleClick, "mouse_lbtn_dblclk" },
+    { EventId::kMouseLeftButtonDown, "mouse_lbtn_down" },
+    { EventId::kMouseLeftButtonUp, "mouse_lbtn_up" },
+    { EventId::kMouseMiddleButtonDoubleClick, "mouse_mbtn_dblclk" },
+    { EventId::kMouseMiddleButtonDown, "mouse_mbtn_down" },
+    { EventId::kMouseMiddleButtonUp, "mouse_mbtn_up" },
+    { EventId::kMouseRightButtonDoubleClick, "mouse_rbtn_dblclk" },
+    { EventId::kMouseRightButtonDown, "mouse_rbtn_down" },
+    { EventId::kMouseRightButtonUp, "mouse_rbtn_up" },
+    /// wheel
+    { EventId::kMouseHorizontalWheel, "mouse_wheel_h" },
+    { EventId::kMouseVerticalWheel, "mouse_wheel" },
+    /// move
+    { EventId::kMouseLeave, "mouse_leave" },
+    { EventId::kMouseMove, "mouse_move" },
+    /// context
+    { EventId::kMouseContextMenu, "TODO" },
     // internal
     { EventId::kInternalGetAlbumArtDone, "get_album_art_done" },
     { EventId::kInternalLoadImageDone, "load_image_done" },
@@ -111,6 +150,15 @@ class Runnable
 public:
     virtual ~Runnable() = default;
     virtual void Run( js_panel_window& panelWindow ) = 0;
+};
+
+class EventBase
+{
+
+public:
+    virtual ~EventBase() = default;
+
+    virtual Event_Mouse* AsMouseEvent() = 0;
 };
 
 } // namespace smp::panel

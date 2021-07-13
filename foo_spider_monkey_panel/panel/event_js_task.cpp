@@ -21,9 +21,15 @@ void Event_JsTask::Run( js_panel_window& panelWindow )
     panelWindow.ExecuteJsTask( id_, *this );
 }
 
-void Event_JsTask::JsExecute( mozjs::JsContainer& jsContainer )
+std::optional<bool> Event_JsTask::JsExecute( mozjs::JsContainer& jsContainer )
 {
     jsContainer.InvokeJsAsyncTask( *pTask_ );
+    return std::nullopt;
+}
+
+Event_Mouse* Event_JsTask::AsMouseEvent()
+{
+    return nullptr;
 }
 
 } // namespace smp::panel

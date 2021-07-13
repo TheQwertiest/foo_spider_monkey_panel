@@ -27,10 +27,21 @@ public:
         panelWindow.ExecuteJsTask( id_, *this );
     }
 
-    void JsExecute( mozjs::JsContainer& jsContainer ) override
+    std::optional<bool> JsExecute( mozjs::JsContainer& jsContainer ) override
     {
         const auto callbackName = fmt::format( "on_{}", kCallbackIdToName.at( id_ ) );
-        std::apply( [&]( auto&&... args ) { jsContainer.InvokeJsCallback( callbackName, std::forward<decltype( args )>( args )... ); }, std::move( data_ ) );
+        std::apply(
+            [&]( auto&&... args ) {
+                jsContainer.InvokeJsCallback<bool>( callbackName, std::forward<decltype( args )>( args )... );
+            },
+            std::move( data_ ) );
+
+        return std::nullopt;
+    }
+
+    Event_Mouse* AsMouseEvent() override
+    {
+        return nullptr;
     }
 
 private:

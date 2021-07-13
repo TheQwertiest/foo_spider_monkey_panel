@@ -12,11 +12,11 @@ class JsContainer;
 namespace smp::panel
 {
 
-class IEvent_JsTask
+class IEvent_JsTask : public EventBase
 {
 public:
-    virtual ~IEvent_JsTask() = default;
-    virtual void JsExecute( mozjs::JsContainer& jsContainer ) = 0;
+    ~IEvent_JsTask() override = default;
+    virtual std::optional<bool> JsExecute( mozjs::JsContainer& jsContainer ) = 0;
 };
 
 } // namespace smp::panel

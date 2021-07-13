@@ -10,7 +10,9 @@
 #include <js_engine/js_container.h>
 #include <panel/drop_action_params.h>
 #include <panel/edit_script.h>
+#include <panel/event_js_callback.h>
 #include <panel/event_manager.h>
+#include <panel/event_mouse.h>
 #include <panel/message_manager.h>
 #include <panel/modal_blocking_scope.h>
 #include <ui/ui_conf.h>
@@ -205,12 +207,6 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     com::DeleteMarkedObjects();
 
-    if ( msg == static_cast<UINT>( MiscMessage::stop_idle_algorithm ) )
-    { // must be sync
-        // eventLoop.StopIdleAlgorithm();
-        return 0;
-    }
-
     qwr::final_action jobsRunner( [hWnd = wnd_.m_hWnd] {
         --nestedCounter;
 
@@ -261,14 +257,108 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     return DefWindowProc( hwnd, msg, wp, lp );
 }
 
-void js_panel_window::ExecuteJsTask( EventId /* id */, IEvent_JsTask& task )
+void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
 {
     if ( !pJsContainer_ )
     {
         return;
     }
 
-    task.JsExecute( *pJsContainer_ );
+    switch ( id )
+    {
+    case smp::panel::EventId::kMouseLeftButtonUp:
+    case smp::panel::EventId::kMouseMiddleButtonUp:
+    {
+        task.JsExecute( *pJsContainer_ );
+
+        ReleaseCapture();
+
+        break;
+    }
+    case smp::panel::EventId::kMouseRightButtonUp:
+    {
+        const auto autoCapture = qwr::final_action( [] { ReleaseCapture(); } );
+
+        const auto pMouseEvent = task.AsMouseEvent();
+        assert( pMouseEvent );
+
+        // Bypass the user code.
+        const auto useDefaultContextMenu = [&] {
+            if ( IsKeyPressed( VK_LSHIFT ) && IsKeyPressed( VK_LWIN ) )
+            {
+                return true;
+            }
+            else
+            {
+                return !pMouseEvent->JsExecute( *pJsContainer_ ).value_or( false );
+            }
+        }();
+
+        if ( useDefaultContextMenu )
+        {
+            EventManager::Get().PutEvent( wnd_,
+                                          std::make_unique<Event_Mouse>(
+                                              EventId::kMouseContextMenu,
+                                              pMouseEvent->GetX(),
+                                              pMouseEvent->GetY(),
+                                              0 ),
+                                          EventPriority::kInputHigh );
+        }
+        break;
+    }
+    case smp::panel::EventId::kMouseLeftButtonDown:
+    case smp::panel::EventId::kMouseMiddleButtonDown:
+    case smp::panel::EventId::kMouseRightButtonDown:
+    {
+        if ( settings_.shouldGrabFocus )
+        {
+            wnd_.SetFocus();
+        }
+
+        wnd_.SetCapture();
+
+        task.JsExecute( *pJsContainer_ );
+
+        break;
+    }
+    case smp::panel::EventId::kMouseLeave:
+    {
+        isMouseTracked_ = false;
+
+        task.JsExecute( *pJsContainer_ );
+
+        // Restore default cursor
+        SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
+
+        break;
+    }
+    case smp::panel::EventId::kMouseMove:
+    {
+        if ( !isMouseTracked_ )
+        {
+            TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, wnd_, HOVER_DEFAULT };
+            TrackMouseEvent( &tme );
+            isMouseTracked_ = true;
+
+            // Restore default cursor
+            SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
+        }
+
+        task.JsExecute( *pJsContainer_ );
+
+        break;
+    }
+    case smp::panel::EventId::kMouseContextMenu:
+    {
+        const auto pMouseEvent = task.AsMouseEvent();
+        assert( pMouseEvent );
+
+        OpenDefaultContextManu( pMouseEvent->GetX(), pMouseEvent->GetY() );
+        break;
+    }
+    default:
+        task.JsExecute( *pJsContainer_ );
+    }
 }
 
 std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -402,52 +492,153 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         return DlgCode();
     }
     case WM_LBUTTONDOWN:
+    {
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseLeftButtonDown,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
+        return std::nullopt;
+    }
     case WM_MBUTTONDOWN:
+    {
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseMiddleButtonDown,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
+        return std::nullopt;
+    }
     case WM_RBUTTONDOWN:
     {
-        on_mouse_button_down( msg, wp, lp );
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseRightButtonDown,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
         return std::nullopt;
     }
     case WM_LBUTTONUP:
-    case WM_MBUTTONUP:
-    case WM_RBUTTONUP:
     {
-        if ( on_mouse_button_up( msg, wp, lp ) )
-        {
-            return 0;
-        }
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseLeftButtonUp,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
         return std::nullopt;
     }
+    case WM_MBUTTONUP:
+    {
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseMiddleButtonUp,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
+        return std::nullopt;
+    }
+    case WM_RBUTTONUP:
+    {
+        EventManager::Get().PutEvent( wnd_,
+                                      std::make_unique<Event_Mouse>(
+                                          EventId::kMouseRightButtonUp,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
+        return 0;
+    }
     case WM_LBUTTONDBLCLK:
+    {
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseLeftButtonDoubleClick,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
+        return std::nullopt;
+    }
     case WM_MBUTTONDBLCLK:
+    {
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseMiddleButtonDoubleClick,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
+        return std::nullopt;
+    }
     case WM_RBUTTONDBLCLK:
     {
-        on_mouse_button_dblclk( msg, wp, lp );
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseRightButtonDoubleClick,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
         return std::nullopt;
     }
     case WM_CONTEXTMENU:
     {
-        on_context_menu( GET_X_LPARAM( lp ), GET_Y_LPARAM( lp ) );
+        POINT p{ GET_X_LPARAM( lp ), GET_Y_LPARAM( lp ) };
+        ScreenToClient( wnd_, &p );
+        EventManager::Get().PutEvent( wnd_,
+                                      std::make_unique<Event_Mouse>(
+                                          EventId::kMouseContextMenu,
+                                          p.x,
+                                          p.y,
+                                          0 ),
+                                      EventPriority::kInputHigh );
         return 1;
     }
     case WM_MOUSEMOVE:
     {
-        on_mouse_move( wp, lp );
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseMove,
+                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                          static_cast<uint32_t>( wp ) ),
+                                      EventPriority::kInputHigh );
         return std::nullopt;
     }
     case WM_MOUSELEAVE:
     {
-        on_mouse_leave();
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback( EventId::kMouseLeave ),
+                                      EventPriority::kInputHigh );
         return std::nullopt;
     }
     case WM_MOUSEWHEEL:
     {
-        on_mouse_wheel( wp );
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseVerticalWheel,
+                                          static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ),
+                                          static_cast<int32_t>( GET_WHEEL_DELTA_WPARAM( wp ) ),
+                                          static_cast<int32_t>( WHEEL_DELTA ) ),
+                                      EventPriority::kInputHigh );
         return std::nullopt;
     }
     case WM_MOUSEHWHEEL:
     {
-        on_mouse_wheel_h( wp );
+        EventManager::Get().PutEvent( wnd_,
+                                      GenerateEvent_JsCallback(
+                                          EventId::kMouseHorizontalWheel,
+                                          static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ) ),
+                                      EventPriority::kInputHigh );
         return std::nullopt;
     }
     case WM_SETCURSOR:
@@ -1062,7 +1253,7 @@ void js_panel_window::DeleteDrawContext()
     }
 }
 
-void js_panel_window::on_context_menu( int x, int y )
+void js_panel_window::OpenDefaultContextManu( int x, int y )
 {
     if ( modal::IsModalBlocked() )
     {
@@ -1071,12 +1262,15 @@ void js_panel_window::on_context_menu( int x, int y )
 
     modal::MessageBlockingScope scope;
 
+    POINT p{ x, y };
+    ClientToScreen( wnd_, &p );
+
     CMenu menu = CreatePopupMenu();
     constexpr uint32_t base_id = 0;
-    GenerateContextMenu( menu, x, y, base_id );
+    GenerateContextMenu( menu, p.x, p.y, base_id );
 
     // yup, WinAPI at it's best: BOOL is used as an integer index here
-    const uint32_t ret = menu.TrackPopupMenu( TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, wnd_, nullptr );
+    const uint32_t ret = menu.TrackPopupMenu( TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, p.x, p.y, wnd_, nullptr );
     ExecuteContextMenu( ret, base_id );
 }
 

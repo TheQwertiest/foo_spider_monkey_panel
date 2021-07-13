@@ -78,12 +78,18 @@ bool TaskController::ExecuteNextTask( js_panel_window& panelWindow )
         return false;
     }
 
-    // in case we destroy ourself during task tun
+    // in case we destroy ourself during task run
     auto selfSaver = shared_from_this();
 
-    auto pTask = *tasks_.begin();
+    auto it = ranges::find_if( tasks_, []( const auto pTask ) { return !pTask->isInProgress_; } );
+    if ( it == tasks_.end() )
     {
-        // allow other tasks to be queued
+        return false;
+    }
+
+    auto pTask = *it;
+    tasks_.erase( pTask->taskIterator_ );
+    { // allow other tasks to be queued
         ul.unlock();
         qwr::final_action autoLock( [&] {
             ul.lock();
@@ -91,9 +97,6 @@ bool TaskController::ExecuteNextTask( js_panel_window& panelWindow )
 
         pTask->Run( panelWindow );
     }
-
-    // iterator could've been changed due to reprioritization
-    tasks_.erase( pTask->taskIterator_ );
 
     return true;
 }

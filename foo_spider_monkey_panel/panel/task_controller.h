@@ -36,6 +36,7 @@ private:
                          const std::shared_ptr<Task>& b ) const;
     };
     std::set<std::shared_ptr<Task>, Task::PriorityCompare>::iterator taskIterator_;
+    bool isInProgress_ = false;
 };
 
 class RunnableTask final : public Task
