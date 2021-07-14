@@ -88,6 +88,7 @@ enum class EventId
     // window
     kWndFocus,
     kWndPaint,
+    kWndRepaintBackground,
     kWndResize,
     // script
     kScriptEdit,

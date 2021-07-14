@@ -3,18 +3,10 @@
 namespace smp
 {
 
-/// @details These messages are asynchronous
-enum class InternalAsyncMessage : UINT
-{
-    first_message = WM_USER + 100,
-    refresh_bg = first_message,
-    last_message = refresh_bg,
-};
-
 /// @details These messages are synchronous
 enum class InternalSyncMessage : UINT
 {
-    first_message = static_cast<int>( InternalAsyncMessage::last_message ) + 1,
+    first_message = WM_USER + 100,
     notify_data = first_message,
     script_fail,
     terminate_script,
@@ -32,7 +24,6 @@ enum class MiscMessage : UINT
 {
     heartbeat = static_cast<int>( InternalSyncMessage::last_message ) + 1,
     key_down,
-    run_task_async,
     run_next_event,
     size_limit_changed
 };

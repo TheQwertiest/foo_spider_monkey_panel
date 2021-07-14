@@ -14,10 +14,10 @@ namespace smp
 
 class js_panel_window;
 
-class Event_Internal : public Runnable
+class Event_Basic : public Runnable
 {
 public:
-    Event_Internal( EventId id );
+    Event_Basic( EventId id );
 
     void Run( panel::js_panel_window& panelWindow ) override;
 

@@ -6,8 +6,8 @@
 #include <com_utils/com_destruction_handler.h>
 #include <config/delayed_package_utils.h>
 #include <config/package_utils.h>
+#include <events/event_basic.h>
 #include <events/event_focus.h>
-#include <events/event_internal.h>
 #include <events/event_js_callback.h>
 #include <events/event_manager.h>
 #include <events/event_mouse.h>
@@ -204,47 +204,30 @@ bool js_panel_window::IsPanelIdOverridenByScript() const
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    static uint32_t nestedCounter = 0;
-    ++nestedCounter;
-
     com::DeleteMarkedObjects();
-
-    qwr::final_action jobsRunner( [hWnd = wnd_.m_hWnd] {
-        --nestedCounter;
-
-        if ( !nestedCounter )
-        { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
-            // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
-            mozjs::JsContainer::RunJobs();
-        }
-        if ( !nestedCounter || modal::IsModalBlocked() )
-        {
-            MessageManager::Get().RequestNextAsyncMessage( hWnd );
-            EventManager::Get().RequestNextEvent( hWnd );
-        }
-    } );
 
     if ( EventManager::IsRequestEventMessage( msg ) )
     {
+        static uint32_t nestedCounter = 0;
+        ++nestedCounter;
+
+        qwr::final_action jobsRunner( [hWnd = wnd_.m_hWnd] {
+            --nestedCounter;
+
+            if ( !nestedCounter )
+            { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
+                // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
+                mozjs::JsContainer::RunJobs();
+            }
+            if ( !nestedCounter || modal::IsModalBlocked() )
+            {
+                EventManager::Get().RequestNextEvent( hWnd );
+            }
+        } );
+
         if ( nestedCounter == 1 || modal::IsModalBlocked() )
         {
             EventManager::Get().ProcessNextEvent( wnd_ );
-        }
-    }
-    else if ( MessageManager::IsAsyncMessage( msg ) )
-    {
-        if ( nestedCounter == 1 || modal::IsModalBlocked() )
-        {
-            auto optMessage = MessageManager::Get().ClaimAsyncMessage( wnd_, msg, wp, lp );
-            if ( optMessage )
-            {
-                const auto [asyncMsg, asyncWp, asyncLp] = *optMessage;
-                auto retVal = process_async_messages( asyncMsg, asyncWp, asyncLp );
-                if ( retVal )
-                {
-                    return *retVal;
-                }
-            }
         }
     }
     else
@@ -416,7 +399,7 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
     }
 }
 
-void js_panel_window::ExecuteInternalTask( EventId id )
+void js_panel_window::ExecuteTask( EventId id )
 {
     switch ( id )
     {
@@ -457,6 +440,12 @@ void js_panel_window::ExecuteInternalTask( EventId id )
         ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
         break;
     }
+    case EventId::kWndRepaintBackground:
+    {
+        isBgRepaintNeeded_ = true;
+        Repaint( true );
+        break;
+    }
     default:
         break;
     }
@@ -483,21 +472,6 @@ std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT m
         {
             return *retVal;
         }
-    }
-
-    return std::nullopt;
-}
-
-std::optional<LRESULT> js_panel_window::process_async_messages( UINT msg, WPARAM wp, LPARAM lp )
-{
-    if ( !pJsContainer_ )
-    {
-        return std::nullopt;
-    }
-
-    if ( IsInEnumRange<InternalAsyncMessage>( msg ) )
-    {
-        return process_internal_async_messages( static_cast<InternalAsyncMessage>( msg ), wp, lp );
     }
 
     return std::nullopt;
@@ -543,7 +517,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     {
         if ( settings_.isPseudoTransparent )
         {
-            MessageManager::Get().PostMsg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
+            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
         }
         return 1;
     }
@@ -844,23 +818,6 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM )
-{
-    switch ( msg )
-    {
-    case InternalAsyncMessage::refresh_bg:
-    {
-        isBgRepaintNeeded_ = true;
-        Repaint( true );
-        return 0;
-    }
-    default:
-    {
-        return std::nullopt;
-    }
-    }
-}
-
 void js_panel_window::EditScript()
 {
     switch ( settings_.GetSourceType() )
@@ -974,7 +931,7 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         {
         case 1:
         {
-            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Internal>( EventId::kScriptReload ) );
+            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptReload ) );
             break;
         }
         case 2:
@@ -989,17 +946,17 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         }
         case 4:
         {
-            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Internal>( EventId::kScriptEdit ) );
+            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptEdit ) );
             break;
         }
         case 5:
         {
-            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Internal>( EventId::kScriptShowProperties ) );
+            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowProperties ) );
             break;
         }
         case 6:
         {
-            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Internal>( EventId::kScriptShowConfigure ) );
+            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ) );
             break;
         }
         }
@@ -1209,7 +1166,6 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     isPanelIdOverridenByScript_ = false;
 
     DynamicMainMenuManager::Get().RegisterPanel( wnd_, settings_.panelId );
-    MessageManager::Get().EnableAsyncMessages( wnd_ );
     EventManager::Get().EnableEventQueue( wnd_ );
 
     const auto extstyle = [&] {
@@ -1282,7 +1238,6 @@ void js_panel_window::UnloadScript( bool force )
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
     }
 
-    MessageManager::Get().DisableAsyncMessages( wnd_ );
     EventManager::Get().DisableEventQueue( wnd_ );
     selectionHolder_.release();
     try
@@ -1515,7 +1470,7 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
 
     if ( settings_.isPseudoTransparent )
     {
-        MessageManager::Get().PostMsg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
+        EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
     }
     else
     {

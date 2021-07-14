@@ -3,7 +3,7 @@
 #include "window.h"
 
 #include <config/package_utils.h>
-#include <events/event_internal.h>
+#include <events/event_basic.h>
 #include <events/event_manager.h>
 #include <js_engine/host_timer_dispatcher.h>
 #include <js_engine/js_engine.h>
@@ -376,7 +376,7 @@ void JsWindow::EditScript()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptEdit ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptEdit ) );
 }
 
 uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
@@ -544,7 +544,7 @@ void JsWindow::Reload()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptReload ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptReload ) );
 }
 
 void JsWindow::Repaint( bool force )
@@ -689,7 +689,7 @@ void JsWindow::ShowConfigure()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptShowConfigureLegacy ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowConfigureLegacy ) );
 }
 
 void JsWindow::ShowConfigureV2()
@@ -699,7 +699,7 @@ void JsWindow::ShowConfigureV2()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptShowConfigure ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ) );
 }
 
 void JsWindow::ShowProperties()
@@ -709,7 +709,7 @@ void JsWindow::ShowProperties()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptShowProperties ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowProperties ) );
 }
 
 uint32_t JsWindow::get_DlgCode()

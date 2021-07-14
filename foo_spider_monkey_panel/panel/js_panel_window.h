@@ -100,15 +100,13 @@ private:
 
 public:
     void ExecuteJsTask( EventId id, IEvent_JsTask& task );
-    void ExecuteInternalTask( EventId id );
+    void ExecuteTask( EventId id );
 
 private: // callback handling
     std::optional<LRESULT> process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> process_async_messages( UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_main_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_window_messages( UINT msg, WPARAM wp, LPARAM lp );
     std::optional<LRESULT> process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM lp );
 
     // Internal callbacks
     void OpenDefaultContextManu( int x, int y );

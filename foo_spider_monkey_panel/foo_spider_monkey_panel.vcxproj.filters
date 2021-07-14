@@ -385,11 +385,11 @@
     <ClCompile Include="events\event_focus.cpp">
       <Filter>events</Filter>
     </ClCompile>
+    <ClCompile Include="events\event_basic.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
       <Filter>fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="events\event_internal.cpp">
-      <Filter>events</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -672,9 +672,6 @@
     <ClInclude Include="panel\panel_info.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="panel\callback_data.h">
-      <Filter>panel</Filter>
-    </ClInclude>
     <ClInclude Include="js_engine\host_timer_dispatcher.h">
       <Filter>js_engine</Filter>
     </ClInclude>
@@ -841,7 +838,7 @@
     <ClInclude Include="events\event_js_callback.h">
       <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="events\event_internal.h">
+    <ClInclude Include="events\event_basic.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="fb2k\mainmenu_dynamic.h">
