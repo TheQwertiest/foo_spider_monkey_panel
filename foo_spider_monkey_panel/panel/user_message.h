@@ -7,13 +7,8 @@ namespace smp
 enum class InternalAsyncMessage : UINT
 {
     first_message = WM_USER + 100,
-    edit_script = first_message,
-    refresh_bg,
-    reload_script,
-    show_configure_legacy,
-    show_configure,
-    show_properties,
-    last_message = show_properties,
+    refresh_bg = first_message,
+    last_message = refresh_bg,
 };
 
 /// @details These messages are synchronous

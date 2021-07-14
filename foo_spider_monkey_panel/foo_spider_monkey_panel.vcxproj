@@ -164,6 +164,7 @@
     <ClCompile Include="events\event_js_task.cpp" />
     <ClCompile Include="events\event_manager.cpp" />
     <ClCompile Include="events\event_mouse.cpp" />
+    <ClCompile Include="events\event_internal.cpp" />
     <ClCompile Include="events\task_controller.cpp" />
     <ClCompile Include="fb2k\acfu_integration.cpp" />
     <ClCompile Include="fb2k\advanced_config.cpp" />
@@ -308,6 +309,7 @@
     <ClInclude Include="events\event_js_task.h" />
     <ClInclude Include="events\event_manager.h" />
     <ClInclude Include="events\event_mouse.h" />
+    <ClInclude Include="events\event_internal.h" />
     <ClInclude Include="events\ievent_js_forwarder.h" />
     <ClInclude Include="events\task_controller.h" />
     <ClInclude Include="fb2k\advanced_config.h" />

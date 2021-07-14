@@ -3,6 +3,8 @@
 #include "window.h"
 
 #include <config/package_utils.h>
+#include <events/event_internal.h>
+#include <events/event_manager.h>
 #include <js_engine/host_timer_dispatcher.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_invoker.h>
@@ -16,7 +18,6 @@
 #include <js_utils/js_property_helper.h>
 #include <panel/js_panel_window.h>
 #include <panel/message_manager.h>
-#include <panel/user_message.h>
 #include <utils/gdi_helpers.h>
 
 #include <qwr/winapi_error_helpers.h>
@@ -375,7 +376,7 @@ void JsWindow::EditScript()
         return;
     }
 
-    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::edit_script ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptEdit ) );
 }
 
 uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
@@ -543,7 +544,7 @@ void JsWindow::Reload()
         return;
     }
 
-    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::reload_script ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptReload ) );
 }
 
 void JsWindow::Repaint( bool force )
@@ -688,7 +689,7 @@ void JsWindow::ShowConfigure()
         return;
     }
 
-    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure_legacy ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptShowConfigureLegacy ) );
 }
 
 void JsWindow::ShowConfigureV2()
@@ -698,7 +699,7 @@ void JsWindow::ShowConfigureV2()
         return;
     }
 
-    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptShowConfigure ) );
 }
 
 void JsWindow::ShowProperties()
@@ -708,7 +709,7 @@ void JsWindow::ShowProperties()
         return;
     }
 
-    panel::MessageManager::Get().PostMsg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_properties ) );
+    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Internal>( EventId::kScriptShowProperties ) );
 }
 
 uint32_t JsWindow::get_DlgCode()

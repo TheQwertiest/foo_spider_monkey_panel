@@ -89,6 +89,12 @@ enum class EventId
     kWndFocus,
     kWndPaint,
     kWndResize,
+    // script
+    kScriptEdit,
+    kScriptReload,
+    kScriptShowConfigure,
+    kScriptShowConfigureLegacy,
+    kScriptShowProperties,
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {

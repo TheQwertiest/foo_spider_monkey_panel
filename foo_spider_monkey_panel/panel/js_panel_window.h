@@ -100,6 +100,7 @@ private:
 
 public:
     void ExecuteJsTask( EventId id, IEvent_JsTask& task );
+    void ExecuteInternalTask( EventId id );
 
 private: // callback handling
     std::optional<LRESULT> process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );

@@ -7,6 +7,7 @@
 #include <config/delayed_package_utils.h>
 #include <config/package_utils.h>
 #include <events/event_focus.h>
+#include <events/event_internal.h>
 #include <events/event_js_callback.h>
 #include <events/event_manager.h>
 #include <events/event_mouse.h>
@@ -415,6 +416,52 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
     }
 }
 
+void js_panel_window::ExecuteInternalTask( EventId id )
+{
+    switch ( id )
+    {
+    case EventId::kScriptEdit:
+    {
+        EditScript();
+        break;
+    }
+    case EventId::kScriptReload:
+    {
+        ReloadScript();
+        break;
+    }
+    case EventId::kScriptShowConfigure:
+    {
+        ShowConfigure( wnd_ );
+        break;
+    }
+    case EventId::kScriptShowConfigureLegacy:
+    {
+        switch ( settings_.GetSourceType() )
+        {
+        case config::ScriptSourceType::InMemory:
+        {
+            EditScript();
+            break;
+        }
+        default:
+        {
+            ShowConfigure( wnd_ );
+            break;
+        }
+        }
+        break;
+    }
+    case EventId::kScriptShowProperties:
+    {
+        ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
+        break;
+    }
+    default:
+        break;
+    }
+}
+
 std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
     if ( auto retVal = process_main_messages( hwnd, msg, wp, lp );
@@ -801,47 +848,10 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
 {
     switch ( msg )
     {
-    case InternalAsyncMessage::edit_script:
-    {
-        EditScript();
-        return 0;
-    }
     case InternalAsyncMessage::refresh_bg:
     {
         isBgRepaintNeeded_ = true;
         Repaint( true );
-        return 0;
-    }
-    case InternalAsyncMessage::reload_script:
-    {
-        ReloadScript();
-        return 0;
-    }
-    case InternalAsyncMessage::show_configure_legacy:
-    {
-        switch ( settings_.GetSourceType() )
-        {
-        case config::ScriptSourceType::InMemory:
-        {
-            EditScript();
-            break;
-        }
-        default:
-        {
-            ShowConfigure( wnd_ );
-            break;
-        }
-        }
-        return 0;
-    }
-    case InternalAsyncMessage::show_configure:
-    {
-        ShowConfigure( wnd_ );
-        return 0;
-    }
-    case InternalAsyncMessage::show_properties:
-    {
-        ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
         return 0;
     }
     default:
@@ -964,7 +974,7 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         {
         case 1:
         {
-            ReloadScript();
+            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Internal>( EventId::kScriptReload ) );
             break;
         }
         case 2:
@@ -979,17 +989,17 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         }
         case 4:
         {
-            panel::EditScript( wnd_, settings_ );
+            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Internal>( EventId::kScriptEdit ) );
             break;
         }
         case 5:
         {
-            ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
+            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Internal>( EventId::kScriptShowProperties ) );
             break;
         }
         case 6:
         {
-            ShowConfigure( wnd_ );
+            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Internal>( EventId::kScriptShowConfigure ) );
             break;
         }
         }

@@ -388,6 +388,9 @@
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
+    <ClCompile Include="events\event_internal.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -836,6 +839,9 @@
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\event_js_callback.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_internal.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="fb2k\mainmenu_dynamic.h">
