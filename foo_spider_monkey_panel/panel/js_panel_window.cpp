@@ -543,6 +543,7 @@ std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessa
     }
     case CallbackMessage::internal_load_image_promise_done:
     case CallbackMessage::internal_get_album_art_promise_done:
+    case CallbackMessage::internal_timer_proc:
     {
         on_js_task( callbackData );
         return 0;
@@ -707,11 +708,6 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
     case InternalSyncMessage::terminate_script:
     {
         UnloadScript();
-        return 0;
-    }
-    case InternalSyncMessage::timer_proc:
-    {
-        pJsContainer_->InvokeJsAsyncTask( *reinterpret_cast<mozjs::JsAsyncTask*>( lp ) );
         return 0;
     }
     case InternalSyncMessage::ui_script_editor_saved:
