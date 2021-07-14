@@ -1,6 +1,6 @@
 #pragma once
 
-#include <panel/event.h>
+#include <events/event.h>
 
 #include <mutex>
 #include <unordered_map>
@@ -8,7 +8,7 @@
 // TODO: add on_size and mouse_move coalescing (https://searchfox.org/mozilla-central/source/dom/ipc/PBrowser.ipdl)
 // TODO: add dynamic input task prioritization (kInputLow)
 
-namespace smp::panel
+namespace smp
 {
 
 class TaskController;
@@ -24,7 +24,7 @@ public:
     static EventManager& Get();
 
 public:
-    void AddWindow( HWND hWnd, js_panel_window& panelWindow );
+    void AddWindow( HWND hWnd, panel::js_panel_window& panelWindow );
     void RemoveWindow( HWND hWnd );
 
     void EnableEventQueue( HWND hWnd );
@@ -43,8 +43,8 @@ public:
 
 private:
     std::mutex taskControllerMapMutex_;
-    std::unordered_map<HWND, js_panel_window*> windowMap_;
+    std::unordered_map<HWND, panel::js_panel_window*> windowMap_;
     std::unordered_map<HWND, std::shared_ptr<TaskController>> taskControllerMap_;
 };
 
-} // namespace smp::panel
+} // namespace smp

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <panel/event.h>
-#include <panel/ievent_js_forwarder.h>
+#include <events/event.h>
+#include <events/ievent_js_forwarder.h>
 
 namespace mozjs
 {
@@ -10,7 +10,7 @@ class JsContainer;
 
 } // namespace mozjs
 
-namespace smp::panel
+namespace smp
 {
 
 class js_panel_window;
@@ -21,11 +21,10 @@ class Event_Focus : public Runnable
 public:
     Event_Focus( EventId id, bool isFocused );
 
-    void Run( js_panel_window& panelWindow ) override;
+    void Run( panel::js_panel_window& panelWindow ) override;
 
     std::optional<bool> JsExecute( mozjs::JsContainer& jsContainer ) override;
 
-    Event_Mouse* AsMouseEvent() override;
     Event_Focus* AsFocusEvent() override;
 
     bool IsFocused() const;
@@ -35,4 +34,4 @@ private:
     const bool isFocused_;
 };
 
-} // namespace smp::panel
+} // namespace smp

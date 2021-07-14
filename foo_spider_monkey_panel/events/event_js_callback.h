@@ -1,11 +1,11 @@
 #pragma once
 
+#include <events/event.h>
+#include <events/ievent_js_forwarder.h>
 #include <js_engine/js_container.h>
-#include <panel/event.h>
-#include <panel/ievent_js_forwarder.h>
 #include <panel/js_panel_window.h>
 
-namespace smp::panel
+namespace smp
 {
 
 template <typename... Args>
@@ -21,7 +21,7 @@ public:
         assert( kCallbackIdToName.count( id_ ) );
     }
 
-    void Run( js_panel_window& panelWindow ) override
+    void Run( panel::js_panel_window& panelWindow ) override
     {
         assert( core_api::is_main_thread() );
         panelWindow.ExecuteJsTask( id_, *this );
@@ -39,16 +39,6 @@ public:
         return std::nullopt;
     }
 
-    Event_Mouse* AsMouseEvent() override
-    {
-        return nullptr;
-    }
-
-    Event_Focus* AsFocusEvent() override
-    {
-        return nullptr;
-    }
-
 private:
     const EventId id_;
     std::tuple<Args...> data_;
@@ -60,4 +50,4 @@ auto GenerateEvent_JsCallback( EventId id, Args&&... args )
     return std::make_unique<Event_JsCallback<std::decay_t<Args>...>>( id, std::forward<Args>( args )... );
 }
 
-} // namespace smp::panel
+} // namespace smp

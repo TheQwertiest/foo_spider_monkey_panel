@@ -1,6 +1,6 @@
 #pragma once
 
-#include <panel/event.h>
+#include <events/event.h>
 
 namespace mozjs
 {
@@ -9,7 +9,7 @@ class JsContainer;
 
 }
 
-namespace smp::panel
+namespace smp
 {
 
 class IEvent_JsTask : public EventBase
@@ -19,4 +19,4 @@ public:
     virtual std::optional<bool> JsExecute( mozjs::JsContainer& jsContainer ) = 0;
 };
 
-} // namespace smp::panel
+} // namespace smp

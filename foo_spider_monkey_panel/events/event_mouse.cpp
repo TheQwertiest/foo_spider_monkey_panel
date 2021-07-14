@@ -5,7 +5,7 @@
 #include <js_engine/js_container.h>
 #include <panel/js_panel_window.h>
 
-namespace smp::panel
+namespace smp
 {
 
 Event_Mouse::Event_Mouse( EventId id, int32_t x, int32_t y, uint32_t mask )
@@ -17,7 +17,7 @@ Event_Mouse::Event_Mouse( EventId id, int32_t x, int32_t y, uint32_t mask )
     assert( kCallbackIdToName.count( id_ ) );
 }
 
-void Event_Mouse::Run( js_panel_window& panelWindow )
+void Event_Mouse::Run( panel::js_panel_window& panelWindow )
 {
     assert( core_api::is_main_thread() );
     panelWindow.ExecuteJsTask( id_, *this );
@@ -32,11 +32,6 @@ std::optional<bool> Event_Mouse::JsExecute( mozjs::JsContainer& jsContainer )
 Event_Mouse* Event_Mouse::AsMouseEvent()
 {
     return this;
-}
-
-Event_Focus* Event_Mouse::AsFocusEvent()
-{
-    return nullptr;
 }
 
 int32_t Event_Mouse::GetX() const
@@ -54,4 +49,4 @@ uint32_t Event_Mouse::GetMask() const
     return mask_;
 }
 
-} // namespace smp::panel
+} // namespace smp

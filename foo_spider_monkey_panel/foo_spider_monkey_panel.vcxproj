@@ -160,6 +160,11 @@
     <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
+    <ClCompile Include="events\event_focus.cpp" />
+    <ClCompile Include="events\event_js_task.cpp" />
+    <ClCompile Include="events\event_manager.cpp" />
+    <ClCompile Include="events\event_mouse.cpp" />
+    <ClCompile Include="events\task_controller.cpp" />
     <ClCompile Include="fb2k\acfu_integration.cpp" />
     <ClCompile Include="fb2k\advanced_config.cpp" />
     <ClCompile Include="fb2k\config.cpp" />
@@ -222,16 +227,11 @@
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
     <ClCompile Include="panel\edit_script.cpp" />
-    <ClCompile Include="panel\event_focus.cpp" />
-    <ClCompile Include="panel\event_js_task.cpp" />
-    <ClCompile Include="panel\event_manager.cpp" />
-    <ClCompile Include="panel\event_mouse.cpp" />
     <ClCompile Include="panel\js_panel_window.cpp" />
     <ClCompile Include="panel\js_panel_window_cui.cpp" />
     <ClCompile Include="panel\js_panel_window_dui.cpp" />
     <ClCompile Include="panel\modal_blocking_scope.cpp" />
     <ClCompile Include="panel\message_manager.cpp" />
-    <ClCompile Include="panel\task_controller.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
@@ -302,6 +302,14 @@
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
+    <ClInclude Include="events\event.h" />
+    <ClInclude Include="events\event_focus.h" />
+    <ClInclude Include="events\event_js_callback.h" />
+    <ClInclude Include="events\event_js_task.h" />
+    <ClInclude Include="events\event_manager.h" />
+    <ClInclude Include="events\event_mouse.h" />
+    <ClInclude Include="events\ievent_js_forwarder.h" />
+    <ClInclude Include="events\task_controller.h" />
     <ClInclude Include="fb2k\advanced_config.h" />
     <ClInclude Include="fb2k\config.h" />
     <ClInclude Include="fb2k\mainmenu_dynamic.h" />
@@ -371,20 +379,12 @@
     <ClInclude Include="panel\callback_data.h" />
     <ClInclude Include="panel\drop_action_params.h" />
     <ClInclude Include="panel\edit_script.h" />
-    <ClInclude Include="panel\event.h" />
-    <ClInclude Include="panel\event_focus.h" />
-    <ClInclude Include="panel\event_js_task.h" />
-    <ClInclude Include="panel\event_manager.h" />
-    <ClInclude Include="panel\event_js_callback.h" />
-    <ClInclude Include="panel\event_mouse.h" />
-    <ClInclude Include="panel\ievent_js_forwarder.h" />
     <ClInclude Include="panel\js_panel_window.h" />
     <ClInclude Include="panel\js_panel_window_cui.h" />
     <ClInclude Include="panel\js_panel_window_dui.h" />
     <ClInclude Include="panel\modal_blocking_scope.h" />
     <ClInclude Include="panel\message_manager.h" />
     <ClInclude Include="panel\panel_info.h" />
-    <ClInclude Include="panel\task_controller.h" />
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />
     <ClInclude Include="stdafx.h" />

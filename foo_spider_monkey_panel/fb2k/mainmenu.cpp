@@ -1,7 +1,7 @@
 #include <stdafx.h>
 
-#include <panel/event_js_callback.h>
-#include <panel/event_manager.h>
+#include <events/event_js_callback.h>
+#include <events/event_manager.h>
 
 #include <component_paths.h>
 
@@ -100,7 +100,7 @@ GUID MainMenuCommands_Predefined::get_parent()
 
 void MainMenuCommands_Predefined::execute( t_uint32 p_index, service_ptr_t<service_base> )
 {
-    panel::EventManager::Get().PutEventToAll( panel::GenerateEvent_JsCallback( panel::EventId::kInternalMainMenu, p_index + 1 ) );
+    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kInternalMainMenu, p_index + 1 ) );
 }
 
 bool MainMenuCommands_Predefined::get_display( t_uint32 p_index, pfc::string_base& p_out, t_uint32& p_flags )

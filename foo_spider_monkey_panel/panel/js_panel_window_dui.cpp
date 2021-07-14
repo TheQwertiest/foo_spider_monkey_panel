@@ -3,8 +3,8 @@
 #include "js_panel_window_dui.h"
 
 #include <com_objects/drop_target_impl.h>
-#include <panel/event_js_callback.h>
-#include <panel/event_manager.h>
+#include <events/event_js_callback.h>
+#include <events/event_manager.h>
 #include <utils/colour_helpers.h>
 
 namespace

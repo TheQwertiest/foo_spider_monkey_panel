@@ -370,20 +370,20 @@
     <ClCompile Include="com_utils\com_error_helpers.cpp">
       <Filter>com_utils</Filter>
     </ClCompile>
-    <ClCompile Include="panel\event_manager.cpp">
-      <Filter>panel</Filter>
+    <ClCompile Include="events\event_js_task.cpp">
+      <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="panel\task_controller.cpp">
-      <Filter>panel</Filter>
+    <ClCompile Include="events\event_manager.cpp">
+      <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="panel\event_js_task.cpp">
-      <Filter>panel</Filter>
+    <ClCompile Include="events\event_mouse.cpp">
+      <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="panel\event_mouse.cpp">
-      <Filter>panel</Filter>
+    <ClCompile Include="events\task_controller.cpp">
+      <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="panel\event_focus.cpp">
-      <Filter>panel</Filter>
+    <ClCompile Include="events\event_focus.cpp">
+      <Filter>events</Filter>
     </ClCompile>
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
       <Filter>fb2k</Filter>
@@ -814,29 +814,29 @@
     <ClInclude Include="com_utils\com_error_helpers.h">
       <Filter>com_utils</Filter>
     </ClInclude>
-    <ClInclude Include="panel\event_manager.h">
-      <Filter>panel</Filter>
+    <ClInclude Include="events\event_js_task.h">
+      <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="panel\event.h">
-      <Filter>panel</Filter>
+    <ClInclude Include="events\event_manager.h">
+      <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="panel\task_controller.h">
-      <Filter>panel</Filter>
+    <ClInclude Include="events\event_mouse.h">
+      <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="panel\event_js_callback.h">
-      <Filter>panel</Filter>
+    <ClInclude Include="events\ievent_js_forwarder.h">
+      <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="panel\event_js_task.h">
-      <Filter>panel</Filter>
+    <ClInclude Include="events\task_controller.h">
+      <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="panel\ievent_js_forwarder.h">
-      <Filter>panel</Filter>
+    <ClInclude Include="events\event.h">
+      <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="panel\event_mouse.h">
-      <Filter>panel</Filter>
+    <ClInclude Include="events\event_focus.h">
+      <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="panel\event_focus.h">
-      <Filter>panel</Filter>
+    <ClInclude Include="events\event_js_callback.h">
+      <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="fb2k\mainmenu_dynamic.h">
       <Filter>fb2k</Filter>
@@ -911,6 +911,9 @@
     </Filter>
     <Filter Include="com_utils">
       <UniqueIdentifier>{b23d43d7-b904-4566-bbbe-2d2b677efb7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="events">
+      <UniqueIdentifier>{909a5207-b341-4a10-847c-d77a4165b51a}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

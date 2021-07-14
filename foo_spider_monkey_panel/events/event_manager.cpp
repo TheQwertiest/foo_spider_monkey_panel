@@ -2,12 +2,12 @@
 
 #include "event_manager.h"
 
-#include <panel/task_controller.h>
+#include <events/task_controller.h>
 #include <panel/user_message.h>
 
 #include <qwr/final_action.h>
 
-namespace smp::panel
+namespace smp
 {
 
 EventManager& EventManager::Get()
@@ -16,7 +16,7 @@ EventManager& EventManager::Get()
     return em;
 }
 
-void EventManager::AddWindow( HWND hWnd, js_panel_window& panelWindow )
+void EventManager::AddWindow( HWND hWnd, panel::js_panel_window& panelWindow )
 {
     {
         std::unique_lock ul( taskControllerMapMutex_ );
@@ -142,4 +142,4 @@ void EventManager::PutEventToAll( std::unique_ptr<Runnable> event, EventPriority
     }
 }
 
-} // namespace smp::panel
+} // namespace smp

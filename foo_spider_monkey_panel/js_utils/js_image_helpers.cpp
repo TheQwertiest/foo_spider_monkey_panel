@@ -3,14 +3,14 @@
 #include "js_art_helpers.h"
 
 #include <convert/native_to_js.h>
+#include <events/event_js_task.h>
+#include <events/event_manager.h>
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
 #include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
-#include <panel/event_js_task.h>
-#include <panel/event_manager.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/thread_pool_instance.h>
@@ -100,9 +100,9 @@ void ImageFetchTask::operator()()
 
     jsTask_->SetData( std::move( bitmap ) );
 
-    panel::EventManager::Get().PutEvent( hNotifyWnd_,
-                                         std::make_unique<smp::panel::Event_JsTask>(
-                                             smp::panel::EventId::kInternalLoadImagePromiseDone, jsTask_ ) );
+    EventManager::Get().PutEvent( hNotifyWnd_,
+                                  std::make_unique<Event_JsTask>(
+                                      EventId::kInternalLoadImagePromiseDone, jsTask_ ) );
 }
 
 JsImageTask::JsImageTask( JSContext* cx,

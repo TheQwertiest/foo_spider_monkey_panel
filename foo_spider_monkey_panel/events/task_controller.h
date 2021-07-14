@@ -1,11 +1,11 @@
 #pragma once
 
-#include <panel/event.h>
+#include <events/event.h>
 
 #include <mutex>
 #include <set>
 
-namespace smp::panel
+namespace smp
 {
 
 class TaskController;
@@ -19,7 +19,7 @@ public:
 
     EventPriority GetPriority() const;
     int64_t GetTaskNumber() const;
-    virtual void Run( js_panel_window& panelWindow ) = 0;
+    virtual void Run( panel::js_panel_window& panelWindow ) = 0;
 
 protected:
     friend class TaskController;
@@ -44,7 +44,7 @@ class RunnableTask final : public Task
 public:
     RunnableTask( std::shared_ptr<Runnable> pRunnable, EventPriority priority = EventPriority::kNormal );
 
-    void Run( js_panel_window& panelWindow ) override;
+    void Run( panel::js_panel_window& panelWindow ) override;
 
 private:
     std::shared_ptr<Runnable> pRunnable_;
@@ -61,11 +61,11 @@ public:
 
     bool HasTasks() const;
 
-    bool ExecuteNextTask( js_panel_window& panelWindow );
+    bool ExecuteNextTask( panel::js_panel_window& panelWindow );
 
 private:
     mutable std::mutex tasksMutex_;
     std::set<std::shared_ptr<Task>, Task::PriorityCompare> tasks_;
 };
 
-} // namespace smp::panel
+} // namespace smp

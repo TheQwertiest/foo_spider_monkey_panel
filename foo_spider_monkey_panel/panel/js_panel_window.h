@@ -1,8 +1,8 @@
 #pragma once
 
 #include <config/parsed_panel_config.h>
-#include <panel/event.h>
-#include <panel/ievent_js_forwarder.h>
+#include <events/event.h>
+#include <events/ievent_js_forwarder.h>
 #include <panel/panel_info.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>

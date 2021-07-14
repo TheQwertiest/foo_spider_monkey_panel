@@ -6,7 +6,7 @@
 
 #include <qwr/final_action.h>
 
-namespace smp::panel
+namespace smp
 {
 
 std::atomic<uint64_t> Task::g_currentTaskNumber = 0;
@@ -40,7 +40,7 @@ RunnableTask::RunnableTask( std::shared_ptr<Runnable> pRunnable, EventPriority p
 {
 }
 
-void RunnableTask::Run( js_panel_window& panelWindow )
+void RunnableTask::Run( panel::js_panel_window& panelWindow )
 {
     assert( pRunnable_ );
     pRunnable_->Run( panelWindow );
@@ -67,7 +67,7 @@ bool TaskController::HasTasks() const
     return !tasks_.empty();
 }
 
-bool TaskController::ExecuteNextTask( js_panel_window& panelWindow )
+bool TaskController::ExecuteNextTask( panel::js_panel_window& panelWindow )
 {
     assert( core_api::is_main_thread() );
 
@@ -101,4 +101,4 @@ bool TaskController::ExecuteNextTask( js_panel_window& panelWindow )
     return true;
 }
 
-} // namespace smp::panel
+} // namespace smp
