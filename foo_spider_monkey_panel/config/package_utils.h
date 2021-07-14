@@ -7,6 +7,8 @@ namespace smp::config
 
 // TODO: cleanup methods and their naming
 
+const std::filesystem::path& GetRelativePathToMainFile();
+
 /// @throw qwr::QwrException
 std::optional<std::filesystem::path> FindPackage( const qwr::u8string& packageId );
 

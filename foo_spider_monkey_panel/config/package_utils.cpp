@@ -36,7 +36,7 @@ void Parse_PackageFromPath( const std::filesystem::path& packageDir, config::Par
         const auto packageJsonFile = packageDir / "package.json";
         qwr::QwrException::ExpectTrue( fs::exists( packageJsonFile ), "Corrupted package: can't find `package.json`" );
 
-        parsedSettings.scriptPath = ( packageDir / "main.js" ).u8string();
+        parsedSettings.scriptPath = ( packageDir / config::GetRelativePathToMainFile() ).u8string();
         parsedSettings.isSample = ( packageDir.parent_path() == path::Packages_Sample() );
 
         const json jsonMain = json::parse( qwr::file::ReadFile( packageJsonFile, false ) );
@@ -103,7 +103,7 @@ void Save_PackageData( const config::ParsedPanelSettings& parsedSettings )
         const auto packageJsonFile = packagePath / L"package.json";
         qwr::file::WriteFile( packageJsonFile, jsonMain.dump( 2 ) );
 
-        const auto mainScriptPath = packagePath / L"main.js";
+        const auto mainScriptPath = packagePath / config::GetRelativePathToMainFile();
         if ( !fs::exists( mainScriptPath ) )
         {
             qwr::file::WriteFile( mainScriptPath, config::PanelSettings_InMemory::GetDefaultScript() );
@@ -124,6 +124,12 @@ void Save_PackageData( const config::ParsedPanelSettings& parsedSettings )
 namespace smp::config
 {
 
+const fs::path& GetRelativePathToMainFile()
+{
+    static const fs::path main{ "main.js" };
+    return main;
+}
+
 ParsedPanelSettings GetNewPackageSettings( const qwr::u8string& name )
 {
     ParsedPanelSettings settings;
@@ -141,7 +147,7 @@ ParsedPanelSettings GetNewPackageSettings( const qwr::u8string& name )
 
         settings.packageId = id;
         settings.scriptName = name;
-        settings.scriptPath = ( packagePath / "main.js" ).u8string();
+        settings.scriptPath = ( packagePath / GetRelativePathToMainFile() ).u8string();
     }
     catch ( const fs::filesystem_error& e )
     {

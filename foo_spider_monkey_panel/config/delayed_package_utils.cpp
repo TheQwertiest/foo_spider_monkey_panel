@@ -2,6 +2,7 @@
 
 #include "delayed_package_utils.h"
 
+#include <config/package_utils.h>
 #include <resources/resource.h>
 #include <utils/resource_helpers.h>
 
@@ -192,7 +193,7 @@ void UpdatePackages()
             auto j = json::parse( *restorationJsonOpt );
             j["id"] = packageId;
 
-            qwr::file::WriteFile( packageToUpdateDir / "main.js", *restorationScriptOpt );
+            qwr::file::WriteFile( packageToUpdateDir / config::GetRelativePathToMainFile(), *restorationScriptOpt );
             qwr::file::WriteFile( packageToUpdateDir / "package.json", j.dump( 2 ) );
 
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME,

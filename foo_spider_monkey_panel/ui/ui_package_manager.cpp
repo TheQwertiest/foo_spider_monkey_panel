@@ -592,7 +592,8 @@ CDialogPackageManager::PackageData CDialogPackageManager::GeneratePackageData( c
     return PackageData{ qwr::unicode::ToWide( displayedName ),
                         *parsedSettings.packageId,
                         parsedSettings,
-                        L"" };
+                        L"",
+                        config::PackageDelayStatus::NotDelayed };
 }
 
 bool CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
@@ -616,7 +617,7 @@ bool CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
 
         UnpackZip( path, tmpPath );
 
-        const auto newSettings = config::GetPackageSettingsFromPath( tmpPath );
+        auto newSettings = config::GetPackageSettingsFromPath( tmpPath );
         const auto& packageId = *newSettings.packageId;
 
         if ( const auto oldPackagePathOpt = config::FindPackage( packageId );
@@ -653,6 +654,8 @@ bool CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
         const auto newPackagePath = path::Packages_Profile() / packageId;
         fs::create_directories( newPackagePath );
         fs::copy( tmpPath, newPackagePath, fs::copy_options::recursive );
+
+        newSettings.scriptPath = newPackagePath / config::GetRelativePathToMainFile();
 
         auto it =
             ranges::find_if( packages_,
