@@ -24,10 +24,10 @@ public:
     static EventManager& Get();
 
 public:
-    void AddWindow( HWND hWnd, panel::js_panel_window& panelWindow );
+    void AddWindow( HWND hWnd );
     void RemoveWindow( HWND hWnd );
 
-    void EnableEventQueue( HWND hWnd );
+    void ClearEventQueue( HWND hWnd, std::shared_ptr<PanelTarget> pTarget );
     void DisableEventQueue( HWND hWnd );
 
 public:
@@ -35,15 +35,16 @@ public:
     bool ProcessNextEvent( HWND hWnd );
     void RequestNextEvent( HWND hWnd );
 
-public:
-    // these can be invoked from worker threads
-    void PutEvent( HWND hWnd, std::unique_ptr<Runnable> event, EventPriority priority = EventPriority::kNormal );
-    void PutEventToOthers( HWND hWnd, std::unique_ptr<Runnable> event, EventPriority priority = EventPriority::kNormal );
-    void PutEventToAll( std::unique_ptr<Runnable> event, EventPriority priority = EventPriority::kNormal );
+public: // these can be invoked from worker threads
+    void PutEvent( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
+
+    /// @remark Be careful when using this:
+    ///         - Event must be cloneable.
+    ///         - Clone operation should not be CPU intensive (e.g. don't copy vectors, but rather wrap it in shared_ptr)
+    void PutEventToAll( std::unique_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
 
 private:
     std::mutex taskControllerMapMutex_;
-    std::unordered_map<HWND, panel::js_panel_window*> windowMap_;
     std::unordered_map<HWND, std::shared_ptr<TaskController>> taskControllerMap_;
 };
 

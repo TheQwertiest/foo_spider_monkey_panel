@@ -185,22 +185,37 @@ class Runnable
 {
 public:
     virtual ~Runnable() = default;
-    virtual void Run( panel::js_panel_window& panelWindow ) = 0;
+    virtual void Run() = 0;
 };
 
-class EventBase
+class PanelTarget final
 {
 public:
+    PanelTarget( panel::js_panel_window& panel );
+
+    panel::js_panel_window* GetPanel();
+    void UnlinkPanel();
+
+private:
+    panel::js_panel_window* pPanel_ = nullptr;
+};
+
+class EventBase : public Runnable
+{
+public:
+    EventBase( EventId id );
     virtual ~EventBase() = default;
 
-    virtual Event_Mouse* AsMouseEvent()
-    {
-        return nullptr;
-    };
-    virtual Event_Focus* AsFocusEvent()
-    {
-        return nullptr;
-    };
+    virtual std::unique_ptr<EventBase> Clone();
+
+    void SetTarget( std::shared_ptr<PanelTarget> pTarget );
+    EventId GetId() const;
+
+    virtual Event_Mouse* AsMouseEvent();
+
+protected:
+    const EventId id_;
+    std::shared_ptr<PanelTarget> pTarget_;
 };
 
 } // namespace smp

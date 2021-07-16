@@ -12,10 +12,13 @@ class JsContainer;
 namespace smp
 {
 
-class IEvent_JsTask : public EventBase
+class Event_JsExecutor : public EventBase
 {
 public:
-    ~IEvent_JsTask() override = default;
+    Event_JsExecutor( EventId id );
+    ~Event_JsExecutor() override = default;
+
+    void Run() final;
     virtual std::optional<bool> JsExecute( mozjs::JsContainer& jsContainer ) = 0;
 };
 

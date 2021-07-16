@@ -1,25 +1,25 @@
 #include <stdafx.h>
 
-#include "event_basic.h"
+#include "event_js_executor.h"
 
 #include <panel/js_panel_window.h>
 
 namespace smp
 {
 
-Event_Basic::Event_Basic( EventId id )
+Event_JsExecutor::Event_JsExecutor( EventId id )
     : EventBase( id )
 {
 }
 
-void Event_Basic::Run()
+void Event_JsExecutor::Run()
 {
     assert( pTarget_ );
 
     auto pPanel = pTarget_->GetPanel();
     if ( pPanel )
     {
-        pPanel->ExecuteTask( id_ );
+        pPanel->ExecuteJsTask( id_, *this );
     }
 }
 

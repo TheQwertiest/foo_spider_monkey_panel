@@ -190,22 +190,22 @@ void my_dsp_config_callback::on_core_settings_change( const dsp_chain_config& )
 
 void my_library_callback::on_items_added( metadb_handle_list_cref p_data )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback<metadb_handle_list>( EventId::kFbLibraryItemsAdded, p_data ) );
+    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsAdded, std::make_shared<metadb_handle_list>( std::move( p_data ) ) ) );
 }
 
 void my_library_callback::on_items_modified( metadb_handle_list_cref p_data )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback<metadb_handle_list>( EventId::kFbLibraryItemsChanged, p_data ) );
+    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsChanged, std::make_shared<metadb_handle_list>( std::move( p_data ) ) ) );
 }
 
 void my_library_callback::on_items_removed( metadb_handle_list_cref p_data )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback<metadb_handle_list>( EventId::kFbLibraryItemsRemoved, p_data ) );
+    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsRemoved, std::make_shared<metadb_handle_list>( std::move( p_data ) ) ) );
 }
 
 void my_metadb_io_callback::on_changed_sorted( metadb_handle_list_cref p_items_sorted, bool p_fromhook )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback<metadb_handle_list>( EventId::kFbMetadbChanged, p_items_sorted, p_fromhook ) );
+    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbMetadbChanged, std::make_shared<metadb_handle_list>( std::move( p_items_sorted ) ), p_fromhook ) );
 }
 
 unsigned my_play_callback_static::get_flags()

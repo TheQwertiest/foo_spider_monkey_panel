@@ -2,7 +2,7 @@
 
 #include <config/parsed_panel_config.h>
 #include <events/event.h>
-#include <events/ievent_js_forwarder.h>
+#include <events/event_js_executor.h>
 #include <panel/panel_info.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>
@@ -95,11 +95,17 @@ private:
     bool ReloadSettings();
     bool LoadScript( bool isFirstLoad );
     void UnloadScript( bool force = false );
+
     void CreateDrawContext();
     void DeleteDrawContext();
 
-public:
-    void ExecuteJsTask( EventId id, IEvent_JsTask& task );
+    void RecreateEventTarget();
+    void DestroyEventTarget();
+
+    void SetCaptureMouseState( bool shouldCapture );
+
+public: // event handling
+    void ExecuteJsTask( EventId id, Event_JsExecutor& task );
     void ExecuteTask( EventId id );
 
 private: // callback handling
@@ -109,7 +115,7 @@ private: // callback handling
     std::optional<LRESULT> process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
 
     // Internal callbacks
-    void OpenDefaultContextManu( int x, int y );
+    void OnContextMenu( int x, int y );
     void OnCreate( HWND hWnd );
     void OnDestroy();
 
@@ -119,10 +125,11 @@ private: // callback handling
     void on_drag_leave();
     void on_drag_over( LPARAM lp );
     void on_notify_data( WPARAM wp, LPARAM lp );
-    void on_paint( HDC dc, const CRect& updateRc );
-    void on_paint_error( HDC memdc );
-    void on_paint_user( HDC memdc, const CRect& updateRc );
-    void on_size( uint32_t w, uint32_t h );
+    void OnPaint( HDC dc, const CRect& updateRc, bool useErrorScreen = false );
+    void OnPaintErrorScreen( HDC memdc );
+    void OnPaintJs( HDC memdc, const CRect& updateRc );
+    void OnSizeDefault( uint32_t w, uint32_t h );
+    void OnSizeUser( uint32_t w, uint32_t h );
 
 private:
     const PanelType panelType_;
@@ -130,6 +137,7 @@ private:
     config::PanelProperties properties_;
 
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
+    std::shared_ptr<PanelTarget> pTarget_;
 
     CWindow wnd_;
     HDC hDc_ = nullptr;
@@ -143,6 +151,8 @@ private:
     bool isBgRepaintNeeded_ = false;           // used only internally
     bool isPaintInProgress_ = false;           // used only internally
     bool isMouseTracked_ = false;              // used only internally
+    bool isMouseCaptured_ = false;             // used only internally
+    bool isDraggingInside_ = false;            // used only internally
     ui_selection_holder::ptr selectionHolder_; // used only internally
 
     CComPtr<smp::com::IDropTargetImpl> dropTargetHandler_; // used only internally

@@ -7,7 +7,6 @@
 #include <config/delayed_package_utils.h>
 #include <config/package_utils.h>
 #include <events/event_basic.h>
-#include <events/event_focus.h>
 #include <events/event_js_callback.h>
 #include <events/event_manager.h>
 #include <events/event_mouse.h>
@@ -242,46 +241,23 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     return DefWindowProc( hwnd, msg, wp, lp );
 }
 
-void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
+void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
 {
-    if ( !pJsContainer_ )
-    {
-        return;
-    }
-
-    switch ( id )
-    {
-    case EventId::kInputFocus:
-    {
-        const auto pEvent = task.AsFocusEvent();
-        assert( pEvent );
-
-        if ( pEvent->IsFocused() )
+    const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
+        if ( !pJsContainer_ )
         {
-            selectionHolder_ = ui_selection_manager::get()->acquire();
+            return false;
         }
         else
         {
-            selectionHolder_.release();
+            return jsTask.JsExecute( *pJsContainer_ );
         }
+    };
 
-        pEvent->JsExecute( *pJsContainer_ );
-
-        break;
-    }
-    case EventId::kMouseLeftButtonUp:
-    case EventId::kMouseMiddleButtonUp:
+    switch ( id )
     {
-        task.JsExecute( *pJsContainer_ );
-
-        ReleaseCapture();
-
-        break;
-    }
     case EventId::kMouseRightButtonUp:
     {
-        const auto autoCapture = qwr::final_action( [] { ReleaseCapture(); } );
-
         const auto pEvent = task.AsMouseEvent();
         assert( pEvent );
 
@@ -293,7 +269,7 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
             }
             else
             {
-                return !pEvent->JsExecute( *pJsContainer_ ).value_or( false );
+                return !execJs( *pEvent ).value_or( false );
             }
         }();
 
@@ -309,54 +285,12 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
         }
         break;
     }
-    case EventId::kMouseLeftButtonDown:
-    case EventId::kMouseMiddleButtonDown:
-    case EventId::kMouseRightButtonDown:
-    {
-        if ( settings_.shouldGrabFocus )
-        {
-            wnd_.SetFocus();
-        }
-
-        wnd_.SetCapture();
-
-        task.JsExecute( *pJsContainer_ );
-
-        break;
-    }
-    case EventId::kMouseLeave:
-    {
-        isMouseTracked_ = false;
-
-        task.JsExecute( *pJsContainer_ );
-
-        // Restore default cursor
-        SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
-
-        break;
-    }
-    case EventId::kMouseMove:
-    {
-        if ( !isMouseTracked_ )
-        {
-            TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, wnd_, HOVER_DEFAULT };
-            TrackMouseEvent( &tme );
-            isMouseTracked_ = true;
-
-            // Restore default cursor
-            SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
-        }
-
-        task.JsExecute( *pJsContainer_ );
-
-        break;
-    }
     case EventId::kMouseContextMenu:
     {
         const auto pMouseEvent = task.AsMouseEvent();
         assert( pMouseEvent );
 
-        OpenDefaultContextManu( pMouseEvent->GetX(), pMouseEvent->GetY() );
+        OnContextMenu( pMouseEvent->GetX(), pMouseEvent->GetY() );
         break;
     }
     case EventId::kWndPaint:
@@ -381,7 +315,8 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
         }
         {
             CPaintDC dc{ wnd_ };
-            on_paint( dc, dc.m_ps.rcPaint );
+            const bool paintError = !pJsContainer_;
+            OnPaint( dc, dc.m_ps.rcPaint, paintError );
         }
 
         isPaintInProgress_ = false;
@@ -389,13 +324,18 @@ void js_panel_window::ExecuteJsTask( EventId id, IEvent_JsTask& task )
     }
     case EventId::kWndResize:
     {
+        if ( !pJsContainer_ )
+        {
+            break;
+        }
+
         CRect rc;
         wnd_.GetClientRect( &rc );
-        on_size( rc.Width(), rc.Height() );
+        OnSizeUser( rc.Width(), rc.Height() );
         break;
     }
     default:
-        task.JsExecute( *pJsContainer_ );
+        execJs( task );
     }
 }
 
@@ -527,18 +467,18 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         {
             return std::nullopt;
         }
+
         EventManager::Get().PutEvent( wnd_, GenerateEvent_JsCallback( EventId::kWndPaint ), EventPriority::kRedraw );
         return 0;
     }
     case WM_SIZE:
     {
-        // Update size immediately in case event fails to execute
         CRect rc;
         wnd_.GetClientRect( &rc );
-        width_ = rc.Width();
-        height_ = rc.Height();
+        OnSizeDefault( rc.Width(), rc.Height() );
 
         EventManager::Get().PutEvent( wnd_, GenerateEvent_JsCallback( EventId::kWndResize ), EventPriority::kResize );
+
         return 0;
     }
     case WM_GETMINMAXINFO:
@@ -556,31 +496,18 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_LBUTTONDOWN:
     {
+        static const std::unordered_map<int, EventId> kMsgToEventId{ { WM_LBUTTONDOWN, EventId::kMouseLeftButtonDown }, { WM_MBUTTONDOWN, EventId::kMouseMiddleButtonDown }, { WM_RBUTTONDOWN, EventId::kMouseRightButtonDown } };
+
+        if ( settings_.shouldGrabFocus )
+        {
+            wnd_.SetFocus();
+        }
+
+        SetCaptureMouseState( true );
+
         EventManager::Get().PutEvent( wnd_,
                                       GenerateEvent_JsCallback(
-                                          EventId::kMouseLeftButtonDown,
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInputHigh );
-        return std::nullopt;
-    }
-    case WM_MBUTTONDOWN:
-    {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kMouseMiddleButtonDown,
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInputHigh );
-        return std::nullopt;
-    }
-    case WM_RBUTTONDOWN:
-    {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kMouseRightButtonDown,
+                                          kMsgToEventId.at( msg ),
                                           static_cast<int32_t>( GET_X_LPARAM( lp ) ),
                                           static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
                                           static_cast<uint32_t>( wp ) ),
@@ -588,21 +515,18 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         return std::nullopt;
     }
     case WM_LBUTTONUP:
-    {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kMouseLeftButtonUp,
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInputHigh );
-        return std::nullopt;
-    }
     case WM_MBUTTONUP:
     {
+        static const std::unordered_map<int, EventId> kMsgToEventId{ { WM_LBUTTONUP, EventId::kMouseLeftButtonUp }, { WM_MBUTTONUP, EventId::kMouseMiddleButtonUp } };
+
+        if ( isMouseCaptured_ )
+        {
+            SetCaptureMouseState( false );
+        }
+
         EventManager::Get().PutEvent( wnd_,
                                       GenerateEvent_JsCallback(
-                                          EventId::kMouseMiddleButtonUp,
+                                          kMsgToEventId.at( msg ),
                                           static_cast<int32_t>( GET_X_LPARAM( lp ) ),
                                           static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
                                           static_cast<uint32_t>( wp ) ),
@@ -611,6 +535,11 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_RBUTTONUP:
     {
+        if ( isMouseCaptured_ )
+        {
+            SetCaptureMouseState( false );
+        }
+
         EventManager::Get().PutEvent( wnd_,
                                       std::make_unique<Event_Mouse>(
                                           EventId::kMouseRightButtonUp,
@@ -618,6 +547,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
                                           static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
                                           static_cast<uint32_t>( wp ) ),
                                       EventPriority::kInputHigh );
+
         return 0;
     }
     case WM_LBUTTONDBLCLK:
@@ -665,10 +595,22 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
                                           p.y,
                                           0 ),
                                       EventPriority::kInputHigh );
+
         return 1;
     }
     case WM_MOUSEMOVE:
     {
+        if ( !isMouseTracked_ )
+        {
+            isMouseTracked_ = true;
+
+            TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, wnd_, HOVER_DEFAULT };
+            TrackMouseEvent( &tme );
+
+            // Restore default cursor
+            SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
+        }
+
         EventManager::Get().PutEvent( wnd_,
                                       GenerateEvent_JsCallback(
                                           EventId::kMouseMove,
@@ -680,6 +622,11 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_MOUSELEAVE:
     {
+        isMouseTracked_ = false;
+
+        // Restore default cursor
+        SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
+
         EventManager::Get().PutEvent( wnd_,
                                       GenerateEvent_JsCallback( EventId::kMouseLeave ),
                                       EventPriority::kInputHigh );
@@ -740,7 +687,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     case WM_SETFOCUS:
     {
         EventManager::Get().PutEvent( wnd_,
-                                      std::make_unique<Event_Focus>(
+                                      GenerateEvent_JsCallback(
                                           EventId::kInputFocus,
                                           true ),
                                       EventPriority::kInputHigh );
@@ -748,8 +695,9 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_KILLFOCUS:
     {
+        selectionHolder_.release();
         EventManager::Get().PutEvent( wnd_,
-                                      std::make_unique<Event_Focus>(
+                                      GenerateEvent_JsCallback(
                                           EventId::kInputFocus,
                                           false ),
                                       EventPriority::kInputHigh );
@@ -793,22 +741,43 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
     }
     case InternalSyncMessage::wnd_drag_drop:
     {
+        if ( isMouseCaptured_ )
+        {
+            SetCaptureMouseState( false );
+        }
+
         on_drag_drop( lp );
         return 0;
     }
     case InternalSyncMessage::wnd_drag_enter:
     {
+        isDraggingInside_ = true;
+
         on_drag_enter( lp );
         return 0;
     }
     case InternalSyncMessage::wnd_drag_leave:
     {
+        isDraggingInside_ = false;
+
         on_drag_leave();
         return 0;
     }
     case InternalSyncMessage::wnd_drag_over:
     {
         on_drag_over( lp );
+        return 0;
+    }
+    case InternalSyncMessage::wnd_drag_stop:
+    {
+        if ( !isDraggingInside_ )
+        {
+            isMouseTracked_ = false;
+        }
+        if ( isMouseCaptured_ )
+        {
+            SetCaptureMouseState( false );
+        }
         return 0;
     }
     default:
@@ -1061,6 +1030,7 @@ void js_panel_window::SetPanelName( const qwr::u8string& panelName )
 
 void js_panel_window::SetDragAndDropStatus( bool isEnabled )
 {
+    isDraggingInside_ = false;
     settings_.enableDragDrop = isEnabled;
     if ( isEnabled )
     {
@@ -1165,8 +1135,9 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     hasFailed_ = false;
     isPanelIdOverridenByScript_ = false;
 
-    DynamicMainMenuManager::Get().RegisterPanel( wnd_, settings_.panelId );
-    EventManager::Get().EnableEventQueue( wnd_ );
+    DynamicMainMenuManager::Get().RegisterPanel(wnd_, settings_.panelId);
+    RecreateEventTarget();
+    EventManager::Get().ClearEventQueue( wnd_, pTarget_ );
 
     const auto extstyle = [&] {
         DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
@@ -1238,7 +1209,8 @@ void js_panel_window::UnloadScript( bool force )
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
     }
 
-    EventManager::Get().DisableEventQueue( wnd_ );
+    RecreateEventTarget();
+    EventManager::Get().ClearEventQueue( wnd_, pTarget_ );
     selectionHolder_.release();
     try
     {
@@ -1276,7 +1248,7 @@ void js_panel_window::DeleteDrawContext()
     }
 }
 
-void js_panel_window::OpenDefaultContextManu( int x, int y )
+void js_panel_window::OnContextMenu( int x, int y )
 {
     if ( modal::IsModalBlocked() )
     {
@@ -1309,8 +1281,9 @@ void js_panel_window::OnCreate( HWND hWnd )
 
     CreateDrawContext();
 
+    RecreateEventTarget();
     MessageManager::Get().AddWindow( wnd_ );
-    EventManager::Get().AddWindow( wnd_, *this );
+    EventManager::Get().AddWindow( wnd_ );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
     LoadScript( true );
@@ -1321,13 +1294,33 @@ void js_panel_window::OnDestroy()
     // Careful when changing invocation order here!
 
     UnloadScript();
+
     pJsContainer_.reset();
 
+    DestroyEventTarget();
     MessageManager::Get().RemoveWindow( wnd_ );
     EventManager::Get().RemoveWindow( wnd_ );
 
     DeleteDrawContext();
     ReleaseDC( wnd_, hDc_ );
+}
+
+void js_panel_window::RecreateEventTarget()
+{
+    if ( pTarget_ )
+    {
+        pTarget_->UnlinkPanel();
+    }
+    pTarget_ = std::make_shared<PanelTarget>( *this );
+}
+
+void js_panel_window::DestroyEventTarget()
+{
+    if ( pTarget_ )
+    {
+        pTarget_->UnlinkPanel();
+    }
+    pTarget_.reset();
 }
 
 void js_panel_window::on_drag_drop( LPARAM lp )
@@ -1367,7 +1360,7 @@ void js_panel_window::on_notify_data( WPARAM wp, LPARAM lp )
     pJsContainer_->InvokeOnNotify( wp, lp );
 }
 
-void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
+void js_panel_window::OnPaint( HDC dc, const CRect& updateRc, bool useErrorScreen )
 {
     if ( !dc || !bmp_ )
     {
@@ -1381,7 +1374,7 @@ void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
          || mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
          || mozjs::JsContainer::JsStatus::Failed == pJsContainer_->GetStatus() )
     {
-        on_paint_error( memDc );
+        OnPaintErrorScreen( memDc );
     }
     else
     {
@@ -1405,13 +1398,13 @@ void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
             memDc.FillRect( &rc, (HBRUSH)( COLOR_WINDOW + 1 ) );
         }
 
-        on_paint_user( memDc, updateRc );
+        OnPaintJs( memDc, updateRc );
     }
 
     BitBlt( dc, 0, 0, width_, height_, memDc, 0, 0, SRCCOPY );
 }
 
-void js_panel_window::on_paint_error( HDC memdc )
+void js_panel_window::OnPaintErrorScreen( HDC memdc )
 {
     CDCHandle cdc{ memdc };
     CFont font;
@@ -1443,7 +1436,7 @@ void js_panel_window::on_paint_error( HDC memdc )
     cdc.DrawText( L"Aw, crashed :(", -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
 }
 
-void js_panel_window::on_paint_user( HDC memdc, const CRect& updateRc )
+void js_panel_window::OnPaintJs( HDC memdc, const CRect& updateRc )
 {
     Gdiplus::Graphics gr( memdc );
 
@@ -1456,14 +1449,17 @@ void js_panel_window::on_paint_user( HDC memdc, const CRect& updateRc )
     pJsContainer_->InvokeOnPaint( gr );
 }
 
-void js_panel_window::on_size( uint32_t w, uint32_t h )
+void js_panel_window::OnSizeDefault( uint32_t w, uint32_t h )
 {
     width_ = w;
     height_ = h;
 
     DeleteDrawContext();
     CreateDrawContext();
+}
 
+void js_panel_window::OnSizeUser( uint32_t w, uint32_t h )
+{
     pJsContainer_->InvokeJsCallback( "on_size",
                                      static_cast<uint32_t>( w ),
                                      static_cast<uint32_t>( h ) );
@@ -1476,6 +1472,19 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
     {
         Repaint();
     }
+}
+
+void js_panel_window::SetCaptureMouseState( bool shouldCapture )
+{
+    if ( shouldCapture )
+    {
+        ::SetCapture( wnd_ );
+    }
+    else
+    {
+        ::ReleaseCapture();
+    }
+    isMouseCaptured_ = shouldCapture;
 }
 
 } // namespace smp::panel

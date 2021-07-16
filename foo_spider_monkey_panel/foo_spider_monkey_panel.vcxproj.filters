@@ -382,10 +382,13 @@
     <ClCompile Include="events\task_controller.cpp">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="events\event_focus.cpp">
+    <ClCompile Include="events\event_basic.cpp">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="events\event_basic.cpp">
+    <ClCompile Include="events\event.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_js_executor.cpp">
       <Filter>events</Filter>
     </ClCompile>
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
@@ -823,16 +826,13 @@
     <ClInclude Include="events\event_mouse.h">
       <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="events\ievent_js_forwarder.h">
+    <ClInclude Include="events\event_js_executor.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\task_controller.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\event.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_focus.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\event_js_callback.h">

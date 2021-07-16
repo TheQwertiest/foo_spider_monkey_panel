@@ -9,18 +9,12 @@ namespace smp
 {
 
 Event_Mouse::Event_Mouse( EventId id, int32_t x, int32_t y, uint32_t mask )
-    : id_( id )
+    : Event_JsExecutor( id )
     , x_( x )
     , y_( y )
     , mask_( mask )
 {
     assert( kCallbackIdToName.count( id_ ) );
-}
-
-void Event_Mouse::Run( panel::js_panel_window& panelWindow )
-{
-    assert( core_api::is_main_thread() );
-    panelWindow.ExecuteJsTask( id_, *this );
 }
 
 std::optional<bool> Event_Mouse::JsExecute( mozjs::JsContainer& jsContainer )

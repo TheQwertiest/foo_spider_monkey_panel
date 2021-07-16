@@ -40,10 +40,20 @@ RunnableTask::RunnableTask( std::shared_ptr<Runnable> pRunnable, EventPriority p
 {
 }
 
-void RunnableTask::Run( panel::js_panel_window& panelWindow )
+void RunnableTask::Run()
 {
     assert( pRunnable_ );
-    pRunnable_->Run( panelWindow );
+    pRunnable_->Run();
+}
+
+TaskController::TaskController( std::shared_ptr<PanelTarget> pTarget )
+    : pTarget_( pTarget )
+{
+}
+
+std::shared_ptr<PanelTarget> TaskController::GetTarget()
+{
+    return pTarget_;
 }
 
 void TaskController::AddTask( std::shared_ptr<Task> pTask )
@@ -67,7 +77,7 @@ bool TaskController::HasTasks() const
     return !tasks_.empty();
 }
 
-bool TaskController::ExecuteNextTask( panel::js_panel_window& panelWindow )
+bool TaskController::ExecuteNextTask()
 {
     assert( core_api::is_main_thread() );
 
@@ -95,7 +105,7 @@ bool TaskController::ExecuteNextTask( panel::js_panel_window& panelWindow )
             ul.lock();
         } );
 
-        pTask->Run( panelWindow );
+        pTask->Run();
     }
 
     return true;

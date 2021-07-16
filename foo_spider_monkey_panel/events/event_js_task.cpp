@@ -9,16 +9,10 @@ namespace smp
 {
 
 Event_JsTask::Event_JsTask( EventId id, std::shared_ptr<mozjs::JsAsyncTask> pTask )
-    : id_( id )
+    : Event_JsExecutor( id )
     , pTask_( pTask )
 {
     assert( pTask_ );
-}
-
-void Event_JsTask::Run( panel::js_panel_window& panelWindow )
-{
-    assert( core_api::is_main_thread() );
-    panelWindow.ExecuteJsTask( id_, *this );
 }
 
 std::optional<bool> Event_JsTask::JsExecute( mozjs::JsContainer& jsContainer )

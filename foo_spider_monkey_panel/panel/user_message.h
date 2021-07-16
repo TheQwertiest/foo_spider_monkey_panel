@@ -13,6 +13,7 @@ enum class InternalSyncMessage : UINT
     timer_proc,
     ui_script_editor_saved,
     wnd_drag_drop,
+    wnd_drag_stop,
     wnd_drag_enter,
     wnd_drag_leave,
     wnd_drag_over,

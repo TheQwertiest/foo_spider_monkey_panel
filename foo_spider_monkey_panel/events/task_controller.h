@@ -19,7 +19,7 @@ public:
 
     EventPriority GetPriority() const;
     int64_t GetTaskNumber() const;
-    virtual void Run( panel::js_panel_window& panelWindow ) = 0;
+    virtual void Run() = 0;
 
 protected:
     friend class TaskController;
@@ -44,7 +44,7 @@ class RunnableTask final : public Task
 public:
     RunnableTask( std::shared_ptr<Runnable> pRunnable, EventPriority priority = EventPriority::kNormal );
 
-    void Run( panel::js_panel_window& panelWindow ) override;
+    void Run() override;
 
 private:
     std::shared_ptr<Runnable> pRunnable_;
@@ -54,16 +54,20 @@ private:
 class TaskController : public std::enable_shared_from_this<TaskController>
 {
 public:
-    TaskController() = default;
+    TaskController( std::shared_ptr<PanelTarget> pTarget );
+
+    std::shared_ptr<PanelTarget> GetTarget();
 
     void AddTask( std::shared_ptr<Task> pTask );
     void AddRunnable( std::shared_ptr<Runnable> pRunnable, EventPriority priority );
 
     bool HasTasks() const;
 
-    bool ExecuteNextTask( panel::js_panel_window& panelWindow );
+    bool ExecuteNextTask();
 
 private:
+    std::shared_ptr<PanelTarget> pTarget_;
+
     mutable std::mutex tasksMutex_;
     std::set<std::shared_ptr<Task>, Task::PriorityCompare> tasks_;
 };

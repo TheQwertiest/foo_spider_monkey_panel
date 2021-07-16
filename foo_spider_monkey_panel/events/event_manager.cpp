@@ -16,46 +16,28 @@ EventManager& EventManager::Get()
     return em;
 }
 
-void EventManager::AddWindow( HWND hWnd, panel::js_panel_window& panelWindow )
+void EventManager::AddWindow( HWND hWnd )
 {
-    {
-        std::unique_lock ul( taskControllerMapMutex_ );
+    std::unique_lock ul( taskControllerMapMutex_ );
 
-        assert( !taskControllerMap_.contains( hWnd ) );
-        taskControllerMap_.try_emplace( hWnd, std::make_shared<TaskController>() );
-    }
-
-    assert( !windowMap_.contains( hWnd ) );
-    windowMap_.try_emplace( hWnd, &panelWindow );
+    assert( !taskControllerMap_.contains( hWnd ) );
+    taskControllerMap_.try_emplace( hWnd, nullptr );
 }
 
 void EventManager::RemoveWindow( HWND hWnd )
 {
-    {
-        std::unique_lock ul( taskControllerMapMutex_ );
+    std::unique_lock ul( taskControllerMapMutex_ );
 
-        assert( taskControllerMap_.contains( hWnd ) );
-        taskControllerMap_.erase( hWnd );
-    }
-
-    assert( windowMap_.contains( hWnd ) );
-    windowMap_.erase( hWnd );
+    assert( taskControllerMap_.contains( hWnd ) );
+    taskControllerMap_.erase( hWnd );
 }
 
-void EventManager::EnableEventQueue( HWND hWnd )
+void EventManager::ClearEventQueue( HWND hWnd, std::shared_ptr<PanelTarget> pTarget )
 {
     std::unique_lock ul( taskControllerMapMutex_ );
 
     assert( taskControllerMap_.contains( hWnd ) );
-    taskControllerMap_.at( hWnd ) = std::make_shared<TaskController>();
-}
-
-void EventManager::DisableEventQueue( HWND hWnd )
-{
-    std::unique_lock ul( taskControllerMapMutex_ );
-
-    assert( taskControllerMap_.contains( hWnd ) );
-    taskControllerMap_.at( hWnd ).reset();
+    taskControllerMap_.at( hWnd ) = std::make_shared<TaskController>( pTarget );
 }
 
 bool EventManager::IsRequestEventMessage( UINT msg )
@@ -72,8 +54,11 @@ bool EventManager::ProcessNextEvent( HWND hWnd )
         return taskControllerMap_.at( hWnd );
     }();
 
-    assert( windowMap_.contains( hWnd ) );
-    return pTaskController->ExecuteNextTask( *windowMap_.at( hWnd ) );
+    if ( !pTaskController )
+    {
+        return false;
+    }
+    return pTaskController->ExecuteNextTask();
 }
 
 void EventManager::RequestNextEvent( HWND hWnd )
@@ -94,7 +79,7 @@ void EventManager::RequestNextEvent( HWND hWnd )
     PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
 }
 
-void EventManager::PutEvent( HWND hWnd, std::unique_ptr<Runnable> event, EventPriority priority )
+void EventManager::PutEvent( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority )
 {
     std::scoped_lock sl( taskControllerMapMutex_ );
 
@@ -104,32 +89,16 @@ void EventManager::PutEvent( HWND hWnd, std::unique_ptr<Runnable> event, EventPr
         return;
     }
 
-    taskControllerIt->second->AddRunnable( std::move( event ), priority );
+    auto pTaskController = taskControllerIt->second;
+    pEvent->SetTarget( pTaskController->GetTarget() );
+    pTaskController->AddRunnable( std::move( pEvent ), priority );
+
     PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
 }
 
-void EventManager::PutEventToOthers( HWND hWnd, std::unique_ptr<Runnable> event, EventPriority priority )
+void EventManager::PutEventToAll( std::unique_ptr<EventBase> pEvent, EventPriority priority )
 {
     std::scoped_lock sl( taskControllerMapMutex_ );
-
-    auto pTask = std::make_shared<RunnableTask>( std::move( event ), priority );
-
-    for ( auto& [hLocalWnd, pTaskController]: taskControllerMap_ )
-    {
-        if ( hLocalWnd == hWnd || !pTaskController )
-        {
-            continue;
-        }
-        pTaskController->AddTask( pTask );
-        PostMessage( hLocalWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
-    }
-}
-
-void EventManager::PutEventToAll( std::unique_ptr<Runnable> event, EventPriority priority )
-{
-    std::scoped_lock sl( taskControllerMapMutex_ );
-
-    auto pTask = std::make_shared<RunnableTask>( std::move( event ), priority );
 
     for ( auto& [hLocalWnd, pTaskController]: taskControllerMap_ )
     {
@@ -137,7 +106,17 @@ void EventManager::PutEventToAll( std::unique_ptr<Runnable> event, EventPriority
         {
             continue;
         }
-        pTaskController->AddTask( pTask );
+
+        auto pClonedEvent = pEvent->Clone();
+        if ( !pClonedEvent )
+        {
+            assert( false );
+            return;
+        }
+
+        pClonedEvent->SetTarget( pTaskController->GetTarget() );
+        pTaskController->AddRunnable( std::move( pClonedEvent ), priority );
+
         PostMessage( hLocalWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
     }
 }
