@@ -10,7 +10,7 @@
         <MozJsBinDirectory>$(MozJsDirectory)$(Configuration)\bin\</MozJsBinDirectory>
         <MozJsLibDirectory>$(MozJsDirectory)$(Configuration)\lib\</MozJsLibDirectory>
         <MozJsIncludeDirectory>$(MozJsDirectory)$(Configuration)\include\</MozJsIncludeDirectory>
-        <MozJsDependenciesDynamic>mozjs-68.lib</MozJsDependenciesDynamic>
+        <MozJsDependenciesDynamic>mozjs-91.lib</MozJsDependenciesDynamic>
         <MozJsDependenciesStatic>js_static.lib;nspr4.lib;plc4.lib;plds4.lib;kernel32.lib;user32.lib;gdi32.lib;winmm.lib;wsock32.lib;advapi32.lib;mozglue.lib</MozJsDependenciesStatic>
     </PropertyGroup>
     <PropertyGroup>

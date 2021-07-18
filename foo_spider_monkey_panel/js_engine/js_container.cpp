@@ -67,9 +67,7 @@ bool JsContainer::Initialize()
     {
         jsGlobal_.init( pJsCtx_, JsGlobalObject::CreateNative( pJsCtx_, *this ) );
         assert( jsGlobal_ );
-        qwr::final_action autoGlobal( [&jsGlobal = jsGlobal_] {
-            jsGlobal.reset();
-        } );
+        qwr::final_action autoGlobal( [&jsGlobal = jsGlobal_] { jsGlobal.reset(); } );
 
         JSAutoRealm ac( pJsCtx_, jsGlobal_ );
 
@@ -86,9 +84,9 @@ bool JsContainer::Initialize()
         return false;
     }
 
-    pNativeGlobal_ = static_cast<JsGlobalObject*>( JS_GetPrivate( jsGlobal_ ) );
+    pNativeGlobal_ = static_cast<JsGlobalObject*>( JS::GetPrivate( jsGlobal_ ) );
     assert( pNativeGlobal_ );
-    pNativeGraphics_ = static_cast<JsGdiGraphics*>( JS_GetPrivate( jsGraphics_ ) );
+    pNativeGraphics_ = static_cast<JsGdiGraphics*>( JS::GetPrivate( jsGraphics_ ) );
     assert( pNativeGraphics_ );
 
     jsStatus_ = JsStatus::Working;
@@ -366,7 +364,7 @@ bool JsContainer::CreateDropActionIfNeeded()
         return false;
     }
 
-    pNativeDropAction_ = static_cast<JsDropSourceAction*>( JS_GetPrivate( jsDropAction_ ) );
+    pNativeDropAction_ = static_cast<JsDropSourceAction*>( JS::GetPrivate( jsDropAction_ ) );
 
     return true;
 }

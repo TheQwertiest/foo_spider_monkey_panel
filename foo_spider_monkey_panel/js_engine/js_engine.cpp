@@ -140,9 +140,7 @@ void JsEngine::MaybeRunJobs()
 
     jobsStartTime_ = timeGetTime();
     areJobsInProgress_ = true;
-    const auto autoJobs = qwr::final_action( [&] {
-        areJobsInProgress_ = false;
-    } );
+    const auto autoJobs = qwr::final_action( [&] { areJobsInProgress_ = false; } );
 
     {
         js::RunJobs( pJsCtx_ );
@@ -224,9 +222,7 @@ bool JsEngine::Initialize()
         return true;
     }
 
-    auto autoJsCtx = utils::make_unique_with_dtor<JSContext>( nullptr, []( auto pCtx ) {
-        JS_DestroyContext( pCtx );
-    } );
+    auto autoJsCtx = utils::make_unique_with_dtor<JSContext>( nullptr, []( auto pCtx ) { JS_DestroyContext( pCtx ); } );
 
     try
     {
@@ -351,7 +347,7 @@ bool JsEngine::OnInterrupt()
     return jsMonitor_.OnInterrupt();
 }
 
-void JsEngine::RejectedPromiseHandler( JSContext*, JS::HandleObject promise, JS::PromiseRejectionHandlingState state, void* data )
+void JsEngine::RejectedPromiseHandler( JSContext*, bool mutedErrors, JS::HandleObject promise, JS::PromiseRejectionHandlingState state, void* data )
 {
     JsEngine& self = *reinterpret_cast<JsEngine*>( data );
 

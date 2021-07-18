@@ -116,13 +116,21 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
     JS::RootedObject excnObject( cx, &excn.toObject() );
     JS_ClearPendingException( cx ); ///< need this for js::ErrorReport::init
 
-    js::ErrorReport report( cx );
-    if ( !report.init( cx, excn, js::ErrorReport::SniffingBehavior::WithSideEffects ) )
+    JS::RootedObject excnStackObject( cx, JS::ExceptionStackOrNull( excnObject ) );
+    if ( !excnStackObject )
     { // Sometimes happens with custom JS errors
         return false;
     }
 
-    JSErrorReport* pReport = report.report();
+    JS::ExceptionStack excnStack( cx, excn, excnStackObject );
+
+    JS::ErrorReportBuilder reportBuilder( cx );
+    if ( !reportBuilder.init( cx, excnStack, JS::ErrorReportBuilder::SniffingBehavior::WithSideEffects ) )
+    { // Sometimes happens with custom JS errors
+        return false;
+    }
+
+    JSErrorReport* pReport = reportBuilder.report();
 
     qwr::u8string currentMessage = pReport->message().c_str();
     const qwr::u8string newMessage = [&text, &currentMessage] {
@@ -150,17 +158,16 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
         return false;
     }
 
-    JS::RootedObject excnStack( cx, JS::ExceptionStackOrNull( excnObject ) );
     JS::RootedValue newExcn( cx );
     JS::RootedString jsFilenameStr( cx, jsFilename.toString() );
     JS::RootedString jsMessageStr( cx, jsMessage.toString() );
 
-    if ( !JS_WrapObject( cx, &excnStack ) )
+    if ( !JS_WrapObject( cx, &excnStackObject ) )
     { // Need wrapping for the case when exception is thrown from internal global
         return false;
     }
 
-    if ( !JS::CreateError( cx, static_cast<JSExnType>( pReport->exnType ), excnStack, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, &newExcn ) )
+    if ( !JS::CreateError( cx, static_cast<JSExnType>( pReport->exnType ), excnStackObject, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, &newExcn ) )
     {
         return false;
     }
@@ -204,7 +211,7 @@ AutoJsReport::~AutoJsReport() noexcept
             return;
         }
 
-        auto globalCtx = static_cast<JsGlobalObject*>( JS_GetPrivate( global ) );
+        auto globalCtx = static_cast<JsGlobalObject*>( JS::GetPrivate( global ) );
         if ( !globalCtx )
         {
             assert( 0 );
@@ -248,16 +255,25 @@ qwr::u8string JsErrorToText( JSContext* cx )
             mozjs::error::SuppressException( cx );
         }
     }
-    else
+    else if ( excn.isObject() )
     {
-        js::ErrorReport report( cx );
-        if ( !report.init( cx, excn, js::ErrorReport::SniffingBehavior::WithSideEffects ) )
+        JS::RootedObject excnObject( cx, &excn.toObject() );
+        JS::RootedObject excnStackObject( cx, JS::ExceptionStackOrNull( excnObject ) );
+        if ( !excnStackObject )
         { // Sometimes happens with custom JS errors
             return errorText;
         }
 
-        JSErrorReport* pReport = report.report();
-        assert( !JSREPORT_IS_WARNING( pReport->flags ) );
+        JS::ExceptionStack excnStack( cx, excn, excnStackObject );
+
+        JS::ErrorReportBuilder reportBuilder( cx );
+        if ( !reportBuilder.init( cx, excnStack, JS::ErrorReportBuilder::SniffingBehavior::WithSideEffects ) )
+        { // Sometimes happens with custom JS errors
+            return errorText;
+        }
+
+        JSErrorReport* pReport = reportBuilder.report();
+        assert( !pReport->isWarning() );
 
         errorText = pReport->message().c_str();
 
@@ -431,9 +447,7 @@ void SuppressException( JSContext* cx )
 
 void PrependTextToJsError( JSContext* cx, const qwr::u8string& text )
 {
-    qwr::final_action autoJsReport( [cx, text] {
-        JS_ReportErrorUTF8( cx, "%s", text.c_str() );
-    } );
+    qwr::final_action autoJsReport( [cx, text] { JS_ReportErrorUTF8( cx, "%s", text.c_str() ); } );
 
     if ( !JS_IsExceptionPending( cx ) )
     {

@@ -14,20 +14,16 @@ std::optional<std::filesystem::path> GetCurrentScriptPath( JSContext* cx )
         JS_ReportErrorUTF8( cx, "hacking around..." );
         assert( JS_IsExceptionPending( cx ) );
 
-        JS::RootedValue excn( cx );
-        (void)JS_GetPendingException( cx, &excn );
-        JS_ClearPendingException( cx );
+        JS::ExceptionStack excn( cx );
+        (void)JS::StealPendingExceptionStack( cx, &excn );
 
-        assert( excn.isObject() );
-        JS::RootedObject excnObject( cx, &excn.toObject() );
-
-        js::ErrorReport report( cx );
-        if ( !report.init( cx, excn, js::ErrorReport::SniffingBehavior::WithSideEffects ) )
+        JS::ErrorReportBuilder reportBuilder( cx );
+        if ( !reportBuilder.init( cx, excn, JS::ErrorReportBuilder::SniffingBehavior::WithSideEffects ) )
         {
-            throw qwr::QwrException( "js::ErrorReport::init failed" );
+            throw qwr::QwrException( "ErrorReportBuilder::init failed" );
         }
 
-        JSErrorReport* pReport = report.report();
+        JSErrorReport* pReport = reportBuilder.report();
         assert( pReport );
 
         if ( !pReport->filename || qwr::u8string{ pReport->filename }.empty() )

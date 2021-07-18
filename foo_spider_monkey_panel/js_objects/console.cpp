@@ -30,7 +30,7 @@ qwr::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::Mutabl
     output += "[";
 
     uint32_t arraySize;
-    if ( !JS_GetArrayLength( cx, jsObject, &arraySize ) )
+    if ( !JS::GetArrayLength( cx, jsObject, &arraySize ) )
     {
         throw JsException();
     }
@@ -164,11 +164,14 @@ qwr::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableH
                 }
             }
 
-            curObjects.emplaceBack( jsObject );
+            if ( !curObjects.emplaceBack( jsObject ) )
+            {
+                throw JsException();
+            }
             qwr::final_action autoPop( [&curObjects] { curObjects.popBack(); } );
 
             bool is;
-            if ( !JS_IsArrayObject( cx, jsObject, &is ) )
+            if ( !JS::IsArrayObject( cx, jsObject, &is ) )
             {
                 throw JsException();
             }

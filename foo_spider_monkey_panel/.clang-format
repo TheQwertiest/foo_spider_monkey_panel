@@ -77,6 +77,8 @@ IndentWidth: '4'
 IndentWrappedFunctionNames: 'false'
 LambdaBodyIndentation: Signature
 Language: Cpp
+# clang 13+
+# LambdaBodyIndentation: OuterScope
 MacroBlockBegin: "^BEGIN_*"
 MacroBlockEnd: "^END_*"
 MaxEmptyLinesToKeep: '1'

@@ -12,14 +12,14 @@ namespace mozjs::internal
 
 template <size_t ArgArraySize>
 void NativeToJsArguments( [[maybe_unused]] JSContext* cx,
-                          [[maybe_unused]] JS::AutoValueArray<ArgArraySize>& wrappedArgs,
+                          [[maybe_unused]] JS::RootedValueArray<ArgArraySize>& wrappedArgs,
                           [[maybe_unused]] uint8_t argIndex )
 {
 }
 
 template <size_t ArgArraySize, typename ArgType, typename... ArgTypes>
 void NativeToJsArguments( JSContext* cx,
-                          JS::AutoValueArray<ArgArraySize>& wrappedArgs,
+                          JS::RootedValueArray<ArgArraySize>& wrappedArgs,
                           uint8_t argIndex, ArgType&& arg, ArgTypes&&... args )
 {
     convert::to_js::ToValue( cx, std::forward<ArgType>( arg ), wrappedArgs[argIndex] );
@@ -65,7 +65,7 @@ std::optional<ReturnType> InvokeJsCallback( JSContext* cx,
         JS::RootedValue retVal( cx );
         if constexpr ( sizeof...( ArgTypes ) > 0 )
         {
-            JS::AutoValueArray<sizeof...( ArgTypes )> wrappedArgs( cx );
+            JS::RootedValueArray<sizeof...( ArgTypes )> wrappedArgs( cx );
             mozjs::internal::NativeToJsArguments( cx, wrappedArgs, 0, std::forward<ArgTypes>( args )... );
 
             if ( !mozjs::internal::InvokeJsCallback_Impl( cx, globalObject, funcValue, wrappedArgs, &retVal ) )

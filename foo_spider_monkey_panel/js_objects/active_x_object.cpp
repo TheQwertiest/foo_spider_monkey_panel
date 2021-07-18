@@ -77,16 +77,16 @@ const ActiveXObjectProxyHandler ActiveXObjectProxyHandler::singleton;
 bool 
 ActiveXObjectProxyHandler::has( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, bool* bp ) const
 {
-    if ( !JSID_IS_STRING( id ) )
+    if ( !id.isString() )
     {
         return js::ForwardingProxyHandler::has( cx, proxy, id, bp );
     }
 
     JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-    auto pNativeTarget = static_cast<JsActiveXObject*>(JS_GetPrivate( target ));
+    auto pNativeTarget = static_cast<JsActiveXObject*>(JS::GetPrivate( target ));
     assert( pNativeTarget );
 
-    JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
+    JS::RootedString jsString( cx, id.toString() );
     assert( jsString );
 
     auto retVal = convert::to_native::ToValue( cx, jsString );
@@ -109,21 +109,21 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
 {
     try
     {
-        const auto isString = JSID_IS_STRING( id );
-        const auto isInt = JSID_IS_INT( id );
+        const auto isString = id.isString();
+        const auto isInt = id.isInt();
         const auto isEnumSymbol = [&] {
-            if ( !JSID_IS_SYMBOL( id ) )
+            if ( !id.isSymbol() )
             {
                 return false;
             }
-            JS::RootedSymbol sym( cx, JSID_TO_SYMBOL( id ) );
+            JS::RootedSymbol sym( cx, id.toSymbol() );
             return ( JS::GetSymbolCode( sym ) == JS::SymbolCode::iterator );
         }();
 
         if ( isEnumSymbol )
         {
             JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-            auto pNativeTarget = static_cast<JsActiveXObject*>( JS_GetPrivate( target ) );
+            auto pNativeTarget = static_cast<JsActiveXObject*>( JS::GetPrivate( target ) );
             assert( pNativeTarget );
 
             if ( pNativeTarget->HasIterator() )
@@ -136,20 +136,20 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
         else if ( isString || isInt )
         {
             JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-            auto pNativeTarget = static_cast<JsActiveXObject*>( JS_GetPrivate( target ) );
+            auto pNativeTarget = static_cast<JsActiveXObject*>( JS::GetPrivate( target ) );
             assert( pNativeTarget );
 
             std::wstring propName;
             if ( isString )
             {
-                JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
+                JS::RootedString jsString( cx, id.toString() );
                 assert( jsString );
 
                 propName = convert::to_native::ToValue<std::wstring>( cx, jsString );
             }
             else if ( isInt )
             {
-                propName = std::to_wstring( JSID_TO_INT( id ) );
+                propName = std::to_wstring( id.toInt() );
             }
 
             if ( pNativeTarget->IsGet( propName ) )
@@ -162,7 +162,7 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
                 const auto fetchedAsProperty = pNativeTarget->TryGetProperty( propName, vp );
                 if ( !fetchedAsProperty )
                 {
-                    pNativeTarget->GetItem( JSID_TO_INT( id ), vp );
+                    pNativeTarget->GetItem( id.toInt(), vp );
                 }
                 return true;
             }
@@ -182,16 +182,16 @@ bool ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
 {
     try
     {
-        if ( !JSID_IS_STRING( id ) )
+        if ( !id.isString() )
         {
             return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
         }
 
         JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-        auto pNativeTarget = static_cast<JsActiveXObject*>( JS_GetPrivate( target ) );
+        auto pNativeTarget = static_cast<JsActiveXObject*>( JS::GetPrivate( target ) );
         assert( pNativeTarget );
 
-        JS::RootedString jsString( cx, JSID_TO_STRING( id ) );
+        JS::RootedString jsString( cx, id.toString() );
         assert( jsString );
 
         const std::wstring propName = convert::to_native::ToValue<std::wstring>( cx, jsString );
@@ -215,7 +215,7 @@ bool ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
 bool ActiveXObjectProxyHandler::ownPropertyKeys( JSContext* cx, JS::HandleObject proxy, JS::AutoIdVector& props ) const
 {
     JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-    auto pNativeTarget = static_cast<JsActiveXObject*>(JS_GetPrivate( target ));
+    auto pNativeTarget = static_cast<JsActiveXObject*>(JS::GetPrivate( target ));
     assert( pNativeTarget );
 
     const auto memberList = pNativeTarget->GetAllMembers();
@@ -499,7 +499,7 @@ JSObject* JsActiveXObject::CreateFromArray( JSContext* cx, JS::HandleValue arr, 
     qwr::QwrException::ExpectTrue( jsObjectIn, "Value is not a JS object" );
 
     bool is;
-    if ( !JS_IsArrayObject( cx, jsObjectIn, &is ) )
+    if ( !JS::IsArrayObject( cx, jsObjectIn, &is ) )
     {
         throw smp::JsException();
     }
@@ -903,9 +903,7 @@ void JsActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInf
     HRESULT hr = pTypeInfo->GetTypeAttr( &pAttr );
     qwr::error::CheckHR( hr, "GetTypeAttr" );
 
-    qwr::final_action autoTypeAttr( [pTypeInfo, pAttr] {
-        pTypeInfo->ReleaseTypeAttr( pAttr );
-    } );
+    qwr::final_action autoTypeAttr( [pTypeInfo, pAttr] { pTypeInfo->ReleaseTypeAttr( pAttr ); } );
 
     if ( !( pAttr->wTypeFlags & TYPEFLAG_FRESTRICTED )
          && ( TKIND_DISPATCH == pAttr->typekind || TKIND_INTERFACE == pAttr->typekind )
@@ -921,9 +919,7 @@ void JsActiveXObject::ParseTypeInfoRecursive( JSContext* cx, ITypeInfo* pTypeInf
             hr = pTypeInfo->GetRefTypeInfo( hRef, &pTypeInfoCur );
             if ( SUCCEEDED( hr ) && pTypeInfoCur )
             {
-                qwr::final_action autoTypeInfo( [pTypeInfoCur] {
-                    pTypeInfoCur->Release();
-                } );
+                qwr::final_action autoTypeInfo( [pTypeInfoCur] { pTypeInfoCur->Release(); } );
 
                 ParseTypeInfoRecursive( cx, pTypeInfoCur, members );
             }

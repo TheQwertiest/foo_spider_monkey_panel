@@ -174,14 +174,14 @@ template <typename T, typename F>
 void ProcessArray( JSContext* cx, JS::HandleObject jsObject, F&& workerFunc )
 {
     bool is;
-    if ( !JS_IsArrayObject( cx, jsObject, &is ) )
+    if ( !JS::IsArrayObject( cx, jsObject, &is ) )
     {
         throw smp::JsException();
     }
     qwr::QwrException::ExpectTrue( is, "Object is not an array" );
 
     uint32_t arraySize;
-    if ( !JS_GetArrayLength( cx, jsObject, &arraySize ) )
+    if ( !JS::GetArrayLength( cx, jsObject, &arraySize ) )
     {
         throw smp::JsException();
     }

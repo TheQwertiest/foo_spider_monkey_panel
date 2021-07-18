@@ -16,8 +16,8 @@ void OnProcessLocationsNotify_InsertHandles::on_completion( metadb_handle_list_c
 {
     auto api = playlist_manager::get();
     const size_t adjustedPlIdx = ( playlistIdx_ == -1 ? api->get_active_playlist() : playlistIdx_ );
-    if ( adjustedPlIdx >= api->get_playlist_count() 
-        || ( api->playlist_lock_get_filter_mask( adjustedPlIdx ) & playlist_lock::filter_add ) )
+    if ( adjustedPlIdx >= api->get_playlist_count()
+         || ( api->playlist_lock_get_filter_mask( adjustedPlIdx ) & playlist_lock::filter_add ) )
     {
         return;
     }

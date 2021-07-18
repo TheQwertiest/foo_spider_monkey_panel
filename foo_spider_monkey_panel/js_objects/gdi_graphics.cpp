@@ -360,7 +360,7 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
         result = smp::utils::WrapText( hDc, str, max_width );
     }
 
-    JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.size() * 2 ) );
+    JS::RootedObject jsArray( pJsCtx_, JS::NewArrayObject( pJsCtx_, result.size() * 2 ) );
     JsException::ExpectTrue( jsArray );
 
     JS::RootedValue jsValue( pJsCtx_ );

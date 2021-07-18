@@ -109,7 +109,7 @@ protected:
         JS::RootedValue vFunc( pJsCtx_, heapMgr.Get( funcId_ ) );
         JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
         auto args = std::to_array( { &arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7 } );
-        JS::AutoValueArray<args.size()> wrappedArgs( pJsCtx_ );
+        JS::RootedValueArray<args.size()> wrappedArgs(pJsCtx_);
 
         try
         {
@@ -173,7 +173,7 @@ bool ComArrayToJsArray( JSContext* cx, const VARIANT& src, JS::MutableHandleValu
     qwr::error::CheckHR( hr, "SafeArrayGetLBound" );
 
     // Create the JS Array
-    JS::RootedObject jsArray( cx, JS_NewArrayObject( cx, ubound - lbound + 1 ) );
+    JS::RootedObject jsArray( cx, JS::NewArrayObject( cx, ubound - lbound + 1 ) );
     JsException::ExpectTrue( jsArray );
 
     // Divine the type of our array
@@ -444,7 +444,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
         else
         {
             bool is;
-            if ( !JS_IsArrayObject( cx, rval, &is ) )
+            if ( !JS::IsArrayObject( cx, rval, &is ) )
             {
                 throw JsException();
             }
@@ -503,7 +503,7 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
 #ifndef NDEBUG
     {
         bool is;
-        if ( !JS_IsArrayObject( cx, obj, &is ) )
+        if ( !JS::IsArrayObject( cx, obj, &is ) )
         {
             throw smp::JsException();
         }
@@ -512,7 +512,7 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
 #endif
 
     uint32_t len;
-    if ( !JS_GetArrayLength( cx, obj, &len ) )
+    if ( !JS::GetArrayLength( cx, obj, &len ) )
     {
         throw JsException();
     }
@@ -521,9 +521,7 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
     SAFEARRAY* safeArray = SafeArrayCreateVector( elementVariantType, 0, len );
     qwr::QwrException::ExpectTrue( safeArray, "SafeArrayCreateVector failed" );
 
-    qwr::final_action autoSa( [safeArray]() {
-        SafeArrayDestroy( safeArray );
-    } );
+    qwr::final_action autoSa( [safeArray]() { SafeArrayDestroy( safeArray ); } );
 
     if ( len )
     {
@@ -533,9 +531,7 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
             HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &varArray ) );
             qwr::error::CheckHR( hr, "SafeArrayAccessData" );
 
-            qwr::final_action autoSaData( [safeArray]() {
-                SafeArrayUnaccessData( safeArray );
-            } );
+            qwr::final_action autoSaData( [safeArray]() { SafeArrayUnaccessData( safeArray ); } );
 
             for ( uint32_t i = 0; i < len; ++i )
             {
@@ -554,9 +550,7 @@ void JsArrayToVariantArray( JSContext* cx, JS::HandleObject obj, int elementVari
             HRESULT hr = SafeArrayAccessData( safeArray, reinterpret_cast<void**>( &dataArray ) );
             qwr::error::CheckHR( hr, "SafeArrayAccessData" );
 
-            qwr::final_action autoSaData( [safeArray]() {
-                SafeArrayUnaccessData( safeArray );
-            } );
+            qwr::final_action autoSaData( [safeArray]() { SafeArrayUnaccessData( safeArray ); } );
 
             for ( uint32_t i = 0; i < len; ++i )
             {

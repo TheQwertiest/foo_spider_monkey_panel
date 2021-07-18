@@ -1,0 +1,24 @@
+diff a/mozjs b/mozjs
+--- a/mozjs/Debug/include/mozilla/LinkedList.h
++++ b/mozjs/Debug/include/mozilla/LinkedList.h
+@@ -441,7 +441,7 @@ class LinkedList {
+           "%s has a buggy user: "
+           "it should have removed all this list's elements before "
+           "the list's destruction",
+-          __PRETTY_FUNCTION__);
++          __FUNCSIG__);
+     }
+ #  endif
+   }
+
+--- a/mozjs/Release/include/mozilla/LinkedList.h
++++ b/mozjs/Release/include/mozilla/LinkedList.h
+@@ -441,7 +441,7 @@ class LinkedList {
+           "%s has a buggy user: "
+           "it should have removed all this list's elements before "
+           "the list's destruction",
+-          __PRETTY_FUNCTION__);
++          __FUNCSIG__);
+     }
+ #  endif
+   }
