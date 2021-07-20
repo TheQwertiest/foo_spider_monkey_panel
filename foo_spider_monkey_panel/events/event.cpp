@@ -33,6 +33,11 @@ Event_Mouse* EventBase::AsMouseEvent()
     return nullptr;
 }
 
+Event_Drag* EventBase::AsDragEvent()
+{
+    return nullptr;
+}
+
 PanelTarget::PanelTarget( panel::js_panel_window& panel )
     : pPanel_( &panel )
 {

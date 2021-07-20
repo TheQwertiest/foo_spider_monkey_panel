@@ -391,6 +391,9 @@
     <ClCompile Include="events\event_js_executor.cpp">
       <Filter>events</Filter>
     </ClCompile>
+    <ClCompile Include="events\event_drag.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
@@ -660,7 +663,7 @@
     <ClInclude Include="panel\user_message.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="panel\drop_action_params.h">
+    <ClInclude Include="panel\drag_action_params.h">
       <Filter>panel</Filter>
     </ClInclude>
     <ClInclude Include="panel\js_panel_window.h">
@@ -839,6 +842,9 @@
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\event_basic.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_drag.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="fb2k\mainmenu_dynamic.h">

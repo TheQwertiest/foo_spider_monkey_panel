@@ -1,7 +1,7 @@
 #pragma once
 
 #include <js_objects/object_base.h>
-#include <panel/drop_action_params.h>
+#include <panel/drag_action_params.h>
 
 #include <optional>
 
@@ -33,7 +33,7 @@ public:
     static size_t GetInternalSize();
 
 public:
-    smp::panel::DropActionParams& GetDropActionParams();
+    smp::panel::DragActionParams& AccessDropActionParams();
 
 public:
     uint32_t get_Effect() const;
@@ -49,7 +49,7 @@ private:
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
-    smp::panel::DropActionParams actionParams_;
+    smp::panel::DragActionParams actionParams_;
 };
 
 } // namespace mozjs

@@ -246,11 +246,11 @@ smp::panel::js_panel_window& JsContainer::GetParentPanel() const
     return *pParentPanel_;
 }
 
-void JsContainer::InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, panel::DropActionParams& actionParams )
+bool JsContainer::InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, panel::DragActionParams& actionParams )
 {
     if ( !IsReadyForCallback() )
     {
-        return;
+        return false;
     }
 
     auto selfSaver = shared_from_this();
@@ -258,20 +258,23 @@ void JsContainer::InvokeOnDragAction( const qwr::u8string& functionName, const P
 
     if ( !CreateDropActionIfNeeded() )
     { // reports
-        return;
+        return false;
     }
 
-    pNativeDropAction_->GetDropActionParams() = actionParams;
+    pNativeDropAction_->AccessDropActionParams() = actionParams;
 
     auto retVal = InvokeJsCallback( functionName,
                                     static_cast<JS::HandleObject>( jsDropAction_ ),
                                     static_cast<int32_t>( pt.x ),
                                     static_cast<int32_t>( pt.y ),
                                     static_cast<uint32_t>( keyState ) );
-    if ( retVal )
+    if ( !retVal )
     {
-        actionParams = pNativeDropAction_->GetDropActionParams();
+        return false;
     }
+
+    actionParams = pNativeDropAction_->AccessDropActionParams();
+    return true;
 }
 
 void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )

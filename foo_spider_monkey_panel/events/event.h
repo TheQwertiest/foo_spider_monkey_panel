@@ -11,7 +11,7 @@ namespace smp
 {
 
 class Event_Mouse;
-class Event_Focus;
+class Event_Drag;
 
 enum class EventId
 {
@@ -75,6 +75,11 @@ enum class EventId
     kMouseMove,
     //// context
     kMouseContextMenu,
+    //// drag-n-drop
+    kMouseDragDrop,
+    kMouseDragEnter,
+    kMouseDragLeave,
+    kMouseDragOver,
     // internal
     kInternalGetAlbumArtDone,
     kInternalGetAlbumArtPromiseDone,
@@ -157,7 +162,12 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kMouseLeave, "mouse_leave" },
     { EventId::kMouseMove, "mouse_move" },
     //// context
-    { EventId::kMouseContextMenu, "TODO" },
+    { EventId::kMouseContextMenu, "UNUSED" },
+    //// drag-n-drop
+    { EventId::kMouseDragDrop, "UNUSED" },
+    { EventId::kMouseDragEnter, "UNUSED" },
+    { EventId::kMouseDragLeave, "UNUSED" },
+    { EventId::kMouseDragOver, "UNUSED" },
     // internal
     { EventId::kInternalGetAlbumArtDone, "get_album_art_done" },
     { EventId::kInternalLoadImageDone, "load_image_done" },
@@ -166,9 +176,6 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     // ui
     { EventId::kUiColoursChanged, "colours_changed" },
     { EventId::kUiFontChanged, "font_changed" },
-    // window
-    { EventId::kWndPaint, "TODO" },
-    { EventId::kWndResize, "TODO" },
 };
 
 enum class EventPriority
@@ -193,7 +200,7 @@ class PanelTarget final
 public:
     PanelTarget( panel::js_panel_window& panel );
 
-    panel::js_panel_window* GetPanel();
+    [[nodiscard]] panel::js_panel_window* GetPanel();
     void UnlinkPanel();
 
 private:
@@ -206,12 +213,13 @@ public:
     EventBase( EventId id );
     virtual ~EventBase() = default;
 
-    virtual std::unique_ptr<EventBase> Clone();
+    [[nodiscard]] virtual std::unique_ptr<EventBase> Clone();
 
     void SetTarget( std::shared_ptr<PanelTarget> pTarget );
-    EventId GetId() const;
+    [[nodiscard]] EventId GetId() const;
 
-    virtual Event_Mouse* AsMouseEvent();
+    [[nodiscard]] virtual Event_Mouse* AsMouseEvent();
+    [[nodiscard]] virtual Event_Drag* AsDragEvent();
 
 protected:
     const EventId id_;

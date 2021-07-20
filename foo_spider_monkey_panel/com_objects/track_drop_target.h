@@ -2,7 +2,15 @@
 
 #include <com_objects/com_tools.h>
 #include <com_objects/drop_target_impl.h>
-#include <panel/drop_action_params.h>
+#include <events/event.h>
+#include <panel/drag_action_params.h>
+
+namespace smp::panel
+{
+
+class js_panel_window;
+
+}
 
 namespace smp::com
 {
@@ -15,22 +23,23 @@ protected:
 
 public:
     /// @throw qwr::QwrException
-    TrackDropTarget( HWND hWnd );
+    TrackDropTarget( panel::js_panel_window& panel );
     ~TrackDropTarget() override = default;
 
-    // IDropTarget
-    HRESULT OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
-    HRESULT OnDragLeave() override;
-    HRESULT OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
-    HRESULT OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
+    // IDropTargetImpl
+    DWORD OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD dwEffect ) override;
+    DWORD OnDragOver( DWORD grfKeyState, POINTL pt, DWORD dwEffect ) override;
+    DWORD OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD dwEffect ) override;
+    void OnDragLeave() override;
 
 private:
-    void SendDragMessage( DWORD msgId, DWORD grfKeyState, POINTL pt );
+    [[nodiscard]] std::optional<panel::DragActionParams>
+    PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, const panel::DragActionParams& dragParams );
 
 private:
-    panel::DropActionParams actionParams_;
-    IDataObjectPtr pDataObject_ = nullptr;
-    DWORD m_fb2kAllowedEffect = DROPEFFECT_NONE;
+    panel::js_panel_window* pPanel_ = nullptr;
+    IDataObjectPtr pDataObject_;
+    DWORD fb2kAllowedEffect_ = DROPEFFECT_NONE;
 
     BEGIN_COM_QI_IMPL()
         COM_QI_ENTRY_MULTI( IUnknown, IDropTarget )

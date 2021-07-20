@@ -12,7 +12,7 @@ class HostTimerTask;
 namespace smp::panel
 {
 class js_panel_window;
-struct DropActionParams;
+struct DragActionParams;
 } // namespace smp::panel
 
 namespace mozjs
@@ -80,7 +80,7 @@ public:
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>( args )... );
     }
 
-    void InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DropActionParams& actionParams );
+    bool InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DragActionParams& actionParams );
     void InvokeOnNotify( WPARAM wp, LPARAM lp );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
     void InvokeJsAsyncTask( JsAsyncTask& jsTask );

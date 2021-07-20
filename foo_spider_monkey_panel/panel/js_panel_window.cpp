@@ -7,12 +7,13 @@
 #include <config/delayed_package_utils.h>
 #include <config/package_utils.h>
 #include <events/event_basic.h>
+#include <events/event_drag.h>
 #include <events/event_js_callback.h>
 #include <events/event_manager.h>
 #include <events/event_mouse.h>
 #include <fb2k/mainmenu_dynamic.h>
 #include <js_engine/js_container.h>
-#include <panel/drop_action_params.h>
+#include <panel/drag_action_params.h>
 #include <panel/edit_script.h>
 #include <panel/message_manager.h>
 #include <panel/modal_blocking_scope.h>
@@ -293,45 +294,74 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
         OnContextMenu( pMouseEvent->GetX(), pMouseEvent->GetY() );
         break;
     }
-    case EventId::kWndPaint:
+    case EventId::kMouseDragEnter:
     {
-        if ( isPaintInProgress_ )
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
+        if ( pJsContainer_ )
         {
-            break;
-        }
-        isPaintInProgress_ = true;
-
-        if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
-        { // Two pass redraw: paint BG > Repaint() > paint FG
-            CRect rc;
-            wnd_.GetUpdateRect( &rc, FALSE );
-            RepaintBackground( &rc ); ///< Calls Repaint() inside
-
-            isBgRepaintNeeded_ = false;
-            isPaintInProgress_ = false;
-
-            Repaint( true );
-            break;
-        }
-        {
-            CPaintDC dc{ wnd_ };
-            const bool paintError = !pJsContainer_;
-            OnPaint( dc, dc.m_ps.rcPaint, paintError );
+            auto dragParams = pDragEvent->GetDragParams();
+            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_enter",
+                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                                 pDragEvent->GetMask(),
+                                                                 dragParams );
+            if ( bRet )
+            {
+                lastDragParams_ = dragParams;
+            }
         }
 
-        isPaintInProgress_ = false;
         break;
     }
-    case EventId::kWndResize:
+    case EventId::kMouseDragLeave:
     {
-        if ( !pJsContainer_ )
+        if ( pJsContainer_ )
         {
-            break;
+            pJsContainer_->InvokeJsCallback( "on_drag_leave" );
         }
+        lastDragParams_.reset();
 
-        CRect rc;
-        wnd_.GetClientRect( &rc );
-        OnSizeUser( rc.Width(), rc.Height() );
+        break;
+    }
+    case EventId::kMouseDragOver:
+    {
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
+        if ( pJsContainer_ )
+        {
+            auto dragParams = pDragEvent->GetDragParams();
+            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_over",
+                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                                 pDragEvent->GetMask(),
+                                                                 dragParams );
+            if ( bRet )
+            {
+                lastDragParams_ = dragParams;
+            }
+        }
+        break;
+    }
+    case EventId::kMouseDragDrop:
+    {
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
+        if ( pJsContainer_ )
+        {
+            auto dragParams = pDragEvent->GetDragParams();
+            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_drop",
+                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                                 pDragEvent->GetMask(),
+                                                                 dragParams );
+            if ( bRet )
+            {
+                lastDragParams_ = dragParams;
+            }
+        }
+        lastDragParams_.reset();
+
         break;
     }
     default:
@@ -380,12 +410,53 @@ void js_panel_window::ExecuteTask( EventId id )
         ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
         break;
     }
+    case EventId::kWndPaint:
+    {
+        if ( isPaintInProgress_ )
+        {
+            break;
+        }
+        isPaintInProgress_ = true;
+
+        if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
+        { // Two pass redraw: paint BG > Repaint() > paint FG
+            CRect rc;
+            wnd_.GetUpdateRect( &rc, FALSE );
+            RepaintBackground( &rc ); ///< Calls Repaint() inside
+
+            isBgRepaintNeeded_ = false;
+            isPaintInProgress_ = false;
+
+            Repaint( true );
+            break;
+        }
+        {
+            CPaintDC dc{ wnd_ };
+            const bool paintError = !pJsContainer_;
+            OnPaint( dc, dc.m_ps.rcPaint, paintError );
+        }
+
+        isPaintInProgress_ = false;
+        break;
+    }
     case EventId::kWndRepaintBackground:
     {
         isBgRepaintNeeded_ = true;
         Repaint( true );
+    }
+    case EventId::kWndResize:
+    {
+        if ( !pJsContainer_ )
+        {
+            break;
+        }
+
+        CRect rc;
+        wnd_.GetClientRect( &rc );
+        OnSizeUser( rc.Width(), rc.Height() );
         break;
     }
+    break;
     default:
         break;
     }
@@ -468,7 +539,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
             return std::nullopt;
         }
 
-        EventManager::Get().PutEvent( wnd_, GenerateEvent_JsCallback( EventId::kWndPaint ), EventPriority::kRedraw );
+        EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndPaint ), EventPriority::kRedraw );
         return 0;
     }
     case WM_SIZE:
@@ -477,7 +548,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         wnd_.GetClientRect( &rc );
         OnSizeDefault( rc.Width(), rc.Height() );
 
-        EventManager::Get().PutEvent( wnd_, GenerateEvent_JsCallback( EventId::kWndResize ), EventPriority::kResize );
+        EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
 
         return 0;
     }
@@ -746,26 +817,16 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
             SetCaptureMouseState( false );
         }
 
-        on_drag_drop( lp );
         return 0;
     }
     case InternalSyncMessage::wnd_drag_enter:
     {
         isDraggingInside_ = true;
-
-        on_drag_enter( lp );
         return 0;
     }
     case InternalSyncMessage::wnd_drag_leave:
     {
         isDraggingInside_ = false;
-
-        on_drag_leave();
-        return 0;
-    }
-    case InternalSyncMessage::wnd_drag_over:
-    {
-        on_drag_over( lp );
         return 0;
     }
     case InternalSyncMessage::wnd_drag_stop:
@@ -1031,10 +1092,11 @@ void js_panel_window::SetPanelName( const qwr::u8string& panelName )
 void js_panel_window::SetDragAndDropStatus( bool isEnabled )
 {
     isDraggingInside_ = false;
+    lastDragParams_.reset();
     settings_.enableDragDrop = isEnabled;
     if ( isEnabled )
     {
-        dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( wnd_ ) );
+        dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( *this ) );
 
         HRESULT hr = dropTargetHandler_->RegisterDragDrop();
         qwr::error::CheckHR( hr, "RegisterDragDrop" );
@@ -1052,6 +1114,11 @@ void js_panel_window::SetDragAndDropStatus( bool isEnabled )
 void js_panel_window::SetCaptureFocusStatus( bool isEnabled )
 {
     settings_.shouldGrabFocus = isEnabled;
+}
+
+std::optional<DragActionParams>& js_panel_window::GetLastDragParams()
+{
+    return lastDragParams_;
 }
 
 void js_panel_window::Repaint( bool force /*= false */ )
@@ -1191,7 +1258,7 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     if ( !isFirstLoad )
     { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
         // We need to go through message loop to handle all JS logic correctly (e.g. jobs).
-        EventManager::Get().PutEvent( wnd_, GenerateEvent_JsCallback( EventId::kWndResize ), EventPriority::kResize );
+        EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
     }
 
     return true;
@@ -1321,38 +1388,6 @@ void js_panel_window::DestroyEventTarget()
         pTarget_->UnlinkPanel();
     }
     pTarget_.reset();
-}
-
-void js_panel_window::on_drag_drop( LPARAM lp )
-{
-    auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
-    pJsContainer_->InvokeOnDragAction( "on_drag_drop",
-                                       actionParams->pt,
-                                       actionParams->keyState,
-                                       actionParams->actionParams );
-}
-
-void js_panel_window::on_drag_enter( LPARAM lp )
-{
-    auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
-    pJsContainer_->InvokeOnDragAction( "on_drag_enter",
-                                       actionParams->pt,
-                                       actionParams->keyState,
-                                       actionParams->actionParams );
-}
-
-void js_panel_window::on_drag_leave()
-{
-    pJsContainer_->InvokeJsCallback( "on_drag_leave" );
-}
-
-void js_panel_window::on_drag_over( LPARAM lp )
-{
-    auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
-    pJsContainer_->InvokeOnDragAction( "on_drag_over",
-                                       actionParams->pt,
-                                       actionParams->keyState,
-                                       actionParams->actionParams );
 }
 
 void js_panel_window::on_notify_data( WPARAM wp, LPARAM lp )

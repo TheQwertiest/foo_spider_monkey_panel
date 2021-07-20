@@ -51,7 +51,7 @@ public:
         return std::nullopt;
     }
 
-    std::unique_ptr<EventBase> Clone() override
+    [[nodiscard]] std::unique_ptr<EventBase> Clone() override
     {
         if constexpr ( std::is_copy_constructible_v<std::tuple<Args...>> )
         {

@@ -161,6 +161,7 @@
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
     <ClCompile Include="events\event.cpp" />
+    <ClCompile Include="events\event_drag.cpp" />
     <ClCompile Include="events\event_js_task.cpp" />
     <ClCompile Include="events\event_manager.cpp" />
     <ClCompile Include="events\event_mouse.cpp" />
@@ -305,6 +306,7 @@
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="events\event.h" />
+    <ClInclude Include="events\event_drag.h" />
     <ClInclude Include="events\event_js_callback.h" />
     <ClInclude Include="events\event_js_task.h" />
     <ClInclude Include="events\event_manager.h" />
@@ -378,7 +380,7 @@
     <ClInclude Include="js_utils\js_prototype_helpers.h" />
     <ClInclude Include="js_utils\scope_helper.h" />
     <ClInclude Include="js_utils\serialized_value.h" />
-    <ClInclude Include="panel\drop_action_params.h" />
+    <ClInclude Include="panel\drag_action_params.h" />
     <ClInclude Include="panel\edit_script.h" />
     <ClInclude Include="panel\js_panel_window.h" />
     <ClInclude Include="panel\js_panel_window_cui.h" />

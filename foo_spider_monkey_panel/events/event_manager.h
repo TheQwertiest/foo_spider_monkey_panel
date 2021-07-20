@@ -5,7 +5,7 @@
 #include <mutex>
 #include <unordered_map>
 
-// TODO: add on_size and mouse_move coalescing (https://searchfox.org/mozilla-central/source/dom/ipc/PBrowser.ipdl)
+// TODO: add on_size and mouse_move (drag_over as well?) coalescing (https://searchfox.org/mozilla-central/source/dom/ipc/PBrowser.ipdl)
 // TODO: add dynamic input task prioritization (kInputLow)
 
 namespace smp

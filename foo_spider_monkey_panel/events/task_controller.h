@@ -56,7 +56,7 @@ class TaskController : public std::enable_shared_from_this<TaskController>
 public:
     TaskController( std::shared_ptr<PanelTarget> pTarget );
 
-    std::shared_ptr<PanelTarget> GetTarget();
+    [[nodiscard]] std::shared_ptr<PanelTarget> GetTarget();
 
     void AddTask( std::shared_ptr<Task> pTask );
     void AddRunnable( std::shared_ptr<Runnable> pRunnable, EventPriority priority );

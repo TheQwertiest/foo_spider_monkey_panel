@@ -3,6 +3,7 @@
 #include <config/parsed_panel_config.h>
 #include <events/event.h>
 #include <events/event_js_executor.h>
+#include <panel/drag_action_params.h>
 #include <panel/panel_info.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>
@@ -79,6 +80,8 @@ public: // accessors
     void SetDragAndDropStatus( bool isEnabled );
     void SetCaptureFocusStatus( bool isEnabled );
 
+    [[nodiscard]] std::optional<DragActionParams>& GetLastDragParams();
+
 protected:
     virtual void notify_size_limit_changed( LPARAM lp ) = 0;
 
@@ -120,10 +123,6 @@ private: // callback handling
     void OnDestroy();
 
     // JS callbacks
-    void on_drag_drop( LPARAM lp );
-    void on_drag_enter( LPARAM lp );
-    void on_drag_leave();
-    void on_drag_over( LPARAM lp );
     void on_notify_data( WPARAM wp, LPARAM lp );
     void OnPaint( HDC dc, const CRect& updateRc, bool useErrorScreen = false );
     void OnPaintErrorScreen( HDC memdc );
@@ -142,8 +141,8 @@ private:
     CWindow wnd_;
     HDC hDc_ = nullptr;
 
-    uint32_t height_ = 0;     // Used externally as well
-    uint32_t width_ = 0;      // Used externally as well
+    uint32_t height_ = 0;     // used externally as well
+    uint32_t width_ = 0;      // used externally as well
     CBitmap bmp_ = nullptr;   // used only internally
     CBitmap bmpBg_ = nullptr; // used only internally
 
@@ -156,6 +155,7 @@ private:
     ui_selection_holder::ptr selectionHolder_; // used only internally
 
     CComPtr<smp::com::IDropTargetImpl> dropTargetHandler_; // used only internally
+    std::optional<DragActionParams> lastDragParams_;       // used externally as well
 
     bool isPanelIdOverridenByScript_ = false; // used only internally
 
