@@ -32,6 +32,25 @@ void EventManager::RemoveWindow( HWND hWnd )
     taskControllerMap_.erase( hWnd );
 }
 
+void EventManager::NotifyAllAboutExit()
+{
+    std::vector<HWND> hWnds;
+    hWnds.reserve( taskControllerMap_.size() );
+
+    {
+        std::scoped_lock sl( taskControllerMapMutex_ );
+        for ( auto& [hLocalWnd, pTaskController]: taskControllerMap_ )
+        {
+            hWnds.emplace_back( hLocalWnd );
+        }
+    }
+
+    for ( const auto& hWnd: hWnds )
+    {
+        SendMessage( hWnd, static_cast<UINT>( smp::InternalSyncMessage::prepare_for_exit ), 0, 0 );
+    }
+}
+
 void EventManager::ClearEventQueue( HWND hWnd, std::shared_ptr<PanelTarget> pTarget )
 {
     std::unique_lock ul( taskControllerMapMutex_ );

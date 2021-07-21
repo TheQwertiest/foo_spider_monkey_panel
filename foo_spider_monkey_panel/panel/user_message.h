@@ -8,7 +8,7 @@ enum class InternalSyncMessage : UINT
 {
     first_message = WM_USER + 100,
     script_fail = first_message,
-    terminate_script,
+    prepare_for_exit,
     timer_proc,
     ui_script_editor_saved,
     wnd_drag_drop,

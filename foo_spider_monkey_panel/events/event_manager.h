@@ -27,6 +27,8 @@ public:
     void AddWindow( HWND hWnd );
     void RemoveWindow( HWND hWnd );
 
+    void NotifyAllAboutExit();
+
     void ClearEventQueue( HWND hWnd, std::shared_ptr<PanelTarget> pTarget );
     void DisableEventQueue( HWND hWnd );
 

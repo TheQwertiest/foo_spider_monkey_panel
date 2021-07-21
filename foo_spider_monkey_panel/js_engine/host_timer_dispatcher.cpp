@@ -4,7 +4,6 @@
 
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
-#include <panel/message_manager.h>
 #include <panel/user_message.h>
 
 #include <qwr/final_action.h>

@@ -235,7 +235,6 @@
     <ClCompile Include="panel\js_panel_window_cui.cpp" />
     <ClCompile Include="panel\js_panel_window_dui.cpp" />
     <ClCompile Include="panel\modal_blocking_scope.cpp" />
-    <ClCompile Include="panel\message_manager.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
@@ -388,7 +387,6 @@
     <ClInclude Include="panel\js_panel_window_cui.h" />
     <ClInclude Include="panel\js_panel_window_dui.h" />
     <ClInclude Include="panel\modal_blocking_scope.h" />
-    <ClInclude Include="panel\message_manager.h" />
     <ClInclude Include="panel\panel_info.h" />
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />

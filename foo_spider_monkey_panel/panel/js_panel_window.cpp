@@ -15,7 +15,6 @@
 #include <js_engine/js_container.h>
 #include <panel/drag_action_params.h>
 #include <panel/edit_script.h>
-#include <panel/message_manager.h>
 #include <panel/modal_blocking_scope.h>
 #include <ui/ui_conf.h>
 #include <utils/art_helpers.h>
@@ -795,7 +794,7 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
         Fail( *reinterpret_cast<const qwr::u8string*>( lp ) );
         return 0;
     }
-    case InternalSyncMessage::terminate_script:
+    case InternalSyncMessage::prepare_for_exit:
     {
         UnloadScript();
         return 0;
@@ -1360,7 +1359,6 @@ void js_panel_window::OnCreate( HWND hWnd )
     CreateDrawContext();
 
     RecreateEventTarget();
-    MessageManager::Get().AddWindow( wnd_ );
     EventManager::Get().AddWindow( wnd_ );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
@@ -1376,7 +1374,6 @@ void js_panel_window::OnDestroy()
     pJsContainer_.reset();
 
     DestroyEventTarget();
-    MessageManager::Get().RemoveWindow( wnd_ );
     EventManager::Get().RemoveWindow( wnd_ );
 
     DeleteDrawContext();
