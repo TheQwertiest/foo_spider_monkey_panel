@@ -3,13 +3,6 @@
 #include <events/event.h>
 #include <events/event_js_executor.h>
 
-namespace mozjs
-{
-
-class JsContainer;
-
-} // namespace mozjs
-
 namespace smp
 {
 

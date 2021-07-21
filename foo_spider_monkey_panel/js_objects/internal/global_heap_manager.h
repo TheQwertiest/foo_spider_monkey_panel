@@ -4,8 +4,6 @@
 #include <set>
 #include <shared_mutex>
 
-class ActiveX;
-
 namespace mozjs
 {
 

@@ -19,7 +19,6 @@ std::unique_ptr<EventBase> EventBase::Clone()
 
 void EventBase::SetTarget( std::shared_ptr<PanelTarget> pTarget )
 {
-    assert( pTarget );
     pTarget_ = pTarget;
 }
 

@@ -43,6 +43,11 @@ public: // these can be invoked from worker threads
     ///         - Clone operation should not be CPU intensive (e.g. don't copy vectors, but rather wrap it in shared_ptr)
     void PutEventToAll( std::unique_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
 
+    /// @remark Be careful when using this:
+    ///         - Event must be cloneable.
+    ///         - Clone operation should not be CPU intensive (e.g. don't copy vectors, but rather wrap it in shared_ptr)
+    void PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
+
 private:
     std::mutex taskControllerMapMutex_;
     std::unordered_map<HWND, std::shared_ptr<TaskController>> taskControllerMap_;

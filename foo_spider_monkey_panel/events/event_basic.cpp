@@ -14,13 +14,18 @@ Event_Basic::Event_Basic( EventId id )
 
 void Event_Basic::Run()
 {
-    assert( pTarget_ );
+    if ( !pTarget_ )
+    {
+        return;
+    }
 
     auto pPanel = pTarget_->GetPanel();
-    if ( pPanel )
+    if ( !pPanel )
     {
-        pPanel->ExecuteTask( id_ );
+        return;
     }
+
+    pPanel->ExecuteTask( id_ );
 }
 
 } // namespace smp

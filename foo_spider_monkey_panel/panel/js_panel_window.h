@@ -124,7 +124,6 @@ private: // callback handling
     void OnDestroy();
 
     // JS callbacks
-    void on_notify_data( WPARAM wp, LPARAM lp );
     void OnPaint( HDC dc, const CRect& updateRc, bool useErrorScreen = false );
     void OnPaintErrorScreen( HDC memdc );
     void OnPaintJs( HDC memdc, const CRect& updateRc );

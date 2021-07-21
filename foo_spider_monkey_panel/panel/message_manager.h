@@ -24,7 +24,6 @@ public:
 
 public:
     void SendMsgToAll( UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
-    void SendMsgToOthers( HWND hWnd_except, UINT msg, WPARAM wp = 0, LPARAM lp = 0 );
 
 private:
     std::mutex wndDataMutex_;

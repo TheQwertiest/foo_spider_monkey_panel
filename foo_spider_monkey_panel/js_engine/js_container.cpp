@@ -277,7 +277,7 @@ bool JsContainer::InvokeOnDragAction( const qwr::u8string& functionName, const P
     return true;
 }
 
-void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
+void JsContainer::InvokeOnNotify( const std::wstring& name, JS::HandleValue info )
 {
     if ( !IsReadyForCallback() )
     {
@@ -288,7 +288,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
     JsAutoRealmWithErrorReport autoScope( pJsCtx_, jsGlobal_ );
 
     // Bind object to current realm
-    JS::RootedValue jsValue( pJsCtx_, *reinterpret_cast<JS::HandleValue*>( lp ) );
+    JS::RootedValue jsValue( pJsCtx_, info );
     if ( !JS_WrapValue( pJsCtx_, &jsValue ) )
     { // reports
         return;
@@ -296,7 +296,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
 
     autoScope.DisableReport(); ///< InvokeJsCallback has it's own AutoReportException
     (void)InvokeJsCallback( "on_notify_data",
-                            *reinterpret_cast<std::wstring*>( wp ),
+                            name,
                             static_cast<JS::HandleValue>( jsValue ) );
     if ( jsValue.isObject() )
     { // this will remove all wrappers (e.g. during callback re-entrancy)

@@ -790,11 +790,6 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
 
     switch ( msg )
     {
-    case InternalSyncMessage::notify_data:
-    {
-        on_notify_data( wp, lp );
-        return 0;
-    }
     case InternalSyncMessage::script_fail:
     {
         Fail( *reinterpret_cast<const qwr::u8string*>( lp ) );
@@ -1135,7 +1130,7 @@ bool js_panel_window::HasInternalDrag() const
     return hasInternalDrag_;
 }
 
-void js_panel_window::Repaint( bool force /*= false */ )
+void js_panel_window::Repaint( bool force )
 {
     wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
@@ -1217,6 +1212,7 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     isPanelIdOverridenByScript_ = false;
 
     DynamicMainMenuManager::Get().RegisterPanel(wnd_, settings_.panelId);
+    // TODO: do we actually need event target recreation?
     RecreateEventTarget();
     EventManager::Get().ClearEventQueue( wnd_, pTarget_ );
 
@@ -1256,8 +1252,8 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
             config::MarkPackageAsInUse( *settings_.packageId );
         }
 
-        assert( settings_.scriptPath );
         modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
+        assert( settings_.scriptPath );
         if ( !pJsContainer_->ExecuteScriptFile( *settings_.scriptPath ) )
         { // error reporting handled inside
             return false;
@@ -1300,6 +1296,7 @@ void js_panel_window::UnloadScript( bool force )
     catch ( const qwr::QwrException& )
     {
     }
+
     DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
     pJsContainer_->Finalize();
 }
@@ -1402,11 +1399,6 @@ void js_panel_window::DestroyEventTarget()
         pTarget_->UnlinkPanel();
     }
     pTarget_.reset();
-}
-
-void js_panel_window::on_notify_data( WPARAM wp, LPARAM lp )
-{
-    pJsContainer_->InvokeOnNotify( wp, lp );
 }
 
 void js_panel_window::OnPaint( HDC dc, const CRect& updateRc, bool useErrorScreen )

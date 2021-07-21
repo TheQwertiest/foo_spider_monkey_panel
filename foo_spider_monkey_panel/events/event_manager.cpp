@@ -121,4 +121,29 @@ void EventManager::PutEventToAll( std::unique_ptr<EventBase> pEvent, EventPriori
     }
 }
 
+void EventManager::PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority )
+{
+    std::scoped_lock sl( taskControllerMapMutex_ );
+
+    for ( auto& [hLocalWnd, pTaskController]: taskControllerMap_ )
+    {
+        if ( !pTaskController || hLocalWnd == hWnd )
+        {
+            continue;
+        }
+
+        auto pClonedEvent = pEvent->Clone();
+        if ( !pClonedEvent )
+        {
+            assert( false );
+            return;
+        }
+
+        pClonedEvent->SetTarget( pTaskController->GetTarget() );
+        pTaskController->AddRunnable( std::move( pClonedEvent ), priority );
+
+        PostMessage( hLocalWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
+    }
+}
+
 } // namespace smp

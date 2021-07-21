@@ -101,6 +101,8 @@ enum class EventId
     kScriptShowConfigure,
     kScriptShowConfigureLegacy,
     kScriptShowProperties,
+    // custom
+    kNotifyOthers,
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
@@ -176,6 +178,8 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     // ui
     { EventId::kUiColoursChanged, "colours_changed" },
     { EventId::kUiFontChanged, "font_changed" },
+    // custom
+    { EventId::kNotifyOthers, "notify_data" },
 };
 
 enum class EventPriority

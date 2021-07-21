@@ -5,6 +5,7 @@
 #include <config/package_utils.h>
 #include <events/event_basic.h>
 #include <events/event_manager.h>
+#include <events/event_notify_others.h>
 #include <js_engine/host_timer_dispatcher.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_invoker.h>
@@ -17,7 +18,6 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <panel/js_panel_window.h>
-#include <panel/message_manager.h>
 #include <utils/gdi_helpers.h>
 
 #include <qwr/winapi_error_helpers.h>
@@ -529,12 +529,8 @@ void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
         return;
     }
 
-    // TODO: think about replacing with PostMessage
-    panel::MessageManager::Get().SendMsgToOthers(
-        parentPanel_.GetHWND(),
-        static_cast<UINT>( InternalSyncMessage::notify_data ),
-        reinterpret_cast<WPARAM>( &name ),
-        reinterpret_cast<LPARAM>( &info ) );
+    EventManager::Get().PutEventToOthers( parentPanel_.GetHWND(),
+                                          std::make_unique<Event_NotifyOthers>( pJsCtx_, name, info ) );
 }
 
 void JsWindow::Reload()

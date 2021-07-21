@@ -394,6 +394,9 @@
     <ClCompile Include="events\event_drag.cpp">
       <Filter>events</Filter>
     </ClCompile>
+    <ClCompile Include="events\event_notify_others.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
@@ -845,6 +848,9 @@
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\event_drag.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_notify_others.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="fb2k\mainmenu_dynamic.h">

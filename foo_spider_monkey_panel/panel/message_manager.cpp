@@ -46,26 +46,4 @@ void MessageManager::SendMsgToAll( UINT msg, WPARAM wp, LPARAM lp )
     }
 }
 
-void MessageManager::SendMsgToOthers( HWND hWnd_except, UINT msg, WPARAM wp, LPARAM lp )
-{
-    std::vector<HWND> hWnds;
-    hWnds.reserve( wndDataMap_.size() );
-
-    {
-        std::scoped_lock sl( wndDataMutex_ );
-        for ( const auto& hWnd: wndDataMap_ )
-        {
-            hWnds.emplace_back( hWnd );
-        }
-    }
-
-    for ( const auto& hWnd: hWnds )
-    {
-        if ( hWnd != hWnd_except )
-        {
-            SendMessage( hWnd, msg, wp, lp );
-        }
-    }
-}
-
 } // namespace smp::panel

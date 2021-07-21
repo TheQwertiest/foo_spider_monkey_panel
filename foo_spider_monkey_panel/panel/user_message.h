@@ -7,8 +7,7 @@ namespace smp
 enum class InternalSyncMessage : UINT
 {
     first_message = WM_USER + 100,
-    notify_data = first_message,
-    script_fail,
+    script_fail = first_message,
     terminate_script,
     timer_proc,
     ui_script_editor_saved,

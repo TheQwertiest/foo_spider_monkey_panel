@@ -14,13 +14,18 @@ Event_JsExecutor::Event_JsExecutor( EventId id )
 
 void Event_JsExecutor::Run()
 {
-    assert( pTarget_ );
+    if ( !pTarget_ )
+    {
+        return;
+    }
 
     auto pPanel = pTarget_->GetPanel();
-    if ( pPanel )
+    if ( !pPanel )
     {
-        pPanel->ExecuteJsTask( id_, *this );
+        return;
     }
+
+    pPanel->ExecuteJsTask( id_, *this );
 }
 
 } // namespace smp
