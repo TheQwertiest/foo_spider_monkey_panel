@@ -42,6 +42,7 @@ public:
     void put_Playlist( int32_t id );
     void put_Text( const std::wstring& text );
     void put_ToSelect( bool toSelect );
+    bool get_IsInternal() const;
 
 private:
     JsDropSourceAction( JSContext* cx );

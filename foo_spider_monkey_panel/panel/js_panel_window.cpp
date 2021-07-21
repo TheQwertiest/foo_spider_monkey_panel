@@ -829,7 +829,12 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
         isDraggingInside_ = false;
         return 0;
     }
-    case InternalSyncMessage::wnd_drag_stop:
+    case InternalSyncMessage::wnd_internal_drag_start:
+    {
+        hasInternalDrag_ = true;
+        return 0;
+    }
+    case InternalSyncMessage::wnd_internal_drag_stop:
     {
         if ( !isDraggingInside_ )
         {
@@ -839,6 +844,9 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
         {
             SetCaptureMouseState( false );
         }
+
+        hasInternalDrag_ = false;
+
         return 0;
     }
     default:
@@ -1092,6 +1100,7 @@ void js_panel_window::SetPanelName( const qwr::u8string& panelName )
 void js_panel_window::SetDragAndDropStatus( bool isEnabled )
 {
     isDraggingInside_ = false;
+    hasInternalDrag_ = false;
     lastDragParams_.reset();
     settings_.enableDragDrop = isEnabled;
     if ( isEnabled )
@@ -1116,9 +1125,14 @@ void js_panel_window::SetCaptureFocusStatus( bool isEnabled )
     settings_.shouldGrabFocus = isEnabled;
 }
 
-std::optional<DragActionParams>& js_panel_window::GetLastDragParams()
+const std::optional<DragActionParams>& js_panel_window::GetLastDragParams() const
 {
     return lastDragParams_;
+}
+
+bool js_panel_window::HasInternalDrag() const
+{
+    return hasInternalDrag_;
 }
 
 void js_panel_window::Repaint( bool force /*= false */ )

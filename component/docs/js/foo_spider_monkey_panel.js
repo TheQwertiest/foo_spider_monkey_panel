@@ -3698,6 +3698,15 @@ function DropTargetAction() {
      * @type {boolean}
      */
     this.ToSelect = undefined; // (boolean) (write)
+
+    /**
+     * True, if the drag session was started by {@link fb.DoDragDrop}.
+     * False, otherwise.
+     * 
+     * @type {boolean}
+     * @readonly
+     */
+    this.IsInternal = undefined;
 }
 
 /**

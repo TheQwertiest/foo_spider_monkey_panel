@@ -8,7 +8,7 @@
 namespace smp
 {
 
-Event_Drag::Event_Drag( EventId id, int32_t x, int32_t y, uint32_t mask, const panel::DragActionParams dragParams )
+Event_Drag::Event_Drag( EventId id, int32_t x, int32_t y, uint32_t mask, const panel::DragActionParams& dragParams )
     : Event_Mouse( id, x, y, mask )
     , dragParams_( dragParams )
 {

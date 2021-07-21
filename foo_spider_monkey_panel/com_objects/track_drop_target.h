@@ -34,7 +34,7 @@ public:
 
 private:
     [[nodiscard]] std::optional<panel::DragActionParams>
-    PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, const panel::DragActionParams& dragParams );
+    PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, DWORD allowedEffects );
 
 private:
     panel::js_panel_window* pPanel_ = nullptr;

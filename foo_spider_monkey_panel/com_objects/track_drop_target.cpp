@@ -83,22 +83,16 @@ DWORD TrackDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, PO
         fb2kAllowedEffect_ |= DROPEFFECT_MOVE; // Remove check_dataobject move suppression for intra fb2k interactions
     }
 
-    panel::DragActionParams dragParams{};
-    dragParams.effect = dwEffect & fb2kAllowedEffect_;
-
     ScreenToClient( hWnd_, reinterpret_cast<LPPOINT>( &pt ) );
-    (void)PutDragEvent( EventId::kMouseDragEnter, grfKeyState, pt, dragParams );
+    (void)PutDragEvent( EventId::kMouseDragEnter, grfKeyState, pt, dwEffect & fb2kAllowedEffect_ );
 
     return DROPEFFECT_NONE;
 }
 
 DWORD TrackDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD dwEffect )
 {
-    panel::DragActionParams dragParams{};
-    dragParams.effect = dwEffect & fb2kAllowedEffect_;
-
     ScreenToClient( hWnd_, reinterpret_cast<LPPOINT>( &pt ) );
-    const auto lastDragParamsOpt = PutDragEvent( EventId::kMouseDragOver, grfKeyState, pt, dragParams );
+    const auto lastDragParamsOpt = PutDragEvent( EventId::kMouseDragOver, grfKeyState, pt, dwEffect & fb2kAllowedEffect_ );
     if ( !lastDragParamsOpt )
     {
         return DROPEFFECT_NONE;
@@ -111,13 +105,10 @@ DWORD TrackDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD dwEffect 
     return lastDragParams.effect;
 }
 
-DWORD TrackDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD dwEffect )
+DWORD TrackDropTarget::OnDrop( IDataObject* /*pDataObj*/, DWORD grfKeyState, POINTL pt, DWORD dwEffect )
 {
-    panel::DragActionParams dragParams{};
-    dragParams.effect = dwEffect & fb2kAllowedEffect_;
-
     ScreenToClient( hWnd_, reinterpret_cast<LPPOINT>( &pt ) );
-    const auto lastDragParamsOpt = PutDragEvent( EventId::kMouseDragDrop, grfKeyState, pt, dragParams );
+    const auto lastDragParamsOpt = PutDragEvent( EventId::kMouseDragDrop, grfKeyState, pt, dwEffect & fb2kAllowedEffect_ );
     if ( !lastDragParamsOpt || dwEffect == DROPEFFECT_NONE || lastDragParamsOpt->effect == DROPEFFECT_NONE )
     {
         return DROPEFFECT_NONE;
@@ -125,7 +116,7 @@ DWORD TrackDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL 
     const auto& lastDragParams = *lastDragParamsOpt;
 
     dropped_files_data_impl droppedData;
-    HRESULT hr = ole_interaction::get()->parse_dataobject( pDataObj, droppedData );
+    HRESULT hr = ole_interaction::get()->parse_dataobject( pDataObject_.GetInterfacePtr(), droppedData );
     if ( SUCCEEDED( hr ) )
     {
         droppedData.to_handles_async_ex( playlist_incoming_item_filter_v2::op_flag_delay_ui,
@@ -147,8 +138,13 @@ void TrackDropTarget::OnDragLeave()
 }
 
 std::optional<panel::DragActionParams>
-TrackDropTarget::PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, const panel::DragActionParams& dragParams )
+TrackDropTarget::PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, DWORD allowedEffects )
 {
+    if ( !pPanel_ )
+    {
+        return std::nullopt;
+    }
+
     static std::unordered_map<EventId, InternalSyncMessage> eventToMsg{
         { EventId::kMouseDragEnter, InternalSyncMessage::wnd_drag_enter },
         { EventId::kMouseDragLeave, InternalSyncMessage::wnd_drag_leave },
@@ -156,14 +152,13 @@ TrackDropTarget::PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, co
         { EventId::kMouseDragDrop, InternalSyncMessage::wnd_drag_drop }
     };
 
+    panel::DragActionParams dragParams{};
+    dragParams.effect = allowedEffects;
+    dragParams.isInternal = pPanel_->HasInternalDrag();
+
     // process system stuff first (e.g. mouse capture)
     SendMessage( pPanel_->GetHWND(), static_cast<UINT>( eventToMsg.at( eventId ) ), 0, 0 );
-
     EventManager::Get().PutEvent( hWnd_, std::make_unique<Event_Drag>( eventId, pt.x, pt.y, grfKeyState, dragParams ) );
-    if ( !pPanel_ )
-    {
-        return std::nullopt;
-    }
 
     return pPanel_->GetLastDragParams();
 }

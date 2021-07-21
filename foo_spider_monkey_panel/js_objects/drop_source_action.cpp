@@ -37,6 +37,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_Effect, JsDropSourceAction::put_Effect )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Playlist, JsDropSourceAction::put_Playlist )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_Text, JsDropSourceAction::put_Text )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_ToSelect, JsDropSourceAction::put_ToSelect )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_IsInternal, JsDropSourceAction::get_IsInternal )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
@@ -45,6 +46,7 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
         JS_PSGS( "Playlist", DummyGetter, put_Playlist, kDefaultPropsFlags ),
         JS_PSGS( "Text", DummyGetter, put_Text, kDefaultPropsFlags ),
         JS_PSGS( "ToSelect", DummyGetter, put_ToSelect, kDefaultPropsFlags ),
+        JS_PSG( "IsInternal", get_IsInternal, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
@@ -111,6 +113,11 @@ void JsDropSourceAction::put_Text( const std::wstring& text )
 void JsDropSourceAction::put_ToSelect( bool toSelect )
 {
     actionParams_.toSelect = toSelect;
+}
+
+bool JsDropSourceAction::get_IsInternal() const
+{
+    return actionParams_.isInternal;
 }
 
 } // namespace mozjs

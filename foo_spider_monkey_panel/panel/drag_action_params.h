@@ -10,6 +10,7 @@ struct DragActionParams
     bool toSelect = true;
     uint32_t effect = DROPEFFECT_NONE;
     std::wstring text;
+    bool isInternal = false;
 };
 
 } // namespace smp::panel

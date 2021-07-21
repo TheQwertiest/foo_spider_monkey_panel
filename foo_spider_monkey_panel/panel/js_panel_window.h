@@ -80,7 +80,8 @@ public: // accessors
     void SetDragAndDropStatus( bool isEnabled );
     void SetCaptureFocusStatus( bool isEnabled );
 
-    [[nodiscard]] std::optional<DragActionParams>& GetLastDragParams();
+    [[nodiscard]] const std::optional<DragActionParams>& GetLastDragParams() const;
+    [[nodiscard]] bool HasInternalDrag() const;
 
 protected:
     virtual void notify_size_limit_changed( LPARAM lp ) = 0;
@@ -151,6 +152,7 @@ private:
     bool isPaintInProgress_ = false;           // used only internally
     bool isMouseTracked_ = false;              // used only internally
     bool isMouseCaptured_ = false;             // used only internally
+    bool hasInternalDrag_ = false;             // used only internally
     bool isDraggingInside_ = false;            // used only internally
     ui_selection_holder::ptr selectionHolder_; // used only internally
 

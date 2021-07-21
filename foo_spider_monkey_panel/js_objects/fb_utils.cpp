@@ -348,10 +348,12 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWnd, JsFbMetadbHandleList* handles, ui
                                                                                   parsedOptions.showText,
                                                                                   parsedOptions.pCustomImage );
 
+    SendMessage( hPanel, static_cast<UINT>( smp::InternalSyncMessage::wnd_internal_drag_start ), 0, 0 );
+
     DWORD returnEffect;
     HRESULT hr = SHDoDragDrop( nullptr, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect );
 
-    SendMessage( hPanel, static_cast<UINT>( smp::InternalSyncMessage::wnd_drag_stop ), 0, 0 );
+    SendMessage( hPanel, static_cast<UINT>( smp::InternalSyncMessage::wnd_internal_drag_stop ), 0, 0 );
 
     return ( DRAGDROP_S_CANCEL == hr ? DROPEFFECT_NONE : returnEffect );
 }
