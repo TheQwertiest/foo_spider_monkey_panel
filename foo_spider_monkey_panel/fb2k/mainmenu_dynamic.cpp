@@ -95,7 +95,7 @@ void MainMenuNodeCommand_PanelCommand::get_display( pfc::string_base& text, t_ui
 
 void MainMenuNodeCommand_PanelCommand::execute( service_ptr_t<service_base> callback )
 {
-    EventManager::Get().PutEvent( panelHwnd_, GenerateEvent_JsCallback( EventId::kInternalMainMenuDynamic, commandId_ ) );
+    EventManager::Get().PutEvent( panelHwnd_, GenerateEvent_JsCallback( EventId::kDynamicMainMenu, commandId_ ) );
 }
 
 GUID MainMenuNodeCommand_PanelCommand::get_guid()

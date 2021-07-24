@@ -100,7 +100,7 @@ GUID MainMenuCommands_Predefined::get_parent()
 
 void MainMenuCommands_Predefined::execute( t_uint32 p_index, service_ptr_t<service_base> )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kInternalMainMenu, p_index + 1 ) );
+    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kStaticMainMenu, p_index + 1 ), EventPriority::kInput );
 }
 
 bool MainMenuCommands_Predefined::get_display( t_uint32 p_index, pfc::string_base& p_out, t_uint32& p_flags )

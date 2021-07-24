@@ -80,18 +80,18 @@ enum class EventId
     kMouseDragEnter,
     kMouseDragLeave,
     kMouseDragOver,
+    /// main menu
+    kStaticMainMenu,
+    kDynamicMainMenu,
     // internal
     kInternalGetAlbumArtDone,
     kInternalGetAlbumArtPromiseDone,
     kInternalLoadImageDone,
     kInternalLoadImagePromiseDone,
-    kInternalMainMenu,
-    kInternalMainMenuDynamic,
     // ui
     kUiColoursChanged,
     kUiFontChanged,
     // window
-    kWndFocus,
     kWndPaint,
     kWndRepaintBackground,
     kWndResize,
@@ -170,11 +170,12 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kMouseDragEnter, "UNUSED" },
     { EventId::kMouseDragLeave, "UNUSED" },
     { EventId::kMouseDragOver, "UNUSED" },
+    /// main menu
+    { EventId::kStaticMainMenu, "main_menu" },
+    { EventId::kDynamicMainMenu, "main_menu_dynamic" },
     // internal
     { EventId::kInternalGetAlbumArtDone, "get_album_art_done" },
     { EventId::kInternalLoadImageDone, "load_image_done" },
-    { EventId::kInternalMainMenu, "main_menu" },
-    { EventId::kInternalMainMenuDynamic, "main_menu_dynamic" },
     // ui
     { EventId::kUiColoursChanged, "colours_changed" },
     { EventId::kUiFontChanged, "font_changed" },
@@ -184,9 +185,8 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
 
 enum class EventPriority
 {
-    kInputLow, // `input low` is used during drag-n-drop events or during shutting down
     kNormal,
-    kInputHigh,
+    kInput,
     kRedraw,
     kResize,
     kControl,
