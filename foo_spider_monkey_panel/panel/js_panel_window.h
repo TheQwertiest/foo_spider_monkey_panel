@@ -103,9 +103,6 @@ private:
     void CreateDrawContext();
     void DeleteDrawContext();
 
-    void RecreateEventTarget();
-    void DestroyEventTarget();
-
     void SetCaptureMouseState( bool shouldCapture );
 
 public: // event handling

@@ -16,12 +16,12 @@ EventManager& EventManager::Get()
     return em;
 }
 
-void EventManager::AddWindow( HWND hWnd )
+void EventManager::AddWindow( HWND hWnd, std::shared_ptr<PanelTarget> pTarget )
 {
     std::unique_lock ul( taskControllerMapMutex_ );
 
     assert( !taskControllerMap_.contains( hWnd ) );
-    taskControllerMap_.try_emplace( hWnd, nullptr );
+    taskControllerMap_.try_emplace( hWnd, std::make_shared<TaskController>( pTarget ) );
 }
 
 void EventManager::RemoveWindow( HWND hWnd )
@@ -49,14 +49,6 @@ void EventManager::NotifyAllAboutExit()
     {
         SendMessage( hWnd, static_cast<UINT>( smp::InternalSyncMessage::prepare_for_exit ), 0, 0 );
     }
-}
-
-void EventManager::ClearEventQueue( HWND hWnd, std::shared_ptr<PanelTarget> pTarget )
-{
-    std::unique_lock ul( taskControllerMapMutex_ );
-
-    assert( taskControllerMap_.contains( hWnd ) );
-    taskControllerMap_.at( hWnd ) = std::make_shared<TaskController>( pTarget );
 }
 
 bool EventManager::IsRequestEventMessage( UINT msg )

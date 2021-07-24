@@ -1218,11 +1218,8 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     isPanelIdOverridenByScript_ = false;
 
     DynamicMainMenuManager::Get().RegisterPanel(wnd_, settings_.panelId);
-    // TODO: do we actually need event target recreation?
-    RecreateEventTarget();
-    EventManager::Get().ClearEventQueue( wnd_, pTarget_ );
 
-    const auto extstyle = [&] {
+    const auto extstyle = [&]() {
         DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
         extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
         extstyle |= ConvertEdgeStyleToNativeFlags( settings_.edgeStyle );
@@ -1292,8 +1289,10 @@ void js_panel_window::UnloadScript( bool force )
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
     }
 
-    RecreateEventTarget();
-    EventManager::Get().ClearEventQueue( wnd_, pTarget_ );
+    DynamicMainMenuManager::Get().UnregisterPanel(wnd_);
+    pJsContainer_->Finalize();
+
+
     selectionHolder_.release();
     try
     {
@@ -1302,9 +1301,6 @@ void js_panel_window::UnloadScript( bool force )
     catch ( const qwr::QwrException& )
     {
     }
-
-    DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
-    pJsContainer_->Finalize();
 }
 
 void js_panel_window::CreateDrawContext()
@@ -1365,8 +1361,8 @@ void js_panel_window::OnCreate( HWND hWnd )
 
     CreateDrawContext();
 
-    RecreateEventTarget();
-    EventManager::Get().AddWindow( wnd_ );
+    pTarget_ = std::make_shared<PanelTarget>( *this );
+    EventManager::Get().AddWindow( wnd_, pTarget_ );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
     LoadScript( true );
@@ -1378,31 +1374,16 @@ void js_panel_window::OnDestroy()
 
     UnloadScript();
 
-    pJsContainer_.reset();
-
-    DestroyEventTarget();
+    if ( pTarget_ )
+    {
+        pTarget_->UnlinkPanel();
+    }
     EventManager::Get().RemoveWindow( wnd_ );
+
+    pJsContainer_.reset();
 
     DeleteDrawContext();
     ReleaseDC( wnd_, hDc_ );
-}
-
-void js_panel_window::RecreateEventTarget()
-{
-    if ( pTarget_ )
-    {
-        pTarget_->UnlinkPanel();
-    }
-    pTarget_ = std::make_shared<PanelTarget>( *this );
-}
-
-void js_panel_window::DestroyEventTarget()
-{
-    if ( pTarget_ )
-    {
-        pTarget_->UnlinkPanel();
-    }
-    pTarget_.reset();
 }
 
 void js_panel_window::OnPaint( HDC dc, const CRect& updateRc, bool useErrorScreen )

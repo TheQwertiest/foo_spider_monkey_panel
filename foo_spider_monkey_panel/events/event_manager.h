@@ -24,13 +24,10 @@ public:
     static EventManager& Get();
 
 public:
-    void AddWindow( HWND hWnd );
+    void AddWindow( HWND hWnd, std::shared_ptr<PanelTarget> pTarget );
     void RemoveWindow( HWND hWnd );
 
     void NotifyAllAboutExit();
-
-    void ClearEventQueue( HWND hWnd, std::shared_ptr<PanelTarget> pTarget );
-    void DisableEventQueue( HWND hWnd );
 
 public:
     static bool IsRequestEventMessage( UINT msg );
