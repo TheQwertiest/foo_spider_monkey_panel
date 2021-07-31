@@ -28,6 +28,11 @@
 ___
 
 ## [Unreleased][]
+### Changed
+- Rollback the fix for timers from [1.5.0](#150---2021-06-30), since it was causing fb2k freezes ([#135](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/135)).
+
+### Fixed
+- Fixed unicode handling in script paths.
 
 ## [1.5.1][] - 2021-07-03
 ### Added
