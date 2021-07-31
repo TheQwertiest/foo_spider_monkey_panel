@@ -15,10 +15,16 @@ namespace smp::com
 class IDropTargetImpl;
 }
 
+namespace smp
+{
+class TimeoutManager;
+}
+
 namespace mozjs
 {
 class JsContainer;
-}
+class JsAsyncTask;
+} // namespace mozjs
 
 namespace smp::panel
 {
@@ -36,7 +42,7 @@ class js_panel_window
 {
 public:
     js_panel_window( PanelType instanceType );
-    virtual ~js_panel_window() = default;
+    virtual ~js_panel_window();
 
 public:
     // ui_helpers::container_window
@@ -68,6 +74,8 @@ public: // accessors
     [[nodiscard]] int GetWidth() const;
     [[nodiscard]] const config::ParsedPanelSettings& GetSettings() const;
     [[nodiscard]] config::PanelProperties& GetPanelProperties();
+    // TODO: move to a better place
+    [[nodiscard]] TimeoutManager& GetTimeoutManager();
 
     [[nodiscard]] t_size& DlgCode();
     [[nodiscard]] PanelType GetPanelType() const;
@@ -107,6 +115,7 @@ private:
 
 public: // event handling
     void ExecuteJsTask( EventId id, Event_JsExecutor& task );
+    bool ExecuteJsCode( mozjs::JsAsyncTask& task );
     void ExecuteTask( EventId id );
 
 private: // callback handling
@@ -134,6 +143,7 @@ private:
 
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
     std::shared_ptr<PanelTarget> pTarget_;
+    std::unique_ptr<TimeoutManager> pTimeoutManager_;
 
     CWindow wnd_;
     HDC hDc_ = nullptr;
@@ -146,6 +156,7 @@ private:
     bool hasFailed_ = false;                   // // used only internally
     bool isBgRepaintNeeded_ = false;           // used only internally
     bool isPaintInProgress_ = false;           // used only internally
+    bool hasPendingPaintEvent_ = false;        // used only internally
     bool isMouseTracked_ = false;              // used only internally
     bool isMouseCaptured_ = false;             // used only internally
     bool hasInternalDrag_ = false;             // used only internally

@@ -83,7 +83,7 @@ public:
     bool InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DragActionParams& actionParams );
     void InvokeOnNotify( const std::wstring& name, JS::HandleValue info );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
-    void InvokeJsAsyncTask( JsAsyncTask& jsTask );
+    bool InvokeJsAsyncTask( JsAsyncTask& jsTask );
 
 private:
     void SetJsCtx( JSContext* cx );

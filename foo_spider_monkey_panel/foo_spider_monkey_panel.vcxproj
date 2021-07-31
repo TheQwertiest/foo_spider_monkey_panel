@@ -168,6 +168,7 @@
     <ClCompile Include="events\event_basic.cpp" />
     <ClCompile Include="events\event_js_executor.cpp" />
     <ClCompile Include="events\event_notify_others.cpp" />
+    <ClCompile Include="events\event_timer.cpp" />
     <ClCompile Include="events\task_controller.cpp" />
     <ClCompile Include="fb2k\acfu_integration.cpp" />
     <ClCompile Include="fb2k\advanced_config.cpp" />
@@ -179,7 +180,6 @@
     <ClCompile Include="fb2k\selection_holder_helper.cpp" />
     <ClCompile Include="fb2k\stats.cpp" />
     <ClCompile Include="js_engine\heartbeat_window.cpp" />
-    <ClCompile Include="js_engine\host_timer_dispatcher.cpp" />
     <ClCompile Include="js_engine\js_realm_inner.cpp" />
     <ClCompile Include="js_engine\js_container.cpp" />
     <ClCompile Include="js_engine\js_engine.cpp" />
@@ -239,6 +239,10 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="timeout\timeout.cpp" />
+    <ClCompile Include="timeout\timeout_executor.cpp" />
+    <ClCompile Include="timeout\timeout_manager.cpp" />
+    <ClCompile Include="timeout\timer_manager.cpp" />
     <ClCompile Include="ui\impl\ui_conf_tab_appearance.cpp" />
     <ClCompile Include="ui\impl\ui_conf_tab_package.cpp" />
     <ClCompile Include="ui\impl\ui_conf_tab_properties.cpp" />
@@ -314,6 +318,7 @@
     <ClInclude Include="events\event_basic.h" />
     <ClInclude Include="events\event_js_executor.h" />
     <ClInclude Include="events\event_notify_others.h" />
+    <ClInclude Include="events\event_timer.h" />
     <ClInclude Include="events\task_controller.h" />
     <ClInclude Include="fb2k\advanced_config.h" />
     <ClInclude Include="fb2k\config.h" />
@@ -322,7 +327,6 @@
     <ClInclude Include="fb2k\selection_holder_helper.h" />
     <ClInclude Include="fb2k\stats.h" />
     <ClInclude Include="js_engine\heartbeat_window.h" />
-    <ClInclude Include="js_engine\host_timer_dispatcher.h" />
     <ClInclude Include="js_engine\js_realm_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />
     <ClInclude Include="js_engine\js_engine.h" />
@@ -391,6 +395,11 @@
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="timeout\timeout.h" />
+    <ClInclude Include="timeout\timeout_executor.h" />
+    <ClInclude Include="timeout\timeout_manager.h" />
+    <ClInclude Include="timeout\timer_manager.h" />
+    <ClInclude Include="timeout\time_types.h" />
     <ClInclude Include="ui\impl\ui_conf_tab_appearance.h" />
     <ClInclude Include="ui\impl\ui_conf_tab_package.h" />
     <ClInclude Include="ui\impl\ui_conf_tab_properties.h" />

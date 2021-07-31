@@ -44,7 +44,8 @@ PanelTarget::PanelTarget( panel::js_panel_window& panel )
 
 panel::js_panel_window* PanelTarget::GetPanel()
 {
-    assert( core_api::is_main_thread() );
+    // TODO: uncomment
+    // assert( core_api::is_main_thread() );
     return pPanel_;
 }
 

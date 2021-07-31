@@ -90,6 +90,22 @@ void EventManager::RequestNextEvent( HWND hWnd )
     PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
 }
 
+void EventManager::PutRunnable( HWND hWnd, std::shared_ptr<Runnable> pRunnable, EventPriority priority )
+{
+    std::scoped_lock sl( taskControllerMapMutex_ );
+
+    auto taskControllerIt = taskControllerMap_.find( hWnd );
+    if ( taskControllerIt == taskControllerMap_.end() || !taskControllerIt->second )
+    {
+        return;
+    }
+
+    auto pTaskController = taskControllerIt->second;
+    pTaskController->AddRunnable( std::move( pRunnable ), priority );
+
+    PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
+}
+
 void EventManager::PutEvent( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority )
 {
     std::scoped_lock sl( taskControllerMapMutex_ );

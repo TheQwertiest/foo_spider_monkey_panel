@@ -103,6 +103,7 @@ enum class EventId
     kScriptShowProperties,
     // custom
     kNotifyOthers,
+    kTimer
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {

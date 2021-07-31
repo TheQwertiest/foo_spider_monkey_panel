@@ -16,6 +16,7 @@
 #include <panel/drag_action_params.h>
 #include <panel/edit_script.h>
 #include <panel/modal_blocking_scope.h>
+#include <timeout/timeout_manager.h>
 #include <ui/ui_conf.h>
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>
@@ -56,6 +57,10 @@ namespace smp::panel
 
 js_panel_window::js_panel_window( PanelType instanceType )
     : panelType_( instanceType )
+{
+}
+
+js_panel_window::~js_panel_window()
 {
 }
 
@@ -100,6 +105,12 @@ const config::ParsedPanelSettings& js_panel_window::GetSettings() const
 config::PanelProperties& js_panel_window::GetPanelProperties()
 {
     return properties_;
+}
+
+TimeoutManager& js_panel_window::GetTimeoutManager()
+{
+    assert( pTimeoutManager_ );
+    return *pTimeoutManager_;
 }
 
 void js_panel_window::ReloadScript()
@@ -203,7 +214,10 @@ bool js_panel_window::IsPanelIdOverridenByScript() const
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    com::DeleteMarkedObjects();
+    const qwr::final_action autoComObjectDeleter( [] {
+        // delete only on exit as to avoid delaying processing of the current message due to reentrancy
+        com::DeleteMarkedObjects();
+    } );
 
     if ( EventManager::IsRequestEventMessage( msg ) )
     {
@@ -220,6 +234,8 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             }
             if ( !nestedCounter || modal::IsModalBlocked() )
             {
+                // TODO: reduce the amount of extra `next event` messages
+                // by keeping the track of their current state
                 EventManager::Get().RequestNextEvent( hWnd );
             }
         } );
@@ -239,133 +255,6 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     }
 
     return DefWindowProc( hwnd, msg, wp, lp );
-}
-
-void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
-{
-    const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
-        if ( !pJsContainer_ )
-        {
-            return false;
-        }
-        else
-        {
-            return jsTask.JsExecute( *pJsContainer_ );
-        }
-    };
-
-    switch ( id )
-    {
-    case EventId::kMouseRightButtonUp:
-    {
-        const auto pEvent = task.AsMouseEvent();
-        assert( pEvent );
-
-        // Bypass the user code.
-        const auto useDefaultContextMenu = [&] {
-            if ( IsKeyPressed( VK_LSHIFT ) && IsKeyPressed( VK_LWIN ) )
-            {
-                return true;
-            }
-            else
-            {
-                return !execJs( *pEvent ).value_or( false );
-            }
-        }();
-
-        if ( useDefaultContextMenu )
-        {
-            EventManager::Get().PutEvent( wnd_,
-                                          std::make_unique<Event_Mouse>(
-                                              EventId::kMouseContextMenu,
-                                              pEvent->GetX(),
-                                              pEvent->GetY(),
-                                              0 ),
-                                          EventPriority::kInput );
-        }
-        break;
-    }
-    case EventId::kMouseContextMenu:
-    {
-        const auto pMouseEvent = task.AsMouseEvent();
-        assert( pMouseEvent );
-
-        OnContextMenu( pMouseEvent->GetX(), pMouseEvent->GetY() );
-        break;
-    }
-    case EventId::kMouseDragEnter:
-    {
-        const auto pDragEvent = task.AsDragEvent();
-        assert( pDragEvent );
-
-        if ( pJsContainer_ )
-        {
-            auto dragParams = pDragEvent->GetDragParams();
-            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_enter",
-                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
-                                                                 pDragEvent->GetMask(),
-                                                                 dragParams );
-            if ( bRet )
-            {
-                lastDragParams_ = dragParams;
-            }
-        }
-
-        break;
-    }
-    case EventId::kMouseDragLeave:
-    {
-        if ( pJsContainer_ )
-        {
-            pJsContainer_->InvokeJsCallback( "on_drag_leave" );
-        }
-        lastDragParams_.reset();
-
-        break;
-    }
-    case EventId::kMouseDragOver:
-    {
-        const auto pDragEvent = task.AsDragEvent();
-        assert( pDragEvent );
-
-        if ( pJsContainer_ )
-        {
-            auto dragParams = pDragEvent->GetDragParams();
-            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_over",
-                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
-                                                                 pDragEvent->GetMask(),
-                                                                 dragParams );
-            if ( bRet )
-            {
-                lastDragParams_ = dragParams;
-            }
-        }
-        break;
-    }
-    case EventId::kMouseDragDrop:
-    {
-        const auto pDragEvent = task.AsDragEvent();
-        assert( pDragEvent );
-
-        if ( pJsContainer_ )
-        {
-            auto dragParams = pDragEvent->GetDragParams();
-            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_drop",
-                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
-                                                                 pDragEvent->GetMask(),
-                                                                 dragParams );
-            if ( bRet )
-            {
-                lastDragParams_ = dragParams;
-            }
-        }
-        lastDragParams_.reset();
-
-        break;
-    }
-    default:
-        execJs( task );
-    }
 }
 
 void js_panel_window::ExecuteTask( EventId id )
@@ -416,6 +305,7 @@ void js_panel_window::ExecuteTask( EventId id )
             break;
         }
         isPaintInProgress_ = true;
+        hasPendingPaintEvent_ = false;
 
         if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
         { // Two pass redraw: paint BG > Repaint() > paint FG
@@ -436,12 +326,15 @@ void js_panel_window::ExecuteTask( EventId id )
         }
 
         isPaintInProgress_ = false;
+
         break;
     }
     case EventId::kWndRepaintBackground:
     {
         isBgRepaintNeeded_ = true;
         Repaint( true );
+
+        break;
     }
     case EventId::kWndResize:
     {
@@ -453,12 +346,155 @@ void js_panel_window::ExecuteTask( EventId id )
         CRect rc;
         wnd_.GetClientRect( &rc );
         OnSizeUser( rc.Width(), rc.Height() );
+
         break;
     }
-    break;
     default:
         break;
     }
+}
+
+void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
+{
+    const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
+        if ( !pJsContainer_ )
+        {
+            return false;
+        }
+        else
+        {
+            return jsTask.JsExecute( *pJsContainer_ );
+        }
+    };
+
+    switch ( id )
+    {
+    case EventId::kMouseRightButtonUp:
+    {
+        const auto pEvent = task.AsMouseEvent();
+        assert( pEvent );
+
+        // Bypass the user code.
+        const auto useDefaultContextMenu = [&] {
+            // TODO: replace with key data from the event itself
+            if ( IsKeyPressed( VK_LSHIFT ) && IsKeyPressed( VK_LWIN ) )
+            {
+                return true;
+            }
+            else
+            {
+                return !execJs( *pEvent ).value_or( false );
+            }
+        }();
+
+        if ( useDefaultContextMenu )
+        {
+            EventManager::Get().PutEvent( wnd_,
+                                          std::make_unique<Event_Mouse>(
+                                              EventId::kMouseContextMenu,
+                                              pEvent->GetX(),
+                                              pEvent->GetY(),
+                                              0 ),
+                                          EventPriority::kInput );
+        }
+
+        break;
+    }
+    case EventId::kMouseContextMenu:
+    {
+        const auto pMouseEvent = task.AsMouseEvent();
+        assert( pMouseEvent );
+
+        OnContextMenu( pMouseEvent->GetX(), pMouseEvent->GetY() );
+
+        break;
+    }
+    case EventId::kMouseDragEnter:
+    {
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
+        if ( pJsContainer_ )
+        {
+            auto dragParams = pDragEvent->GetDragParams();
+            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_enter",
+                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                                 pDragEvent->GetMask(),
+                                                                 dragParams );
+            if ( bRet )
+            {
+                lastDragParams_ = dragParams;
+            }
+        }
+
+        break;
+    }
+    case EventId::kMouseDragLeave:
+    {
+        if ( pJsContainer_ )
+        {
+            pJsContainer_->InvokeJsCallback( "on_drag_leave" );
+        }
+        lastDragParams_.reset();
+
+        break;
+    }
+    case EventId::kMouseDragOver:
+    {
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
+        if ( pJsContainer_ )
+        {
+            auto dragParams = pDragEvent->GetDragParams();
+            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_over",
+                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                                 pDragEvent->GetMask(),
+                                                                 dragParams );
+            if ( bRet )
+            {
+                lastDragParams_ = dragParams;
+            }
+        }
+
+        break;
+    }
+    case EventId::kMouseDragDrop:
+    {
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
+        if ( pJsContainer_ )
+        {
+            auto dragParams = pDragEvent->GetDragParams();
+            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_drop",
+                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                                 pDragEvent->GetMask(),
+                                                                 dragParams );
+            if ( bRet )
+            {
+                lastDragParams_ = dragParams;
+            }
+        }
+        lastDragParams_.reset();
+
+        break;
+    }
+    default:
+    {
+        execJs( task );
+    }
+    }
+}
+
+bool js_panel_window::ExecuteJsCode( mozjs::JsAsyncTask& jsTask )
+{
+    if ( !pJsContainer_ )
+    {
+        return false;
+    }
+
+    return pJsContainer_->InvokeJsAsyncTask( jsTask );
 }
 
 std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -533,12 +569,14 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_PAINT:
     {
-        if ( isPaintInProgress_ )
+        if ( isPaintInProgress_ || hasPendingPaintEvent_ )
         {
             return std::nullopt;
         }
 
         EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndPaint ), EventPriority::kRedraw );
+        hasPendingPaintEvent_ = true;
+
         return 0;
     }
     case WM_SIZE:
@@ -1291,6 +1329,7 @@ void js_panel_window::UnloadScript( bool force )
 
     DynamicMainMenuManager::Get().UnregisterPanel(wnd_);
     pJsContainer_->Finalize();
+    pTimeoutManager_->StopAllTimeouts();
 
 
     selectionHolder_.release();
@@ -1365,6 +1404,8 @@ void js_panel_window::OnCreate( HWND hWnd )
     EventManager::Get().AddWindow( wnd_, pTarget_ );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
+    pTimeoutManager_ = std::make_unique<TimeoutManager>( pTarget_ );
+
     LoadScript( true );
 }
 
@@ -1378,6 +1419,13 @@ void js_panel_window::OnDestroy()
     {
         pTarget_->UnlinkPanel();
     }
+
+    if ( pTimeoutManager_ )
+    {
+        pTimeoutManager_->Finalize();
+        pTimeoutManager_.reset();
+    }
+
     EventManager::Get().RemoveWindow( wnd_ );
 
     pJsContainer_.reset();

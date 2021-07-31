@@ -238,9 +238,6 @@
     <ClCompile Include="fb2k\acfu_integration.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js_engine\host_timer_dispatcher.cpp">
-      <Filter>js_engine</Filter>
-    </ClCompile>
     <ClCompile Include="js_engine\heartbeat_window.cpp">
       <Filter>js_engine</Filter>
     </ClCompile>
@@ -393,6 +390,21 @@
     </ClCompile>
     <ClCompile Include="events\event_notify_others.cpp">
       <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_timer.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timeout_executor.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timeout_manager.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timer_manager.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timeout.cpp">
+      <Filter>timeout</Filter>
     </ClCompile>
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
       <Filter>fb2k</Filter>
@@ -675,9 +687,6 @@
     <ClInclude Include="panel\panel_info.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="js_engine\host_timer_dispatcher.h">
-      <Filter>js_engine</Filter>
-    </ClInclude>
     <ClInclude Include="js_engine\heartbeat_window.h">
       <Filter>js_engine</Filter>
     </ClInclude>
@@ -847,6 +856,24 @@
     <ClInclude Include="events\event_notify_others.h">
       <Filter>events</Filter>
     </ClInclude>
+    <ClInclude Include="events\event_timer.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timeout_executor.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timeout_manager.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timer_manager.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\time_types.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timeout.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
     <ClInclude Include="fb2k\mainmenu_dynamic.h">
       <Filter>fb2k</Filter>
     </ClInclude>
@@ -923,6 +950,9 @@
     </Filter>
     <Filter Include="events">
       <UniqueIdentifier>{909a5207-b341-4a10-847c-d77a4165b51a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="timeout">
+      <UniqueIdentifier>{19b3e8c9-9302-44fe-8178-88312a4df487}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

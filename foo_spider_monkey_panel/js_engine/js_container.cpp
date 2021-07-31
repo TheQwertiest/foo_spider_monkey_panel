@@ -2,7 +2,6 @@
 
 #include "js_container.h"
 
-#include <js_engine/host_timer_dispatcher.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_gc.h>
 #include <js_engine/js_realm_inner.h>
@@ -117,8 +116,6 @@ void JsContainer::Finalize()
     {
         return;
     }
-
-    HostTimerDispatcher::Get().onPanelUnload( pParentPanel_->GetHWND() );
 
     {
         JSAutoRealm ac( pJsCtx_, jsGlobal_ );
@@ -326,11 +323,11 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
     }
 }
 
-void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
+bool JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
 {
     if ( !IsReadyForCallback() )
     {
-        return;
+        return true;
     }
 
     auto selfSaver = shared_from_this();
@@ -339,7 +336,7 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     OnJsActionStart();
     qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
-    (void)jsTask.InvokeJs();
+    return jsTask.InvokeJs();
 }
 
 void JsContainer::SetJsCtx( JSContext* cx )
