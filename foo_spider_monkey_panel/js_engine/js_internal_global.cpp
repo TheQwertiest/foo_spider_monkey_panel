@@ -92,7 +92,8 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
 
     auto& scriptDataMap = scriptCache_.get().data;
     const auto cleanPath = absolutePath.lexically_normal();
-    const auto lastWriteTime = [&absolutePath, &cleanPath] {
+    const auto lastWriteTime = [&absolutePath, &cleanPath]
+    {
         try
         {
             return std::filesystem::last_write_time( absolutePath );
@@ -124,7 +125,7 @@ JSScript* JsInternalGlobal::GetCachedScript( const std::filesystem::path& absolu
     }
 
     JS::CompileOptions opts( pJsCtx_ );
-    const auto pathId = hack::CacheUtf8Path( absolutePath.u8string() );
+    const auto pathId = hack::CacheUtf8Path( absolutePath );
     // use ids instead of filepaths to work around https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/1
     // and https://bugzilla.mozilla.org/show_bug.cgi?id=1492090
     opts.setFileAndLine( pathId.c_str(), 1 );

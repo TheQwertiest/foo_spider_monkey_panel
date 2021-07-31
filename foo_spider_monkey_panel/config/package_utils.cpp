@@ -36,7 +36,7 @@ void Parse_PackageFromPath( const std::filesystem::path& packageDir, config::Par
         const auto packageJsonFile = packageDir / "package.json";
         qwr::QwrException::ExpectTrue( fs::exists( packageJsonFile ), "Corrupted package: can't find `package.json`" );
 
-        parsedSettings.scriptPath = ( packageDir / config::GetRelativePathToMainFile() ).u8string();
+        parsedSettings.scriptPath = ( packageDir / config::GetRelativePathToMainFile() );
         parsedSettings.isSample = ( packageDir.parent_path() == path::Packages_Sample() );
 
         const json jsonMain = json::parse( qwr::file::ReadFile( packageJsonFile, false ) );
@@ -84,7 +84,8 @@ void Save_PackageData( const config::ParsedPanelSettings& parsedSettings )
         jsonMain.push_back( { "shouldGrabFocus", parsedSettings.shouldGrabFocus } );
 
         const auto packageDirRet = config::FindPackage( *parsedSettings.packageId );
-        const auto packagePath = [&] {
+        const auto packagePath = [&]
+        {
             if ( packageDirRet )
             {
                 return *packageDirRet;
@@ -147,7 +148,7 @@ ParsedPanelSettings GetNewPackageSettings( const qwr::u8string& name )
 
         settings.packageId = id;
         settings.scriptName = name;
-        settings.scriptPath = ( packagePath / GetRelativePathToMainFile() ).u8string();
+        settings.scriptPath = ( packagePath / GetRelativePathToMainFile() );
     }
     catch ( const fs::filesystem_error& e )
     {
@@ -235,15 +236,15 @@ std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSetti
              fs::exists( scriptsDir ) )
         {
             files = smp::utils::GetFilesRecursive( scriptsDir );
-            ranges::actions::sort( files, []( const auto& a, const auto& b ) {
-                return ( a < b );
-            } );
+            ranges::actions::sort( files, []( const auto& a, const auto& b )
+                                   { return ( a < b ); } );
         }
 
         assert( settings.scriptPath );
         const auto mainScript = *settings.scriptPath;
 
-        ranges::actions::remove_if( files, [&mainScript]( const auto& path ) { return ( path.extension() != ".js" || path == mainScript ); } );
+        ranges::actions::remove_if( files, [&mainScript]( const auto& path )
+                                    { return ( path.extension() != ".js" || path == mainScript ); } );
         files.insert( files.begin(), mainScript );
         return files;
     }
@@ -265,9 +266,8 @@ std::vector<std::filesystem::path> GetPackageFiles( const ParsedPanelSettings& s
              fs::exists( assetsDir ) )
         {
             auto assetFiles = smp::utils::GetFilesRecursive( assetsDir );
-            ranges::actions::sort( files, []( const auto& a, const auto& b ) {
-                return ( a < b );
-            } );
+            ranges::actions::sort( files, []( const auto& a, const auto& b )
+                                   { return ( a < b ); } );
 
             ranges::actions::push_back( files, std::move( assetFiles ) );
         }
