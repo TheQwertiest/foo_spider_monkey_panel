@@ -45,7 +45,7 @@ environment:
   git_user_email: qwertiest@mail.ru
   git_user_name: TheQwertiest
   GITHUB_TOKEN:
-    secure: gBfHQnRcGcTS0yQXWOHhKfDkTZfIBwPIDjTsCQOGmOSPkRqs1QPYBX47BjCvJKim
+    secure: tGGDBtpW74kNoY4PwFw2uuRCj/Npr9kDYaJTdm3IFOcEXA1dr8pc9vgur+6rvaoq
 
 # this is how to allow failing jobs in the matrix
 matrix:
