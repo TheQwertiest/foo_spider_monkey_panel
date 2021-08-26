@@ -1095,6 +1095,26 @@ let plman = {
     IsPlaylistLocked: function (playlistIndex) { }, // (boolean)
 
     /**
+     * Returns whether a redo restore point is available for specified playlist.
+     * <br>
+     * Related methods: {@link plman.IsUndoAvailable}, {@link plman.Redo}, {@link plman.Undo}, {@link plman.UndoBackup}
+     *
+     * @param {number} playlistIndex
+     * @return {boolean}
+     */
+    IsRedoAvailable: function (playlistIndex) { }, // (void)
+
+    /**
+     * Returns whether an undo restore point is available for specified playlist.
+     * <br>
+     * Related methods: {@link plman.IsRedoAvailable}, {@link plman.Redo}, {@link plman.Undo}, {@link plman.UndoBackup}
+     *
+     * @param {number} playlistIndex
+     * @return {boolean}
+     */
+    IsUndoAvailable: function (playlistIndex) { }, // (void)
+
+    /**
      * @param {number} from
      * @param {number} to
      * @return {boolean}
@@ -1120,6 +1140,17 @@ let plman = {
      * console.log(plman.PlaylistItemCount(plman.PlayingPlaylist)); // 12
      */
     PlaylistItemCount: function (playlistIndex) { }, // (uint) (read)
+
+    /**
+     * Reverts specified playlist to the next redo restore point and generates an undo restore point.<br>
+     * Note: revert operation may be not applied if the corresponding action is locked.
+     * Use {@link plman.GetPlaylistLockedActions} to check if there are any locks present.<br>
+     * <br>
+     * Related methods: {@link plman.IsRedoAvailable}, {@link plman.IsUndoAvailable}, {@link plman.Undo}, {@link plman.UndoBackup}
+     *
+     * @param {number} playlistIndex
+     */
+    Redo: function (playlistIndex) { }, // (void)
 
     /**
      * Removes the specified playlist.<br>
@@ -1277,9 +1308,22 @@ let plman = {
     SortPlaylistsByName: function (direction) { }, //(void)
 
     /**
-     * Saves playlist's current state: this will enable `Edit`>`Undo` menu item after calling other {@link plman} methods that change playlist content.<br>
-     * Note: this method should be called before performing modification to the playlist.
+     * Reverts specified playlist to the last undo restore point and generates a redo restore point.<br>
+     * Note: revert operation may be not applied if the corresponding action is locked.
+     * Use {@link plman.GetPlaylistLockedActions} to check if there are any locks present.<br>
+     * <br>
+     * Related methods: {@link plman.IsRedoAvailable}, {@link plman.IsUndoAvailable}, {@link plman.Redo}, {@link plman.UndoBackup}
      *
+     * @param {number} playlistIndex
+     */
+    Undo: function (playlistIndex) { }, // (void)
+
+    /**
+     * Creates an undo restore point for the specified playlist. This will enable `Edit`>`Undo` menu item after calling other {@link plman} methods that change playlist content.<br>
+     * Note: this method should be called before performing modification to the playlist.<br>
+     * <br>
+     * Related methods: {@link plman.IsRedoAvailable}, {@link plman.IsUndoAvailable}, {@link plman.Redo}, {@link plman.Undo}
+     * 
      * @param {number} playlistIndex
      */
     UndoBackup: function (playlistIndex) { }, // (void)

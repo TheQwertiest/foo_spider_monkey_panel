@@ -72,9 +72,12 @@ public:
     bool IsPlaylistItemSelected( uint32_t playlistIndex, uint32_t playlistItemIndex );
     // TODO v2: remove
     bool IsPlaylistLocked( uint32_t playlistIndex );
+    bool IsRedoAvailable( uint32_t playlistIndex );
+    bool IsUndoAvailable( uint32_t playlistIndex );
     bool MovePlaylist( uint32_t from, uint32_t to );
     bool MovePlaylistSelection( uint32_t playlistIndex, int32_t delta );
     uint32_t PlaylistItemCount( uint32_t playlistIndex );
+    void Redo( uint32_t playlistIndex );
     void RemoveItemFromPlaybackQueue( uint32_t index );
     void RemoveItemsFromPlaybackQueue( JS::HandleValue affectedItems );
     bool RemovePlaylist( uint32_t playlistIndex );
@@ -96,6 +99,7 @@ public:
     bool SortByFormatV2WithOpt( size_t optArgCount, uint32_t playlistIndex, const qwr::u8string& pattern, int8_t direction );
     void SortPlaylistsByName( int8_t direction = 1 );
     void SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t direction );
+    void Undo( uint32_t playlistIndex );
     void UndoBackup( uint32_t playlistIndex );
 
 public:

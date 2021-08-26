@@ -73,9 +73,12 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( InsertPlaylistItemsFilter, JsFbPlaylistMa
 MJS_DEFINE_JS_FN_FROM_NATIVE( IsAutoPlaylist, JsFbPlaylistManager::IsAutoPlaylist );
 MJS_DEFINE_JS_FN_FROM_NATIVE( IsPlaylistItemSelected, JsFbPlaylistManager::IsPlaylistItemSelected );
 MJS_DEFINE_JS_FN_FROM_NATIVE( IsPlaylistLocked, JsFbPlaylistManager::IsPlaylistLocked );
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsRedoAvailable, JsFbPlaylistManager::IsRedoAvailable );
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsUndoAvailable, JsFbPlaylistManager::IsUndoAvailable );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MovePlaylist, JsFbPlaylistManager::MovePlaylist );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MovePlaylistSelection, JsFbPlaylistManager::MovePlaylistSelection );
 MJS_DEFINE_JS_FN_FROM_NATIVE( PlaylistItemCount, JsFbPlaylistManager::PlaylistItemCount );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Redo, JsFbPlaylistManager::Redo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveItemFromPlaybackQueue, JsFbPlaylistManager::RemoveItemFromPlaybackQueue );
 MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveItemsFromPlaybackQueue, JsFbPlaylistManager::RemoveItemsFromPlaybackQueue );
 MJS_DEFINE_JS_FN_FROM_NATIVE( RemovePlaylist, JsFbPlaylistManager::RemovePlaylist );
@@ -92,6 +95,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( ShowAutoPlaylistUI, JsFbPlaylistManager::ShowAutoP
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortByFormat, JsFbPlaylistManager::SortByFormat, JsFbPlaylistManager::SortByFormatWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortByFormatV2, JsFbPlaylistManager::SortByFormatV2, JsFbPlaylistManager::SortByFormatV2WithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByName, JsFbPlaylistManager::SortPlaylistsByNameWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Undo, JsFbPlaylistManager::Undo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( UndoBackup, JsFbPlaylistManager::UndoBackup );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
@@ -124,9 +128,12 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "IsAutoPlaylist", IsAutoPlaylist, 1, kDefaultPropsFlags ),
         JS_FN( "IsPlaylistItemSelected", IsPlaylistItemSelected, 2, kDefaultPropsFlags ),
         JS_FN( "IsPlaylistLocked", IsPlaylistLocked, 1, kDefaultPropsFlags ),
+        JS_FN( "IsRedoAvailable", IsRedoAvailable, 1, kDefaultPropsFlags ),
+        JS_FN( "IsUndoAvailable", IsUndoAvailable, 1, kDefaultPropsFlags ),
         JS_FN( "MovePlaylist", MovePlaylist, 2, kDefaultPropsFlags ),
         JS_FN( "MovePlaylistSelection", MovePlaylistSelection, 2, kDefaultPropsFlags ),
         JS_FN( "PlaylistItemCount", PlaylistItemCount, 1, kDefaultPropsFlags ),
+        JS_FN( "Redo", Redo, 1, kDefaultPropsFlags ),
         JS_FN( "RemoveItemFromPlaybackQueue", RemoveItemFromPlaybackQueue, 1, kDefaultPropsFlags ),
         JS_FN( "RemoveItemsFromPlaybackQueue", RemoveItemsFromPlaybackQueue, 1, kDefaultPropsFlags ),
         JS_FN( "RemovePlaylist", RemovePlaylist, 1, kDefaultPropsFlags ),
@@ -143,6 +150,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "SortByFormat", SortByFormat, 2, kDefaultPropsFlags ),
         JS_FN( "SortByFormatV2", SortByFormatV2, 2, kDefaultPropsFlags ),
         JS_FN( "SortPlaylistsByName", SortPlaylistsByName, 0, kDefaultPropsFlags ),
+        JS_FN( "Undo", Undo, 1, kDefaultPropsFlags ),
         JS_FN( "UndoBackup", UndoBackup, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
@@ -563,6 +571,22 @@ bool JsFbPlaylistManager::IsPlaylistLocked( uint32_t playlistIndex )
     return api->playlist_lock_is_present( playlistIndex );
 }
 
+bool JsFbPlaylistManager::IsRedoAvailable( uint32_t playlistIndex )
+{
+    auto api = playlist_manager::get();
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
+
+    return api->playlist_is_redo_available( playlistIndex );
+}
+
+bool JsFbPlaylistManager::IsUndoAvailable( uint32_t playlistIndex )
+{
+    auto api = playlist_manager::get();
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
+
+    return api->playlist_is_undo_available( playlistIndex );
+}
+
 bool JsFbPlaylistManager::MovePlaylist( uint32_t from, uint32_t to )
 {
     auto api = playlist_manager::get();
@@ -597,6 +621,13 @@ bool JsFbPlaylistManager::MovePlaylistSelection( uint32_t playlistIndex, int32_t
 uint32_t JsFbPlaylistManager::PlaylistItemCount( uint32_t playlistIndex )
 {
     return playlist_manager::get()->playlist_get_item_count( playlistIndex );
+}
+
+void JsFbPlaylistManager::Redo( uint32_t playlistIndex )
+{
+    qwr::QwrException::ExpectTrue( IsRedoAvailable( playlistIndex ), "Redo is not available" );
+
+    (void)playlist_manager::get()->playlist_redo_restore( playlistIndex );
 }
 
 void JsFbPlaylistManager::RemoveItemFromPlaybackQueue( uint32_t index )
@@ -845,9 +876,19 @@ void JsFbPlaylistManager::SortPlaylistsByNameWithOpt( size_t optArgCount, int8_t
     }
 }
 
+void JsFbPlaylistManager::Undo( uint32_t playlistIndex )
+{
+    qwr::QwrException::ExpectTrue( IsUndoAvailable( playlistIndex ), "Undo is not available" );
+
+    (void)playlist_manager::get()->playlist_undo_restore( playlistIndex );
+}
+
 void JsFbPlaylistManager::UndoBackup( uint32_t playlistIndex )
 {
-    playlist_manager::get()->playlist_undo_backup( playlistIndex );
+    auto api = playlist_manager::get();
+    qwr::QwrException::ExpectTrue( playlistIndex < api->get_playlist_count(), "Index is out of bounds" );
+
+    api->playlist_undo_backup( playlistIndex );
 }
 
 int32_t JsFbPlaylistManager::get_ActivePlaylist()
