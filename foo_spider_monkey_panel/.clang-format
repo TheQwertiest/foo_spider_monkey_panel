@@ -3,26 +3,47 @@ BasedOnStyle: Mozilla
 AccessModifierOffset: '-4'
 AlwaysBreakAfterDefinitionReturnType: 'false'
 AlignAfterOpenBracket: Align
-AlignConsecutiveAssignments: 'false'
-AlignConsecutiveMacros: 'true'
+AlignConsecutiveAssignments: None
+AlignConsecutiveMacros: Consecutive
 AlignEscapedNewlines: Left
-AlignOperands: 'true'
+AlignOperands: Align
 AllowShortBlocksOnASingleLine: 'false'
 AllowShortCaseLabelsOnASingleLine: 'false'
 AllowShortFunctionsOnASingleLine: None
 AllowShortIfStatementsOnASingleLine: 'false'
+AllowShortLambdasOnASingleLine: All
 AllowShortLoopsOnASingleLine: 'false'
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: 'true'
 BinPackParameters: 'true'
 BreakBeforeBinaryOperators: NonAssignment
-BreakBeforeBraces: Allman
+BreakBeforeBraces: Custom
+BraceWrapping:
+  AfterCaseLabel: 'true'
+  AfterClass: 'true'
+  AfterControlStatement: Always
+  AfterEnum: 'true'
+  AfterFunction: 'true'
+  AfterNamespace: 'true'
+  AfterObjCDeclaration: 'true'
+  AfterStruct: 'true'
+  AfterUnion: 'true'
+  AfterExternBlock: 'true'
+  BeforeCatch: 'true'
+  BeforeElse: 'true'
+  BeforeLambdaBody: 'false'
+  BeforeWhile: 'false'
+  IndentBraces: 'false'
+  SplitEmptyFunction: 'true'
+  SplitEmptyRecord: 'true'
+  SplitEmptyNamespace: 'true'
 BreakBeforeInheritanceComma: 'true'
 BreakConstructorInitializers: BeforeComma
 ColumnLimit: '0'
 ConstructorInitializerIndentWidth: '4' 
 ContinuationIndentWidth: '4'
 Cpp11BracedListStyle: 'false'
+EmptyLineBeforeAccessModifier: Always
 FixNamespaceComments: 'true'
 IncludeBlocks: Regroup
 IncludeCategories: 
@@ -53,6 +74,8 @@ IndentPPDirectives: AfterHash
 IndentWidth: '4'
 IndentWrappedFunctionNames: false
 Language: Cpp
+# clang 13+
+# LambdaBodyIndentation: OuterScope
 MacroBlockBegin: "^BEGIN_*"
 MacroBlockEnd: "^END_*"
 MaxEmptyLinesToKeep: '1'
@@ -70,7 +93,7 @@ SpacesInCStyleCastParentheses: 'false'
 SpacesInParentheses: 'true'
 SpacesInSquareBrackets: 'false'
 SortIncludes: 'true'
-Standard: Cpp11
+Standard: c++20
 TabWidth: '4'
 TypenameMacros: ['STDMETHOD', 'STDMETHODIMP_']
 UseTab: Never
