@@ -5,6 +5,7 @@
 #include <panel/message_manager.h>
 #include <panel/user_message.h>
 #include <utils/gdi_helpers.h>
+#include <utils/image_helpers.h>
 #include <utils/thread_pool_instance.h>
 
 #include <Shlwapi.h>
@@ -81,10 +82,10 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
         return nullptr;
     }
 
-    IStreamPtr iStream;
+    IStreamPtr pStream;
     {
-        auto memStream = SHCreateMemStream( nullptr, 0 );
-        if ( !memStream )
+        auto pMemStream = SHCreateMemStream( nullptr, 0 );
+        if ( !pMemStream )
         {
             return nullptr;
         }
@@ -93,23 +94,23 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
         // while SHCreateMemStream returns object with ref count 1,
         // so we need to take ownership without increasing ref count
         // (or decrease ref count manually)
-        iStream.Attach( memStream );
+        pStream.Attach( pMemStream );
     }
 
     ULONG bytes_written = 0;
-    HRESULT hr = iStream->Write( data->get_ptr(), data->get_size(), &bytes_written );
+    HRESULT hr = pStream->Write( data->get_ptr(), data->get_size(), &bytes_written );
     if ( FAILED( hr ) || bytes_written != data->get_size() )
     {
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Bitmap> bmp( new Gdiplus::Bitmap( static_cast<IStream*>( iStream ), TRUE ) );
-    if ( !gdi::IsGdiPlusObjectValid( bmp ) )
+    auto pImg = std::make_unique<Gdiplus::Bitmap>( static_cast<IStream*>( pStream ), TRUE );
+    if ( !gdi::IsGdiPlusObjectValid( pImg ) )
     {
-        return nullptr;
+        return smp::image::LoadImageWithWIC( pStream );
     }
 
-    return bmp;
+    return pImg;
 }
 
 /// @details Throws pfc::exception, if art is not found or if aborted

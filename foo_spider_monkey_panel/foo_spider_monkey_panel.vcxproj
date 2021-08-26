@@ -78,7 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>GdiPlus.lib;shlwapi.lib;WinMM.lib;Imm32.lib;uxtheme.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GdiPlus.lib;shlwapi.lib;WinMM.lib;Imm32.lib;uxtheme.lib;Windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <AdditionalOptions>/SOURCELINK:$(IndependentGeneratedDir)source_link.json %(AdditionalOptions)</AdditionalOptions>
     </Link>
