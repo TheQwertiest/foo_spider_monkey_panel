@@ -11,7 +11,7 @@ namespace
 using namespace smp;
 using namespace smp::panel;
 
-class InitStageCallbackSmp : public init_stage_callback
+class InitStageCallback : public init_stage_callback
 {
     void on_init_stage( t_uint32 stage ) override;
 };
@@ -125,7 +125,7 @@ private:
 namespace
 {
 
-void InitStageCallbackSmp::on_init_stage( t_uint32 stage )
+void InitStageCallback::on_init_stage( t_uint32 stage )
 {
     if ( stage == init_stages::before_ui_init )
     { // SMP is invoked during ui initialization, hence we must init locks before that,
@@ -434,7 +434,7 @@ void my_playlist_callback_static::on_playlists_changed()
 namespace
 {
 
-FB2K_SERVICE_FACTORY( InitStageCallbackSmp );
+FB2K_SERVICE_FACTORY( InitStageCallback );
 FB2K_SERVICE_FACTORY( my_initquit );
 FB2K_SERVICE_FACTORY( my_library_callback );
 FB2K_SERVICE_FACTORY( my_play_callback_static );

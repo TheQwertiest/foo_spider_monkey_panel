@@ -85,6 +85,17 @@ template <>
 std::nullptr_t ToSimpleValue<std::nullptr_t>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <typename T>
+std::optional<T> ToOptional( JSContext* cx, const JS::HandleValue& jsValue )
+{
+    if ( jsValue.isNullOrUndefined() )
+    {
+        return std::nullopt;
+    }
+
+    return ToSimpleValue<T>( cx, jsValue );
+}
+
+template <typename T>
 std::vector<T> ToVector( JSContext* cx, JS::HandleObject jsObject )
 {
     std::vector<T> nativeValues;
@@ -113,6 +124,10 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
     if constexpr ( to_native::internal::IsJsSimpleConvertableV<T> )
     { // Construct and copy
         return to_native::internal::ToSimpleValue<T>( cx, jsValue );
+    }
+    else if constexpr ( qwr::is_specialization_of_v<T, std::optional> )
+    { // Construct and copy
+        return to_native::internal::ToOptional<T::value_type>( cx, jsValue );
     }
     else if constexpr ( std::is_pointer_v<T> )
     { // Extract native pointer

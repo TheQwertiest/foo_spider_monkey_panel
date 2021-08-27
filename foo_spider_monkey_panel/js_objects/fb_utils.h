@@ -74,6 +74,8 @@ public:
     void PlayOrPause();
     void Prev();
     void Random();
+    void RegisterMainMenuCommand( uint32_t id, const qwr::u8string& name, const std::optional<qwr::u8string>& description = std::nullopt );
+    void RegisterMainMenuCommandWithOpt( size_t optArgCount, uint32_t id, const qwr::u8string& name, const std::optional<qwr::u8string>& description );
     void Restart();
     bool RunContextCommand( const qwr::u8string& command, uint32_t flags = 0 );
     bool RunContextCommandWithOpt( size_t optArgCount, const qwr::u8string& command, uint32_t flags );
@@ -90,6 +92,7 @@ public:
     void ShowPreferences();
     void Stop();
     JSObject* TitleFormat( const qwr::u8string& expression );
+    void UnregisterMainMenuCommand( uint32_t id );
     void VolumeDown();
     void VolumeMute();
     void VolumeUp();

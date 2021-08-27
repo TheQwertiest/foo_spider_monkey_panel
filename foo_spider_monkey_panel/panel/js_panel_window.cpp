@@ -6,6 +6,7 @@
 #include <com_utils/com_destruction_handler.h>
 #include <config/delayed_package_utils.h>
 #include <config/package_utils.h>
+#include <fb2k/mainmenu_dynamic.h>
 #include <js_engine/js_container.h>
 #include <panel/drop_action_params.h>
 #include <panel/edit_script.h>
@@ -761,6 +762,12 @@ std::optional<LRESULT> js_panel_window::process_internal_async_messages( Interna
         on_main_menu( wp );
         return 0;
     }
+    case InternalAsyncMessage::dynamic_main_menu_item:
+    {
+        pJsContainer_->InvokeJsCallback( "on_main_menu_dynamic",
+                                         static_cast<uint32_t>( wp ) );
+        return 0;
+    }
     case InternalAsyncMessage::refresh_bg:
     {
         isBgRepaintNeeded_ = true;
@@ -1153,9 +1160,10 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     hasFailed_ = false;
     isPanelIdOverridenByScript_ = false;
 
+    DynamicMainMenuManager::Get().RegisterPanel( wnd_, settings_.panelId );
     message_manager::instance().EnableAsyncMessages( wnd_ );
 
-    const auto extstyle = [&]() {
+    const auto extstyle = [&] {
         DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
         extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
         extstyle |= ConvertEdgeStyleToNativeFlags( settings_.edgeStyle );
@@ -1234,6 +1242,7 @@ void js_panel_window::UnloadScript( bool force )
     catch ( const qwr::QwrException& )
     {
     }
+    DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
     pJsContainer_->Finalize();
 }
 
@@ -1695,7 +1704,7 @@ void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
         else
         {
             CRect rc{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
-            memDc.FillRect( &rc, ( HBRUSH )( COLOR_WINDOW + 1 ) );
+            memDc.FillRect( &rc, (HBRUSH)( COLOR_WINDOW + 1 ) );
         }
 
         on_paint_user( memDc, updateRc );

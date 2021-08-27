@@ -370,6 +370,9 @@
     <ClCompile Include="com_utils\com_error_helpers.cpp">
       <Filter>com_utils</Filter>
     </ClCompile>
+    <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
+      <Filter>fb2k</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -795,6 +798,9 @@
     </ClInclude>
     <ClInclude Include="com_utils\com_error_helpers.h">
       <Filter>com_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="fb2k\mainmenu_dynamic.h">
+      <Filter>fb2k</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

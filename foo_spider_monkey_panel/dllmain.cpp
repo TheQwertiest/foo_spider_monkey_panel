@@ -132,7 +132,7 @@ void FinalizeSubsystems()
     }
 }
 
-class InitStageCallbackSmp : public init_stage_callback
+class InitStageCallback : public init_stage_callback
 {
     void on_init_stage( t_uint32 stage ) override
     {
@@ -189,7 +189,7 @@ private:
     }
 };
 
-FB2K_SERVICE_FACTORY( InitStageCallbackSmp );
+FB2K_SERVICE_FACTORY( InitStageCallback );
 FB2K_SERVICE_FACTORY( InitQuitSmp );
 
 } // namespace

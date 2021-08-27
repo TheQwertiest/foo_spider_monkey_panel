@@ -637,6 +637,22 @@ let fb = {
     /** @method */
     Random: function () { }, // (void)
 
+    /**
+     * Registers a main menu item that will be displayed under `main menu`>`File`>`Spider Monkey Panel`>`Script commands`>`{Current panel name}`.<br>
+     * Being main menu item means you can bind it to global keyboard shortcuts, standard toolbar buttons, panel stack splitter buttons and etc.<br>
+     * Execution of the correspoding menu item will trigger {@link module:callbacks~on_main_menu_dynamic on_main_menu_dynamic} callback.<br>
+     * <br>
+     * Note: SMP uses a combination of panel name and command id to identify and bind the command. Hence all binds will fail if the id or the panel name
+     * is changed. This also means that collision WILL occur if there are two panels with the same name.<br>
+     * <br>
+     * Related methods: {@link fb.UnregisterMainMenuCommand}
+     * 
+     * @param {number} id
+     * @param {string} name
+     * @param {string=} [description='']
+     */
+    RegisterMainMenuCommand: function (id, name, description) { },
+
     /** @method */
     Restart: function () { }, // (void)
 
@@ -740,6 +756,15 @@ let fb = {
      * @return {FbTitleFormat}
      */
     TitleFormat: function (expression) { }, // (FbTitleFormat)
+
+    /**
+     * Unregisters a main menu item.<br>
+     * <br>
+     * Related methods: {@link fb.RegisterMainMenuCommand}
+     *
+     * @param {number} id
+     */
+    UnregisterMainMenuCommand: function (id, name, description) { },
 
     /** @method */
     VolumeDown: function () { }, // (void)

@@ -3,6 +3,7 @@
 #include "fb_utils.h"
 
 #include <com_objects/drop_source_impl.h>
+#include <fb2k/mainmenu_dynamic.h>
 #include <fb2k/selection_holder_helper.h>
 #include <fb2k/stats.h>
 #include <js_engine/js_to_native_invoker.h>
@@ -86,6 +87,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Play, JsFbUtils::Play )
 MJS_DEFINE_JS_FN_FROM_NATIVE( PlayOrPause, JsFbUtils::PlayOrPause )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Prev, JsFbUtils::Prev )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Random, JsFbUtils::Random )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( RegisterMainMenuCommand, JsFbUtils::RegisterMainMenuCommand, JsFbUtils::RegisterMainMenuCommandWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Restart, JsFbUtils::Restart )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( RunContextCommand, JsFbUtils::RunContextCommand, JsFbUtils::RunContextCommandWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( RunContextCommandWithMetadb, JsFbUtils::RunContextCommandWithMetadb, JsFbUtils::RunContextCommandWithMetadbWithOpt, 1 )
@@ -99,6 +101,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ShowPopupMessage, JsFbUtils::ShowPopupMes
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowPreferences, JsFbUtils::ShowPreferences )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Stop, JsFbUtils::Stop )
 MJS_DEFINE_JS_FN_FROM_NATIVE( TitleFormat, JsFbUtils::TitleFormat )
+MJS_DEFINE_JS_FN_FROM_NATIVE( UnregisterMainMenuCommand, JsFbUtils::UnregisterMainMenuCommand )
 MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeDown, JsFbUtils::VolumeDown )
 MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeMute, JsFbUtils::VolumeMute )
 MJS_DEFINE_JS_FN_FROM_NATIVE( VolumeUp, JsFbUtils::VolumeUp )
@@ -138,6 +141,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "PlayOrPause", PlayOrPause, 0, kDefaultPropsFlags ),
         JS_FN( "Prev", Prev, 0, kDefaultPropsFlags ),
         JS_FN( "Random", Random, 0, kDefaultPropsFlags ),
+        JS_FN( "RegisterMainMenuCommand", RegisterMainMenuCommand, 2, kDefaultPropsFlags ),
         JS_FN( "Restart", Restart, 0, kDefaultPropsFlags ),
         JS_FN( "RunContextCommand", RunContextCommand, 1, kDefaultPropsFlags ),
         JS_FN( "RunContextCommandWithMetadb", RunContextCommandWithMetadb, 2, kDefaultPropsFlags ),
@@ -151,6 +155,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "ShowPreferences", ShowPreferences, 0, kDefaultPropsFlags ),
         JS_FN( "Stop", Stop, 0, kDefaultPropsFlags ),
         JS_FN( "TitleFormat", TitleFormat, 1, kDefaultPropsFlags ),
+        JS_FN( "UnregisterMainMenuCommand", UnregisterMainMenuCommand, 1, kDefaultPropsFlags ),
         JS_FN( "VolumeDown", VolumeDown, 0, kDefaultPropsFlags ),
         JS_FN( "VolumeMute", VolumeMute, 0, kDefaultPropsFlags ),
         JS_FN( "VolumeUp", VolumeUp, 0, kDefaultPropsFlags ),
@@ -638,6 +643,27 @@ void JsFbUtils::Random()
     standard_commands::main_random();
 }
 
+void JsFbUtils::RegisterMainMenuCommand( uint32_t id, const qwr::u8string& name, const std::optional<qwr::u8string>& description )
+{
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    qwr::QwrException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
+    DynamicMainMenuManager::Get().RegisterCommand( hPanel, id, name, description );
+}
+
+void JsFbUtils::RegisterMainMenuCommandWithOpt( size_t optArgCount, uint32_t id, const qwr::u8string& name, const std::optional<qwr::u8string>& description )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return RegisterMainMenuCommand( id, name, description );
+    case 1:
+        return RegisterMainMenuCommand( id, name );
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
+}
+
 void JsFbUtils::Restart()
 {
     standard_commands::main_restart();
@@ -777,6 +803,14 @@ void JsFbUtils::Stop()
 JSObject* JsFbUtils::TitleFormat( const qwr::u8string& expression )
 {
     return JsFbTitleFormat::Constructor( pJsCtx_, expression );
+}
+
+void JsFbUtils::UnregisterMainMenuCommand( uint32_t id )
+{
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    qwr::QwrException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
+
+    DynamicMainMenuManager::Get().UnregisterCommand( hPanel, id );
 }
 
 void JsFbUtils::VolumeDown()

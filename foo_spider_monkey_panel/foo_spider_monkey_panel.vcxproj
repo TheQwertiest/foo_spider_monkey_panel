@@ -165,6 +165,7 @@
     <ClCompile Include="fb2k\config.cpp" />
     <ClCompile Include="fb2k\fb2k_callbacks.cpp" />
     <ClCompile Include="fb2k\mainmenu.cpp" />
+    <ClCompile Include="fb2k\mainmenu_dynamic.cpp" />
     <ClCompile Include="fb2k\playlist_lock.cpp" />
     <ClCompile Include="fb2k\selection_holder_helper.cpp" />
     <ClCompile Include="fb2k\stats.cpp" />
@@ -298,6 +299,7 @@
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="fb2k\advanced_config.h" />
     <ClInclude Include="fb2k\config.h" />
+    <ClInclude Include="fb2k\mainmenu_dynamic.h" />
     <ClInclude Include="fb2k\playlist_lock.h" />
     <ClInclude Include="fb2k\selection_holder_helper.h" />
     <ClInclude Include="fb2k\stats.h" />

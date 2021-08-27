@@ -9,10 +9,10 @@ using namespace smp;
 namespace
 {
 
-class PlaylistLockSmp : public playlist_lock
+class PlaylistLock : public playlist_lock
 {
 public:
-    PlaylistLockSmp( size_t playlistIdx, uint32_t flags );
+    PlaylistLock( size_t playlistIdx, uint32_t flags );
 
     bool query_items_add( t_size p_base, const pfc::list_base_const_t<metadb_handle_ptr>& p_data, const bit_array& p_selection ) override;
     bool query_items_reorder( const t_size* p_order, t_size p_count ) override;
@@ -44,53 +44,53 @@ constexpr char kLockName[] = SMP_UNDERSCORE_NAME;
 namespace
 {
 
-PlaylistLockSmp::PlaylistLockSmp( uint32_t playlistIdx, uint32_t flags )
+PlaylistLock::PlaylistLock( uint32_t playlistIdx, uint32_t flags )
     : playlistIdx_( playlistIdx )
     , lockMask_( flags )
 {
 }
 
-bool PlaylistLockSmp::query_items_add( size_t /*p_base*/, const pfc::list_base_const_t<metadb_handle_ptr>& /*p_data*/, const bit_array& /*p_selection*/ )
+bool PlaylistLock::query_items_add( size_t /*p_base*/, const pfc::list_base_const_t<metadb_handle_ptr>& /*p_data*/, const bit_array& /*p_selection*/ )
 {
     return !( lockMask_ & filter_add );
 }
 
-bool PlaylistLockSmp::query_items_reorder( const size_t* /*p_order*/, size_t /*p_count*/ )
+bool PlaylistLock::query_items_reorder( const size_t* /*p_order*/, size_t /*p_count*/ )
 {
     return !( lockMask_ & filter_reorder );
 }
 
-bool PlaylistLockSmp::query_items_remove( const bit_array& /*p_mask*/, bool /*p_force*/ )
+bool PlaylistLock::query_items_remove( const bit_array& /*p_mask*/, bool /*p_force*/ )
 {
     return !( lockMask_ & filter_remove );
 }
 
-bool PlaylistLockSmp::query_item_replace( t_size /*p_index*/, const metadb_handle_ptr& /*p_old*/, const metadb_handle_ptr& /*p_new*/ )
+bool PlaylistLock::query_item_replace( t_size /*p_index*/, const metadb_handle_ptr& /*p_old*/, const metadb_handle_ptr& /*p_new*/ )
 {
     return !( lockMask_ & filter_replace );
 }
 
-bool PlaylistLockSmp::query_playlist_rename( const char* /*p_new_name*/, t_size /*p_new_name_len*/ )
+bool PlaylistLock::query_playlist_rename( const char* /*p_new_name*/, t_size /*p_new_name_len*/ )
 {
     return !( lockMask_ & filter_rename );
 }
 
-bool PlaylistLockSmp::query_playlist_remove()
+bool PlaylistLock::query_playlist_remove()
 {
     return !( lockMask_ & filter_remove_playlist );
 }
 
-bool PlaylistLockSmp::execute_default_action( size_t /*p_item*/ )
+bool PlaylistLock::execute_default_action( size_t /*p_item*/ )
 {
     return !( lockMask_ & filter_default_action );
 }
 
-void PlaylistLockSmp::on_playlist_index_change( size_t p_new_index )
+void PlaylistLock::on_playlist_index_change( size_t p_new_index )
 {
     playlistIdx_ = p_new_index;
 }
 
-void PlaylistLockSmp::on_playlist_remove()
+void PlaylistLock::on_playlist_remove()
 {
     try
     {
@@ -101,16 +101,16 @@ void PlaylistLockSmp::on_playlist_remove()
     }
 }
 
-void PlaylistLockSmp::get_lock_name( pfc::string_base& p_out )
+void PlaylistLock::get_lock_name( pfc::string_base& p_out )
 {
     p_out = kLockName;
 }
 
-void PlaylistLockSmp::show_ui()
+void PlaylistLock::show_ui()
 {
 }
 
-uint32_t PlaylistLockSmp::get_filter_mask()
+uint32_t PlaylistLock::get_filter_mask()
 {
     return lockMask_;
 }
@@ -152,7 +152,7 @@ void PlaylistLockManager::InstallLock( size_t playlistIndex, uint32_t flags )
         throw qwr::QwrException( "Playlist is already locked" );
     }
 
-    auto lock = fb2k::service_new<PlaylistLockSmp>( playlistIndex, flags );
+    auto lock = fb2k::service_new<PlaylistLock>( playlistIndex, flags );
     if ( !api->playlist_lock_install( playlistIndex, lock ) )
     { // should not happen
         throw qwr::QwrException( "`Internal error: playlist_lock_install` failed" );
