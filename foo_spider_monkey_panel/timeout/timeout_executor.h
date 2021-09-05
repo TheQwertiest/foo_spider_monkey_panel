@@ -2,19 +2,16 @@
 
 #include <events/event.h>
 #include <timeout/timeout.h>
-
-// TODO: split timer from manager
-#include <timeout/timer_manager.h>
+#include <timeout/timer_native.h>
 
 namespace smp
 {
 
 class TimeoutManager;
-class Timer;
 
 class TimeoutExecutor
     : public Runnable
-    , public TimerNotifyTask
+    , public TimerNotifyTask_Native
     , public std::enable_shared_from_this<TimeoutExecutor>
 {
 public:
@@ -22,7 +19,7 @@ public:
     ~TimeoutExecutor();
 
     void Shutdown();
-    void Cancel();
+    void Cancel( bool waitForDestruction );
 
     void MaybeSchedule( const TimeStamp& targetDeadline );
 
@@ -65,7 +62,7 @@ private:
     TimeoutManager& pParent_;
     std::shared_ptr<PanelTarget> pTarget_;
 
-    std::shared_ptr<Timer> pTimer_;
+    std::shared_ptr<Timer_Native> pTimer_;
     Mode mode_ = Mode::None;
     std::optional<TimeStamp> deadlineOpt_;
 };

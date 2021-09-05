@@ -106,7 +106,9 @@ void TimerManager::ThreadMain()
             auto pPanel = pTimer->Target().GetPanel();
             if ( pPanel )
             {
-                EventManager::Get().PutEvent( pPanel->GetHWND(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
+                // TODO: uncomment if needed
+                assert( false );
+                //EventManager::Get().PutEvent( pPanel->GetHWND(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
             }
         }
 

@@ -102,7 +102,7 @@ void TimeoutManager::ClearTimeout( uint32_t timerId )
     }
 
     // Stop the executor and restart it at the next soonest deadline.
-    pExecutor_->Cancel();
+    pExecutor_->Cancel( false );
     if ( auto nextTimeoutIt = timeoutStorage_.GetFirst();
          !timeoutStorage_.IsEnd( nextTimeoutIt ) )
     {
@@ -113,7 +113,7 @@ void TimeoutManager::ClearTimeout( uint32_t timerId )
 
 void TimeoutManager::StopAllTimeouts()
 {
-    pExecutor_->Cancel();
+    pExecutor_->Cancel( true );
     timeoutStorage_.Clear();
 }
 

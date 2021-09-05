@@ -7,6 +7,8 @@
 #include <events/event_manager.h>
 #include <panel/js_panel_window.h>
 #include <timeout/timeout_manager.h>
+#include <timeout/timer_manager_native.h>
+#include <timeout/timer_native.h>
 
 namespace smp
 {
@@ -29,7 +31,7 @@ void TimeoutExecutor::Shutdown()
 {
     if ( pTimer_ )
     {
-        pTimer_->Cancel();
+        pTimer_->Cancel( true );
         pTimer_ = nullptr;
     }
 
@@ -37,11 +39,11 @@ void TimeoutExecutor::Shutdown()
     deadlineOpt_.reset();
 }
 
-void TimeoutExecutor::Cancel()
+void TimeoutExecutor::Cancel( bool waitForDestruction )
 {
     if ( pTimer_ )
     {
-        pTimer_->Cancel();
+        pTimer_->Cancel( waitForDestruction );
     }
 
     mode_ = Mode::None;
@@ -87,7 +89,7 @@ void TimeoutExecutor::Schedule( const TimeStamp& targetDeadline )
 {
     const auto now( TimeStamp::clock::now() );
 
-    if ( targetDeadline <= ( now + TimerManager::GetAllowedEarlyFiringTime() ) )
+    if ( targetDeadline <= ( now + TimerManager_Native::GetAllowedEarlyFiringTime() ) )
     {
         return ScheduleImmediate( targetDeadline, now );
     }
@@ -113,7 +115,7 @@ void TimeoutExecutor::MaybeReschedule( const TimeStamp& targetDeadline )
         return;
     }
 
-    Cancel();
+    Cancel( false );
     Schedule( targetDeadline );
 }
 
@@ -121,7 +123,7 @@ void TimeoutExecutor::ScheduleImmediate( const TimeStamp& targetDeadline, const 
 {
     assert( !deadlineOpt_ );
     assert( mode_ == Mode::None );
-    assert( targetDeadline <= ( now + TimerManager::GetAllowedEarlyFiringTime() ) );
+    assert( targetDeadline <= ( now + TimerManager_Native::GetAllowedEarlyFiringTime() ) );
 
     // TODO: replace HWND in PutEvent with target
     auto pPanel = pTarget_->GetPanel();
@@ -141,13 +143,13 @@ void TimeoutExecutor::ScheduleDelayed( const TimeStamp& targetDeadline, const Ti
 {
     assert( !deadlineOpt_ );
     assert( mode_ == Mode::None );
-    assert( targetDeadline > ( now + TimerManager::GetAllowedEarlyFiringTime() ) );
+    assert( targetDeadline > ( now + TimerManager_Native::GetAllowedEarlyFiringTime() ) );
 
     if ( !pTimer_ )
     {
-        pTimer_ = TimerManager::Get().CreateTimer( pTarget_ );
+        pTimer_ = TimerManager_Native::Get().CreateTimer( pTarget_ );
         // Re-evaluate if we should have scheduled this immediately
-        if ( targetDeadline <= ( now + TimerManager::GetAllowedEarlyFiringTime() ) )
+        if ( targetDeadline <= ( now + TimerManager_Native::GetAllowedEarlyFiringTime() ) )
         {
             return ScheduleImmediate( targetDeadline, now );
         }
@@ -155,7 +157,7 @@ void TimeoutExecutor::ScheduleDelayed( const TimeStamp& targetDeadline, const Ti
     else
     {
         // Always call Cancel() in case we are re-using a timer.
-        pTimer_->Cancel();
+        pTimer_->Cancel( false );
     }
 
     // Calculate the delay based on the deadline and current time.
@@ -188,13 +190,13 @@ void TimeoutExecutor::MaybeExecute()
     // and proceed.  If there are no timers ready we will get rescheduled
     // by TimeoutManager.
     const auto now = TimeStamp::clock::now();
-    const auto limit = now + TimerManager::GetAllowedEarlyFiringTime();
+    const auto limit = now + TimerManager_Native::GetAllowedEarlyFiringTime();
     if ( deadline > limit )
     {
         deadline = limit;
     }
 
-    Cancel();
+    Cancel( false );
 
     pParent_.RunTimeout( now, deadline );
 }
