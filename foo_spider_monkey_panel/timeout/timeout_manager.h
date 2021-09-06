@@ -32,7 +32,6 @@ public:
     void Finalize();
 
     void SetLoadingStatus( bool isLoading );
-    void SetEnabledStatus( bool isEnabled );
 
     [[nodiscard]] uint32_t SetInterval( uint32_t interval, std::unique_ptr<mozjs::JsAsyncTask> pJsTask );
     [[nodiscard]] uint32_t SetTimeout( uint32_t delay, std::unique_ptr<mozjs::JsAsyncTask> pJsTask );
@@ -86,7 +85,6 @@ private:
     std::shared_ptr<PanelTarget> pTarget_;
 
     bool isLoading_ = true;
-    bool isDisabled_ = true;
 
     TimeoutStorage timeoutStorage_;
     std::vector<std::shared_ptr<Timeout>> delayedTimeouts_;

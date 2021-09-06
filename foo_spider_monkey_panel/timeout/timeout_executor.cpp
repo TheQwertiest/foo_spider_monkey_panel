@@ -136,15 +136,7 @@ void TimeoutExecutor::ScheduleImmediate( const TimeStamp& targetDeadline, const 
     assert( mode_ == Mode::None );
     assert( targetDeadline <= ( now + GetAllowedEarlyFiringTime() ) );
 
-    // TODO: replace HWND in PutEvent with target
-    auto pPanel = pTarget_->GetPanel();
-    if ( !pPanel )
-    {
-        assert( false );
-        return;
-    }
-
-    EventManager::Get().PutRunnable( pPanel->GetHWND(), shared_from_this() );
+    EventManager::Get().PutRunnable( pTarget_->GetHwnd(), shared_from_this() );
 
     mode_ = Mode::Immediate;
     deadlineOpt_ = targetDeadline;

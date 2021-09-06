@@ -1277,6 +1277,8 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
         return false;
     }
 
+    pTimeoutManager_->SetLoadingStatus( true );
+
     if ( settings_.script )
     {
         modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
@@ -1300,6 +1302,8 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
             return false;
         }
     }
+
+    pTimeoutManager_->SetLoadingStatus( false );
 
     FB2K_console_formatter() << fmt::format(
         SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",

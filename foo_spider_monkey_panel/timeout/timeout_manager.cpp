@@ -29,8 +29,6 @@ TimeoutManager::TimeoutManager( std::shared_ptr<PanelTarget> pTarget )
     , timeoutStorage_( *this )
     , pExecutor_( std::make_shared<TimeoutExecutor>( *this, pTarget ) )
 {
-    // TODO: remove
-    isLoading_ = false;
 }
 
 TimeoutManager::~TimeoutManager()
@@ -45,12 +43,30 @@ void TimeoutManager::Finalize()
 
 void TimeoutManager::SetLoadingStatus( bool isLoading )
 {
-    // TODO:
-}
+    if ( isLoading == isLoading_ )
+    {
+        return;
+    }
 
-void TimeoutManager::SetEnabledStatus( bool isEnabled )
-{
-    // TODO:
+    isLoading_ = isLoading;
+    if ( isLoading_ )
+    {
+        StopAllTimeouts();
+    }
+    else
+    {
+        for ( const auto& pTimer: delayedTimeouts_ )
+        {
+            timeoutStorage_.Insert( pTimer );
+        }
+        delayedTimeouts_.clear();
+
+        if ( const auto timeoutIt = timeoutStorage_.GetFirst();
+             !timeoutStorage_.IsEnd( timeoutIt ) )
+        {
+            MaybeSchedule( ( *timeoutIt )->When() );
+        }
+    }
 }
 
 uint32_t TimeoutManager::SetInterval( uint32_t interval, std::unique_ptr<mozjs::JsAsyncTask> pJsTask )
@@ -264,8 +280,6 @@ void TimeoutManager::RunTimeout( const TimeStamp& now, const TimeStamp& targetDe
             // Any timeouts that would fire during a load will be deferred
             // until the load event occurs
 
-            // TODO: add LoadingComplete method that moves idleTimeouts_ to timeouts_
-            assert( false );
             timeoutStorage_.Erase( timeoutIt );
             delayedTimeouts_.emplace_back( pTimeout );
         }

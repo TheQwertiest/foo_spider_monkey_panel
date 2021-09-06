@@ -112,12 +112,7 @@ void TimerManager_Custom::ThreadMain()
             waitUntilOpt.reset();
             RemoveFirstTimerInternal();
 
-            // TODO: replace HWND in PutEvent with target
-            auto pPanel = pTimer->Target().GetPanel();
-            if ( pPanel )
-            {
-                EventManager::Get().PutEvent( pPanel->GetHWND(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
-            }
+            EventManager::Get().PutEvent( pTimer->Target().GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
         }
 
         // spurious wake up guard has a HUUUUGE CPU overhead, hence we don't use it

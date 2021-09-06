@@ -39,19 +39,25 @@ Event_Drag* EventBase::AsDragEvent()
 
 PanelTarget::PanelTarget( panel::js_panel_window& panel )
     : pPanel_( &panel )
+    , hWnd_( panel.GetHWND() )
 {
+}
+
+HWND PanelTarget::GetHwnd()
+{
+    return hWnd_;
 }
 
 panel::js_panel_window* PanelTarget::GetPanel()
 {
-    // TODO: uncomment
-    // assert( core_api::is_main_thread() );
+    assert( core_api::is_main_thread() );
     return pPanel_;
 }
 
 void PanelTarget::UnlinkPanel()
 {
     pPanel_ = nullptr;
+    hWnd_ = nullptr;
 }
 
 } // namespace smp

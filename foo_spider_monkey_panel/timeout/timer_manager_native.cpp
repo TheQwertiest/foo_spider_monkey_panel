@@ -85,11 +85,7 @@ void TimerManager_Native::DestroyNativeTimer( HANDLE hTimer, bool waitForDestruc
 
 void TimerManager_Native::PostTimerEvent( std::shared_ptr<Timer_Native> pTimer )
 {
-    auto pPanel = pTimer->Target().GetPanel();
-    if ( pPanel )
-    {
-        EventManager::Get().PutEvent( pPanel->GetHWND(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
-    }
+    EventManager::Get().PutEvent( pTimer->Target().GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
 }
 
 } // namespace smp

@@ -205,11 +205,14 @@ class PanelTarget final
 public:
     PanelTarget( panel::js_panel_window& panel );
 
+    [[nodiscard]] HWND GetHwnd();
+
     [[nodiscard]] panel::js_panel_window* GetPanel();
     void UnlinkPanel();
 
 private:
     panel::js_panel_window* pPanel_ = nullptr;
+    HWND hWnd_ = nullptr;
 };
 
 class EventBase : public Runnable
