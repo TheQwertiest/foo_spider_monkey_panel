@@ -1,3 +1,5 @@
+// based on https://searchfox.org/mozilla-central/source/xpcom/threads/TaskController.cpp
+
 #include <stdafx.h>
 
 #include "task_controller.h"
@@ -17,16 +19,6 @@ Task::Task( EventPriority priority )
 {
 }
 
-EventPriority Task::GetPriority() const
-{
-    return priority_;
-}
-
-int64_t Task::GetTaskNumber() const
-{
-    return taskNumber_;
-}
-
 bool Task::PriorityCompare::operator()( const std::shared_ptr<Task>& a, const std::shared_ptr<Task>& b ) const
 {
     const auto prioA = a->priority_;
@@ -36,7 +28,7 @@ bool Task::PriorityCompare::operator()( const std::shared_ptr<Task>& a, const st
 
 RunnableTask::RunnableTask( std::shared_ptr<Runnable> pRunnable, EventPriority priority )
     : Task( priority )
-    , pRunnable_( pRunnable )
+    , pRunnable_( std::move( pRunnable ) )
 {
 }
 
@@ -47,7 +39,7 @@ void RunnableTask::Run()
 }
 
 TaskController::TaskController( std::shared_ptr<PanelTarget> pTarget )
-    : pTarget_( pTarget )
+    : pTarget_( std::move( pTarget ) )
 {
 }
 
@@ -63,6 +55,23 @@ void TaskController::AddTask( std::shared_ptr<Task> pTask )
     assert( pTask );
     const auto [it, wasInserted] = tasks_.emplace( pTask );
     pTask->taskIterator_ = it;
+
+    // HACK: dirty way to deduplicate unique events
+    if ( it == tasks_.begin() )
+    {
+        return;
+    }
+
+    const auto priority = pTask->priority_;
+    if ( priority == EventPriority::kResize || priority == EventPriority::kRedraw )
+    {
+        auto prevIt = std::prev( it );
+        auto pPrevTask = *prevIt;
+        if ( !pPrevTask->isInProgress_ && pPrevTask->priority_ == priority )
+        {
+            tasks_.erase( prevIt );
+        }
+    }
 }
 
 void TaskController::AddRunnable( std::shared_ptr<Runnable> pRunnable, EventPriority priority )
@@ -99,6 +108,10 @@ bool TaskController::ExecuteNextTask()
 
     auto pTask = *it;
     tasks_.erase( pTask->taskIterator_ );
+
+    pTask->taskIterator_ = tasks_.end();
+    pTask->isInProgress_ = true;
+
     { // allow other tasks to be queued
         ul.unlock();
         qwr::final_action autoLock( [&] {
@@ -107,6 +120,8 @@ bool TaskController::ExecuteNextTask()
 
         pTask->Run();
     }
+
+    pTask->isInProgress_ = false;
 
     return true;
 }

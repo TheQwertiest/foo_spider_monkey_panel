@@ -17,8 +17,6 @@ public:
     Task( EventPriority priority = EventPriority::kNormal );
     virtual ~Task() = default;
 
-    EventPriority GetPriority() const;
-    int64_t GetTaskNumber() const;
     virtual void Run() = 0;
 
 protected:
@@ -27,8 +25,8 @@ protected:
 private:
     static std::atomic<uint64_t> g_currentTaskNumber;
 
-    EventPriority priority_;
-    int64_t taskNumber_;
+    const EventPriority priority_;
+    const uint64_t taskNumber_;
 
     struct PriorityCompare
     {
@@ -50,7 +48,6 @@ private:
     std::shared_ptr<Runnable> pRunnable_;
 };
 
-// https://searchfox.org/mozilla-central/source/xpcom/threads/TaskController.cpp
 class TaskController : public std::enable_shared_from_this<TaskController>
 {
 public:
