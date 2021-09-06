@@ -1,7 +1,7 @@
 #include <stdafx.h>
 
 #include <config/delayed_package_utils.h>
-#include <events/event_manager.h>
+#include <events/event_dispatcher.h>
 #include <js_engine/js_engine.h>
 #include <utils/thread_pool_instance.h>
 
@@ -161,7 +161,7 @@ public:
     void on_quit() override
     { // Careful when changing invocation order here!
         mozjs::JsEngine::GetInstance().PrepareForExit();
-        smp::EventManager::Get().NotifyAllAboutExit();
+        smp::EventDispatcher::Get().NotifyAllAboutExit();
         qwr::GlobalAbortCallback::GetInstance().Abort();
         smp::GetThreadPoolInstance().Finalize();
     }

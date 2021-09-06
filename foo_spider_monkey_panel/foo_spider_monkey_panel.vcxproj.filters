@@ -370,7 +370,7 @@
     <ClCompile Include="events\event_js_task.cpp">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="events\event_manager.cpp">
+    <ClCompile Include="events\event_dispatcher.cpp">
       <Filter>events</Filter>
     </ClCompile>
     <ClCompile Include="events\event_mouse.cpp">
@@ -841,7 +841,7 @@
     <ClInclude Include="events\event_js_task.h">
       <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="events\event_manager.h">
+    <ClInclude Include="events\event_dispatcher.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\event_mouse.h">

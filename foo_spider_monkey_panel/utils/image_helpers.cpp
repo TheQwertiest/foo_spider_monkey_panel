@@ -2,8 +2,8 @@
 
 #include "image_helpers.h"
 
+#include <events/event_dispatcher.h>
 #include <events/event_js_callback.h>
-#include <events/event_manager.h>
 #include <utils/gdi_helpers.h>
 #include <utils/guid_helpers.h>
 #include <utils/thread_pool_instance.h>
@@ -62,12 +62,12 @@ void LoadImageTask::run()
 {
     const qwr::u8string path = file_path_display( qwr::unicode::ToU8( imagePath_ ).c_str() ).get_ptr();
 
-    EventManager::Get().PutEvent( hNotifyWnd_,
-                                  GenerateEvent_JsCallback(
-                                      EventId::kInternalLoadImageDone,
-                                      taskId_,
-                                      image::LoadImage( imagePath_ ),
-                                      path ) );
+    EventDispatcher::Get().PutEvent( hNotifyWnd_,
+                                     GenerateEvent_JsCallback(
+                                         EventId::kInternalLoadImageDone,
+                                         taskId_,
+                                         image::LoadImage( imagePath_ ),
+                                         path ) );
 }
 
 } // namespace

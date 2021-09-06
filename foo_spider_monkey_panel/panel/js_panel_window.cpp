@@ -7,9 +7,9 @@
 #include <config/delayed_package_utils.h>
 #include <config/package_utils.h>
 #include <events/event_basic.h>
+#include <events/event_dispatcher.h>
 #include <events/event_drag.h>
 #include <events/event_js_callback.h>
-#include <events/event_manager.h>
 #include <events/event_mouse.h>
 #include <fb2k/mainmenu_dynamic.h>
 #include <js_engine/js_container.h>
@@ -219,12 +219,14 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         com::DeleteMarkedObjects();
     } );
 
-    if ( EventManager::IsRequestEventMessage( msg ) )
+    if ( EventDispatcher::IsRequestEventMessage( msg ) )
     {
+        EventDispatcher::Get().OnRequestEventMessageReceived( wnd_ );
+
         static uint32_t nestedCounter = 0;
         ++nestedCounter;
 
-        qwr::final_action jobsRunner( [hWnd = wnd_.m_hWnd] {
+        qwr::final_action onEventProcessed( [hWnd = wnd_.m_hWnd] {
             --nestedCounter;
 
             if ( !nestedCounter )
@@ -234,15 +236,13 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             }
             if ( !nestedCounter || modal::IsModalBlocked() )
             {
-                // TODO: reduce the amount of extra `next event` messages
-                // by keeping the track of their current state
-                EventManager::Get().RequestNextEvent( hWnd );
+                EventDispatcher::Get().RequestNextEvent( hWnd );
             }
         } );
 
         if ( nestedCounter == 1 || modal::IsModalBlocked() )
         {
-            EventManager::Get().ProcessNextEvent( wnd_ );
+            EventDispatcher::Get().ProcessNextEvent( wnd_ );
         }
     }
     else
@@ -389,13 +389,13 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
 
         if ( useDefaultContextMenu )
         {
-            EventManager::Get().PutEvent( wnd_,
-                                          std::make_unique<Event_Mouse>(
-                                              EventId::kMouseContextMenu,
-                                              pEvent->GetX(),
-                                              pEvent->GetY(),
-                                              0 ),
-                                          EventPriority::kInput );
+            EventDispatcher::Get().PutEvent( wnd_,
+                                             std::make_unique<Event_Mouse>(
+                                                 EventId::kMouseContextMenu,
+                                                 pEvent->GetX(),
+                                                 pEvent->GetY(),
+                                                 0 ),
+                                             EventPriority::kInput );
         }
 
         break;
@@ -556,14 +556,14 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     case WM_DISPLAYCHANGE:
     case WM_THEMECHANGED:
     {
-        EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
         return 0;
     }
     case WM_ERASEBKGND:
     {
         if ( settings_.isPseudoTransparent )
         {
-            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
         }
         return 1;
     }
@@ -574,7 +574,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
             return std::nullopt;
         }
 
-        EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndPaint ), EventPriority::kRedraw );
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndPaint ), EventPriority::kRedraw );
         hasPendingPaintEvent_ = true;
 
         return 0;
@@ -585,7 +585,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         wnd_.GetClientRect( &rc );
         OnSizeDefault( rc.Width(), rc.Height() );
 
-        EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
 
         return 0;
     }
@@ -617,13 +617,13 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
         SetCaptureMouseState( true );
 
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          kMsgToEventId.at( msg ),
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             kMsgToEventId.at( msg ),
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_LBUTTONUP:
@@ -639,13 +639,13 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
             SetCaptureMouseState( false );
         }
 
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          kMsgToEventId.at( msg ),
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             kMsgToEventId.at( msg ),
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_RBUTTONUP:
@@ -655,47 +655,47 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
             SetCaptureMouseState( false );
         }
 
-        EventManager::Get().PutEvent( wnd_,
-                                      std::make_unique<Event_Mouse>(
-                                          EventId::kMouseRightButtonUp,
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         std::make_unique<Event_Mouse>(
+                                             EventId::kMouseRightButtonUp,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
 
         return 0;
     }
     case WM_LBUTTONDBLCLK:
     {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kMouseLeftButtonDoubleClick,
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseLeftButtonDoubleClick,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_MBUTTONDBLCLK:
     {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kMouseMiddleButtonDoubleClick,
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseMiddleButtonDoubleClick,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_RBUTTONDBLCLK:
     {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kMouseRightButtonDoubleClick,
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseRightButtonDoubleClick,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_CONTEXTMENU:
@@ -703,13 +703,13 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         // WM_CONTEXTMENU receives screen coordinates
         POINT p{ GET_X_LPARAM( lp ), GET_Y_LPARAM( lp ) };
         ScreenToClient( wnd_, &p );
-        EventManager::Get().PutEvent( wnd_,
-                                      std::make_unique<Event_Mouse>(
-                                          EventId::kMouseContextMenu,
-                                          p.x,
-                                          p.y,
-                                          0 ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         std::make_unique<Event_Mouse>(
+                                             EventId::kMouseContextMenu,
+                                             p.x,
+                                             p.y,
+                                             0 ),
+                                         EventPriority::kInput );
 
         return 1;
     }
@@ -726,13 +726,13 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
             SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
         }
 
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kMouseMove,
-                                          static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                          static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseMove,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_MOUSELEAVE:
@@ -742,29 +742,29 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         // Restore default cursor
         SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
 
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback( EventId::kMouseLeave ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback( EventId::kMouseLeave ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_MOUSEWHEEL:
     {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kMouseVerticalWheel,
-                                          static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ),
-                                          static_cast<int32_t>( GET_WHEEL_DELTA_WPARAM( wp ) ),
-                                          static_cast<int32_t>( WHEEL_DELTA ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseVerticalWheel,
+                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ),
+                                             static_cast<int32_t>( GET_WHEEL_DELTA_WPARAM( wp ) ),
+                                             static_cast<int32_t>( WHEEL_DELTA ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_MOUSEHWHEEL:
     {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kMouseHorizontalWheel,
-                                          static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseHorizontalWheel,
+                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_SETCURSOR:
@@ -774,48 +774,48 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
     {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kKeyboardKeyDown,
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kKeyboardKeyDown,
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return 0;
     }
     case WM_KEYUP:
     {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kKeyboardKeyUp,
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kKeyboardKeyUp,
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return 0;
     }
     case WM_CHAR:
     {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kKeyboardChar,
-                                          static_cast<uint32_t>( wp ) ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kKeyboardChar,
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return 0;
     }
     case WM_SETFOCUS:
     {
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kInputFocus,
-                                          true ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kInputFocus,
+                                             true ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_KILLFOCUS:
     {
         selectionHolder_.release();
-        EventManager::Get().PutEvent( wnd_,
-                                      GenerateEvent_JsCallback(
-                                          EventId::kInputFocus,
-                                          false ),
-                                      EventPriority::kInput );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kInputFocus,
+                                             false ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     default:
@@ -1008,7 +1008,7 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         {
         case 1:
         {
-            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
             break;
         }
         case 2:
@@ -1023,17 +1023,17 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         }
         case 4:
         {
-            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptEdit ), EventPriority::kControl );
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptEdit ), EventPriority::kControl );
             break;
         }
         case 5:
         {
-            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowProperties ), EventPriority::kControl );
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowProperties ), EventPriority::kControl );
             break;
         }
         case 6:
         {
-            EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ), EventPriority::kControl );
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ), EventPriority::kControl );
             break;
         }
         }
@@ -1313,7 +1313,7 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     if ( !isFirstLoad )
     { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
         // We need to go through message loop to handle all JS logic correctly (e.g. jobs).
-        EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
     }
 
     return true;
@@ -1405,7 +1405,7 @@ void js_panel_window::OnCreate( HWND hWnd )
     CreateDrawContext();
 
     pTarget_ = std::make_shared<PanelTarget>( *this );
-    EventManager::Get().AddWindow( wnd_, pTarget_ );
+    EventDispatcher::Get().AddWindow( wnd_, pTarget_ );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
     pTimeoutManager_ = std::make_unique<TimeoutManager>( pTarget_ );
@@ -1430,7 +1430,7 @@ void js_panel_window::OnDestroy()
         pTimeoutManager_.reset();
     }
 
-    EventManager::Get().RemoveWindow( wnd_ );
+    EventDispatcher::Get().RemoveWindow( wnd_ );
 
     pJsContainer_.reset();
 
@@ -1544,7 +1544,7 @@ void js_panel_window::OnSizeUser( uint32_t w, uint32_t h )
 
     if ( settings_.isPseudoTransparent )
     {
-        EventManager::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
     }
     else
     {

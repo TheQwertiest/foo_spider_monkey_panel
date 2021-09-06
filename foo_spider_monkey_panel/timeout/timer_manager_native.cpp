@@ -2,7 +2,7 @@
 
 #include "timer_manager_native.h"
 
-#include <events/event_manager.h>
+#include <events/event_dispatcher.h>
 #include <events/event_timer.h>
 #include <panel/js_panel_window.h>
 #include <timeout/timer_native.h>
@@ -85,7 +85,7 @@ void TimerManager_Native::DestroyNativeTimer( HANDLE hTimer, bool waitForDestruc
 
 void TimerManager_Native::PostTimerEvent( std::shared_ptr<Timer_Native> pTimer )
 {
-    EventManager::Get().PutEvent( pTimer->Target().GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
+    EventDispatcher::Get().PutEvent( pTimer->Target().GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
 }
 
 } // namespace smp

@@ -3,8 +3,8 @@
 #include "js_art_helpers.h"
 
 #include <convert/native_to_js.h>
+#include <events/event_dispatcher.h>
 #include <events/event_js_task.h>
-#include <events/event_manager.h>
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
@@ -122,9 +122,9 @@ void AlbumArtV2FetchTask::operator()()
 
     jsTask_->SetData( std::move( bitmap ), imagePath );
 
-    EventManager::Get().PutEvent( hNotifyWnd_,
-                                  std::make_unique<Event_JsTask>(
-                                      EventId::kInternalGetAlbumArtPromiseDone, jsTask_ ) );
+    EventDispatcher::Get().PutEvent( hNotifyWnd_,
+                                     std::make_unique<Event_JsTask>(
+                                         EventId::kInternalGetAlbumArtPromiseDone, jsTask_ ) );
 }
 
 JsAlbumArtTask::JsAlbumArtTask( JSContext* cx,

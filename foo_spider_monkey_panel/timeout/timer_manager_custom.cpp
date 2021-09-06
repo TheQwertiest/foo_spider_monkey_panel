@@ -4,7 +4,7 @@
 
 #include "timer_manager_custom.h"
 
-#include <events/event_manager.h>
+#include <events/event_dispatcher.h>
 #include <events/event_timer.h>
 #include <panel/js_panel_window.h>
 #include <timeout/timer_custom.h>
@@ -112,7 +112,7 @@ void TimerManager_Custom::ThreadMain()
             waitUntilOpt.reset();
             RemoveFirstTimerInternal();
 
-            EventManager::Get().PutEvent( pTimer->Target().GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
+            EventDispatcher::Get().PutEvent( pTimer->Target().GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
         }
 
         // spurious wake up guard has a HUUUUGE CPU overhead, hence we don't use it

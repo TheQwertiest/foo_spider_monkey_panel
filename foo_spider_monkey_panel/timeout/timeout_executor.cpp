@@ -4,7 +4,7 @@
 
 #include "timeout_executor.h"
 
-#include <events/event_manager.h>
+#include <events/event_dispatcher.h>
 #include <fb2k/advanced_config.h>
 #include <panel/js_panel_window.h>
 #include <timeout/timeout_manager.h>
@@ -136,7 +136,7 @@ void TimeoutExecutor::ScheduleImmediate( const TimeStamp& targetDeadline, const 
     assert( mode_ == Mode::None );
     assert( targetDeadline <= ( now + GetAllowedEarlyFiringTime() ) );
 
-    EventManager::Get().PutRunnable( pTarget_->GetHwnd(), shared_from_this() );
+    EventDispatcher::Get().PutRunnable( pTarget_->GetHwnd(), shared_from_this() );
 
     mode_ = Mode::Immediate;
     deadlineOpt_ = targetDeadline;

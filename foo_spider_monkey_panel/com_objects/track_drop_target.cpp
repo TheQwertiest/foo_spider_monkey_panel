@@ -3,8 +3,8 @@
 #include "track_drop_target.h"
 
 #include <com_objects/internal/drag_utils.h>
+#include <events/event_dispatcher.h>
 #include <events/event_drag.h>
-#include <events/event_manager.h>
 #include <js_engine/js_container.h>
 #include <js_objects/drop_source_action.h>
 #include <js_objects/global_object.h>
@@ -158,7 +158,7 @@ TrackDropTarget::PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, DW
 
     // process system stuff first (e.g. mouse capture)
     SendMessage( pPanel_->GetHWND(), static_cast<UINT>( eventToMsg.at( eventId ) ), 0, 0 );
-    EventManager::Get().PutEvent( hWnd_, std::make_unique<Event_Drag>( eventId, pt.x, pt.y, grfKeyState, dragParams ), EventPriority::kInput );
+    EventDispatcher::Get().PutEvent( hWnd_, std::make_unique<Event_Drag>( eventId, pt.x, pt.y, grfKeyState, dragParams ), EventPriority::kInput );
 
     return pPanel_->GetLastDragParams();
 }

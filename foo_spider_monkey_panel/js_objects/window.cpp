@@ -4,7 +4,7 @@
 
 #include <config/package_utils.h>
 #include <events/event_basic.h>
-#include <events/event_manager.h>
+#include <events/event_dispatcher.h>
 #include <events/event_notify_others.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_invoker.h>
@@ -445,7 +445,7 @@ void JsWindow::EditScript()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptEdit ), EventPriority::kControl );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptEdit ), EventPriority::kControl );
 }
 
 uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
@@ -598,8 +598,8 @@ void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
         return;
     }
 
-    EventManager::Get().PutEventToOthers( parentPanel_.GetHWND(),
-                                          std::make_unique<Event_NotifyOthers>( pJsCtx_, name, info ) );
+    EventDispatcher::Get().PutEventToOthers( parentPanel_.GetHWND(),
+                                             std::make_unique<Event_NotifyOthers>( pJsCtx_, name, info ) );
 }
 
 void JsWindow::Reload()
@@ -609,7 +609,7 @@ void JsWindow::Reload()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
 }
 
 void JsWindow::Repaint( bool force )
@@ -766,7 +766,7 @@ void JsWindow::ShowConfigure()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowConfigureLegacy ), EventPriority::kControl );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowConfigureLegacy ), EventPriority::kControl );
 }
 
 void JsWindow::ShowConfigureV2()
@@ -776,7 +776,7 @@ void JsWindow::ShowConfigureV2()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ), EventPriority::kControl );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ), EventPriority::kControl );
 }
 
 void JsWindow::ShowProperties()
@@ -786,7 +786,7 @@ void JsWindow::ShowProperties()
         return;
     }
 
-    EventManager::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowProperties ), EventPriority::kControl );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowProperties ), EventPriority::kControl );
 }
 
 uint32_t JsWindow::get_DlgCode()

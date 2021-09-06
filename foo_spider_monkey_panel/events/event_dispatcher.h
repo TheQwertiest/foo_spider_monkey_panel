@@ -14,14 +14,14 @@ namespace smp
 class TaskController;
 class js_panel_window;
 
-class EventManager
+class EventDispatcher
 {
 public:
-    EventManager() = default;
-    EventManager( const EventManager& ) = delete;
-    EventManager& operator=( const EventManager& ) = delete;
+    EventDispatcher() = default;
+    EventDispatcher( const EventDispatcher& ) = delete;
+    EventDispatcher& operator=( const EventDispatcher& ) = delete;
 
-    static EventManager& Get();
+    static EventDispatcher& Get();
 
 public:
     void AddWindow( HWND hWnd, std::shared_ptr<PanelTarget> pTarget );
@@ -33,6 +33,7 @@ public:
     static bool IsRequestEventMessage( UINT msg );
     bool ProcessNextEvent( HWND hWnd );
     void RequestNextEvent( HWND hWnd );
+    void OnRequestEventMessageReceived( HWND hWnd );
 
 public: // these can be invoked from worker threads
     void PutRunnable( HWND hWnd, std::shared_ptr<Runnable> pRunnable, EventPriority priority = EventPriority::kNormal );
@@ -49,8 +50,14 @@ public: // these can be invoked from worker threads
     void PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
 
 private:
+    void RequestNextEventImpl( HWND hWnd, TaskController& taskController, std::scoped_lock<std::mutex>& proof );
+
+private:
     std::mutex taskControllerMapMutex_;
     std::unordered_map<HWND, std::shared_ptr<TaskController>> taskControllerMap_;
+
+    using IsWaitingForNextMsg = bool;
+    std::unordered_map<HWND, IsWaitingForNextMsg> nextEventMsgStatusMap_;
 };
 
 } // namespace smp

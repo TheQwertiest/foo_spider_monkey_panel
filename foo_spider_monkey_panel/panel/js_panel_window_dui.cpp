@@ -3,8 +3,8 @@
 #include "js_panel_window_dui.h"
 
 #include <com_objects/drop_target_impl.h>
+#include <events/event_dispatcher.h>
 #include <events/event_js_callback.h>
-#include <events/event_manager.h>
 #include <utils/colour_helpers.h>
 
 namespace
@@ -249,11 +249,11 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_siz
     }
     else if ( p_what == ui_element_notify_font_changed )
     {
-        EventManager::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiFontChanged ) );
+        EventDispatcher::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiFontChanged ) );
     }
     else if ( p_what == ui_element_notify_colors_changed )
     {
-        EventManager::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiColoursChanged ) );
+        EventDispatcher::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiColoursChanged ) );
     }
 }
 

@@ -3,8 +3,8 @@
 #include "js_panel_window_cui.h"
 
 #include <com_objects/drop_target_impl.h>
+#include <events/event_dispatcher.h>
 #include <events/event_js_callback.h>
-#include <events/event_manager.h>
 #include <utils/colour_helpers.h>
 
 namespace
@@ -178,12 +178,12 @@ void js_panel_window_cui::on_bool_changed( t_size ) const
 
 void js_panel_window_cui::on_colour_changed( t_size ) const
 {
-    EventManager::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiColoursChanged ) );
+    EventDispatcher::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiColoursChanged ) );
 }
 
 void js_panel_window_cui::on_font_changed( t_size ) const
 {
-    EventManager::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiFontChanged ) );
+    EventDispatcher::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiFontChanged ) );
 }
 
 void js_panel_window_cui::set_config( stream_reader* reader, t_size size, abort_callback& abort )

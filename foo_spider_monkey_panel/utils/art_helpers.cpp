@@ -2,8 +2,8 @@
 
 #include "art_helpers.h"
 
+#include <events/event_dispatcher.h>
 #include <events/event_js_callback.h>
-#include <events/event_manager.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/thread_pool_instance.h>
@@ -62,13 +62,13 @@ void AlbumArtFetchTask::run()
     qwr::u8string imagePath;
     auto bitmap = art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
 
-    EventManager::Get().PutEvent( hNotifyWnd_,
-                                  GenerateEvent_JsCallback(
-                                      EventId::kInternalGetAlbumArtDone,
-                                      handle_,
-                                      artId_,
-                                      std::move( bitmap ),
-                                      imagePath ) );
+    EventDispatcher::Get().PutEvent( hNotifyWnd_,
+                                     GenerateEvent_JsCallback(
+                                         EventId::kInternalGetAlbumArtDone,
+                                         handle_,
+                                         artId_,
+                                         std::move( bitmap ),
+                                         imagePath ) );
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )

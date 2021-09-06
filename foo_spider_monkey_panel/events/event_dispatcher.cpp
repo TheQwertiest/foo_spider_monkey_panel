@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "event_manager.h"
+#include "event_dispatcher.h"
 
 #include <events/task_controller.h>
 #include <panel/user_message.h>
@@ -10,29 +10,31 @@
 namespace smp
 {
 
-EventManager& EventManager::Get()
+EventDispatcher& EventDispatcher::Get()
 {
-    static EventManager em;
+    static EventDispatcher em;
     return em;
 }
 
-void EventManager::AddWindow( HWND hWnd, std::shared_ptr<PanelTarget> pTarget )
+void EventDispatcher::AddWindow( HWND hWnd, std::shared_ptr<PanelTarget> pTarget )
 {
     std::unique_lock ul( taskControllerMapMutex_ );
 
     assert( !taskControllerMap_.contains( hWnd ) );
     taskControllerMap_.try_emplace( hWnd, std::make_shared<TaskController>( pTarget ) );
+    nextEventMsgStatusMap_.try_emplace( hWnd, true );
 }
 
-void EventManager::RemoveWindow( HWND hWnd )
+void EventDispatcher::RemoveWindow( HWND hWnd )
 {
     std::unique_lock ul( taskControllerMapMutex_ );
 
     assert( taskControllerMap_.contains( hWnd ) );
     taskControllerMap_.erase( hWnd );
+    nextEventMsgStatusMap_.erase( hWnd );
 }
 
-void EventManager::NotifyAllAboutExit()
+void EventDispatcher::NotifyAllAboutExit()
 {
     std::vector<HWND> hWnds;
     hWnds.reserve( taskControllerMap_.size() );
@@ -51,12 +53,12 @@ void EventManager::NotifyAllAboutExit()
     }
 }
 
-bool EventManager::IsRequestEventMessage( UINT msg )
+bool EventDispatcher::IsRequestEventMessage( UINT msg )
 {
     return ( msg == static_cast<UINT>( MiscMessage::run_next_event ) );
 }
 
-bool EventManager::ProcessNextEvent( HWND hWnd )
+bool EventDispatcher::ProcessNextEvent( HWND hWnd )
 {
     auto pTaskController = [&] {
         std::unique_lock ul( taskControllerMapMutex_ );
@@ -72,7 +74,7 @@ bool EventManager::ProcessNextEvent( HWND hWnd )
     return pTaskController->ExecuteNextTask();
 }
 
-void EventManager::RequestNextEvent( HWND hWnd )
+void EventDispatcher::RequestNextEvent( HWND hWnd )
 {
     std::scoped_lock sl( taskControllerMapMutex_ );
 
@@ -82,15 +84,48 @@ void EventManager::RequestNextEvent( HWND hWnd )
         return;
     }
 
-    if ( !taskControllerIt->second->HasTasks() )
+    RequestNextEventImpl( hWnd, *taskControllerIt->second, sl );
+}
+
+void EventDispatcher::RequestNextEventImpl( HWND hWnd, TaskController& taskController, std::scoped_lock<std::mutex>& proof )
+{
+    if ( !taskController.HasTasks() )
     {
         return;
     }
 
-    PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
+    const auto isWaitingForMsgIt = nextEventMsgStatusMap_.find( hWnd );
+    if ( isWaitingForMsgIt == nextEventMsgStatusMap_.end() )
+    {
+        assert( false );
+        return;
+    }
+
+    if ( isWaitingForMsgIt->second )
+    {
+        isWaitingForMsgIt->second = false;
+        PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
+    }
+    else
+    {
+        isWaitingForMsgIt->second = false;
+    }
 }
 
-void EventManager::PutRunnable( HWND hWnd, std::shared_ptr<Runnable> pRunnable, EventPriority priority )
+void EventDispatcher::OnRequestEventMessageReceived( HWND hWnd )
+{
+    std::scoped_lock sl( taskControllerMapMutex_ );
+
+    auto isWaitingForMsgIt = nextEventMsgStatusMap_.find( hWnd );
+    if ( isWaitingForMsgIt == nextEventMsgStatusMap_.end() )
+    {
+        return;
+    }
+
+    isWaitingForMsgIt->second = true;
+}
+
+void EventDispatcher::PutRunnable( HWND hWnd, std::shared_ptr<Runnable> pRunnable, EventPriority priority )
 {
     std::scoped_lock sl( taskControllerMapMutex_ );
 
@@ -103,10 +138,10 @@ void EventManager::PutRunnable( HWND hWnd, std::shared_ptr<Runnable> pRunnable, 
     auto pTaskController = taskControllerIt->second;
     pTaskController->AddRunnable( std::move( pRunnable ), priority );
 
-    PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
+    RequestNextEventImpl( hWnd, *pTaskController, sl );
 }
 
-void EventManager::PutEvent( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority )
+void EventDispatcher::PutEvent( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority )
 {
     std::scoped_lock sl( taskControllerMapMutex_ );
 
@@ -120,10 +155,10 @@ void EventManager::PutEvent( HWND hWnd, std::unique_ptr<EventBase> pEvent, Event
     pEvent->SetTarget( pTaskController->GetTarget() );
     pTaskController->AddRunnable( std::move( pEvent ), priority );
 
-    PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
+    RequestNextEventImpl( hWnd, *pTaskController, sl );
 }
 
-void EventManager::PutEventToAll( std::unique_ptr<EventBase> pEvent, EventPriority priority )
+void EventDispatcher::PutEventToAll( std::unique_ptr<EventBase> pEvent, EventPriority priority )
 {
     std::scoped_lock sl( taskControllerMapMutex_ );
 
@@ -144,11 +179,11 @@ void EventManager::PutEventToAll( std::unique_ptr<EventBase> pEvent, EventPriori
         pClonedEvent->SetTarget( pTaskController->GetTarget() );
         pTaskController->AddRunnable( std::move( pClonedEvent ), priority );
 
-        PostMessage( hLocalWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
+        RequestNextEventImpl( hLocalWnd, *pTaskController, sl );
     }
 }
 
-void EventManager::PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority )
+void EventDispatcher::PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority )
 {
     std::scoped_lock sl( taskControllerMapMutex_ );
 
@@ -169,7 +204,7 @@ void EventManager::PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pEven
         pClonedEvent->SetTarget( pTaskController->GetTarget() );
         pTaskController->AddRunnable( std::move( pClonedEvent ), priority );
 
-        PostMessage( hLocalWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
+        RequestNextEventImpl( hLocalWnd, *pTaskController, sl );
     }
 }
 

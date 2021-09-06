@@ -1,7 +1,7 @@
 #include <stdafx.h>
 
+#include <events/event_dispatcher.h>
 #include <events/event_js_callback.h>
-#include <events/event_manager.h>
 #include <fb2k/playlist_lock.h>
 
 #include <qwr/error_popup.h>
@@ -144,7 +144,7 @@ void InitStageCallback::on_init_stage( t_uint32 stage )
 
 void my_initquit::on_selection_changed( metadb_handle_list_cref )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbSelectionChanged ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbSelectionChanged ) );
 }
 
 void my_initquit::on_init()
@@ -175,37 +175,37 @@ void my_initquit::on_quit()
 
 void my_initquit::on_changed( t_replaygain_config const& cfg )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbReplaygainModeChanged, static_cast<uint32_t>( cfg.m_source_mode ) ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbReplaygainModeChanged, static_cast<uint32_t>( cfg.m_source_mode ) ) );
 }
 
 void my_initquit::outputConfigChanged()
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbOutputDeviceChanged ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbOutputDeviceChanged ) );
 }
 
 void my_dsp_config_callback::on_core_settings_change( const dsp_chain_config& )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbDspPresetChanged ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbDspPresetChanged ) );
 }
 
 void my_library_callback::on_items_added( metadb_handle_list_cref p_data )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsAdded, std::make_shared<metadb_handle_list>( std::move( p_data ) ) ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsAdded, std::make_shared<metadb_handle_list>( std::move( p_data ) ) ) );
 }
 
 void my_library_callback::on_items_modified( metadb_handle_list_cref p_data )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsChanged, std::make_shared<metadb_handle_list>( std::move( p_data ) ) ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsChanged, std::make_shared<metadb_handle_list>( std::move( p_data ) ) ) );
 }
 
 void my_library_callback::on_items_removed( metadb_handle_list_cref p_data )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsRemoved, std::make_shared<metadb_handle_list>( std::move( p_data ) ) ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsRemoved, std::make_shared<metadb_handle_list>( std::move( p_data ) ) ) );
 }
 
 void my_metadb_io_callback::on_changed_sorted( metadb_handle_list_cref p_items_sorted, bool p_fromhook )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbMetadbChanged, std::make_shared<metadb_handle_list>( std::move( p_items_sorted ) ), p_fromhook ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbMetadbChanged, std::make_shared<metadb_handle_list>( std::move( p_items_sorted ) ), p_fromhook ) );
 }
 
 unsigned my_play_callback_static::get_flags()
@@ -215,62 +215,62 @@ unsigned my_play_callback_static::get_flags()
 
 void my_play_callback_static::on_playback_dynamic_info( const file_info& )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackDynamicInfo ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackDynamicInfo ) );
 }
 
 void my_play_callback_static::on_playback_dynamic_info_track( const file_info& )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackDynamicInfoTrack ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackDynamicInfoTrack ) );
 }
 
 void my_play_callback_static::on_playback_edited( metadb_handle_ptr track )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackEdited, track ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackEdited, track ) );
 }
 
 void my_play_callback_static::on_playback_new_track( metadb_handle_ptr track )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackNewTrack, track ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackNewTrack, track ) );
 }
 
 void my_play_callback_static::on_playback_pause( bool state )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackPause, state ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackPause, state ) );
 }
 
 void my_play_callback_static::on_playback_seek( double time )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackSeek, time ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackSeek, time ) );
 }
 
 void my_play_callback_static::on_playback_starting( play_control::t_track_command cmd, bool paused )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackStarting, static_cast<uint32_t>( cmd ), paused ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackStarting, static_cast<uint32_t>( cmd ), paused ) );
 }
 
 void my_play_callback_static::on_playback_stop( play_control::t_stop_reason reason )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackStop, static_cast<uint32_t>( reason ) ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackStop, static_cast<uint32_t>( reason ) ) );
 }
 
 void my_play_callback_static::on_playback_time( double time )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackTime, time ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackTime, time ) );
 }
 
 void my_play_callback_static::on_volume_change( float newval )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbVolumeChange, newval ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbVolumeChange, newval ) );
 }
 
 void my_playback_queue_callback::on_changed( t_change_origin p_origin )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackQueueChanged, static_cast<uint32_t>( p_origin ) ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackQueueChanged, static_cast<uint32_t>( p_origin ) ) );
 }
 
 void my_playback_statistics_collector::on_item_played( metadb_handle_ptr p_item )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbItemPlayed, p_item ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbItemPlayed, p_item ) );
 }
 
 my_config_object_notify::my_config_object_notify()
@@ -307,7 +307,7 @@ void my_config_object_notify::on_watched_object_changed( const config_object::pt
 
     bool boolval;
     p_object->get_data_bool( boolval );
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( it->second, boolval ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( it->second, boolval ) );
 }
 
 unsigned my_playlist_callback_static::get_flags()
@@ -321,17 +321,17 @@ void my_playlist_callback_static::on_default_format_changed()
 
 void my_playlist_callback_static::on_item_ensure_visible( t_size p_playlist, t_size p_idx )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemEnsureVisible, p_playlist, p_idx ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemEnsureVisible, p_playlist, p_idx ) );
 }
 
 void my_playlist_callback_static::on_item_focus_change( t_size p_playlist, t_size p_from, t_size p_to )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbItemFocusChange, p_playlist, p_from, p_to ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbItemFocusChange, p_playlist, p_from, p_to ) );
 }
 
 void my_playlist_callback_static::on_items_added( t_size p_playlist, t_size, metadb_handle_list_cref, const pfc::bit_array& )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsAdded, p_playlist ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsAdded, p_playlist ) );
 }
 
 void my_playlist_callback_static::on_items_removing( t_size p_playlist, const pfc::bit_array& p_mask, t_size p_old_count, t_size p_new_count )
@@ -340,12 +340,12 @@ void my_playlist_callback_static::on_items_removing( t_size p_playlist, const pf
 
 void my_playlist_callback_static::on_items_removed( t_size p_playlist, const pfc::bit_array&, t_size, t_size p_new_count )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsRemoved, p_playlist, p_new_count ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsRemoved, p_playlist, p_new_count ) );
 }
 
 void my_playlist_callback_static::on_items_reordered( t_size p_playlist, const t_size*, t_size )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsReordered, p_playlist ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsReordered, p_playlist ) );
 }
 
 void my_playlist_callback_static::on_items_replaced( t_size p_playlist, const pfc::bit_array& p_mask, const pfc::list_base_const_t<t_on_items_replaced_entry>& p_data )
@@ -354,7 +354,7 @@ void my_playlist_callback_static::on_items_replaced( t_size p_playlist, const pf
 
 void my_playlist_callback_static::on_items_selection_change( t_size, const pfc::bit_array&, const pfc::bit_array& )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsSelectionChange ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistItemsSelectionChange ) );
 }
 
 void my_playlist_callback_static::on_items_modified( t_size p_playlist, const pfc::bit_array& p_mask )
@@ -367,7 +367,7 @@ void my_playlist_callback_static::on_items_modified_fromplayback( t_size p_playl
 
 void my_playlist_callback_static::on_playback_order_changed( t_size p_new_index )
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackOrderChanged, p_new_index ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaybackOrderChanged, p_new_index ) );
 }
 
 void my_playlist_callback_static::on_playlist_activate( t_size p_old, t_size p_new )
@@ -409,12 +409,12 @@ void my_playlist_callback_static::on_playlists_reorder( const t_size*, t_size )
 
 void my_playlist_callback_static::on_playlist_switch()
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistSwitch ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistSwitch ) );
 }
 
 void my_playlist_callback_static::on_playlists_changed()
 {
-    EventManager::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistsChanged ) );
+    EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbPlaylistsChanged ) );
 }
 
 } // namespace
