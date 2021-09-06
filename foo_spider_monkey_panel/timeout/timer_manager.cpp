@@ -80,7 +80,7 @@ void TimerManager::ThreadMain()
     {
         std::unique_lock sl( threadMutex_ );
 
-        std::optional<TimeDuration> waitForOpt;
+        std::optional<TimeStamp> waitUntilOpt;
         while ( hasWorkToDo() )
         {
             RemoveLeadingCanceledTimersInternal();
@@ -93,10 +93,18 @@ void TimerManager::ThreadMain()
             auto pTimer = timers_.front()->Value();
             assert( pTimer );
 
-            const auto timeDiff = std::chrono::duration_cast<std::chrono::microseconds>( pTimer->When() - TimeStamp::clock::now() );
-            if ( timeDiff > GetAllowedEarlyFiringTime() )
+            const auto now = TimeStamp::clock::now();
+            if ( now < pTimer->When() - GetAllowedEarlyFiringTime() )
             {
-                waitForOpt = timeDiff;
+                // clamp to ms
+                auto diffInMs = std::chrono::duration_cast<std::chrono::milliseconds>( pTimer->When() - TimeStamp::clock::now() );
+                if ( !diffInMs.count() )
+                { // round sub-millisecond waits to 1
+                    diffInMs = std::chrono::milliseconds( 1 );
+                }
+
+                waitUntilOpt = now + diffInMs;
+
                 break;
             }
 
@@ -106,28 +114,18 @@ void TimerManager::ThreadMain()
             auto pPanel = pTimer->Target().GetPanel();
             if ( pPanel )
             {
-                // TODO: uncomment if needed
-                assert( false );
-                //EventManager::Get().PutEvent( pPanel->GetHWND(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
+                EventManager::Get().PutEvent( pPanel->GetHWND(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
             }
         }
 
-        if ( waitForOpt )
+        // we don't care about wake ups here
+        if ( waitUntilOpt )
         {
-            cv_.wait_for(
-                sl,
-                *waitForOpt,
-                [&] {
-                    return hasWorkToDo();
-                } );
+            cv_.wait_until( sl, *waitUntilOpt );
         }
         else
         {
-            cv_.wait(
-                sl,
-                [&] {
-                    return hasWorkToDo();
-                } );
+            cv_.wait( sl );
         }
     }
 }
@@ -282,7 +280,7 @@ void Timer::Fire( uint64_t generation )
     }
 }
 
-void Timer::Cancel()
+void Timer::Cancel( bool /*waitForDestruction*/ )
 {
     std::scoped_lock sl( mutex_ );
 

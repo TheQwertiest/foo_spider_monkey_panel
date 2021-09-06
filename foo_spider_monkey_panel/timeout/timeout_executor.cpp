@@ -7,8 +7,8 @@
 #include <events/event_manager.h>
 #include <panel/js_panel_window.h>
 #include <timeout/timeout_manager.h>
+#include <timeout/timer_interface.h>
 #include <timeout/timer_manager_native.h>
-#include <timeout/timer_native.h>
 
 namespace smp
 {
@@ -89,7 +89,7 @@ void TimeoutExecutor::Schedule( const TimeStamp& targetDeadline )
 {
     const auto now( TimeStamp::clock::now() );
 
-    if ( targetDeadline <= ( now + TimerManager_Native::GetAllowedEarlyFiringTime() ) )
+    if ( targetDeadline <= ( now + TimerManagerImpl::GetAllowedEarlyFiringTime() ) )
     {
         return ScheduleImmediate( targetDeadline, now );
     }
@@ -123,7 +123,7 @@ void TimeoutExecutor::ScheduleImmediate( const TimeStamp& targetDeadline, const 
 {
     assert( !deadlineOpt_ );
     assert( mode_ == Mode::None );
-    assert( targetDeadline <= ( now + TimerManager_Native::GetAllowedEarlyFiringTime() ) );
+    assert( targetDeadline <= ( now + TimerManagerImpl::GetAllowedEarlyFiringTime() ) );
 
     // TODO: replace HWND in PutEvent with target
     auto pPanel = pTarget_->GetPanel();
@@ -143,13 +143,13 @@ void TimeoutExecutor::ScheduleDelayed( const TimeStamp& targetDeadline, const Ti
 {
     assert( !deadlineOpt_ );
     assert( mode_ == Mode::None );
-    assert( targetDeadline > ( now + TimerManager_Native::GetAllowedEarlyFiringTime() ) );
+    assert( targetDeadline > ( now + TimerManagerImpl::GetAllowedEarlyFiringTime() ) );
 
     if ( !pTimer_ )
     {
-        pTimer_ = TimerManager_Native::Get().CreateTimer( pTarget_ );
+        pTimer_ = TimerManagerImpl::Get().CreateTimer( pTarget_ );
         // Re-evaluate if we should have scheduled this immediately
-        if ( targetDeadline <= ( now + TimerManager_Native::GetAllowedEarlyFiringTime() ) )
+        if ( targetDeadline <= ( now + TimerManagerImpl::GetAllowedEarlyFiringTime() ) )
         {
             return ScheduleImmediate( targetDeadline, now );
         }
@@ -190,7 +190,7 @@ void TimeoutExecutor::MaybeExecute()
     // and proceed.  If there are no timers ready we will get rescheduled
     // by TimeoutManager.
     const auto now = TimeStamp::clock::now();
-    const auto limit = now + TimerManager_Native::GetAllowedEarlyFiringTime();
+    const auto limit = now + TimerManagerImpl::GetAllowedEarlyFiringTime();
     if ( deadline > limit )
     {
         deadline = limit;

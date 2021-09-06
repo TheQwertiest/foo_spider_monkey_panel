@@ -2,7 +2,7 @@
 
 #include <events/event.h>
 #include <timeout/timeout.h>
-#include <timeout/timer_native.h>
+#include <timeout/timer_interface.h>
 
 namespace smp
 {
@@ -11,7 +11,7 @@ class TimeoutManager;
 
 class TimeoutExecutor
     : public Runnable
-    , public TimerNotifyTask_Native
+    , public TimerNotifyTaskImpl
     , public std::enable_shared_from_this<TimeoutExecutor>
 {
 public:
@@ -62,7 +62,7 @@ private:
     TimeoutManager& pParent_;
     std::shared_ptr<PanelTarget> pTarget_;
 
-    std::shared_ptr<Timer_Native> pTimer_;
+    std::shared_ptr<TimerImpl> pTimer_;
     Mode mode_ = Mode::None;
     std::optional<TimeStamp> deadlineOpt_;
 };

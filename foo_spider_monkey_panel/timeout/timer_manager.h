@@ -87,7 +87,7 @@ public:
     ~Timer() = default;
 
     void Start( TimerNotifyTask& task, const TimeDuration& delay );
-    void Cancel();
+    void Cancel( bool waitForDestruction );
 
     void SetHolder( TimerHolder* pHolder );
 

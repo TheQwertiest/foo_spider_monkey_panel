@@ -400,6 +400,8 @@
     <ClInclude Include="timeout\timeout.h" />
     <ClInclude Include="timeout\timeout_executor.h" />
     <ClInclude Include="timeout\timeout_manager.h" />
+    <ClInclude Include="timeout\timer_interface.h" />
+    <ClInclude Include="timeout\timer_interface_fwd.h" />
     <ClInclude Include="timeout\timer_manager.h" />
     <ClInclude Include="timeout\timer_manager_native.h" />
     <ClInclude Include="timeout\timer_native.h" />

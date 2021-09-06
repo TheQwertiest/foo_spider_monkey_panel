@@ -889,6 +889,12 @@
     <ClInclude Include="timeout\timer_native.h">
       <Filter>timeout</Filter>
     </ClInclude>
+    <ClInclude Include="timeout\timer_interface.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timer_interface_fwd.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

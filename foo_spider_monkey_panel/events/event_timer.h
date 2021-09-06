@@ -1,24 +1,23 @@
 #pragma once
 
 #include <events/event.h>
+#include <timeout/timer_interface_fwd.h>
 
 #include <memory>
 
 namespace smp
 {
 
-class Timer_Native;
-
 class Event_Timer
     : public EventBase
 {
 public:
-    Event_Timer( std::shared_ptr<Timer_Native> pTimer, uint64_t generation );
+    Event_Timer( std::shared_ptr<TimerImpl> pTimer, uint64_t generation );
 
     void Run() override;
 
 private:
-    std::shared_ptr<Timer_Native> pTimer_;
+    std::shared_ptr<TimerImpl> pTimer_;
     uint64_t generation_;
 };
 

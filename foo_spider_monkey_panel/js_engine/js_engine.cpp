@@ -13,7 +13,7 @@
 #include <panel/js_panel_window.h>
 #include <panel/modal_blocking_scope.h>
 #include <panel/user_message.h>
-#include <timeout/timer_manager_native.h>
+#include <timeout/timer_interface.h>
 #include <utils/make_unique_ptr.h>
 
 #include <js/Initialization.h>
@@ -302,7 +302,7 @@ void JsEngine::Finalize()
 
     if ( shouldShutdown_ )
     {
-        TimerManager_Native::Get().Finalize();
+        TimerManagerImpl::Get().Finalize();
         JS_ShutDown();
         smp::com::DeleteAllStoredObject();
     }
