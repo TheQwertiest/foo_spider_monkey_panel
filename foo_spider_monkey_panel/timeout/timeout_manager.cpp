@@ -371,7 +371,7 @@ bool TimeoutManager::RescheduleTimeout( Timeout& timeout, const TimeStamp& lastC
     // TODO: nesting limits
 
     const auto firingTime = lastCallbackTime + timeout.Interval();
-    TimeDuration delay = firingTime - currentNow;
+    auto delay = firingTime - currentNow;
 
     // And make sure delay is nonnegative; that might happen if the timer
     // thread is firing our timers somewhat early or if they're taking a long

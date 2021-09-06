@@ -5,10 +5,21 @@
 #include "timeout_executor.h"
 
 #include <events/event_manager.h>
+#include <fb2k/advanced_config.h>
 #include <panel/js_panel_window.h>
 #include <timeout/timeout_manager.h>
 #include <timeout/timer_interface.h>
 #include <timeout/timer_manager_native.h>
+
+namespace
+{
+
+auto GetAllowedEarlyFiringTime()
+{
+    return ( smp::config::advanced::debug_use_custom_timer_engine.GetValue() ? smp::TimerManager_Custom::Get().GetAllowedEarlyFiringTime() : smp::TimerManager_Native::Get().GetAllowedEarlyFiringTime() );
+}
+
+} // namespace
 
 namespace smp
 {
@@ -87,9 +98,9 @@ void TimeoutExecutor::Notify()
 
 void TimeoutExecutor::Schedule( const TimeStamp& targetDeadline )
 {
-    const auto now( TimeStamp::clock::now() );
+    const auto now = TimeStamp::clock::now();
 
-    if ( targetDeadline <= ( now + TimerManagerImpl::GetAllowedEarlyFiringTime() ) )
+    if ( targetDeadline <= ( now + GetAllowedEarlyFiringTime() ) )
     {
         return ScheduleImmediate( targetDeadline, now );
     }
@@ -123,7 +134,7 @@ void TimeoutExecutor::ScheduleImmediate( const TimeStamp& targetDeadline, const 
 {
     assert( !deadlineOpt_ );
     assert( mode_ == Mode::None );
-    assert( targetDeadline <= ( now + TimerManagerImpl::GetAllowedEarlyFiringTime() ) );
+    assert( targetDeadline <= ( now + GetAllowedEarlyFiringTime() ) );
 
     // TODO: replace HWND in PutEvent with target
     auto pPanel = pTarget_->GetPanel();
@@ -143,13 +154,28 @@ void TimeoutExecutor::ScheduleDelayed( const TimeStamp& targetDeadline, const Ti
 {
     assert( !deadlineOpt_ );
     assert( mode_ == Mode::None );
-    assert( targetDeadline > ( now + TimerManagerImpl::GetAllowedEarlyFiringTime() ) );
+    assert( targetDeadline > ( now + GetAllowedEarlyFiringTime() ) );
+
+    const auto useCustomTimerEngine = config::advanced::debug_use_custom_timer_engine.GetValue();
+    if ( pTimer_ && usedCustomTimerEngine_ != useCustomTimerEngine )
+    {
+        usedCustomTimerEngine_ = useCustomTimerEngine;
+        pTimer_->Cancel( true );
+        pTimer_.reset();
+    }
 
     if ( !pTimer_ )
     {
-        pTimer_ = TimerManagerImpl::Get().CreateTimer( pTarget_ );
+        if ( config::advanced::debug_use_custom_timer_engine.GetValue() )
+        {
+            pTimer_ = TimerManager_Custom::Get().CreateTimer( pTarget_ );
+        }
+        else
+        {
+            pTimer_ = TimerManager_Native::Get().CreateTimer( pTarget_ );
+        }
         // Re-evaluate if we should have scheduled this immediately
-        if ( targetDeadline <= ( now + TimerManagerImpl::GetAllowedEarlyFiringTime() ) )
+        if ( targetDeadline <= ( now + GetAllowedEarlyFiringTime() ) )
         {
             return ScheduleImmediate( targetDeadline, now );
         }
@@ -160,9 +186,6 @@ void TimeoutExecutor::ScheduleDelayed( const TimeStamp& targetDeadline, const Ti
         pTimer_->Cancel( false );
     }
 
-    // Calculate the delay based on the deadline and current time.
-    TimeDuration delay = targetDeadline - now;
-
     // Note, we cannot use timers that take
     // integer milliseconds. We need higher precision. Consider this
     // situation:
@@ -172,7 +195,10 @@ void TimeoutExecutor::ScheduleDelayed( const TimeStamp& targetDeadline, const Ti
     // 3. setTimeout(g, 1);
     //
     // This should fire f() and g() 500us apart.
-    pTimer_->Start( *this, delay );
+
+    // QWR: Mozilla used delay here instead of deadline for some reason,
+    // which added additional delay to timer
+    pTimer_->Start( *this, targetDeadline );
 
     mode_ = Mode::Delayed;
     deadlineOpt_ = targetDeadline;
@@ -190,7 +216,7 @@ void TimeoutExecutor::MaybeExecute()
     // and proceed.  If there are no timers ready we will get rescheduled
     // by TimeoutManager.
     const auto now = TimeStamp::clock::now();
-    const auto limit = now + TimerManagerImpl::GetAllowedEarlyFiringTime();
+    const auto limit = now + GetAllowedEarlyFiringTime();
     if ( deadline > limit )
     {
         deadline = limit;

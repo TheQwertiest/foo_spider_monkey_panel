@@ -13,6 +13,8 @@ extern qwr::fb2k::AdvConfigUint32_MT gc_max_heap_growth;
 
 extern qwr::fb2k::AdvConfigUint32_MT performance_max_runtime;
 
+extern qwr::fb2k::AdvConfigBool_MT debug_use_custom_timer_engine;
+
 #ifdef SMP_ENABLE_CXX_STACKTRACE
 extern qwr::fb2k::AdvConfigBool_MT stacktrace;
 extern qwr::fb2k::AdvConfigUint32_MT stacktrace_max_depth;

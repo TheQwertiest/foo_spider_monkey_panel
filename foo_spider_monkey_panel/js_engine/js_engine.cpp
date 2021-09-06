@@ -302,7 +302,8 @@ void JsEngine::Finalize()
 
     if ( shouldShutdown_ )
     {
-        TimerManagerImpl::Get().Finalize();
+        TimerManager_Custom::Get().Finalize();
+        TimerManager_Native::Get().Finalize();
         JS_ShutDown();
         smp::com::DeleteAllStoredObject();
     }

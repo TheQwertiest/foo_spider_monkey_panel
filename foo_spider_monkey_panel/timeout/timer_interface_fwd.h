@@ -2,33 +2,36 @@
 
 #include <timeout/time_types.h>
 
-#if 0
-
 namespace smp
 {
 
-struct TimerNotifyTask_Native;
+class PanelTarget;
+
 class Timer_Native;
 class TimerManager_Native;
 
-using TimerImpl = Timer_Native;
-using TimerManagerImpl = TimerManager_Native;
+class Timer_Custom;
+class TimerManager_Custom;
 
-}
-
-#else
-
-namespace smp
+struct TimerNotifyTask
 {
+    virtual ~TimerNotifyTask() = default;
+    virtual void Notify() = 0;
+};
 
-struct TimerNotifyTask;
-class Timer;
-class TimerManager;
+class ITimer
+{
+public:
+    virtual ~ITimer() = default;
 
-using TimerNotifyTaskImpl = TimerNotifyTask;
-using TimerImpl = Timer;
-using TimerManagerImpl = TimerManager;
+    virtual void Start( TimerNotifyTask& task, const TimeStamp& when ) = 0;
+    virtual void Cancel( bool waitForDestruction ) = 0;
+
+    virtual void Fire( uint64_t generation ) = 0;
+
+    virtual [[nodiscard]] PanelTarget& Target() const = 0;
+    virtual [[nodiscard]] const TimeStamp& When() const = 0;
+    virtual [[nodiscard]] uint64_t Generation() const = 0;
+};
 
 } // namespace smp
-
-#endif

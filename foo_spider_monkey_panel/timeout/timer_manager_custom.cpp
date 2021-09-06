@@ -2,11 +2,12 @@
 
 #include <stdafx.h>
 
-#include "timer_manager.h"
+#include "timer_manager_custom.h"
 
 #include <events/event_manager.h>
 #include <events/event_timer.h>
 #include <panel/js_panel_window.h>
+#include <timeout/timer_custom.h>
 
 #include <qwr/thread_helpers.h>
 
@@ -15,40 +16,40 @@ using namespace smp;
 namespace smp
 {
 
-TimerManager::TimerManager()
+TimerManager_Custom::TimerManager_Custom()
 {
     CreateThread();
 }
 
-void TimerManager::Finalize()
+void TimerManager_Custom::Finalize()
 {
     StopThread();
 }
 
-TimerManager& TimerManager::Get()
+TimerManager_Custom& TimerManager_Custom::Get()
 {
-    static TimerManager tm;
+    static TimerManager_Custom tm;
     return tm;
 }
 
-const TimeDuration& TimerManager::GetAllowedEarlyFiringTime()
+const TimeDuration& TimerManager_Custom::GetAllowedEarlyFiringTime()
 {
     static constexpr TimeDuration earlyDelay{ std::chrono::microseconds( 10 ) };
     return earlyDelay;
 }
 
-std::unique_ptr<Timer> TimerManager::CreateTimer( std::shared_ptr<PanelTarget> pTarget )
+std::unique_ptr<Timer_Custom> TimerManager_Custom::CreateTimer( std::shared_ptr<PanelTarget> pTarget )
 {
-    return std::unique_ptr<Timer>( new Timer( *this, pTarget ) );
+    return std::unique_ptr<Timer_Custom>( new Timer_Custom( *this, pTarget ) );
 }
 
-void TimerManager::CreateThread()
+void TimerManager_Custom::CreateThread()
 {
-    thread_ = std::make_unique<std::thread>( &TimerManager::ThreadMain, this );
+    thread_ = std::make_unique<std::thread>( &TimerManager_Custom::ThreadMain, this );
     qwr::SetThreadName( *thread_, "SMP TimerManager" );
 }
 
-void TimerManager::StopThread()
+void TimerManager_Custom::StopThread()
 {
     if ( !thread_ )
     {
@@ -70,7 +71,7 @@ void TimerManager::StopThread()
     timers_.clear();
 }
 
-void TimerManager::ThreadMain()
+void TimerManager_Custom::ThreadMain()
 {
     const auto hasWorkToDo = [&] {
         return ( !timers_.empty() || isTimeToDie_ );
@@ -97,7 +98,7 @@ void TimerManager::ThreadMain()
             if ( now < pTimer->When() - GetAllowedEarlyFiringTime() )
             {
                 // clamp to ms
-                auto diffInMs = std::chrono::duration_cast<std::chrono::milliseconds>( pTimer->When() - TimeStamp::clock::now() );
+                auto diffInMs = std::chrono::duration_cast<std::chrono::milliseconds>( pTimer->When() - now );
                 if ( !diffInMs.count() )
                 { // round sub-millisecond waits to 1
                     diffInMs = std::chrono::milliseconds( 1 );
@@ -108,6 +109,7 @@ void TimerManager::ThreadMain()
                 break;
             }
 
+            waitUntilOpt.reset();
             RemoveFirstTimerInternal();
 
             // TODO: replace HWND in PutEvent with target
@@ -118,7 +120,7 @@ void TimerManager::ThreadMain()
             }
         }
 
-        // we don't care about wake ups here
+        // spurious wake up guard has a HUUUUGE CPU overhead, hence we don't use it
         if ( waitUntilOpt )
         {
             cv_.wait_until( sl, *waitUntilOpt );
@@ -130,12 +132,12 @@ void TimerManager::ThreadMain()
     }
 }
 
-void TimerManager::AddTimer( std::shared_ptr<Timer> pTimer )
+void TimerManager_Custom::AddTimer( std::shared_ptr<Timer_Custom> pTimer )
 {
     {
         std::unique_lock sl( threadMutex_ );
 
-        timers_.emplace_back( std::make_unique<TimerHolder>( pTimer ) );
+        const auto& pHolder = timers_.emplace_back( std::make_unique<TimerHolder>( pTimer ) );
         pTimer->SetHolder( timers_.back().get() );
 
         std::push_heap( timers_.begin(), timers_.end(), TimerSorter );
@@ -143,7 +145,7 @@ void TimerManager::AddTimer( std::shared_ptr<Timer> pTimer )
     cv_.notify_all();
 }
 
-void TimerManager::RemoveTimer( std::shared_ptr<Timer> pTimer )
+void TimerManager_Custom::RemoveTimer( std::shared_ptr<Timer_Custom> pTimer )
 {
     {
         std::unique_lock sl( threadMutex_ );
@@ -159,7 +161,7 @@ void TimerManager::RemoveTimer( std::shared_ptr<Timer> pTimer )
     cv_.notify_all();
 }
 
-void TimerManager::RemoveLeadingCanceledTimersInternal()
+void TimerManager_Custom::RemoveLeadingCanceledTimersInternal()
 {
     // Move all canceled timers from the front of the list to
     // the back of the list using std::pop_heap().
@@ -179,7 +181,7 @@ void TimerManager::RemoveLeadingCanceledTimersInternal()
     timers_.resize( timers_.size() - std::distance( sortedEnd, timers_.end() ) );
 }
 
-void TimerManager::RemoveFirstTimerInternal()
+void TimerManager_Custom::RemoveFirstTimerInternal()
 {
     assert( !timers_.empty() );
 
@@ -187,135 +189,11 @@ void TimerManager::RemoveFirstTimerInternal()
     timers_.pop_back();
 }
 
-bool TimerManager::TimerSorter( const std::unique_ptr<TimerHolder>& a, const std::unique_ptr<TimerHolder>& b )
+bool TimerManager_Custom::TimerSorter( const std::unique_ptr<TimerHolder>& a, const std::unique_ptr<TimerHolder>& b )
 {
     // This is reversed because std::push_heap() sorts the "largest" to
     // the front of the heap.  We want that to be the earliest timer.
     return ( b->When() < a->When() );
-}
-
-TimerHolder::TimerHolder( std::shared_ptr<Timer> pTimer )
-    : pTimer_( pTimer )
-    , executeAt_( pTimer_->When() )
-{
-}
-
-TimerHolder::~TimerHolder()
-{
-    ResetValue();
-}
-
-void TimerHolder::ResetValue()
-{
-    if ( pTimer_ )
-    {
-        pTimer_->SetHolder( nullptr );
-        pTimer_.reset();
-    }
-}
-
-std::shared_ptr<Timer> TimerHolder::Value() const
-{
-    return pTimer_;
-}
-
-const TimeStamp& TimerHolder::When() const
-{
-    return executeAt_;
-}
-
-Timer::Timer( TimerManager& pParent, std::shared_ptr<PanelTarget> pTarget )
-    : pParent_( pParent )
-    , pTarget_( pTarget )
-{
-}
-
-void Timer::Start( TimerNotifyTask& task, const TimeDuration& delay )
-{
-    assert( core_api::is_main_thread() );
-
-    std::scoped_lock sl( mutex_ );
-
-    auto self = shared_from_this();
-
-    pParent_.RemoveTimer( self );
-
-    pTask_ = &task;
-    ++generation_;
-
-    executeAt_ = TimeStamp::clock::now() + delay;
-
-    pParent_.AddTimer( self );
-}
-
-void Timer::Fire( uint64_t generation )
-{
-    // Save self, since it can be destroyed in `Notify` callback
-    auto selfSaver = shared_from_this();
-    decltype( pTask_ ) pTask = nullptr;
-
-    {
-        // Don't fire callbacks when the mutex is locked.
-        // If some other thread Cancels after this, they're just too late.
-        std::scoped_lock sl( mutex_ );
-        if ( generation != generation_ )
-        {
-            return;
-        }
-
-        pTask = pTask_;
-    }
-
-    if ( pTask )
-    {
-        pTask->Notify();
-    }
-
-    {
-        std::scoped_lock sl( mutex_ );
-        if ( generation == generation_ )
-        {
-            pTask_ = nullptr;
-        }
-    }
-}
-
-void Timer::Cancel( bool /*waitForDestruction*/ )
-{
-    std::scoped_lock sl( mutex_ );
-
-    auto self = shared_from_this();
-
-    pParent_.RemoveTimer( self );
-
-    pTask_ = nullptr;
-    ++generation_;
-}
-
-void Timer::SetHolder( TimerHolder* pHolder )
-{
-    pHolder_ = pHolder;
-}
-
-PanelTarget& Timer::Target() const
-{
-    assert( pTarget_ );
-    return *pTarget_;
-}
-
-const TimeStamp& Timer::When() const
-{
-    return executeAt_;
-}
-
-uint64_t Timer::Generation() const
-{
-    return generation_;
-}
-
-TimerHolder* Timer::Holder() const
-{
-    return pHolder_;
 }
 
 } // namespace smp

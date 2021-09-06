@@ -11,7 +11,7 @@ class TimeoutManager;
 
 class TimeoutExecutor
     : public Runnable
-    , public TimerNotifyTaskImpl
+    , public TimerNotifyTask
     , public std::enable_shared_from_this<TimeoutExecutor>
 {
 public:
@@ -62,9 +62,11 @@ private:
     TimeoutManager& pParent_;
     std::shared_ptr<PanelTarget> pTarget_;
 
-    std::shared_ptr<TimerImpl> pTimer_;
+    std::shared_ptr<ITimer> pTimer_;
     Mode mode_ = Mode::None;
     std::optional<TimeStamp> deadlineOpt_;
+
+    bool usedCustomTimerEngine_ = false;
 };
 
 } // namespace smp

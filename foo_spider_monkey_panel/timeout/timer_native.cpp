@@ -15,7 +15,7 @@ Timer_Native::Timer_Native( TimerManager_Native& pParent, std::shared_ptr<PanelT
 {
 }
 
-void Timer_Native::Start( TimerNotifyTask_Native& task, const TimeDuration& delay )
+void Timer_Native::Start( TimerNotifyTask& task, const TimeStamp& when )
 {
     assert( core_api::is_main_thread() );
 
@@ -28,7 +28,7 @@ void Timer_Native::Start( TimerNotifyTask_Native& task, const TimeDuration& dela
     pTask_ = &task;
     ++generation_;
 
-    executeAt_ = TimeStamp::clock::now() + delay;
+    executeAt_ = when;
 
     hTimer_ = pParent_.CreateNativeTimer( shared_from_this() );
 }

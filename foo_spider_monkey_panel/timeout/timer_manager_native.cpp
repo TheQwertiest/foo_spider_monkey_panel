@@ -88,8 +88,7 @@ void TimerManager_Native::PostTimerEvent( std::shared_ptr<Timer_Native> pTimer )
     auto pPanel = pTimer->Target().GetPanel();
     if ( pPanel )
     {
-        // TODO:azaza
-        //EventManager::Get().PutEvent( pPanel->GetHWND(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
+        EventManager::Get().PutEvent( pPanel->GetHWND(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
     }
 }
 

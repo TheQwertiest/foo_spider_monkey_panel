@@ -403,7 +403,7 @@
     <ClCompile Include="timeout\timeout_manager.cpp">
       <Filter>timeout</Filter>
     </ClCompile>
-    <ClCompile Include="timeout\timer_manager.cpp">
+    <ClCompile Include="timeout\timer_manager_custom.cpp">
       <Filter>timeout</Filter>
     </ClCompile>
     <ClCompile Include="timeout\timeout.cpp">
@@ -413,6 +413,9 @@
       <Filter>timeout</Filter>
     </ClCompile>
     <ClCompile Include="timeout\timer_native.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timer_custom.cpp">
       <Filter>timeout</Filter>
     </ClCompile>
   </ItemGroup>
@@ -874,7 +877,7 @@
     <ClInclude Include="timeout\timeout_manager.h">
       <Filter>timeout</Filter>
     </ClInclude>
-    <ClInclude Include="timeout\timer_manager.h">
+    <ClInclude Include="timeout\timer_manager_custom.h">
       <Filter>timeout</Filter>
     </ClInclude>
     <ClInclude Include="timeout\time_types.h">
@@ -893,6 +896,9 @@
       <Filter>timeout</Filter>
     </ClInclude>
     <ClInclude Include="timeout\timer_interface_fwd.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timer_custom.h">
       <Filter>timeout</Filter>
     </ClInclude>
   </ItemGroup>

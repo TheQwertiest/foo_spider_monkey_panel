@@ -242,7 +242,8 @@
     <ClCompile Include="timeout\timeout.cpp" />
     <ClCompile Include="timeout\timeout_executor.cpp" />
     <ClCompile Include="timeout\timeout_manager.cpp" />
-    <ClCompile Include="timeout\timer_manager.cpp" />
+    <ClCompile Include="timeout\timer_custom.cpp" />
+    <ClCompile Include="timeout\timer_manager_custom.cpp" />
     <ClCompile Include="timeout\timer_manager_native.cpp" />
     <ClCompile Include="timeout\timer_native.cpp" />
     <ClCompile Include="ui\impl\ui_conf_tab_appearance.cpp" />
@@ -400,9 +401,10 @@
     <ClInclude Include="timeout\timeout.h" />
     <ClInclude Include="timeout\timeout_executor.h" />
     <ClInclude Include="timeout\timeout_manager.h" />
+    <ClInclude Include="timeout\timer_custom.h" />
     <ClInclude Include="timeout\timer_interface.h" />
     <ClInclude Include="timeout\timer_interface_fwd.h" />
-    <ClInclude Include="timeout\timer_manager.h" />
+    <ClInclude Include="timeout\timer_manager_custom.h" />
     <ClInclude Include="timeout\timer_manager_native.h" />
     <ClInclude Include="timeout\timer_native.h" />
     <ClInclude Include="timeout\time_types.h" />
