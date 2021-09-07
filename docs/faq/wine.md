@@ -1,6 +1,7 @@
 ---
 title: WINE issues & workarounds
-nav_order: 7
+parent: Frequesntly Asked Questions
+nav_order: 1
 ---
 
 # WINE issues & workarounds
@@ -27,9 +28,6 @@ Failed to create ActiveXObject object via CLSID: htmlfile
   **Fix**: install `gdiplus` package via `winetricks`.
 
 ## Unfixable issues
-
-- **Issue**: `on_mouse_leave` event might stop triggering in some cases.  
-  **Reason**: WINE bug? [Issue #60](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/60).
 
 - **Issue**: `.otf` fonts are not found via `utils.CheckFont()` and `gdi.Font()`.  
   **Reason**: `gdiplus` package does not support `.otf` fonts.

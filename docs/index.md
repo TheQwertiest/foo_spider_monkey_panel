@@ -57,10 +57,11 @@ Main features of `Mozilla SpiderMonkey` engine:
 - Easily customizable: allows to implement a lot of features that couldn't be implemented before.
 
 See [the corresponding page][api_changes] for the detailed list of API changes.  
-Or just use the [Migration Guide](guides/jsp_to_smp_migration_guide.md) to make your scripts compatible.
+Or just use the [Migration Guide](faq/jsp_to_smp_migration_guide.md) to make your scripts compatible.
 </details>
 
 ## Links
+[Frequently Asked Questions](faq.md)  
 [Support thread](https://hydrogenaud.io/index.php/topic,116669.new.html)  
 [Changelog][changelog]  
 [Detailed list of API Changes][api_changes]  

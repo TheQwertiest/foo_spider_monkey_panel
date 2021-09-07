@@ -1,7 +1,7 @@
 ---
 title: Playback stats
-parent: Guides
-nav_order: 1
+parent: Frequesntly Asked Questions
+nav_order: 3
 ---
 
 # Playback stats

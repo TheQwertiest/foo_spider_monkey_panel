@@ -1,6 +1,6 @@
 ---
 title: JScript migration guide
-parent: Guides
+parent: Frequesntly Asked Questions
 nav_order: 2
 ---
 
@@ -17,6 +17,8 @@ nav_order: 2
 
 It is rather simple to migrate your script from `foo_jscript_panel` to `foo_spider_monkey_panel`: you only need to perform all the steps listed below.  
 Most of these can be automated by using `Find & Replace` command in your favourite text editor.
+
+Note: at the time of writing `foo_jscript_panel` is still in active development, hence this guide might not cover some incompatibilities that could've been introduced in newer versions of the component.
 
 #### Replace old headers:
 <details><summary markdown='span'>Before</summary>
