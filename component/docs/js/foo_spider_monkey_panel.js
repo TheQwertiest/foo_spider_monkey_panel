@@ -387,7 +387,10 @@ let fb = {
      *   cursor icon will be changed, on_drag_drop won't be called after releasing lmbtn, on_drag_leave will be called instead.<br>
      * - DROPEFFECT_LINK should be used as fallback in case effect argument does not have DROPEFFECT_COPY (===1), since some external drops only allow DROPEFFECT_LINK effect.<br>
      * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see the example below.<br>
-     *
+     * <br>
+     * Related callbacks: {@link module:callbacks~on_drag_enter on_drag_enter, {@link module:callbacks~on_drag_drop on_drag_drop},
+     * {@link module:callbacks~on_drag_over on_drag_over}, {@link module:callbacks~on_drag_leave on_drag_leave}
+     * 
      * @param {number} window_id unused
      * @param {FbMetadbHandleList} handle_list
      * @param {number} effect Allowed effects.
@@ -433,7 +436,9 @@ let fb = {
     /**
      * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3. * <br>
      * Returns a JSON array in string form so you need to use JSON.parse() on the result.
-     *
+     * <br>
+     * Related methods: {@link fb.SetDSPPreset}.
+     * 
      * @return {string}
      *
      * @example
@@ -496,7 +501,9 @@ let fb = {
     /**
      * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3. * <br>
      * Returns a JSON array in string form so you need to use JSON.parse() on the result.
-     *
+     * <br>
+     * Related methods: {@link fb.SetOutputDevice}.
+     * 
      * @return {string}
      *
      * @example
@@ -642,10 +649,11 @@ let fb = {
      * Being main menu item means you can bind it to global keyboard shortcuts, standard toolbar buttons, panel stack splitter buttons and etc.<br>
      * Execution of the correspoding menu item will trigger {@link module:callbacks~on_main_menu_dynamic on_main_menu_dynamic} callback.<br>
      * <br>
-     * Note: SMP uses a combination of panel name and command id to identify and bind the command. Hence all binds will fail if the id or the panel name
-     * is changed. This also means that collision WILL occur if there are two panels with the same name.<br>
+     * Note: SMP uses a combination of panel name and command id to identify and bind the command. Hence all corresponding binds will fail
+     * if the id or the panel name is changed. This also means that collision WILL occur if there are two panels with the same name.<br>
      * <br>
-     * Related methods: {@link fb.UnregisterMainMenuCommand}
+     * Related methods: {@link fb.UnregisterMainMenuCommand}<br>
+     * Related callbacks: {@link module:callbacks~on_main_menu_dynamic on_main_menu_dynamic}
      * 
      * @param {number} id
      * @param {string} name
@@ -696,7 +704,8 @@ let fb = {
 
     /**
      * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3.<br>
-     * See {@link fb.GetDSPPresets}.
+     * <br>
+     * Related methods: {@link fb.GetDSPPresets}.
      *
      * @param {number} idx
      *
@@ -710,7 +719,8 @@ let fb = {
 
     /**
      * Available only in foobar2000 v1.4 and above. Throws a script error on v1.3.<br>
-     * See {@link fb.GetOutputDevices}.
+     * <br>
+     * Related methods: {@link fb.GetOutputDevices}.
      *
      * @param {string} output
      * @param {string} device
@@ -2191,10 +2201,19 @@ let window = {
     /**
      * This will trigger {@link module:callbacks~on_notify_data on_notify_data}(name, info) in other panels.<br>
      * <b>!!! Beware !!!</b>: this operation is ASYNCHRONOUS, hence the data passed via `info` argument
-     * must NOT be used or modified after invoking this method.
+     * must NOT be used or modified in the source panel after invoking this method.
      *
      * @param {string} name
      * @param {*} info
+     * 
+     * @example
+     * let data = { 
+     *    // some data
+     * };
+     * window.NotifyOthers('have_some_data', data);
+     * 
+     * data = null; // stop using the object immediately
+     * // AddSomeAdditionalValues(data); // don't try to modify it, since it will affect the object in the other panel as well
      */
     NotifyOthers: function (name, info) { }, // (void)
 
