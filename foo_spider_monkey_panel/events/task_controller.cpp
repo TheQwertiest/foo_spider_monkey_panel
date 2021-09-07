@@ -86,7 +86,7 @@ bool TaskController::HasTasks() const
     return !tasks_.empty();
 }
 
-bool TaskController::ExecuteNextTask()
+bool TaskController::ExecuteNextTask( bool executeOnlyUnblockable )
 {
     assert( core_api::is_main_thread() );
 
@@ -100,7 +100,11 @@ bool TaskController::ExecuteNextTask()
     // in case we destroy ourself during task run
     auto selfSaver = shared_from_this();
 
-    auto it = ranges::find_if( tasks_, []( const auto pTask ) { return !pTask->isInProgress_; } );
+    auto it = ranges::find_if( tasks_, [executeOnlyUnblockable]( const auto pTask ) {
+        const auto priority = pTask->priority_;
+        const auto taskHasUnblockablePriority = ( priority == EventPriority::kResize || priority == EventPriority::kRedraw );
+        return ( !pTask->isInProgress_ && ( !executeOnlyUnblockable || taskHasUnblockablePriority ) );
+    } );
     if ( it == tasks_.end() )
     {
         return false;

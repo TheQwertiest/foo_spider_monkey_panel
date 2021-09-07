@@ -31,7 +31,7 @@ public:
 
 public:
     static bool IsRequestEventMessage( UINT msg );
-    bool ProcessNextEvent( HWND hWnd );
+    bool ProcessNextEvent( HWND hWnd, bool executeOnlyUnblockable );
     void RequestNextEvent( HWND hWnd );
     void OnRequestEventMessageReceived( HWND hWnd );
 

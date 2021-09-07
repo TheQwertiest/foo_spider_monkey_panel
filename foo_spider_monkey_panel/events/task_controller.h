@@ -60,7 +60,7 @@ public:
 
     bool HasTasks() const;
 
-    bool ExecuteNextTask();
+    bool ExecuteNextTask( bool executeOnlyUnblockable );
 
 private:
     std::shared_ptr<PanelTarget> pTarget_;

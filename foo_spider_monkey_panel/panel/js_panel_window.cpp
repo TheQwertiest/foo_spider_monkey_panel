@@ -239,10 +239,10 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             }
         } );
 
-        if ( nestedCounter == 1 || modal::IsModalBlocked() )
-        {
-            EventDispatcher::Get().ProcessNextEvent( wnd_ );
-        }
+        // Some events should not be delayed by much or they will flood the message loop with retries.
+        // Prime example of which would be WM_PAINT
+        const auto canExecuteAllTasks = ( nestedCounter == 1 || modal::IsModalBlocked() );
+        EventDispatcher::Get().ProcessNextEvent( wnd_, !canExecuteAllTasks );
     }
     else
     {
