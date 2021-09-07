@@ -69,10 +69,10 @@ private:
     END_COM_QI_IMPL()
 
     // com::IDropTargetImpl
-    HRESULT OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
-    HRESULT OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
-    HRESULT OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
-    HRESULT OnDragLeave() override;
+    DWORD OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD dwEffect ) override;
+    DWORD OnDragOver( DWORD grfKeyState, POINTL pt, DWORD dwEffect ) override;
+    DWORD OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD dwEffect ) override;
+    void OnDragLeave() override;
 
     [[nodiscard]] DWORD GetEffect() const;
 

@@ -1,9 +1,8 @@
 #include <stdafx.h>
 
 #include <config/delayed_package_utils.h>
+#include <events/event_dispatcher.h>
 #include <js_engine/js_engine.h>
-#include <panel/message_manager.h>
-#include <panel/user_message.h>
 #include <utils/thread_pool_instance.h>
 
 #include <qwr/abort_callback.h>
@@ -162,7 +161,7 @@ public:
     void on_quit() override
     { // Careful when changing invocation order here!
         mozjs::JsEngine::GetInstance().PrepareForExit();
-        smp::panel::message_manager::instance().send_msg_to_all( static_cast<UINT>( smp::InternalSyncMessage::terminate_script ) );
+        smp::EventDispatcher::Get().NotifyAllAboutExit();
         qwr::GlobalAbortCallback::GetInstance().Abort();
         smp::GetThreadPoolInstance().Finalize();
     }

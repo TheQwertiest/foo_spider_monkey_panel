@@ -20,6 +20,7 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <panel/modal_blocking_scope.h>
+#include <panel/user_message.h>
 #include <utils/art_helpers.h>
 #include <utils/menu_helpers.h>
 
@@ -347,8 +348,13 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWnd, JsFbMetadbHandleList* handles, ui
                                                                                   parsedOptions.showText,
                                                                                   parsedOptions.pCustomImage );
 
+    SendMessage( hPanel, static_cast<UINT>( smp::InternalSyncMessage::wnd_internal_drag_start ), 0, 0 );
+
     DWORD returnEffect;
     HRESULT hr = SHDoDragDrop( nullptr, pDO.get_ptr(), pIDropSource.get_ptr(), okEffects, &returnEffect );
+
+    SendMessage( hPanel, static_cast<UINT>( smp::InternalSyncMessage::wnd_internal_drag_stop ), 0, 0 );
+
     return ( DRAGDROP_S_CANCEL == hr ? DROPEFFECT_NONE : returnEffect );
 }
 

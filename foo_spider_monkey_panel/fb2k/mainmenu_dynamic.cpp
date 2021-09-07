@@ -2,10 +2,12 @@
 
 #include "mainmenu_dynamic.h"
 
-#include <panel/message_manager.h>
-#include <panel/user_message.h>
+#include <events/event_dispatcher.h>
+#include <events/event_js_callback.h>
 
 #include <component_paths.h>
+
+#include <map>
 
 using namespace smp;
 
@@ -93,7 +95,7 @@ void MainMenuNodeCommand_PanelCommand::get_display( pfc::string_base& text, t_ui
 
 void MainMenuNodeCommand_PanelCommand::execute( service_ptr_t<service_base> callback )
 {
-    panel::message_manager::instance().post_msg( panelHwnd_, static_cast<UINT>( InternalAsyncMessage::dynamic_main_menu_item ), commandId_ );
+    EventDispatcher::Get().PutEvent( panelHwnd_, GenerateEvent_JsCallback( EventId::kDynamicMainMenu, commandId_ ) );
 }
 
 GUID MainMenuNodeCommand_PanelCommand::get_guid()

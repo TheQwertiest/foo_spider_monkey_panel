@@ -22,24 +22,21 @@ void FileDropTarget::FinalRelease()
 {
 }
 
-HRESULT FileDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect )
+DWORD FileDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD dwEffect )
 {
     isFile_ = IsFile( pDataObj );
-    *pdwEffect = GetEffect();
-
-    return S_OK;
+    return GetEffect();
 }
 
-HRESULT FileDropTarget::OnDragOver( DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect )
+DWORD FileDropTarget::OnDragOver( DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD dwEffect )
 {
-    *pdwEffect = GetEffect();
-    return S_OK;
+    return GetEffect();
 }
 
-HRESULT FileDropTarget::OnDrop( IDataObject* pDataObj, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD* pdwEffect )
+DWORD FileDropTarget::OnDrop( IDataObject* pDataObj, DWORD /*grfKeyState*/, POINTL /*pt*/, DWORD dwEffect )
 {
     isFile_ = IsFile( pDataObj );
-    *pdwEffect = GetEffect();
+    const auto newEffect = GetEffect();
 
     pDataObj->AddRef();
     if ( !PostMessage( hNotifyWnd_, GetOnDropMsg(), reinterpret_cast<WPARAM>( hDropWnd_ ), reinterpret_cast<LPARAM>( pDataObj ) ) )
@@ -47,12 +44,11 @@ HRESULT FileDropTarget::OnDrop( IDataObject* pDataObj, DWORD /*grfKeyState*/, PO
         pDataObj->Release();
     }
 
-    return S_OK;
+    return newEffect;
 }
 
-HRESULT FileDropTarget::OnDragLeave()
+void FileDropTarget::OnDragLeave()
 {
-    return S_OK;
 }
 
 DWORD FileDropTarget::GetEffect() const

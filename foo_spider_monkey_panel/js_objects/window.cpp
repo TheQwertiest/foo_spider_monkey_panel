@@ -3,7 +3,9 @@
 #include "window.h"
 
 #include <config/package_utils.h>
-#include <js_engine/host_timer_dispatcher.h>
+#include <events/event_basic.h>
+#include <events/event_dispatcher.h>
+#include <events/event_notify_others.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/fb_tooltip.h>
@@ -11,17 +13,85 @@
 #include <js_objects/internal/fb_properties.h>
 #include <js_objects/menu_object.h>
 #include <js_objects/theme_manager.h>
+#include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <panel/js_panel_window.h>
-#include <panel/message_manager.h>
-#include <panel/user_message.h>
+#include <timeout/timeout_manager.h>
 #include <utils/gdi_helpers.h>
 
 #include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
+
+namespace
+{
+
+class TimeoutJsTask
+    : public mozjs::JsAsyncTaskImpl<JS::HandleValue, JS::HandleValue>
+{
+public:
+    TimeoutJsTask( JSContext* cx, JS::HandleValue funcValue, JS::HandleValue argArrayValue );
+    ~TimeoutJsTask() override = default;
+
+private:
+    /// @throw JsException
+    bool InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue, JS::HandleValue argArrayValue ) override;
+};
+
+TimeoutJsTask::TimeoutJsTask( JSContext* cx, JS::HandleValue funcValue, JS::HandleValue argArrayValue )
+    : JsAsyncTaskImpl( cx, funcValue, argArrayValue )
+{
+}
+
+bool TimeoutJsTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::HandleValue funcValue, JS::HandleValue argArrayValue )
+{
+    JS::RootedFunction jsFunc( cx, JS_ValueToFunction( cx, funcValue ) );
+    JS::RootedObject jsArrayObject( cx, argArrayValue.toObjectOrNull() );
+    assert( jsArrayObject );
+
+    bool is;
+    if ( !JS_IsArrayObject( cx, jsArrayObject, &is ) )
+    {
+        throw smp::JsException();
+    }
+    assert( is );
+
+    uint32_t arraySize;
+    if ( !JS_GetArrayLength( cx, jsArrayObject, &arraySize ) )
+    {
+        throw smp::JsException();
+    }
+
+    JS::RootedValueVector jsVector( cx );
+    if ( arraySize )
+    {
+        if ( !jsVector.reserve( arraySize ) )
+        {
+            throw std::bad_alloc();
+        }
+
+        JS::RootedValue arrayElement( cx );
+        for ( uint32_t i = 0; i < arraySize; ++i )
+        {
+            if ( !JS_GetElement( cx, jsArrayObject, i, &arrayElement ) )
+            {
+                throw smp::JsException();
+            }
+
+            if ( !jsVector.emplaceBack( arrayElement ) )
+            {
+                throw std::bad_alloc();
+            }
+        }
+    }
+
+    JS::RootedValue dummyRetVal( cx );
+    return JS::Call( cx, jsGlobal, jsFunc, jsVector, &dummyRetVal );
+}
+
+} // namespace
 
 namespace
 {
@@ -230,7 +300,7 @@ void JsWindow::ClearInterval( uint32_t intervalId ) const
         return;
     }
 
-    HostTimerDispatcher::Get().killTimer( intervalId );
+    parentPanel_.GetTimeoutManager().ClearTimeout( intervalId );
 }
 
 void JsWindow::ClearTimeout( uint32_t timeoutId ) const
@@ -240,7 +310,7 @@ void JsWindow::ClearTimeout( uint32_t timeoutId ) const
         return;
     }
 
-    HostTimerDispatcher::Get().killTimer( timeoutId );
+    parentPanel_.GetTimeoutManager().ClearTimeout( timeoutId );
 }
 
 JSObject* JsWindow::CreatePopupMenu()
@@ -375,7 +445,7 @@ void JsWindow::EditScript()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::edit_script ) );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptEdit ), EventPriority::kControl );
 }
 
 uint32_t JsWindow::GetColourCUI( uint32_t type, const std::wstring& guidstr )
@@ -528,12 +598,8 @@ void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
         return;
     }
 
-    // TODO: think about replacing with PostMessage
-    panel::message_manager::instance().send_msg_to_others(
-        parentPanel_.GetHWND(),
-        static_cast<UINT>( InternalSyncMessage::notify_data ),
-        reinterpret_cast<WPARAM>( &name ),
-        reinterpret_cast<LPARAM>( &info ) );
+    EventDispatcher::Get().PutEventToOthers( parentPanel_.GetHWND(),
+                                             std::make_unique<Event_NotifyOthers>( pJsCtx_, name, info ) );
 }
 
 void JsWindow::Reload()
@@ -543,7 +609,7 @@ void JsWindow::Reload()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::reload_script ) );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
 }
 
 void JsWindow::Repaint( bool force )
@@ -615,7 +681,13 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay, JS::Handle
     qwr::QwrException::ExpectTrue( delay > 0, "`delay` must be non-zero" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
-    return HostTimerDispatcher::Get().setInterval( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction, funcArgs );
+    JS::RootedValue jsFuncValue( pJsCtx_, JS::ObjectValue( *JS_GetFunctionObject( jsFunction ) ) );
+
+    JS::RootedObject jsArrayObject( pJsCtx_, JS_NewArrayObject( pJsCtx_, funcArgs ) );
+    smp::JsException::ExpectTrue( jsArrayObject );
+    JS::RootedValue jsArrayValue( pJsCtx_, JS::ObjectValue( *jsArrayObject ) );
+
+    return parentPanel_.GetTimeoutManager().SetInterval( delay, std::make_unique<TimeoutJsTask>( pJsCtx_, jsFuncValue, jsArrayValue ) );
 }
 
 uint32_t JsWindow::SetIntervalWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
@@ -665,7 +737,13 @@ uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleV
                                    "func argument is not a JS function" );
 
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
-    return HostTimerDispatcher::Get().setTimeout( parentPanel_.GetHWND(), delay, pJsCtx_, jsFunction, funcArgs );
+    JS::RootedValue jsFuncValue( pJsCtx_, JS::ObjectValue( *JS_GetFunctionObject( jsFunction ) ) );
+
+    JS::RootedObject jsArrayObject( pJsCtx_, JS_NewArrayObject( pJsCtx_, funcArgs ) );
+    smp::JsException::ExpectTrue( jsArrayObject );
+    JS::RootedValue jsArrayValue( pJsCtx_, JS::ObjectValue( *jsArrayObject ) );
+
+    return parentPanel_.GetTimeoutManager().SetTimeout( delay, std::make_unique<TimeoutJsTask>( pJsCtx_, jsFuncValue, jsArrayValue ) );
 }
 
 uint32_t JsWindow::SetTimeoutWithOpt( size_t optArgCount, JS::HandleValue func, uint32_t delay, JS::HandleValueArray funcArgs )
@@ -688,7 +766,7 @@ void JsWindow::ShowConfigure()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure_legacy ) );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowConfigureLegacy ), EventPriority::kControl );
 }
 
 void JsWindow::ShowConfigureV2()
@@ -698,7 +776,7 @@ void JsWindow::ShowConfigureV2()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_configure ) );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ), EventPriority::kControl );
 }
 
 void JsWindow::ShowProperties()
@@ -708,7 +786,7 @@ void JsWindow::ShowProperties()
         return;
     }
 
-    panel::message_manager::instance().post_msg( parentPanel_.GetHWND(), static_cast<UINT>( InternalAsyncMessage::show_properties ) );
+    EventDispatcher::Get().PutEvent( parentPanel_.GetHWND(), std::make_unique<Event_Basic>( EventId::kScriptShowProperties ), EventPriority::kControl );
 }
 
 uint32_t JsWindow::get_DlgCode()

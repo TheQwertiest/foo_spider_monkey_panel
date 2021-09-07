@@ -4,6 +4,29 @@
 
 #include <qwr/winapi_error_helpers.h>
 
+_COM_SMARTPTR_TYPEDEF( IDropTargetHelper, IID_IDropTargetHelper );
+
+namespace
+{
+
+/// @throw qwr::QwrException
+IDropTargetHelperPtr GetDropTargetHelper()
+{
+    // delay helper initialization, since it's pretty expensive
+    static IDropTargetHelperPtr dth = [] {
+        IDropTargetHelperPtr dth;
+        HRESULT hr = dth.CreateInstance( CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER );
+        qwr::error::CheckHR( hr, "CreateInstance" );
+
+        assert( dth );
+        return dth;
+    }();
+
+    return dth;
+}
+
+} // namespace
+
 namespace smp::com
 {
 
@@ -11,11 +34,6 @@ IDropTargetImpl::IDropTargetImpl( HWND hWnd )
     : hWnd_( hWnd )
 {
     assert( hWnd );
-
-    HRESULT hr = m_dropTargetHelper.CreateInstance( CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER );
-    qwr::error::CheckHR( hr, "CreateInstance" );
-
-    assert( m_dropTargetHelper );
 }
 
 IDropTargetImpl::~IDropTargetImpl()
@@ -45,9 +63,11 @@ STDMETHODIMP IDropTargetImpl::DragEnter( IDataObject* pDataObj, DWORD grfKeyStat
     }
 
     POINT point{ pt.x, pt.y };
-    m_dropTargetHelper->DragEnter( hWnd_, pDataObj, &point, *pdwEffect );
+    GetDropTargetHelper()->DragEnter( hWnd_, pDataObj, &point, *pdwEffect );
 
-    return OnDragEnter( pDataObj, grfKeyState, pt, pdwEffect );
+    *pdwEffect = OnDragEnter( pDataObj, grfKeyState, pt, *pdwEffect );
+
+    return S_OK;
 }
 
 STDMETHODIMP IDropTargetImpl::DragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
@@ -58,16 +78,20 @@ STDMETHODIMP IDropTargetImpl::DragOver( DWORD grfKeyState, POINTL pt, DWORD* pdw
     }
 
     POINT point{ pt.x, pt.y };
-    m_dropTargetHelper->DragOver( &point, *pdwEffect );
+    GetDropTargetHelper()->DragOver( &point, *pdwEffect );
 
-    return OnDragOver( grfKeyState, pt, pdwEffect );
+    *pdwEffect = OnDragOver( grfKeyState, pt, *pdwEffect );
+
+    return S_OK;
 }
 
 STDMETHODIMP IDropTargetImpl::DragLeave()
 {
-    m_dropTargetHelper->DragLeave();
+    GetDropTargetHelper()->DragLeave();
 
-    return OnDragLeave();
+    OnDragLeave();
+
+    return S_OK;
 }
 
 STDMETHODIMP IDropTargetImpl::Drop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
@@ -82,9 +106,11 @@ STDMETHODIMP IDropTargetImpl::Drop( IDataObject* pDataObj, DWORD grfKeyState, PO
     }
 
     POINT point{ pt.x, pt.y };
-    m_dropTargetHelper->Drop( pDataObj, &point, *pdwEffect );
+    GetDropTargetHelper()->Drop( pDataObj, &point, *pdwEffect );
 
-    return OnDrop( pDataObj, grfKeyState, pt, pdwEffect );
+    *pdwEffect = OnDrop( pDataObj, grfKeyState, pt, *pdwEffect );
+
+    return S_OK;
 }
 
 } // namespace smp::com

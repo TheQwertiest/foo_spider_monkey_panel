@@ -144,6 +144,12 @@ void ToValue( JSContext* cx, const metadb_handle_list& inValue, JS::MutableHandl
 }
 
 template <>
+void ToValue( JSContext* cx, const metadb_handle_list_cref& inValue, JS::MutableHandleValue wrappedValue )
+{
+    wrappedValue.setObjectOrNull( JsFbMetadbHandleList::CreateJs( cx, inValue ) );
+}
+
+template <>
 void ToValue( JSContext* cx, const t_playback_queue_item& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setObjectOrNull( JsFbPlaybackQueueItem::CreateJs( cx, inValue ) );

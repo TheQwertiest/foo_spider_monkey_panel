@@ -3,6 +3,8 @@
 #include "js_art_helpers.h"
 
 #include <convert/native_to_js.h>
+#include <events/event_dispatcher.h>
+#include <events/event_js_task.h>
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/global_object.h>
 #include <js_objects/internal/global_heap_manager.h>
@@ -10,8 +12,6 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
-#include <panel/message_manager.h>
-#include <panel/user_message.h>
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/thread_pool_instance.h>
@@ -118,15 +118,13 @@ void AlbumArtV2FetchTask::operator()()
     }
 
     qwr::u8string imagePath;
-    std::unique_ptr<Gdiplus::Bitmap> bitmap = smp::art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
+    auto bitmap = smp::art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
 
     jsTask_->SetData( std::move( bitmap ), imagePath );
 
-    panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
-                                                          smp::CallbackMessage::internal_get_album_art_promise_done,
-                                                          std::make_unique<
-                                                              smp::panel::CallbackDataImpl<
-                                                                  std::shared_ptr<JsAsyncTask>>>( jsTask_ ) );
+    EventDispatcher::Get().PutEvent( hNotifyWnd_,
+                                     std::make_unique<Event_JsTask>(
+                                         EventId::kInternalGetAlbumArtPromiseDone, jsTask_ ) );
 }
 
 JsAlbumArtTask::JsAlbumArtTask( JSContext* cx,

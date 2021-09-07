@@ -5,7 +5,6 @@
 #include <com_utils/com_destruction_handler.h>
 #include <fb2k/advanced_config.h>
 #include <js_engine/heartbeat_window.h>
-#include <js_engine/host_timer_dispatcher.h>
 #include <js_engine/js_container.h>
 #include <js_engine/js_internal_global.h>
 #include <js_engine/js_realm_inner.h>
@@ -14,6 +13,7 @@
 #include <panel/js_panel_window.h>
 #include <panel/modal_blocking_scope.h>
 #include <panel/user_message.h>
+#include <timeout/timer_interface.h>
 #include <utils/make_unique_ptr.h>
 
 #include <js/Initialization.h>
@@ -302,7 +302,8 @@ void JsEngine::Finalize()
 
     if ( shouldShutdown_ )
     {
-        HostTimerDispatcher::Get().Finalize();
+        TimerManager_Custom::Get().Finalize();
+        TimerManager_Native::Get().Finalize();
         JS_ShutDown();
         smp::com::DeleteAllStoredObject();
     }

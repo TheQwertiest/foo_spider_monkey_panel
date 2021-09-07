@@ -20,6 +20,9 @@ advconfig_branch_factory branch_zeal(
     "Zeal", smp::guid::adv_branch_zeal, smp::guid::adv_branch_gc, 4 );
 #endif
 
+advconfig_branch_factory branch_debug(
+    "Debug", smp::guid::adv_branch_debug, smp::guid::adv_branch, 99 );
+
 } // namespace
 
 namespace smp::config::advanced
@@ -50,6 +53,11 @@ qwr::fb2k::AdvConfigUint32_MT performance_max_runtime(
     "Script execution time limit before triggering a `slow script` warning (in seconds)",
     smp::guid::adv_var_performance_max_runtime, smp::guid::adv_branch_performance, 4,
     5, 0, 60 );
+
+qwr::fb2k::AdvConfigBool_MT debug_use_custom_timer_engine(
+    "Use custom timer engine",
+    smp::guid::adv_var_debug_timer_engine, smp::guid::adv_branch_debug, 0,
+    false );
 
 #ifdef SMP_ENABLE_CXX_STACKTRACE
 qwr::fb2k::AdvConfigBool_MT stacktrace(

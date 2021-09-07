@@ -2,8 +2,6 @@
 
 #include <ShlObj.h>
 
-_COM_SMARTPTR_TYPEDEF( IDropTargetHelper, IID_IDropTargetHelper );
-
 namespace smp::com
 {
 
@@ -25,13 +23,12 @@ public:
     STDMETHODIMP Drop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) override;
 
     // Overrides
-    virtual HRESULT OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) = 0;
-    virtual HRESULT OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) = 0;
-    virtual HRESULT OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect ) = 0;
-    virtual HRESULT OnDragLeave() = 0;
+    virtual DWORD OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD dwEffect ) = 0;
+    virtual DWORD OnDragOver( DWORD grfKeyState, POINTL pt, DWORD dwEffect ) = 0;
+    virtual DWORD OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD dwEffect ) = 0;
+    virtual void OnDragLeave() = 0;
 
 protected:
-    IDropTargetHelperPtr m_dropTargetHelper;
     HWND hWnd_;
 };
 

@@ -6,12 +6,17 @@
 #include <com_utils/com_destruction_handler.h>
 #include <config/delayed_package_utils.h>
 #include <config/package_utils.h>
+#include <events/event_basic.h>
+#include <events/event_dispatcher.h>
+#include <events/event_drag.h>
+#include <events/event_js_callback.h>
+#include <events/event_mouse.h>
 #include <fb2k/mainmenu_dynamic.h>
 #include <js_engine/js_container.h>
-#include <panel/drop_action_params.h>
+#include <panel/drag_action_params.h>
 #include <panel/edit_script.h>
-#include <panel/message_manager.h>
 #include <panel/modal_blocking_scope.h>
+#include <timeout/timeout_manager.h>
 #include <ui/ui_conf.h>
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>
@@ -52,6 +57,10 @@ namespace smp::panel
 
 js_panel_window::js_panel_window( PanelType instanceType )
     : panelType_( instanceType )
+{
+}
+
+js_panel_window::~js_panel_window()
 {
 }
 
@@ -96,6 +105,12 @@ const config::ParsedPanelSettings& js_panel_window::GetSettings() const
 config::PanelProperties& js_panel_window::GetPanelProperties()
 {
     return properties_;
+}
+
+TimeoutManager& js_panel_window::GetTimeoutManager()
+{
+    assert( pTimeoutManager_ );
+    return *pTimeoutManager_;
 }
 
 void js_panel_window::ReloadScript()
@@ -199,39 +214,35 @@ bool js_panel_window::IsPanelIdOverridenByScript() const
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
-    static uint32_t nestedCounter = 0;
-    ++nestedCounter;
-
-    com::DeleteMarkedObjects();
-
-    qwr::final_action jobsRunner( [hWnd = wnd_.m_hWnd] {
-        --nestedCounter;
-
-        if ( !nestedCounter )
-        { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
-            // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
-            mozjs::JsContainer::RunJobs();
-        }
-        if ( !nestedCounter || modal::IsModalBlocked() )
-        {
-            message_manager::instance().RequestNextAsyncMessage( hWnd );
-        }
+    const qwr::final_action autoComObjectDeleter( [] {
+        // delete only on exit as to avoid delaying processing of the current message due to reentrancy
+        com::DeleteMarkedObjects();
     } );
 
-    if ( message_manager::IsAsyncMessage( msg ) )
+    if ( EventDispatcher::IsRequestEventMessage( msg ) )
     {
+        EventDispatcher::Get().OnRequestEventMessageReceived( wnd_ );
+
+        static uint32_t nestedCounter = 0;
+        ++nestedCounter;
+
+        qwr::final_action onEventProcessed( [hWnd = wnd_.m_hWnd] {
+            --nestedCounter;
+
+            if ( !nestedCounter )
+            { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
+                // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
+                mozjs::JsContainer::RunJobs();
+            }
+            if ( !nestedCounter || modal::IsModalBlocked() )
+            {
+                EventDispatcher::Get().RequestNextEvent( hWnd );
+            }
+        } );
+
         if ( nestedCounter == 1 || modal::IsModalBlocked() )
         {
-            auto optMessage = message_manager::instance().ClaimAsyncMessage( wnd_, msg, wp, lp );
-            if ( optMessage )
-            {
-                const auto [asyncMsg, asyncWp, asyncLp] = *optMessage;
-                auto retVal = process_async_messages( asyncMsg, asyncWp, asyncLp );
-                if ( retVal )
-                {
-                    return *retVal;
-                }
-            }
+            EventDispatcher::Get().ProcessNextEvent( wnd_ );
         }
     }
     else
@@ -244,6 +255,245 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     }
 
     return DefWindowProc( hwnd, msg, wp, lp );
+}
+
+void js_panel_window::ExecuteTask( EventId id )
+{
+    switch ( id )
+    {
+    case EventId::kScriptEdit:
+    {
+        EditScript();
+        break;
+    }
+    case EventId::kScriptReload:
+    {
+        ReloadScript();
+        break;
+    }
+    case EventId::kScriptShowConfigure:
+    {
+        ShowConfigure( wnd_ );
+        break;
+    }
+    case EventId::kScriptShowConfigureLegacy:
+    {
+        switch ( settings_.GetSourceType() )
+        {
+        case config::ScriptSourceType::InMemory:
+        {
+            EditScript();
+            break;
+        }
+        default:
+        {
+            ShowConfigure( wnd_ );
+            break;
+        }
+        }
+        break;
+    }
+    case EventId::kScriptShowProperties:
+    {
+        ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
+        break;
+    }
+    case EventId::kWndPaint:
+    {
+        if ( isPaintInProgress_ )
+        {
+            break;
+        }
+        isPaintInProgress_ = true;
+
+        if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
+        { // Two pass redraw: paint BG > Repaint() > paint FG
+            CRect rc;
+            wnd_.GetUpdateRect( &rc, FALSE );
+            RepaintBackground( &rc ); ///< Calls Repaint() inside
+
+            isBgRepaintNeeded_ = false;
+            isPaintInProgress_ = false;
+
+            Repaint( true );
+            break;
+        }
+        {
+            CPaintDC dc{ wnd_ };
+            const bool paintError = !pJsContainer_;
+            OnPaint( dc, dc.m_ps.rcPaint, paintError );
+        }
+
+        isPaintInProgress_ = false;
+
+        break;
+    }
+    case EventId::kWndRepaintBackground:
+    {
+        isBgRepaintNeeded_ = true;
+        Repaint( true );
+
+        break;
+    }
+    case EventId::kWndResize:
+    {
+        if ( !pJsContainer_ )
+        {
+            break;
+        }
+
+        CRect rc;
+        wnd_.GetClientRect( &rc );
+        OnSizeUser( rc.Width(), rc.Height() );
+
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
+{
+    const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
+        if ( !pJsContainer_ )
+        {
+            return false;
+        }
+        else
+        {
+            return jsTask.JsExecute( *pJsContainer_ );
+        }
+    };
+
+    switch ( id )
+    {
+    case EventId::kMouseRightButtonUp:
+    {
+        const auto pEvent = task.AsMouseEvent();
+        assert( pEvent );
+
+        // Bypass the user code.
+        const auto useDefaultContextMenu = [&] {
+            if ( pEvent->IsShiftPressed() && pEvent->IsWinPressed() )
+            {
+                return true;
+            }
+            else
+            {
+                return !execJs( *pEvent ).value_or( false );
+            }
+        }();
+
+        if ( useDefaultContextMenu )
+        {
+            EventDispatcher::Get().PutEvent( wnd_,
+                                             std::make_unique<Event_Mouse>(
+                                                 EventId::kMouseContextMenu,
+                                                 pEvent->GetX(),
+                                                 pEvent->GetY(),
+                                                 0,
+                                                 pEvent->GetModifiers() ),
+                                             EventPriority::kInput );
+        }
+
+        break;
+    }
+    case EventId::kMouseContextMenu:
+    {
+        const auto pMouseEvent = task.AsMouseEvent();
+        assert( pMouseEvent );
+
+        OnContextMenu( pMouseEvent->GetX(), pMouseEvent->GetY() );
+
+        break;
+    }
+    case EventId::kMouseDragEnter:
+    {
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
+        if ( pJsContainer_ )
+        {
+            auto dragParams = pDragEvent->GetDragParams();
+            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_enter",
+                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                                 pDragEvent->GetMask(),
+                                                                 dragParams );
+            if ( bRet )
+            {
+                lastDragParams_ = dragParams;
+            }
+        }
+
+        break;
+    }
+    case EventId::kMouseDragLeave:
+    {
+        if ( pJsContainer_ )
+        {
+            pJsContainer_->InvokeJsCallback( "on_drag_leave" );
+        }
+        lastDragParams_.reset();
+
+        break;
+    }
+    case EventId::kMouseDragOver:
+    {
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
+        if ( pJsContainer_ )
+        {
+            auto dragParams = pDragEvent->GetDragParams();
+            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_over",
+                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                                 pDragEvent->GetMask(),
+                                                                 dragParams );
+            if ( bRet )
+            {
+                lastDragParams_ = dragParams;
+            }
+        }
+
+        break;
+    }
+    case EventId::kMouseDragDrop:
+    {
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
+        if ( pJsContainer_ )
+        {
+            auto dragParams = pDragEvent->GetDragParams();
+            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_drop",
+                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                                 pDragEvent->GetMask(),
+                                                                 dragParams );
+            if ( bRet )
+            {
+                lastDragParams_ = dragParams;
+            }
+        }
+        lastDragParams_.reset();
+
+        break;
+    }
+    default:
+    {
+        execJs( task );
+    }
+    }
+}
+
+bool js_panel_window::ExecuteJsCode( mozjs::JsAsyncTask& jsTask )
+{
+    if ( !pJsContainer_ )
+    {
+        return false;
+    }
+
+    return pJsContainer_->InvokeJsAsyncTask( jsTask );
 }
 
 std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -272,41 +522,18 @@ std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT m
     return std::nullopt;
 }
 
-std::optional<LRESULT> js_panel_window::process_async_messages( UINT msg, WPARAM wp, LPARAM lp )
-{
-    if ( !pJsContainer_ )
-    {
-        return std::nullopt;
-    }
-
-    if ( IsInEnumRange<CallbackMessage>( msg ) )
-    {
-        return process_callback_messages( static_cast<CallbackMessage>( msg ) );
-    }
-    else if ( IsInEnumRange<PlayerMessage>( msg ) )
-    {
-        return process_player_messages( static_cast<PlayerMessage>( msg ), wp, lp );
-    }
-    else if ( IsInEnumRange<InternalAsyncMessage>( msg ) )
-    {
-        return process_internal_async_messages( static_cast<InternalAsyncMessage>( msg ), wp, lp );
-    }
-
-    return std::nullopt;
-}
-
 std::optional<LRESULT> js_panel_window::process_main_messages( HWND hwnd, UINT msg, WPARAM, LPARAM )
 {
     switch ( msg )
     {
     case WM_CREATE:
     {
-        on_panel_create( hwnd );
+        OnCreate( hwnd );
         return 0;
     }
     case WM_DESTROY:
     {
-        on_panel_destroy();
+        OnDestroy();
         return 0;
     }
     default:
@@ -327,12 +554,16 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     {
     case WM_DISPLAYCHANGE:
     case WM_THEMECHANGED:
-        ReloadScript();
+    {
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
         return 0;
-
+    }
     case WM_ERASEBKGND:
     {
-        on_erase_background();
+        if ( settings_.isPseudoTransparent )
+        {
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
+        }
         return 1;
     }
     case WM_PAINT:
@@ -341,34 +572,19 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         {
             return std::nullopt;
         }
-        isPaintInProgress_ = true;
 
-        if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
-        { // Two pass redraw: paint BG > Repaint() > paint FG
-            CRect rc;
-            wnd_.GetUpdateRect( &rc, FALSE );
-            RepaintBackground( &rc ); ///< Calls Repaint() inside
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndPaint ), EventPriority::kRedraw );
 
-            isBgRepaintNeeded_ = false;
-            isPaintInProgress_ = false;
-
-            Repaint( true );
-            return 0;
-        }
-
-        {
-            CPaintDC dc{ wnd_ };
-            on_paint( dc, dc.m_ps.rcPaint );
-        }
-
-        isPaintInProgress_ = false;
         return 0;
     }
     case WM_SIZE:
     {
         CRect rc;
         wnd_.GetClientRect( &rc );
-        on_size( rc.Width(), rc.Height() );
+        OnSizeDefault( rc.Width(), rc.Height() );
+
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
+
         return 0;
     }
     case WM_GETMINMAXINFO:
@@ -376,8 +592,8 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         // but we don't need to handle it before panel creation,
         // since default values suit us just fine
         auto pmmi = reinterpret_cast<LPMINMAXINFO>( lp );
-        memcpy( &pmmi->ptMaxTrackSize, &MaxSize(), sizeof( POINT ) );
-        memcpy( &pmmi->ptMinTrackSize, &MinSize(), sizeof( POINT ) );
+        pmmi->ptMaxTrackSize = MaxSize();
+        pmmi->ptMinTrackSize = MinSize();
         return 0;
     }
     case WM_GETDLGCODE:
@@ -385,52 +601,170 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         return DlgCode();
     }
     case WM_LBUTTONDOWN:
-    case WM_MBUTTONDOWN:
-    case WM_RBUTTONDOWN:
     {
-        on_mouse_button_down( msg, wp, lp );
+        static const std::unordered_map<int, EventId> kMsgToEventId{
+            { WM_LBUTTONDOWN, EventId::kMouseLeftButtonDown },
+            { WM_MBUTTONDOWN, EventId::kMouseMiddleButtonDown },
+            { WM_RBUTTONDOWN, EventId::kMouseRightButtonDown }
+        };
+
+        if ( settings_.shouldGrabFocus )
+        {
+            wnd_.SetFocus();
+        }
+
+        SetCaptureMouseState( true );
+
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             kMsgToEventId.at( msg ),
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
-    case WM_RBUTTONUP:
     {
-        if ( on_mouse_button_up( msg, wp, lp ) )
+        static const std::unordered_map<int, EventId> kMsgToEventId{
+            { WM_LBUTTONUP, EventId::kMouseLeftButtonUp },
+            { WM_MBUTTONUP, EventId::kMouseMiddleButtonUp }
+        };
+
+        if ( isMouseCaptured_ )
         {
-            return 0;
+            SetCaptureMouseState( false );
         }
+
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             kMsgToEventId.at( msg ),
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
+    case WM_RBUTTONUP:
+    {
+        if ( isMouseCaptured_ )
+        {
+            SetCaptureMouseState( false );
+        }
+
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         std::make_unique<Event_Mouse>(
+                                             EventId::kMouseRightButtonUp,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ),
+                                             GetHotkeyModifierFlags() ),
+                                         EventPriority::kInput );
+
+        return 0;
+    }
     case WM_LBUTTONDBLCLK:
+    {
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseLeftButtonDoubleClick,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
+        return std::nullopt;
+    }
     case WM_MBUTTONDBLCLK:
+    {
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseMiddleButtonDoubleClick,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
+        return std::nullopt;
+    }
     case WM_RBUTTONDBLCLK:
     {
-        on_mouse_button_dblclk( msg, wp, lp );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseRightButtonDoubleClick,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_CONTEXTMENU:
     {
-        on_context_menu( GET_X_LPARAM( lp ), GET_Y_LPARAM( lp ) );
+        // WM_CONTEXTMENU receives screen coordinates
+        POINT p{ GET_X_LPARAM( lp ), GET_Y_LPARAM( lp ) };
+        ScreenToClient( wnd_, &p );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         std::make_unique<Event_Mouse>(
+                                             EventId::kMouseContextMenu,
+                                             p.x,
+                                             p.y,
+                                             0,
+                                             GetHotkeyModifierFlags() ),
+                                         EventPriority::kInput );
+
         return 1;
     }
     case WM_MOUSEMOVE:
     {
-        on_mouse_move( wp, lp );
+        if ( !isMouseTracked_ )
+        {
+            isMouseTracked_ = true;
+
+            TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, wnd_, HOVER_DEFAULT };
+            TrackMouseEvent( &tme );
+
+            // Restore default cursor
+            SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
+        }
+
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseMove,
+                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_MOUSELEAVE:
     {
-        on_mouse_leave();
+        isMouseTracked_ = false;
+
+        // Restore default cursor
+        SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
+
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback( EventId::kMouseLeave ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_MOUSEWHEEL:
     {
-        on_mouse_wheel( wp );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseVerticalWheel,
+                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ),
+                                             static_cast<int32_t>( GET_WHEEL_DELTA_WPARAM( wp ) ),
+                                             static_cast<int32_t>( WHEEL_DELTA ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_MOUSEHWHEEL:
     {
-        on_mouse_wheel_h( wp );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kMouseHorizontalWheel,
+                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ) ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_SETCURSOR:
@@ -440,245 +774,49 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
     {
-        on_key_down( wp );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kKeyboardKeyDown,
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return 0;
     }
     case WM_KEYUP:
     {
-        on_key_up( wp );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kKeyboardKeyUp,
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return 0;
     }
     case WM_CHAR:
     {
-        on_char( wp );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kKeyboardChar,
+                                             static_cast<uint32_t>( wp ) ),
+                                         EventPriority::kInput );
         return 0;
     }
     case WM_SETFOCUS:
     {
-        on_focus( true );
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kInputFocus,
+                                             true ),
+                                         EventPriority::kInput );
         return std::nullopt;
     }
     case WM_KILLFOCUS:
     {
-        on_focus( false );
+        selectionHolder_.release();
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         GenerateEvent_JsCallback(
+                                             EventId::kInputFocus,
+                                             false ),
+                                         EventPriority::kInput );
         return std::nullopt;
-    }
-    default:
-    {
-        return std::nullopt;
-    }
-    }
-}
-
-std::optional<LRESULT> js_panel_window::process_callback_messages( CallbackMessage msg )
-{
-    auto pCallbackData = message_manager::instance().ClaimCallbackMessageData( wnd_, msg );
-    auto& callbackData = *pCallbackData;
-
-    switch ( msg )
-    {
-    case CallbackMessage::fb_item_focus_change:
-    {
-        on_item_focus_change( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_item_played:
-    {
-        on_item_played( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_library_items_added:
-    {
-        on_library_items_added( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_library_items_changed:
-    {
-        on_library_items_changed( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_library_items_removed:
-    {
-        on_library_items_removed( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_metadb_changed:
-    {
-        on_metadb_changed( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playback_edited:
-    {
-        on_playback_edited( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playback_new_track:
-    {
-        on_playback_new_track( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playback_seek:
-    {
-        on_playback_seek( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_playback_time:
-    {
-        on_playback_time( callbackData );
-        return 0;
-    }
-    case CallbackMessage::fb_volume_change:
-    {
-        on_volume_change( callbackData );
-        return 0;
-    }
-    case CallbackMessage::internal_get_album_art_done:
-    {
-        on_get_album_art_done( callbackData );
-        return 0;
-    }
-    case CallbackMessage::internal_load_image_done:
-    {
-        on_load_image_done( callbackData );
-        return 0;
-    }
-    case CallbackMessage::internal_load_image_promise_done:
-    case CallbackMessage::internal_get_album_art_promise_done:
-    case CallbackMessage::internal_timer_proc:
-    {
-        on_js_task( callbackData );
-        return 0;
-    }
-    default:
-    {
-        return std::nullopt;
-    }
-    }
-}
-
-std::optional<LRESULT> js_panel_window::process_player_messages( PlayerMessage msg, WPARAM wp, LPARAM lp )
-{
-    switch ( msg )
-    {
-    case PlayerMessage::fb_always_on_top_changed:
-    {
-        on_always_on_top_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_cursor_follow_playback_changed:
-    {
-        on_cursor_follow_playback_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_dsp_preset_changed:
-    {
-        on_dsp_preset_changed();
-        return 0;
-    }
-    case PlayerMessage::fb_output_device_changed:
-    {
-        on_output_device_changed();
-        return 0;
-    }
-    case PlayerMessage::fb_playback_dynamic_info:
-    {
-        on_playback_dynamic_info();
-        return 0;
-    }
-    case PlayerMessage::fb_playback_dynamic_info_track:
-    {
-        on_playback_dynamic_info_track();
-        return 0;
-    }
-    case PlayerMessage::fb_playback_follow_cursor_changed:
-    {
-        on_playback_follow_cursor_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_order_changed:
-    {
-        on_playback_order_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_pause:
-    {
-        on_playback_pause( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_queue_changed:
-    {
-        on_playback_queue_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_stop:
-    {
-        on_playback_stop( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playback_starting:
-    {
-        on_playback_starting( wp, lp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_item_ensure_visible:
-    {
-        on_playlist_item_ensure_visible( wp, lp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_items_added:
-    {
-        on_playlist_items_added( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_items_reordered:
-    {
-        on_playlist_items_reordered( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_items_removed:
-    {
-        on_playlist_items_removed( wp, lp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_items_selection_change:
-    {
-        on_playlist_items_selection_change();
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_stop_after_current_changed:
-    {
-        on_playlist_stop_after_current_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_playlist_switch:
-    {
-        on_playlist_switch();
-        return 0;
-    }
-    case PlayerMessage::fb_playlists_changed:
-    {
-        on_playlists_changed();
-        return 0;
-    }
-    case PlayerMessage::fb_replaygain_mode_changed:
-    {
-        on_replaygain_mode_changed( wp );
-        return 0;
-    }
-    case PlayerMessage::fb_selection_changed:
-    {
-        on_selection_changed();
-        return 0;
-    }
-    case PlayerMessage::ui_font_changed:
-    {
-        on_font_changed();
-        return 0;
-    }
-    case PlayerMessage::ui_colours_changed:
-    {
-        on_colours_changed();
-        return 0;
     }
     default:
     {
@@ -696,17 +834,12 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
 
     switch ( msg )
     {
-    case InternalSyncMessage::notify_data:
-    {
-        on_notify_data( wp, lp );
-        return 0;
-    }
     case InternalSyncMessage::script_fail:
     {
         Fail( *reinterpret_cast<const qwr::u8string*>( lp ) );
         return 0;
     }
-    case InternalSyncMessage::terminate_script:
+    case InternalSyncMessage::prepare_for_exit:
     {
         UnloadScript();
         return 0;
@@ -716,94 +849,43 @@ std::optional<LRESULT> js_panel_window::process_internal_sync_messages( Internal
         ReloadScript();
         return 0;
     }
-    case InternalSyncMessage::update_size_on_reload:
-    {
-        on_size( width_, height_ );
-        return 0;
-    }
     case InternalSyncMessage::wnd_drag_drop:
     {
-        on_drag_drop( lp );
+        if ( isMouseCaptured_ )
+        {
+            SetCaptureMouseState( false );
+        }
+
         return 0;
     }
     case InternalSyncMessage::wnd_drag_enter:
     {
-        on_drag_enter( lp );
+        isDraggingInside_ = true;
         return 0;
     }
     case InternalSyncMessage::wnd_drag_leave:
     {
-        on_drag_leave();
+        isDraggingInside_ = false;
         return 0;
     }
-    case InternalSyncMessage::wnd_drag_over:
+    case InternalSyncMessage::wnd_internal_drag_start:
     {
-        on_drag_over( lp );
+        hasInternalDrag_ = true;
         return 0;
     }
-    default:
+    case InternalSyncMessage::wnd_internal_drag_stop:
     {
-        return std::nullopt;
-    }
-    }
-}
+        if ( !isDraggingInside_ )
+        {
+            isMouseTracked_ = false;
+        }
+        if ( isMouseCaptured_ )
+        {
+            SetCaptureMouseState( false );
+        }
 
-std::optional<LRESULT> js_panel_window::process_internal_async_messages( InternalAsyncMessage msg, WPARAM wp, LPARAM )
-{
-    switch ( msg )
-    {
-    case InternalAsyncMessage::edit_script:
-    {
-        EditScript();
-        return 0;
-    }
-    case InternalAsyncMessage::main_menu_item:
-    {
-        on_main_menu( wp );
-        return 0;
-    }
-    case InternalAsyncMessage::dynamic_main_menu_item:
-    {
-        pJsContainer_->InvokeJsCallback( "on_main_menu_dynamic",
-                                         static_cast<uint32_t>( wp ) );
-        return 0;
-    }
-    case InternalAsyncMessage::refresh_bg:
-    {
-        isBgRepaintNeeded_ = true;
-        Repaint( true );
-        return 0;
-    }
-    case InternalAsyncMessage::reload_script:
-    {
-        ReloadScript();
-        return 0;
-    }
-    case InternalAsyncMessage::show_configure_legacy:
-    {
-        switch ( settings_.GetSourceType() )
-        {
-        case config::ScriptSourceType::InMemory:
-        {
-            EditScript();
-            break;
-        }
-        default:
-        {
-            ShowConfigure( wnd_ );
-            break;
-        }
-        }
-        return 0;
-    }
-    case InternalAsyncMessage::show_configure:
-    {
-        ShowConfigure( wnd_ );
-        return 0;
-    }
-    case InternalAsyncMessage::show_properties:
-    {
-        ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
+        hasInternalDrag_ = false;
+
         return 0;
     }
     default:
@@ -926,7 +1008,7 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         {
         case 1:
         {
-            ReloadScript();
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
             break;
         }
         case 2:
@@ -941,17 +1023,17 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
         }
         case 4:
         {
-            panel::EditScript( wnd_, settings_ );
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptEdit ), EventPriority::kControl );
             break;
         }
         case 5:
         {
-            ShowConfigure( wnd_, ui::CDialogConf::Tab::properties );
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowProperties ), EventPriority::kControl );
             break;
         }
         case 6:
         {
-            ShowConfigure( wnd_ );
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ), EventPriority::kControl );
             break;
         }
         }
@@ -1056,10 +1138,13 @@ void js_panel_window::SetPanelName( const qwr::u8string& panelName )
 
 void js_panel_window::SetDragAndDropStatus( bool isEnabled )
 {
+    isDraggingInside_ = false;
+    hasInternalDrag_ = false;
+    lastDragParams_.reset();
     settings_.enableDragDrop = isEnabled;
     if ( isEnabled )
     {
-        dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( wnd_ ) );
+        dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( *this ) );
 
         HRESULT hr = dropTargetHandler_->RegisterDragDrop();
         qwr::error::CheckHR( hr, "RegisterDragDrop" );
@@ -1079,7 +1164,17 @@ void js_panel_window::SetCaptureFocusStatus( bool isEnabled )
     settings_.shouldGrabFocus = isEnabled;
 }
 
-void js_panel_window::Repaint( bool force /*= false */ )
+const std::optional<DragActionParams>& js_panel_window::GetLastDragParams() const
+{
+    return lastDragParams_;
+}
+
+bool js_panel_window::HasInternalDrag() const
+{
+    return hasInternalDrag_;
+}
+
+void js_panel_window::Repaint( bool force )
 {
     wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
@@ -1133,7 +1228,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
 
     // Force Repaint
     wnd_.SetWindowRgn( rgn_child, FALSE );
-    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
+    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW );
 
     {
         // Background bitmap
@@ -1160,10 +1255,9 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     hasFailed_ = false;
     isPanelIdOverridenByScript_ = false;
 
-    DynamicMainMenuManager::Get().RegisterPanel( wnd_, settings_.panelId );
-    message_manager::instance().EnableAsyncMessages( wnd_ );
+    DynamicMainMenuManager::Get().RegisterPanel(wnd_, settings_.panelId);
 
-    const auto extstyle = [&] {
+    const auto extstyle = [&]() {
         DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
         extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
         extstyle |= ConvertEdgeStyleToNativeFlags( settings_.edgeStyle );
@@ -1183,6 +1277,8 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
         return false;
     }
 
+    pTimeoutManager_->SetLoadingStatus( true );
+
     if ( settings_.script )
     {
         modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
@@ -1199,13 +1295,15 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
             config::MarkPackageAsInUse( *settings_.packageId );
         }
 
-        assert( settings_.scriptPath );
         modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
+        assert( settings_.scriptPath );
         if ( !pJsContainer_->ExecuteScriptFile( *settings_.scriptPath ) )
         { // error reporting handled inside
             return false;
         }
     }
+
+    pTimeoutManager_->SetLoadingStatus( false );
 
     FB2K_console_formatter() << fmt::format(
         SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",
@@ -1215,7 +1313,7 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     if ( !isFirstLoad )
     { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
         // We need to go through message loop to handle all JS logic correctly (e.g. jobs).
-        wnd_.SendMessage( static_cast<UINT>( InternalSyncMessage::update_size_on_reload ), 0, 0 );
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
     }
 
     return true;
@@ -1233,7 +1331,11 @@ void js_panel_window::UnloadScript( bool force )
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
     }
 
-    message_manager::instance().DisableAsyncMessages( wnd_ );
+    DynamicMainMenuManager::Get().UnregisterPanel(wnd_);
+    pJsContainer_->Finalize();
+    pTimeoutManager_->StopAllTimeouts();
+
+
     selectionHolder_.release();
     try
     {
@@ -1242,8 +1344,6 @@ void js_panel_window::UnloadScript( bool force )
     catch ( const qwr::QwrException& )
     {
     }
-    DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
-    pJsContainer_->Finalize();
 }
 
 void js_panel_window::CreateDrawContext()
@@ -1271,7 +1371,7 @@ void js_panel_window::DeleteDrawContext()
     }
 }
 
-void js_panel_window::on_context_menu( int x, int y )
+void js_panel_window::OnContextMenu( int x, int y )
 {
     if ( modal::IsModalBlocked() )
     {
@@ -1280,24 +1380,19 @@ void js_panel_window::on_context_menu( int x, int y )
 
     modal::MessageBlockingScope scope;
 
+    POINT p{ x, y };
+    ClientToScreen( wnd_, &p );
+
     CMenu menu = CreatePopupMenu();
     constexpr uint32_t base_id = 0;
-    GenerateContextMenu( menu, x, y, base_id );
+    GenerateContextMenu( menu, p.x, p.y, base_id );
 
     // yup, WinAPI at it's best: BOOL is used as an integer index here
-    const uint32_t ret = menu.TrackPopupMenu( TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, x, y, wnd_, nullptr );
+    const uint32_t ret = menu.TrackPopupMenu( TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, p.x, p.y, wnd_, nullptr );
     ExecuteContextMenu( ret, base_id );
 }
 
-void js_panel_window::on_erase_background()
-{
-    if ( settings_.isPseudoTransparent )
-    {
-        message_manager::instance().post_msg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
-    }
-}
-
-void js_panel_window::on_panel_create( HWND hWnd )
+void js_panel_window::OnCreate( HWND hWnd )
 {
     wnd_ = hWnd;
     hDc_ = wnd_.GetDC();
@@ -1309,367 +1404,41 @@ void js_panel_window::on_panel_create( HWND hWnd )
 
     CreateDrawContext();
 
-    message_manager::instance().AddWindow( wnd_ );
+    pTarget_ = std::make_shared<PanelTarget>( *this );
+    EventDispatcher::Get().AddWindow( wnd_, pTarget_ );
 
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
+    pTimeoutManager_ = std::make_unique<TimeoutManager>( pTarget_ );
+
     LoadScript( true );
 }
 
-void js_panel_window::on_panel_destroy()
+void js_panel_window::OnDestroy()
 {
     // Careful when changing invocation order here!
 
     UnloadScript();
+
+    if ( pTarget_ )
+    {
+        pTarget_->UnlinkPanel();
+    }
+
+    if ( pTimeoutManager_ )
+    {
+        pTimeoutManager_->Finalize();
+        pTimeoutManager_.reset();
+    }
+
+    EventDispatcher::Get().RemoveWindow( wnd_ );
+
     pJsContainer_.reset();
 
-    message_manager::instance().RemoveWindow( wnd_ );
     DeleteDrawContext();
     ReleaseDC( wnd_, hDc_ );
 }
 
-void js_panel_window::on_js_task( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<std::shared_ptr<mozjs::JsAsyncTask>>();
-    pJsContainer_->InvokeJsAsyncTask( *std::get<0>( data ) );
-}
-
-void js_panel_window::on_always_on_top_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_always_on_top_changed",
-                                     static_cast<bool>( wp ) );
-}
-
-void js_panel_window::on_char( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_char",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_colours_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_colours_changed" );
-}
-
-void js_panel_window::on_cursor_follow_playback_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_cursor_follow_playback_changed",
-                                     static_cast<bool>( wp ) );
-}
-
-void js_panel_window::on_drag_drop( LPARAM lp )
-{
-    auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
-    pJsContainer_->InvokeOnDragAction( "on_drag_drop",
-                                       actionParams->pt,
-                                       actionParams->keyState,
-                                       actionParams->actionParams );
-}
-
-void js_panel_window::on_drag_enter( LPARAM lp )
-{
-    auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
-    pJsContainer_->InvokeOnDragAction( "on_drag_enter",
-                                       actionParams->pt,
-                                       actionParams->keyState,
-                                       actionParams->actionParams );
-}
-
-void js_panel_window::on_drag_leave()
-{
-    pJsContainer_->InvokeJsCallback( "on_drag_leave" );
-}
-
-void js_panel_window::on_drag_over( LPARAM lp )
-{
-    auto actionParams = reinterpret_cast<DropActionMessageParams*>( lp );
-    pJsContainer_->InvokeOnDragAction( "on_drag_over",
-                                       actionParams->pt,
-                                       actionParams->keyState,
-                                       actionParams->actionParams );
-}
-
-void js_panel_window::on_dsp_preset_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_dsp_preset_changed" );
-}
-
-void js_panel_window::on_focus( bool isFocused )
-{
-    if ( isFocused )
-    {
-        selectionHolder_ = ui_selection_manager::get()->acquire();
-    }
-    else
-    {
-        selectionHolder_.release();
-    }
-    pJsContainer_->InvokeJsCallback( "on_focus",
-                                     static_cast<bool>( isFocused ) );
-}
-
-void js_panel_window::on_font_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_font_changed" );
-}
-
-void js_panel_window::on_get_album_art_done( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_ptr, uint32_t, std::unique_ptr<Gdiplus::Bitmap>, qwr::u8string>();
-    pJsContainer_->InvokeJsCallback( "on_get_album_art_done",
-                                     std::get<0>( data ),
-                                     std::get<1>( data ),
-                                     std::move( std::get<2>( data ) ),
-                                     std::get<3>( data ) );
-}
-
-void js_panel_window::on_item_focus_change( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<t_size, t_size, t_size>();
-    pJsContainer_->InvokeJsCallback( "on_item_focus_change",
-                                     static_cast<int32_t>( std::get<0>( data ) ),
-                                     static_cast<int32_t>( std::get<1>( data ) ),
-                                     static_cast<int32_t>( std::get<2>( data ) ) );
-}
-
-void js_panel_window::on_item_played( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_ptr>();
-    pJsContainer_->InvokeJsCallback( "on_item_played",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_key_down( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_key_down",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_key_up( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_key_up",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_load_image_done( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<uint32_t, std::unique_ptr<Gdiplus::Bitmap>, qwr::u8string>();
-    pJsContainer_->InvokeJsCallback( "on_load_image_done",
-                                     std::get<0>( data ),
-                                     std::move( std::get<1>( data ) ),
-                                     std::get<2>( data ) );
-}
-
-void js_panel_window::on_library_items_added( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_list>();
-    pJsContainer_->InvokeJsCallback( "on_library_items_added",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_library_items_changed( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_list>();
-    pJsContainer_->InvokeJsCallback( "on_library_items_changed",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_library_items_removed( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_list>();
-    pJsContainer_->InvokeJsCallback( "on_library_items_removed",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_main_menu( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_main_menu",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_metadb_changed( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_list, bool>();
-    pJsContainer_->InvokeJsCallback( "on_metadb_changed",
-                                     std::get<0>( data ),
-                                     std::get<1>( data ) );
-}
-
-void js_panel_window::on_mouse_button_dblclk( UINT msg, WPARAM wp, LPARAM lp )
-{
-    switch ( msg )
-    {
-    case WM_LBUTTONDBLCLK:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_lbtn_dblclk",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-
-    case WM_MBUTTONDBLCLK:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_mbtn_dblclk",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-
-    case WM_RBUTTONDBLCLK:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_rbtn_dblclk",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    default:
-        assert( false );
-        break;
-    }
-}
-
-void js_panel_window::on_mouse_button_down( UINT msg, WPARAM wp, LPARAM lp )
-{
-    if ( settings_.shouldGrabFocus )
-    {
-        wnd_.SetFocus();
-    }
-
-    wnd_.SetCapture();
-
-    switch ( msg )
-    {
-    case WM_LBUTTONDOWN:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_lbtn_down",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    case WM_MBUTTONDOWN:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_mbtn_down",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    case WM_RBUTTONDOWN:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_rbtn_down",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    default:
-        assert( false );
-        break;
-    }
-}
-
-bool js_panel_window::on_mouse_button_up( UINT msg, WPARAM wp, LPARAM lp )
-{
-    bool ret = false;
-
-    switch ( msg )
-    {
-    case WM_LBUTTONUP:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_lbtn_up",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    case WM_MBUTTONUP:
-    {
-        pJsContainer_->InvokeJsCallback( "on_mouse_mbtn_up",
-                                         static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                         static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                         static_cast<uint32_t>( wp ) );
-        break;
-    }
-    case WM_RBUTTONUP:
-    {
-        // Bypass the user code.
-        if ( IsKeyPressed( VK_LSHIFT ) && IsKeyPressed( VK_LWIN ) )
-        {
-            break;
-        }
-
-        auto autoRet = pJsContainer_->InvokeJsCallback<bool>( "on_mouse_rbtn_up",
-                                                              static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                                              static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                                              static_cast<uint32_t>( wp ) );
-        ret = autoRet.value_or( false );
-        break;
-    }
-    default:
-        assert( false );
-        break;
-    }
-
-    ReleaseCapture();
-    return ret;
-}
-
-void js_panel_window::on_mouse_leave()
-{
-    isMouseTracked_ = false;
-
-    pJsContainer_->InvokeJsCallback( "on_mouse_leave" );
-
-    // Restore default cursor
-    SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
-}
-
-void js_panel_window::on_mouse_move( WPARAM wp, LPARAM lp )
-{
-    if ( !isMouseTracked_ )
-    {
-        TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, wnd_, HOVER_DEFAULT };
-        TrackMouseEvent( &tme );
-        isMouseTracked_ = true;
-
-        // Restore default cursor
-        SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
-    }
-
-    pJsContainer_->InvokeJsCallback( "on_mouse_move",
-                                     static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                     static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_mouse_wheel( WPARAM wp )
-{ // TODO: missing param doc
-    pJsContainer_->InvokeJsCallback( "on_mouse_wheel",
-                                     static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ),
-                                     static_cast<int32_t>( GET_WHEEL_DELTA_WPARAM( wp ) ),
-                                     static_cast<int32_t>( WHEEL_DELTA ) );
-}
-
-void js_panel_window::on_mouse_wheel_h( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_mouse_wheel_h",
-                                     static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ) );
-}
-
-void js_panel_window::on_notify_data( WPARAM wp, LPARAM lp )
-{
-    pJsContainer_->InvokeOnNotify( wp, lp );
-}
-
-void js_panel_window::on_output_device_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_output_device_changed" );
-}
-
-void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
+void js_panel_window::OnPaint( HDC dc, const CRect& updateRc, bool useErrorScreen )
 {
     if ( !dc || !bmp_ )
     {
@@ -1683,7 +1452,7 @@ void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
          || mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
          || mozjs::JsContainer::JsStatus::Failed == pJsContainer_->GetStatus() )
     {
-        on_paint_error( memDc );
+        OnPaintErrorScreen( memDc );
     }
     else
     {
@@ -1707,13 +1476,13 @@ void js_panel_window::on_paint( HDC dc, const CRect& updateRc )
             memDc.FillRect( &rc, (HBRUSH)( COLOR_WINDOW + 1 ) );
         }
 
-        on_paint_user( memDc, updateRc );
+        OnPaintJs( memDc, updateRc );
     }
 
     BitBlt( dc, 0, 0, width_, height_, memDc, 0, 0, SRCCOPY );
 }
 
-void js_panel_window::on_paint_error( HDC memdc )
+void js_panel_window::OnPaintErrorScreen( HDC memdc )
 {
     CDCHandle cdc{ memdc };
     CFont font;
@@ -1745,7 +1514,7 @@ void js_panel_window::on_paint_error( HDC memdc )
     cdc.DrawText( L"Aw, crashed :(", -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
 }
 
-void js_panel_window::on_paint_user( HDC memdc, const CRect& updateRc )
+void js_panel_window::OnPaintJs( HDC memdc, const CRect& updateRc )
 {
     Gdiplus::Graphics gr( memdc );
 
@@ -1758,154 +1527,24 @@ void js_panel_window::on_paint_user( HDC memdc, const CRect& updateRc )
     pJsContainer_->InvokeOnPaint( gr );
 }
 
-void js_panel_window::on_playback_dynamic_info()
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_dynamic_info" );
-}
-
-void js_panel_window::on_playback_dynamic_info_track()
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_dynamic_info_track" );
-}
-
-void js_panel_window::on_playback_edited( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_ptr>();
-    pJsContainer_->InvokeJsCallback( "on_playback_edited",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_playback_follow_cursor_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_follow_cursor_changed",
-                                     static_cast<bool>( wp ) );
-}
-
-void js_panel_window::on_playback_new_track( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<metadb_handle_ptr>();
-    pJsContainer_->InvokeJsCallback( "on_playback_new_track",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_playback_order_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_order_changed",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_playback_pause( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_pause",
-                                     static_cast<bool>( wp != 0 ) );
-}
-
-void js_panel_window::on_playback_queue_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_queue_changed",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_playback_seek( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<double>();
-    pJsContainer_->InvokeJsCallback( "on_playback_seek",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_playback_starting( WPARAM wp, LPARAM lp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_starting",
-                                     static_cast<uint32_t>( (playback_control::t_track_command)wp ),
-                                     static_cast<bool>( lp != 0 ) );
-}
-
-void js_panel_window::on_playback_stop( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playback_stop",
-                                     static_cast<uint32_t>( (playback_control::t_stop_reason)wp ) );
-}
-
-void js_panel_window::on_playback_time( CallbackData& callbackData )
-{
-    auto& data = callbackData.GetData<double>();
-    pJsContainer_->InvokeJsCallback( "on_playback_time",
-                                     std::get<0>( data ) );
-}
-
-void js_panel_window::on_playlist_item_ensure_visible( WPARAM wp, LPARAM lp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_item_ensure_visible",
-                                     static_cast<uint32_t>( wp ),
-                                     static_cast<uint32_t>( lp ) );
-}
-
-void js_panel_window::on_playlist_items_added( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_items_added",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_playlist_items_removed( WPARAM wp, LPARAM lp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_items_removed",
-                                     static_cast<uint32_t>( wp ),
-                                     static_cast<uint32_t>( lp ) );
-}
-
-void js_panel_window::on_playlist_items_reordered( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_items_reordered",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_playlist_items_selection_change()
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_items_selection_change" );
-}
-
-void js_panel_window::on_playlist_stop_after_current_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_stop_after_current_changed",
-                                     static_cast<bool>( wp ) );
-}
-
-void js_panel_window::on_playlist_switch()
-{
-    pJsContainer_->InvokeJsCallback( "on_playlist_switch" );
-}
-
-void js_panel_window::on_playlists_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_playlists_changed" );
-}
-
-void js_panel_window::on_replaygain_mode_changed( WPARAM wp )
-{
-    pJsContainer_->InvokeJsCallback( "on_replaygain_mode_changed",
-                                     static_cast<uint32_t>( wp ) );
-}
-
-void js_panel_window::on_selection_changed()
-{
-    pJsContainer_->InvokeJsCallback( "on_selection_changed" );
-}
-
-void js_panel_window::on_size( uint32_t w, uint32_t h )
+void js_panel_window::OnSizeDefault( uint32_t w, uint32_t h )
 {
     width_ = w;
     height_ = h;
 
     DeleteDrawContext();
     CreateDrawContext();
+}
 
+void js_panel_window::OnSizeUser( uint32_t w, uint32_t h )
+{
     pJsContainer_->InvokeJsCallback( "on_size",
                                      static_cast<uint32_t>( w ),
                                      static_cast<uint32_t>( h ) );
 
     if ( settings_.isPseudoTransparent )
     {
-        message_manager::instance().post_msg( wnd_, static_cast<UINT>( InternalAsyncMessage::refresh_bg ) );
+        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
     }
     else
     {
@@ -1913,11 +1552,17 @@ void js_panel_window::on_size( uint32_t w, uint32_t h )
     }
 }
 
-void js_panel_window::on_volume_change( CallbackData& callbackData )
+void js_panel_window::SetCaptureMouseState( bool shouldCapture )
 {
-    auto& data = callbackData.GetData<float>();
-    pJsContainer_->InvokeJsCallback( "on_volume_change",
-                                     std::get<0>( data ) );
+    if ( shouldCapture )
+    {
+        ::SetCapture( wnd_ );
+    }
+    else
+    {
+        ::ReleaseCapture();
+    }
+    isMouseCaptured_ = shouldCapture;
 }
 
 } // namespace smp::panel

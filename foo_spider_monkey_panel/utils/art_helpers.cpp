@@ -2,8 +2,8 @@
 
 #include "art_helpers.h"
 
-#include <panel/message_manager.h>
-#include <panel/user_message.h>
+#include <events/event_dispatcher.h>
+#include <events/event_js_callback.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/thread_pool_instance.h>
@@ -60,19 +60,15 @@ void AlbumArtFetchTask::operator()()
 void AlbumArtFetchTask::run()
 {
     qwr::u8string imagePath;
-    std::unique_ptr<Gdiplus::Bitmap> bitmap = art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
+    auto bitmap = art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
 
-    panel::message_manager::instance().post_callback_msg( hNotifyWnd_,
-                                                          smp::CallbackMessage::internal_get_album_art_done,
-                                                          std::make_unique<
-                                                              smp::panel::CallbackDataImpl<
-                                                                  metadb_handle_ptr,
-                                                                  uint32_t,
-                                                                  std::unique_ptr<Gdiplus::Bitmap>,
-                                                                  qwr::u8string>>( handle_,
-                                                                                   artId_,
-                                                                                   std::move( bitmap ),
-                                                                                   imagePath ) );
+    EventDispatcher::Get().PutEvent( hNotifyWnd_,
+                                     GenerateEvent_JsCallback(
+                                         EventId::kInternalGetAlbumArtDone,
+                                         handle_,
+                                         artId_,
+                                         std::move( bitmap ),
+                                         imagePath ) );
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data_ptr& data )

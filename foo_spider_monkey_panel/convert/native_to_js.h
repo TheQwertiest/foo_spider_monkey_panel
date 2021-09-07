@@ -3,17 +3,14 @@
 namespace mozjs::convert::to_js
 {
 
-template <typename InType>
-void ToValue( JSContext* cx, std::unique_ptr<InType> inValue, JS::MutableHandleValue wrappedValue )
+template <typename T>
+void ToValue( JSContext* cx, const std::reference_wrapper<T>& inValue, JS::MutableHandleValue wrappedValue )
 {
-    static_assert( 0, "Unsupported type" );
+    ToValue( cx, inValue.get(), wrappedValue );
 }
 
-template <>
-void ToValue( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::MutableHandleValue wrappedValue );
-
-template <typename InJsType>
-void ToValue( JSContext* cx, JS::Handle<InJsType> inValue, JS::MutableHandleValue wrappedValue )
+template <typename T>
+void ToValue( JSContext* cx, JS::Handle<T> inValue, JS::MutableHandleValue wrappedValue )
 {
     static_assert( 0, "Unsupported type" );
 }
@@ -24,8 +21,8 @@ void ToValue( JSContext* cx, JS::HandleObject inValue, JS::MutableHandleValue wr
 template <>
 void ToValue( JSContext* cx, JS::HandleValue inValue, JS::MutableHandleValue wrappedValue );
 
-template <typename InType>
-void ToValue( JSContext* cx, const InType& inValue, JS::MutableHandleValue wrappedValue )
+template <typename T>
+void ToValue( JSContext* cx, const T& inValue, JS::MutableHandleValue wrappedValue )
 {
     static_assert( 0, "Unsupported type" );
 }
@@ -81,7 +78,31 @@ template <>
 void ToValue( JSContext* cx, const metadb_handle_list& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
+void ToValue( JSContext* cx, const metadb_handle_list_cref& inValue, JS::MutableHandleValue wrappedValue );
+
+template <>
 void ToValue( JSContext* cx, const t_playback_queue_item& inValue, JS::MutableHandleValue wrappedValue );
+
+template <typename T>
+void ToValue( JSContext* cx, std::unique_ptr<T> inValue, JS::MutableHandleValue wrappedValue )
+{
+    static_assert( 0, "Unsupported type" );
+}
+
+template <>
+void ToValue( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::MutableHandleValue wrappedValue );
+
+template <typename T>
+void ToValue( JSContext* cx, std::shared_ptr<T> inValue, JS::MutableHandleValue wrappedValue )
+{
+    if ( !inValue )
+    {
+        wrappedValue.setNull();
+        return;
+    }
+
+    ToValue( cx, *inValue, wrappedValue );
+}
 
 template <typename T>
 void ToValue( JSContext* cx, const std::optional<T>& inValue, JS::MutableHandleValue wrappedValue )

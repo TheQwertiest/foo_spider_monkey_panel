@@ -3,11 +3,12 @@
 #include "track_drop_target.h"
 
 #include <com_objects/internal/drag_utils.h>
+#include <events/event_dispatcher.h>
+#include <events/event_drag.h>
 #include <js_engine/js_container.h>
 #include <js_objects/drop_source_action.h>
 #include <js_objects/global_object.h>
 #include <panel/js_panel_window.h>
-#include <panel/user_message.h>
 #include <utils/location_processor.h>
 
 namespace
@@ -56,119 +57,110 @@ const wchar_t* GetDropTextFromEffect( DWORD dwEffect )
 namespace smp::com
 {
 
-TrackDropTarget::TrackDropTarget( HWND hWnd )
-    : IDropTargetImpl( hWnd )
+TrackDropTarget::TrackDropTarget( panel::js_panel_window& panel )
+    : IDropTargetImpl( panel.GetHWND() )
+    , pPanel_( &panel )
 {
 }
 
 void TrackDropTarget::FinalRelease()
 {
+    pPanel_ = nullptr;
 }
 
-HRESULT TrackDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+DWORD TrackDropTarget::OnDragEnter( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD dwEffect )
 {
-    if ( !pdwEffect )
-    {
-        return E_POINTER;
-    }
-
     pDataObject_ = pDataObj;
-    actionParams_.Reset();
 
     bool native;
-    HRESULT hr = ole_interaction::get()->check_dataobject( pDataObj, m_fb2kAllowedEffect, native );
+    HRESULT hr = ole_interaction::get()->check_dataobject( pDataObj, fb2kAllowedEffect_, native );
     if ( FAILED( hr ) )
     {
-        m_fb2kAllowedEffect = DROPEFFECT_NONE;
+        fb2kAllowedEffect_ = DROPEFFECT_NONE;
     }
-    else if ( native && ( DROPEFFECT_MOVE & *pdwEffect ) )
+    else if ( native && ( DROPEFFECT_MOVE & dwEffect ) )
     {
-        m_fb2kAllowedEffect |= DROPEFFECT_MOVE; // Remove check_dataobject move suppression for intra fb2k interactions
+        fb2kAllowedEffect_ |= DROPEFFECT_MOVE; // Remove check_dataobject move suppression for intra fb2k interactions
     }
-
-    actionParams_.effect = *pdwEffect & m_fb2kAllowedEffect;
 
     ScreenToClient( hWnd_, reinterpret_cast<LPPOINT>( &pt ) );
-    SendDragMessage( static_cast<UINT>( InternalSyncMessage::wnd_drag_enter ), grfKeyState, pt );
+    (void)PutDragEvent( EventId::kMouseDragEnter, grfKeyState, pt, dwEffect & fb2kAllowedEffect_ );
 
-    *pdwEffect = actionParams_.effect;
-
-    const wchar_t* dragText = ( actionParams_.text.empty() ? GetDropTextFromEffect( actionParams_.effect ) : actionParams_.text.c_str() );
-    drag::SetDropText( pDataObject_, GetDropImageFromEffect( actionParams_.effect ), dragText, L"" );
-
-    return S_OK;
+    return DROPEFFECT_NONE;
 }
 
-HRESULT TrackDropTarget::OnDragLeave()
+DWORD TrackDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD dwEffect )
 {
-    SendMessage( hWnd_, static_cast<UINT>( InternalSyncMessage::wnd_drag_leave ), 0, 0 );
-    drag::SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
-    pDataObject_.Release();
-    return S_OK;
-}
-
-HRESULT TrackDropTarget::OnDragOver( DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
-{
-    if ( !pdwEffect )
-    {
-        return E_POINTER;
-    }
-
-    actionParams_.effect = *pdwEffect & m_fb2kAllowedEffect;
-
     ScreenToClient( hWnd_, reinterpret_cast<LPPOINT>( &pt ) );
-    SendDragMessage( static_cast<UINT>( InternalSyncMessage::wnd_drag_over ), grfKeyState, pt );
+    const auto lastDragParamsOpt = PutDragEvent( EventId::kMouseDragOver, grfKeyState, pt, dwEffect & fb2kAllowedEffect_ );
+    if ( !lastDragParamsOpt )
+    {
+        return DROPEFFECT_NONE;
+    }
+    const auto& lastDragParams = *lastDragParamsOpt;
 
-    *pdwEffect = actionParams_.effect;
+    const wchar_t* dragText = ( lastDragParams.text.empty() ? GetDropTextFromEffect( lastDragParams.effect ) : lastDragParams.text.c_str() );
+    drag::SetDropText( pDataObject_, GetDropImageFromEffect( lastDragParams.effect ), dragText, L"" );
 
-    const wchar_t* dragText = ( actionParams_.text.empty() ? GetDropTextFromEffect( actionParams_.effect ) : actionParams_.text.c_str() );
-    drag::SetDropText( pDataObject_, GetDropImageFromEffect( actionParams_.effect ), dragText, L"" );
-
-    return S_OK;
+    return lastDragParams.effect;
 }
 
-HRESULT TrackDropTarget::OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD* pdwEffect )
+DWORD TrackDropTarget::OnDrop( IDataObject* /*pDataObj*/, DWORD grfKeyState, POINTL pt, DWORD dwEffect )
 {
-    if ( !pdwEffect )
-    {
-        return E_POINTER;
-    }
-
-    actionParams_.effect = *pdwEffect & m_fb2kAllowedEffect;
-
     ScreenToClient( hWnd_, reinterpret_cast<LPPOINT>( &pt ) );
-    SendDragMessage( static_cast<UINT>( InternalSyncMessage::wnd_drag_drop ), grfKeyState, pt );
-
-    if ( *pdwEffect == DROPEFFECT_NONE || actionParams_.effect == DROPEFFECT_NONE )
+    const auto lastDragParamsOpt = PutDragEvent( EventId::kMouseDragDrop, grfKeyState, pt, dwEffect & fb2kAllowedEffect_ );
+    if ( !lastDragParamsOpt || dwEffect == DROPEFFECT_NONE || lastDragParamsOpt->effect == DROPEFFECT_NONE )
     {
-        *pdwEffect = DROPEFFECT_NONE;
-        return S_OK;
+        return DROPEFFECT_NONE;
     }
+    const auto& lastDragParams = *lastDragParamsOpt;
 
     dropped_files_data_impl droppedData;
-    HRESULT hr = ole_interaction::get()->parse_dataobject( pDataObj, droppedData );
+    HRESULT hr = ole_interaction::get()->parse_dataobject( pDataObject_.GetInterfacePtr(), droppedData );
     if ( SUCCEEDED( hr ) )
     {
         droppedData.to_handles_async_ex( playlist_incoming_item_filter_v2::op_flag_delay_ui,
                                          core_api::get_main_window(),
-                                         fb2k::service_new<smp::utils::OnProcessLocationsNotify_InsertHandles>( actionParams_.playlistIdx, actionParams_.base, actionParams_.toSelect ) );
+                                         fb2k::service_new<smp::utils::OnProcessLocationsNotify_InsertHandles>( lastDragParams.playlistIdx, lastDragParams.base, lastDragParams.toSelect ) );
     }
 
-    *pdwEffect = actionParams_.effect;
     drag::SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
     pDataObject_.Release();
 
-    return S_OK;
+    return lastDragParams.effect;
 }
 
-void TrackDropTarget::SendDragMessage( DWORD msgId, DWORD grfKeyState, POINTL pt )
+void TrackDropTarget::OnDragLeave()
 {
-    panel::DropActionMessageParams msgParams;
-    msgParams.actionParams = actionParams_;
-    msgParams.keyState = grfKeyState;
-    msgParams.pt = pt;
-    SendMessage( hWnd_, msgId, 0, (LPARAM)&msgParams );
-    actionParams_ = msgParams.actionParams;
+    (void)PutDragEvent( EventId::kMouseDragLeave, {}, {}, {} );
+    drag::SetDropText( pDataObject_, DROPIMAGE_INVALID, L"", L"" );
+    pDataObject_.Release();
+}
+
+std::optional<panel::DragActionParams>
+TrackDropTarget::PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, DWORD allowedEffects )
+{
+    if ( !pPanel_ )
+    {
+        return std::nullopt;
+    }
+
+    static std::unordered_map<EventId, InternalSyncMessage> eventToMsg{
+        { EventId::kMouseDragEnter, InternalSyncMessage::wnd_drag_enter },
+        { EventId::kMouseDragLeave, InternalSyncMessage::wnd_drag_leave },
+        { EventId::kMouseDragOver, InternalSyncMessage::wnd_drag_over },
+        { EventId::kMouseDragDrop, InternalSyncMessage::wnd_drag_drop }
+    };
+
+    panel::DragActionParams dragParams{};
+    dragParams.effect = allowedEffects;
+    dragParams.isInternal = pPanel_->HasInternalDrag();
+
+    // process system stuff first (e.g. mouse capture)
+    SendMessage( pPanel_->GetHWND(), static_cast<UINT>( eventToMsg.at( eventId ) ), 0, 0 );
+    EventDispatcher::Get().PutEvent( hWnd_, std::make_unique<Event_Drag>( eventId, pt.x, pt.y, grfKeyState, GetHotkeyModifierFlags(), dragParams ), EventPriority::kInput );
+
+    return pPanel_->GetLastDragParams();
 }
 
 } // namespace smp::com

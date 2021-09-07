@@ -226,9 +226,6 @@
     <ClCompile Include="panel\modal_blocking_scope.cpp">
       <Filter>panel</Filter>
     </ClCompile>
-    <ClCompile Include="panel\message_manager.cpp">
-      <Filter>panel</Filter>
-    </ClCompile>
     <ClCompile Include="panel\js_panel_window.cpp">
       <Filter>panel</Filter>
     </ClCompile>
@@ -240,9 +237,6 @@
     </ClCompile>
     <ClCompile Include="fb2k\acfu_integration.cpp">
       <Filter>fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_engine\host_timer_dispatcher.cpp">
-      <Filter>js_engine</Filter>
     </ClCompile>
     <ClCompile Include="js_engine\heartbeat_window.cpp">
       <Filter>js_engine</Filter>
@@ -361,6 +355,9 @@
     <ClCompile Include="fb2k\playlist_lock.cpp">
       <Filter>fb2k</Filter>
     </ClCompile>
+    <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
+      <Filter>fb2k</Filter>
+    </ClCompile>
     <ClCompile Include="utils\resource_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -370,8 +367,56 @@
     <ClCompile Include="com_utils\com_error_helpers.cpp">
       <Filter>com_utils</Filter>
     </ClCompile>
-    <ClCompile Include="fb2k\mainmenu_dynamic.cpp">
-      <Filter>fb2k</Filter>
+    <ClCompile Include="events\event_js_task.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_dispatcher.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_mouse.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\task_controller.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_basic.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_js_executor.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_drag.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_notify_others.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_timer.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timeout_executor.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timeout_manager.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timer_manager_custom.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timeout.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timer_manager_native.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timer_native.cpp">
+      <Filter>timeout</Filter>
+    </ClCompile>
+    <ClCompile Include="timeout\timer_custom.cpp">
+      <Filter>timeout</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -633,13 +678,10 @@
     <ClInclude Include="panel\modal_blocking_scope.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="panel\message_manager.h">
-      <Filter>panel</Filter>
-    </ClInclude>
     <ClInclude Include="panel\user_message.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="panel\drop_action_params.h">
+    <ClInclude Include="panel\drag_action_params.h">
       <Filter>panel</Filter>
     </ClInclude>
     <ClInclude Include="panel\js_panel_window.h">
@@ -653,12 +695,6 @@
     </ClInclude>
     <ClInclude Include="panel\panel_info.h">
       <Filter>panel</Filter>
-    </ClInclude>
-    <ClInclude Include="panel\callback_data.h">
-      <Filter>panel</Filter>
-    </ClInclude>
-    <ClInclude Include="js_engine\host_timer_dispatcher.h">
-      <Filter>js_engine</Filter>
     </ClInclude>
     <ClInclude Include="js_engine\heartbeat_window.h">
       <Filter>js_engine</Filter>
@@ -790,6 +826,9 @@
     <ClInclude Include="fb2k\playlist_lock.h">
       <Filter>fb2k</Filter>
     </ClInclude>
+    <ClInclude Include="fb2k\mainmenu_dynamic.h">
+      <Filter>fb2k</Filter>
+    </ClInclude>
     <ClInclude Include="utils\resource_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
@@ -799,8 +838,68 @@
     <ClInclude Include="com_utils\com_error_helpers.h">
       <Filter>com_utils</Filter>
     </ClInclude>
-    <ClInclude Include="fb2k\mainmenu_dynamic.h">
-      <Filter>fb2k</Filter>
+    <ClInclude Include="events\event_js_task.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_dispatcher.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_mouse.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_js_executor.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\task_controller.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_js_callback.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_basic.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_drag.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_notify_others.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_timer.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timeout_executor.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timeout_manager.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timer_manager_custom.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\time_types.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timeout.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timer_manager_native.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timer_native.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timer_interface.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timer_interface_fwd.h">
+      <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="timeout\timer_custom.h">
+      <Filter>timeout</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -872,6 +971,12 @@
     </Filter>
     <Filter Include="com_utils">
       <UniqueIdentifier>{b23d43d7-b904-4566-bbbe-2d2b677efb7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="events">
+      <UniqueIdentifier>{909a5207-b341-4a10-847c-d77a4165b51a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="timeout">
+      <UniqueIdentifier>{19b3e8c9-9302-44fe-8178-88312a4df487}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

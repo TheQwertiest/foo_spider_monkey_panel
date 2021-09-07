@@ -2,7 +2,6 @@
 
 #include "js_container.h"
 
-#include <js_engine/host_timer_dispatcher.h>
 #include <js_engine/js_engine.h>
 #include <js_engine/js_gc.h>
 #include <js_engine/js_realm_inner.h>
@@ -117,8 +116,6 @@ void JsContainer::Finalize()
     {
         return;
     }
-
-    HostTimerDispatcher::Get().onPanelUnload( pParentPanel_->GetHWND() );
 
     {
         JSAutoRealm ac( pJsCtx_, jsGlobal_ );
@@ -246,11 +243,11 @@ smp::panel::js_panel_window& JsContainer::GetParentPanel() const
     return *pParentPanel_;
 }
 
-void JsContainer::InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, panel::DropActionParams& actionParams )
+bool JsContainer::InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, panel::DragActionParams& actionParams )
 {
     if ( !IsReadyForCallback() )
     {
-        return;
+        return false;
     }
 
     auto selfSaver = shared_from_this();
@@ -258,23 +255,26 @@ void JsContainer::InvokeOnDragAction( const qwr::u8string& functionName, const P
 
     if ( !CreateDropActionIfNeeded() )
     { // reports
-        return;
+        return false;
     }
 
-    pNativeDropAction_->GetDropActionParams() = actionParams;
+    pNativeDropAction_->AccessDropActionParams() = actionParams;
 
     auto retVal = InvokeJsCallback( functionName,
                                     static_cast<JS::HandleObject>( jsDropAction_ ),
                                     static_cast<int32_t>( pt.x ),
                                     static_cast<int32_t>( pt.y ),
                                     static_cast<uint32_t>( keyState ) );
-    if ( retVal )
+    if ( !retVal )
     {
-        actionParams = pNativeDropAction_->GetDropActionParams();
+        return false;
     }
+
+    actionParams = pNativeDropAction_->AccessDropActionParams();
+    return true;
 }
 
-void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
+void JsContainer::InvokeOnNotify( const std::wstring& name, JS::HandleValue info )
 {
     if ( !IsReadyForCallback() )
     {
@@ -285,7 +285,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
     JsAutoRealmWithErrorReport autoScope( pJsCtx_, jsGlobal_ );
 
     // Bind object to current realm
-    JS::RootedValue jsValue( pJsCtx_, *reinterpret_cast<JS::HandleValue*>( lp ) );
+    JS::RootedValue jsValue( pJsCtx_, info );
     if ( !JS_WrapValue( pJsCtx_, &jsValue ) )
     { // reports
         return;
@@ -293,7 +293,7 @@ void JsContainer::InvokeOnNotify( WPARAM wp, LPARAM lp )
 
     autoScope.DisableReport(); ///< InvokeJsCallback has it's own AutoReportException
     (void)InvokeJsCallback( "on_notify_data",
-                            *reinterpret_cast<std::wstring*>( wp ),
+                            name,
                             static_cast<JS::HandleValue>( jsValue ) );
     if ( jsValue.isObject() )
     { // this will remove all wrappers (e.g. during callback re-entrancy)
@@ -323,11 +323,11 @@ void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
     }
 }
 
-void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
+bool JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
 {
     if ( !IsReadyForCallback() )
     {
-        return;
+        return true;
     }
 
     auto selfSaver = shared_from_this();
@@ -336,7 +336,7 @@ void JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     OnJsActionStart();
     qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
-    (void)jsTask.InvokeJs();
+    return jsTask.InvokeJs();
 }
 
 void JsContainer::SetJsCtx( JSContext* cx )
