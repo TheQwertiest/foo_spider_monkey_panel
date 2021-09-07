@@ -30,6 +30,32 @@ ___
 
 ## [Unreleased][]
 
+### Added
+- Added WIC support in image and art loaders, which enables WebP support (see FAQ for more info).
+- API changes:
+  - Added `IsInternal` field to `action` argument (that is passed to `on_drag_*` callbacks).
+  - Added ability to generate main menu items dynamically and handle it via the following API:
+    - `fb.RegisterMainMenuCommand()`.
+    - `fb.UnregisterMainMenuCommand()`.
+    - `on_main_menu_dynamic()` callback.
+  - Expanded playlist *undo* API:
+    - `plman.Undo()`.
+    - `plman.Redo()`.
+    - `plman.IsUndoAvailable()`.
+    - `plman.IsRedoAvailable()`.
+- Added `spectrogram seekbar.js` sample (by marc2003).
+
+### Changed
+- Reimplemented event handling system.
+- API changes:
+  - `window.NotifyOthers()` is now executed asynchronously.
+  - `on_main_menu()` callback is marked as **\[Deprecated]**. Use dynamically generated main menu items instead.
+
+### Fixed
+- Removed unneeded writes to script package `.json`.
+- Fixed (?) drag-n-drop sometimes not working ([#60](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/60)).
+- Fixed timers not stopping when they should ([#135](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/135)).
+
 ## [1.5.2][] - 2021-08-10
 ### Changed
 - Rollbacked the fix for timers from [1.5.0](#150---2021-06-30), since it was causing fb2k freezes ([#135](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/135)).
@@ -322,7 +348,7 @@ ___
 ### Changed
 - API changes:
   - `fb.DoDragDrop()` now requires an additional `window.ID` argument.
-  - `fb.CreateHandleList()` is marked as **\[Deprecated]** and will be removed in v2.0.0.
+  - `fb.CreateHandleList()` is marked as **\[Deprecated]**. Use `FbMetadbHandleList` constructor instead.
 - Reimplemented SMP call handling so as to conform with `Run to completion` rule.
 - Made adjustment to GC policies.
 
