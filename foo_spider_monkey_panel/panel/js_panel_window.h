@@ -156,7 +156,6 @@ private:
     bool hasFailed_ = false;                   // // used only internally
     bool isBgRepaintNeeded_ = false;           // used only internally
     bool isPaintInProgress_ = false;           // used only internally
-    bool hasPendingPaintEvent_ = false;        // used only internally
     bool isMouseTracked_ = false;              // used only internally
     bool isMouseCaptured_ = false;             // used only internally
     bool hasInternalDrag_ = false;             // used only internally

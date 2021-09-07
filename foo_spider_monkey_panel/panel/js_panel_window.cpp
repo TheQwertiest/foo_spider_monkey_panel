@@ -305,7 +305,6 @@ void js_panel_window::ExecuteTask( EventId id )
             break;
         }
         isPaintInProgress_ = true;
-        hasPendingPaintEvent_ = false;
 
         if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
         { // Two pass redraw: paint BG > Repaint() > paint FG
@@ -569,13 +568,12 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_PAINT:
     {
-        if ( isPaintInProgress_ || hasPendingPaintEvent_ )
+        if ( isPaintInProgress_ )
         {
             return std::nullopt;
         }
 
         EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndPaint ), EventPriority::kRedraw );
-        hasPendingPaintEvent_ = true;
 
         return 0;
     }
