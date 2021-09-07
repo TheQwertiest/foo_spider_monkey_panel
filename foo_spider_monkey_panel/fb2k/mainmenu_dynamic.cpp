@@ -2,8 +2,8 @@
 
 #include "mainmenu_dynamic.h"
 
+#include <events/event_dispatcher.h>
 #include <events/event_js_callback.h>
-#include <events/event_manager.h>
 
 #include <component_paths.h>
 
@@ -95,7 +95,7 @@ void MainMenuNodeCommand_PanelCommand::get_display( pfc::string_base& text, t_ui
 
 void MainMenuNodeCommand_PanelCommand::execute( service_ptr_t<service_base> callback )
 {
-    EventManager::Get().PutEvent( panelHwnd_, GenerateEvent_JsCallback( EventId::kDynamicMainMenu, commandId_ ) );
+    EventDispatcher::Get().PutEvent( panelHwnd_, GenerateEvent_JsCallback( EventId::kDynamicMainMenu, commandId_ ) );
 }
 
 GUID MainMenuNodeCommand_PanelCommand::get_guid()
