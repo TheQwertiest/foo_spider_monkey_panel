@@ -180,7 +180,6 @@ bool js_panel_window::SaveSettings( stream_writer& writer, abort_callback& abort
 {
     try
     {
-        config::MaybeSavePackageData( settings_ );
         auto settings = settings_.GeneratePanelSettings();
         settings.properties = properties_;
         settings.Save( writer, abort );
@@ -1255,7 +1254,7 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     hasFailed_ = false;
     isPanelIdOverridenByScript_ = false;
 
-    DynamicMainMenuManager::Get().RegisterPanel(wnd_, settings_.panelId);
+    DynamicMainMenuManager::Get().RegisterPanel( wnd_, settings_.panelId );
 
     const auto extstyle = [&]() {
         DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
@@ -1331,10 +1330,9 @@ void js_panel_window::UnloadScript( bool force )
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
     }
 
-    DynamicMainMenuManager::Get().UnregisterPanel(wnd_);
+    DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
     pJsContainer_->Finalize();
     pTimeoutManager_->StopAllTimeouts();
-
 
     selectionHolder_.release();
     try
