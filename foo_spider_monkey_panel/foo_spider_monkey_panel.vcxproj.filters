@@ -418,6 +418,9 @@
     <ClCompile Include="timeout\timer_custom.cpp">
       <Filter>timeout</Filter>
     </ClCompile>
+    <ClCompile Include="utils\logging.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -900,6 +903,9 @@
     </ClInclude>
     <ClInclude Include="timeout\timer_custom.h">
       <Filter>timeout</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\logging.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

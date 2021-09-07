@@ -275,6 +275,7 @@
     <ClCompile Include="utils\js_exception.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
     <ClCompile Include="utils\location_processor.cpp" />
+    <ClCompile Include="utils\logging.cpp" />
     <ClCompile Include="utils\md5.cpp" />
     <ClCompile Include="utils\menu_helpers.cpp" />
     <ClCompile Include="utils\path_helpers.cpp" />
@@ -438,6 +439,7 @@
     <ClInclude Include="utils\js_exception.h" />
     <ClInclude Include="utils\kmeans.h" />
     <ClInclude Include="utils\location_processor.h" />
+    <ClInclude Include="utils\logging.h" />
     <ClInclude Include="utils\make_unique_ptr.h" />
     <ClInclude Include="utils\md5.h" />
     <ClInclude Include="utils\menu_helpers.h" />

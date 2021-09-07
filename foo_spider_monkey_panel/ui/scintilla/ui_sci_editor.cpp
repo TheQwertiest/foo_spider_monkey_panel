@@ -6,6 +6,7 @@
 #include <ui/scintilla/sci_prop_sets.h>
 #include <ui/scintilla/ui_sci_goto.h>
 #include <utils/colour_helpers.h>
+#include <utils/logging.h>
 #include <utils/resource_helpers.h>
 
 #include <qwr/fb2k_paths.h>
@@ -498,8 +499,11 @@ void CScriptEditorCtrl::ReadAPI()
         }
         catch ( const qwr::QwrException& e )
         {
-            FB2K_console_formatter() << "Warning: " SMP_NAME_WITH_VERSION ": Could not load file " << qwr::u8string{ file.data(), file.size() };
-            FB2K_console_formatter() << e.what();
+            smp::utils::LogWarning( fmt::format(
+                "Could not load editor API file {}:\n"
+                "  {}",
+                qwr::u8string{ file.data(), file.size() },
+                e.what() ) );
         }
     }
 }

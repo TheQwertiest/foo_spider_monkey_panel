@@ -11,17 +11,22 @@ advconfig_branch_factory branch_performance(
     "Performance: restart is required", smp::guid::adv_branch_performance, smp::guid::adv_branch, 0 );
 advconfig_branch_factory branch_gc(
     "GC", smp::guid::adv_branch_gc, smp::guid::adv_branch_performance, 0 );
-#ifdef SMP_ENABLE_CXX_STACKTRACE
-advconfig_branch_factory branch_stacktrace(
-    "C++ exception stack trace", smp::guid::adv_branch_stacktrace, smp::guid::adv_branch, 1 );
-#endif
+
 #ifdef _DEBUG
 advconfig_branch_factory branch_zeal(
     "Zeal", smp::guid::adv_branch_zeal, smp::guid::adv_branch_gc, 4 );
 #endif
 
 advconfig_branch_factory branch_debug(
-    "Debug", smp::guid::adv_branch_debug, smp::guid::adv_branch, 99 );
+    "Debugging", smp::guid::adv_branch_debug, smp::guid::adv_branch, 99 );
+
+advconfig_branch_factory branch_log(
+    "Logging", smp::guid::adv_branch_log, smp::guid::adv_branch_debug, 0 );
+
+#ifdef SMP_ENABLE_CXX_STACKTRACE
+advconfig_branch_factory branch_stacktrace(
+    "C++ exception stack trace", smp::guid::adv_branch_stacktrace, smp::guid::adv_branch_log, 0 );
+#endif
 
 } // namespace
 
@@ -54,9 +59,9 @@ qwr::fb2k::AdvConfigUint32_MT performance_max_runtime(
     smp::guid::adv_var_performance_max_runtime, smp::guid::adv_branch_performance, 4,
     5, 0, 60 );
 
-qwr::fb2k::AdvConfigBool_MT debug_use_custom_timer_engine(
-    "Use custom timer engine",
-    smp::guid::adv_var_debug_timer_engine, smp::guid::adv_branch_debug, 0,
+qwr::fb2k::AdvConfigBool_MT debug_log_extended_include_error(
+    "Log additional information when `include()` fails",
+    smp::guid::adv_var_log_include_search_paths, smp::guid::adv_branch_log, 50,
     false );
 
 #ifdef SMP_ENABLE_CXX_STACKTRACE
@@ -73,6 +78,11 @@ qwr::fb2k::AdvConfigUint32_MT stacktrace_max_recursion(
     smp::guid::adv_var_stacktrace_recursion, smp::guid::adv_branch_stacktrace, 2,
     5, 5, 100 );
 #endif
+
+qwr::fb2k::AdvConfigBool_MT debug_use_custom_timer_engine(
+    "Use custom timer engine",
+    smp::guid::adv_var_debug_timer_engine, smp::guid::adv_branch_debug, 50,
+    false );
 
 #ifdef _DEBUG
 qwr::fb2k::AdvConfigBool_MT zeal(

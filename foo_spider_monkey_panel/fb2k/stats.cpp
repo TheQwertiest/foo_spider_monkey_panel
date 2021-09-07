@@ -2,6 +2,8 @@
 
 #include "stats.h"
 
+#include <utils/logging.h>
+
 namespace
 {
 
@@ -91,10 +93,13 @@ void init_stage_callback_impl::on_init_stage( t_uint32 stage )
         {
             api->add( g_client, smp::guid::metadb_index, retentionPeriod );
         }
-        catch ( std::exception const& e )
+        catch ( const std::exception& e )
         {
             api->remove( smp::guid::metadb_index );
-            FB2K_console_formatter() << SMP_UNDERSCORE_NAME " (error): stats initialization failed: " << e;
+            smp::utils::LogError( fmt::format(
+                "Stats initialization failed:\n"
+                "  {}",
+                e.what() ) );
             return;
         }
         api->dispatch_global_refresh();

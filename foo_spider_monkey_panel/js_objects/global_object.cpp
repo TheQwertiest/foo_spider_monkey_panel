@@ -28,6 +28,7 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 #include <panel/js_panel_window.h>
+#include <utils/logging.h>
 
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
@@ -39,7 +40,96 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <filesystem>
 
+namespace fs = std::filesystem;
 using namespace smp;
+
+namespace
+{
+
+/// @throw qwr::QwrException
+[[noreturn]] void ThrowInvalidPathError( const fs::path& invalidPath )
+{
+    throw qwr::QwrException( "Path does not point to a valid file: {}", invalidPath.u8string() );
+}
+
+/// @throw qwr::QwrException
+auto FindSuitableFileForInclude( const fs::path& path, const std::span<const fs::path>& searchPaths )
+{
+    try
+    {
+        const auto verifyRegularFile = [&]( const auto& pathToVerify ) {
+            if ( fs::is_regular_file( pathToVerify ) )
+            {
+                return;
+            }
+
+            if ( config::advanced::debug_log_extended_include_error )
+            {
+                smp::utils::LogDebug( fmt::format(
+                    "`include()` failed:\n "
+                    "  `{}` is not a regular file\n",
+                    pathToVerify.u8string() ) );
+            }
+            ::ThrowInvalidPathError( pathToVerify );
+        };
+        const auto verifyFileExists = [&]( const auto& pathToVerify ) {
+            if ( fs::exists( pathToVerify ) )
+            {
+                return;
+            }
+
+            if ( config::advanced::debug_log_extended_include_error )
+            {
+                smp::utils::LogDebug( fmt::format(
+                    "`include()` failed:\n "
+                    "  `{}` does not exist\n",
+                    pathToVerify.u8string() ) );
+            }
+            ::ThrowInvalidPathError( pathToVerify );
+        };
+
+        if ( path.is_absolute() )
+        {
+            verifyFileExists( path );
+            verifyRegularFile( path );
+
+            return path.lexically_normal();
+        }
+        else
+        {
+            assert( !searchPaths.empty() );
+            for ( const auto& searchPath: searchPaths )
+            {
+                const auto curPath = searchPath / path;
+                if ( fs::exists( curPath ) )
+                {
+                    verifyRegularFile( curPath );
+                    return curPath.lexically_normal();
+                }
+            }
+
+            if ( config::advanced::debug_log_extended_include_error )
+            {
+                smp::utils::LogDebug( fmt::format(
+                    "`include()` failed:\n"
+                    "  file `{}` coud not be found using the following search paths:\n"
+                    "    {}\n",
+                    fmt::join( searchPaths | ranges::views::transform( []( const auto& path ) { return fmt::format( "    `{}`", path.u8string() ); } ),
+                               "\n  " ) ) );
+            }
+            ::ThrowInvalidPathError( path );
+        }
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        throw qwr::QwrException( "Failed to open file `{}`:\n"
+                                 "  {}",
+                                 path.u8string(),
+                                 qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+    }
+}
+
+} // namespace
 
 namespace
 {
@@ -231,8 +321,6 @@ void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
 
 void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue options )
 {
-    namespace fs = std::filesystem;
-
     const auto allSearchPaths = [&] {
         std::vector<fs::path> paths;
         if ( const auto currentPathOpt = hack::GetCurrentScriptPath( pJsCtx_ );
@@ -250,36 +338,7 @@ void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue o
         return paths;
     }();
 
-    const auto fsPath = [&path, &allSearchPaths] {
-        try
-        {
-            const auto fsPath = fs::u8path( path );
-            if ( fsPath.is_relative() )
-            {
-                assert( !allSearchPaths.empty() );
-                for ( const auto& searchPath: allSearchPaths )
-                {
-                    const auto curPath = searchPath / fsPath;
-                    if ( fs::exists( curPath ) )
-                    {
-                        qwr::QwrException::ExpectTrue( fs::is_regular_file( curPath ), "Path does not point to a valid file: {}", path );
-                        return curPath.lexically_normal();
-                    }
-                }
-                throw qwr::QwrException( "Path does not point to a valid file: {}", path );
-            }
-
-            qwr::QwrException::ExpectTrue( fs::exists( fsPath ) && fs::is_regular_file( fsPath ), "Path does not point to a valid file: {}", path );
-            return fsPath.lexically_normal();
-        }
-        catch ( const fs::filesystem_error& e )
-        {
-            throw qwr::QwrException( "Failed to open file `{}`:\n"
-                                     "  {}",
-                                     path,
-                                     qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
-        }
-    }();
+    const auto fsPath = ::FindSuitableFileForInclude( fs::u8path( path ), allSearchPaths );
 
     const auto parsedOptions = ParseIncludeOptions( options );
 

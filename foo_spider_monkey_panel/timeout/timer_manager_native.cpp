@@ -6,6 +6,7 @@
 #include <events/event_timer.h>
 #include <panel/js_panel_window.h>
 #include <timeout/timer_native.h>
+#include <utils/logging.h>
 
 #include <qwr/winapi_error_helpers.h>
 
@@ -68,8 +69,7 @@ HANDLE TimerManager_Native::CreateNativeTimer( std::shared_ptr<Timer_Native> pTi
     }
     catch ( const qwr::QwrException& e )
     {
-        FB2K_console_formatter() << SMP_UNDERSCORE_NAME << "\n"
-                                 << e.what() << "\n";
+        utils::LogError( e.what() );
         return nullptr;
     }
 
