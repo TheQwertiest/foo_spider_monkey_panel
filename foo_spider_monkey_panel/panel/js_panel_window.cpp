@@ -376,8 +376,7 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
 
         // Bypass the user code.
         const auto useDefaultContextMenu = [&] {
-            // TODO: replace with key data from the event itself
-            if ( IsKeyPressed( VK_LSHIFT ) && IsKeyPressed( VK_LWIN ) )
+            if ( pEvent->IsShiftPressed() && pEvent->IsWinPressed() )
             {
                 return true;
             }
@@ -394,7 +393,8 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
                                                  EventId::kMouseContextMenu,
                                                  pEvent->GetX(),
                                                  pEvent->GetY(),
-                                                 0 ),
+                                                 0,
+                                                 pEvent->GetModifiers() ),
                                              EventPriority::kInput );
         }
 
@@ -660,7 +660,8 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
                                              EventId::kMouseRightButtonUp,
                                              static_cast<int32_t>( GET_X_LPARAM( lp ) ),
                                              static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                             static_cast<uint32_t>( wp ) ),
+                                             static_cast<uint32_t>( wp ),
+                                             GetHotkeyModifierFlags() ),
                                          EventPriority::kInput );
 
         return 0;
@@ -708,7 +709,8 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
                                              EventId::kMouseContextMenu,
                                              p.x,
                                              p.y,
-                                             0 ),
+                                             0,
+                                             GetHotkeyModifierFlags() ),
                                          EventPriority::kInput );
 
         return 1;

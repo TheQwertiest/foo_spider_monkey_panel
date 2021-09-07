@@ -158,7 +158,7 @@ TrackDropTarget::PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, DW
 
     // process system stuff first (e.g. mouse capture)
     SendMessage( pPanel_->GetHWND(), static_cast<UINT>( eventToMsg.at( eventId ) ), 0, 0 );
-    EventDispatcher::Get().PutEvent( hWnd_, std::make_unique<Event_Drag>( eventId, pt.x, pt.y, grfKeyState, dragParams ), EventPriority::kInput );
+    EventDispatcher::Get().PutEvent( hWnd_, std::make_unique<Event_Drag>( eventId, pt.x, pt.y, grfKeyState, GetHotkeyModifierFlags(), dragParams ), EventPriority::kInput );
 
     return pPanel_->GetLastDragParams();
 }
