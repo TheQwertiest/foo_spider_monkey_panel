@@ -2,7 +2,6 @@
 
 #include "panel_config_json.h"
 
-#include <nlohmann/json.hpp>
 #include <qwr/fb2k_paths.h>
 #include <qwr/string_helpers.h>
 #include <qwr/type_traits.h>
@@ -57,8 +56,7 @@ nlohmann::json SerializePropertiesToObject( const config::PanelProperties& prope
             const auto propertyName = qwr::unicode::ToU8( nameW );
             const auto& serializedValue = *pValue;
 
-            std::visit( [&jsonValues, &propertyName]( auto&& arg )
-                        { jsonValues.push_back( { propertyName, arg } ); },
+            std::visit( [&jsonValues, &propertyName]( auto&& arg ) { jsonValues.push_back( { propertyName, arg } ); },
                         serializedValue );
         }
 
@@ -183,8 +181,7 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
         case ScriptType::SimpleFile:
         {
             const auto path = fs::u8path( jsonPayload.at( "path" ).get<std::string>() ).lexically_normal();
-            const auto fullPath = [&]
-            {
+            const auto fullPath = [&] {
                 switch ( jsonPayload.at( "locationType" ).get<LocationType>() )
                 {
                 case LocationType::Component:
@@ -262,70 +259,67 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
         jsonMain.push_back( { "panelId", settings.id } );
 
         json jsonPayload = json::object();
-        const auto scriptType = std::visit( [&jsonPayload]( const auto& data )
-                                            {
-                                                using T = std::decay_t<decltype( data )>;
-                                                if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
-                                                {
-                                                    jsonPayload.push_back( { "script", data.script } );
-                                                    return ScriptType::SimpleInMemory;
-                                                }
-                                                else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
-                                                {
-                                                    const auto [path, locationType] = [&path = data.path]
-                                                    {
-                                                        try
-                                                        {
-                                                            auto fsPath = fs::u8path( path ).lexically_normal();
+        const auto scriptType = std::visit( [&jsonPayload]( const auto& data ) {
+            using T = std::decay_t<decltype( data )>;
+            if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
+            {
+                jsonPayload.push_back( { "script", data.script } );
+                return ScriptType::SimpleInMemory;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
+            {
+                const auto [path, locationType] = [&path = data.path] {
+                    try
+                    {
+                        auto fsPath = fs::u8path( path ).lexically_normal();
 
-                                                            const auto isSubpath = []( const auto& path, const auto& base )
-                                                            {
-                                                                return ( path.wstring().find( base.lexically_normal().wstring() ) == 0 );
-                                                            };
+                        const auto isSubpath = []( const auto& path, const auto& base ) {
+                            return ( path.wstring().find( base.lexically_normal().wstring() ) == 0 );
+                        };
 
-                                                            if ( isSubpath( fsPath, qwr::path::Component() ) )
-                                                            {
-                                                                return std::make_tuple( fs::relative( fsPath, qwr::path::Component() ).u8string(), LocationType::Component );
-                                                            }
-                                                            if ( isSubpath( fsPath, qwr::path::Profile() ) )
-                                                            {
-                                                                return std::make_tuple( fs::relative( fsPath, qwr::path::Profile() ).u8string(), LocationType::Profile );
-                                                            }
-                                                            if ( isSubpath( fsPath, qwr::path::Foobar2000() ) )
-                                                            {
-                                                                return std::make_tuple( fs::relative( fsPath, qwr::path::Foobar2000() ).u8string(), LocationType::Fb2k );
-                                                            }
+                        if ( isSubpath( fsPath, qwr::path::Component() ) )
+                        {
+                            return std::make_tuple( fs::relative( fsPath, qwr::path::Component() ).u8string(), LocationType::Component );
+                        }
+                        if ( isSubpath( fsPath, qwr::path::Profile() ) )
+                        {
+                            return std::make_tuple( fs::relative( fsPath, qwr::path::Profile() ).u8string(), LocationType::Profile );
+                        }
+                        if ( isSubpath( fsPath, qwr::path::Foobar2000() ) )
+                        {
+                            return std::make_tuple( fs::relative( fsPath, qwr::path::Foobar2000() ).u8string(), LocationType::Fb2k );
+                        }
 
-                                                            return std::make_tuple( fsPath.u8string(), LocationType::Full );
-                                                        }
-                                                        catch ( const fs::filesystem_error& e )
-                                                        {
-                                                            throw qwr::QwrException( e );
-                                                        }
-                                                    }();
+                        return std::make_tuple( fsPath.u8string(), LocationType::Full );
+                    }
+                    catch ( const fs::filesystem_error& e )
+                    {
+                        throw qwr::QwrException( e );
+                    }
+                }();
 
-                                                    jsonPayload.push_back( { "path", path } );
-                                                    jsonPayload.push_back( { "locationType", locationType } );
-                                                    return ScriptType::SimpleFile;
-                                                }
-                                                else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
-                                                {
-                                                    jsonPayload.push_back( { "sampleName", data.sampleName } );
-                                                    return ScriptType::SimpleSample;
-                                                }
-                                                else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
-                                                {
-                                                    jsonPayload.push_back( { "id", data.id } );
-                                                    jsonPayload.push_back( { "name", data.name } );
-                                                    jsonPayload.push_back( { "author", data.author } );
-                                                    jsonPayload.push_back( { "version", data.version } );
-                                                    return ScriptType::Package;
-                                                }
-                                                else
-                                                {
-                                                    static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
-                                                }
-                                            },
+                jsonPayload.push_back( { "path", path } );
+                jsonPayload.push_back( { "locationType", locationType } );
+                return ScriptType::SimpleFile;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
+            {
+                jsonPayload.push_back( { "sampleName", data.sampleName } );
+                return ScriptType::SimpleSample;
+            }
+            else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
+            {
+                jsonPayload.push_back( { "id", data.id } );
+                jsonPayload.push_back( { "name", data.name } );
+                jsonPayload.push_back( { "author", data.author } );
+                jsonPayload.push_back( { "version", data.version } );
+                return ScriptType::Package;
+            }
+            else
+            {
+                static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
+            }
+        },
                                             settings.payload );
 
         jsonMain.push_back( { "scriptType", static_cast<uint8_t>( scriptType ) } );

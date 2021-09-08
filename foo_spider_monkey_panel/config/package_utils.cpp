@@ -8,7 +8,6 @@
 
 #include <component_paths.h>
 
-#include <nlohmann/json.hpp>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
 
@@ -84,8 +83,7 @@ void Save_PackageData( const config::ParsedPanelSettings& parsedSettings )
         jsonMain.push_back( { "shouldGrabFocus", parsedSettings.shouldGrabFocus } );
 
         const auto packageDirRet = config::FindPackage( *parsedSettings.packageId );
-        const auto packagePath = [&]
-        {
+        const auto packagePath = [&] {
             if ( packageDirRet )
             {
                 return *packageDirRet;
@@ -236,15 +234,13 @@ std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSetti
              fs::exists( scriptsDir ) )
         {
             files = smp::utils::GetFilesRecursive( scriptsDir );
-            ranges::actions::sort( files, []( const auto& a, const auto& b )
-                                   { return ( a < b ); } );
+            ranges::actions::sort( files, []( const auto& a, const auto& b ) { return ( a < b ); } );
         }
 
         assert( settings.scriptPath );
         const auto mainScript = *settings.scriptPath;
 
-        ranges::actions::remove_if( files, [&mainScript]( const auto& path )
-                                    { return ( path.extension() != ".js" || path == mainScript ); } );
+        ranges::actions::remove_if( files, [&mainScript]( const auto& path ) { return ( path.extension() != ".js" || path == mainScript ); } );
         files.insert( files.begin(), mainScript );
         return files;
     }
@@ -266,8 +262,7 @@ std::vector<std::filesystem::path> GetPackageFiles( const ParsedPanelSettings& s
              fs::exists( assetsDir ) )
         {
             auto assetFiles = smp::utils::GetFilesRecursive( assetsDir );
-            ranges::actions::sort( files, []( const auto& a, const auto& b )
-                                   { return ( a < b ); } );
+            ranges::actions::sort( files, []( const auto& a, const auto& b ) { return ( a < b ); } );
 
             ranges::actions::push_back( files, std::move( assetFiles ) );
         }

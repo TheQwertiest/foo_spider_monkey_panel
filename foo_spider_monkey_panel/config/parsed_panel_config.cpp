@@ -6,7 +6,6 @@
 
 #include <component_paths.h>
 
-#include <nlohmann/json.hpp>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
 #include <qwr/type_traits.h>

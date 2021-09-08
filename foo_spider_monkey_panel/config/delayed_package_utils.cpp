@@ -8,7 +8,6 @@
 
 #include <component_paths.h>
 
-#include <nlohmann/json.hpp>
 #include <qwr/error_popup.h>
 #include <qwr/file_helpers.h>
 #include <qwr/final_action.h>

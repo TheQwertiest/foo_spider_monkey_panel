@@ -114,6 +114,11 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 // range v3
 #include <range/v3/all.hpp>
 
+// json
+/// Enable extended diagnostics
+#define JSON_DIAGNOSTICS 1
+#include <nlohmann/json.hpp>
+
 #include <string>
 namespace qwr
 {// TODO: create a custom type

@@ -6,8 +6,6 @@ SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Proxy.h>
 SMP_MJS_SUPPRESS_WARNINGS_POP
 
-#include <nlohmann/json.hpp>
-
 #include <optional>
 
 class JSObject;

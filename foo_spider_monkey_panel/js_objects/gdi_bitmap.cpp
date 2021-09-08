@@ -12,7 +12,6 @@
 #include <utils/kmeans.h>
 #include <utils/stackblur.h>
 
-#include <nlohmann/json.hpp>
 #include <qwr/final_action.h>
 
 #include <cmath>
