@@ -215,6 +215,13 @@ function perform_internal_drag_n_drop() {
     
     let effect = fb.DoDragDrop(0, cur_playlist_selection, g_drop_effect.copy | g_drop_effect.move | g_drop_effect.link);
 
+    if (is_dragging) {
+        // If drag operation was not cancelled, then it means that nor on_drag_drop, nor on_drag_leave event handlers
+        // were triggered, which means that the items were most likely dropped inside the panel
+        // (and relevant methods were not called because of async event processing)        
+        return;
+    }
+
     function can_handle_move_drop() {
         // We can handle the 'move drop' properly only when playlist is still in the same state
         return cur_playlist_size === plman.PlaylistItemCount(cur_playlist_idx)
@@ -222,7 +229,7 @@ function perform_internal_drag_n_drop() {
     }
 
     if (g_drop_effect.none === effect && can_handle_move_drop()) {
-        // This needs special handling, because on NT, DROPEFFECT_NONE
+        // DROPEFFECT_NONE needs special handling, because on NT it
         // is returned for some move operations, instead of DROPEFFECT_MOVE.
         // See Q182219 for the details.
 
@@ -287,7 +294,7 @@ function external_drop(action) {
 
     action.Playlist = playlist_idx;
     action.ToSelect = true;
-    action.Base = plman.PlaylistCount;
+    action.Base = plman.PlaylistItemCount(cur_playlist_idx);
 
     is_dragging = false;
 }
