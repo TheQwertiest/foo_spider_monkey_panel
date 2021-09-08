@@ -23,6 +23,28 @@ Legend:
 
 ___
 
+## v1.6.0
+
+### Added
+- Added a boolean `IsInternal` field to `action` argument (that is passed to `on_drag_*` callbacks).
+  This field holds `true` if the drag-n-drop session was started by `fb.DoDragDrop()` inside the same panel.
+- Added an ability to generate main menu items dynamically and handle it via the following API:
+  - `fb.RegisterMainMenuCommand(id, name, description)`: registers a main menu item that will be displayed under `main menu`>`File`>`Spider Monkey Panel`>`Script commands`>`{Current panel name}`>`{name}`.
+  - `fb.UnregisterMainMenuCommand(id, name)`: unregisters the item from `fb.RegisterMainMenuCommand()`.
+  Execution of registered command will trigger the new `on_main_menu_dynamic(id)` callback.
+  Note: SMP uses a combination of panel name and command id to identify and bind the command. Hence all the corresponding binds will fail if the id or the panel name
+  is changed. This also means that collision WILL occur if there are two panels with the same name.
+- Expanded playlist *undo* API: `Undo`/`Redo` menu items only apply to active playlist, the following methods are introduced to rectify that:
+  - `plman.Undo(playlistIndex)`.
+  - `plman.Redo(playlistIndex)`.
+  - `plman.IsUndoAvailable(playlistIndex)`.
+  - `plman.IsRedoAvailable(playlistIndex)`.
+
+### Changed
+- `window.NotifyOthers()` is now executed asynchronously, hence the data passed via `info` argument
+  must NOT be used or modified in the source panel after invoking this method.
+- `on_main_menu()` callback is marked as **\[Deprecated]**. Use dynamically generated main menu items and corresponding `on_main_menu_dynamic()` callback instead.
+
 ## v1.5.1
 
 ### Added
