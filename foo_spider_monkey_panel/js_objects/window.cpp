@@ -383,10 +383,10 @@ void JsWindow::DefinePanel( const qwr::u8string& name, JS::HandleValue options )
 
     const auto parsedOptions = ParseDefineScriptOptions( options );
 
-    parentPanel_.SetPanelName( name );
-    parentPanel_.SetScriptInfo( name, parsedOptions.author, parsedOptions.version );
-    parentPanel_.SetDragAndDropStatus( parsedOptions.features.dragAndDrop );
-    parentPanel_.SetCaptureFocusStatus( parsedOptions.features.grabFocus );
+    parentPanel_.SetSettings_PanelName( name );
+    parentPanel_.SetSettings_ScriptInfo( name, parsedOptions.author, parsedOptions.version );
+    parentPanel_.SetSettings_DragAndDropStatus( parsedOptions.features.dragAndDrop );
+    parentPanel_.SetSettings_CaptureFocusStatus( parsedOptions.features.grabFocus );
 
     isScriptDefined_ = true;
 }
@@ -418,9 +418,9 @@ void JsWindow::DefineScript( const qwr::u8string& name, JS::HandleValue options 
 
     const auto parsedOptions = ParseDefineScriptOptions( options );
 
-    parentPanel_.SetScriptInfo( name, parsedOptions.author, parsedOptions.version );
-    parentPanel_.SetDragAndDropStatus( parsedOptions.features.dragAndDrop );
-    parentPanel_.SetCaptureFocusStatus( parsedOptions.features.grabFocus );
+    parentPanel_.SetSettings_ScriptInfo( name, parsedOptions.author, parsedOptions.version );
+    parentPanel_.SetSettings_DragAndDropStatus( parsedOptions.features.dragAndDrop );
+    parentPanel_.SetSettings_CaptureFocusStatus( parsedOptions.features.grabFocus );
 
     isScriptDefined_ = true;
 }

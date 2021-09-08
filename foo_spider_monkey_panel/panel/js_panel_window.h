@@ -82,11 +82,11 @@ public: // accessors
     virtual DWORD GetColour( unsigned type, const GUID& guid ) = 0;
     virtual HFONT GetFont( unsigned type, const GUID& guid ) = 0;
 
-    void SetScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion );
-    void SetPanelName( const qwr::u8string& panelName );
+    void SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion );
+    void SetSettings_PanelName( const qwr::u8string& panelName );
     /// @throw qwr::QwrException
-    void SetDragAndDropStatus( bool isEnabled );
-    void SetCaptureFocusStatus( bool isEnabled );
+    void SetSettings_DragAndDropStatus( bool isEnabled );
+    void SetSettings_CaptureFocusStatus( bool isEnabled );
 
     [[nodiscard]] const std::optional<DragActionParams>& GetLastDragParams() const;
     [[nodiscard]] bool HasInternalDrag() const;
@@ -112,6 +112,8 @@ private:
     void DeleteDrawContext();
 
     void SetCaptureMouseState( bool shouldCapture );
+    /// @throw qwr::QwrException
+    void SetDragAndDropStatus( bool isEnabled );
 
 public: // event handling
     void ExecuteJsTask( EventId id, Event_JsExecutor& task );
@@ -130,7 +132,7 @@ private: // callback handling
     void OnDestroy();
 
     // JS callbacks
-    void OnPaint( HDC dc, const CRect& updateRc, bool useErrorScreen = false );
+    void OnPaint( HDC dc, const CRect& updateRc );
     void OnPaintErrorScreen( HDC memdc );
     void OnPaintJs( HDC memdc, const CRect& updateRc );
     void OnSizeDefault( uint32_t w, uint32_t h );

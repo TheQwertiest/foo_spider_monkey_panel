@@ -8,7 +8,6 @@ namespace smp::com
 class IDropTargetImpl : public IDropTarget
 {
 public:
-    /// @throw qwr::QwrException
     IDropTargetImpl( HWND hWnd );
 
     virtual ~IDropTargetImpl();

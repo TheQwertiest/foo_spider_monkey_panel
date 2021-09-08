@@ -64,8 +64,7 @@ void Parse_Package( const config::PanelSettings_Package& settings, config::Parse
     try
     {
         const auto packageDirRet = config::FindPackage( settings.id );
-        const auto valueOrEmpty = []( const qwr::u8string& str ) -> qwr::u8string
-        {
+        const auto valueOrEmpty = []( const qwr::u8string& str ) -> qwr::u8string {
             return ( str.empty() ? "<empty>" : str );
         };
         qwr::QwrException::ExpectTrue( packageDirRet.has_value(),
@@ -97,8 +96,7 @@ void Reparse_Package( config::ParsedPanelSettings& parsedSettings )
     try
     {
         const auto packageDirRet = config::FindPackage( packageId );
-        const auto valueOrEmpty = []( const qwr::u8string& str ) -> qwr::u8string
-        {
+        const auto valueOrEmpty = []( const qwr::u8string& str ) -> qwr::u8string {
             return ( str.empty() ? "<empty>" : str );
         };
         qwr::QwrException::ExpectTrue( packageDirRet.has_value(),
@@ -182,30 +180,29 @@ ParsedPanelSettings ParsedPanelSettings::Parse( const PanelSettings& settings )
     parsedSettings.edgeStyle = settings.edgeStyle;
     parsedSettings.isPseudoTransparent = settings.isPseudoTransparent;
 
-    std::visit( [&parsedSettings]( const auto& data )
-                {
-                    using T = std::decay_t<decltype( data )>;
-                    if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
-                    {
-                        Parse_InMemory( data, parsedSettings );
-                    }
-                    else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
-                    {
-                        Parse_File( data, parsedSettings );
-                    }
-                    else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
-                    {
-                        Parse_Sample( data, parsedSettings );
-                    }
-                    else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
-                    {
-                        Parse_Package( data, parsedSettings );
-                    }
-                    else
-                    {
-                        static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
-                    }
-                },
+    std::visit( [&parsedSettings]( const auto& data ) {
+        using T = std::decay_t<decltype( data )>;
+        if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
+        {
+            Parse_InMemory( data, parsedSettings );
+        }
+        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
+        {
+            Parse_File( data, parsedSettings );
+        }
+        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
+        {
+            Parse_Sample( data, parsedSettings );
+        }
+        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
+        {
+            Parse_Package( data, parsedSettings );
+        }
+        else
+        {
+            static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
+        }
+    },
                 settings.payload );
 
     return parsedSettings;
@@ -223,6 +220,8 @@ config::ParsedPanelSettings ParsedPanelSettings::Reparse( const ParsedPanelSetti
         reparsedSettings.scriptName.clear();
         reparsedSettings.scriptVersion.clear();
         reparsedSettings.scriptAuthor.clear();
+        reparsedSettings.enableDragDrop = false;
+        reparsedSettings.shouldGrabFocus = false;
     }
 
     return reparsedSettings;
@@ -235,8 +234,7 @@ PanelSettings ParsedPanelSettings::GeneratePanelSettings() const
     settings.id = panelId;
     settings.edgeStyle = edgeStyle;
     settings.isPseudoTransparent = isPseudoTransparent;
-    settings.payload = [&]() -> decltype( settings.payload )
-    {
+    settings.payload = [&]() -> decltype( settings.payload ) {
         switch ( GetSourceType() )
         {
         case ScriptSourceType::Package:

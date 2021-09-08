@@ -21,6 +21,7 @@
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
+#include <utils/logging.h>
 
 #include <component_paths.h>
 
@@ -319,8 +320,7 @@ void js_panel_window::ExecuteTask( EventId id )
         }
         {
             CPaintDC dc{ wnd_ };
-            const bool paintError = !pJsContainer_;
-            OnPaint( dc, dc.m_ps.rcPaint, paintError );
+            OnPaint( dc, dc.m_ps.rcPaint );
         }
 
         isPaintInProgress_ = false;
@@ -1122,44 +1122,36 @@ PanelType js_panel_window::GetPanelType() const
     return panelType_;
 }
 
-void js_panel_window::SetScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion )
+void js_panel_window::SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion )
 {
+    assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
+
     settings_.scriptName = scriptName;
     settings_.scriptAuthor = scriptAuthor;
     settings_.scriptVersion = scriptVersion;
 }
 
-void js_panel_window::SetPanelName( const qwr::u8string& panelName )
+void js_panel_window::SetSettings_PanelName( const qwr::u8string& panelName )
 {
+    assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
+
     settings_.panelId = panelName;
     isPanelIdOverridenByScript_ = true;
 }
 
-void js_panel_window::SetDragAndDropStatus( bool isEnabled )
+void js_panel_window::SetSettings_DragAndDropStatus( bool isEnabled )
 {
-    isDraggingInside_ = false;
-    hasInternalDrag_ = false;
-    lastDragParams_.reset();
-    settings_.enableDragDrop = isEnabled;
-    if ( isEnabled )
-    {
-        dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( *this ) );
+    assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
 
-        HRESULT hr = dropTargetHandler_->RegisterDragDrop();
-        qwr::error::CheckHR( hr, "RegisterDragDrop" );
-    }
-    else
-    {
-        if ( dropTargetHandler_ )
-        {
-            dropTargetHandler_->RevokeDragDrop();
-            dropTargetHandler_.Release();
-        }
-    }
+    settings_.enableDragDrop = isEnabled;
+
+    SetDragAndDropStatus( settings_.enableDragDrop );
 }
 
-void js_panel_window::SetCaptureFocusStatus( bool isEnabled )
+void js_panel_window::SetSettings_CaptureFocusStatus( bool isEnabled )
 {
+    assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
+
     settings_.shouldGrabFocus = isEnabled;
 }
 
@@ -1254,6 +1246,14 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     hasFailed_ = false;
     isPanelIdOverridenByScript_ = false;
 
+    try
+    {
+        SetDragAndDropStatus( settings_.enableDragDrop );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        smp::utils::LogWarning( e.what() );
+    }
     DynamicMainMenuManager::Get().RegisterPanel( wnd_, settings_.panelId );
 
     const auto extstyle = [&]() {
@@ -1436,7 +1436,7 @@ void js_panel_window::OnDestroy()
     ReleaseDC( wnd_, hDc_ );
 }
 
-void js_panel_window::OnPaint( HDC dc, const CRect& updateRc, bool useErrorScreen )
+void js_panel_window::OnPaint( HDC dc, const CRect& updateRc )
 {
     if ( !dc || !bmp_ )
     {
@@ -1447,6 +1447,7 @@ void js_panel_window::OnPaint( HDC dc, const CRect& updateRc, bool useErrorScree
     gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
 
     if ( hasFailed_
+         || !pJsContainer_
          || mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
          || mozjs::JsContainer::JsStatus::Failed == pJsContainer_->GetStatus() )
     {
@@ -1561,6 +1562,31 @@ void js_panel_window::SetCaptureMouseState( bool shouldCapture )
         ::ReleaseCapture();
     }
     isMouseCaptured_ = shouldCapture;
+}
+
+void js_panel_window::SetDragAndDropStatus( bool isEnabled )
+{
+    isDraggingInside_ = false;
+    hasInternalDrag_ = false;
+    lastDragParams_.reset();
+    if ( isEnabled )
+    {
+        if ( !dropTargetHandler_ )
+        {
+            dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( *this ) );
+
+            HRESULT hr = dropTargetHandler_->RegisterDragDrop();
+            qwr::error::CheckHR( hr, "RegisterDragDrop" );
+        }
+    }
+    else
+    {
+        if ( dropTargetHandler_ )
+        {
+            dropTargetHandler_->RevokeDragDrop();
+            dropTargetHandler_.Release();
+        }
+    }
 }
 
 } // namespace smp::panel

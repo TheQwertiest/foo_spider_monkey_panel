@@ -22,7 +22,6 @@ protected:
     virtual void FinalRelease();
 
 public:
-    /// @throw qwr::QwrException
     TrackDropTarget( panel::js_panel_window& panel );
     ~TrackDropTarget() override = default;
 

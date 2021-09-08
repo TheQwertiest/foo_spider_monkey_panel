@@ -6,7 +6,7 @@ namespace smp::com
 {
 
 FileDropTarget::FileDropTarget( HWND hDropWnd, HWND hNotifyWnd )
-    : smp::com::IDropTargetImpl( hDropWnd )
+    : IDropTargetImpl( hDropWnd )
     , hDropWnd_( hDropWnd )
     , hNotifyWnd_( hNotifyWnd )
 {
