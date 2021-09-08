@@ -88,6 +88,7 @@ public: // accessors
     void SetSettings_DragAndDropStatus( bool isEnabled );
     void SetSettings_CaptureFocusStatus( bool isEnabled );
 
+    void ResetLastDragParams();
     [[nodiscard]] const std::optional<DragActionParams>& GetLastDragParams() const;
     [[nodiscard]] bool HasInternalDrag() const;
 

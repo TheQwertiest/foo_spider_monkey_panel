@@ -31,6 +31,8 @@ public:
     DWORD OnDrop( IDataObject* pDataObj, DWORD grfKeyState, POINTL pt, DWORD dwEffect ) override;
     void OnDragLeave() override;
 
+    static void ProcessDropEvent( IDataObjectPtr pDataObject, std::optional<panel::DragActionParams> dragParamsOpt );
+
 private:
     [[nodiscard]] std::optional<panel::DragActionParams>
     PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, DWORD allowedEffects );

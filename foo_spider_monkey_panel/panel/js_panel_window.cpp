@@ -412,6 +412,8 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
         const auto pDragEvent = task.AsDragEvent();
         assert( pDragEvent );
 
+        lastDragParams_.reset();
+
         if ( pJsContainer_ )
         {
             auto dragParams = pDragEvent->GetDragParams();
@@ -429,11 +431,12 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
     }
     case EventId::kMouseDragLeave:
     {
+        lastDragParams_.reset();
+
         if ( pJsContainer_ )
         {
             pJsContainer_->InvokeJsCallback( "on_drag_leave" );
         }
-        lastDragParams_.reset();
 
         break;
     }
@@ -471,7 +474,7 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
                                                                  dragParams );
             if ( bRet )
             {
-                lastDragParams_ = dragParams;
+                smp::com::TrackDropTarget::ProcessDropEvent( pDragEvent->GetStoredData(), dragParams );
             }
         }
         lastDragParams_.reset();
@@ -1153,6 +1156,11 @@ void js_panel_window::SetSettings_CaptureFocusStatus( bool isEnabled )
     assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
 
     settings_.shouldGrabFocus = isEnabled;
+}
+
+void js_panel_window::ResetLastDragParams()
+{
+    lastDragParams_.reset();
 }
 
 const std::optional<DragActionParams>& js_panel_window::GetLastDragParams() const
