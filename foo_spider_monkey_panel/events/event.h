@@ -51,6 +51,7 @@ enum class EventId
     kFbVolumeChange,
     // input
     /// control
+    kInputBlur,
     kInputFocus,
     /// keyboard
     kKeyboardChar,
@@ -142,6 +143,7 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kFbVolumeChange, "volume_change" },
     // input
     /// control
+    { EventId::kInputBlur, "focus" },
     { EventId::kInputFocus, "focus" },
     /// keyboard
     { EventId::kKeyboardChar, "char" },

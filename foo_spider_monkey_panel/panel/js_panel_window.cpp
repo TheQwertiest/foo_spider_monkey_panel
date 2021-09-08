@@ -481,6 +481,14 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
 
         break;
     }
+    case EventId::kInputFocus:
+    {
+        selectionHolder_ = ui_selection_manager::get()->acquire();
+        // Note: selection holder is released in WM_KILLFOCUS processing
+
+        execJs( task );
+        break;
+    }
     default:
     {
         execJs( task );
@@ -803,6 +811,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_SETFOCUS:
     {
+        // Note: selection holder is acquired during event processing
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kInputFocus,
@@ -815,7 +824,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         selectionHolder_.release();
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
-                                             EventId::kInputFocus,
+                                             EventId::kInputBlur,
                                              false ),
                                          EventPriority::kInput );
         return std::nullopt;
