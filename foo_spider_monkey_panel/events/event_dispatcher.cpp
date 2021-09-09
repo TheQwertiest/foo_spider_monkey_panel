@@ -55,7 +55,7 @@ void EventDispatcher::NotifyAllAboutExit()
 
 bool EventDispatcher::IsRequestEventMessage( UINT msg )
 {
-    return ( msg == static_cast<UINT>( MiscMessage::run_next_event ) );
+    return ( msg == static_cast<UINT>( InternalSyncMessage::run_next_event ) );
 }
 
 bool EventDispatcher::ProcessNextEvent( HWND hWnd, bool executeOnlyUnblockable )
@@ -104,7 +104,7 @@ void EventDispatcher::RequestNextEventImpl( HWND hWnd, TaskController& taskContr
     if ( isWaitingForMsgIt->second )
     {
         isWaitingForMsgIt->second = false;
-        PostMessage( hWnd, static_cast<UINT>( MiscMessage::run_next_event ), 0, 0 );
+        PostMessage( hWnd, static_cast<UINT>( InternalSyncMessage::run_next_event ), 0, 0 );
     }
     else
     {

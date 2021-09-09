@@ -17,7 +17,11 @@ namespace
 class MainMenuNodeCommand_PanelCommand : public mainmenu_node_command
 {
 public:
-    MainMenuNodeCommand_PanelCommand( HWND panelHwnd, const qwr::u8string& panelName, uint32_t commandId, const smp::DynamicMainMenuManager::CommandData& commandData );
+    MainMenuNodeCommand_PanelCommand( HWND panelHwnd,
+                                      const qwr::u8string& panelName,
+                                      uint32_t commandId,
+                                      const qwr::u8string& commandName,
+                                      const std::optional<qwr::u8string>& commandDescription );
 
     void get_display( pfc::string_base& text, t_uint32& flags ) override;
     void execute( service_ptr_t<service_base> callback ) override;
@@ -28,19 +32,23 @@ private:
     const HWND panelHwnd_;
     const qwr::u8string panelName_;
     const uint32_t commandId_;
-    const smp::DynamicMainMenuManager::CommandData commandData_;
+    const qwr::u8string commandName_;
+    const std::optional<qwr::u8string> commandDescriptionOpt_;
 };
 
 class MainMenuNodeGroup_PanelCommands : public mainmenu_node_group
 {
 public:
-    MainMenuNodeGroup_PanelCommands( HWND panelHwnd, const smp::DynamicMainMenuManager::PanelData& panelData );
+    MainMenuNodeGroup_PanelCommands( HWND panelHwnd,
+                                     const qwr::u8string& panelName,
+                                     const std::unordered_map<uint32_t, DynamicMainMenuManager::CommandData>& idToCommand );
     void get_display( pfc::string_base& text, t_uint32& flags ) override;
     t_size get_children_count() override;
     mainmenu_node::ptr get_child( t_size index ) override;
 
 private:
     const smp::DynamicMainMenuManager::PanelData panelData_;
+    const qwr::u8string panelName_;
     std::vector<mainmenu_node::ptr> commandNodes_;
 };
 
@@ -78,18 +86,23 @@ public:
 namespace
 {
 
-MainMenuNodeCommand_PanelCommand::MainMenuNodeCommand_PanelCommand( HWND panelHwnd, const qwr::u8string& panelName, uint32_t commandId, const smp::DynamicMainMenuManager::CommandData& commandData )
+MainMenuNodeCommand_PanelCommand::MainMenuNodeCommand_PanelCommand( HWND panelHwnd,
+                                                                    const qwr::u8string& panelName,
+                                                                    uint32_t commandId,
+                                                                    const qwr::u8string& commandName,
+                                                                    const std::optional<qwr::u8string>& commandDescription )
     : panelHwnd_( panelHwnd )
     , panelName_( panelName )
     , commandId_( commandId )
-    , commandData_( commandData )
+    , commandName_( commandName )
+    , commandDescriptionOpt_( commandDescription )
 {
 }
 
 void MainMenuNodeCommand_PanelCommand::get_display( pfc::string_base& text, t_uint32& flags )
 {
     text.clear();
-    text << commandData_.name;
+    text << commandName_;
     flags = 0;
 }
 
@@ -112,34 +125,37 @@ GUID MainMenuNodeCommand_PanelCommand::get_guid()
 
 bool MainMenuNodeCommand_PanelCommand::get_description( pfc::string_base& out )
 {
-    if ( !commandData_.description )
+    if ( !commandDescriptionOpt_ )
     {
         return false;
     }
 
     out.clear();
-    out << *commandData_.description;
+    out << *commandDescriptionOpt_;
     return true;
 }
 
-MainMenuNodeGroup_PanelCommands::MainMenuNodeGroup_PanelCommands( HWND panelHwnd, const smp::DynamicMainMenuManager::PanelData& panelData )
-    : panelData_( panelData )
+MainMenuNodeGroup_PanelCommands::MainMenuNodeGroup_PanelCommands( HWND panelHwnd,
+                                                                  const qwr::u8string& panelName,
+                                                                  const std::unordered_map<uint32_t, DynamicMainMenuManager::CommandData>& idToCommand )
+    : panelName_( panelName )
 {
     // use map to sort commands by their name
     const auto commandNameToId =
-        panelData_.commands
+        idToCommand
         | ranges::views::transform( []( const auto& elem ) { return std::make_pair( elem.second.name, elem.first ); } )
         | ranges::to<std::multimap>;
     for ( const auto& [name, id]: commandNameToId )
     {
-        commandNodes_.emplace_back( fb2k::service_new<MainMenuNodeCommand_PanelCommand>( panelHwnd, panelData_.name, id, panelData_.commands.at( id ) ) );
+        const auto& command = idToCommand.at( id );
+        commandNodes_.emplace_back( fb2k::service_new<MainMenuNodeCommand_PanelCommand>( panelHwnd, panelName_, id, command.name, command.description ) );
     }
 }
 
 void MainMenuNodeGroup_PanelCommands::get_display( pfc::string_base& text, t_uint32& flags )
 {
     text.clear();
-    text << panelData_.name;
+    text << panelName_;
     flags = mainmenu_commands::flag_defaulthidden | mainmenu_commands::sort_priority_base;
 }
 
@@ -151,13 +167,13 @@ t_size MainMenuNodeGroup_PanelCommands::get_children_count()
 mainmenu_node::ptr MainMenuNodeGroup_PanelCommands::get_child( t_size index )
 {
     assert( index < commandNodes_.size() );
-    return commandNodes_[index];
+    return commandNodes_.at( index );
 }
 
 MainMenuNodeGroup_Panels::MainMenuNodeGroup_Panels()
 {
     const auto panels = smp::DynamicMainMenuManager::Get().GetAllCommandData();
-    // use map to sort commands by their name
+    // use map to sort panels by their name
     const auto panelNameToHWnd =
         panels
         | ranges::views::transform( []( const auto& elem ) { return std::make_pair( elem.second.name, elem.first ); } )
@@ -170,7 +186,7 @@ MainMenuNodeGroup_Panels::MainMenuNodeGroup_Panels()
             continue;
         }
 
-        commandNodes_.emplace_back( fb2k::service_new<MainMenuNodeGroup_PanelCommands>( hWnd, panelData ) );
+        commandNodes_.emplace_back( fb2k::service_new<MainMenuNodeGroup_PanelCommands>( hWnd, panelData.name, panelData.commands ) );
     }
 }
 
@@ -188,7 +204,7 @@ t_size MainMenuNodeGroup_Panels::get_children_count()
 mainmenu_node::ptr MainMenuNodeGroup_Panels::get_child( t_size index )
 {
     assert( index < commandNodes_.size() );
-    return commandNodes_[index];
+    return commandNodes_.at( index );
 }
 
 t_uint32 MainMenuCommands_Panels::get_command_count()
@@ -286,7 +302,7 @@ void DynamicMainMenuManager::UnregisterCommand( HWND hWnd, uint32_t id )
     panelData.commands.erase( id );
 }
 
-const std::unordered_map<HWND, smp::DynamicMainMenuManager::PanelData>&
+const std::unordered_map<HWND, DynamicMainMenuManager::PanelData>&
 DynamicMainMenuManager::GetAllCommandData() const
 {
     return panels_;
