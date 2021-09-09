@@ -7,16 +7,16 @@ namespace smp::config
 
 // TODO: cleanup methods and their naming
 
-const std::filesystem::path& GetRelativePathToMainFile();
+[[nodiscard]] const std::filesystem::path& GetRelativePathToMainFile();
 
 /// @throw qwr::QwrException
-std::optional<std::filesystem::path> FindPackage( const qwr::u8string& packageId );
+[[nodiscard]] std::optional<std::filesystem::path> FindPackage( const qwr::u8string& packageId );
 
 /// @throw qwr::QwrException
-ParsedPanelSettings GetNewPackageSettings( const qwr::u8string& name );
+[[nodiscard]] ParsedPanelSettings GetNewPackageSettings( const qwr::u8string& name );
 
 /// @throw qwr::QwrException
-ParsedPanelSettings GetPackageSettingsFromPath( const std::filesystem::path& packagePath );
+[[nodiscard]] ParsedPanelSettings GetPackageSettingsFromPath( const std::filesystem::path& packagePath );
 
 /// @throw qwr::QwrException
 void FillPackageSettingsFromPath( const std::filesystem::path& packagePath, ParsedPanelSettings& settings );
@@ -25,21 +25,21 @@ void FillPackageSettingsFromPath( const std::filesystem::path& packagePath, Pars
 void MaybeSavePackageData( const ParsedPanelSettings& settings );
 
 /// @throw qwr::QwrException
-std::filesystem::path GetPackagePath( const ParsedPanelSettings& settings );
+[[nodiscard]] std::filesystem::path GetPackagePath( const ParsedPanelSettings& settings );
 
 /// @throw qwr::QwrException
-std::filesystem::path GetPackageScriptsDir( const ParsedPanelSettings& settings );
+[[nodiscard]] std::filesystem::path GetPackageScriptsDir( const ParsedPanelSettings& settings );
 
 /// @throw qwr::QwrException
-std::filesystem::path GetPackageAssetsDir( const ParsedPanelSettings& settings );
+[[nodiscard]] std::filesystem::path GetPackageAssetsDir( const ParsedPanelSettings& settings );
 
 /// @throw qwr::QwrException
-std::filesystem::path GetPackageStorageDir( const ParsedPanelSettings& settings );
+[[nodiscard]] std::filesystem::path GetPackageStorageDir( const ParsedPanelSettings& settings );
 
 /// @throw qwr::QwrException
-std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSettings& settings );
+[[nodiscard]] std::vector<std::filesystem::path> GetPackageScriptFiles( const ParsedPanelSettings& settings );
 
 /// @throw qwr::QwrException
-std::vector<std::filesystem::path> GetPackageFiles( const ParsedPanelSettings& settings );
+[[nodiscard]] std::vector<std::filesystem::path> GetPackageFiles( const ParsedPanelSettings& settings );
 
 } // namespace smp::config

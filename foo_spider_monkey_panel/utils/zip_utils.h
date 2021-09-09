@@ -11,7 +11,7 @@ class ZipPacker
 {
 public:
     /// @throw SmpException
-    ZipPacker( const std::filesystem::path& zipFile );
+    [[nodiscard]] ZipPacker( const std::filesystem::path& zipFile );
 
     /// @remark Deletes zip file on error
     ~ZipPacker();

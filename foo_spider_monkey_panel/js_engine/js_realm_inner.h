@@ -15,17 +15,17 @@ public:
 
 public:
     void MarkForDeletion();
-    bool IsMarkedForDeletion() const;
+    [[nodiscard]] bool IsMarkedForDeletion() const;
 
     void OnGcStart();
     void OnGcDone();
-    bool IsMarkedForGc() const;
+    [[nodiscard]] bool IsMarkedForGc() const;
 
-    uint64_t GetCurrentHeapBytes() const;
-    uint64_t GetLastHeapBytes() const;
+    [[nodiscard]] uint64_t GetCurrentHeapBytes() const;
+    [[nodiscard]] uint64_t GetLastHeapBytes() const;
 
-    uint32_t GetCurrentAllocCount() const;
-    uint32_t GetLastAllocCount() const;
+    [[nodiscard]] uint32_t GetCurrentAllocCount() const;
+    [[nodiscard]] uint32_t GetLastAllocCount() const;
 
     void OnHeapAllocate( uint32_t size );
     void OnHeapDeallocate( uint32_t size );

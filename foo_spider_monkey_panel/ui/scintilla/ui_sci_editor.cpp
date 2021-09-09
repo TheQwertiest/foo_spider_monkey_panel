@@ -104,7 +104,7 @@ DWORD GetColourFromHex( qwr::u8string_view hex )
 
     const auto colour = qwr::string::GetNumber<uint32_t>( hexView, 16 ).value_or( 0 );
 
-    return smp::colour::convert_argb_to_colorref( colour );
+    return smp::colour::ArgbToColorref( colour );
 }
 
 ScintillaStyle ParseStyle( qwr::u8string_view p_definition )

@@ -421,6 +421,9 @@
     <ClCompile Include="utils\logging.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="utils\art_loading_options.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -696,9 +699,6 @@
     <ClInclude Include="panel\js_panel_window_dui.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="panel\panel_info.h">
-      <Filter>panel</Filter>
-    </ClInclude>
     <ClInclude Include="js_engine\heartbeat_window.h">
       <Filter>js_engine</Filter>
     </ClInclude>
@@ -905,6 +905,12 @@
       <Filter>timeout</Filter>
     </ClInclude>
     <ClInclude Include="utils\logging.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\art_loading_options.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\fmt_pfc_adaptor.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

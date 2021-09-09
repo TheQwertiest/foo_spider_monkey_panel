@@ -341,7 +341,7 @@ void JsFbMetadbHandleList::AttachImage( const qwr::u8string& image_path, uint32_
         }
         if ( file.is_valid() )
         {
-            service_ptr_t<album_art_data_impl> tmp = fb2k::service_new<album_art_data_impl>();
+            auto tmp = fb2k::service_new<album_art_data_impl>();
             tmp->from_stream( file.get_ptr(), t_size( file->get_size_ex( abort ) ), abort );
             data = tmp;
         }
@@ -353,7 +353,7 @@ void JsFbMetadbHandleList::AttachImage( const qwr::u8string& image_path, uint32_
 
     if ( data.is_valid() )
     {
-        auto cb( fb2k::service_new<art::embed_thread>( art::embed_thread::EmbedAction::embed, data, metadbHandleList_, what ) );
+        auto cb = fb2k::service_new<art::EmbedThread>( art::EmbedThread::EmbedAction::embed, data, metadbHandleList_, what );
         (void)threaded_process::get()->run_modeless( cb,
                                                      threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
                                                      core_api::get_main_window(),
@@ -559,7 +559,7 @@ void JsFbMetadbHandleList::RemoveAttachedImage( uint32_t art_id )
 
     const GUID& what = art::GetGuidForArtId( art_id );
 
-    auto cb = fb2k::service_new<art::embed_thread>( art::embed_thread::EmbedAction::remove, album_art_data_ptr(), metadbHandleList_, what );
+    auto cb = fb2k::service_new<art::EmbedThread>( art::EmbedThread::EmbedAction::remove, album_art_data_ptr(), metadbHandleList_, what );
     (void)threaded_process::get()->run_modeless( cb,
                                                  threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
                                                  core_api::get_main_window(),
@@ -574,7 +574,7 @@ void JsFbMetadbHandleList::RemoveAttachedImages()
         return;
     }
 
-    auto cb = fb2k::service_new<art::embed_thread>( art::embed_thread::EmbedAction::removeAll, album_art_data_ptr(), metadbHandleList_, pfc::guid_null );
+    auto cb = fb2k::service_new<art::EmbedThread>( art::EmbedThread::EmbedAction::removeAll, album_art_data_ptr(), metadbHandleList_, pfc::guid_null );
     (void)threaded_process::get()->run_modeless( cb,
                                                  threaded_process::flag_show_progress | threaded_process::flag_show_delayed | threaded_process::flag_show_item,
                                                  core_api::get_main_window(),

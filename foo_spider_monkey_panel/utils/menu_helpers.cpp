@@ -12,7 +12,7 @@ namespace
 
 using GuidMenuMap = std::unordered_map<GUID, mainmenu_group::ptr, smp::utils::GuidHasher>;
 
-bool match_menu_command( const qwr::u8string& path, const qwr::u8string& command )
+bool DoesPathMatchCommand( const qwr::u8string& path, const qwr::u8string& command )
 {
     const auto commandLen = command.length();
     const auto pathLen = path.length();
@@ -30,28 +30,28 @@ bool match_menu_command( const qwr::u8string& path, const qwr::u8string& command
     return ( ( path[pathLen - commandLen - 1] == '/' ) && !_stricmp( path.c_str() + pathLen - commandLen, command.c_str() ) );
 }
 
-contextmenu_node* find_context_command_recur( const qwr::u8string& p_command, qwr::u8string& basePath, contextmenu_node* p_parent )
+contextmenu_node* FindContextCommandRecur( const qwr::u8string& p_command, qwr::u8string& basePath, contextmenu_node* p_parent )
 {
     assert( p_parent && p_parent->get_type() == contextmenu_item_node::TYPE_POPUP );
 
-    for ( size_t child_id = 0; child_id < p_parent->get_num_children(); ++child_id )
+    for ( const auto idx: ranges::views::indices( p_parent->get_num_children() ) )
     {
-        contextmenu_node* child = p_parent->get_child( child_id );
-        if ( !child )
+        auto* pChild = p_parent->get_child( idx );
+        if ( !pChild )
         {
             continue;
         }
 
-        qwr::u8string curPath = basePath;
-        curPath += child->get_name();
+        auto curPath = basePath;
+        curPath += pChild->get_name();
 
-        switch ( child->get_type() )
+        switch ( pChild->get_type() )
         {
         case contextmenu_item_node::TYPE_POPUP:
         {
             curPath += '/';
 
-            if ( auto retVal = find_context_command_recur( p_command, curPath, child );
+            if ( auto retVal = FindContextCommandRecur( p_command, curPath, pChild );
                  retVal )
             {
                 return retVal;
@@ -61,9 +61,9 @@ contextmenu_node* find_context_command_recur( const qwr::u8string& p_command, qw
         }
         case contextmenu_item_node::TYPE_COMMAND:
         {
-            if ( match_menu_command( curPath, p_command ) )
+            if ( DoesPathMatchCommand( curPath, p_command ) )
             {
-                return child;
+                return pChild;
             }
             break;
         }
@@ -78,14 +78,14 @@ contextmenu_node* find_context_command_recur( const qwr::u8string& p_command, qw
 }
 
 /// @throw pfc::exception
-bool execute_context_command_by_name_unsafe( const qwr::u8string& name, const metadb_handle_list& p_handles, unsigned flags )
+bool ExecuteContextCommandByNameUnsafe( const qwr::u8string& name, const metadb_handle_list& handles, uint32_t flags )
 {
     contextmenu_manager::ptr cm;
     contextmenu_manager::g_create( cm );
 
-    if ( p_handles.get_count() )
+    if ( handles.get_count() )
     {
-        cm->init_context( p_handles, flags );
+        cm->init_context( handles, flags );
     }
     else
     {
@@ -99,7 +99,7 @@ bool execute_context_command_by_name_unsafe( const qwr::u8string& name, const me
     }
 
     qwr::u8string emptyPath;
-    if ( auto retVal = find_context_command_recur( name, emptyPath, pRoot );
+    if ( auto retVal = FindContextCommandRecur( name, emptyPath, pRoot );
          retVal )
     {
         retVal->execute();
@@ -114,50 +114,50 @@ GuidMenuMap GenerateGuidMainmenuMap()
     GuidMenuMap guidMap;
     for ( service_enum_t<mainmenu_group> e; !e.finished(); ++e )
     {
-        auto mmg = e.get();
-        guidMap[mmg->get_guid()] = mmg;
+        const auto mmg = e.get();
+        guidMap.try_emplace( mmg->get_guid(), mmg );
     }
 
     return guidMap;
 }
 
-qwr::u8string generate_mainmenu_command_path( const GuidMenuMap& group_guid_map, const service_ptr_t<mainmenu_commands>& ptr )
+qwr::u8string GenerateMainmenuCommandPath( const GuidMenuMap& group_guid_map, const service_ptr_t<mainmenu_commands>& ptr )
 {
     qwr::u8string path;
 
-    GUID group_guid = ptr->get_parent();
-    while ( group_guid_map.contains( group_guid ) )
+    auto groupGuid = ptr->get_parent();
+    while ( group_guid_map.contains( groupGuid ) )
     {
-        const auto& group_ptr = group_guid_map.at( group_guid );
+        const auto& pGroup = group_guid_map.at( groupGuid );
 
-        if ( mainmenu_group_popup::ptr group_popup_ptr;
-             group_ptr->service_query_t( group_popup_ptr ) )
+        if ( mainmenu_group_popup::ptr pGroupPopup;
+             pGroup->service_query_t( pGroupPopup ) )
         {
             pfc::string8_fast displayName;
-            group_popup_ptr->get_display_string( displayName );
+            pGroupPopup->get_display_string( displayName );
 
             if ( !displayName.is_empty() )
             {
-                path = fmt::format( "{}/{}", displayName.c_str(), path );
+                path = fmt::format( "{}/{}", displayName, path );
             }
         }
 
-        group_guid = group_ptr->get_parent();
+        groupGuid = pGroup->get_parent();
     }
 
     return path;
 }
 
-mainmenu_node::ptr find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node, const qwr::u8string& basePath, const qwr::u8string& name )
+mainmenu_node::ptr FindMainmenuCommandV2NodeRecur( mainmenu_node::ptr node, const qwr::u8string& basePath, const qwr::u8string& name )
 {
     assert( node.is_valid() );
 
-    qwr::u8string curPath = basePath;
-
     if ( mainmenu_node::type_separator == node->get_type() )
     {
-        return mainmenu_node::ptr{};
+        return {};
     }
+
+    auto curPath = basePath;
 
     pfc::string8_fast displayName;
     uint32_t tmp;
@@ -171,7 +171,7 @@ mainmenu_node::ptr find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node,
     {
     case mainmenu_node::type_command:
     {
-        if ( match_menu_command( curPath, name ) )
+        if ( DoesPathMatchCommand( curPath, name ) )
         {
             return node;
         }
@@ -179,15 +179,15 @@ mainmenu_node::ptr find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node,
     }
     case mainmenu_node::type_group:
     {
-        if ( curPath[curPath.length() - 1] != '/' )
+        if ( curPath.back() != '/' )
         {
             curPath += '/';
         }
 
         for ( auto i: ranges::views::indices( node->get_children_count() ) )
         {
-            mainmenu_node::ptr child = node->get_child( i );
-            if ( auto retVal = find_mainmenu_command_v2_node_recur( child, curPath, name );
+            auto pChild = node->get_child( i );
+            if ( auto retVal = FindMainmenuCommandV2NodeRecur( pChild, curPath, name );
                  retVal.is_valid() )
             {
                 return retVal;
@@ -201,29 +201,29 @@ mainmenu_node::ptr find_mainmenu_command_v2_node_recur( mainmenu_node::ptr node,
     }
     }
 
-    return mainmenu_node::ptr{};
+    return {};
 }
 
 /// @throw pfc::exception
 template <typename F_New, typename F_Old>
 bool ApplyFnOnMainmenuNode( const qwr::u8string& name, F_New fnNew, F_Old fnOld )
 {
-    const GuidMenuMap group_guid_text_map = GenerateGuidMainmenuMap();
+    const auto group_guid_text_map = GenerateGuidMainmenuMap();
 
     for ( service_enum_t<mainmenu_commands> e; !e.finished(); ++e )
     {
         auto mmc = e.get();
 
-        for ( auto idx: ranges::views::indices( mmc->get_command_count() ) )
+        for ( const auto idx: ranges::views::indices( mmc->get_command_count() ) )
         {
-            qwr::u8string path = generate_mainmenu_command_path( group_guid_text_map, mmc );
+            auto path = GenerateMainmenuCommandPath( group_guid_text_map, mmc );
 
             if ( mainmenu_commands_v2::ptr mmc_v2;
                  mmc->service_query_t( mmc_v2 ) && mmc_v2->is_command_dynamic( idx ) )
             { // new fb2k v1.0 commands
-                mainmenu_node::ptr node = mmc_v2->dynamic_instantiate( idx );
+                auto node = mmc_v2->dynamic_instantiate( idx );
 
-                if ( auto retVal = find_mainmenu_command_v2_node_recur( node, path, name );
+                if ( auto retVal = FindMainmenuCommandV2NodeRecur( node, path, name );
                      retVal.is_valid() )
                 {
                     fnNew( retVal );
@@ -238,7 +238,7 @@ bool ApplyFnOnMainmenuNode( const qwr::u8string& name, F_New fnNew, F_Old fnOld 
             mmc->get_name( idx, command );
             path += command;
 
-            if ( match_menu_command( path, name ) )
+            if ( DoesPathMatchCommand( path, name ) )
             {
                 fnOld( idx, mmc );
                 return true;
@@ -254,35 +254,40 @@ bool ApplyFnOnMainmenuNode( const qwr::u8string& name, F_New fnNew, F_Old fnOld 
 namespace smp::utils
 {
 
-bool execute_context_command_by_name( const qwr::u8string& name, const metadb_handle_list& p_handles, unsigned flags )
+void ExecuteContextCommandByName( const qwr::u8string& name, const metadb_handle_list& handles, uint32_t flags )
 {
     try
     {
-        return execute_context_command_by_name_unsafe( name, p_handles, flags );
+        bool bRet = ExecuteContextCommandByNameUnsafe( name, handles, flags );
+        qwr::QwrException::ExpectTrue( bRet, "Unknown menu command: {}", name );
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
-        return false;
+        throw qwr::QwrException( e.what() );
     }
 }
-bool execute_mainmenu_command_by_name( const qwr::u8string& name )
+
+void ExecuteMainmenuCommandByName( const qwr::u8string& name )
 {
     try
     {
-        return ApplyFnOnMainmenuNode(
+        bool bRet = ApplyFnOnMainmenuNode(
             name,
             []( auto node ) { node->execute( nullptr ); },
             []( auto idx, auto ptr ) { ptr->execute( idx, nullptr ); } );
+        qwr::QwrException::ExpectTrue( bRet, "Unknown menu command: {}", name );
     }
-    catch ( const pfc::exception& )
+    catch ( const pfc::exception& e )
     {
-        return false;
+        throw qwr::QwrException( e.what() );
     }
 }
-void get_mainmenu_command_status_by_name( const qwr::u8string& name, uint32_t& status )
+
+uint32_t GetMainmenuCommandStatusByName( const qwr::u8string& name )
 {
     try
     {
+        uint32_t status;
         bool bRet = ApplyFnOnMainmenuNode(
             name,
             [&status]( auto node ) {
@@ -293,8 +298,9 @@ void get_mainmenu_command_status_by_name( const qwr::u8string& name, uint32_t& s
                 pfc::string8_fast tmp;
                 ptr->get_display( idx, tmp, status );
             } );
-
         qwr::QwrException::ExpectTrue( bRet, "Unknown menu command: {}", name );
+
+        return status;
     }
     catch ( const pfc::exception& e )
     {

@@ -43,13 +43,13 @@ bool is_wrap_char( wchar_t current, wchar_t next )
     return !currentAlphaNum || !std::iswalnum( next );
 }
 
-void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, std::vector<wrapped_item>& out )
+void WrapTextRecur( HDC hdc, std::wstring_view text, size_t width, std::vector<WrappedTextLine>& out )
 {
-    const size_t textWidth = get_text_width( hdc, text );
+    const auto textWidth = GetTextWidth( hdc, text );
     if ( textWidth <= width || text.size() <= 1 )
     {
         out.emplace_back(
-            wrapped_item{
+            WrappedTextLine{
                 text,
                 textWidth } );
     }
@@ -57,16 +57,16 @@ void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, st
     {
         size_t textLength = ( text.size() * width ) / textWidth;
 
-        if ( get_text_width( hdc, text.substr( 0, textLength ) ) < width )
+        if ( GetTextWidth( hdc, text.substr( 0, textLength ) ) < width )
         {
-            while ( get_text_width( hdc, text.substr( 0, std::min( text.size(), textLength + 1 ) ) ) <= width )
+            while ( GetTextWidth( hdc, text.substr( 0, std::min( text.size(), textLength + 1 ) ) ) <= width )
             {
                 ++textLength;
             }
         }
         else
         {
-            while ( get_text_width( hdc, text.substr( 0, textLength ) ) > width && textLength > 1 )
+            while ( GetTextWidth( hdc, text.substr( 0, textLength ) ) > width && textLength > 1 )
             {
                 --textLength;
             }
@@ -86,14 +86,14 @@ void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, st
             }
 
             out.emplace_back(
-                wrapped_item{
+                WrappedTextLine{
                     text.substr( 0, textLength ),
-                    get_text_width( hdc, text.substr( 0, textLength ) ) } );
+                    GetTextWidth( hdc, text.substr( 0, textLength ) ) } );
         }
 
         if ( textLength < text.size() )
         {
-            estimate_line_wrap_recur( hdc, text.substr( textLength ), width, out );
+            WrapTextRecur( hdc, text.substr( textLength ), width, out );
         }
     }
 }
@@ -103,7 +103,7 @@ void estimate_line_wrap_recur( HDC hdc, std::wstring_view text, size_t width, st
 namespace smp::utils
 {
 
-size_t get_text_height( HDC hdc, std::wstring_view text )
+size_t GetTextHeight( HDC hdc, std::wstring_view text )
 {
     SIZE size;
     // TODO: add error checks
@@ -111,7 +111,7 @@ size_t get_text_height( HDC hdc, std::wstring_view text )
     return static_cast<size_t>( size.cy );
 }
 
-size_t get_text_width( HDC hdc, std::wstring_view text, bool accurate )
+size_t GetTextWidth( HDC hdc, std::wstring_view text, bool accurate )
 {
     // If font has kerning pairs then GetTextExtentPoint32 will return an inaccurate width if those pairs exist in text.
     // DrawText returns a completely accurate value, but is slower and should not be called from inside estimate_line_wrap
@@ -130,9 +130,9 @@ size_t get_text_width( HDC hdc, std::wstring_view text, bool accurate )
     }
 }
 
-std::vector<wrapped_item> estimate_line_wrap( HDC hdc, const std::wstring& text, size_t width )
+std::vector<WrappedTextLine> WrapText( HDC hdc, const std::wstring& text, size_t maxWidth )
 {
-    std::vector<wrapped_item> lines;
+    std::vector<WrappedTextLine> lines;
 
     const wchar_t* curTextPos = text.c_str();
     while ( true )
@@ -140,7 +140,7 @@ std::vector<wrapped_item> estimate_line_wrap( HDC hdc, const std::wstring& text,
         const wchar_t* next = wcschr( curTextPos, '\n' );
         if ( !next )
         {
-            estimate_line_wrap_recur( hdc, std::wstring_view( curTextPos ), width, lines );
+            WrapTextRecur( hdc, std::wstring_view( curTextPos ), maxWidth, lines );
             break;
         }
 
@@ -150,7 +150,7 @@ std::vector<wrapped_item> estimate_line_wrap( HDC hdc, const std::wstring& text,
             --walk;
         }
 
-        estimate_line_wrap_recur( hdc, std::wstring_view( curTextPos, walk - curTextPos ), width, lines );
+        WrapTextRecur( hdc, std::wstring_view( curTextPos, walk - curTextPos ), maxWidth, lines );
         curTextPos = next + 1;
     }
 
@@ -158,17 +158,17 @@ std::vector<wrapped_item> estimate_line_wrap( HDC hdc, const std::wstring& text,
 }
 
 StrCmpLogicalCmpData::StrCmpLogicalCmpData( const std::wstring& textId, size_t index )
-    : textId( std::wstring{ ' ' } + textId )
+    : textId( fmt::format( L" {}", textId ) )
     , index( index )
 {
-    // space is needed for StrCmpLogicalW bug workaround
+    // additional space is needed for StrCmpLogicalW bug workaround
 }
 
 StrCmpLogicalCmpData::StrCmpLogicalCmpData( const qwr::u8string_view& textId, size_t index )
-    : textId( L' ' + qwr::unicode::ToWide( textId ) )
+    : textId( fmt::format( L" {}", qwr::unicode::ToWide( textId ) ) )
     , index( index )
 {
-    // space is needed for StrCmpLogicalW bug workaround
+    // additional space is needed for StrCmpLogicalW bug workaround
 }
 
 } // namespace smp::utils

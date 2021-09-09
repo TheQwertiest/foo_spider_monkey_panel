@@ -29,7 +29,7 @@ DWORD js_panel_window_cui::GetColour( unsigned type, const GUID& guid )
         colour = helper.get_colour( static_cast<cui::colours::colour_identifier_t>( type ) );
     }
 
-    return smp::colour::convert_colorref_to_argb( colour );
+    return smp::colour::ColorrefToArgb( colour );
 }
 
 HFONT js_panel_window_cui::GetFont( unsigned type, const GUID& guid )

@@ -267,6 +267,7 @@
     <ClCompile Include="ui\ui_editor_config.cpp" />
     <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
+    <ClCompile Include="utils\art_loading_options.cpp" />
     <ClCompile Include="utils\edit_text.cpp" />
     <ClCompile Include="utils\gdi_error_helpers.cpp" />
     <ClCompile Include="utils\gdi_helpers.cpp" />
@@ -395,7 +396,6 @@
     <ClInclude Include="panel\js_panel_window_cui.h" />
     <ClInclude Include="panel\js_panel_window_dui.h" />
     <ClInclude Include="panel\modal_blocking_scope.h" />
-    <ClInclude Include="panel\panel_info.h" />
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -430,8 +430,10 @@
     <ClInclude Include="ui\ui_editor_config.h" />
     <ClInclude Include="ui\ui_slow_script.h" />
     <ClInclude Include="utils\art_helpers.h" />
+    <ClInclude Include="utils\art_loading_options.h" />
     <ClInclude Include="utils\colour_helpers.h" />
     <ClInclude Include="utils\edit_text.h" />
+    <ClInclude Include="utils\fmt_pfc_adaptor.h" />
     <ClInclude Include="utils\gdi_error_helpers.h" />
     <ClInclude Include="utils\gdi_helpers.h" />
     <ClInclude Include="utils\guid_helpers.h" />

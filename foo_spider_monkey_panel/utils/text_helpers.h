@@ -6,15 +6,15 @@
 namespace smp::utils
 {
 
-size_t get_text_height( HDC hdc, std::wstring_view text );
-size_t get_text_width( HDC hdc, std::wstring_view text, bool accurate = false );
+[[nodiscard]] size_t GetTextHeight( HDC hdc, std::wstring_view text );
+[[nodiscard]] size_t GetTextWidth( HDC hdc, std::wstring_view text, bool accurate = false );
 
-struct wrapped_item
+struct WrappedTextLine
 {
     std::wstring_view text;
     size_t width;
 };
-std::vector<smp::utils::wrapped_item> estimate_line_wrap( HDC hdc, const std::wstring& text, size_t width );
+[[nodiscard]] std::vector<WrappedTextLine> WrapText( HDC hdc, const std::wstring& text, size_t maxWidth );
 
 struct StrCmpLogicalCmpData
 {

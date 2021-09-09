@@ -23,13 +23,13 @@ public:
     FbProperties& operator=( const FbProperties& ) = delete;
     ~FbProperties() = default;
 
-    static std::unique_ptr<FbProperties> Create( JSContext* cx, smp::panel::js_panel_window& parentPanel );
+    static [[nodiscard]] std::unique_ptr<FbProperties> Create( JSContext* cx, smp::panel::js_panel_window& parentPanel );
 
 public:
     void Trace( JSTracer* trc );
     void PrepareForGc();
 
-    JS::Value GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue );
+    [[nodiscard]] JS::Value GetProperty( const std::wstring& propName, JS::HandleValue propDefaultValue );
     void SetProperty( const std::wstring& propName, JS::HandleValue propValue );
 
 private:

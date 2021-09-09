@@ -56,7 +56,7 @@ STDMETHODIMP IDropSourceImpl::QueryContinueDrag( BOOL fEscapePressed, DWORD grfK
 
     if ( !( grfKeyState & MK_LBUTTON ) )
     {
-        return m_dwLastEffect == DROPEFFECT_NONE ? DRAGDROP_S_CANCEL : DRAGDROP_S_DROP;
+        return ( lastEffect_ == DROPEFFECT_NONE ? DRAGDROP_S_CANCEL : DRAGDROP_S_DROP );
     }
 
     return S_OK;
@@ -104,19 +104,19 @@ STDMETHODIMP IDropSourceImpl::GiveFeedback( DWORD dwEffect )
     }
 
     wasShowingLayered_ = !!isShowingLayered;
-    m_dwLastEffect = dwEffect;
+    lastEffect_ = dwEffect;
 
     return ( isShowingLayered ? S_OK : DRAGDROP_S_USEDEFAULTCURSORS );
 }
 
 ULONG STDMETHODCALLTYPE IDropSourceImpl::AddRef()
 {
-    return ++m_refCount;
+    return ++refCount_;
 }
 
 ULONG STDMETHODCALLTYPE IDropSourceImpl::Release()
 {
-    const ULONG n = --m_refCount;
+    const ULONG n = --refCount_;
     if ( !n )
     {
         delete this;

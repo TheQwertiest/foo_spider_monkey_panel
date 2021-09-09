@@ -4,6 +4,8 @@
 
 #include <ShlObj.h>
 
+#include <atomic>
+
 _COM_SMARTPTR_TYPEDEF( IDragSourceHelper, IID_IDragSourceHelper );
 
 namespace smp::com
@@ -30,8 +32,8 @@ private:
 
     bool wasShowingLayered_ = false;
 
-    std::atomic<ULONG> m_refCount = 0;
-    DWORD m_dwLastEffect = DROPEFFECT_NONE;
+    std::atomic<ULONG> refCount_ = 0;
+    DWORD lastEffect_ = DROPEFFECT_NONE;
 
     BEGIN_COM_QI_IMPL()
         COM_QI_ENTRY_MULTI( IUnknown, IDropSource )

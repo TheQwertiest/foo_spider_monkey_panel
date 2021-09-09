@@ -15,7 +15,7 @@ unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap 
         return CreateUniquePtr( HBITMAP( nullptr ) );
     }
 
-    BITMAP bm;
+    BITMAP bm{};
     bm.bmType = 0;
     bm.bmWidth = bmpdata.Width;
     bm.bmHeight = bmpdata.Height;

@@ -230,10 +230,10 @@ uint32_t JsUtils::ColourPicker( uint32_t hWnd, uint32_t default_colour )
     std::array<COLORREF, 16> dummy{};
     if ( !uChooseColor( &colour, hPanel, dummy.data() ) )
     {
-        colour = smp::colour::convert_argb_to_colorref( default_colour );
+        colour = smp::colour::ArgbToColorref( default_colour );
     }
 
-    return smp::colour::convert_colorref_to_argb( colour );
+    return smp::colour::ColorrefToArgb( colour );
 }
 
 uint32_t JsUtils::DetectCharset( const std::wstring& path ) const
@@ -327,7 +327,7 @@ void JsUtils::GetAlbumArtAsync( uint32_t hWnd, JsFbMetadbHandle* handle, uint32_
 
     qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
-    smp::art::GetAlbumArtAsync( hPanel, handle->GetHandle(), art_id, need_stub, only_embed, no_load );
+    smp::art::GetAlbumArtAsync( hPanel, handle->GetHandle(), smp::art::LoadingOptions{ art_id, need_stub, only_embed, no_load } );
 }
 
 void JsUtils::GetAlbumArtAsyncWithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
@@ -356,7 +356,7 @@ JSObject* JsUtils::GetAlbumArtAsyncV2( uint32_t hWnd, JsFbMetadbHandle* handle, 
     qwr::QwrException::ExpectTrue( hPanel, "Method called before fb2k was initialized completely" );
     qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
-    return mozjs::art::GetAlbumArtPromise( pJsCtx_, hPanel, handle->GetHandle(), art_id, need_stub, only_embed, no_load );
+    return mozjs::art::GetAlbumArtPromise( pJsCtx_, hPanel, handle->GetHandle(), smp::art::LoadingOptions{ art_id, need_stub, only_embed, no_load } );
 }
 
 JSObject* JsUtils::GetAlbumArtAsyncV2WithOpt( size_t optArgCount, uint32_t hWnd, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
@@ -406,7 +406,7 @@ JSObject* JsUtils::GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id, boo
 {
     qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
 
-    std::unique_ptr<Gdiplus::Bitmap> artImage( smp::art::GetBitmapFromMetadb( handle->GetHandle(), art_id, need_stub, false, nullptr ) );
+    std::unique_ptr<Gdiplus::Bitmap> artImage( smp::art::GetBitmapFromMetadb( handle->GetHandle(), smp::art::LoadingOptions{ art_id, need_stub, false, false }, nullptr ) );
     if ( !artImage )
     { // Not an error: no art found
         return nullptr;
@@ -480,7 +480,7 @@ uint32_t JsUtils::GetSysColour( uint32_t index ) const
     const auto hBrush = ::GetSysColorBrush( index ); ///< no need to call DeleteObject here
     qwr::QwrException::ExpectTrue( hBrush, "Invalid color index: {}", index );
 
-    return smp::colour::convert_colorref_to_argb( ::GetSysColor( index ) );
+    return smp::colour::ColorrefToArgb( ::GetSysColor( index ) );
 }
 
 uint32_t JsUtils::GetSystemMetrics( uint32_t index ) const

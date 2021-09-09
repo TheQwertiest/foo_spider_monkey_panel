@@ -4,7 +4,6 @@
 #include <events/event.h>
 #include <events/event_js_executor.h>
 #include <panel/drag_action_params.h>
-#include <panel/panel_info.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>
 

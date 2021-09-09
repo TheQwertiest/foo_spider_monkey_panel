@@ -14,7 +14,7 @@ class Timer_Native;
 class TimerManager_Native
 {
 public:
-    static TimerManager_Native& Get();
+    static [[nodiscard]] TimerManager_Native& Get();
 
     void Finalize();
 

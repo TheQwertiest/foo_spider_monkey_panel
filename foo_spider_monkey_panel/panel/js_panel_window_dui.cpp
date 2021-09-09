@@ -148,7 +148,7 @@ DWORD js_panel_window_dui::GetColour( unsigned type, const GUID& guid )
         colour = uiCallback_->query_std_color( guidToQuery );
     }
 
-    return smp::colour::convert_colorref_to_argb( colour );
+    return smp::colour::ColorrefToArgb( colour );
 }
 
 HFONT js_panel_window_dui::GetFont( unsigned type, const GUID& guid )

@@ -19,7 +19,7 @@ struct StorageObject
 };
 
 /// @remark Should be called only from the main thread
-StorageObject* GetNewStoredObject();
+[[nodiscard]] StorageObject* GetNewStoredObject();
 
 /// @remark Should be called only from the main thread
 void MarkStoredObjectAsToBeDeleted( StorageObject* pObject );

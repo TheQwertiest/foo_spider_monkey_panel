@@ -41,12 +41,12 @@ private:
     static void UpdateGcConfig();
 
     // GC stats handling
-    bool IsTimeToGc();
-    GcLevel GetRequiredGcLevel();
-    GcLevel GetGcLevelFromHeapSize();
-    GcLevel GetGcLevelFromAllocCount();
-    uint64_t GetCurrentTotalHeapSize();
-    uint64_t GetCurrentTotalAllocCount();
+    [[nodiscard]] bool IsTimeToGc();
+    [[nodiscard]] GcLevel GetRequiredGcLevel();
+    [[nodiscard]] GcLevel GetGcLevelFromHeapSize();
+    [[nodiscard]] GcLevel GetGcLevelFromAllocCount();
+    [[nodiscard]] uint64_t GetCurrentTotalHeapSize();
+    [[nodiscard]] uint64_t GetCurrentTotalAllocCount();
     void UpdateGcStats();
 
     // GC implementation

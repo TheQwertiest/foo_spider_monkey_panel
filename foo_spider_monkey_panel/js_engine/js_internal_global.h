@@ -20,13 +20,13 @@ class JsInternalGlobal
 public:
     /// @throw qwr::QwrException
     /// @throw smp::JsException
-    static std::unique_ptr<JsInternalGlobal> Create( JSContext* cx );
+    static [[nodiscard]] std::unique_ptr<JsInternalGlobal> Create( JSContext* cx );
 
     ~JsInternalGlobal();
 
     /// @throw qwr::QwrException
     /// @throw smp::JsException
-    JSScript* GetCachedScript( const std::filesystem::path& absolutePath );
+    [[nodiscard]] JSScript* GetCachedScript( const std::filesystem::path& absolutePath );
 
 private:
     JsInternalGlobal( JSContext* cx, JS::HandleObject global );

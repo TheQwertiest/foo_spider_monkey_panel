@@ -47,15 +47,15 @@ public:
     };
 
 public:
-    bool Initialize();
+    [[nodiscard]] bool Initialize();
     void Finalize();
 
     void Fail( const qwr::u8string& errorText );
 
-    JsStatus GetStatus() const;
+    [[nodiscard]] JsStatus GetStatus() const;
 
-    bool ExecuteScript( const qwr::u8string& scriptCode );
-    bool ExecuteScriptFile( const std::filesystem::path& scriptPath );
+    [[nodiscard]] bool ExecuteScript( const qwr::u8string& scriptCode );
+    [[nodiscard]] bool ExecuteScriptFile( const std::filesystem::path& scriptPath );
 
     static void RunJobs();
 
@@ -80,7 +80,7 @@ public:
         return mozjs::InvokeJsCallback<ReturnType>( pJsCtx_, jsGlobal_, functionName, std::forward<ArgTypes>( args )... );
     }
 
-    bool InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DragActionParams& actionParams );
+    [[nodiscard]] bool InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DragActionParams& actionParams );
     void InvokeOnNotify( const std::wstring& name, JS::HandleValue info );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
     bool InvokeJsAsyncTask( JsAsyncTask& jsTask );
@@ -88,10 +88,10 @@ public:
 private:
     void SetJsCtx( JSContext* cx );
 
-    bool IsReadyForCallback() const;
+    [[nodiscard]] bool IsReadyForCallback() const;
 
     /// @return true on success, false with JS report on failure
-    bool CreateDropActionIfNeeded();
+    [[nodiscard]] bool CreateDropActionIfNeeded();
 
     void OnJsActionStart();
     void OnJsActionEnd();

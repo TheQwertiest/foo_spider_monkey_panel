@@ -173,7 +173,7 @@ void my_initquit::on_quit()
     ui_selection_manager_v2::get()->unregister_callback( this );
 }
 
-void my_initquit::on_changed( t_replaygain_config const& cfg )
+void my_initquit::on_changed( const t_replaygain_config& cfg )
 {
     EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbReplaygainModeChanged, static_cast<uint32_t>( cfg.m_source_mode ) ) );
 }

@@ -130,6 +130,8 @@ namespace qwr
 #include <qwr/pfc_helpers_cnt.h>
 #include <qwr/pfc_helpers_stream.h>
 
+#include <utils/fmt_pfc_adaptor.h>
+
 #include <qwr/unicode.h>
 #include <qwr/qwr_exception.h>
 

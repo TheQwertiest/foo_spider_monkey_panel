@@ -61,6 +61,13 @@ public:
 namespace
 {
 
+metadb_index_client* g_client = new service_impl_single_t<metadb_index_client_impl>;
+
+}
+
+namespace
+{
+
 using namespace smp::stats;
 
 metadb_index_manager::ptr GetIndexManagerInstance()
@@ -81,8 +88,6 @@ metadb_index_hash metadb_index_client_impl::transform( const file_info& info, co
     titleFormat_->run_simple( location, &info, str );
     return hasher_md5::get()->process_single_string( str ).xorHalve();
 }
-
-metadb_index_client* g_client = new service_impl_single_t<metadb_index_client_impl>;
 
 void init_stage_callback_impl::on_init_stage( t_uint32 stage )
 {
@@ -149,13 +154,12 @@ bool metadb_display_field_provider_impl::process_field( t_uint32 index, metadb_h
         return false;
     }
 
-    const fields tmp = GetStats( hash );
-
+    const auto tmp = GetStats( hash );
     switch ( index )
     {
     case 0:
     {
-        stats_t value = tmp.playcount;
+        auto value = tmp.playcount;
         if ( !value )
         {
             return false;
@@ -165,7 +169,7 @@ bool metadb_display_field_provider_impl::process_field( t_uint32 index, metadb_h
     }
     case 1:
     {
-        stats_t value = tmp.loved;
+        auto value = tmp.loved;
         if ( !value )
         {
             return false;
@@ -195,7 +199,7 @@ bool metadb_display_field_provider_impl::process_field( t_uint32 index, metadb_h
     }
     case 4:
     {
-        stats_t value = tmp.rating;
+        auto value = tmp.rating;
         if ( !value )
         {
             return false;
@@ -216,7 +220,7 @@ void track_property_provider_impl::enumerate_properties( metadb_handle_list_cref
         metadb_index_hash hash;
         if ( g_client->hashHandle( stlHandleList.front(), hash ) )
         {
-            fields tmp = GetStats( hash );
+            Fields tmp = GetStats( hash );
             if ( tmp.playcount > 0 )
             {
                 p_out.set_property( SMP_NAME, 0, "Playcount", std::to_string( tmp.playcount ).c_str() );
@@ -253,7 +257,7 @@ void track_property_provider_impl::enumerate_properties( metadb_handle_list_cref
             }
         }
 
-        const uint64_t total =
+        const auto total =
             ranges::accumulate( hashes, 0, []( auto sum, auto&& hash ) {
                 return sum + GetStats( hash ).playcount;
             } );
@@ -298,36 +302,35 @@ bool HashHandle( metadb_handle_ptr const& pMetadb, metadb_index_hash& hash )
     return g_client->hashHandle( pMetadb, hash );
 }
 
-fields GetStats( metadb_index_hash hash )
+Fields GetStats( metadb_index_hash hash )
 {
     mem_block_container_impl temp;
     GetIndexManagerInstance()->get_user_data( smp::guid::metadb_index, hash, temp );
 
     if ( !temp.get_size() )
     {
-        return fields();
+        return {};
     }
 
     try
     {
-        fields ret;
-
         stream_reader_formatter_simple_ref<false> reader( temp.get_ptr(), temp.get_size() );
+
+        Fields ret;
         reader >> ret.playcount;
         reader >> ret.loved;
         reader >> ret.first_played;
         reader >> ret.last_played;
         reader >> ret.rating;
-
         return ret;
     }
     catch ( const exception_io_data& )
     {
-        return fields();
+        return {};
     }
 }
 
-void SetStats( metadb_index_hash hash, const fields& f )
+void SetStats( metadb_index_hash hash, const Fields& f )
 {
     stream_writer_formatter_simple<false> writer;
     writer << f.playcount;

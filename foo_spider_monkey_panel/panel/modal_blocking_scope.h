@@ -9,7 +9,7 @@ namespace smp::modal
 class ConditionalModalScope
 {
 public:
-    /// @param isScriptInvoking false, if should not be considered JS blocking
+    /// @param isWhitelistedModal false, if should not be considered JS blocking
     [[nodiscard]] ConditionalModalScope( HWND hParent, bool isWhitelistedModal = false );
     ~ConditionalModalScope();
 
@@ -29,7 +29,7 @@ public:
 class ModalBlockingScope
 {
 public:
-    /// @param isScriptInvoking false, if should not be considered JS blocking
+    /// @param isWhitelistedModal false, if should not be considered JS blocking
     [[nodiscard]] ModalBlockingScope( HWND hParent, bool isWhitelistedModal = false );
     ~ModalBlockingScope();
 

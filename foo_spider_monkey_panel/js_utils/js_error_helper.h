@@ -24,14 +24,14 @@ void Execute_JsWithSehStackTrace( JSContext* cx, F&& func, Args&&... args )
 
 } // namespace internal
 
-qwr::u8string JsErrorToText( JSContext* cx );
+[[nodiscard]] qwr::u8string JsErrorToText( JSContext* cx );
 void ExceptionToJsError( JSContext* cx );
-qwr::u8string ExceptionToText( JSContext* cx );
+[[nodiscard]] qwr::u8string ExceptionToText( JSContext* cx );
 void SuppressException( JSContext* cx );
 void PrependTextToJsError( JSContext* cx, const qwr::u8string& text );
 
 template <typename F, typename... Args>
-bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Args&&... args )
+[[nodiscard]] bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Args&&... args )
 {
     try
     {
@@ -63,7 +63,7 @@ bool Execute_JsSafe( JSContext* cx, std::string_view functionName, F&& func, Arg
 class AutoJsReport
 {
 public:
-    explicit AutoJsReport( JSContext* cx );
+    explicit [[nodiscard]] AutoJsReport( JSContext* cx );
     ~AutoJsReport() noexcept;
 
     void Disable();

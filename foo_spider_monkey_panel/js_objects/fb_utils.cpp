@@ -326,7 +326,7 @@ uint32_t JsFbUtils::DoDragDrop( uint32_t hWnd, JsFbMetadbHandleList* handles, ui
             metadb = handleList[handleCount - 1];
         }
 
-        autoImage = smp::art::GetBitmapFromMetadbOrEmbed( metadb, 0, false, false, false, nullptr );
+        autoImage = smp::art::GetBitmapFromMetadbOrEmbed( metadb, smp::art::LoadingOptions{ 0, false, false, false }, nullptr );
         if ( autoImage )
         {
             parsedOptions.pCustomImage = autoImage.get();
@@ -600,9 +600,7 @@ bool JsFbUtils::IsLibraryEnabled()
 
 bool JsFbUtils::IsMainMenuCommandChecked( const qwr::u8string& command )
 {
-    t_uint32 status;
-    utils::get_mainmenu_command_status_by_name( command, status );
-
+    const auto status = utils::GetMainmenuCommandStatusByName( command );
     return ( mainmenu_commands::flag_checked & status
              || mainmenu_commands::flag_radiochecked & status );
 }
@@ -678,7 +676,15 @@ void JsFbUtils::Restart()
 bool JsFbUtils::RunContextCommand( const qwr::u8string& command, uint32_t flags )
 {
     metadb_handle_list dummy_list;
-    return utils::execute_context_command_by_name( command, dummy_list, flags );
+    try
+    {
+        utils::ExecuteContextCommandByName( command, dummy_list, flags );
+        return true;
+    }
+    catch ( const qwr::QwrException& )
+    {
+        return false;
+    }
 }
 
 bool JsFbUtils::RunContextCommandWithOpt( size_t optArgCount, const qwr::u8string& command, uint32_t flags )
@@ -714,7 +720,15 @@ bool JsFbUtils::RunContextCommandWithMetadb( const qwr::u8string& command, JS::H
         handle_list.add_item( jsHandle->GetHandle() );
     }
 
-    return utils::execute_context_command_by_name( command, handle_list, flags );
+    try
+    {
+        utils::ExecuteContextCommandByName( command, handle_list, flags );
+        return true;
+    }
+    catch ( const qwr::QwrException& )
+    {
+        return false;
+    }
 }
 
 bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const qwr::u8string& command, JS::HandleValue handle, uint32_t flags )
@@ -732,7 +746,15 @@ bool JsFbUtils::RunContextCommandWithMetadbWithOpt( size_t optArgCount, const qw
 
 bool JsFbUtils::RunMainMenuCommand( const qwr::u8string& command )
 {
-    return utils::execute_mainmenu_command_by_name( command );
+    try
+    {
+        utils::ExecuteMainmenuCommandByName( command );
+        return true;
+    }
+    catch ( qwr::QwrException& )
+    {
+        return false;
+    }
 }
 
 void JsFbUtils::SavePlaylist()

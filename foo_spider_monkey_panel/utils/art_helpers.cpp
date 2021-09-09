@@ -15,15 +15,15 @@
 
 #include <algorithm>
 
+using namespace smp;
+
 namespace
 {
-
-using namespace smp;
 
 class AlbumArtFetchTask
 {
 public:
-    AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load );
+    AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, const art::LoadingOptions& options );
 
     AlbumArtFetchTask( const AlbumArtFetchTask& ) = delete;
     AlbumArtFetchTask& operator=( const AlbumArtFetchTask& ) = delete;
@@ -36,19 +36,30 @@ private:
 private:
     HWND hNotifyWnd_;
     metadb_handle_ptr handle_;
-    uint32_t artId_;
-    bool needStub_;
-    bool onlyEmbed_;
-    bool noLoad_;
+    const art::LoadingOptions options_;
 };
 
-AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, uint32_t artId, bool need_stub, bool only_embed, bool no_load )
+} // namespace
+
+namespace
+{
+
+const std::array<const GUID*, 5> gKnownArtGuids = {
+    &album_art_ids::cover_front,
+    &album_art_ids::cover_back,
+    &album_art_ids::disc,
+    &album_art_ids::icon,
+    &album_art_ids::artist
+};
+}
+
+namespace
+{
+
+AlbumArtFetchTask::AlbumArtFetchTask( HWND hNotifyWnd, metadb_handle_ptr handle, const art::LoadingOptions& options )
     : hNotifyWnd_( hNotifyWnd )
     , handle_( handle )
-    , artId_( artId )
-    , needStub_( need_stub )
-    , onlyEmbed_( only_embed )
-    , noLoad_( no_load )
+    , options_( options )
 {
 }
 
@@ -60,13 +71,13 @@ void AlbumArtFetchTask::operator()()
 void AlbumArtFetchTask::run()
 {
     qwr::u8string imagePath;
-    auto bitmap = art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
+    auto bitmap = art::GetBitmapFromMetadbOrEmbed( handle_, options_, &imagePath );
 
     EventDispatcher::Get().PutEvent( hNotifyWnd_,
                                      GenerateEvent_JsCallback(
                                          EventId::kInternalGetAlbumArtDone,
                                          handle_,
-                                         artId_,
+                                         options_.artId,
                                          std::move( bitmap ),
                                          imagePath ) );
 }
@@ -110,17 +121,17 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromAlbumArtData( const album_art_data
 }
 
 /// @details Throws pfc::exception, if art is not found or if aborted
-std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, const GUID& artTypeGuid, bool no_load, qwr::u8string* pImagePath, abort_callback& abort )
+std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2::ptr extractor, const GUID& artTypeGuid, bool onlyGetPath, qwr::u8string* pImagePath, abort_callback& abort )
 {
     album_art_data_ptr data = extractor->query( artTypeGuid, abort );
     std::unique_ptr<Gdiplus::Bitmap> bitmap;
 
-    if ( !no_load )
+    if ( !onlyGetPath )
     {
         bitmap = GetBitmapFromAlbumArtData( data );
     }
 
-    if ( pImagePath && ( no_load || bitmap ) )
+    if ( pImagePath && ( onlyGetPath || bitmap ) )
     {
         auto pathlist = extractor->query_paths( artTypeGuid, abort );
         if ( pathlist->get_count() )
@@ -137,24 +148,24 @@ std::unique_ptr<Gdiplus::Bitmap> ExtractBitmap( album_art_extractor_instance_v2:
 namespace smp::art
 {
 
-embed_thread::embed_thread( EmbedAction action,
-                            album_art_data_ptr data,
-                            const metadb_handle_list& handles,
-                            GUID what )
-    : m_action( action )
-    , m_data( data )
-    , m_handles( handles )
-    , m_what( what )
+EmbedThread::EmbedThread( EmbedAction action,
+                          album_art_data_ptr data,
+                          const metadb_handle_list& handles,
+                          GUID what )
+    : action_( action )
+    , data_( data )
+    , handles_( handles )
+    , what_( what )
 {
 }
 
-void embed_thread::run( threaded_process_status& p_status,
-                        abort_callback& p_abort )
+void EmbedThread::run( threaded_process_status& p_status,
+                       abort_callback& p_abort )
 {
     auto api = file_lock_manager::get();
-    const auto stlHandleList = qwr::pfc_x::Make_Stl_Ref( m_handles );
+    const auto stlHandleList = qwr::pfc_x::Make_Stl_Ref( handles_ );
 
-    for ( auto&& [i, handle]: ranges::views::enumerate( stlHandleList ) )
+    for ( const auto& [i, handle]: ranges::views::enumerate( stlHandleList ) )
     {
         const qwr::u8string path = handle->get_path();
         p_status.set_progress( i, stlHandleList.size() );
@@ -171,16 +182,16 @@ void embed_thread::run( threaded_process_status& p_status,
             auto scopedLock = api->acquire_write( path.c_str(), p_abort );
 
             auto aaep = ptr->open( nullptr, path.c_str(), p_abort );
-            switch ( m_action )
+            switch ( action_ )
             {
             case EmbedAction::embed:
             {
-                aaep->set( m_what, m_data, p_abort );
+                aaep->set( what_, data_, p_abort );
                 break;
             }
             case EmbedAction::remove:
             {
-                aaep->remove( m_what );
+                aaep->remove( what_ );
                 break;
             }
             case EmbedAction::removeAll:
@@ -192,15 +203,7 @@ void embed_thread::run( threaded_process_status& p_status,
                 }
                 else
                 { // m4a is one example that needs this fallback
-                    const std::array<const GUID*, 5> guids = {
-                        &album_art_ids::cover_front,
-                        &album_art_ids::cover_back,
-                        &album_art_ids::disc,
-                        &album_art_ids::icon,
-                        &album_art_ids::artist
-                    };
-
-                    for ( const auto pGuid: guids )
+                    for ( const auto pGuid: gKnownArtGuids )
                     {
                         aaep->remove( *pGuid );
                     }
@@ -222,17 +225,9 @@ void embed_thread::run( threaded_process_status& p_status,
 
 const GUID& GetGuidForArtId( uint32_t art_id )
 {
-    const std::array<const GUID*, 5> guids = {
-        &album_art_ids::cover_front,
-        &album_art_ids::cover_back,
-        &album_art_ids::disc,
-        &album_art_ids::icon,
-        &album_art_ids::artist,
-    };
+    qwr::QwrException::ExpectTrue( art_id < gKnownArtGuids.size(), "Unknown art_id: {}", art_id );
 
-    qwr::QwrException::ExpectTrue( art_id < guids.size(), "Unknown art_id: {}", art_id );
-
-    return *guids[art_id];
+    return *gKnownArtGuids[art_id];
 }
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const qwr::u8string& rawpath, uint32_t art_id )
@@ -264,27 +259,27 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const qwr::u8string&
     return nullptr;
 }
 
-std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool no_load, qwr::u8string* pImagePath )
+std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& handle, const LoadingOptions& options, qwr::u8string* pImagePath )
 {
     assert( handle.is_valid() );
 
-    const GUID& artTypeGuid = GetGuidForArtId( art_id );
+    const GUID& artTypeGuid = GetGuidForArtId( options.artId );
     qwr::TimedAbortCallback abort;
     auto aamv2 = album_art_manager_v2::get();
 
     try
     {
         auto aaeiv2 = aamv2->open( pfc::list_single_ref_t<metadb_handle_ptr>( handle ), pfc::list_single_ref_t<GUID>( artTypeGuid ), abort );
-        return ExtractBitmap( aaeiv2, artTypeGuid, no_load, pImagePath, abort );
+        return ExtractBitmap( aaeiv2, artTypeGuid, options.onlyGetPath, pImagePath, abort );
     }
     catch ( const pfc::exception& )
     { // not found or aborted
-        if ( need_stub )
+        if ( options.fallbackToStubImage )
         {
             try
             {
                 auto aaeiv2 = aamv2->open_stub( abort );
-                return ExtractBitmap( aaeiv2, artTypeGuid, no_load, pImagePath, abort );
+                return ExtractBitmap( aaeiv2, artTypeGuid, options.onlyGetPath, pImagePath, abort );
             }
             catch ( const pfc::exception& )
             { // not found or aborted
@@ -295,7 +290,7 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadb( const metadb_handle_ptr& h
     return nullptr;
 }
 
-std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load, qwr::u8string* pImagePath )
+std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle_ptr& handle, const LoadingOptions& options, qwr::u8string* pImagePath )
 {
     assert( handle.is_valid() );
 
@@ -304,9 +299,9 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle
 
     try
     {
-        if ( only_embed )
+        if ( options.loadOnlyEmbedded )
         {
-            bitmap = GetBitmapFromEmbeddedData( handle->get_path(), art_id );
+            bitmap = GetBitmapFromEmbeddedData( handle->get_path(), options.artId );
             if ( bitmap )
             {
                 imagePath = handle->get_path();
@@ -314,11 +309,11 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle
         }
         else
         {
-            bitmap = GetBitmapFromMetadb( handle, art_id, need_stub, no_load, &imagePath );
+            bitmap = GetBitmapFromMetadb( handle, options, &imagePath );
         }
     }
     catch ( const qwr::QwrException& )
-    { // The only possible exception is invalid art_id, which should be checked beforehand
+    { // The only possible exception is invalid art id, which should be checked beforehand
         assert( 0 );
     }
 
@@ -330,12 +325,13 @@ std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromMetadbOrEmbed( const metadb_handle
     return bitmap;
 }
 
-void GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+void GetAlbumArtAsync( HWND hWnd, const metadb_handle_ptr& handle, const LoadingOptions& options )
 {
     assert( handle.is_valid() );
-    (void)GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
 
-    smp::GetThreadPoolInstance().AddTask( [task = std::make_shared<AlbumArtFetchTask>( hWnd, handle, art_id, need_stub, only_embed, no_load )] {
+    // Art id is validated in LoadingOptions constructor, so we don't need to worry about it here
+
+    smp::GetThreadPoolInstance().AddTask( [task = std::make_shared<AlbumArtFetchTask>( hWnd, handle, options )] {
         std::invoke( *task );
     } );
 }

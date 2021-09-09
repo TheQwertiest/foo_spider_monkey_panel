@@ -29,7 +29,7 @@ struct Cluster
     {
         assert( pPoint );
 
-        central_values = 
+        central_values =
             ranges::views::transform( pPoint->pData->values, []( const auto& elem ) { return static_cast<double>( elem ); } )
             | ranges::to_vector;
         points.push_back( pPoint );
@@ -60,7 +60,7 @@ uint32_t getIDNearestCenter( const std::vector<Cluster>& clusters, const Point& 
     uint32_t id_cluster_center = 0;
     double min_dist = calculateDistance( clusters[0] );
 
-    for ( uint32_t i = 1; i < clusters.size(); ++i )
+    for ( auto i: ranges::views::indices( clusters.size() ) )
     {
         double dist = calculateDistance( clusters[i] );
         if ( dist < min_dist )
@@ -95,14 +95,14 @@ std::vector<ClusterData> run( const std::vector<PointData>& pointsData, uint32_t
 {
     const size_t clusterCount = std::min( std::max( K, static_cast<uint32_t>( 14 ) ), pointsData.size() );
 
-    auto points = 
+    auto points =
         ranges::views::transform( pointsData, []( const auto& data ) { return Point{ &data }; } )
         | ranges::to_vector;
     std::vector<Cluster> clusters;
     clusters.reserve( clusterCount );
 
     // choose K distinct values for the centers of the clusters
-    for ( uint32_t i = 0; i < clusterCount; ++i )
+    for ( auto i: ranges::views::indices( clusterCount ) )
     { // colours are already distinct so we can't have duplicate centers
         auto& centerPoint = points[static_cast<size_t>( i * points.size() / clusterCount )];
         centerPoint.id_cluster = i;

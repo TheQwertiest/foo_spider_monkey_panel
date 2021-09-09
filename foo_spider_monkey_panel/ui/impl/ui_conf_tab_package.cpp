@@ -593,7 +593,7 @@ void CConfigTabPackage::AddFile( const std::filesystem::path& path )
                     fmt::format( L"File already exists:\n"
                                  L"{}\n\n"
                                  L"Do you want to rewrite it?",
-                                 newFile.c_str() )
+                                 newFile.wstring() )
                         .c_str(),
                     L"Adding file",
                     MB_YESNO | MB_ICONWARNING );

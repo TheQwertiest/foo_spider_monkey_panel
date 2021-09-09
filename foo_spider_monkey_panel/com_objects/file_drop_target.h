@@ -26,7 +26,7 @@ public:
             pDataObj->Release();
         } );
 
-        FORMATETC fmte = { CF_HDROP, NULL, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+        FORMATETC fmte = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
         STGMEDIUM stgm;
         if ( !SUCCEEDED( pDataObj->GetData( &fmte, &stgm ) ) )
         {

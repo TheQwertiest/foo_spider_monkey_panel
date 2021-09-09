@@ -143,7 +143,7 @@ uint32_t JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font
     qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
-    return smp::utils::get_text_height( hDc, str );
+    return smp::utils::GetTextHeight( hDc, str );
 }
 
 uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font, boolean use_exact )
@@ -155,11 +155,11 @@ uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font,
     qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
     gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
-    return smp::utils::get_text_width( hDc, str, use_exact );
+    return smp::utils::GetTextWidth( hDc, str, use_exact );
 }
 
-uint32_t JsGdiGraphics::CalcTextWidthWithOpt( size_t optArgCount, const std::wstring& str, 
-                                          JsGdiFont* font, boolean use_exact )
+uint32_t JsGdiGraphics::CalcTextWidthWithOpt( size_t optArgCount, const std::wstring& str,
+                                              JsGdiFont* font, boolean use_exact )
 {
     switch ( optArgCount )
     {
@@ -351,13 +351,13 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    std::vector<smp::utils::wrapped_item> result;
+    std::vector<smp::utils::WrappedTextLine> result;
     {
         const auto hDc = pGdi_->GetHDC();
         qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
         gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
 
-        result = smp::utils::estimate_line_wrap( hDc, str, max_width );
+        result = smp::utils::WrapText( hDc, str, max_width );
     }
 
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, result.size() * 2 ) );
@@ -365,7 +365,7 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
 
     JS::RootedValue jsValue( pJsCtx_ );
     size_t i = 0;
-    for ( auto& [text, width]: result )
+    for ( const auto& [text, width]: result )
     {
         convert::to_js::ToValue( pJsCtx_, text, &jsValue );
 
@@ -533,7 +533,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
     RECT rc{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
 
-    SetTextColor( hDc, smp::colour::convert_argb_to_colorref( colour ) );
+    SetTextColor( hDc, smp::colour::ArgbToColorref( colour ) );
 
     int iRet = SetBkMode( hDc, TRANSPARENT );
     qwr::error::CheckWinApi( CLR_INVALID != iRet, "SetBkMode" );

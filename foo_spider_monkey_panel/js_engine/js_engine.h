@@ -32,11 +32,11 @@ public:
     JsEngine( const JsEngine& ) = delete;
     JsEngine& operator=( const JsEngine& ) = delete;
 
-    static JsEngine& GetInstance();
+    static [[nodiscard]] JsEngine& GetInstance();
     void PrepareForExit();
 
 public: // methods accessed by JsContainer
-    bool RegisterContainer( JsContainer& jsContainer );
+    [[nodiscard]] bool RegisterContainer( JsContainer& jsContainer );
     void UnregisterContainer( JsContainer& jsContainer );
 
     void MaybeRunJobs();
@@ -45,13 +45,13 @@ public: // methods accessed by JsContainer
     void OnJsActionEnd( JsContainer& jsContainer );
 
 public: // methods accessed by js objects
-    JsGc& GetGcEngine();
-    const JsGc& GetGcEngine() const;
-    JsInternalGlobal& GetInternalGlobal();
+    [[nodiscard]] JsGc& GetGcEngine();
+    [[nodiscard]] const JsGc& GetGcEngine() const;
+    [[nodiscard]] JsInternalGlobal& GetInternalGlobal();
 
 public: // methods accessed by other internals
     void OnHeartbeat();
-    bool OnInterrupt();
+    [[nodiscard]] bool OnInterrupt();
 
 private:
     JsEngine();

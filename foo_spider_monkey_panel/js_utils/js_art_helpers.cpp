@@ -57,10 +57,7 @@ public:
                          JS::HandleObject jsPromise,
                          HWND hNotifyWnd,
                          metadb_handle_ptr handle,
-                         uint32_t artId,
-                         bool need_stub,
-                         bool only_embed,
-                         bool no_load );
+                         const smp::art::LoadingOptions& options );
 
     /// @details Executed off main thread
     ~AlbumArtV2FetchTask() = default;
@@ -72,13 +69,10 @@ public:
     void operator()();
 
 private:
-    HWND hNotifyWnd_;
-    metadb_handle_ptr handle_;
-    qwr::u8string rawPath_;
-    uint32_t artId_;
-    bool needStub_;
-    bool onlyEmbed_;
-    bool noLoad_;
+    const HWND hNotifyWnd_;
+    const metadb_handle_ptr handle_;
+    const qwr::u8string rawPath_;
+    const smp::art::LoadingOptions options_;
 
     std::shared_ptr<JsAlbumArtTask> jsTask_;
 };
@@ -92,17 +86,11 @@ AlbumArtV2FetchTask::AlbumArtV2FetchTask( JSContext* cx,
                                           JS::HandleObject jsPromise,
                                           HWND hNotifyWnd,
                                           metadb_handle_ptr handle,
-                                          uint32_t artId,
-                                          bool need_stub,
-                                          bool only_embed,
-                                          bool no_load )
+                                          const smp::art::LoadingOptions& options )
     : hNotifyWnd_( hNotifyWnd )
     , handle_( handle )
     , rawPath_( handle_->get_path() )
-    , artId_( artId )
-    , needStub_( need_stub )
-    , onlyEmbed_( only_embed )
-    , noLoad_( no_load )
+    , options_( options )
 {
     assert( cx );
 
@@ -118,7 +106,7 @@ void AlbumArtV2FetchTask::operator()()
     }
 
     qwr::u8string imagePath;
-    auto bitmap = smp::art::GetBitmapFromMetadbOrEmbed( handle_, artId_, needStub_, onlyEmbed_, noLoad_, &imagePath );
+    auto bitmap = smp::art::GetBitmapFromMetadbOrEmbed( handle_, options_, &imagePath );
 
     jsTask_->SetData( std::move( bitmap ), imagePath );
 
@@ -182,15 +170,16 @@ bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject, JS::HandleVa
 namespace mozjs::art
 {
 
-JSObject* GetAlbumArtPromise( JSContext* cx, HWND hWnd, const metadb_handle_ptr& handle, uint32_t art_id, bool need_stub, bool only_embed, bool no_load )
+JSObject* GetAlbumArtPromise( JSContext* cx, HWND hWnd, const metadb_handle_ptr& handle, const smp::art::LoadingOptions& options )
 {
     assert( handle.is_valid() );
-    (void)smp::art::GetGuidForArtId( art_id ); ///< Check that art id is valid, since we don't want to throw in helper thread
+
+    // Art id is validated in LoadingOptions constructor, so we don't need to worry about it here
 
     JS::RootedObject jsObject( cx, JS::NewPromiseObject( cx, nullptr ) );
     JsException::ExpectTrue( jsObject );
 
-    smp::GetThreadPoolInstance().AddTask( [task = std::make_shared<AlbumArtV2FetchTask>( cx, jsObject, hWnd, handle, art_id, need_stub, only_embed, no_load )] {
+    smp::GetThreadPoolInstance().AddTask( [task = std::make_shared<AlbumArtV2FetchTask>( cx, jsObject, hWnd, handle, options )] {
         std::invoke( *task );
     } );
 

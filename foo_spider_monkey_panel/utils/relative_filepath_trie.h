@@ -66,18 +66,18 @@ public:
         ++size_;
     }
 
-    size_t size() const
+    [[nodiscard]] size_t size() const
     {
         return size_;
     }
 
-    bool empty() const
+    [[nodiscard]] bool empty() const
     {
         return !size_;
     }
 
     template <typename SorterT = StrLogicalComparator>
-    std::vector<T> get_sorted_values() const
+    [[nodiscard]] std::vector<T> get_sorted_values() const
     {
         std::vector<T> values;
         values.reserve( size_ );
@@ -88,7 +88,7 @@ public:
     }
 
 private:
-    static std::wstring_view ExtractPrefix( std::wstring_view& str )
+    static [[nodiscard]] std::wstring_view ExtractPrefix( std::wstring_view& str )
     {
         if ( str.empty() )
         { // "{}{}"

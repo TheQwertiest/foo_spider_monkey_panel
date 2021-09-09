@@ -111,10 +111,10 @@ metadb_handle_ptr& JsFbMetadbHandle::GetHandle()
 
 void JsFbMetadbHandle::ClearStats()
 {
-    metadb_index_hash hash;
-    if ( !stats::HashHandle( metadbHandle_, hash ) )
+    if ( metadb_index_hash hash;
+         !stats::HashHandle( metadbHandle_, hash ) )
     {
-        stats::SetStats( hash, stats::fields() );
+        stats::SetStats( hash, {} );
     }
 }
 
@@ -150,7 +150,7 @@ void JsFbMetadbHandle::SetFirstPlayed( const qwr::u8string& first_played )
     if ( metadb_index_hash hash;
          stats::HashHandle( metadbHandle_, hash ) )
     {
-        stats::fields tmp = stats::GetStats( hash );
+        stats::Fields tmp = stats::GetStats( hash );
         if ( tmp.first_played != first_played )
         {
             tmp.first_played = first_played;
@@ -164,7 +164,7 @@ void JsFbMetadbHandle::SetLastPlayed( const qwr::u8string& last_played )
     if ( metadb_index_hash hash;
          stats::HashHandle( metadbHandle_, hash ) )
     {
-        stats::fields tmp = stats::GetStats( hash );
+        auto tmp = stats::GetStats( hash );
         if ( tmp.last_played != last_played )
         {
             tmp.last_played = last_played;
@@ -178,7 +178,7 @@ void JsFbMetadbHandle::SetLoved( uint32_t loved )
     if ( metadb_index_hash hash;
          stats::HashHandle( metadbHandle_, hash ) )
     {
-        stats::fields tmp = stats::GetStats( hash );
+        auto tmp = stats::GetStats( hash );
         if ( tmp.loved != loved )
         {
             tmp.loved = loved;
@@ -192,7 +192,7 @@ void JsFbMetadbHandle::SetPlaycount( uint32_t playcount )
     if ( metadb_index_hash hash;
          stats::HashHandle( metadbHandle_, hash ) )
     {
-        stats::fields tmp = stats::GetStats( hash );
+        auto tmp = stats::GetStats( hash );
         if ( tmp.playcount != playcount )
         {
             tmp.playcount = playcount;
@@ -206,7 +206,7 @@ void JsFbMetadbHandle::SetRating( uint32_t rating )
     if ( metadb_index_hash hash;
          stats::HashHandle( metadbHandle_, hash ) )
     {
-        stats::fields tmp = stats::GetStats( hash );
+        auto tmp = stats::GetStats( hash );
         if ( tmp.rating != rating )
         {
             tmp.rating = rating;

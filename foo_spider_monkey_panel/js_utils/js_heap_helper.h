@@ -33,13 +33,13 @@ public:
     };
 
     template <typename T>
-    uint32_t Store( const T& jsObject )
+    [[nodiscard]] uint32_t Store( const T& jsObject )
     {
         assert( core_api::is_main_thread() );
         return valueHeapIds_.emplace_back( pNativeGlobal_->GetHeapManager().Store( jsObject ) );
     }
 
-    JS::Heap<JS::Value>& Get( uint32_t objectId )
+    [[nodiscard]] JS::Heap<JS::Value>& Get( uint32_t objectId )
     {
         assert( core_api::is_main_thread() );
         return pNativeGlobal_->GetHeapManager().Get( objectId );

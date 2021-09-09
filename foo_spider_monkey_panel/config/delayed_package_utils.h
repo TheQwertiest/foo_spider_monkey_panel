@@ -11,10 +11,10 @@ enum class PackageDelayStatus
 };
 
 /// @throw qwr::QwrException
-bool IsPackageInUse( const qwr::u8string& packageId );
+[[nodiscard]] bool IsPackageInUse( const qwr::u8string& packageId );
 
 /// @throw qwr::QwrException
-PackageDelayStatus GetPackageDelayStatus( const qwr::u8string& packageId );
+[[nodiscard]] PackageDelayStatus GetPackageDelayStatus( const qwr::u8string& packageId );
 
 /// @throw qwr::QwrException
 void ClearPackageDelayStatus( const qwr::u8string& packageId );

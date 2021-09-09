@@ -21,7 +21,7 @@ public:
     EventDispatcher( const EventDispatcher& ) = delete;
     EventDispatcher& operator=( const EventDispatcher& ) = delete;
 
-    static EventDispatcher& Get();
+    static [[nodiscard]] EventDispatcher& Get();
 
 public:
     void AddWindow( HWND hWnd, std::shared_ptr<PanelTarget> pTarget );
@@ -30,7 +30,7 @@ public:
     void NotifyAllAboutExit();
 
 public:
-    static bool IsRequestEventMessage( UINT msg );
+    static [[nodiscard]] bool IsRequestEventMessage( UINT msg );
     bool ProcessNextEvent( HWND hWnd, bool executeOnlyUnblockable );
     void RequestNextEvent( HWND hWnd );
     void OnRequestEventMessageReceived( HWND hWnd );

@@ -110,7 +110,7 @@ void JsFbProfiler::Print( const qwr::u8string& additionalMsg, bool printComponen
     msg += "profiler";
     if ( !name_.empty() )
     {
-        msg += fmt::format( " ({})", name_.c_str() );
+        msg += fmt::format( " ({})", name_ );
     }
     msg += ":";
     if ( !additionalMsg.empty() )

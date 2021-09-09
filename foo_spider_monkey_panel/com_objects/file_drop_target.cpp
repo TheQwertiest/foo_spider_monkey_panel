@@ -14,7 +14,7 @@ FileDropTarget::FileDropTarget( HWND hDropWnd, HWND hNotifyWnd )
 
 UINT FileDropTarget::GetOnDropMsg()
 {
-    static const UINT msgId = ::RegisterWindowMessage( L"smp_file_drop" );
+    static const auto msgId = ::RegisterWindowMessage( L"smp_file_drop" );
     return msgId;
 }
 
@@ -58,7 +58,7 @@ DWORD FileDropTarget::GetEffect() const
 
 bool FileDropTarget::IsFile( IDataObject* pDataObj )
 {
-    FORMATETC fmte = { CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
+    FORMATETC fmte{ CF_HDROP, nullptr, DVASPECT_CONTENT, -1, TYMED_HGLOBAL };
     const auto hr = pDataObj->QueryGetData( &fmte );
     return ( hr == S_OK );
 }

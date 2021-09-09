@@ -25,10 +25,6 @@ ITypeLibPtr g_typelib;
 namespace
 {
 
-ULONG_PTR g_pGdiToken = 0;
-CAppModule g_wtlModule;
-HMODULE g_hRichEdit = nullptr;
-
 namespace SubsystemId
 {
 enum Type : uint32_t
@@ -50,82 +46,96 @@ struct SubsystemError
     uint32_t errorCode = 0;
 };
 
-std::unordered_map<SubsystemId::Type, SubsystemError> g_subsystem_failures;
+} // namespace
+
+namespace
+{
+
+ULONG_PTR g_pGdiToken = 0;
+CAppModule g_wtlModule;
+HMODULE g_hRichEdit = nullptr;
+
+std::unordered_map<SubsystemId::Type, SubsystemError> g_subsystemFailures;
+
+} // namespace
+
+namespace
+{
 
 void InitializeSubsystems( HINSTANCE ins )
 {
-    if ( HRESULT hr = OleInitialize( nullptr );
+    if ( auto hr = OleInitialize( nullptr );
          FAILED( hr ) )
     {
-        g_subsystem_failures[SubsystemId::SMP_OLE] = { "OleInitialize failed", static_cast<uint32_t>( hr ) };
+        g_subsystemFailures[SubsystemId::SMP_OLE] = { "OleInitialize failed", static_cast<uint32_t>( hr ) };
     }
 
     {
         std::array<wchar_t, MAX_PATH> path{};
         (void)GetModuleFileName( ins, path.data(), path.size() ); // NULL-terminated in OS newer than WinXP
 
-        if ( HRESULT hr = LoadTypeLibEx( path.data(), REGKIND_NONE, &smp::com::g_typelib );
+        if ( auto hr = LoadTypeLibEx( path.data(), REGKIND_NONE, &smp::com::g_typelib );
              FAILED( hr ) )
         {
-            g_subsystem_failures[SubsystemId::SMP_TYPELIB] = { "LoadTypeLibEx failed", static_cast<uint32_t>( hr ) };
+            g_subsystemFailures[SubsystemId::SMP_TYPELIB] = { "LoadTypeLibEx failed", static_cast<uint32_t>( hr ) };
         }
     }
 
     if ( int iRet = Scintilla_RegisterClasses( ins );
          !iRet )
     {
-        g_subsystem_failures[SubsystemId::SMP_SCINTILLA] = { "Scintilla_RegisterClasses failed", static_cast<uint32_t>( iRet ) };
+        g_subsystemFailures[SubsystemId::SMP_SCINTILLA] = { "Scintilla_RegisterClasses failed", static_cast<uint32_t>( iRet ) };
     }
 
     {
         Gdiplus::GdiplusStartupInput gdip_input;
-        if ( Gdiplus::Status gdiRet = Gdiplus::GdiplusStartup( &g_pGdiToken, &gdip_input, nullptr );
+        if ( auto gdiRet = Gdiplus::GdiplusStartup( &g_pGdiToken, &gdip_input, nullptr );
              Gdiplus::Ok != gdiRet )
         {
-            g_subsystem_failures[SubsystemId::SMP_GDIPLUS] = { "OleInitialize failed", static_cast<uint32_t>( gdiRet ) };
+            g_subsystemFailures[SubsystemId::SMP_GDIPLUS] = { "OleInitialize failed", static_cast<uint32_t>( gdiRet ) };
         }
     }
 
-    if ( HRESULT hr = g_wtlModule.Init( nullptr, ins );
+    if ( auto hr = g_wtlModule.Init( nullptr, ins );
          FAILED( hr ) )
     {
-        g_subsystem_failures[SubsystemId::SMP_WTL] = { "WTL module Init failed", static_cast<uint32_t>( hr ) };
+        g_subsystemFailures[SubsystemId::SMP_WTL] = { "WTL module Init failed", static_cast<uint32_t>( hr ) };
     }
 
     // WTL ActiveX support
     if ( !AtlAxWinInit() )
     {
-        g_subsystem_failures[SubsystemId::SMP_WTL_AX] = { "AtlAxWinInit failed", static_cast<uint32_t>( GetLastError() ) };
+        g_subsystemFailures[SubsystemId::SMP_WTL_AX] = { "AtlAxWinInit failed", static_cast<uint32_t>( GetLastError() ) };
     }
 
     {
         g_hRichEdit = LoadLibrary( CRichEditCtrl::GetLibraryName() );
         if ( !g_hRichEdit )
         {
-            g_subsystem_failures[SubsystemId::SMP_RICHEDIT] = { "Failed to load RichEdit library", static_cast<uint32_t>( GetLastError() ) };
+            g_subsystemFailures[SubsystemId::SMP_RICHEDIT] = { "Failed to load RichEdit library", static_cast<uint32_t>( GetLastError() ) };
         }
     }
 }
 
 void FinalizeSubsystems()
 {
-    if ( !g_subsystem_failures.contains( SubsystemId::SMP_RICHEDIT ) )
+    if ( !g_subsystemFailures.contains( SubsystemId::SMP_RICHEDIT ) )
     {
         FreeLibrary( g_hRichEdit );
     }
-    if ( !g_subsystem_failures.contains( SubsystemId::SMP_WTL ) )
+    if ( !g_subsystemFailures.contains( SubsystemId::SMP_WTL ) )
     {
         g_wtlModule.Term();
     }
-    if ( !g_subsystem_failures.contains( SubsystemId::SMP_GDIPLUS ) )
+    if ( !g_subsystemFailures.contains( SubsystemId::SMP_GDIPLUS ) )
     {
         Gdiplus::GdiplusShutdown( g_pGdiToken );
     }
-    if ( !g_subsystem_failures.contains( SubsystemId::SMP_SCINTILLA ) )
+    if ( !g_subsystemFailures.contains( SubsystemId::SMP_SCINTILLA ) )
     {
         Scintilla_ReleaseResources();
     }
-    if ( !g_subsystem_failures.contains( SubsystemId::SMP_OLE ) )
+    if ( !g_subsystemFailures.contains( SubsystemId::SMP_OLE ) )
     {
         OleUninitialize();
     }
@@ -169,7 +179,7 @@ public:
 private:
     static void CheckSubsystemStatus()
     {
-        if ( g_subsystem_failures.empty() )
+        if ( g_subsystemFailures.empty() )
         {
             return;
         }
@@ -179,7 +189,7 @@ private:
             "The component will not function properly!\r\n"
             "Failures:\r\n\r\n";
 
-        for ( const auto& [key, failure]: g_subsystem_failures )
+        for ( const auto& [key, failure]: g_subsystemFailures )
         {
             errorText += fmt::format( "{}: error code: {:#x}\r\n", failure.description, failure.errorCode );
         }
@@ -193,7 +203,7 @@ FB2K_SERVICE_FACTORY( InitQuitSmp );
 
 } // namespace
 
-extern "C" BOOL WINAPI DllMain( HINSTANCE ins, DWORD reason, [[maybe_unused]] LPVOID lp )
+extern "C" BOOL WINAPI DllMain( HINSTANCE ins, DWORD reason, LPVOID /*lp*/ )
 {
     switch ( reason )
     {

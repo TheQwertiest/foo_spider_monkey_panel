@@ -7,7 +7,7 @@
 namespace qwr::error
 {
 
-const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
+[[nodiscard]] const char* GdiErrorCodeToText( Gdiplus::Status errorCode );
 
 /// @throw qwr::QwrException
 void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName );

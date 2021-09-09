@@ -18,7 +18,7 @@ class TimerHolder;
 class TimerManager_Custom
 {
 public:
-    static TimerManager_Custom& Get();
+    static [[nodiscard]] TimerManager_Custom& Get();
 
     void Finalize();
 

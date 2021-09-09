@@ -5,6 +5,6 @@
 namespace smp
 {
 
-qwr::ThreadPool& GetThreadPoolInstance();
+[[nodiscard]] qwr::ThreadPool& GetThreadPoolInstance();
 
 } // namespace smp

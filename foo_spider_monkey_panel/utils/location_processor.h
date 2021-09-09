@@ -13,9 +13,9 @@ public:
     void on_aborted() override;
 
 private:
-    int playlistIdx_;
-    size_t baseIdx_;
-    bool shouldSelect_;
+    const int playlistIdx_;
+    const size_t baseIdx_;
+    const bool shouldSelect_;
 };
 
 } // namespace smp::utils

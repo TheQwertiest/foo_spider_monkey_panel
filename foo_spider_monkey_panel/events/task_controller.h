@@ -58,7 +58,7 @@ public:
     void AddTask( std::shared_ptr<Task> pTask );
     void AddRunnable( std::shared_ptr<Runnable> pRunnable, EventPriority priority );
 
-    bool HasTasks() const;
+    [[nodiscard]] bool HasTasks() const;
 
     bool ExecuteNextTask( bool executeOnlyUnblockable );
 

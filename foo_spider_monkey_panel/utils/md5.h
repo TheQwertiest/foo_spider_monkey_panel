@@ -17,7 +17,7 @@ public:
     void Update( std::span<const uint8_t> input );
     void Finalize();
 
-    std::string HexDigest() const;
+    [[nodiscard]] std::string HexDigest() const;
 
 private:
     void Init();
@@ -33,6 +33,6 @@ private:
     uint8_t digest[16];         // the result
 };
 
-std::string CalculateMd5( std::span<const uint8_t> input );
+[[nodiscard]] std::string CalculateMd5( std::span<const uint8_t> input );
 
 } // namespace smp
