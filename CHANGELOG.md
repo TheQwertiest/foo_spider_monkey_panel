@@ -49,6 +49,7 @@ ___
 - Reimplemented event handling system.
 - API changes:
   - `window.NotifyOthers()` is now executed asynchronously.
+  - `fb.DoDragDrop()` is now executed asynchronously.
   - `on_main_menu()` callback is marked as **\[Deprecated]**. Use dynamically generated main menu items instead.
 
 ### Fixed

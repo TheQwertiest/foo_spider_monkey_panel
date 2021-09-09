@@ -388,6 +388,9 @@ let fb = {
      * - DROPEFFECT_LINK should be used as fallback in case effect argument does not have DROPEFFECT_COPY (===1), since some external drops only allow DROPEFFECT_LINK effect.<br>
      * - Changing effect on key modifiers is nice (to be in line with native Windows behaviour): see the example below.<br>
      * <br>
+     * Note: due to the asynchronous nature of event handling, `fb.DoDragDrop()` might exit before `on_drag_drop` callback is triggered
+     * when dropping data on the same panel as the one that had a call to `fb.DoDragDrop()`.<br>
+     * <br>
      * Related callbacks: {@link module:callbacks~on_drag_enter on_drag_enter, {@link module:callbacks~on_drag_drop on_drag_drop},
      * {@link module:callbacks~on_drag_over on_drag_over}, {@link module:callbacks~on_drag_leave on_drag_leave}
      * 
