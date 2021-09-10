@@ -29,5 +29,8 @@ Failed to create ActiveXObject object via CLSID: htmlfile
 
 ## Unfixable issues
 
+- **Issue**: `action.Effect` in `on_drag_*` is equal to zero (`DROPEFFECT_NONE`) when performing DnD on some files (e.g. when dropping files from Nautilus).  
+  **Reason**: This is a WINE bug: they just don't fill the field with proper values.
+
 - **Issue**: `.otf` fonts are not found via `utils.CheckFont()` and `gdi.Font()`.  
   **Reason**: `gdiplus` package does not support `.otf` fonts.
