@@ -32,6 +32,7 @@ collections:
   - showcase_sample
   - showcase_user
   - showcase_theme
+  - showcase_helpers
 
 aux_links:
   "View on GitHub":
