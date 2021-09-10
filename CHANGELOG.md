@@ -2,6 +2,7 @@
 
 #### Table of Contents
 - [Unreleased](#unreleased)
+- [1.6.0](#160---2021-09-11)
 - [1.5.2](#152---2021-08-10)
 - [1.5.1](#151---2021-07-03)
 - [1.5.0](#150---2021-06-30)
@@ -29,6 +30,8 @@
 ___
 
 ## [Unreleased][]
+
+## [1.6.0][] - 2021-09-11
 
 ### Added
 - Added WIC support in image and art loaders, which enables WebP support (see FAQ for more info).
@@ -450,7 +453,8 @@ ___
   - More rigorous error checks.
 - Updated samples with compatibility fixes.
 
-[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.5.2...HEAD
+[unreleased]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.6.0...HEAD
+[1.6.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.5.2...v1.6.0
 [1.5.2]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.5.1...v1.5.2
 [1.5.1]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.5.0...v1.5.1
 [1.5.0]: https://github.com/TheQwertiest/foo_spider_monkey_panel/compare/v1.4.1...v1.5.0
