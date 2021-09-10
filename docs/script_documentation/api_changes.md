@@ -28,6 +28,7 @@ ___
 ### Added
 - Added a boolean `IsInternal` field to `action` argument (that is passed to `on_drag_*` callbacks).
   This field holds `true` if the drag-n-drop session was started by `fb.DoDragDrop()` inside the same panel.
+- `fb.DoDragDrop()` is now executed asynchronously. Which means that might exit before `on_drag_drop` callback is triggered when dropping data on the same panel as the one that had a call to `fb.DoDragDrop()`.
 - Added an ability to generate main menu items dynamically and handle it via the following API:
   - `fb.RegisterMainMenuCommand(id, name, description)`: registers a main menu item that will be displayed under `main menu`>`File`>`Spider Monkey Panel`>`Script commands`>`{Current panel name}`>`{name}`.
   - `fb.UnregisterMainMenuCommand(id, name)`: unregisters the item from `fb.RegisterMainMenuCommand()`.
