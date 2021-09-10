@@ -75,7 +75,7 @@ ___
 - Added `fb.Restart()` method. Restarts the player.
 
 ### Changed
-- Addeded an optional `use_exact` argument to `GdiGraphics.CalcTextWidth()`. `false` by default. If set to `true` will use a more accurate width calculation algorithm in certain cases. See ([#140](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/140)) for more info on these cases.
+- Added an optional `use_exact` argument to `GdiGraphics.CalcTextWidth()` (`false` by default). If set to `true` will use a more accurate width calculation algorithm in certain cases. See ([#140](https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/140)) for more info on these cases.
 - `utils.GetPackagePath()` is marked as **\[Deprecated]**. Use `utils.GetPackageInfo()` instead.
 - `plman.IsPlaylistLocked()` is marked as **\[Deprecated]**. Use `plman.GetPlaylistLockedActions()` instead.
 
