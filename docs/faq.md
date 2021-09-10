@@ -1,5 +1,5 @@
 ---
-title: Frequesntly Asked Questions
+title: Frequently Asked Questions
 nav_order: 3
 has_children: true
 ---
