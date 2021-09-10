@@ -427,11 +427,17 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
             }
         }
 
+        pDragEvent->DisposeStoredData();
+
         break;
     }
     case EventId::kMouseDragLeave:
     {
+        const auto pDragEvent = task.AsDragEvent();
+        assert( pDragEvent );
+
         lastDragParams_.reset();
+        pDragEvent->DisposeStoredData();
 
         if ( pJsContainer_ )
         {
@@ -458,6 +464,8 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
             }
         }
 
+        pDragEvent->DisposeStoredData();
+
         break;
     }
     case EventId::kMouseDragDrop:
@@ -477,7 +485,9 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
                 smp::com::TrackDropTarget::ProcessDropEvent( pDragEvent->GetStoredData(), dragParams );
             }
         }
+
         lastDragParams_.reset();
+        pDragEvent->DisposeStoredData();
 
         break;
     }

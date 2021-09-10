@@ -2,6 +2,8 @@
 
 #include "drop_target_impl.h"
 
+#include <utils/logging.h>
+
 #include <qwr/winapi_error_helpers.h>
 
 _COM_SMARTPTR_TYPEDEF( IDropTargetHelper, IID_IDropTargetHelper );
@@ -63,7 +65,17 @@ STDMETHODIMP IDropTargetImpl::DragEnter( IDataObject* pDataObj, DWORD grfKeyStat
     }
 
     POINT point{ pt.x, pt.y };
-    GetDropTargetHelper()->DragEnter( hWnd_, pDataObj, &point, *pdwEffect );
+    try
+    {
+        GetDropTargetHelper()->DragEnter( hWnd_, pDataObj, &point, *pdwEffect );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        smp::utils::LogWarning( fmt::format( "DnD initialization failed:\n"
+                                             "  {}",
+                                             e.what() ) );
+        return E_FAIL;
+    }
 
     *pdwEffect = OnDragEnter( pDataObj, grfKeyState, pt, *pdwEffect );
 
@@ -78,7 +90,17 @@ STDMETHODIMP IDropTargetImpl::DragOver( DWORD grfKeyState, POINTL pt, DWORD* pdw
     }
 
     POINT point{ pt.x, pt.y };
-    GetDropTargetHelper()->DragOver( &point, *pdwEffect );
+    try
+    {
+        GetDropTargetHelper()->DragOver( &point, *pdwEffect );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        smp::utils::LogWarning( fmt::format( "DnD initialization failed:\n"
+                                             "  {}",
+                                             e.what() ) );
+        return E_FAIL;
+    }
 
     *pdwEffect = OnDragOver( grfKeyState, pt, *pdwEffect );
 
@@ -87,7 +109,17 @@ STDMETHODIMP IDropTargetImpl::DragOver( DWORD grfKeyState, POINTL pt, DWORD* pdw
 
 STDMETHODIMP IDropTargetImpl::DragLeave()
 {
-    GetDropTargetHelper()->DragLeave();
+    try
+    {
+        GetDropTargetHelper()->DragLeave();
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        smp::utils::LogWarning( fmt::format( "DnD initialization failed:\n"
+                                             "  {}",
+                                             e.what() ) );
+        return E_FAIL;
+    }
 
     OnDragLeave();
 
@@ -106,7 +138,17 @@ STDMETHODIMP IDropTargetImpl::Drop( IDataObject* pDataObj, DWORD grfKeyState, PO
     }
 
     POINT point{ pt.x, pt.y };
-    GetDropTargetHelper()->Drop( pDataObj, &point, *pdwEffect );
+    try
+    {
+        GetDropTargetHelper()->Drop( pDataObj, &point, *pdwEffect );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        smp::utils::LogWarning( fmt::format( "DnD initialization failed:\n"
+                                             "  {}",
+                                             e.what() ) );
+        return E_FAIL;
+    }
 
     *pdwEffect = OnDrop( pDataObj, grfKeyState, pt, *pdwEffect );
 
