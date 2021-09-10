@@ -20,10 +20,10 @@ has_children: true
 
  - Windows 7 or later.
  - Visual Studio 2019.
- - Git client (e.g. https://desktop.github.com/). Must be present in `%PATH%`.
- - Git LFS extension (https://github.com/git-lfs/git-lfs/releases/latest). Execute `git lfs install` after installation.
- - Python 3.+ (https://www.python.org/downloads/windows/). Must be present in `%PATH%`.
- - 7-Zip (https://www.7-zip.org/download.html). Must be present in `%PATH%`.
+ - Git client (e.g. <https://desktop.github.com>). Must be present in `%PATH%`.
+ - Git LFS extension (<https://github.com/git-lfs/git-lfs/releases/latest>). Execute `git lfs install` after installation.
+ - Python 3.+ (<https://www.python.org/downloads/windows>). Must be present in `%PATH%`.
+ - 7-Zip (<https://www.7-zip.org/download.html>). Must be present in `%PATH%`.
 
 ## Building foo_spider_monkey_panel.dll
 
