@@ -121,10 +121,11 @@ public: // event handling
     void ExecuteTask( EventId id );
 
 private: // callback handling
-    std::optional<LRESULT> process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> process_main_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> process_window_messages( UINT msg, WPARAM wp, LPARAM lp );
-    std::optional<LRESULT> process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
+    std::optional<MSG> GetStalledMessage();
+    std::optional<LRESULT> ProcessSyncMessage( const MSG& msg );
+    std::optional<LRESULT> ProcessCreationMessage( const MSG& msg );
+    std::optional<LRESULT> ProcessWindowMessage( const MSG& msg );
+    std::optional<LRESULT> ProcessInternalSyncMessage( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
 
     // Internal callbacks
     void OnContextMenu( int x, int y );
@@ -155,7 +156,8 @@ private:
     CBitmap bmp_ = nullptr;   // used only internally
     CBitmap bmpBg_ = nullptr; // used only internally
 
-    bool hasFailed_ = false;                   // // used only internally
+    bool hasFailed_ = false; // // used only internally
+    bool isRepaintRequested_ = true;
     bool isBgRepaintNeeded_ = false;           // used only internally
     bool isPaintInProgress_ = false;           // used only internally
     bool isMouseTracked_ = false;              // used only internally

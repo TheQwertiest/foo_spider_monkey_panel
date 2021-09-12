@@ -214,6 +214,19 @@ bool js_panel_window::IsPanelIdOverridenByScript() const
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
+    // According to MSDN:
+    ////
+    // If no filter is specified, messages are processed in the following order:
+    // - Sent messages
+    // - Posted messages
+    // - Input (hardware) messages and system internal events
+    // - Sent messages (again)
+    // - WM_PAINT messages
+    // - WM_TIMER messages
+    ////
+    // Since we are constantly processing our own `event` messages, we need to take additional care
+    // so as not to stall WM_PAINT and WM_TIMER messages.
+
     const qwr::final_action autoComObjectDeleter( [] {
         // delete only on exit as to avoid delaying processing of the current message due to reentrancy
         com::DeleteMarkedObjects();
@@ -221,6 +234,8 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     if ( EventDispatcher::IsRequestEventMessage( msg ) )
     {
+        const auto stalledMsgOpt = GetStalledMessage();
+
         EventDispatcher::Get().OnRequestEventMessageReceived( wnd_ );
 
         static uint32_t nestedCounter = 0;
@@ -244,10 +259,18 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         // Prime example of which would be WM_PAINT
         const auto canExecuteAllTasks = ( nestedCounter == 1 || modal::IsModalBlocked() );
         EventDispatcher::Get().ProcessNextEvent( wnd_, !canExecuteAllTasks );
+
+        if ( stalledMsgOpt )
+        {
+            if ( !ProcessSyncMessage( *stalledMsgOpt ) )
+            {
+                DefWindowProc( hwnd, msg, wp, lp );
+            }
+        }
     }
     else
     {
-        if ( auto retVal = process_sync_messages( hwnd, msg, wp, lp );
+        if ( auto retVal = ProcessSyncMessage( MSG{ hwnd, msg, wp, lp } );
              retVal.has_value() )
         {
             return *retVal;
@@ -516,23 +539,42 @@ bool js_panel_window::ExecuteJsCode( mozjs::JsAsyncTask& jsTask )
     return pJsContainer_->InvokeJsAsyncTask( jsTask );
 }
 
-std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+std::optional<MSG> js_panel_window::GetStalledMessage()
 {
-    if ( auto retVal = process_main_messages( hwnd, msg, wp, lp );
+    MSG msg;
+    bool hasMessage = ( PeekMessage( &msg, wnd_, 0, 0, PM_REMOVE | PM_QS_PAINT ) ) || PeekMessage( &msg, wnd_, 0, 0, PM_REMOVE | QS_TIMER );
+    if ( hasMessage )
+    {
+        return msg;
+    }
+
+    if ( isRepaintRequested_ )
+    {
+        // HACK: WM_PAINT is generated only when msg queue is completely empty, which might not happen when our events are generated back to back.
+        // Hence we generate a `virtual` message to force a repaint when needed
+        return MSG{ wnd_, WM_PAINT, 0, 0 };
+    }
+
+    return std::nullopt;
+}
+
+std::optional<LRESULT> js_panel_window::ProcessSyncMessage( const MSG& msg )
+{
+    if ( auto retVal = ProcessCreationMessage( msg );
          retVal.has_value() )
     {
         return *retVal;
     }
 
-    if ( auto retVal = process_window_messages( msg, wp, lp );
+    if ( auto retVal = ProcessWindowMessage( msg );
          retVal.has_value() )
     {
         return *retVal;
     }
 
-    if ( IsInEnumRange<InternalSyncMessage>( msg ) )
+    if ( IsInEnumRange<InternalSyncMessage>( msg.message ) )
     {
-        if ( auto retVal = process_internal_sync_messages( static_cast<InternalSyncMessage>( msg ), wp, lp );
+        if ( auto retVal = ProcessInternalSyncMessage( static_cast<InternalSyncMessage>( msg.message ), msg.wParam, msg.lParam );
              retVal.has_value() )
         {
             return *retVal;
@@ -542,13 +584,13 @@ std::optional<LRESULT> js_panel_window::process_sync_messages( HWND hwnd, UINT m
     return std::nullopt;
 }
 
-std::optional<LRESULT> js_panel_window::process_main_messages( HWND hwnd, UINT msg, WPARAM, LPARAM )
+std::optional<LRESULT> js_panel_window::ProcessCreationMessage( const MSG& msg )
 {
-    switch ( msg )
+    switch ( msg.message )
     {
     case WM_CREATE:
     {
-        OnCreate( hwnd );
+        OnCreate( msg.hwnd );
         return 0;
     }
     case WM_DESTROY:
@@ -563,14 +605,14 @@ std::optional<LRESULT> js_panel_window::process_main_messages( HWND hwnd, UINT m
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
 {
     if ( !pJsContainer_ )
     {
         return std::nullopt;
     }
 
-    switch ( msg )
+    switch ( msg.message )
     {
     case WM_DISPLAYCHANGE:
     case WM_THEMECHANGED:
@@ -588,6 +630,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
     case WM_PAINT:
     {
+        isRepaintRequested_ = false;
         if ( isPaintInProgress_ )
         {
             return std::nullopt;
@@ -611,7 +654,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     { // This message will be called before WM_CREATE as well,
         // but we don't need to handle it before panel creation,
         // since default values suit us just fine
-        auto pmmi = reinterpret_cast<LPMINMAXINFO>( lp );
+        auto pmmi = reinterpret_cast<LPMINMAXINFO>( msg.lParam );
         pmmi->ptMaxTrackSize = MaxSize();
         pmmi->ptMinTrackSize = MinSize();
         return 0;
@@ -637,10 +680,10 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
-                                             kMsgToEventId.at( msg ),
-                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                             static_cast<uint32_t>( wp ) ),
+                                             kMsgToEventId.at( msg.message ),
+                                             static_cast<int32_t>( GET_X_LPARAM( msg.lParam ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( msg.lParam ) ),
+                                             static_cast<uint32_t>( msg.wParam ) ),
                                          EventPriority::kInput );
         return std::nullopt;
     }
@@ -659,10 +702,10 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
 
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
-                                             kMsgToEventId.at( msg ),
-                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                             static_cast<uint32_t>( wp ) ),
+                                             kMsgToEventId.at( msg.message ),
+                                             static_cast<int32_t>( GET_X_LPARAM( msg.lParam ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( msg.lParam ) ),
+                                             static_cast<uint32_t>( msg.wParam ) ),
                                          EventPriority::kInput );
         return std::nullopt;
     }
@@ -676,9 +719,9 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          std::make_unique<Event_Mouse>(
                                              EventId::kMouseRightButtonUp,
-                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                             static_cast<uint32_t>( wp ),
+                                             static_cast<int32_t>( GET_X_LPARAM( msg.lParam ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( msg.lParam ) ),
+                                             static_cast<uint32_t>( msg.wParam ),
                                              GetHotkeyModifierFlags() ),
                                          EventPriority::kInput );
 
@@ -689,9 +732,9 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kMouseLeftButtonDoubleClick,
-                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                             static_cast<uint32_t>( wp ) ),
+                                             static_cast<int32_t>( GET_X_LPARAM( msg.lParam ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( msg.lParam ) ),
+                                             static_cast<uint32_t>( msg.wParam ) ),
                                          EventPriority::kInput );
         return std::nullopt;
     }
@@ -700,9 +743,9 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kMouseMiddleButtonDoubleClick,
-                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                             static_cast<uint32_t>( wp ) ),
+                                             static_cast<int32_t>( GET_X_LPARAM( msg.lParam ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( msg.lParam ) ),
+                                             static_cast<uint32_t>( msg.wParam ) ),
                                          EventPriority::kInput );
         return std::nullopt;
     }
@@ -711,16 +754,16 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kMouseRightButtonDoubleClick,
-                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                             static_cast<uint32_t>( wp ) ),
+                                             static_cast<int32_t>( GET_X_LPARAM( msg.lParam ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( msg.lParam ) ),
+                                             static_cast<uint32_t>( msg.wParam ) ),
                                          EventPriority::kInput );
         return std::nullopt;
     }
     case WM_CONTEXTMENU:
     {
         // WM_CONTEXTMENU receives screen coordinates
-        POINT p{ GET_X_LPARAM( lp ), GET_Y_LPARAM( lp ) };
+        POINT p{ GET_X_LPARAM( msg.wParam ), GET_Y_LPARAM( msg.lParam ) };
         ScreenToClient( wnd_, &p );
         EventDispatcher::Get().PutEvent( wnd_,
                                          std::make_unique<Event_Mouse>(
@@ -749,9 +792,9 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kMouseMove,
-                                             static_cast<int32_t>( GET_X_LPARAM( lp ) ),
-                                             static_cast<int32_t>( GET_Y_LPARAM( lp ) ),
-                                             static_cast<uint32_t>( wp ) ),
+                                             static_cast<int32_t>( GET_X_LPARAM( msg.lParam ) ),
+                                             static_cast<int32_t>( GET_Y_LPARAM( msg.lParam ) ),
+                                             static_cast<uint32_t>( msg.wParam ) ),
                                          EventPriority::kInput );
         return std::nullopt;
     }
@@ -772,8 +815,8 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kMouseVerticalWheel,
-                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ),
-                                             static_cast<int32_t>( GET_WHEEL_DELTA_WPARAM( wp ) ),
+                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( msg.wParam ) > 0 ? 1 : -1 ),
+                                             static_cast<int32_t>( GET_WHEEL_DELTA_WPARAM( msg.wParam ) ),
                                              static_cast<int32_t>( WHEEL_DELTA ) ),
                                          EventPriority::kInput );
         return std::nullopt;
@@ -783,7 +826,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kMouseHorizontalWheel,
-                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( wp ) > 0 ? 1 : -1 ) ),
+                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( msg.wParam ) > 0 ? 1 : -1 ) ),
                                          EventPriority::kInput );
         return std::nullopt;
     }
@@ -797,7 +840,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kKeyboardKeyDown,
-                                             static_cast<uint32_t>( wp ) ),
+                                             static_cast<uint32_t>( msg.wParam ) ),
                                          EventPriority::kInput );
         return 0;
     }
@@ -806,7 +849,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kKeyboardKeyUp,
-                                             static_cast<uint32_t>( wp ) ),
+                                             static_cast<uint32_t>( msg.wParam ) ),
                                          EventPriority::kInput );
         return 0;
     }
@@ -815,7 +858,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kKeyboardChar,
-                                             static_cast<uint32_t>( wp ) ),
+                                             static_cast<uint32_t>( msg.wParam ) ),
                                          EventPriority::kInput );
         return 0;
     }
@@ -846,7 +889,7 @@ std::optional<LRESULT> js_panel_window::process_window_messages( UINT msg, WPARA
     }
 }
 
-std::optional<LRESULT> js_panel_window::process_internal_sync_messages( InternalSyncMessage msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> js_panel_window::ProcessInternalSyncMessage( InternalSyncMessage msg, WPARAM wp, LPARAM lp )
 {
     if ( !pJsContainer_ )
     {
@@ -1194,11 +1237,13 @@ bool js_panel_window::HasInternalDrag() const
 
 void js_panel_window::Repaint( bool force )
 {
+    isRepaintRequested_ = true;
     wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
 void js_panel_window::RepaintRect( const CRect& rc, bool force )
 {
+    isRepaintRequested_ = true;
     wnd_.RedrawWindow( &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
