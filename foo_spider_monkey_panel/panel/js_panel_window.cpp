@@ -72,9 +72,11 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
         L"",
         0,
         false,
-        false,
+        true,
         0,
-        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        //WS_POPUP | WS_VISIBLE,
+        WS_CHILD,
+        //WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         ConvertEdgeStyleToNativeFlags( settings_.edgeStyle ),
         CS_DBLCLKS,
         true,
@@ -88,8 +90,10 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 
 void js_panel_window::Fail( const qwr::u8string& errorText )
 {
+    namespace smp_advconf = smp::config::advanced;
+
     hasFailed_ = true;
-    qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
+    qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText, !smp_advconf::js_suppress_error_popup.GetValue());
 
     if ( wnd_ )
     {              // can be null during startup
@@ -1518,6 +1522,8 @@ void js_panel_window::OnPaint( HDC dc, const CRect& updateRc )
     CDC memDc{ CreateCompatibleDC( dc ) };
     gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
 
+
+
     if ( hasFailed_
          || !pJsContainer_
          || mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
@@ -1568,33 +1574,27 @@ void js_panel_window::OnPaintErrorScreen( HDC memdc )
                      DEFAULT_CHARSET,
                      OUT_DEFAULT_PRECIS,
                      CLIP_DEFAULT_PRECIS,
-                     DEFAULT_QUALITY,
+                     CLEARTYPE_QUALITY,
                      DEFAULT_PITCH | FF_DONTCARE,
-                     L"Tahoma" );
+                     /* L"Tahoma"*/ NULL );
     gdi::ObjectSelector autoFontSelector( cdc, font.m_hFont );
 
-    LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
     CBrush brush;
-    brush.CreateBrushIndirect( &lbBack );
+    brush.CreateSolidBrush ( RGB( 225, 60, 45 ) );
 
-    CRect rc{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
-    cdc.FillRect( &rc, brush );
+    CRect rect{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
+    cdc.FillRect( &rect, brush );
     cdc.SetBkMode( TRANSPARENT );
 
     cdc.SetTextColor( RGB( 255, 255, 255 ) );
-    cdc.DrawText( L"Aw, crashed :(", -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
+    cdc.DrawTextW( L"Aw, crashed :(", -1, &rect, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
 }
 
 void js_panel_window::OnPaintJs( HDC memdc, const CRect& updateRc )
 {
+    qwr::error::CheckWinApi( ERROR != SetGraphicsMode( memdc, GM_ADVANCED ), "SetGraphicsMode" );
+
     Gdiplus::Graphics gr( memdc );
-
-    // SetClip() may improve performance slightly
-    gr.SetClip( Gdiplus::Rect{ updateRc.left,
-                               updateRc.top,
-                               updateRc.Width(),
-                               updateRc.Height() } );
-
     pJsContainer_->InvokeOnPaint( gr );
 }
 

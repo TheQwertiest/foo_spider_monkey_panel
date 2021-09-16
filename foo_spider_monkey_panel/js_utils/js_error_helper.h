@@ -6,7 +6,7 @@
 namespace mozjs::error
 {
 
-namespace internal
+    namespace internal
 {
 
 template <typename F, typename... Args>

@@ -45,8 +45,8 @@ public:
     [[nodiscard]] HFONT GetHFont() const;
 
 public: // ctor
-    static JSObject* Constructor( JSContext* cx, const std::wstring& fontName, uint32_t pxSize, uint32_t style = 0 );
-    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::wstring& fontName, uint32_t pxSize, uint32_t style );
+    static JSObject* Constructor( JSContext* cx, const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle = 0 );
+    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle );
 
 public: // props
     [[nodiscard]] uint32_t get_Height() const;

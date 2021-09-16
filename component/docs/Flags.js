@@ -154,7 +154,7 @@ const FontStyle = {
     Strikeout: 8
 };
 
-// Used in SetTextRenderingHint()
+// Used in GetTextRenderingHint() / SetTextRenderingHint()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534404(VS.85).aspx
 const TextRenderingHint = {
     SystemDefault: 0,
@@ -165,7 +165,7 @@ const TextRenderingHint = {
     ClearTypeGridFit: 5
 };
 
-// Used in SetSmoothingMode()
+// Used in GetSmoothingMode() / SetSmoothingMode()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534173(VS.85).aspx
 const SmoothingMode = {
     Invalid: -1,
@@ -176,7 +176,7 @@ const SmoothingMode = {
     AntiAlias: 4
 };
 
-// Used in SetInterpolationMode()
+// Used in GetInterpolationMode() / SetInterpolationMode()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534141(VS.85).aspx
 const InterpolationMode = {
     Invalid: -1,
@@ -189,6 +189,47 @@ const InterpolationMode = {
     HighQualityBilinear: 6,
     HighQualityBicubic: 7
 };
+
+// Used in GetCompositngMode() / SetCompositngMode()
+// For more information, see: https://docs.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-compositingmode
+const CompositingMode =
+{
+    SourceOver: 0,
+    SourceCopy: 1
+}
+
+
+// Used in GetCompositingQuality() / SetCompositingQuality()
+// For more information, see: https://docs.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-compositingquality
+const CompositingQuality =
+{
+    Invalid: -1,
+    Default: 0,
+    HighSpeed: 1,
+    HighQuality: 2,
+    GammaCorrected: 3,
+    AssumeLinear: 4
+}
+
+// Used in GetPixelOffsetMode() / SetPixelOffsetMode()
+// For more information, see: https://docs.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-pixeloffsetmode
+const PixelOffsetMode =
+{
+    Invalid: -1,
+    Default: 0,
+    HighSpeed: 1,
+    HighQuality: 2,
+    None: 3,
+    Half: 4
+}
+
+// Used in TranslateTransform () / RotateTransform () / ScaleTransform () / MultiplyTransform ()
+// For more information, see: https://docs.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-matrixorder
+const MatrixOrder =
+{
+    Prepend: 0,
+    Append: 1
+}
 
 // Used in RotateFlip()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534171(VS.85).aspx
@@ -233,7 +274,7 @@ const StringTrimming = {
     EllipsisPath: 5
 };
 
-// flags, can be combined of:
+// flags, can be combined:
 // http://msdn.microsoft.com/en-us/library/ms534181(VS.85).aspx
 const StringFormatFlags = {
     DirectionRightToLeft: 0x00000001,

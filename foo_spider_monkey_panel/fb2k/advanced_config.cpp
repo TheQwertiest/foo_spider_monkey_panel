@@ -7,8 +7,10 @@ namespace
 
 advconfig_branch_factory branch_smp(
     "Spider Monkey Panel", smp::guid::adv_branch, advconfig_branch::guid_branch_tools, 0 );
+
 advconfig_branch_factory branch_performance(
     "Performance: restart is required", smp::guid::adv_branch_performance, smp::guid::adv_branch, 0 );
+
 advconfig_branch_factory branch_gc(
     "GC", smp::guid::adv_branch_gc, smp::guid::adv_branch_performance, 0 );
 
@@ -32,6 +34,11 @@ advconfig_branch_factory branch_stacktrace(
 
 namespace smp::config::advanced
 {
+
+qwr::fb2k::AdvConfigBool_MT js_suppress_error_popup(
+    "Suppress JS error popup (but still log errors to the Console)",
+    smp::guid::adv_var_js_suppress_error_popup, smp::guid::adv_branch, 0,
+    true );
 
 qwr::fb2k::AdvConfigUint32_MT gc_max_heap(
     "Maximum heap size (in bytes) (0 - auto configuration)",

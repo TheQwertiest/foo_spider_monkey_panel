@@ -5,6 +5,7 @@
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+#include <js_utils/js_hwnd_helpers.h>
 #include <utils/gdi_error_helpers.h>
 
 #include <qwr/final_action.h>
@@ -113,32 +114,34 @@ HFONT JsGdiFont::GetHFont() const
     return hFont_;
 }
 
-JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, uint32_t pxSize, uint32_t style )
+JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
-    auto pGdiFont = std::make_unique<Gdiplus::Font>( fontName.c_str(), static_cast<Gdiplus::REAL>( pxSize ), style, Gdiplus::UnitPixel );
-    qwr::error::CheckGdiPlusObject( pGdiFont );
-
     // Generate HFONT
     // The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
     HFONT hFont = CreateFont(
-        -static_cast<int>( pxSize ),
+        static_cast<int>( fontSize ),
         0,
         0,
         0,
-        ( style & Gdiplus::FontStyleBold ) ? FW_BOLD : FW_NORMAL,
-        ( style & Gdiplus::FontStyleItalic ) ? TRUE : FALSE,
-        ( style & Gdiplus::FontStyleUnderline ) ? TRUE : FALSE,
-        ( style & Gdiplus::FontStyleStrikeout ) ? TRUE : FALSE,
+        ( fontStyle & Gdiplus::FontStyleBold ) ? FW_BOLD : FW_NORMAL,
+        ( fontStyle & Gdiplus::FontStyleItalic ) ? TRUE : FALSE,
+        ( fontStyle & Gdiplus::FontStyleUnderline ) ? TRUE : FALSE,
+        ( fontStyle & Gdiplus::FontStyleStrikeout ) ? TRUE : FALSE,
         DEFAULT_CHARSET,
         OUT_DEFAULT_PRECIS,
         CLIP_DEFAULT_PRECIS,
-        DEFAULT_QUALITY,
+        CLEARTYPE_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
     qwr::error::CheckWinApi( !!hFont, "CreateFont" );
-    qwr::final_action autoFont( [hFont]() {
-        DeleteObject( hFont );
-    } );
+    qwr::final_action autoFont( [hFont]() { DeleteObject( hFont ); } );
+
+    HWND wnd = ::GetPanelHwndForCurrentGlobal( cx );
+    HDC dc = GetDC( wnd );
+    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+
+    auto pGdiFont = std::make_unique<Gdiplus::Font>( dc, hFont );
+    qwr::error::CheckGdiPlusObject( pGdiFont );
 
     JS::RootedObject jsObject( cx, JsGdiFont::CreateJs( cx, std::move( pGdiFont ), hFont, true ) );
     assert( jsObject );
@@ -147,14 +150,14 @@ JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, u
     return jsObject;
 }
 
-JSObject* JsGdiFont::ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::wstring& fontName, uint32_t pxSize, uint32_t style )
+JSObject* JsGdiFont::ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
     switch ( optArgCount )
     {
     case 0:
-        return Constructor( cx, fontName, pxSize, style );
+        return Constructor( cx, fontName, fontSize, fontStyle );
     case 1:
-        return Constructor( cx, fontName, pxSize );
+        return Constructor( cx, fontName, fontSize );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -171,10 +174,10 @@ uint32_t JsGdiFont::get_Height() const
 std::wstring JsGdiFont::get_Name() const
 {
     Gdiplus::FontFamily fontFamily;
-    std::array<wchar_t, LF_FACESIZE> name{};
     Gdiplus::Status gdiRet = pGdi_->GetFamily( &fontFamily );
     qwr::error::CheckGdi( gdiRet, "GetFamily" );
 
+    std::array<wchar_t, LF_FACESIZE> name{};
     gdiRet = fontFamily.GetFamilyName( name.data(), LANG_NEUTRAL );
     qwr::error::CheckGdi( gdiRet, "GetFamilyName" );
 

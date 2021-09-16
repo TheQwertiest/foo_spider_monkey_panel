@@ -487,7 +487,19 @@ uint32_t JsUtils::GetSystemMetrics( uint32_t index ) const
 {
     return ::GetSystemMetrics( index );
 }
+/*
+void JsUtils::GetSystemParametersInfo( int32_t uiAction )
+{
+    uint32_t uiParam;
+    PVOID pvParam;
 
+    // SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &LOGFONT
+
+    // SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &NONCLIENTMETRICS
+
+    ::SystemParametersInfoW( uiAction, uiParam, pvParam, 0 );
+}
+*/
 JS::Value JsUtils::Glob( const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     std::vector<qwr::u8string> files;
