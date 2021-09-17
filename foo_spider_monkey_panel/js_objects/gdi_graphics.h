@@ -43,48 +43,13 @@ public:
     void SetGraphicsObject( Gdiplus::Graphics* graphics );
 
 public:
-    void DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
-    void DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour );
-    void DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour );
-    void DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
-    void DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points );
-
-    void FillSolidRect( float x, float y, float w, float h, uint32_t colour );
-    void FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour );
-    void FillGradRect( float x, float y, float w, float h,
-                       float angle, uint32_t colour1, uint32_t colour2, float focus = 1 );
-    void FillGradRectWithOpt( size_t optArgCount,
-                              float x, float y, float w, float h,
-                              float angle, uint32_t colour1, uint32_t colour2, float focus );
-    void FillEllipse( float x, float y, float w, float h, uint32_t colour );
-    void FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points );
-
-    void DrawString( const std::wstring& str, JsGdiFont* font, uint32_t colour,
-                     float x, float y, float w, float h,
-                     uint32_t flags = 0 );
-    void DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
-                            float x, float y, float w, float h,
-                            uint32_t flags );
-
-    void GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour,
-                      int32_t x, int32_t y, uint32_t w, uint32_t h,
-                      uint32_t format = 0 );
-    void GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
-                             int32_t x, int32_t y, uint32_t w, uint32_t h,
-                             uint32_t format );
-
-    JSObject* MeasureString( const std::wstring& str, JsGdiFont* font,
-                             float x, float y, float w, float h,
-                             uint32_t flags = 0 );
-    JSObject* MeasureStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font,
-                                    float x, float y, float w, float h,
-                                    uint32_t flags );
-
-    JSObject* EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint32_t max_width );
+    uint32_t BeginContainer( float dst_x = 0, float dst_y = 0, float dst_w = 0, float dst_h = 0, float src_x = 0, float src_y = 0, float src_w = 0, float src_h = 0 );
+    uint32_t BeginContainerWithOpt( size_t optArgCount, float dst_x, float dst_y, float dst_w, float dst_h, float src_x, float src_y, float src_w, float src_h );
     uint32_t CalcTextHeight( const std::wstring& str, JsGdiFont* font );
     uint32_t CalcTextWidth( const std::wstring& str, JsGdiFont* font, boolean use_exact = false );
     uint32_t CalcTextWidthWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, boolean use_exact );
-
+    void Clear( uint32_t colour );
+    void DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour );
     void DrawImage( JsGdiBitmap* image,
                     float dstX, float dstY, float dstW, float dstH,
                     float srcX, float srcY, float srcW, float srcH,
@@ -93,7 +58,27 @@ public:
                            float dstX, float dstY, float dstW, float dstH,
                            float srcX, float srcY, float srcW, float srcH,
                            float angle, uint8_t alpha );
-
+    void DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour );
+    void DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points );
+    void DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour );
+    void DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour );
+    void DrawString( const std::wstring& str, JsGdiFont* font, uint32_t colour,
+                     float x, float y, float w, float h,
+                     uint32_t flags = 0 );
+    void DrawStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
+                            float x, float y, float w, float h,
+                            uint32_t flags );
+    void EndContainer( uint32_t state );
+    JSObject* EstimateLineWrap( const std::wstring& str, JsGdiFont* font, uint32_t max_width );
+    void FillEllipse( float x, float y, float w, float h, uint32_t colour );
+    void FillGradRect( float x, float y, float w, float h,
+                       float angle, uint32_t colour1, uint32_t colour2, float focus = 1 );
+    void FillGradRectWithOpt( size_t optArgCount,
+                              float x, float y, float w, float h,
+                              float angle, uint32_t colour1, uint32_t colour2, float focus );
+    void FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleValue points );
+    void FillRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, uint32_t colour );
+    void FillSolidRect( float x, float y, float w, float h, uint32_t colour );
     void GdiAlphaBlend( JsGdiRawBitmap* bitmap,
                         int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstHGdiDrawText,
                         int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
@@ -102,65 +87,65 @@ public:
                                int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
                                int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
                                uint8_t alpha );
-
     void GdiDrawBitmap( JsGdiRawBitmap* bitmap,
                         int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
                         int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH );
-
-    uint32_t GetInterpolationMode();
-    void SetInterpolationMode( uint32_t mode = 0 );
-    void SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode );
-
-    uint32_t GetSmoothingMode();
-    void SetSmoothingMode( uint32_t mode = 0 );
-    void SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode );
-
-    uint32_t GetTextRenderingHint();
-    void SetTextRenderingHint( uint32_t mode = 0 );
-    void SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode );
-
-    uint32_t GetTextContrast();
-    void SetTextContrast( uint32_t contrast );
-
-    uint32_t GetCompositingMode();
-    void SetCompositingMode( uint32_t mode = 0 );
-    void SetCompositingModeWithOpt( size_t optArgCount, uint32_t mode );
-
-    uint32_t GetCompositingQuality();
-    void SetCompositingQuality( uint32_t mode = 0 );
-    void SetCompositingQualityWithOpt( size_t optArgCount, uint32_t mode );
-
-    uint32_t GetPixelOffsetMode();
-    void SetPixelOffsetMode( uint32_t mode = 0 );
-    void SetPixelOffsetModeWithOpt( size_t optArgCount, uint32_t mode );
-
+    void GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour,
+                      int32_t x, int32_t y, uint32_t w, uint32_t h,
+                      uint32_t format = 0 );
+    void GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
+                             int32_t x, int32_t y, uint32_t w, uint32_t h,
+                             uint32_t format );
     JS::Value GetClip();
-    void SetClip( float x, float y, float w, float h );
-    void ResetClip();
-
+    uint32_t GetCompositingMode();
+    uint32_t GetCompositingQuality();
+    float GetDpiX();
+    float GetDpiY();
+    uint32_t GetInterpolationMode();
+    uint32_t GetPixelOffsetMode();
+    uint32_t GetSmoothingMode();
+    uint32_t GetTextContrast();
+    uint32_t GetTextRenderingHint();
+    JS::Value GetTransform();
     bool IsClipEmpty();
-    bool IsVisibleClipEmpty();
     bool IsPointVisible( float x, float y );
     bool IsRectVisible( float x, float y, float w, float h );
-
-    JS::Value GetTransform();
-    void SetTransform( float m11, float m12, float m21, float m22, float dx, float dy );
-    void ResetTransform();
-
-    void TranslateTransform( float dx, float dy, uint32_t matrixOrder = 0 );
-    void TranslateTransformWithOpt( size_t optArgCount, float dx, float dy, uint32_t matrixOrder );
-
-    void RotateTransform( float angle, uint32_t matrixOrder = 0 );
-    void RotateTransformWithOpt( size_t optArgCount, float angle, uint32_t matrixOrder );
-
-    void ScaleTransform( float sx, float sy, uint32_t matrixOrder = 0 );
-    void ScaleTransformWithOpt( size_t optArgCount, float sx, float sy, uint32_t matrixOrder );
-
+    bool IsVisibleClipEmpty();
+    JSObject* MeasureString( const std::wstring& str, JsGdiFont* font,
+                             float x, float y, float w, float h,
+                             uint32_t flags = 0 );
+    JSObject* MeasureStringWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font,
+                                    float x, float y, float w, float h,
+                                    uint32_t flags );
     void MultiplyTransform( float m11, float m12, float m21, float m22, float dx, float dy, uint32_t matrixOrder = 0 );
     void MultiplyTransformWithOpt( size_t optArgCount, float m11, float m12, float m21, float m22, float dx, float dy, uint32_t matrixOrder );
-
+    void ResetClip();
+    void ResetTransform();
+    void Restore( uint32_t state );
+    void RotateTransform( float angle, uint32_t matrixOrder = 0 );
+    void RotateTransformWithOpt( size_t optArgCount, float angle, uint32_t matrixOrder );
+    uint32_t Save();
+    void ScaleTransform( float sx, float sy, uint32_t matrixOrder = 0 );
+    void ScaleTransformWithOpt( size_t optArgCount, float sx, float sy, uint32_t matrixOrder );
+    void SetClip( float x, float y, float w, float h );
+    void SetCompositingMode( uint32_t mode = 0 );
+    void SetCompositingModeWithOpt( size_t optArgCount, uint32_t mode );
+    void SetCompositingQuality( uint32_t mode = 0 );
+    void SetCompositingQualityWithOpt( size_t optArgCount, uint32_t mode );
+    void SetInterpolationMode( uint32_t mode = 0 );
+    void SetInterpolationModeWithOpt( size_t optArgCount, uint32_t mode );
+    void SetPixelOffsetMode( uint32_t mode = 0 );
+    void SetPixelOffsetModeWithOpt( size_t optArgCount, uint32_t mode );
+    void SetSmoothingMode( uint32_t mode = 0 );
+    void SetSmoothingModeWithOpt( size_t optArgCount, uint32_t mode );
+    void SetTextContrast( uint32_t contrast );
+    void SetTextRenderingHint( uint32_t mode = 0 );
+    void SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mode );
+    void SetTransform( float m11, float m12, float m21, float m22, float dx, float dy );
     JS::Value TransformPoint( float x, float y );
     JS::Value TransformRect( float x, float y, float w, float h );
+    void TranslateTransform( float dx, float dy, uint32_t matrixOrder = 0 );
+    void TranslateTransformWithOpt( size_t optArgCount, float dx, float dy, uint32_t matrixOrder );
     JS::Value UnTransformPoint( float x, float y );
     JS::Value UnTransformRect( float x, float y, float w, float h );
 

@@ -3350,6 +3350,76 @@ function GdiFont(name, size_px, style) {
 function GdiGraphics() {
 
     /**
+     * The BeginContainer method begins a new graphics container. The call must be paired with a call to {@link GdiGraphics#EndContainer}.
+     * See: {@link https://docs.microsoft.com/en-us/windows/win32/gdiplus/-gdiplus-using-graphics-containers-use}
+     *
+     * @param {number=} [dst_x=0]
+     * @param {number=} [dst_y=0]
+     * @param {number=} [dst_w=0]
+     * @param {number=} [dst_h=0]
+     * @param {number=} [src_x=0]
+     * @param {number=} [src_y=0]
+     * @param {number=} [src_w=0]
+     * @param {number=} [src_h=0]
+     * @return {number} state
+     */
+    this.BeginContainer = function (dst_x, dst_y, dst_w, dst_h, src_x, src_y, src_w, src_h) { }; // (uint)
+
+    /**
+     * Calculates text height for {@link GdiGraphics#GdiDrawText}.<br>
+     * Note: this will only calculate the text height of one line.
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @return {number}
+     */
+    this.CalcTextHeight = function (text, font) { }; // (uint)
+
+    /**
+     * Calculates text width for {@link GdiGraphics#GdiDrawText}.
+     *
+     * Note: When the str contains a kerning pair that is found in the specified
+     * font, the return value will be larger than the actual drawn width of the
+     * text. If accurate values are required, set use_exact to true.
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {boolean=} [use_exact=false] Uses a slower, but more accurate method of calculating text width which accounts for kerning pairs.
+     * @return {number}
+     */
+    this.CalcTextWidth = function (text, font, use_exact) { }; // (uint)
+
+    /**
+     * @param {number} colour
+     */
+    this.Clear = function (colour) { }; // (uint)
+
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number} line_width
+     * @param {number} colour
+    */
+    this.DrawEllipse = function (x, y, w, h, line_width, colour) { }; // (void)
+
+    /**
+     * @param {GdiBitmap} img
+     * @param {number} dstX
+     * @param {number} dstY
+     * @param {number} dstW
+     * @param {number} dstH
+     * @param {number} srcX
+     * @param {number} srcY
+     * @param {number} srcW
+     * @param {number} srcH
+     * @param {float=} [angle=0]
+     * @param {number=} [alpha=255] Valid values 0-255.
+     */
+    this.DrawImage = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle, alpha) { }; // (void) [, angle][, alpha]
+
+    /**
      * @param {number} x1
      * @param {number} y1
      * @param {number} x2
@@ -3358,6 +3428,13 @@ function GdiGraphics() {
      * @param {number} colour
      */
     this.DrawLine = function (x1, y1, x2, y2, line_width, colour) { }; // (void)
+
+    /**
+     * @param {number} colour
+     * @param {number} line_width
+     * @param {Array<Array<number>>} points
+     */
+    this.DrawPolygon = function (colour, line_width, points) { }; // (void)
 
     /**
      * @param {number} x
@@ -3382,21 +3459,18 @@ function GdiGraphics() {
     this.DrawRoundRect = function (x, y, w, h, arc_width, arc_height, line_width, colour) { }; // (void)
 
     /**
+     * Should be only used when {@link GdiGraphics#GdiDrawText} is not applicable.
+     *
+     * @param {string} str
+     * @param {GdiFont} font
+     * @param {number} colour
      * @param {number} x
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {number} line_width
-     * @param {number} colour
+     * @param {number=} [flags=0] See Flags.js > StringFormatFlags
      */
-    this.DrawEllipse = function (x, y, w, h, line_width, colour) { }; // (void)
-
-    /**
-     * @param {number} colour
-     * @param {number} line_width
-     * @param {Array<Array<number>>} points
-     */
-    this.DrawPolygon = function (colour, line_width, points) { }; // (void)
+    this.DrawString = function (str, font, colour, x, y, w, h, flags) { }; // (void) [, flags]
 
     /**
      * @param {number} x
@@ -3405,18 +3479,7 @@ function GdiGraphics() {
      * @param {number} h
      * @param {number} colour
      */
-    this.FillSolidRect = function (x, y, w, h, colour) { }; // (void)
-
-    /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     * @param {number} arc_width
-     * @param {number} arc_height
-     * @param {number} colour
-     */
-    this.FillRoundRect = function (x, y, w, h, arc_width, arc_height, colour) { }; // (void)
+    this.FillEllipse = function (x, y, w, h, colour) { }; // (void)
 
     /**
      * Note: this may appear buggy depending on rectangle size. The easiest fix is
@@ -3434,15 +3497,6 @@ function GdiGraphics() {
     this.FillGradRect = function (x, y, w, h, angle, colour1, colour2, focus) { }; // (void) [, focus]
 
     /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     * @param {number} colour
-     */
-    this.FillEllipse = function (x, y, w, h, colour) { }; // (void)
-
-    /**
      * @param {number} colour
      * @param {number} fillmode 0 alternate, 1 winding.
      * @param {Array<Array<number>>} points
@@ -3450,18 +3504,77 @@ function GdiGraphics() {
     this.FillPolygon = function (colour, fillmode, points) { }; // (void)
 
     /**
-     * Should be only used when {@link GdiGraphics#GdiDrawText} is not applicable.
-     *
-     * @param {string} str
-     * @param {GdiFont} font
-     * @param {number} colour
      * @param {number} x
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {number=} [flags=0] See Flags.js > StringFormatFlags
+     * @param {number} arc_width
+     * @param {number} arc_height
+     * @param {number} colour
      */
-    this.DrawString = function (str, font, colour, x, y, w, h, flags) { }; // (void) [, flags]
+    this.FillRoundRect = function (x, y, w, h, arc_width, arc_height, colour) { }; // (void)
+
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number} colour
+     */
+    this.FillSolidRect = function (x, y, w, h, colour) { }; // (void)
+
+    /**
+     * The EndContainer method closes a graphics container that was
+     * previously opened by the {@link GdiGraphics#BeginContainer} method.
+     *
+     * @param {number} state
+     */
+    this.EndContainer = function (state) { }; // (void)
+
+    /**
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {number} max_width
+     * @return {Array<Array>}
+     *    index | meaning <br>
+     *    [0] text line 1 <br>
+     *    [1] width of text line 1 (in pixel) <br>
+     *    [2] text line 2 <br>
+     *    [3] width of text line 2 (in pixel) <br>
+     *    ... <br>
+     *    [2n + 2] text line n <br>
+     *    [2n + 3] width of text line n (px)
+     */
+    this.EstimateLineWrap = function (text, font, max_width) { }; // (Array)
+
+    /**
+     * @param {GdiRawBitmap} img
+     * @param {number} dstX
+     * @param {number} dstY
+     * @param {number} dstW
+     * @param {number} dstH
+     * @param {number} srcX
+     * @param {number} srcY
+     * @param {number} srcW
+     * @param {number} srcH
+     * @param {number=} [alpha=255] Valid values 0-255.
+     */
+    this.GdiAlphaBlend = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, alpha) { }; // (void) [, alpha]
+
+    /**
+     * Always faster than {@link GdiGraphics#DrawImage}, does not support alpha channel.
+     *
+     * @param {GdiRawBitmap} img
+     * @param {number} dstX
+     * @param {number} dstY
+     * @param {number} dstW
+     * @param {number} dstH
+     * @param {number} srcX
+     * @param {number} srcY
+     * @param {number} srcW
+     * @param {number} srcH
+     */
+    this.GdiDrawBitmap = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH) { }; // (void)
 
     /**
      * Provides faster and better rendering than {@link GdiGraphics#DrawString}.<br>
@@ -3476,7 +3589,7 @@ function GdiGraphics() {
      * Note: uses special rules for `&` character by default, which consumes the `&` and causes the next character to be underscored.
      * This behaviour can be changed (or disabled) via `format` parameter.
      *
-     * @param {string} str
+     * @param {string} text
      * @param {GdiFont} font
      * @param {number} colour
      * @param {number} x
@@ -3485,12 +3598,105 @@ function GdiGraphics() {
      * @param {number} h
      * @param {number=} [format=0] See Flags.js > DT_*
      */
-    this.GdiDrawText = function (str, font, colour, x, y, w, h, format) { };
+    this.GdiDrawText = function (text, font, colour, x, y, w, h, format) { };
+
+    /**
+     * Get current clip rectangle
+     *
+     * @returns {Array<number>} as [x, y, w, h]
+     */
+    this.GetClip = function () { }; // (Array<number>)
+
+    /**
+     * @returns {number} See Flags.js > CompositingMode
+     */
+    this.GetCompositingMode = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > CompositingQuality
+     */
+    this.GetCompositingQuality = function () { }; // (number)
+
+    /**
+     * @returns {number}
+     */
+    this.GetDpiX = function () { }; // (number)
+
+    /**
+     * @returns {number}
+     */
+    this.GetDpiY = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > InterpolationMode
+     */
+    this.GetInterpolationMode = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > PixelOffsetMode
+     */
+    this.GetPixelOffsetMode = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > SmoothingMode
+     */
+    this.GetSmoothingMode = function () { }; // (number)
+
+    /**
+     * @returns {number}
+     */
+    this.GetTextContrast = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > TextRenderingHint
+     */
+    this.GetTextRenderingHint = function () { }; // (number)
+
+    /**
+     * Get current transform matrix as an array of numbers.
+     *
+     * @returns {Array<number>} as [m11, m12, m21, m22, dx, dy]
+     */
+    this.GetTransform = function () { }; // (Array<number>)
+
+    /**
+     * Check if clipping region is empty
+     *
+     * @returns {boolean}
+     */
+    this.IsClipEmpty = function () { };
+
+    /**
+     * Check if a point is visible (not clipped)
+     *
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
+    this.IsPointVisible = function (x, y) { };
+
+    /**
+     * Check if a rectangle is visible (not clipped)
+     *
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @returns {boolean}
+     */
+    this.IsRectVisible = function (x, y, w, h) { };
+
+    /**
+     * Check if visible clipping region is empty
+     *
+     * @returns {boolean}
+     */
+    this.IsVisibleClipEmpty = function () { };
 
     /**
      * Calculates text dimensions for {@link GdiGraphics#DrawString}.
      *
-     * @param {string} str
+     * @param {string} text
      * @param {GdiFont} font
      * @param {number} x
      * @param {number} y
@@ -3499,7 +3705,7 @@ function GdiGraphics() {
      * @param {number=} [flags=0] See Flags.js > StringFormatFlags
      * @return {MeasureStringInfo}
      */
-    this.MeasureString = function (str, font, x, y, w, h, flags) { }; // (MeasureStringInfo) [, flags]
+    this.MeasureString = function (text, font, x, y, w, h, flags) { }; // (MeasureStringInfo) [, flags]
 
     /**
      * @constructor
@@ -3563,175 +3769,17 @@ function GdiGraphics() {
     }
 
     /**
-     * @param {string} str
-     * @param {GdiFont} font
-     * @param {number} max_width
-     * @return {Array<Array>}
-     *    index | meaning <br>
-     *    [0] text line 1 <br>
-     *    [1] width of text line 1 (in pixel) <br>
-     *    [2] text line 2 <br>
-     *    [3] width of text line 2 (in pixel) <br>
-     *    ... <br>
-     *    [2n + 2] text line n <br>
-     *    [2n + 3] width of text line n (px)
-     */
-    this.EstimateLineWrap = function (str, font, max_width) { }; // (Array)
-
-    /**
-     * Calculates text height for {@link GdiGraphics#GdiDrawText}.<br>
-     * Note: this will only calculate the text height of one line.
+     * Update the transform matrix with the product of itself and another matrix
      *
-     * @param {string} str
-     * @param {GdiFont} font
-     * @return {number}
+     * @param {number} m11
+     * @param {number} m12
+     * @param {number} m21
+     * @param {number} m22
+     * @param {number} dx
+     * @param {number} dy
+     * @param {number=} [order=0] See Flags.js > MatrixOrder
      */
-    this.CalcTextHeight = function (str, font) { }; // (uint)
-
-    /**
-     * Calculates text width for {@link GdiGraphics#GdiDrawText}.
-     *
-     * Note: When the str contains a kerning pair that is found in the specified
-     * font, the return value will be larger than the actual drawn width of the
-     * text. If accurate values are required, set use_exact to true.
-     *
-     * @param {string} str
-     * @param {GdiFont} font
-     * @param {boolean=} [use_exact=false] Uses a slower, but more accurate method of calculating text width which accounts for kerning pairs.
-     * @return {number}
-     */
-    this.CalcTextWidth = function (str, font, use_exact) { }; // (uint)
-
-    /**
-     * @param {GdiBitmap} img
-     * @param {number} dstX
-     * @param {number} dstY
-     * @param {number} dstW
-     * @param {number} dstH
-     * @param {number} srcX
-     * @param {number} srcY
-     * @param {number} srcW
-     * @param {number} srcH
-     * @param {float=} [angle=0]
-     * @param {number=} [alpha=255] Valid values 0-255.
-     */
-    this.DrawImage = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, angle, alpha) { }; // (void) [, angle][, alpha]
-
-    /**
-     * @param {GdiRawBitmap} img
-     * @param {number} dstX
-     * @param {number} dstY
-     * @param {number} dstW
-     * @param {number} dstH
-     * @param {number} srcX
-     * @param {number} srcY
-     * @param {number} srcW
-     * @param {number} srcH
-     * @param {number=} [alpha=255] Valid values 0-255.
-     */
-    this.GdiAlphaBlend = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH, alpha) { }; // (void) [, alpha]
-
-    /**
-     * Always faster than {@link GdiGraphics#DrawImage}, does not support alpha channel.
-     *
-     * @param {GdiRawBitmap} img
-     * @param {number} dstX
-     * @param {number} dstY
-     * @param {number} dstW
-     * @param {number} dstH
-     * @param {number} srcX
-     * @param {number} srcY
-     * @param {number} srcW
-     * @param {number} srcH
-     */
-    this.GdiDrawBitmap = function (img, dstX, dstY, dstW, dstH, srcX, srcY, srcW, srcH) { }; // (void)
-
-    /**
-     * @returns {number} See Flags.js > InterpolationMode
-     */
-    this.GetInterpolationMode = function () { }; // (number)
-
-    /**
-     * @param {number=} [mode=0] See Flags.js > InterpolationMode
-     */
-    this.SetInterpolationMode = function (mode) { }; // (void)
-
-    /**
-     * @returns {number} See Flags.js > SmoothingMode
-     */
-    this.GetSmoothingMode = function () { }; // (number)
-
-    /**
-     * @param {number=} [mode=0] See Flags.js > SmoothingMode
-     */
-    this.SetSmoothingMode = function (mode) { }; // (void)
-
-    /**
-     * @returns {number} See Flags.js > TextRenderingHint
-     */
-    this.GetTextRenderingHint = function () { }; // (number)
-
-    /**
-     * @param {number=} [mode=0] See Flags.js > TextRenderingHint
-     */
-    this.SetTextRenderingHint = function (mode) { }; // (void)
-
-    /**
-     * @returns {number}
-     */
-    this.GetTextContrast = function () { }; // (number)
-
-    /**
-     * @param {number} contrast
-     */
-    this.SetTextContrast = function (contrast) { }; // (void)
-
-    /**
-     * @returns {number} See Flags.js > CompositingMode
-     */
-    this.GetCompositingMode = function () { }; // (number)
-
-    /**
-     * @param {number=} [mode=0] See Flags.js > CompositingMode
-     */
-    this.SetCompositingMode = function (mode) { }; // (void)
-
-    /**
-     * @returns {number} See Flags.js > CompositingQuality
-     */
-    this.GetCompositingQuality = function () { }; // (number)
-
-    /**
-     * @param {number=} [mode=0] See Flags.js > CompositingQuality
-     */
-    this.SetCompositingQuality = function (mode) { }; // (void)
-
-    /**
-     * @returns {number} See Flags.js > PixelOffsetMode
-     */
-    this.GetPixelOffsetMode = function () { }; // (number)
-
-    /**
-     * @param {number=} [mode=0] See Flags.js > PixelOffsetMode
-     */
-    this.SetPixelOffsetMode = function (mode) { }; // (void)
-
-    /**
-     * Get current clip rectangle
-     *
-     * @returns {Array<number>} as [x, y, w, h]
-     */
-    this.GetClip = function () { }; // (Array<number>)
-
-    /**
-     * Set clip rectangle
-     *
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     */
-    this.SetClip = function (x, y, w, h) { };
+    this.MultiplyTransform = function (m11, m12, m21, m22, dx, dy, order) { };
 
     /**
      * Resets clip rectangle to default
@@ -3741,45 +3789,48 @@ function GdiGraphics() {
     this.ResetClip = function () { };
 
     /**
-     * Check if clipping region is empty (x=0,y=0,w=0,h=0)
+     * Reset transform matrix to the identity matrix
      *
-     * @returns {boolean}
+     * @method
      */
-    this.IsClipEmpty = function () { };
+    this.ResetTransform = function () { };
 
     /**
-     * Check if visible clipping region is empty (x=0,y=0,w=0,h=0)
+     * The Restore method sets the state of this Graphics object
+     * to the state stored by a previous call to the
+     * {@link GdiGraphics#Save} method of this GdiGraphics object.
      *
-     * @returns {boolean}
+     * @param {number} state
      */
-    this.IsVisibleClipEmpty = function () { };
+    this.Restore = function () { };
 
     /**
-     * Check if a point is visible (not clipped)
+     * Update the transform matrix with the product of itself and a rotation matrix
      *
-     * @param {number} x
-     * @param {number} y
-     * @returns {boolean}
+     * @param {number} angle
+     * @param {number=} [order=0] See Flags.js > MatrixOrder
      */
-    this.IsPointVisible = function (x, y) { };
+    this.RotateTransform = function (angle, order) { };
 
     /**
-     * Check if a rectangle is visible (not clipped)
+     * The Save method saves the current state (transformations, clipping
+     * region, and quality settings) of this Graphics object.
+     * You can restore the state later by calling the
+     * {@link Graphics#Restore} method.
+     *
+     * @returns {number} state
+     */
+    this.Save = function () { };
+
+    /**
+     * Set the clip rectangle
      *
      * @param {number} x
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @returns {boolean}
      */
-    this.IsRectVisible = function (x, y, w, h) { };
-
-    /**
-     * Get current transform matrix
-     *
-     * @returns {Array<number>} as [m11, m12, m21, m22, dx, dy]
-     */
-    this.GetTransform = function () { }; // (Array<number>)
+    this.SetClip = function (x, y, w, h) { };
 
     /**
      * Set transform matrix
@@ -3794,30 +3845,6 @@ function GdiGraphics() {
     this.SetTransform = function (m11, m12, m21, m22, dx, dy) { };
 
     /**
-     * Reset transform matrix to the identity matrix
-     *
-     * @method
-     */
-    this.ResetTransform = function () { };
-
-    /**
-     * Update the transform matrix with the product of itself and a translation matrix
-     *
-     * @param {number} dx
-     * @param {number} dy
-     * @param {number=} [order=0]
-     */
-    this.TranslateTransform = function (dx, dy, order) { };
-
-    /**
-     * Update the transform matrix with the product of itself and a rotation matrix
-     *
-     * @param {number} angle
-     * @param {number=} [order=0]
-     */
-    this.RotateTransform = function (angle, order) { };
-
-    /**
      * Update the transform matrix with the product of itself and a scaling matrix
      *
      * @param {number} sx
@@ -3827,17 +3854,39 @@ function GdiGraphics() {
     this.ScaleTransform = function (sx, sy, order) { };
 
     /**
-     * Update the transform matrix with the product of itself and another matrix
-     *
-     * @param {number} m11
-     * @param {number} m12
-     * @param {number} m21
-     * @param {number} m22
-     * @param {number} dx
-     * @param {number} dy
-     * @param {number=} [order=0]
+     * @param {number=} [mode=0] See Flags.js > CompositingMode
      */
-    this.MultiplyTransform = function (m11, m12, m21, m22, dx, dy, order) { };
+    this.SetCompositingMode = function (mode) { }; // (void)
+
+    /**
+     * @param {number=} [mode=0] See Flags.js > CompositingQuality
+     */
+    this.SetCompositingQuality = function (mode) { }; // (void)
+
+    /**
+     * @param {number=} [mode=0] See Flags.js > InterpolationMode
+     */
+    this.SetInterpolationMode = function (mode) { }; // (void)
+
+    /**
+     * @param {number=} [mode=0] See Flags.js > PixelOffsetMode
+     */
+    this.SetPixelOffsetMode = function (mode) { }; // (void)
+
+    /**
+     * @param {number=} [mode=0] See Flags.js > SmoothingMode
+     */
+    this.SetSmoothingMode = function (mode) { }; // (void)
+
+    /**
+     * @param {number} contrast
+     */
+    this.SetTextContrast = function (contrast) { }; // (void)
+
+    /**
+     * @param {number=} [mode=0] See Flags.js > TextRenderingHint
+     */
+    this.SetTextRenderingHint = function (mode) { }; // (void)
 
     /**
      * Transform point using the current transformation matrix
@@ -3860,6 +3909,14 @@ function GdiGraphics() {
      */
     this.TransformRect = function (x, y, w, h) { }; // (Array<number>)
 
+    /**
+     * Update the transform matrix with the product of itself and a translation matrix
+     *
+     * @param {number} dx
+     * @param {number} dy
+     * @param {number=} [order=0]
+     */
+    this.TranslateTransform = function (dx, dy, order) { };
 
     /**
      * Un-Transform a transformed point using the current transformation matrix
@@ -3869,7 +3926,6 @@ function GdiGraphics() {
      * @returns {Array<number>} as [x, y]
      */
     this.UnTranformPoint = function (x, y) { }; // (Array<number>)
-
 
     /**
      * Un-Transform a transformed rectangle using the current transformation matrix
@@ -4069,19 +4125,6 @@ function MenuObject() {
  * @hideconstructor
  */
 function ThemeManager() {
-    /**
-     * @param {number} partId
-     * @return {boolean}
-     */
-     this.IsThemePartDefined = function (partId) { }; // (boolean)
-
-    /**
-     * See {@link https://docs.microsoft.com/en-us/windows/win32/controls/parts-and-states}
-     *
-     * @param {number} partId
-     * @param {number=} [stateId=0]
-     */
-     this.SetPartAndStateID = function (partId, stateId) { }; // (void)
 
     /**
      * @param {GdiGraphics} gr
@@ -4108,18 +4151,13 @@ function ThemeManager() {
     this.DrawThemeText = function (gr, str, x, y, w, h, format) { }; // (void)
 
     /**
-     * See {@link https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/ne-uxtheme-propertyorigin}
-     *
-     * @param {number} propId
-     * @returns {number}
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @returns {Array<number>} as [x, y, w, h]
      */
-    this.GetThemePropertyOrigin = function (propId) { }; // ({number})
-
-    /**
-     * @param {number} propId
-     * @returns {number}
-     */
-    this.GetThemeMetric = function (propId) { }; // (number)
+    this.GetThemeBackgroundContentRect = function (x, y, w, h) { }; // ({Array<number>})
 
     /**
      * @param {number} propId
@@ -4131,41 +4169,7 @@ function ThemeManager() {
      * @param {number} propId
      * @returns {number}
      */
-    this.GetThemeInt = function (propId) { }; // (number)
-
-    /**
-     * @param {number} propId
-     * @returns {number}
-     */
     this.GetThemeColour = function (propId) { }; // (number)
-
-    /**
-     * @param {number} propId
-     * @param {number=} [x=0]
-     * @param {number=} [y=0]
-     * @param {number=} [w=0]
-     * @param {number=} [h=0]
-     * @returns {Array<number>} as [left, top, right, bottom]
-     */
-    this.GetThemeMargins = function (propId, x, y, w, h) { }; // ({Array<number>})
-
-    /**
-     * @param {number} propId
-     * @returns {Array<number>} as [x, y]
-     */
-    this.GetThemePosition = function (propId) { }; // ({Array<number>})
-
-   /**
-    * See: {@link https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/ne-uxtheme-themesize}
-    *
-    * @param {number} themeSize
-    * @param {number=} [x=0]
-    * @param {number=} [y=0]
-    * @param {number=} [w=0]
-    * @param {number=} [h=0]
-    * @returns {Array<number>} as [w, h]
-    */
-   this.GetThemePartSize = function (themeSize, x, y, w, h) { }; // ({Array<number>})
 
     /**
      * @param {number} propId
@@ -4174,13 +4178,94 @@ function ThemeManager() {
     this.GetThemeEnumValue = function (propId) { }; // (number)
 
     /**
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
+     * @param {number} propId
+     * @returns {GdiFont}
+     */
+    this.GetThemeFont = function (propId) { }; // (GdiFont)
+
+    /**
+     * @param {number} propId
+     * @returns {Array<string|number>} as [{string} fontName, {number}fontSize, {number}fontStyle]
+     */
+     this.GetThemeFontArgs = function (propId) { }; // (Array<string|number>)
+
+     /**
+      * @param {number} propId
+      * @returns {number}
+      */
+     this.GetThemeInt = function (propId) { }; // (number)
+
+     /**
+      * @param {number} propId
+      * @returns {Array<number>}
+      */
+     this.GetThemeIntList = function (propId) { }; // (Array<number>)
+
+     /**
+      * @param {number} propId
+      * @param {number=} [x=0]
+      * @param {number=} [y=0]
+      * @param {number=} [w=0]
+      * @param {number=} [h=0]
+      * @returns {Array<number>} as [left, top, right, bottom]
+      */
+     this.GetThemeMargins = function (propId, x, y, w, h) { }; // ({Array<number>})
+
+     /**
+      * @param {number} propId
+      * @returns {number}
+      */
+     this.GetThemeMetric = function (propId) { }; // (number)
+
+    /**
+     * See: {@link https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/ne-uxtheme-themesize}
+     *
+     * @param {number} themeSize
+     * @param {number=} [x=0]
+     * @param {number=} [y=0]
+     * @param {number=} [w=0]
+     * @param {number=} [h=0]
+     * @returns {Array<number>} as [w, h]
+     */
+    this.GetThemePartSize = function (themeSize, x, y, w, h) { }; // ({Array<number>})
+
+    /**
+     * @param {number} propId
+     * @returns {Array<number>} as [x, y]
+     */
+    this.GetThemePosition = function (propId) { }; // ({Array<number>})
+
+    /**
+     * See {@link https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/ne-uxtheme-propertyorigin}
+     *
+     * @param {number} propId
+     * @returns {number}
+     */
+    this.GetThemePropertyOrigin = function (propId) { }; // ({number})
+
+    /**
+     * @param {number} propId
      * @returns {Array<number>} as [x, y, w, h]
      */
-    this.GetThemeBackgroundContentRect = function (x, y, w, h) { }; // ({Array<number>})
+    this.GetThemeRect = function (propId) { }; // ({Array<number>})
+
+    /**
+     * @param {number} propId
+     * @returns {number}
+     */
+    this.GetThemeSysColour = function (propId) { }; // (number)
+
+    /**
+     * @param {number} propId
+     * @returns {GdiFont}
+     */
+    this.GetThemeSysFont = function (propId) { }; // (GdiFont)
+
+    /**
+     * @param {number} propId
+     * @returns {Array<string|number>} as [{string} fontName, {number}fontSize, {number}fontStyle]
+     */
+    this.GetThemeSysFontArgs = function (propId) { }; // (Array<string|number>)
 
     /**
      * @param {number} propId
@@ -4195,32 +4280,17 @@ function ThemeManager() {
     this.GetThemeSysSize = function (propId) { }; // (number)
 
     /**
-     * @param {number} propId
-     * @returns {number}
+     * @param {number} partId
+     * @param {number} stateId
+     * @return {boolean}
      */
-    this.GetThemeSysColour = function (propId) { }; // (number)
+     this.IsThemePartDefined = function (partId, stateId) { }; // (boolean)
 
     /**
-     * @param {number} propId
-     * @returns {GdiFont}
+     * See {@link https://docs.microsoft.com/en-us/windows/win32/controls/parts-and-states}
+     *
+     * @param {number} partId
+     * @param {number=} [stateId=0]
      */
-    this.GetThemeFont = function (propId) { }; // (GdiFont)
-
-    /**
-     * @param {number} propId
-     * @returns {Array<string|number>} as [{string} fontName, {number}fontSize, {number}fontStyle]
-     */
-     this.GetThemeFontArgs = function (propId) { }; // (string)
-
-    /**
-     * @param {number} propId
-     * @returns {GdiFont}
-     */
-    this.GetThemeSysFont = function (propId) { }; // (GdiFont)
-
-    /**
-     * @param {number} propId
-     * @returns {Array<string|number>} as [{string} fontName, {number}fontSize, {number}fontStyle]
-     */
-    this.GetThemeSysFontArgs = function (propId) { }; // (Array<string|number>)
+     this.SetPartAndStateID = function (partId, stateId) { }; // (void)
 }

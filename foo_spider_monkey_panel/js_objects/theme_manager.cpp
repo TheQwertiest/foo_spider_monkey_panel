@@ -45,58 +45,54 @@ JSClass jsClass = {
 };
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeBackground, JsThemeManager::DrawThemeBackground, JsThemeManager::DrawThemeBackgroundWithOpt, 4 )
-MJS_DEFINE_JS_FN_FROM_NATIVE( IsThemePartDefined, JsThemeManager::IsThemePartDefined )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPartAndStateID, JsThemeManager::SetPartAndStateIDWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeText, JsThemeManager::DrawThemeText, JsThemeManager::DrawThemeTextWithOpt, 1 )
-MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemePropertyOrigin, JsThemeManager::GetThemePropertyOrigin )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeBackgroundContentRect, JsThemeManager::GetThemeBackgroundContentRect )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeBool, JsThemeManager::GetThemeBool )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeColour, JsThemeManager::GetThemeColour )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeEnumValue, JsThemeManager::GetThemeEnumValue )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeFont, JsThemeManager::GetThemeFont )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeFontArgs, JsThemeManager::GetThemeFontArgs )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeInt, JsThemeManager::GetThemeInt )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeIntList, JsThemeManager::GetThemeIntList )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeMargins, JsThemeManager::GetThemeMargins )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeMetric, JsThemeManager::GetThemeMetric )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetThemePartSize, JsThemeManager::GetThemePartSize, JsThemeManager::GetThemePartSizeWithOpt, 5 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemePosition, JsThemeManager::GetThemePosition )
-MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeBackgroundContentRect, JsThemeManager::GetThemeBackgroundContentRect )
-MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysInt, JsThemeManager::GetThemeSysInt )
-MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysSize, JsThemeManager::GetThemeSysSize )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetThemePartSize, JsThemeManager::GetThemePartSize, JsThemeManager::GetThemePartSizeWithOpt, 5 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemePropertyOrigin, JsThemeManager::GetThemePropertyOrigin )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeRect, JsThemeManager::GetThemeRect )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysColour, JsThemeManager::GetThemeSysColour )
-
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysFont, JsThemeManager::GetThemeSysFont )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysFontArgs, JsThemeManager::GetThemeSysFontArgs )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysInt, JsThemeManager::GetThemeSysInt )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysSize, JsThemeManager::GetThemeSysSize )
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsThemePartDefined, JsThemeManager::IsThemePartDefined )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPartAndStateID, JsThemeManager::SetPartAndStateIDWithOpt, 1 )
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
-        JS_FN( "IsThemePartDefined", IsThemePartDefined, 2, kDefaultPropsFlags ),
-        JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, kDefaultPropsFlags ),
-
         JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, kDefaultPropsFlags ),
         JS_FN( "DrawThemeText", DrawThemeText, 6, kDefaultPropsFlags ),
-
-        JS_FN( "GetThemePropertyOrigin", GetThemePropertyOrigin, 1, kDefaultPropsFlags ),
-        JS_FN( "GetThemeMetric", GetThemeMetric, 1, kDefaultPropsFlags ),
-
-        JS_FN( "GetThemeInt", GetThemeInt, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemeBackgroundContentRect", GetThemeBackgroundContentRect, 4, kDefaultPropsFlags ),
         JS_FN( "GetThemeBool", GetThemeBool, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeColour", GetThemeColour, 1, kDefaultPropsFlags ),
-        JS_FN( "GetThemeMargins", GetThemeMargins, 1, kDefaultPropsFlags ),
-        JS_FN( "GetThemePosition", GetThemePosition, 1, kDefaultPropsFlags ),
-        JS_FN( "GetThemePartSize", GetThemePartSize, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeEnumValue", GetThemeEnumValue, 1, kDefaultPropsFlags ),
-
-        JS_FN( "GetThemeBackgroundContentRect", GetThemeBackgroundContentRect, 4, kDefaultPropsFlags ),
-
-        JS_FN( "GetThemeSysInt", GetThemeSysInt, 1, kDefaultPropsFlags ),
-        JS_FN( "GetThemeSysSize", GetThemeSysSize, 1, kDefaultPropsFlags ),
-        JS_FN( "GetThemeSysColour", GetThemeSysColour, 1, kDefaultPropsFlags ),
-
         JS_FN( "GetThemeFont", GetThemeFont, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeFontArgs", GetThemeFontArgs, 1, kDefaultPropsFlags ),
-
+        JS_FN( "GetThemeInt", GetThemeInt, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemeIntList", GetThemeIntList, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemeMargins", GetThemeMargins, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemeMetric", GetThemeMetric, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemePosition", GetThemePosition, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemePartSize", GetThemePartSize, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemePropertyOrigin", GetThemePropertyOrigin, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemeRect", GetThemeRect, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemeSysColour", GetThemeSysColour, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeSysFont", GetThemeSysFont, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeSysFontArgs", GetThemeSysFontArgs, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemeSysInt", GetThemeSysInt, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemeSysSize", GetThemeSysSize, 1, kDefaultPropsFlags ),
+        JS_FN( "IsThemePartDefined", IsThemePartDefined, 2, kDefaultPropsFlags ),
+        JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -155,30 +151,6 @@ size_t JsThemeManager::GetInternalSize( HWND /* hwnd */, const std::wstring& /* 
     return 0;
 }
 
-bool JsThemeManager::IsThemePartDefined( int32_t partId, int32_t stateId )
-{
-    return ::IsThemePartDefined( hTheme_, partId, stateId );
-}
-
-void JsThemeManager::SetPartAndStateID( int32_t partId, int32_t stateId )
-{
-    partId_ = partId;
-    stateId_ = stateId;
-}
-
-void JsThemeManager::SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partId, int32_t stateId )
-{
-    switch ( optArgCount )
-    {
-    case 0:
-        return SetPartAndStateID( partId, stateId );
-    case 1:
-        return SetPartAndStateID( partId );
-    default:
-        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
-    }
-}
-
 void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
                                           int32_t x, int32_t y, uint32_t w, uint32_t h,
                                           int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h )
@@ -206,10 +178,11 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
 
     // set clip and transform
     HRGN oldhrgn = ::CreateRectRgn( 0, 0, 0, 0 ); // dummy region for getting the current clip region into
-    qwr::error::CheckWinApi( 1 != ::GetClipRgn( dc, oldhrgn ), "GetClipRgn" );
-    ::SelectClipRgn( dc, hrgn );
-    ::DeleteObject( hrgn ); // see remarks at https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-selectcliprgn
+    qwr::error::CheckWinApi( -1 != ::GetClipRgn( dc, oldhrgn ), "GetClipRgn" );
     qwr::final_action autoReleaseRegion( [dc, oldhrgn]() { ::SelectClipRgn( dc, oldhrgn ); ::DeleteObject( oldhrgn ); } );
+
+    qwr::error::CheckWinApi( ERROR != ::SelectClipRgn( dc, hrgn ), "SelectClipRgn" );
+    ::DeleteObject( hrgn ); // see remarks at https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-selectcliprgn
 
     XFORM oldxform;
     qwr::error::CheckWinApi( ::GetWorldTransform( dc, &oldxform ), "GetWorldTransform" );
@@ -218,7 +191,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
 
     const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG> (y + h) };
     const RECT clip{ clip_x, clip_y, static_cast<LONG>( clip_x + clip_w ), static_cast<LONG>( clip_y + clip_h ) };
-    LPCRECT pclip = ( !clip_x && !clip_y && !clip_w && !clip_h ) ? nullptr : &clip;
+    LPCRECT pclip = !( clip_x || clip_y || clip_w || clip_h ) ? nullptr : &clip;
 
     qwr::error::CheckHR( ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rect, pclip ), "DrawThemeBackground" );
 }
@@ -272,10 +245,11 @@ void JsThemeManager::DrawThemeText( JsGdiGraphics* gr,
 
     // set clip and transform
     HRGN oldhrgn = ::CreateRectRgn( 0, 0, 0, 0 ); // dummy region for getting the current clip region into
-    qwr::error::CheckWinApi( 1 != ::GetClipRgn( dc, oldhrgn ), "GetClipRgn" );
-    ::SelectClipRgn( dc, hrgn );
-    ::DeleteObject( hrgn ); // see remarks at https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-selectcliprgn
+    qwr::error::CheckWinApi( -1 != ::GetClipRgn( dc, oldhrgn ), "GetClipRgn" );
     qwr::final_action autoReleaseRegion( [dc, oldhrgn]() { ::SelectClipRgn( dc, oldhrgn ); ::DeleteObject( oldhrgn ); } );
+
+    qwr::error::CheckWinApi( ERROR != ::SelectClipRgn( dc, hrgn ), "SelectClipRgn" );
+    ::DeleteObject( hrgn ); // see remarks at https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-selectcliprgn
 
     XFORM oldxform;
     qwr::error::CheckWinApi( ::GetWorldTransform( dc, &oldxform ), "GetWorldTransform" );
@@ -328,11 +302,111 @@ void JsThemeManager::DrawThemeTextWithOpt( size_t optArgCount, JsGdiGraphics* gr
     }
 }
 
-int32_t JsThemeManager::GetThemePropertyOrigin( int32_t propId )
+bool JsThemeManager::GetThemeBool( int32_t propId )
 {
-    PROPERTYORIGIN value;
-    qwr::error::CheckHR( ::GetThemePropertyOrigin( hTheme_, partId_, stateId_, propId, &value ), "GetThemePropertyOrigin" );
+    BOOL value;
+    qwr::error::CheckHR( ::GetThemeBool( hTheme_, partId_, stateId_, propId, &value ), "GetThemeBool" );
+
+    return ( value != FALSE );
+}
+
+JS::Value JsThemeManager::GetThemeBackgroundContentRect( int32_t x, int32_t y, uint32_t w, uint32_t h )
+{
+    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    const HDC dc = GetDC( wnd );
+    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+
+    const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+
+    RECT value;
+    qwr::error::CheckHR( ::GetThemeBackgroundContentRect( hTheme_, dc, partId_, stateId_, &rect, &value ), "GetThemeBackgroundContentRect" );
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    convert::to_js::ToArrayValue( pJsCtx_,
+                                  std::vector<int32_t>{ value.top, value.left, value.bottom - value.top, value.right - value.left },
+                                  &jsValue );
+
+    return jsValue;
+}
+
+uint32_t JsThemeManager::GetThemeColour( int32_t propId )
+{
+    COLORREF value;
+    qwr::error::CheckHR( ::GetThemeColor( hTheme_, partId_, stateId_, propId, &value ), "GetThemeColour" );
+
+    return smp::colour::ColorrefToArgb( value );
+}
+
+int32_t JsThemeManager::GetThemeEnumValue( int32_t propId )
+{
+    int32_t value;
+    qwr::error::CheckHR( ::GetThemeEnumValue( hTheme_, partId_, stateId_, propId, &value ), "GetThemeEnumValue" );
+
     return value;
+}
+
+JSObject* JsThemeManager::GetThemeFont( int32_t propId )
+{
+    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    const HDC dc = GetDC( wnd );
+    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+
+    LOGFONTW value;
+    qwr::error::CheckHR( ::GetThemeFont( hTheme_, dc, partId_, stateId_, propId, &value ), "GetThemeFont" );
+
+    return MakeFont( dc, &value );
+}
+
+JS::Value JsThemeManager::GetThemeFontArgs( int32_t propId )
+{
+    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    const HDC dc = GetDC( wnd );
+    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+
+    LOGFONTW value;
+    qwr::error::CheckHR( ::GetThemeFont( hTheme_, dc, partId_, stateId_, propId, &value ), "GetThemeFont" );
+
+    return MakeFontArgs( &value );
+}
+
+int32_t JsThemeManager::GetThemeInt( int32_t propId )
+{
+    int32_t value;
+    qwr::error::CheckHR( ::GetThemeInt( hTheme_, partId_, stateId_, propId, &value ), "GetThemeInt" );
+
+    return value;
+}
+
+JS::Value JsThemeManager::GetThemeIntList( int32_t propId )
+{
+    INTLIST value;
+    qwr::error::CheckHR( ::GetThemeIntList( hTheme_, partId_, stateId_, propId, &value ), "GetThemeInt" );
+
+    std::vector<int32_t> intList{ std::begin( value.iValues ), std::end( value.iValues ) };
+    intList.resize( value.iValueCount );
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    convert::to_js::ToArrayValue( pJsCtx_, intList, &jsValue );
+
+    return jsValue;
+}
+
+JS::Value JsThemeManager::GetThemeMargins( int32_t propId )
+{
+    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    const HDC dc = GetDC( wnd );
+    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+
+    MARGINS value;
+    qwr::error::CheckHR( ::GetThemeMargins( hTheme_, dc, partId_, stateId_, propId, nullptr, &value ), "GetThemeMargins" );
+
+    // ccw order (tlbr), as in css3
+    std::vector<int32_t> margins{ value.cyTopHeight, value.cxLeftWidth, value.cyBottomHeight, value.cxRightWidth };
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    convert::to_js::ToArrayValue( pJsCtx_, margins, &jsValue );
+
+    return jsValue;
 }
 
 int32_t JsThemeManager::GetThemeMetric( int32_t propId )
@@ -347,60 +421,6 @@ int32_t JsThemeManager::GetThemeMetric( int32_t propId )
     return value;
 }
 
-bool JsThemeManager::GetThemeBool( int32_t propId )
-{
-    BOOL value;
-    qwr::error::CheckHR( ::GetThemeBool( hTheme_, partId_, stateId_, propId, &value ), "GetThemeBool" );
-
-    return ( value != FALSE );
-}
-
-int32_t JsThemeManager::GetThemeInt( int32_t propId )
-{
-    int32_t value;
-    qwr::error::CheckHR( ::GetThemeInt( hTheme_, partId_, stateId_, propId, &value ), "GetThemeInt" );
-
-    return value;
-}
-
-uint32_t JsThemeManager::GetThemeColour( int32_t propId )
-{
-    COLORREF value;
-    qwr::error::CheckHR( ::GetThemeColor( hTheme_, partId_, stateId_, propId, &value ), "GetThemeColour" );
-
-    return smp::colour::ColorrefToArgb( value );
-}
-
-JS::Value JsThemeManager::GetThemeMargins( int32_t propId )
-{
-    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
-    const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
-
-    MARGINS value;
-    qwr::error::CheckHR( ::GetThemeMargins( hTheme_, dc, partId_, stateId_, propId, nullptr, &value ), "GetThemeMargins" );
-
-    JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue( pJsCtx_,
-        std::vector<int32_t>{ value.cyTopHeight, value.cxLeftWidth, value.cyBottomHeight, value.cxRightWidth },
-        &jsValue ); // ccw order, as in css3
-
-    return jsValue;
-}
-
-JS::Value JsThemeManager::GetThemePosition( int32_t propId )
-{
-    POINT value;
-    qwr::error::CheckHR( ::GetThemePosition( hTheme_, partId_, stateId_, propId, &value ), "GetThemePosition" );
-
-    JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue( pJsCtx_,
-                                  std::vector<int32_t>{ value.x, value.y },
-                                  &jsValue );
-
-    return jsValue;
-}
-
 JS::Value JsThemeManager::GetThemePartSize( int32_t themeSize, JsGdiGraphics* gr, int32_t x, int32_t y, uint32_t w, uint32_t h )
 {
     const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
@@ -413,9 +433,7 @@ JS::Value JsThemeManager::GetThemePartSize( int32_t themeSize, JsGdiGraphics* gr
     qwr::error::CheckHR( ::GetThemePartSize( hTheme_, dc, partId_, stateId_, &rect, static_cast<THEMESIZE>( themeSize ), &value ), "GetThemePartSize" );
 
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue( pJsCtx_,
-        std::vector<int32_t>{ value.cx, value.cy },
-        &jsValue );
+    convert::to_js::ToArrayValue( pJsCtx_, std::vector<int32_t>{ value.cx, value.cy }, &jsValue );
 
     return jsValue;
 }
@@ -441,72 +459,41 @@ JS::Value JsThemeManager::GetThemePartSizeWithOpt( size_t optArgCount, int32_t t
     }
 }
 
-int32_t JsThemeManager::GetThemeEnumValue( int32_t propId )
+JS::Value JsThemeManager::GetThemePosition( int32_t propId )
 {
-    int32_t value;
-    qwr::error::CheckHR( ::GetThemeEnumValue( hTheme_, partId_, stateId_, propId, &value ), "GetThemeEnumValue" );
-
-    return value;
-}
-
-JS::Value JsThemeManager::GetThemeBackgroundContentRect( int32_t x, int32_t y, uint32_t w, uint32_t h )
-{
-    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
-    const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
-
-    const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
-
-    RECT value;
-    qwr::error::CheckHR( ::GetThemeBackgroundContentRect( hTheme_, dc, partId_, stateId_, &rect, &value ), "GetThemeBackgroundContentRect" );
+    POINT value;
+    qwr::error::CheckHR( ::GetThemePosition( hTheme_, partId_, stateId_, propId, &value ), "GetThemePosition" );
 
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue( pJsCtx_,
-        std::vector<int32_t>{ value.top, value.left, value.bottom - value.top, value.right - value.left },
-        &jsValue );
+    convert::to_js::ToArrayValue( pJsCtx_, std::vector<int32_t>{ value.x, value.y }, &jsValue );
 
     return jsValue;
 }
 
-int32_t JsThemeManager::GetThemeSysInt( int32_t propId )
+int32_t JsThemeManager::GetThemePropertyOrigin( int32_t propId )
 {
-    int32_t value;
-    qwr::error::CheckHR( ::GetThemeSysInt( hTheme_, propId, &value ), "GetThemeSysInt" );
+    PROPERTYORIGIN value;
+    qwr::error::CheckHR( ::GetThemePropertyOrigin( hTheme_, partId_, stateId_, propId, &value ), "GetThemePropertyOrigin" );
+
     return value;
 }
 
-int32_t JsThemeManager::GetThemeSysSize( int32_t propId )
+JS::Value JsThemeManager::GetThemeRect( int32_t propId )
 {
-    return ::GetThemeSysSize( hTheme_, propId );
+    RECT value;
+    qwr::error::CheckHR( ::GetThemeRect( hTheme_, partId_, stateId_, propId, &value ), "GetThemeRect" );
+
+    std::vector<int32_t> rect{ value.top, value.left, value.bottom - value.top, value.right - value.left };
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    convert::to_js::ToArrayValue( pJsCtx_, rect,  &jsValue );
+
+    return jsValue;
 }
 
 uint32_t JsThemeManager::GetThemeSysColour( int32_t propId )
 {
     return smp::colour::ColorrefToArgb( ::GetThemeSysColor( hTheme_, propId ) );
-}
-
-JSObject* JsThemeManager::GetThemeFont( int32_t propId )
-{
-    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
-    const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
-
-    LOGFONT value;
-    qwr::error::CheckHR( ::GetThemeFont( hTheme_, dc, partId_, stateId_, propId, &value ), "GetThemeFont" );
-
-    return MakeFont( dc, &value );
-}
-
-JS::Value JsThemeManager::GetThemeFontArgs( int32_t propId )
-{
-    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
-    const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
-
-    LOGFONT value;
-    qwr::error::CheckHR( ::GetThemeFont( hTheme_, dc, partId_, stateId_, propId, &value ), "GetThemeFont" );
-
-    return MakeFontArgs( dc, &value );
 }
 
 JSObject* JsThemeManager::GetThemeSysFont( int32_t propId )
@@ -523,17 +510,49 @@ JSObject* JsThemeManager::GetThemeSysFont( int32_t propId )
 
 JS::Value JsThemeManager::GetThemeSysFontArgs( int32_t propId )
 {
-    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
-    const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
-
     LOGFONTW value;
     qwr::error::CheckHR( ::GetThemeSysFont( hTheme_, propId, &value ), "GetThemeSysFont" );
 
-    return MakeFontArgs( dc, &value );
+    return MakeFontArgs( &value );
 }
 
-JSObject* JsThemeManager::MakeFont( HDC dc, LOGFONT *plf )
+int32_t JsThemeManager::GetThemeSysInt( int32_t propId )
+{
+    int32_t value;
+    qwr::error::CheckHR( ::GetThemeSysInt( hTheme_, propId, &value ), "GetThemeSysInt" );
+    return value;
+}
+
+int32_t JsThemeManager::GetThemeSysSize( int32_t propId )
+{
+    return ::GetThemeSysSize( hTheme_, propId );
+}
+
+bool JsThemeManager::IsThemePartDefined( int32_t partId, int32_t stateId )
+{
+    return ::IsThemePartDefined( hTheme_, partId, stateId );
+}
+
+void JsThemeManager::SetPartAndStateID( int32_t partId, int32_t stateId )
+{
+    partId_ = partId;
+    stateId_ = stateId;
+}
+
+void JsThemeManager::SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partId, int32_t stateId )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return SetPartAndStateID( partId, stateId );
+    case 1:
+        return SetPartAndStateID( partId );
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
+}
+
+JSObject* JsThemeManager::MakeFont( HDC dc, LOGFONTW* plf )
 {
     HFONT hFont = ::CreateFontIndirectW( plf );
 
@@ -546,7 +565,7 @@ JSObject* JsThemeManager::MakeFont( HDC dc, LOGFONT *plf )
     return JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false );
 }
 
-JS::Value JsThemeManager::MakeFontArgs( HDC dc,  LOGFONT* plf )
+JS::Value JsThemeManager::MakeFontArgs( LOGFONTW* plf )
 {
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, 3 ) );
     smp::JsException::ExpectTrue( jsArray );
@@ -559,7 +578,7 @@ JS::Value JsThemeManager::MakeFontArgs( HDC dc,  LOGFONT* plf )
         throw smp::JsException();
     }
 
-    mozjs::convert::to_js::ToValue( pJsCtx_, (int32_t)plf->lfHeight, &jsValue );
+    mozjs::convert::to_js::ToValue( pJsCtx_, (int32_t)(0 - plf->lfHeight), &jsValue );
     if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
     {
         throw smp::JsException();

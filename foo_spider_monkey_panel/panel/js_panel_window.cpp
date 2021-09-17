@@ -74,9 +74,7 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
         false,
         true,
         0,
-        //WS_POPUP | WS_VISIBLE,
-        WS_CHILD,
-        //WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
         ConvertEdgeStyleToNativeFlags( settings_.edgeStyle ),
         CS_DBLCLKS,
         true,
@@ -1522,8 +1520,6 @@ void js_panel_window::OnPaint( HDC dc, const CRect& updateRc )
     CDC memDc{ CreateCompatibleDC( dc ) };
     gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
 
-
-
     if ( hasFailed_
          || !pJsContainer_
          || mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
@@ -1572,7 +1568,7 @@ void js_panel_window::OnPaintErrorScreen( HDC memdc )
                      FALSE,
                      FALSE,
                      DEFAULT_CHARSET,
-                     OUT_DEFAULT_PRECIS,
+                     OUT_TT_PRECIS,
                      CLIP_DEFAULT_PRECIS,
                      CLEARTYPE_QUALITY,
                      DEFAULT_PITCH | FF_DONTCARE,

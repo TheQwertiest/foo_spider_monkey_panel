@@ -118,8 +118,8 @@ JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, i
 {
     // Generate HFONT
     // The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
-    HFONT hFont = CreateFont(
-        static_cast<int>( fontSize ),
+    HFONT hFont = CreateFontW(
+        0 - fontSize,
         0,
         0,
         0,
@@ -128,16 +128,16 @@ JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, i
         ( fontStyle & Gdiplus::FontStyleUnderline ) ? TRUE : FALSE,
         ( fontStyle & Gdiplus::FontStyleStrikeout ) ? TRUE : FALSE,
         DEFAULT_CHARSET,
-        OUT_DEFAULT_PRECIS,
+        OUT_TT_PRECIS,
         CLIP_DEFAULT_PRECIS,
         CLEARTYPE_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
         fontName.c_str() );
-    qwr::error::CheckWinApi( !!hFont, "CreateFont" );
+    qwr::error::CheckWinApi( hFont, "CreateFont" );
     qwr::final_action autoFont( [hFont]() { DeleteObject( hFont ); } );
 
-    HWND wnd = ::GetPanelHwndForCurrentGlobal( cx );
-    HDC dc = GetDC( wnd );
+    const HWND wnd = ::GetPanelHwndForCurrentGlobal( cx );
+    const HDC dc = GetDC( wnd );
     qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
 
     auto pGdiFont = std::make_unique<Gdiplus::Font>( dc, hFont );
