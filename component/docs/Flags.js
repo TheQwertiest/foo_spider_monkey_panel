@@ -198,7 +198,6 @@ const CompositingMode =
     SourceCopy: 1
 }
 
-
 // Used in GetCompositingQuality() / SetCompositingQuality()
 // For more information, see: https://docs.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-compositingquality
 const CompositingQuality =
@@ -223,7 +222,7 @@ const PixelOffsetMode =
     Half: 4
 }
 
-// Used in TranslateTransform () / RotateTransform () / ScaleTransform () / MultiplyTransform ()
+// Used in TranslateTransform() / RotateTransform() / ScaleTransform() / MultiplyTransform()
 // For more information, see: https://docs.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-matrixorder
 const MatrixOrder =
 {

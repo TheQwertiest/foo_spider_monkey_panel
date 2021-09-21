@@ -35,11 +35,6 @@ advconfig_branch_factory branch_stacktrace(
 namespace smp::config::advanced
 {
 
-qwr::fb2k::AdvConfigBool_MT js_suppress_error_popup(
-    "Suppress JS error popup (but still log errors to the Console)",
-    smp::guid::adv_var_js_suppress_error_popup, smp::guid::adv_branch, 0,
-    false );
-
 qwr::fb2k::AdvConfigUint32_MT gc_max_heap(
     "Maximum heap size (in bytes) (0 - auto configuration)",
     smp::guid::adv_var_gc_max_heap, smp::guid::adv_branch_gc, 0,
@@ -60,6 +55,11 @@ qwr::fb2k::AdvConfigUint32_MT gc_max_alloc_increase(
     "Allowed number of allocations before next GC trigger",
     smp::guid::adv_var_gc_max_alloc_increase, smp::guid::adv_branch_gc, 4,
     1000, 1, 100000 );
+
+qwr::fb2k::AdvConfigBool_MT js_suppress_error_popup(
+    "Suppress JS error popup (still log errors to the Console)",
+    smp::guid::adv_var_js_suppress_error_popup, smp::guid::adv_branch_debug, 0,
+    false);
 
 qwr::fb2k::AdvConfigUint32_MT performance_max_runtime(
     "Script execution time limit before triggering a `slow script` warning (in seconds)",

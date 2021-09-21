@@ -4141,6 +4141,18 @@ function ThemeManager() {
 
     /**
      * @param {GdiGraphics} gr
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number=} [edge=0] See Flags.js > BRD_* and EDGE_*
+     * @param {number=} [flagsormat=0] See Flags.js > BF_*
+     * @returns {Array<number>|undefined} the content rectangle if BF_ADJUST was specified in the flags, otherwise undefined
+     */
+    this.DrawThemeEdge = function (gr, x, y, w, h, edge, flags) { }; // (Array<number>|undefined)
+
+    /**
+     * @param {GdiGraphics} gr
      * @param {string} str
      * @param {number} x
      * @param {number} y
@@ -4256,6 +4268,9 @@ function ThemeManager() {
     this.GetThemeSysColour = function (propId) { }; // (number)
 
     /**
+     * Retrieves the {@link GdiFont} of a system font.
+     * See: {@link https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/nf-uxtheme-getthemesysfont}
+     *
      * @param {number} propId
      * @returns {GdiFont}
      */

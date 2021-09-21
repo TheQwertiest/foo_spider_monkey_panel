@@ -20,7 +20,6 @@ using namespace smp;
 
 namespace
 {
-
 using namespace mozjs;
 
 JSClassOps jsOps = {
@@ -174,12 +173,10 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
-
 } // namespace
 
 namespace mozjs
 {
-
 const JSClass JsGdiGraphics::JsClass = jsClass;
 const JSFunctionSpec* JsGdiGraphics::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsGdiGraphics::JsProperties = jsProperties.data();
@@ -209,6 +206,42 @@ Gdiplus::Graphics* JsGdiGraphics::GetGraphicsObject() const
 void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
 {
     pGdi_ = graphics;
+}
+
+void JsGdiGraphics::TransferGdiplusClipTransformFor( std::function<void( HDC dc )> const& function )
+{
+    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
+
+    // get current clip region and transform
+    // we need to do this before getting the dc
+    Gdiplus::Region region;
+    qwr::error::CheckGdi( pGdi_->GetClip( &region ), "GetClip" );
+    HRGN hrgn{ region.GetHRGN( pGdi_ ) };
+
+    Gdiplus::Matrix matrix;
+    qwr::error::CheckGdi( pGdi_->GetTransform( &matrix ), "GetTransform" );
+
+    XFORM xform;
+    qwr::error::CheckGdi( matrix.GetElements( (Gdiplus::REAL*)( &xform ) ), "GetElements" );
+
+    // get the device context
+    const HDC dc = pGdi_->GetHDC();
+    qwr::final_action autoReleaseDc( [graphics = pGdi_, dc]() { graphics->ReleaseHDC( dc ); } );
+
+    // set clip and transform
+    HRGN oldhrgn = ::CreateRectRgn( 0, 0, 0, 0 ); // dummy region for getting the current clip region into
+    qwr::error::CheckWinApi( -1 != ::GetClipRgn( dc, oldhrgn ), "GetClipRgn" );
+    qwr::final_action autoReleaseRegion( [dc, oldhrgn]() { ::SelectClipRgn( dc, oldhrgn ); ::DeleteObject( oldhrgn ); } );
+
+    qwr::error::CheckWinApi( ERROR != ::SelectClipRgn( dc, hrgn ), "SelectClipRgn" );
+    ::DeleteObject( hrgn ); // see remarks at https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-selectcliprgn
+
+    XFORM oldxform;
+    qwr::error::CheckWinApi( ::GetWorldTransform( dc, &oldxform ), "GetWorldTransform" );
+    qwr::error::CheckWinApi( ::SetWorldTransform( dc, &xform ), "SetWorldTransform" );
+    qwr::final_action autoResetTansform( [dc, oldxform]() { ::SetWorldTransform( dc, &oldxform ); } );
+
+    function( dc );
 }
 
 uint32_t JsGdiGraphics::BeginContainer( float dst_x, float dst_y, float dst_w, float dst_h, float src_x, float src_y, float src_w, float src_h )
@@ -563,16 +596,16 @@ void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
                                    int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
                                    uint8_t alpha )
 {
-    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( bitmap, "bitmap argument is null" );
 
-    const HDC srcDc = bitmap->GetHDC();
-    assert( srcDc );
+    const auto draw = [&]( HDC dc ) {
+        const HDC srcDc = bitmap->GetHDC();
+        assert( srcDc );
 
-    const HDC dc = pGdi_->GetHDC();
-    qwr::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() { pGdi->ReleaseHDC( dc ); } );
+        qwr::error::CheckWinApi( ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, BLENDFUNCTION{ AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA } ), "GdiAlphaBlend" );
+    };
 
-    qwr::error::CheckWinApi( ::GdiAlphaBlend( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, BLENDFUNCTION{ AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA } ), "GdiAlphaBlend" );
+    TransferGdiplusClipTransformFor( draw );
 }
 
 void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bitmap,
@@ -595,94 +628,72 @@ void JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
                                    int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
                                    int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH )
 {
-    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( bitmap, "bitmap argument is null" );
 
-    const HDC srcDc = bitmap->GetHDC();
-    assert( srcDc );
+    const auto draw = [&]( HDC dc ) {
+        const HDC srcDc = bitmap->GetHDC();
+        assert( srcDc );
 
-    const HDC dc = pGdi_->GetHDC();
-    qwr::final_action autoHdcReleaser( [pGdi = pGdi_, dc]() { pGdi->ReleaseHDC( dc ); } );
+        // commented out because possible scaling differences
+        /*
+        if ( dstW == srcW && dstH == srcH )
+        {
+            qwr::error::CheckWinApi( BitBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY ), "BitBlt" );
+            return;
+        }
+        */
 
-    if ( dstW == srcW && dstH == srcH )
-    {
-        qwr::error::CheckWinApi( BitBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, SRCCOPY ), "BitBlt" );
-        return;
-    }
+        qwr::error::CheckWinApi( SetStretchBltMode( dc, HALFTONE ), "SetStretchBltMode" );
+        qwr::error::CheckWinApi( SetBrushOrgEx( dc, 0, 0, nullptr ), "SetBrushOrgEx" );
+        qwr::error::CheckWinApi( StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY ), "StretchBlt" );
+    };
 
-    qwr::error::CheckWinApi( SetStretchBltMode( dc, HALFTONE ), "SetStretchBltMode" );
-    qwr::error::CheckWinApi( SetBrushOrgEx( dc, 0, 0, nullptr ), "SetBrushOrgEx" );
-    qwr::error::CheckWinApi( StretchBlt( dc, dstX, dstY, dstW, dstH, srcDc, srcX, srcY, srcW, srcH, SRCCOPY ), "StretchBlt" );
+    TransferGdiplusClipTransformFor( draw );
 }
 
 void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint32_t colour, int32_t x, int32_t y, uint32_t w, uint32_t h, uint32_t format )
 {
-    qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    // get current clip region and transform
-    // we need to do this before getting the dc
-    Gdiplus::Region region;
-    qwr::error::CheckGdi( pGdi_->GetClip( &region ), "GetClip" );
-    HRGN hrgn{ region.GetHRGN( pGdi_ ) };
+    const auto draw = [&]( HDC dc ) {
+        gdi::ObjectSelector autoFont( dc, font->GetHFont() );
 
-    Gdiplus::Matrix matrix;
-    qwr::error::CheckGdi( pGdi_->GetTransform( &matrix ), "GetTransform" );
+        RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+        DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
 
-    XFORM xform;
-    qwr::error::CheckGdi( matrix.GetElements( (Gdiplus::REAL*)( &xform ) ), "GetElements" );
+        SetTextColor( dc, smp::colour::ArgbToColorref( colour ) );
 
-    // get device context
-    const HDC dc = pGdi_->GetHDC();
-    qwr::final_action autoReleaseDc( [pGdi = pGdi_, dc] { pGdi->ReleaseHDC( dc ); } );
-    gdi::ObjectSelector autoFont( dc, font->GetHFont() );
+        qwr::error::CheckWinApi( CLR_INVALID != SetBkMode( dc, TRANSPARENT ), "SetBkMode" );
+        qwr::error::CheckWinApi( GDI_ERROR != SetTextAlign( dc, TA_LEFT | TA_TOP | TA_NOUPDATECP ), "SetTextAlign" );
 
-    // set clip and transform
-    HRGN oldhrgn = ::CreateRectRgn( 0, 0, 0, 0 ); // dummy region for getting the current clip region into
-    qwr::error::CheckWinApi( -1 != ::GetClipRgn( dc, oldhrgn ), "GetClipRgn" );
-    qwr::final_action autoReleaseRegion( [dc, oldhrgn]() { ::SelectClipRgn( dc, oldhrgn ); ::DeleteObject( oldhrgn ); } );
+        format &= ~DT_MODIFYSTRING;
 
-    qwr::error::CheckWinApi( ERROR != ::SelectClipRgn( dc, hrgn ), "SelectClipRgn" );
-    ::DeleteObject( hrgn ); // see remarks at https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-selectcliprgn
-
-    XFORM oldxform;
-    qwr::error::CheckWinApi( ::GetWorldTransform( dc, &oldxform ), "GetWorldTransform" );
-    qwr::error::CheckWinApi( ::SetWorldTransform( dc, &xform ), "SetWorldTransform" );
-    qwr::final_action autoResetTansform( [dc, oldxform]() { ::SetWorldTransform( dc, &oldxform ); } );
-
-    RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
-    DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
-
-    SetTextColor( dc, smp::colour::ArgbToColorref( colour ) );
-
-    qwr::error::CheckWinApi( CLR_INVALID != SetBkMode( dc, TRANSPARENT ), "SetBkMode" );
-    qwr::error::CheckWinApi( GDI_ERROR != SetTextAlign( dc, TA_LEFT | TA_TOP | TA_NOUPDATECP ), "SetTextAlign" );
-
-    format &= ~DT_MODIFYSTRING;
-
-    // Well, magic :P
-    if ( format & DT_CALCRECT )
-    {
-        const RECT oldrect = rect;
-        RECT rc_calc = rect;
-
-        qwr::error::CheckWinApi( DrawText( dc, str.c_str(), -1, &rc_calc, format ), "DrawText" );
-
-        format &= ~DT_CALCRECT;
-
-        // adjust vertical align
-        if ( format & DT_VCENTER )
+        // Well, magic :P
+        if ( format & DT_CALCRECT )
         {
-            rect.top = oldrect.top + ( ( ( oldrect.bottom - oldrect.top ) - ( rc_calc.bottom - rc_calc.top ) ) >> 1 );
-            rect.bottom = rect.top + ( rc_calc.bottom - rc_calc.top );
-        }
-        else if ( format & DT_BOTTOM )
-        {
-            rect.top = oldrect.bottom - ( rc_calc.bottom - rc_calc.top );
-        }
-    }
+            const RECT oldrect = rect;
+            RECT rc_calc = rect;
 
-    qwr::error::CheckWinApi( DrawTextEx( dc, const_cast<wchar_t*>( str.c_str() ), -1, &rect, format, &dpt ), "DrawTextEx" );
+            qwr::error::CheckWinApi( DrawText( dc, str.c_str(), -1, &rc_calc, format ), "DrawText" );
+
+            format &= ~DT_CALCRECT;
+
+            // adjust vertical align
+            if ( format & DT_VCENTER )
+            {
+                rect.top = oldrect.top + ( ( ( oldrect.bottom - oldrect.top ) - ( rc_calc.bottom - rc_calc.top ) ) >> 1 );
+                rect.bottom = rect.top + ( rc_calc.bottom - rc_calc.top );
+            }
+            else if ( format & DT_BOTTOM )
+            {
+                rect.top = oldrect.bottom - ( rc_calc.bottom - rc_calc.top );
+            }
+        }
+
+        qwr::error::CheckWinApi( DrawTextEx( dc, const_cast<wchar_t*>( str.c_str() ), -1, &rect, format, &dpt ), "DrawTextEx" );
+    };
+
+    TransferGdiplusClipTransformFor( draw );
 }
 
 void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
@@ -1218,5 +1229,4 @@ void JsGdiGraphics::ParsePoints( JS::HandleValue jsValue, std::vector<Gdiplus::P
 
     qwr::QwrException::ExpectTrue( isX, "Points count must be a multiple of two" ); ///< Means that we were expecting `y` coordinate
 }
-
 } // namespace mozjs

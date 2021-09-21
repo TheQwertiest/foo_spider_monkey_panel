@@ -1,27 +1,27 @@
 #include <stdafx.h>
-#include <variant>
 
 #include "theme_manager.h"
 
+#include <convert/native_to_js.h>
 #include <js_engine/js_to_native_invoker.h>
-#include <js_objects/gdi_graphics.h>
 #include <js_objects/gdi_font.h>
+#include <js_objects/gdi_graphics.h>
 #include <js_utils/js_error_helper.h>
-#include <js_utils/js_object_helper.h>
 #include <js_utils/js_hwnd_helpers.h>
+#include <js_utils/js_object_helper.h>
 #include <utils/colour_helpers.h>
+#include <utils/gdi_error_helpers.h>
 #include <utils/gdi_helpers.h>
 
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
-#include <convert/native_to_js.h>
-#include <utils/gdi_error_helpers.h>
+
+#include <variant>
 
 using namespace smp;
 
 namespace
 {
-
 using namespace mozjs;
 
 JSClassOps jsOps = {
@@ -45,6 +45,7 @@ JSClass jsClass = {
 };
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeBackground, JsThemeManager::DrawThemeBackground, JsThemeManager::DrawThemeBackgroundWithOpt, 4 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( DrawThemeEdge, JsThemeManager::DrawThemeEdge )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeText, JsThemeManager::DrawThemeText, JsThemeManager::DrawThemeTextWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeBackgroundContentRect, JsThemeManager::GetThemeBackgroundContentRect )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeBool, JsThemeManager::GetThemeBool )
@@ -60,6 +61,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemePosition, JsThemeManager::GetThemePosition
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetThemePartSize, JsThemeManager::GetThemePartSize, JsThemeManager::GetThemePartSizeWithOpt, 5 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemePropertyOrigin, JsThemeManager::GetThemePropertyOrigin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeRect, JsThemeManager::GetThemeRect )
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysBool, JsThemeManager::GetThemeSysColour )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysColour, JsThemeManager::GetThemeSysColour )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysFont, JsThemeManager::GetThemeSysFont )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysFontArgs, JsThemeManager::GetThemeSysFontArgs )
@@ -71,6 +73,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPar
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, kDefaultPropsFlags ),
+        JS_FN( "DrawThemeEdge", DrawThemeEdge, 7, kDefaultPropsFlags ),
         JS_FN( "DrawThemeText", DrawThemeText, 6, kDefaultPropsFlags ),
         JS_FN( "GetThemeBackgroundContentRect", GetThemeBackgroundContentRect, 4, kDefaultPropsFlags ),
         JS_FN( "GetThemeBool", GetThemeBool, 1, kDefaultPropsFlags ),
@@ -86,6 +89,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "GetThemePartSize", GetThemePartSize, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemePropertyOrigin", GetThemePropertyOrigin, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeRect", GetThemeRect, 1, kDefaultPropsFlags ),
+        JS_FN( "GetThemeSysBool", GetThemeSysBool, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeSysColour", GetThemeSysColour, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeSysFont", GetThemeSysFont, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeSysFontArgs", GetThemeSysFontArgs, 1, kDefaultPropsFlags ),
@@ -100,12 +104,10 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
-
 } // namespace
 
 namespace mozjs
 {
-
 const JSClass JsThemeManager::JsClass = jsClass;
 const JSFunctionSpec* JsThemeManager::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsThemeManager::JsProperties = jsProperties.data();
@@ -157,43 +159,15 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
 {
     qwr::QwrException::ExpectTrue( gr, "gr argument is null" );
 
-    Gdiplus::Graphics* graphics = gr->GetGraphicsObject();
-    assert( graphics );
+    auto draw = [&]( HDC dc ) {
+        const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+        const RECT clip{ clip_x, clip_y, static_cast<LONG>( clip_x + clip_w ), static_cast<LONG>( clip_y + clip_h ) };
+        LPCRECT pclip = !( clip_x || clip_y || clip_w || clip_h ) ? nullptr : &clip;
 
-    // get current clip region and transform
-    // we need to do this before getting the dc
-    Gdiplus::Region region;
-    qwr::error::CheckGdi( graphics->GetClip( &region ), "GetClip" );
-    HRGN hrgn{ region.GetHRGN( graphics ) };
+        qwr::error::CheckHR( ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rect, pclip ), "DrawThemeBackground" );
+    };
 
-    Gdiplus::Matrix matrix;
-    qwr::error::CheckGdi( graphics->GetTransform( &matrix ), "GetTransform" );
-
-    XFORM xform;
-    qwr::error::CheckGdi( matrix.GetElements( (Gdiplus::REAL*)( &xform ) ), "GetElements" );
-
-    // get the device context
-    const HDC dc = graphics->GetHDC();
-    qwr::final_action autoReleaseDc( [graphics, dc]() { graphics->ReleaseHDC( dc ); } );
-
-    // set clip and transform
-    HRGN oldhrgn = ::CreateRectRgn( 0, 0, 0, 0 ); // dummy region for getting the current clip region into
-    qwr::error::CheckWinApi( -1 != ::GetClipRgn( dc, oldhrgn ), "GetClipRgn" );
-    qwr::final_action autoReleaseRegion( [dc, oldhrgn]() { ::SelectClipRgn( dc, oldhrgn ); ::DeleteObject( oldhrgn ); } );
-
-    qwr::error::CheckWinApi( ERROR != ::SelectClipRgn( dc, hrgn ), "SelectClipRgn" );
-    ::DeleteObject( hrgn ); // see remarks at https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-selectcliprgn
-
-    XFORM oldxform;
-    qwr::error::CheckWinApi( ::GetWorldTransform( dc, &oldxform ), "GetWorldTransform" );
-    qwr::error::CheckWinApi( ::SetWorldTransform( dc, &xform ), "SetWorldTransform" );
-    qwr::final_action autoResetTansform( [dc, oldxform]() { ::SetWorldTransform( dc, &oldxform ); } );
-
-    const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG> (y + h) };
-    const RECT clip{ clip_x, clip_y, static_cast<LONG>( clip_x + clip_w ), static_cast<LONG>( clip_y + clip_h ) };
-    LPCRECT pclip = !( clip_x || clip_y || clip_w || clip_h ) ? nullptr : &clip;
-
-    qwr::error::CheckHR( ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rect, pclip ), "DrawThemeBackground" );
+    gr->TransferGdiplusClipTransformFor( draw );
 }
 
 void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr,
@@ -217,6 +191,30 @@ void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphi
     }
 }
 
+JS::Value JsThemeManager::DrawThemeEdge( JsGdiGraphics* gr,
+                                         int32_t x, int32_t y, uint32_t w, uint32_t h,
+                                         uint32_t edge, uint32_t flags )
+{
+    JS::RootedValue jsValue( pJsCtx_ );
+
+    auto draw = [&]( HDC dc ) {
+        const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+        RECT out;
+
+        qwr::error::CheckHR( ::DrawThemeEdge( hTheme_, dc, partId_, stateId_, &rect, edge, flags, &out ), "DrawThemeEdge" );
+
+        if ( flags & BF_ADJUST )
+        {
+            std::vector<int32_t> content{ out.top, out.left, out.bottom - out.top, out.right - out.left };
+            convert::to_js::ToArrayValue( pJsCtx_, content, &jsValue );
+        }
+    };
+
+    gr->TransferGdiplusClipTransformFor( draw );
+
+    return jsValue;
+}
+
 void JsThemeManager::DrawThemeText( JsGdiGraphics* gr,
                                     const std::wstring& str,
                                     int32_t x, int32_t y, uint32_t w, uint32_t h,
@@ -224,66 +222,38 @@ void JsThemeManager::DrawThemeText( JsGdiGraphics* gr,
 {
     qwr::QwrException::ExpectTrue( gr, "gr argument is null" );
 
-    Gdiplus::Graphics* graphics = gr->GetGraphicsObject();
-    assert( graphics );
+    const auto draw = [&]( HDC dc ) {
+        RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
 
-    // get current clip region and transform
-    // we need to do this before getting the dc
-    Gdiplus::Region region;
-    qwr::error::CheckGdi( graphics->GetClip( &region ), "GetClip" );
-    HRGN hrgn{ region.GetHRGN( graphics ) };
+        const DTTOPTS opts{ sizeof( DTTOPTS ), 0 };
 
-    Gdiplus::Matrix matrix;
-    qwr::error::CheckGdi( graphics->GetTransform( &matrix ), "GetTransform" );
+        format &= ~DT_MODIFYSTRING;
 
-    XFORM xform;
-    qwr::error::CheckGdi( matrix.GetElements( (Gdiplus::REAL*)( &xform ) ), "GetElements" );
-
-    // get the device context
-    const HDC dc = graphics->GetHDC();
-    qwr::final_action autoReleaseDc( [graphics, dc]() { graphics->ReleaseHDC( dc ); } );
-
-    // set clip and transform
-    HRGN oldhrgn = ::CreateRectRgn( 0, 0, 0, 0 ); // dummy region for getting the current clip region into
-    qwr::error::CheckWinApi( -1 != ::GetClipRgn( dc, oldhrgn ), "GetClipRgn" );
-    qwr::final_action autoReleaseRegion( [dc, oldhrgn]() { ::SelectClipRgn( dc, oldhrgn ); ::DeleteObject( oldhrgn ); } );
-
-    qwr::error::CheckWinApi( ERROR != ::SelectClipRgn( dc, hrgn ), "SelectClipRgn" );
-    ::DeleteObject( hrgn ); // see remarks at https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-selectcliprgn
-
-    XFORM oldxform;
-    qwr::error::CheckWinApi( ::GetWorldTransform( dc, &oldxform ), "GetWorldTransform" );
-    qwr::error::CheckWinApi( ::SetWorldTransform( dc, &xform ), "SetWorldTransform" );
-    qwr::final_action autoResetTansform( [dc, oldxform]() { ::SetWorldTransform( dc, &oldxform ); } );
-
-    RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
-
-    const DTTOPTS opts{ sizeof( DTTOPTS ), 0 };
-
-    format &= ~DT_MODIFYSTRING;
-
-    if ( format & DT_CALCRECT )
-    {
-        const RECT oldrect = rect;
-        RECT calcrect = rect;
-
-        qwr::error::CheckHR( ::DrawThemeTextEx( hTheme_, dc, partId_, stateId_, str.c_str(), -1, format, &rect, &opts ), "DrawThemeTextEx" );
-
-        format &= ~DT_CALCRECT;
-
-        // adjust vertical align
-        if ( format & DT_VCENTER )
+        if ( format & DT_CALCRECT )
         {
-            rect.top = oldrect.top + ( ( ( oldrect.bottom - oldrect.top ) - ( calcrect.bottom - calcrect.top ) ) >> 1 );
-            rect.bottom = rect.top + ( calcrect.bottom - calcrect.top );
-        }
-        else if ( format & DT_BOTTOM )
-        {
-            rect.top = oldrect.bottom - ( calcrect.bottom - calcrect.top );
-        }
-    }
+            const RECT oldrect = rect;
+            RECT calcrect = rect;
 
-    qwr::error::CheckHR( ::DrawThemeTextEx( hTheme_, dc, partId_, stateId_, const_cast<wchar_t*>( str.c_str() ), -1, format, &rect, &opts ), "DrawThemeTextEx" );
+            qwr::error::CheckHR( ::DrawThemeTextEx( hTheme_, dc, partId_, stateId_, str.c_str(), -1, format, &rect, &opts ), "DrawThemeTextEx" );
+
+            format &= ~DT_CALCRECT;
+
+            // adjust vertical align
+            if ( format & DT_VCENTER )
+            {
+                rect.top = oldrect.top + ( ( ( oldrect.bottom - oldrect.top ) - ( calcrect.bottom - calcrect.top ) ) >> 1 );
+                rect.bottom = rect.top + ( calcrect.bottom - calcrect.top );
+            }
+            else if ( format & DT_BOTTOM )
+            {
+                rect.top = oldrect.bottom - ( calcrect.bottom - calcrect.top );
+            }
+        }
+
+        qwr::error::CheckHR( ::DrawThemeTextEx( hTheme_, dc, partId_, stateId_, const_cast<wchar_t*>( str.c_str() ), -1, format, &rect, &opts ), "DrawThemeTextEx" );
+    };
+
+    gr->TransferGdiplusClipTransformFor( draw );
 }
 
 void JsThemeManager::DrawThemeTextWithOpt( size_t optArgCount, JsGdiGraphics* gr,
@@ -486,46 +456,51 @@ JS::Value JsThemeManager::GetThemeRect( int32_t propId )
     std::vector<int32_t> rect{ value.top, value.left, value.bottom - value.top, value.right - value.left };
 
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue( pJsCtx_, rect,  &jsValue );
+    convert::to_js::ToArrayValue( pJsCtx_, rect, &jsValue );
 
     return jsValue;
 }
 
-uint32_t JsThemeManager::GetThemeSysColour( int32_t propId )
+BOOL JsThemeManager::GetThemeSysBool( int32_t boolId )
 {
-    return smp::colour::ColorrefToArgb( ::GetThemeSysColor( hTheme_, propId ) );
+    return ::GetThemeSysBool( hTheme_, boolId );
 }
 
-JSObject* JsThemeManager::GetThemeSysFont( int32_t propId )
+uint32_t JsThemeManager::GetThemeSysColour( int32_t colorId )
+{
+    return smp::colour::ColorrefToArgb( ::GetThemeSysColor( hTheme_, colorId ) );
+}
+
+JSObject* JsThemeManager::GetThemeSysFont( int32_t fontId )
 {
     const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
     const HDC dc = GetDC( wnd );
     qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
 
     LOGFONTW value;
-    qwr::error::CheckHR( ::GetThemeSysFont( hTheme_, propId, &value ), "GetThemeSysFont" );
+    qwr::error::CheckHR( ::GetThemeSysFont( hTheme_, fontId, &value ), "GetThemeSysFont" );
 
     return MakeFont( dc, &value );
 }
 
-JS::Value JsThemeManager::GetThemeSysFontArgs( int32_t propId )
+JS::Value JsThemeManager::GetThemeSysFontArgs( int32_t fontId )
 {
     LOGFONTW value;
-    qwr::error::CheckHR( ::GetThemeSysFont( hTheme_, propId, &value ), "GetThemeSysFont" );
+    qwr::error::CheckHR( ::GetThemeSysFont( hTheme_, fontId, &value ), "GetThemeSysFont" );
 
     return MakeFontArgs( &value );
 }
 
-int32_t JsThemeManager::GetThemeSysInt( int32_t propId )
+int32_t JsThemeManager::GetThemeSysInt( int32_t intId )
 {
     int32_t value;
-    qwr::error::CheckHR( ::GetThemeSysInt( hTheme_, propId, &value ), "GetThemeSysInt" );
+    qwr::error::CheckHR( ::GetThemeSysInt( hTheme_, intId, &value ), "GetThemeSysInt" );
     return value;
 }
 
-int32_t JsThemeManager::GetThemeSysSize( int32_t propId )
+int32_t JsThemeManager::GetThemeSysSize( int32_t sizeId )
 {
-    return ::GetThemeSysSize( hTheme_, propId );
+    return ::GetThemeSysSize( hTheme_, sizeId );
 }
 
 bool JsThemeManager::IsThemePartDefined( int32_t partId, int32_t stateId )
@@ -578,7 +553,7 @@ JS::Value JsThemeManager::MakeFontArgs( LOGFONTW* plf )
         throw smp::JsException();
     }
 
-    mozjs::convert::to_js::ToValue( pJsCtx_, (int32_t)(0 - plf->lfHeight), &jsValue );
+    mozjs::convert::to_js::ToValue( pJsCtx_, (int32_t)( 0 - plf->lfHeight ), &jsValue );
     if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
     {
         throw smp::JsException();
@@ -606,5 +581,4 @@ JS::Value JsThemeManager::MakeFontArgs( LOGFONTW* plf )
 
     return JS::ObjectValue( *jsArray );
 }
-
 } // namespace mozjs

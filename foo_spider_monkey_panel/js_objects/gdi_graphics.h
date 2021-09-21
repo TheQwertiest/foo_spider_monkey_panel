@@ -42,6 +42,8 @@ public:
     [[nodiscard]] Gdiplus::Graphics* GetGraphicsObject() const;
     void SetGraphicsObject( Gdiplus::Graphics* graphics );
 
+    void TransferGdiplusClipTransformFor( std::function<void( HDC dc )> const& function );
+
 public:
     uint32_t BeginContainer( float dst_x = 0, float dst_y = 0, float dst_w = 0, float dst_h = 0, float src_x = 0, float src_y = 0, float src_w = 0, float src_h = 0 );
     uint32_t BeginContainerWithOpt( size_t optArgCount, float dst_x, float dst_y, float dst_w, float dst_h, float src_x, float src_y, float src_w, float src_h );
@@ -159,5 +161,4 @@ private:
     JSContext* pJsCtx_ = nullptr;
     Gdiplus::Graphics* pGdi_ = nullptr;
 };
-
 } // namespace mozjs

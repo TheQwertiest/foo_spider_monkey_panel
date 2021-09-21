@@ -11,7 +11,6 @@ struct JSClass;
 
 namespace mozjs
 {
-
 class JsGdiGraphics;
 
 class JsThemeManager
@@ -42,6 +41,9 @@ public:
     void DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr,
                                      int32_t x, int32_t y, uint32_t w, uint32_t h,
                                      int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h );
+    JS::Value DrawThemeEdge( JsGdiGraphics* gr,
+                             int32_t x, int32_t y, uint32_t w, uint32_t h,
+                             uint32_t edge, uint32_t flags );
     void DrawThemeText( JsGdiGraphics* gr,
                         const std::wstring& text,
                         int32_t x, int32_t y, uint32_t w, uint32_t h,
@@ -68,11 +70,12 @@ public:
     JS::Value GetThemeRect( int32_t propId );
     // JSObject* GetThemeStream( int32_t propId );
     // JS::Value GetThemeString( int32_t propId );
-    uint32_t GetThemeSysColour( int32_t propId );
-    JSObject* GetThemeSysFont( int32_t propId );
-    JS::Value GetThemeSysFontArgs( int32_t propId );
-    int32_t GetThemeSysInt( int32_t propId );
-    int32_t GetThemeSysSize( int32_t propId );
+    BOOL GetThemeSysBool( int32_t boolId );
+    uint32_t GetThemeSysColour( int32_t colourId );
+    JSObject* GetThemeSysFont( int32_t fontId );
+    JS::Value GetThemeSysFontArgs( int32_t fontId );
+    int32_t GetThemeSysInt( int32_t intId );
+    int32_t GetThemeSysSize( int32_t sizeId );
     bool IsThemePartDefined( int32_t partId, int32_t stateId );
     void SetPartAndStateID( int32_t partId, int32_t stateId = 0 );
     void SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partid, int32_t stateId );
@@ -91,5 +94,4 @@ private:
     JSObject* MakeFont( HDC dc, LOGFONTW* plf );
     JS::Value MakeFontArgs( LOGFONTW* plf );
 };
-
 } // namespace mozjs

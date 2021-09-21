@@ -1,0 +1,42 @@
+diff --git a/submodules/fb2k_utils/src/qwr/error_popup.cpp b/submodules/fb2k_utils/src/qwr/error_popup.cpp
+index 17ceb22..a7a1f00 100644
+--- a/submodules/fb2k_utils/src/qwr/error_popup.cpp
++++ b/submodules/fb2k_utils/src/qwr/error_popup.cpp
+@@ -7,16 +7,20 @@
+ namespace qwr
+ {
+
+-void ReportErrorWithPopup( const std::string& title, const std::string& errorText )
++void ReportErrorWithPopup( const std::string& title, const std::string& errorText, const bool showPopup )
+ {
+-    const auto report = [title, errorText] {
++    const auto report = [title, errorText, showPopup] {
+         assert( core_api::assert_main_thread() );
+
+         FB2K_console_formatter() << title << ":\n"
+                                  << errorText << "\n";
+-        qwr::DelayedExecutor::GetInstance().AddTask( [errorText, title] {
+-            popup_message::g_show( errorText.c_str(), title.c_str() );
+-        } );
++
++        if (showPopup)
++        {
++            qwr::DelayedExecutor::GetInstance().AddTask( [errorText, title] {
++                popup_message::g_show( errorText.c_str(), title.c_str() );
++            } );
++        }
+
+         MessageBeep( MB_ICONASTERISK );
+     };
+diff --git a/submodules/fb2k_utils/src/qwr/error_popup.h b/submodules/fb2k_utils/src/qwr/error_popup.h
+index 71baf87..cf7ad9e 100644
+--- a/submodules/fb2k_utils/src/qwr/error_popup.h
++++ b/submodules/fb2k_utils/src/qwr/error_popup.h
+@@ -5,6 +5,6 @@
+ namespace qwr
+ {
+
+-void ReportErrorWithPopup( const std::string& title, const std::string& errorText );
++void ReportErrorWithPopup( const std::string& title, const std::string& errorText, bool showPopup = true );
+
+ } // namespace qwr

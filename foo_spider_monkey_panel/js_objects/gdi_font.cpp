@@ -4,8 +4,8 @@
 
 #include <js_engine/js_to_native_invoker.h>
 #include <js_utils/js_error_helper.h>
-#include <js_utils/js_object_helper.h>
 #include <js_utils/js_hwnd_helpers.h>
+#include <js_utils/js_object_helper.h>
 #include <utils/gdi_error_helpers.h>
 
 #include <qwr/final_action.h>
@@ -17,7 +17,6 @@ using namespace smp;
 
 namespace
 {
-
 using namespace mozjs;
 
 JSClassOps jsOps = {
@@ -60,12 +59,10 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GdiFont_Constructor, JsGdiFont::Constructor, JsGdiFont::ConstructorWithOpt, 1 )
-
 } // namespace
 
 namespace mozjs
 {
-
 const JSClass JsGdiFont::JsClass = jsClass;
 const JSFunctionSpec* JsGdiFont::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsGdiFont::JsProperties = jsProperties.data();
@@ -193,5 +190,4 @@ uint32_t JsGdiFont::get_Style() const
 {
     return pGdi_->GetStyle();
 }
-
 } // namespace mozjs
