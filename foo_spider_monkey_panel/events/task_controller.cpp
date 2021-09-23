@@ -63,7 +63,7 @@ void TaskController::AddTask( std::shared_ptr<Task> pTask )
     }
 
     const auto priority = pTask->priority_;
-    if ( priority == EventPriority::kResize || priority == EventPriority::kRedraw )
+    if ( priority == EventPriority::kResize )
     {
         auto prevIt = std::prev( it );
         auto pPrevTask = *prevIt;
@@ -86,7 +86,7 @@ bool TaskController::HasTasks() const
     return !tasks_.empty();
 }
 
-bool TaskController::ExecuteNextTask( bool executeOnlyUnblockable )
+bool TaskController::ExecuteNextTask()
 {
     assert( core_api::is_main_thread() );
 
@@ -100,11 +100,7 @@ bool TaskController::ExecuteNextTask( bool executeOnlyUnblockable )
     // in case we destroy ourself during task run
     auto selfSaver = shared_from_this();
 
-    auto it = ranges::find_if( tasks_, [executeOnlyUnblockable]( const auto pTask ) {
-        const auto priority = pTask->priority_;
-        const auto taskHasUnblockablePriority = ( priority == EventPriority::kResize || priority == EventPriority::kRedraw );
-        return ( !pTask->isInProgress_ && ( !executeOnlyUnblockable || taskHasUnblockablePriority ) );
-    } );
+    auto it = ranges::find_if( tasks_, []( const auto pTask ) { return !pTask->isInProgress_; } );
     if ( it == tasks_.end() )
     {
         return false;

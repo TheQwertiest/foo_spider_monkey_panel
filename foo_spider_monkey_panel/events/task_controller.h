@@ -60,7 +60,7 @@ public:
 
     [[nodiscard]] bool HasTasks() const;
 
-    bool ExecuteNextTask( bool executeOnlyUnblockable );
+    bool ExecuteNextTask();
 
 private:
     std::shared_ptr<PanelTarget> pTarget_;

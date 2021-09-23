@@ -31,7 +31,7 @@ public:
 
 public:
     static [[nodiscard]] bool IsRequestEventMessage( UINT msg );
-    bool ProcessNextEvent( HWND hWnd, bool executeOnlyUnblockable );
+    bool ProcessNextEvent( HWND hWnd );
     void RequestNextEvent( HWND hWnd );
     void OnRequestEventMessageReceived( HWND hWnd );
 

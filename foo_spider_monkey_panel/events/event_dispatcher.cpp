@@ -58,7 +58,7 @@ bool EventDispatcher::IsRequestEventMessage( UINT msg )
     return ( msg == static_cast<UINT>( InternalSyncMessage::run_next_event ) );
 }
 
-bool EventDispatcher::ProcessNextEvent( HWND hWnd, bool executeOnlyUnblockable )
+bool EventDispatcher::ProcessNextEvent( HWND hWnd )
 {
     auto pTaskController = [&] {
         std::unique_lock ul( taskControllerMapMutex_ );
@@ -71,7 +71,7 @@ bool EventDispatcher::ProcessNextEvent( HWND hWnd, bool executeOnlyUnblockable )
     {
         return false;
     }
-    return pTaskController->ExecuteNextTask( executeOnlyUnblockable );
+    return pTaskController->ExecuteNextTask();
 }
 
 void EventDispatcher::RequestNextEvent( HWND hWnd )

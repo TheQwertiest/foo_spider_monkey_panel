@@ -122,6 +122,7 @@ public: // event handling
 
 private: // callback handling
     std::optional<MSG> GetStalledMessage();
+    std::optional<LRESULT> ProcessStalledMessage( const MSG& msg );
     std::optional<LRESULT> ProcessSyncMessage( const MSG& msg );
     std::optional<LRESULT> ProcessCreationMessage( const MSG& msg );
     std::optional<LRESULT> ProcessWindowMessage( const MSG& msg );
@@ -157,9 +158,11 @@ private:
     CBitmap bmpBg_ = nullptr; // used only internally
 
     bool hasFailed_ = false; // // used only internally
-    bool isRepaintRequested_ = true;
-    bool isBgRepaintNeeded_ = false;           // used only internally
-    bool isPaintInProgress_ = false;           // used only internally
+
+    int32_t hRepaintTimer_ = NULL;   // used only internally
+    bool isBgRepaintNeeded_ = false; // used only internally
+    bool isPaintInProgress_ = false; // used only internally
+
     bool isMouseTracked_ = false;              // used only internally
     bool isMouseCaptured_ = false;             // used only internally
     bool hasInternalDrag_ = false;             // used only internally

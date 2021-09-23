@@ -234,8 +234,6 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 
     if ( EventDispatcher::IsRequestEventMessage( msg ) )
     {
-        const auto stalledMsgOpt = GetStalledMessage();
-
         EventDispatcher::Get().OnRequestEventMessageReceived( wnd_ );
 
         static uint32_t nestedCounter = 0;
@@ -255,16 +253,20 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
             }
         } );
 
-        // Some events should not be delayed by much or they will flood the message loop with retries.
-        // Prime example of which would be WM_PAINT
-        const auto canExecuteAllTasks = ( nestedCounter == 1 || modal::IsModalBlocked() );
-        EventDispatcher::Get().ProcessNextEvent( wnd_, !canExecuteAllTasks );
-
-        if ( stalledMsgOpt )
-        {
-            if ( !ProcessSyncMessage( *stalledMsgOpt ) )
+        if ( const auto stalledMsgOpt = GetStalledMessage(); stalledMsgOpt )
+        { // stalled messages always have a higher priority
+            if ( auto retVal = ProcessStalledMessage( *stalledMsgOpt );
+                 retVal.has_value() )
             {
-                DefWindowProc( hwnd, msg, wp, lp );
+                return *retVal;
+            }
+            return DefWindowProc( hwnd, msg, wp, lp );
+        }
+        else
+        {
+            if ( nestedCounter == 1 || modal::IsModalBlocked() )
+            {
+                EventDispatcher::Get().ProcessNextEvent( wnd_ );
             }
         }
     }
@@ -542,20 +544,42 @@ bool js_panel_window::ExecuteJsCode( mozjs::JsAsyncTask& jsTask )
 std::optional<MSG> js_panel_window::GetStalledMessage()
 {
     MSG msg;
-    bool hasMessage = ( PeekMessage( &msg, wnd_, 0, 0, PM_REMOVE | PM_QS_PAINT ) ) || PeekMessage( &msg, wnd_, 0, 0, PM_REMOVE | QS_TIMER );
-    if ( hasMessage )
+    bool hasMessage = PeekMessage( &msg, wnd_, WM_TIMER, WM_TIMER, PM_REMOVE );
+    if ( !hasMessage )
     {
-        return msg;
+        return std::nullopt;
     }
 
-    if ( isRepaintRequested_ )
-    {
-        // HACK: WM_PAINT is generated only when msg queue is completely empty, which might not happen when our events are generated back to back.
-        // Hence we generate a `virtual` message to force a repaint when needed
-        return MSG{ wnd_, WM_PAINT, 0, 0 };
+    if ( !hRepaintTimer_ )
+    { // means that WM_PAINT was invoked properly
+        return std::nullopt;
     }
 
-    return std::nullopt;
+    KillTimer( wnd_, hRepaintTimer_ );
+    hRepaintTimer_ = NULL;
+
+    return msg;
+}
+
+std::optional<LRESULT> js_panel_window::ProcessStalledMessage( const MSG& msg )
+{
+    switch ( msg.message )
+    {
+    case WM_TIMER:
+    {
+        wnd_.RedrawWindow( nullptr, nullptr, RDW_UPDATENOW );
+        return 0;
+    }
+    case WM_DESTROY:
+    {
+        OnDestroy();
+        return 0;
+    }
+    default:
+    {
+        return std::nullopt;
+    }
+    }
 }
 
 std::optional<LRESULT> js_panel_window::ProcessSyncMessage( const MSG& msg )
@@ -624,19 +648,24 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
     {
         if ( settings_.isPseudoTransparent )
         {
-            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
+            ExecuteTask( EventId::kWndRepaintBackground );
         }
         return 1;
     }
     case WM_PAINT:
     {
-        isRepaintRequested_ = false;
+        if ( hRepaintTimer_ )
+        {
+            KillTimer( wnd_, hRepaintTimer_ );
+            hRepaintTimer_ = NULL;
+        }
+
         if ( isPaintInProgress_ )
         {
             return std::nullopt;
         }
 
-        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndPaint ), EventPriority::kRedraw );
+        ExecuteTask( EventId::kWndPaint );
 
         return 0;
     }
@@ -646,7 +675,7 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
         wnd_.GetClientRect( &rc );
         OnSizeDefault( rc.Width(), rc.Height() );
 
-        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
+        ExecuteTask( EventId::kWndResize );
 
         return 0;
     }
@@ -1242,13 +1271,19 @@ bool js_panel_window::HasInternalDrag() const
 
 void js_panel_window::Repaint( bool force )
 {
-    isRepaintRequested_ = true;
+    if ( !force && !hRepaintTimer_ )
+    { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
+        hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
+    }
     wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
 void js_panel_window::RepaintRect( const CRect& rc, bool force )
 {
-    isRepaintRequested_ = true;
+    if ( !force && !hRepaintTimer_ )
+    { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
+        hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
+    }
     wnd_.RedrawWindow( &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
@@ -1506,6 +1541,12 @@ void js_panel_window::OnDestroy()
     }
 
     EventDispatcher::Get().RemoveWindow( wnd_ );
+
+    if ( hRepaintTimer_ )
+    {
+        KillTimer( wnd_, hRepaintTimer_ );
+        hRepaintTimer_ = NULL;
+    }
 
     pJsContainer_.reset();
 
