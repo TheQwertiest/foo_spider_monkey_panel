@@ -598,8 +598,8 @@ void JsWindow::NotifyOthers( const std::wstring& name, JS::HandleValue info )
         return;
     }
 
-    EventDispatcher::Get().PutEventToOthers( parentPanel_.GetHWND(),
-                                             std::make_unique<Event_NotifyOthers>( pJsCtx_, name, info ) );
+    EventDispatcher::Get().NotifyOthers( parentPanel_.GetHWND(),
+                                         std::make_unique<Event_NotifyOthers>( pJsCtx_, name, info ) );
 }
 
 void JsWindow::Reload()

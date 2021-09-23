@@ -898,6 +898,11 @@ std::optional<LRESULT> js_panel_window::ProcessInternalSyncMessage( InternalSync
 
     switch ( msg )
     {
+    case InternalSyncMessage::legacy_notify_others:
+    {
+        reinterpret_cast<EventBase*>( lp )->Run();
+        return 0;
+    }
     case InternalSyncMessage::script_fail:
     {
         Fail( *reinterpret_cast<const qwr::u8string*>( lp ) );

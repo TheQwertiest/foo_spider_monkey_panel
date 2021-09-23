@@ -208,4 +208,37 @@ void EventDispatcher::PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pE
     }
 }
 
+void EventDispatcher::NotifyOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent )
+{
+    std::vector<std::pair<HWND, std::unique_ptr<EventBase>>> hWndToEvent;
+    hWndToEvent.reserve( taskControllerMap_.size() );
+
+    {
+        std::scoped_lock sl( taskControllerMapMutex_ );
+        for ( auto& [hLocalWnd, pTaskController]: taskControllerMap_ )
+        {
+            if ( !pTaskController || hLocalWnd == hWnd )
+            {
+                continue;
+            }
+
+            auto pClonedEvent = pEvent->Clone();
+            if ( !pClonedEvent )
+            {
+                assert( false );
+                return;
+            }
+
+            pClonedEvent->SetTarget( pTaskController->GetTarget() );
+
+            hWndToEvent.emplace_back( hLocalWnd, std::move( pClonedEvent ) );
+        }
+    }
+
+    for ( const auto& [hWnd, pClonedEvent]: hWndToEvent )
+    {
+        SendMessage( hWnd, static_cast<UINT>( smp::InternalSyncMessage::legacy_notify_others ), 0, reinterpret_cast<LPARAM>( pClonedEvent.get() ) );
+    }
+}
+
 } // namespace smp

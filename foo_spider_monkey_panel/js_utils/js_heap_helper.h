@@ -36,13 +36,21 @@ public:
     [[nodiscard]] uint32_t Store( const T& jsObject )
     {
         assert( core_api::is_main_thread() );
+        assert( isJsAvailable_ );
         return valueHeapIds_.emplace_back( pNativeGlobal_->GetHeapManager().Store( jsObject ) );
     }
 
     [[nodiscard]] JS::Heap<JS::Value>& Get( uint32_t objectId )
     {
         assert( core_api::is_main_thread() );
+        assert( isJsAvailable_ );
         return pNativeGlobal_->GetHeapManager().Get( objectId );
+    }
+
+    bool IsJsAvailable() const
+    {
+        assert( core_api::is_main_thread() );
+        return isJsAvailable_;
     }
 
     void Finalize()

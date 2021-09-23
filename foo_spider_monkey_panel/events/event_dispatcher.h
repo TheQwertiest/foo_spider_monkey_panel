@@ -49,6 +49,11 @@ public: // these can be invoked from worker threads
     ///         - Clone operation should not be CPU intensive (e.g. don't copy vectors, but rather wrap it in shared_ptr)
     void PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
 
+public:
+    // TODO: remove in v2
+    /// @remark This is a compatibility hack for window.NotifyOthers()
+    void NotifyOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent );
+
 private:
     void RequestNextEventImpl( HWND hWnd, TaskController& taskController, std::scoped_lock<std::mutex>& proof );
 
