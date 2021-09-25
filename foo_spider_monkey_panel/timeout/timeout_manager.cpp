@@ -295,7 +295,7 @@ void TimeoutManager::RunTimeout( const TimeStamp& now, const TimeStamp& targetDe
 
             // This timeout is good to run.
             pTimeout->SetRunningState( true );
-            const auto has_succeeded = pTarget_->GetPanel()->ExecuteJsCode( *pTimeout->Task() );
+            const auto has_succeeded = pTarget_->GetPanel()->ExecuteEvent_JsCode( *pTimeout->Task() );
             pTimeout->SetRunningState( false );
             if ( !has_succeeded || !pTarget->GetPanel() )
             {

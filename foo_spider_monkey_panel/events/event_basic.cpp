@@ -25,7 +25,7 @@ void Event_Basic::Run()
         return;
     }
 
-    pPanel->ExecuteTask( id_ );
+    pPanel->ExecuteEvent_Basic( id_ );
 }
 
 } // namespace smp

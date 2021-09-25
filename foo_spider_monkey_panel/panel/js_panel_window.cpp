@@ -227,47 +227,24 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     // Since we are constantly processing our own `event` messages, we need to take additional care
     // so as not to stall WM_PAINT and WM_TIMER messages.
 
-    const qwr::final_action autoComObjectDeleter( [] {
+    static uint32_t msgNestedCounter = 0;
+    ++msgNestedCounter;
+    const qwr::final_action autoComObjectDeleter( [&] {
         // delete only on exit as to avoid delaying processing of the current message due to reentrancy
-        com::DeleteMarkedObjects();
+        --msgNestedCounter;
+        if ( !msgNestedCounter )
+        {
+            com::DeleteMarkedObjects();
+        }
     } );
 
     if ( EventDispatcher::IsRequestEventMessage( msg ) )
     {
         EventDispatcher::Get().OnRequestEventMessageReceived( wnd_ );
-
-        static uint32_t nestedCounter = 0;
-        ++nestedCounter;
-
-        qwr::final_action onEventProcessed( [hWnd = wnd_.m_hWnd] {
-            --nestedCounter;
-
-            if ( !nestedCounter )
-            { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
-                // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
-                mozjs::JsContainer::RunJobs();
-            }
-            if ( !nestedCounter || modal::IsModalBlocked() )
-            {
-                EventDispatcher::Get().RequestNextEvent( hWnd );
-            }
-        } );
-
-        if ( const auto stalledMsgOpt = GetStalledMessage(); stalledMsgOpt )
-        { // stalled messages always have a higher priority
-            if ( auto retVal = ProcessStalledMessage( *stalledMsgOpt );
-                 retVal.has_value() )
-            {
-                return *retVal;
-            }
-            return DefWindowProc( hwnd, msg, wp, lp );
-        }
-        else
+        if ( auto retVal = ProcessEvent();
+             retVal.has_value() )
         {
-            if ( nestedCounter == 1 || modal::IsModalBlocked() )
-            {
-                EventDispatcher::Get().ProcessNextEvent( wnd_ );
-            }
+            return *retVal;
         }
     }
     else
@@ -282,7 +259,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     return DefWindowProc( hwnd, msg, wp, lp );
 }
 
-void js_panel_window::ExecuteTask( EventId id )
+void js_panel_window::ExecuteEvent_Basic( EventId id )
 {
     switch ( id )
     {
@@ -377,7 +354,7 @@ void js_panel_window::ExecuteTask( EventId id )
     }
 }
 
-void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
+void js_panel_window::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
 {
     const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
         if ( !pJsContainer_ )
@@ -531,7 +508,7 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
     }
 }
 
-bool js_panel_window::ExecuteJsCode( mozjs::JsAsyncTask& jsTask )
+bool js_panel_window::ExecuteEvent_JsCode( mozjs::JsAsyncTask& jsTask )
 {
     if ( !pJsContainer_ )
     {
@@ -539,6 +516,65 @@ bool js_panel_window::ExecuteJsCode( mozjs::JsAsyncTask& jsTask )
     }
 
     return pJsContainer_->InvokeJsAsyncTask( jsTask );
+}
+
+void js_panel_window::OnProcessingEventStart()
+{
+    ++eventNestedCounter_;
+}
+
+void js_panel_window::OnProcessingEventFinish()
+{
+    --eventNestedCounter_;
+
+    if ( !eventNestedCounter_ )
+    { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
+        // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
+        mozjs::JsContainer::RunJobs();
+    }
+
+    if ( !eventNestedCounter_ || modal::IsModalBlocked() )
+    {
+        EventDispatcher::Get().RequestNextEvent( wnd_ );
+    }
+}
+
+std::optional<LRESULT> js_panel_window::ProcessEvent()
+{
+    OnProcessingEventStart();
+    qwr::final_action onEventProcessed( [&] {
+        OnProcessingEventFinish();
+    } );
+
+    if ( const auto stalledMsgOpt = GetStalledMessage(); stalledMsgOpt )
+    { // stalled messages always have a higher priority
+        if ( auto retVal = ProcessStalledMessage( *stalledMsgOpt );
+             retVal.has_value() )
+        {
+            return *retVal;
+        }
+
+        return DefWindowProc( wnd_, stalledMsgOpt->message, stalledMsgOpt->wParam, stalledMsgOpt->lParam );
+    }
+    else
+    {
+        if ( eventNestedCounter_ == 1 || modal::IsModalBlocked() )
+        {
+            EventDispatcher::Get().ProcessNextEvent( wnd_ );
+        }
+
+        return std::nullopt;
+    }
+}
+
+void js_panel_window::ProcessEventManually( Runnable& runnable )
+{
+    OnProcessingEventStart();
+    qwr::final_action onEventProcessed( [&] {
+        OnProcessingEventFinish();
+    } );
+
+    runnable.Run();
 }
 
 std::optional<MSG> js_panel_window::GetStalledMessage()
@@ -568,11 +604,6 @@ std::optional<LRESULT> js_panel_window::ProcessStalledMessage( const MSG& msg )
     case WM_TIMER:
     {
         wnd_.RedrawWindow( nullptr, nullptr, RDW_UPDATENOW );
-        return 0;
-    }
-    case WM_DESTROY:
-    {
-        OnDestroy();
         return 0;
     }
     default:
@@ -648,7 +679,9 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
     {
         if ( settings_.isPseudoTransparent )
         {
-            ExecuteTask( EventId::kWndRepaintBackground );
+            auto pEvent = std::make_unique<Event_Basic>( EventId::kWndRepaintBackground );
+            pEvent->SetTarget( pTarget_ );
+            ProcessEventManually( *pEvent );
         }
         return 1;
     }
@@ -665,7 +698,9 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
             return std::nullopt;
         }
 
-        ExecuteTask( EventId::kWndPaint );
+        auto pEvent = std::make_unique<Event_Basic>( EventId::kWndPaint );
+        pEvent->SetTarget( pTarget_ );
+        ProcessEventManually( *pEvent );
 
         return 0;
     }
@@ -675,7 +710,9 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
         wnd_.GetClientRect( &rc );
         OnSizeDefault( rc.Width(), rc.Height() );
 
-        ExecuteTask( EventId::kWndResize );
+        auto pEvent = std::make_unique<Event_Basic>( EventId::kWndResize );
+        pEvent->SetTarget( pTarget_ );
+        ProcessEventManually( *pEvent );
 
         return 0;
     }
@@ -929,7 +966,8 @@ std::optional<LRESULT> js_panel_window::ProcessInternalSyncMessage( InternalSync
     {
     case InternalSyncMessage::legacy_notify_others:
     {
-        reinterpret_cast<EventBase*>( lp )->Run();
+        // this event is sent via EventDispatcher, hence we don't need to set target manually
+        ProcessEventManually( *reinterpret_cast<EventBase*>( lp ) );
         return 0;
     }
     case InternalSyncMessage::script_fail:
