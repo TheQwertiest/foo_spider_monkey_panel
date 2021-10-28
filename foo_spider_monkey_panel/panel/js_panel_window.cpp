@@ -229,45 +229,24 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     // Since we are constantly processing our own `event` messages, we need to take additional care
     // so as not to stall WM_PAINT and WM_TIMER messages.
 
-    const qwr::final_action autoComObjectDeleter( [] {
+    static uint32_t msgNestedCounter = 0;
+    ++msgNestedCounter;
+    const qwr::final_action autoComObjectDeleter( [&] {
         // delete only on exit as to avoid delaying processing of the current message due to reentrancy
-        com::DeleteMarkedObjects();
+        --msgNestedCounter;
+        if ( !msgNestedCounter )
+        {
+            com::DeleteMarkedObjects();
+        }
     } );
 
     if ( EventDispatcher::IsRequestEventMessage( msg ) )
     {
-        const auto stalledMsgOpt = GetStalledMessage();
-
         EventDispatcher::Get().OnRequestEventMessageReceived( wnd_ );
-
-        static uint32_t nestedCounter = 0;
-        ++nestedCounter;
-
-        qwr::final_action onEventProcessed( [hWnd = wnd_.m_hWnd] {
-            --nestedCounter;
-
-            if ( !nestedCounter )
-            { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
-                // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
-                mozjs::JsContainer::RunJobs();
-            }
-            if ( !nestedCounter || modal::IsModalBlocked() )
-            {
-                EventDispatcher::Get().RequestNextEvent( hWnd );
-            }
-        } );
-
-        // Some events should not be delayed by much or they will flood the message loop with retries.
-        // Prime example of which would be WM_PAINT
-        const auto canExecuteAllTasks = ( nestedCounter == 1 || modal::IsModalBlocked() );
-        EventDispatcher::Get().ProcessNextEvent( wnd_, !canExecuteAllTasks );
-
-        if ( stalledMsgOpt )
+        if ( auto retVal = ProcessEvent();
+             retVal.has_value() )
         {
-            if ( !ProcessSyncMessage( *stalledMsgOpt ) )
-            {
-                DefWindowProc( hwnd, msg, wp, lp );
-            }
+            return *retVal;
         }
     }
     else
@@ -282,7 +261,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     return DefWindowProc( hwnd, msg, wp, lp );
 }
 
-void js_panel_window::ExecuteTask( EventId id )
+void js_panel_window::ExecuteEvent_Basic( EventId id )
 {
     switch ( id )
     {
@@ -377,7 +356,7 @@ void js_panel_window::ExecuteTask( EventId id )
     }
 }
 
-void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
+void js_panel_window::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
 {
     const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
         if ( !pJsContainer_ )
@@ -531,7 +510,7 @@ void js_panel_window::ExecuteJsTask( EventId id, Event_JsExecutor& task )
     }
 }
 
-bool js_panel_window::ExecuteJsCode( mozjs::JsAsyncTask& jsTask )
+bool js_panel_window::ExecuteEvent_JsCode( mozjs::JsAsyncTask& jsTask )
 {
     if ( !pJsContainer_ )
     {
@@ -541,23 +520,99 @@ bool js_panel_window::ExecuteJsCode( mozjs::JsAsyncTask& jsTask )
     return pJsContainer_->InvokeJsAsyncTask( jsTask );
 }
 
+void js_panel_window::OnProcessingEventStart()
+{
+    ++eventNestedCounter_;
+}
+
+void js_panel_window::OnProcessingEventFinish()
+{
+    --eventNestedCounter_;
+
+    if ( !eventNestedCounter_ )
+    { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
+        // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
+        mozjs::JsContainer::RunJobs();
+    }
+
+    if ( !eventNestedCounter_ || modal::IsModalBlocked() )
+    {
+        EventDispatcher::Get().RequestNextEvent( wnd_ );
+    }
+}
+
+std::optional<LRESULT> js_panel_window::ProcessEvent()
+{
+    OnProcessingEventStart();
+    qwr::final_action onEventProcessed( [&] {
+        OnProcessingEventFinish();
+    } );
+
+    if ( const auto stalledMsgOpt = GetStalledMessage(); stalledMsgOpt )
+    { // stalled messages always have a higher priority
+        if ( auto retVal = ProcessStalledMessage( *stalledMsgOpt );
+             retVal.has_value() )
+        {
+            return *retVal;
+        }
+
+        return DefWindowProc( wnd_, stalledMsgOpt->message, stalledMsgOpt->wParam, stalledMsgOpt->lParam );
+    }
+    else
+    {
+        if ( eventNestedCounter_ == 1 || modal::IsModalBlocked() )
+        {
+            EventDispatcher::Get().ProcessNextEvent( wnd_ );
+        }
+
+        return std::nullopt;
+    }
+}
+
+void js_panel_window::ProcessEventManually( Runnable& runnable )
+{
+    OnProcessingEventStart();
+    qwr::final_action onEventProcessed( [&] {
+        OnProcessingEventFinish();
+    } );
+
+    runnable.Run();
+}
+
 std::optional<MSG> js_panel_window::GetStalledMessage()
 {
     MSG msg;
-    bool hasMessage = ( PeekMessage( &msg, wnd_, 0, 0, PM_REMOVE | PM_QS_PAINT ) ) || PeekMessage( &msg, wnd_, 0, 0, PM_REMOVE | QS_TIMER );
-    if ( hasMessage )
+    bool hasMessage = PeekMessage( &msg, wnd_, WM_TIMER, WM_TIMER, PM_REMOVE );
+    if ( !hasMessage )
     {
-        return msg;
+        return std::nullopt;
     }
 
-    if ( isRepaintRequested_ )
-    {
-        // HACK: WM_PAINT is generated only when msg queue is completely empty, which might not happen when our events are generated back to back.
-        // Hence we generate a `virtual` message to force a repaint when needed
-        return MSG{ wnd_, WM_PAINT, 0, 0 };
+    if ( !hRepaintTimer_ )
+    { // means that WM_PAINT was invoked properly
+        return std::nullopt;
     }
 
-    return std::nullopt;
+    KillTimer( wnd_, hRepaintTimer_ );
+    hRepaintTimer_ = NULL;
+
+    return msg;
+}
+
+std::optional<LRESULT> js_panel_window::ProcessStalledMessage( const MSG& msg )
+{
+    switch ( msg.message )
+    {
+    case WM_TIMER:
+    {
+        wnd_.RedrawWindow( nullptr, nullptr, RDW_UPDATENOW );
+        return 0;
+    }
+    default:
+    {
+        return std::nullopt;
+    }
+    }
 }
 
 std::optional<LRESULT> js_panel_window::ProcessSyncMessage( const MSG& msg )
@@ -626,19 +681,28 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
     {
         if ( settings_.isPseudoTransparent )
         {
-            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
+            auto pEvent = std::make_unique<Event_Basic>( EventId::kWndRepaintBackground );
+            pEvent->SetTarget( pTarget_ );
+            ProcessEventManually( *pEvent );
         }
         return 1;
     }
     case WM_PAINT:
     {
-        isRepaintRequested_ = false;
+        if ( hRepaintTimer_ )
+        {
+            KillTimer( wnd_, hRepaintTimer_ );
+            hRepaintTimer_ = NULL;
+        }
+
         if ( isPaintInProgress_ )
         {
             return std::nullopt;
         }
 
-        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndPaint ), EventPriority::kRedraw );
+        auto pEvent = std::make_unique<Event_Basic>( EventId::kWndPaint );
+        pEvent->SetTarget( pTarget_ );
+        ProcessEventManually( *pEvent );
 
         return 0;
     }
@@ -648,7 +712,9 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
         wnd_.GetClientRect( &rc );
         OnSizeDefault( rc.Width(), rc.Height() );
 
-        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
+        auto pEvent = std::make_unique<Event_Basic>( EventId::kWndResize );
+        pEvent->SetTarget( pTarget_ );
+        ProcessEventManually( *pEvent );
 
         return 0;
     }
@@ -900,6 +966,12 @@ std::optional<LRESULT> js_panel_window::ProcessInternalSyncMessage( InternalSync
 
     switch ( msg )
     {
+    case InternalSyncMessage::legacy_notify_others:
+    {
+        // this event is sent via EventDispatcher, hence we don't need to set target manually
+        ProcessEventManually( *reinterpret_cast<EventBase*>( lp ) );
+        return 0;
+    }
     case InternalSyncMessage::script_fail:
     {
         Fail( *reinterpret_cast<const qwr::u8string*>( lp ) );
@@ -1239,13 +1311,19 @@ bool js_panel_window::HasInternalDrag() const
 
 void js_panel_window::Repaint( bool force )
 {
-    isRepaintRequested_ = true;
+    if ( !force && !hRepaintTimer_ )
+    { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
+        hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
+    }
     wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
 void js_panel_window::RepaintRect( const CRect& rc, bool force )
 {
-    isRepaintRequested_ = true;
+    if ( !force && !hRepaintTimer_ )
+    { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
+        hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
+    }
     wnd_.RedrawWindow( &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
@@ -1503,6 +1581,12 @@ void js_panel_window::OnDestroy()
     }
 
     EventDispatcher::Get().RemoveWindow( wnd_ );
+
+    if ( hRepaintTimer_ )
+    {
+        KillTimer( wnd_, hRepaintTimer_ );
+        hRepaintTimer_ = NULL;
+    }
 
     pJsContainer_.reset();
 

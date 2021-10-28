@@ -25,7 +25,7 @@ void Event_JsExecutor::Run()
         return;
     }
 
-    pPanel->ExecuteJsTask( id_, *this );
+    pPanel->ExecuteEvent_JsTask( id_, *this );
 }
 
 } // namespace smp

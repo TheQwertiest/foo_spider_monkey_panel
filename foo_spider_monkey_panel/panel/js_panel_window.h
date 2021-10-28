@@ -116,12 +116,18 @@ private:
     void SetDragAndDropStatus( bool isEnabled );
 
 public: // event handling
-    void ExecuteJsTask( EventId id, Event_JsExecutor& task );
-    bool ExecuteJsCode( mozjs::JsAsyncTask& task );
-    void ExecuteTask( EventId id );
+    void ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task );
+    bool ExecuteEvent_JsCode( mozjs::JsAsyncTask& task );
+    void ExecuteEvent_Basic( EventId id );
 
 private: // callback handling
+    void OnProcessingEventStart();
+    void OnProcessingEventFinish();
+    std::optional<LRESULT> ProcessEvent();
+    void ProcessEventManually( Runnable& runnable );
+
     std::optional<MSG> GetStalledMessage();
+    std::optional<LRESULT> ProcessStalledMessage( const MSG& msg );
     std::optional<LRESULT> ProcessSyncMessage( const MSG& msg );
     std::optional<LRESULT> ProcessCreationMessage( const MSG& msg );
     std::optional<LRESULT> ProcessWindowMessage( const MSG& msg );
@@ -157,9 +163,13 @@ private:
     CBitmap bmpBg_ = nullptr; // used only internally
 
     bool hasFailed_ = false; // // used only internally
-    bool isRepaintRequested_ = true;
-    bool isBgRepaintNeeded_ = false;           // used only internally
-    bool isPaintInProgress_ = false;           // used only internally
+
+    uint32_t eventNestedCounter_ = 0;
+
+    int32_t hRepaintTimer_ = NULL;   // used only internally
+    bool isBgRepaintNeeded_ = false; // used only internally
+    bool isPaintInProgress_ = false; // used only internally
+
     bool isMouseTracked_ = false;              // used only internally
     bool isMouseCaptured_ = false;             // used only internally
     bool hasInternalDrag_ = false;             // used only internally

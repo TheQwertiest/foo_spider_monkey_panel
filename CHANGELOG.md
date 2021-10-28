@@ -30,6 +30,12 @@
 ___
 
 ## [Unreleased][]
+### Changed
+- API changes:
+  - Reverted changes in `window.NotifyOthers()` behaviour. Now it's executed synchronously as before.
+
+### Fixed
+- Fixed various bugs in event handling system, which were causing unexpected behaviour and crashes.
 
 ## [1.6.0][] - 2021-09-11
 

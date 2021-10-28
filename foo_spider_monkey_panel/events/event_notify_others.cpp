@@ -24,12 +24,20 @@ Event_NotifyOthers::~Event_NotifyOthers()
 
 std::unique_ptr<EventBase> Event_NotifyOthers::Clone()
 {
+    // Note: this clone operation might result in JS object being used in another panel/global
+    assert( heapHelper_.IsJsAvailable() );
+
     JS::RootedValue jsValue( pJsCtx_, heapHelper_.Get( jsInfoId_ ) );
     return std::make_unique<Event_NotifyOthers>( pJsCtx_, name_, jsValue );
 }
 
 std::optional<bool> Event_NotifyOthers::JsExecute( mozjs::JsContainer& jsContainer )
 {
+    if ( !heapHelper_.IsJsAvailable() )
+    { // This might happen if the original panel/global died
+        return std::nullopt;
+    }
+
     JS::RootedValue jsValue( pJsCtx_, heapHelper_.Get( jsInfoId_ ) );
     jsContainer.InvokeOnNotify( name_, jsValue );
 
