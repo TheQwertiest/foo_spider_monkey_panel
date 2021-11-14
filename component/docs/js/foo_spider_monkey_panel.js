@@ -1634,6 +1634,15 @@ let utils = {
     GetAlbumArtV2: function (handle, art_id, need_stub) { }, // (GdiBitmap) [, art_id][, need_stub]
 
     /**
+     * Get Device Capabilites for the monitor the panel is displayed on.
+     * see: {@link https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdevicecaps}
+     *
+     * @param {number} index See Flags.js > DeviceCaps
+     * @return {number} value
+     */
+    GetDeviceCaps: function (index) { },
+
+    /**
      * @param {string} path
      * @return {number} File size, in bytes
      */
@@ -3297,42 +3306,64 @@ function GdiBitmap(arg) {
  */
 function GdiFont(name, size_px, style) {
     /**
+     * Get / set the font line height in pixels
      * @type {number}
-     * @readonly
      *
      * @example
-     * console.log(my_font.Height); // 15
+     *   console.log(my_font.Height); // 15
      */
-    this.Height = undefined;//    (uint)(read)
+    this.Height = undefined;//    (uint)
+
+    /**
+     * Get / set the italic style flag
+     * @type {bool}
+     *
+     * @see {@link GdiFont#Style}
+     *
+     * @example
+     *    console.log(my_font.Italic); // false
+     *    my_font.Italic = true;
+     */
+    this.Italic = undefined;//    (bool)
 
     /**
      * @type {string}
-     * @readonly
      *
      * @example
-     * console.log(my_font.Name); // Segoe UI
+     *   console.log(my_font.Name); // Segoe UI
      */
-    this.Name = undefined;//    (string)(read)
+    this.Name = undefined;//    (string)
 
     /**
+     * font height (the "em" height) in pixels
      * @type {float}
-     * @readonly
      *
      * @example
-     * console.log(my_font.Size); // 12
+     *     console.log(my_font.Size); // 12
      */
-    this.Size = undefined;//    (float)(read)
+    this.Size = undefined;//    (float)
+
+    /**
+     * Get / set the strikeout style flag
+     * @type {bool}
+     *
+     * @see {@link GdiFont#Style}
+     *
+     * @example
+     *    console.log(my_font.Strikeour); // false
+     *    my_font.Italic = true;
+     */
+    this.Strikeout = undefined;//    (bool)
 
     /**
      * See Flags.js > FontStyle for value interpretation.
      *
      * @type {number}
-     * @readonly
      *
      * @example
-     * console.log(my_font.Style);
+     *    console.log(my_font.Style);
      */
-    this.Style = undefined;//    (uint)(read)
+    this.Style = undefined;//    (uint)
 }
 
 /**
@@ -3377,9 +3408,9 @@ function GdiGraphics() {
     /**
      * Calculates text width for {@link GdiGraphics#GdiDrawText}.
      *
-     * Note: When the str contains a kerning pair that is found in the specified
-     * font, the return value will be larger than the actual drawn width of the
-     * text. If accurate values are required, set use_exact to true.
+     * Note: When the str contains a kerning pair that is found in the specified font,
+     * the return value will be larger than the actual drawn width of the text.
+     * If accurate values are required, set use_exact to true.
      *
      * @param {string} text
      * @param {GdiFont} font
@@ -3387,6 +3418,34 @@ function GdiGraphics() {
      * @return {number}
      */
     this.CalcTextWidth = function (text, font, use_exact) { }; // (uint)
+
+    /**
+     * Calculates text height for {@link GdiGraphics#WriteText} and {@link GdiGraphics#WriteString}.
+     * <br>
+     * Note: this will calculate the overall height of of the whole text,
+     * accounting for included newlines, without word-wrapping/trimming.
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {boolean=} [use_exact=false] Adjust measurement with trailing whitespace
+     *
+     * @return {number}
+     */
+    this.CalcWriteTextHeight = function (text, font, use_exact) { }; // (uint)
+
+    /**
+     * Calculates text width for {@link GdiGraphics#WriteText} and {@link GdiGraphics#WriteString}.
+     * <br>
+     * Note: this will calculate the overall width of the whole text,
+     * accounting for included newlines, without word-wrapping/trimming.
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {boolean=} [use_exact=false] Adjust measurement with trailing whitespace
+     *
+     * @return {number}
+     */
+    this.CalcWriteTextWidth = function (text, font, use_exact) { }; // (uint)
 
     /**
      * @param {number} colour
@@ -3398,10 +3457,29 @@ function GdiGraphics() {
      * @param {number} y
      * @param {number} w
      * @param {number} h
+     * @param {number=} [edge=0] See Flags.js > BRD_* and EDGE_*
+     * @param {number=} [flags=0] See Flags.js > BF_*
+     * @returns {Array<number>|undefined} the content rectangle if BF_ADJUST was specified in the flags, otherwise undefined
+     */
+    this.DrawEdge = function (x, y, w, h, edge, flags) { }; // (Array<number>|undefined)
+
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
      * @param {number} line_width
      * @param {number} colour
-    */
+     */
     this.DrawEllipse = function (x, y, w, h, line_width, colour) { }; // (void)
+
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     */
+    this.DrawFocusRect = function (x, y, w, h) { }; // (void)
 
     /**
      * @param {GdiBitmap} img
@@ -3467,7 +3545,7 @@ function GdiGraphics() {
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {number=} [flags=0] See Flags.js > StringFormatFlags
+     * @param {number=} [flags=0] See Flags.js > StringFormatFlags and Helpers.js > StringFormat()
      */
     this.DrawString = function (str, font, colour, x, y, w, h, flags) { }; // (void) [, flags]
 
@@ -3701,7 +3779,7 @@ function GdiGraphics() {
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {number=} [flags=0] See Flags.js > StringFormatFlags
+     * @param {number=} [flags=0] See Flags.js > StringFormatFlags and Helpers.js > StringFormat()
      * @return {MeasureStringInfo}
      */
     this.MeasureString = function (text, font, x, y, w, h, flags) { }; // (MeasureStringInfo) [, flags]
@@ -3853,11 +3931,6 @@ function GdiGraphics() {
     this.ScaleTransform = function (sx, sy, order) { };
 
     /**
-     * @param {number=} [mode=0] See Flags.js > CompositingMode
-     */
-    this.SetCompositingMode = function (mode) { }; // (void)
-
-    /**
      * @param {number=} [mode=0] See Flags.js > CompositingQuality
      */
     this.SetCompositingQuality = function (mode) { }; // (void)
@@ -3937,6 +4010,44 @@ function GdiGraphics() {
      * @returns {Array<number>} as [x, y, w, h]
      */
     this.UnTransformRect = function (x, y, w, h) { }; // (Array<number>)
+
+    /**
+     * Renders text with DirectWrite using a {@link GdiGraphics#DrawString} compatible call.
+     * <br>
+     * To calculate text dimensions use {@link GdiGraphics#CalcWriteTextHeight}, {@link GdiGraphics#CalcWriteTextWidth}.
+     * <br>
+     *
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {number} colour
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number=} [flags=0] See Flags.js > StringFormatFlags and Helpers.js > StringFormat()
+     */
+    this.WriteString = function (text, font, colour, x, y, w, h, flags) { }; // (void) [, flags]
+
+    /**
+     * Renders text with DirectWrite using a {@link GdiGraphics#GdiDrawText} compatible call.
+     * <br>
+     * To calculate text dimensions use {@link GdiGraphics#CalcWriteTextHeight}, {@link GdiGraphics#CalcWriteTextWidth}.
+     * <br>
+     * Supported DT_* flags are:
+     * - DT_LEFT, DT_RIGHT, DT_CENTER, DT_RLTREADING, DT_TOP, DT_BOTTOM, DT_VCENTER,
+     *   DT_WORDBREAK, DT_SINGLELINE, DT_END_ELLIPSIS, DT_WORD_ELLIPSIS, DT_PATH_ELLIPSIS,
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {number} colour
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number=} [format=0] See Flags.js > DT_*
+     */
+    this.WriteText = function (text, font, colour, x, y, w, h, format) { };
 }
 
 /**
@@ -4145,7 +4256,7 @@ function ThemeManager() {
      * @param {number} w
      * @param {number} h
      * @param {number=} [edge=0] See Flags.js > BRD_* and EDGE_*
-     * @param {number=} [flagsormat=0] See Flags.js > BF_*
+     * @param {number=} [flags=0] See Flags.js > BF_*
      * @returns {Array<number>|undefined} the content rectangle if BF_ADJUST was specified in the flags, otherwise undefined
      */
     this.DrawThemeEdge = function (gr, x, y, w, h, edge, flags) { }; // (Array<number>|undefined)
@@ -4292,6 +4403,12 @@ function ThemeManager() {
      * @returns {number}
      */
     this.GetThemeSysSize = function (propId) { }; // (number)
+
+    /**
+     * @param {number} propId
+     * @return {boolean}
+     */
+     this.IsThemeFontDefined = function (propId) { }; // (boolean)
 
     /**
      * @param {number} partId

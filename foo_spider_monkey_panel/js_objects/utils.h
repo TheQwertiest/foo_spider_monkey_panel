@@ -50,6 +50,7 @@ public:
     JSObject* GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const qwr::u8string& rawpath, uint32_t art_id );
     JSObject* GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true );
     JSObject* GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub );
+    int32_t GetDeviceCaps( int32_t capId );
     uint64_t GetFileSize( const std::wstring& path ) const;
     JSObject* GetPackageInfo( const qwr::u8string& packageId ) const;
     // TODO: remove in the next version (not necessarily v2)

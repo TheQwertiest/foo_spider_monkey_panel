@@ -67,20 +67,21 @@ js_panel_window::~js_panel_window()
 
 ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
 {
-    static class_data my_class_data = {
-        TEXT( SMP_WINDOW_CLASS_NAME ),
-        L"",
-        0,
-        false,
-        true,
-        0,
-        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        ConvertEdgeStyleToNativeFlags( settings_.edgeStyle ),
-        CS_DBLCLKS,
-        true,
-        true,
-        true,
-        IDC_ARROW
+    static class_data my_class_data =
+    {
+        TEXT( SMP_WINDOW_CLASS_NAME ),                              // class name
+        L"",                                                        // window title
+        0,                                                          // refcount
+        false,                                                      // class reg-d
+        true,                                                       // want trasparent bg
+        0,                                                          // extra wnd bytes
+        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,               // styles
+        ConvertEdgeStyleToNativeFlags( settings_.edgeStyle ),       // extra syles
+        CS_DBLCLKS,                                                 // class styles
+        true,                                                       // fwd settings chg
+        true,                                                       // fwd colors chg
+        true,                                                       // fwd time chg
+        IDC_ARROW                                                   // def cursor
     };
 
     return my_class_data;
@@ -88,15 +89,23 @@ ui_helpers::container_window::class_data& js_panel_window::get_class_data() cons
 
 void js_panel_window::Fail( const qwr::u8string& errorText )
 {
-    namespace smp_advconf = smp::config::advanced;
-
     hasFailed_ = true;
-    qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText, !smp_advconf::js_suppress_error_popup.GetValue());
 
+    if ( smp::config::advanced::js_suppress_error_popup.GetValue() )
+    {
+        qwr::ReportError( SMP_UNDERSCORE_NAME, errorText );
+    }
+    else
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
+    }
+
+    // can be null during startup
     if ( wnd_ )
-    {              // can be null during startup
+    {
         Repaint(); ///< repaint to display error message
     }
+
     UnloadScript( true );
 }
 
@@ -131,7 +140,7 @@ void js_panel_window::ReloadScript()
 
 void js_panel_window::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel )
 {
-    const auto settings = [&] {
+    const smp::config::PanelSettings settings = [&] {
         try
         {
             return config::PanelSettings::Load( reader, size, abort );
@@ -345,9 +354,8 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
             break;
         }
 
-        CRect rc;
-        wnd_.GetClientRect( &rc );
-        OnSizeUser( rc.Width(), rc.Height() );
+        wnd_.GetClientRect( &clientRect );
+        OnSizeUser();
 
         break;
     }
@@ -358,7 +366,8 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
 
 void js_panel_window::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
 {
-    const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
+    const auto execJs = [&]( auto& jsTask ) -> std::optional<bool>
+    {
         if ( !pJsContainer_ )
         {
             return false;
@@ -420,8 +429,8 @@ void js_panel_window::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
 
         if ( pJsContainer_ )
         {
-            auto dragParams = pDragEvent->GetDragParams();
-            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_enter",
+            smp::panel::DragActionParams dragParams = pDragEvent->GetDragParams();
+            const bool bRet = pJsContainer_->InvokeOnDragAction( "on_drag_enter",
                                                                  { pDragEvent->GetX(), pDragEvent->GetY() },
                                                                  pDragEvent->GetMask(),
                                                                  dragParams );
@@ -457,8 +466,8 @@ void js_panel_window::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
 
         if ( pJsContainer_ )
         {
-            auto dragParams = pDragEvent->GetDragParams();
-            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_over",
+            smp::panel::DragActionParams dragParams = pDragEvent->GetDragParams();
+            const bool bRet = pJsContainer_->InvokeOnDragAction( "on_drag_over",
                                                                  { pDragEvent->GetX(), pDragEvent->GetY() },
                                                                  pDragEvent->GetMask(),
                                                                  dragParams );
@@ -479,8 +488,8 @@ void js_panel_window::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
 
         if ( pJsContainer_ )
         {
-            auto dragParams = pDragEvent->GetDragParams();
-            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_drop",
+            smp::panel::DragActionParams dragParams = pDragEvent->GetDragParams();
+            const bool bRet = pJsContainer_->InvokeOnDragAction( "on_drag_drop",
                                                                  { pDragEvent->GetX(), pDragEvent->GetY() },
                                                                  pDragEvent->GetMask(),
                                                                  dragParams );
@@ -529,9 +538,10 @@ void js_panel_window::OnProcessingEventFinish()
 {
     --eventNestedCounter_;
 
+    // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
+    // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
     if ( !eventNestedCounter_ )
-    { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
-        // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
+    {
         mozjs::JsContainer::RunJobs();
     }
 
@@ -685,6 +695,7 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
             pEvent->SetTarget( pTarget_ );
             ProcessEventManually( *pEvent );
         }
+
         return 1;
     }
     case WM_PAINT:
@@ -708,9 +719,8 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
     }
     case WM_SIZE:
     {
-        CRect rc;
-        wnd_.GetClientRect( &rc );
-        OnSizeDefault( rc.Width(), rc.Height() );
+        wnd_.GetClientRect( &clientRect );
+        OnSizeDefault();
 
         auto pEvent = std::make_unique<Event_Basic>( EventId::kWndResize );
         pEvent->SetTarget( pTarget_ );
@@ -797,6 +807,12 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
     }
     case WM_LBUTTONDBLCLK:
     {
+        if ( HasFailed() )
+        {
+            ReloadScript();
+            return std::nullopt;
+        }
+
         EventDispatcher::Get().PutEvent( wnd_,
                                          GenerateEvent_JsCallback(
                                              EventId::kMouseLeftButtonDoubleClick,
@@ -1105,7 +1121,7 @@ void js_panel_window::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t i
             auto scriptIdx = id_base + 100;
             for ( const auto& file: scriptFiles )
             {
-                const auto relativePath = [&] {
+                const std::filesystem::path relativePath = [&] {
                     if ( file.filename() == "main.js" )
                     {
                         return fs::path( "main.js" );
@@ -1243,12 +1259,12 @@ POINT& js_panel_window::MinSize()
 
 int js_panel_window::GetHeight() const
 {
-    return height_;
+    return clientRect.Height();
 }
 
 int js_panel_window::GetWidth() const
 {
-    return width_;
+    return clientRect.Width();
 }
 
 t_size& js_panel_window::DlgCode()
@@ -1315,19 +1331,20 @@ void js_panel_window::Repaint( bool force )
     { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
         hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
     }
+
     wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
-void js_panel_window::RepaintRect( const CRect& rc, bool force )
+void js_panel_window::RepaintRect( const CRect& requestedRect, bool force )
 {
     if ( !force && !hRepaintTimer_ )
     { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
         hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
     }
-    wnd_.RedrawWindow( &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
+    wnd_.RedrawWindow( &requestedRect, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
-void js_panel_window::RepaintBackground( const CRect& updateRc )
+void js_panel_window::RepaintBackground( const CRect& updateRect )
 {
     CWindow wnd_parent = GetAncestor( wnd_, GA_PARENT );
 
@@ -1345,7 +1362,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
         {
             continue;
         }
-        std::array<wchar_t, 64> buff;
+        std::array<wchar_t, 64> buff{};
         GetClassName( hwnd, buff.data(), buff.size() );
         if ( wcsstr( buff.data(), L"SysTabControl32" ) )
         {
@@ -1354,33 +1371,30 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
         }
     }
 
-    CRect rc_child{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
-    CRgn rgn_child{ ::CreateRectRgnIndirect( &rc_child ) };
-    {
-        CRgn rgn{ ::CreateRectRgnIndirect( &updateRc ) };
-        rgn_child.CombineRgn( rgn, RGN_DIFF );
-    }
+    CRect childRect{ { 0, 0 }, clientRect.Size() };
+    CRgn childRgn{ ::CreateRectRgnIndirect( &childRect ) };
+    childRgn.CombineRgn( ::CreateRectRgnIndirect( &updateRect ), RGN_DIFF );
 
-    CPoint pt{ 0, 0 };
-    wnd_.ClientToScreen( &pt );
-    wnd_parent.ScreenToClient( &pt );
+    CPoint position{ 0, 0 };
+    wnd_.ClientToScreen( &position );
+    wnd_parent.ScreenToClient( &position );
 
-    CRect rc_parent{ rc_child };
-    wnd_.ClientToScreen( &rc_parent );
-    wnd_parent.ScreenToClient( &rc_parent );
+    CRect parentRect{ childRect };
+    wnd_.ClientToScreen( &parentRect );
+    wnd_parent.ScreenToClient( &parentRect );
 
     // Force Repaint
-    wnd_.SetWindowRgn( rgn_child, FALSE );
-    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW );
+    wnd_.SetWindowRgn( childRgn, FALSE );
+    wnd_parent.RedrawWindow( &parentRect, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW );
 
     {
         // Background bitmap
-        CClientDC dc_parent{ wnd_parent };
-        CDC dc_bg{ ::CreateCompatibleDC( dc_parent ) };
-        gdi::ObjectSelector autoBmp( dc_bg, bmpBg_.m_hBitmap );
+        CClientDC parentDC{ wnd_parent };
+        CDC bgDC{ ::CreateCompatibleDC( parentDC ) };
+        gdi::ObjectSelector autoBmp( bgDC, bmpBg_.m_hBitmap );
 
         // Paint BK
-        dc_bg.BitBlt( rc_child.left, rc_child.top, rc_child.Width(), rc_child.Height(), dc_parent, pt.x, pt.y, SRCCOPY );
+        bgDC.BitBlt( childRect.left, childRect.top, childRect.Width(), childRect.Height(), parentDC, position.x, position.y, SRCCOPY );
     }
 
     wnd_.SetWindowRgn( nullptr, FALSE );
@@ -1408,8 +1422,9 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     }
     DynamicMainMenuManager::Get().RegisterPanel( wnd_, settings_.panelId );
 
-    const auto extstyle = [&]() {
+    const auto extstyle = [&] {
         DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
+
         extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
         extstyle |= ConvertEdgeStyleToNativeFlags( settings_.edgeStyle );
 
@@ -1417,7 +1432,8 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     }();
 
     wnd_.SetWindowLongPtr( GWL_EXSTYLE, extstyle );
-    wnd_.SetWindowPos( nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
+    wnd_.GetClientRect( &clientRect );
+    wnd_.SetWindowPos( nullptr, 0, 0, clientRect.right, clientRect.bottom, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
 
     maxSize_ = { INT_MAX, INT_MAX };
     minSize_ = { 0, 0 };
@@ -1456,10 +1472,12 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
 
     pTimeoutManager_->SetLoadingStatus( false );
 
-    FB2K_console_formatter() << fmt::format(
+    FB2K_console_formatter() << fmt::format
+    (
         SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",
         GetPanelDescription(),
-        static_cast<uint32_t>( timer.query() * 1000 ) );
+        static_cast<uint32_t>( timer.query() * 1000 )
+    );
 
     if ( !isFirstLoad )
     { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
@@ -1485,8 +1503,8 @@ void js_panel_window::UnloadScript( bool force )
     DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
     pJsContainer_->Finalize();
     pTimeoutManager_->StopAllTimeouts();
-
     selectionHolder_.release();
+
     try
     {
         SetDragAndDropStatus( false );
@@ -1500,11 +1518,11 @@ void js_panel_window::CreateDrawContext()
 {
     DeleteDrawContext();
 
-    bmp_.CreateCompatibleBitmap( hDc_, width_, height_ );
+    bmp_.CreateCompatibleBitmap( hDc_, clientRect.Width(), clientRect.Height() );
 
     if ( settings_.isPseudoTransparent )
     {
-        bmpBg_.CreateCompatibleBitmap( hDc_, width_, height_ );
+        bmpBg_.CreateCompatibleBitmap( hDc_, clientRect.Width(), clientRect.Height() );
     }
 }
 
@@ -1531,7 +1549,7 @@ void js_panel_window::OnContextMenu( int x, int y )
     modal::MessageBlockingScope scope;
 
     POINT p{ x, y };
-    ClientToScreen( wnd_, &p );
+    wnd_.ClientToScreen( &p );
 
     CMenu menu = CreatePopupMenu();
     constexpr uint32_t base_id = 0;
@@ -1547,10 +1565,7 @@ void js_panel_window::OnCreate( HWND hWnd )
     wnd_ = hWnd;
     hDc_ = wnd_.GetDC();
 
-    CRect rc;
-    wnd_.GetClientRect( &rc );
-    width_ = rc.Width();
-    height_ = rc.Height();
+    wnd_.GetClientRect( &clientRect );
 
     CreateDrawContext();
 
@@ -1594,108 +1609,118 @@ void js_panel_window::OnDestroy()
     ReleaseDC( wnd_, hDc_ );
 }
 
-void js_panel_window::OnPaint( HDC dc, const CRect& updateRc )
+bool js_panel_window::HasFailed()
 {
-    if ( !dc || !bmp_ )
-    {
+    return hasFailed_ || !pJsContainer_
+           || mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
+           || mozjs::JsContainer::JsStatus::Failed == pJsContainer_->GetStatus();
+}
+
+void js_panel_window::OnPaint( HDC hDC, const CRect& updateRect )
+{
+    if ( !hDC || !bmp_ )
         return;
-    }
 
-    CDC memDc{ CreateCompatibleDC( dc ) };
-    gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
+    CDC cDC{ CreateCompatibleDC( hDC ) };
+    gdi::ObjectSelector autoBmp( cDC, bmp_.m_hBitmap );
 
-    if ( hasFailed_
-         || !pJsContainer_
-         || mozjs::JsContainer::JsStatus::EngineFailed == pJsContainer_->GetStatus()
-         || mozjs::JsContainer::JsStatus::Failed == pJsContainer_->GetStatus() )
+    if ( HasFailed() )
     {
-        OnPaintErrorScreen( memDc );
+        OnPaintErrorScreen( cDC );
     }
     else
     {
         if ( settings_.isPseudoTransparent )
         {
-            CDC bgDc{ CreateCompatibleDC( dc ) };
-            gdi::ObjectSelector autoBgBmp( bgDc, bmpBg_.m_hBitmap );
+            CDC bgDC{ CreateCompatibleDC( hDC ) };
+            gdi::ObjectSelector autoBg( bgDC, bmpBg_.m_hBitmap );
 
-            memDc.BitBlt( updateRc.left,
-                          updateRc.top,
-                          updateRc.Width(),
-                          updateRc.Height(),
-                          bgDc,
-                          updateRc.left,
-                          updateRc.top,
-                          SRCCOPY );
+            cDC.BitBlt
+            (
+                updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height(),
+                bgDC, updateRect.left, updateRect.top, SRCCOPY
+            );
         }
         else
-        {
-            CRect rc{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
-            memDc.FillRect( &rc, (HBRUSH)( COLOR_WINDOW + 1 ) );
-        }
+            cDC.FillRect( clientRect, (HBRUSH)( COLOR_WINDOW + 1 ) );
 
-        OnPaintJs( memDc, updateRc );
+        OnPaintJs( cDC, updateRect );
     }
 
-    BitBlt( dc, 0, 0, width_, height_, memDc, 0, 0, SRCCOPY );
+    BitBlt( hDC, updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height(), cDC, updateRect.left, updateRect.top, SRCCOPY );
 }
 
-void js_panel_window::OnPaintErrorScreen( HDC memdc )
+void js_panel_window::OnPaintErrorScreen( HDC hDC )
 {
-    CDCHandle cdc{ memdc };
-    CFont font;
-    font.CreateFont( 20,
-                     0,
-                     0,
-                     0,
-                     FW_BOLD,
-                     FALSE,
-                     FALSE,
-                     FALSE,
-                     DEFAULT_CHARSET,
-                     OUT_TT_PRECIS,
-                     CLIP_DEFAULT_PRECIS,
-                     CLEARTYPE_QUALITY,
-                     DEFAULT_PITCH | FF_DONTCARE,
-                     /* L"Tahoma"*/ NULL );
-    gdi::ObjectSelector autoFontSelector( cdc, font.m_hFont );
-
+    CDCHandle cDC{ hDC };
     CBrush brush;
-    brush.CreateSolidBrush ( RGB( 225, 60, 45 ) );
 
-    CRect rect{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
-    cdc.FillRect( &rect, brush );
-    cdc.SetBkMode( TRANSPARENT );
+    gdi::ObjectSelector brushSelector( cDC, brush.CreateSolidBrush( RGB( 0xcc, 0x11, 0x22 ) ) );
+    cDC.FillRect( clientRect, brush );
 
-    cdc.SetTextColor( RGB( 255, 255, 255 ) );
-    cdc.DrawTextW( L"Aw, crashed :(", -1, &rect, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
+    CFont font;
+    gdi::ObjectSelector fontSelector( cDC, font.CreateFontW
+    (
+        20,                             // cap height px > 0 (= default) > em height px
+        0,                              // width/aspect ratio (aka condensed / wide)
+        0,                              // escapement, angle of rotation from baseline (0.1 degree units)
+        0,                              // "orientation"
+        FW_BOLD,                        // weight
+        FALSE,                          // italic
+        FALSE,                          // underline
+        FALSE,                          // strikeout
+        DEFAULT_CHARSET,                // charset
+        OUT_TT_PRECIS,                  // draw precision
+        CLIP_DEFAULT_PRECIS,            // clip precision
+        CLEARTYPE_QUALITY,              // render quality
+        DEFAULT_PITCH | FF_DONTCARE,    // pitch (fixed / proportional / script / etc)
+        /* L"Tahoma"*/ NULL             // face (NULL = SYSTEM)
+    ) );
+
+    cDC.SetTextColor( RGB( 0xff, 0xcc, 0x33 ) );
+    cDC.SetBkMode( TRANSPARENT );
+    cDC.DrawTextW( L"Aw, crashed :(", -1, clientRect, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
 }
 
-void js_panel_window::OnPaintJs( HDC memdc, const CRect& updateRc )
+void js_panel_window::OnPaintJs( HDC memDC, const CRect& updateRect )
 {
-    qwr::error::CheckWinApi( ERROR != SetGraphicsMode( memdc, GM_ADVANCED ), "SetGraphicsMode" );
+    // GM_ADVANCED is needed for GDI transforms (and DirectWrite textOrientations)
+    qwr::error::CheckWinApi( ERROR != SetGraphicsMode( memDC, GM_ADVANCED ), "SetGraphicsMode" );
 
-    Gdiplus::Graphics gr( memdc );
-    pJsContainer_->InvokeOnPaint( gr );
+    UINT textContrast = 1000; // range 1000 - 2200, defaults differ: GDI is 1900 vs 1400 in GDI+
+    SystemParametersInfoW( SPI_GETFONTSMOOTHINGCONTRAST, 0, &textContrast, 0 );
+
+    //UINT fontSmoothingType = 0;
+    //SystemParametersInfoW( SPI_GETFONTSMOOTHINGTYPE, 0, &fontSmoothingType, 0 );
+
+    Gdiplus::Graphics graphics( memDC );
+    graphics.SetTextContrast( textContrast );
+    graphics.IntersectClip( Gdiplus::Rect{ updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height() } );
+
+    if ( graphics.IsClipEmpty() || graphics.IsVisibleClipEmpty() )
+        return;
+
+    pJsContainer_->InvokeOnPaint( graphics );
 }
 
-void js_panel_window::OnSizeDefault( uint32_t w, uint32_t h )
+void js_panel_window::OnSizeDefault()
 {
-    width_ = w;
-    height_ = h;
-
-    DeleteDrawContext();
     CreateDrawContext();
 }
 
-void js_panel_window::OnSizeUser( uint32_t w, uint32_t h )
+void js_panel_window::OnSizeUser()
 {
-    pJsContainer_->InvokeJsCallback( "on_size",
-                                     static_cast<uint32_t>( w ),
-                                     static_cast<uint32_t>( h ) );
+    pJsContainer_->InvokeJsCallback( "on_size", clientRect.Width(), clientRect.Height() );
 
     if ( settings_.isPseudoTransparent )
     {
-        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
+        EventDispatcher::Get()
+            .PutEvent
+            (
+                wnd_,
+                std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ),
+                EventPriority::kRedraw
+            );
     }
     else
     {
@@ -1723,21 +1748,20 @@ void js_panel_window::SetDragAndDropStatus( bool isEnabled )
     lastDragParams_.reset();
     if ( isEnabled )
     {
-        if ( !dropTargetHandler_ )
-        {
-            dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( *this ) );
+        if ( dropTargetHandler_ )
+            return;
 
-            HRESULT hr = dropTargetHandler_->RegisterDragDrop();
-            qwr::error::CheckHR( hr, "RegisterDragDrop" );
-        }
+        dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( *this ) );
+        qwr::error::CheckHR( dropTargetHandler_->RegisterDragDrop(), "RegisterDragDrop" );
     }
     else
     {
-        if ( dropTargetHandler_ )
-        {
+        if ( !dropTargetHandler_ )
+            return;
+
             dropTargetHandler_->RevokeDragDrop();
             dropTargetHandler_.Release();
-        }
+
     }
 }
 

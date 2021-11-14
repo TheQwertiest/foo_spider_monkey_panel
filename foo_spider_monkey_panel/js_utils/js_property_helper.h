@@ -38,7 +38,7 @@ std::optional<T> GetOptionalProperty( JSContext* cx, JS::HandleObject jsObject, 
 template <typename T>
 void AddProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& propName, const T& propValue )
 {
-    if constexpr ( std::is_same_v<T, JS::RootedValue> )
+    if constexpr ( std::is_same_v<T, JS::RootedValue> || std::is_same_v<T, JS::RootedObject> )
     {
         if ( !JS_DefineProperty( cx, jsObject, propName.c_str(), propValue, kDefaultPropsFlags ) )
         {

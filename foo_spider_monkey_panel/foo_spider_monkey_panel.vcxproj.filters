@@ -424,6 +424,9 @@
     <ClCompile Include="utils\art_loading_options.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="utils\dwrite_renderer.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -911,6 +914,9 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\fmt_pfc_adaptor.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\dwrite_renderer.h">
       <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>

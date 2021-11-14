@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\workspaces\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.props" Condition="Exists('..\workspaces\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.props')" />
   <Import Project="..\workspaces\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.props" Condition="Exists('..\workspaces\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.props')" />
@@ -78,7 +78,7 @@
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>GdiPlus.lib;shlwapi.lib;WinMM.lib;Imm32.lib;uxtheme.lib;Windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d2d1.lib;dwrite.lib;GdiPlus.lib;shlwapi.lib;WinMM.lib;Imm32.lib;uxtheme.lib;Windowscodecs.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <AdditionalOptions>/SOURCELINK:$(IndependentGeneratedDir)source_link.json %(AdditionalOptions)</AdditionalOptions>
     </Link>
@@ -268,6 +268,7 @@
     <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\art_loading_options.cpp" />
+    <ClCompile Include="utils\dwrite_renderer.cpp" />
     <ClCompile Include="utils\edit_text.cpp" />
     <ClCompile Include="utils\gdi_error_helpers.cpp" />
     <ClCompile Include="utils\gdi_helpers.cpp" />
@@ -432,6 +433,7 @@
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\art_loading_options.h" />
     <ClInclude Include="utils\colour_helpers.h" />
+    <ClInclude Include="utils\dwrite_renderer.h" />
     <ClInclude Include="utils\edit_text.h" />
     <ClInclude Include="utils\fmt_pfc_adaptor.h" />
     <ClInclude Include="utils\gdi_error_helpers.h" />

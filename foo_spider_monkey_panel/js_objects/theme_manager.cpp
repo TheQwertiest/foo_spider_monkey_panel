@@ -16,7 +16,7 @@
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
 
-#include <variant>
+//#include <atlgdi.h>
 
 using namespace smp;
 
@@ -46,7 +46,7 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeBackground, JsThemeManager::DrawThemeBackground, JsThemeManager::DrawThemeBackgroundWithOpt, 4 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( DrawThemeEdge, JsThemeManager::DrawThemeEdge )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeText, JsThemeManager::DrawThemeText, JsThemeManager::DrawThemeTextWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeText, JsThemeManager::DrawThemeText, JsThemeManager::DrawThemeTextWithOpt, 2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeBackgroundContentRect, JsThemeManager::GetThemeBackgroundContentRect )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeBool, JsThemeManager::GetThemeBool )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeColour, JsThemeManager::GetThemeColour )
@@ -58,7 +58,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeIntList, JsThemeManager::GetThemeIntList )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeMargins, JsThemeManager::GetThemeMargins )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeMetric, JsThemeManager::GetThemeMetric )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemePosition, JsThemeManager::GetThemePosition )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetThemePartSize, JsThemeManager::GetThemePartSize, JsThemeManager::GetThemePartSizeWithOpt, 5 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetThemePartSize, JsThemeManager::GetThemePartSize, JsThemeManager::GetThemePartSizeWithOpt, 4 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemePropertyOrigin, JsThemeManager::GetThemePropertyOrigin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeRect, JsThemeManager::GetThemeRect )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysBool, JsThemeManager::GetThemeSysColour )
@@ -67,6 +67,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysFont, JsThemeManager::GetThemeSysFont )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysFontArgs, JsThemeManager::GetThemeSysFontArgs )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysInt, JsThemeManager::GetThemeSysInt )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeSysSize, JsThemeManager::GetThemeSysSize )
+MJS_DEFINE_JS_FN_FROM_NATIVE( IsThemeFontDefined, JsThemeManager::IsThemeFontDefined )
 MJS_DEFINE_JS_FN_FROM_NATIVE( IsThemePartDefined, JsThemeManager::IsThemePartDefined )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPartAndStateID, JsThemeManager::SetPartAndStateIDWithOpt, 1 )
 
@@ -95,6 +96,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "GetThemeSysFontArgs", GetThemeSysFontArgs, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeSysInt", GetThemeSysInt, 1, kDefaultPropsFlags ),
         JS_FN( "GetThemeSysSize", GetThemeSysSize, 1, kDefaultPropsFlags ),
+        JS_FN( "IsThemePartDefined", IsThemeFontDefined, 0, kDefaultPropsFlags ),
         JS_FN( "IsThemePartDefined", IsThemePartDefined, 2, kDefaultPropsFlags ),
         JS_FN( "SetPartAndStateID", SetPartAndStateID, 1, kDefaultPropsFlags ),
         JS_FS_END,
@@ -115,26 +117,25 @@ const JsPrototypeId JsThemeManager::PrototypeId = JsPrototypeId::ThemeManager;
 
 JsThemeManager::JsThemeManager( JSContext* cx, HTHEME hTheme )
     : pJsCtx_( cx )
-    , hTheme_( hTheme )
+    , theme( hTheme )
 {
 }
 
 JsThemeManager::~JsThemeManager()
 {
-    if ( hTheme_ )
-    {
-        CloseThemeData( hTheme_ );
-    }
+    if ( theme )
+        CloseThemeData( theme );
 }
 
 bool JsThemeManager::HasThemeData( HWND hwnd, const std::wstring& classId )
-{ // Since CreateNative return nullptr only on error, we need to validate args beforehand
+{
+    // Since CreateNative return nullptr only on error, we need to validate args beforehand
     HTHEME hTheme = OpenThemeData( hwnd, classId.c_str() );
+
     bool bFound = !!hTheme;
+
     if ( hTheme )
-    {
         CloseThemeData( hTheme );
-    }
 
     return bFound;
 }
@@ -154,87 +155,109 @@ size_t JsThemeManager::GetInternalSize( HWND /* hwnd */, const std::wstring& /* 
 }
 
 void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
-                                          int32_t x, int32_t y, uint32_t w, uint32_t h,
-                                          int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h )
+                                          int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH,
+                                          int32_t clipX, int32_t clipY, uint32_t clipW, uint32_t clipH )
 {
     qwr::QwrException::ExpectTrue( gr, "gr argument is null" );
 
-    auto draw = [&]( HDC dc ) {
-        const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
-        const RECT clip{ clip_x, clip_y, static_cast<LONG>( clip_x + clip_w ), static_cast<LONG>( clip_y + clip_h ) };
-        LPCRECT pclip = !( clip_x || clip_y || clip_w || clip_h ) ? nullptr : &clip;
+    auto draw = [&]( HDC dc )
+    {
+        const makeRECT( rect );
+        const makeRECT( clip );
 
-        qwr::error::CheckHR( ::DrawThemeBackground( hTheme_, dc, partId_, stateId_, &rect, pclip ), "DrawThemeBackground" );
+        qwr::error::CheckHR( ::DrawThemeBackground
+        (
+            theme, dc, partID, stateID, &rect,
+            IsRectEmpty (&clip) ? nullptr : &clip
+        ), "DrawThemeBackground" );
     };
 
-    gr->TransferGdiplusClipTransformFor( draw );
+    gr->WrapGdiCall( draw );
 }
 
 void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr,
-                                                 int32_t x, int32_t y, uint32_t w, uint32_t h,
-                                                 int32_t clip_x, int32_t clip_y, uint32_t clip_w, uint32_t clip_h )
+                                                 int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH,
+                                                 int32_t clipX, int32_t clipY, uint32_t clipW, uint32_t clipH )
 {
     switch ( optArgCount )
     {
     case 0:
-        return DrawThemeBackground( gr, x, y, w, h, clip_x, clip_y, clip_w, clip_h );
+        return DrawThemeBackground( gr, rectX, rectY, rectW, rectH, clipX, clipY, clipW, clipH );
     case 1:
-        return DrawThemeBackground( gr, x, y, w, h, clip_x, clip_y, clip_w );
+        return DrawThemeBackground( gr, rectX, rectY, rectW, rectH, clipX, clipY, clipW );
     case 2:
-        return DrawThemeBackground( gr, x, y, w, h, clip_x, clip_y );
+        return DrawThemeBackground( gr, rectX, rectY, rectW, rectH, clipX, clipY );
     case 3:
-        return DrawThemeBackground( gr, x, y, w, h, clip_x );
+        return DrawThemeBackground( gr, rectX, rectY, rectW, rectH, clipX );
     case 4:
-        return DrawThemeBackground( gr, x, y, w, h );
+        return DrawThemeBackground( gr, rectX, rectY, rectW, rectH );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
 JS::Value JsThemeManager::DrawThemeEdge( JsGdiGraphics* gr,
-                                         int32_t x, int32_t y, uint32_t w, uint32_t h,
+                                         int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH,
                                          uint32_t edge, uint32_t flags )
 {
     JS::RootedValue jsValue( pJsCtx_ );
 
-    auto draw = [&]( HDC dc ) {
-        const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
-        RECT out;
+    auto draw = [&]( HDC dc )
+    {
+        const makeRECT( rect );
+        RECT out{};
 
-        qwr::error::CheckHR( ::DrawThemeEdge( hTheme_, dc, partId_, stateId_, &rect, edge, flags, &out ), "DrawThemeEdge" );
+        qwr::error::CheckHR( ::DrawThemeEdge
+        (
+            theme, dc, partID, stateID, &rect, edge, flags, &out
+        ), "DrawThemeEdge" );
 
         if ( flags & BF_ADJUST )
         {
-            std::vector<int32_t> content{ out.top, out.left, out.bottom - out.top, out.right - out.left };
+            std::vector<int32_t> content { out.left, out.top, RECT_CX( out ), RECT_CY(out) };
             convert::to_js::ToArrayValue( pJsCtx_, content, &jsValue );
         }
     };
 
-    gr->TransferGdiplusClipTransformFor( draw );
+    gr->WrapGdiCall( draw );
 
     return jsValue;
 }
 
-void JsThemeManager::DrawThemeText( JsGdiGraphics* gr,
-                                    const std::wstring& str,
-                                    int32_t x, int32_t y, uint32_t w, uint32_t h,
-                                    uint32_t format )
+/**/
+
+/**/
+
+void JsThemeManager::DrawThemeText( JsGdiGraphics* gr, const std::wstring& text,
+                                    int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH,
+                                    uint32_t format, uint32_t fontprop )
 {
-    qwr::QwrException::ExpectTrue( gr, "gr argument is null" );
+    qwr::QwrException::ExpectTrue( gr, "GdiGraphics argument is null" );
 
-    const auto draw = [&]( HDC dc ) {
-        RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+    const auto draw = [&]( HDC dc )
+    {
+        makeRECT( rect );
 
-        const DTTOPTS opts{ sizeof( DTTOPTS ), 0 };
+        DTTOPTS opts{ sizeof( DTTOPTS ), DTT_COMPOSITED };
 
         format &= ~DT_MODIFYSTRING;
+
+        // TODO: allow more DTTOPS?
+        if (fontprop)
+        {
+            opts.dwFlags |= DTT_FONTPROP;
+            opts.iFontPropId = fontprop;
+        }
 
         if ( format & DT_CALCRECT )
         {
             const RECT oldrect = rect;
             RECT calcrect = rect;
 
-            qwr::error::CheckHR( ::DrawThemeTextEx( hTheme_, dc, partId_, stateId_, str.c_str(), -1, format, &rect, &opts ), "DrawThemeTextEx" );
+            qwr::error::CheckHR( ::GetThemeTextExtent
+            (
+                theme, dc, partID, stateID, text.c_str(), -1, format, &rect, &calcrect
+            ), "GetThemeTextExtent" );
 
             format &= ~DT_CALCRECT;
 
@@ -250,23 +273,41 @@ void JsThemeManager::DrawThemeText( JsGdiGraphics* gr,
             }
         }
 
-        qwr::error::CheckHR( ::DrawThemeTextEx( hTheme_, dc, partId_, stateId_, const_cast<wchar_t*>( str.c_str() ), -1, format, &rect, &opts ), "DrawThemeTextEx" );
+        // fixes default theme font being a pixelfont:
+        // DrawThemeText/Ex uses the currently selected DC font if none is defined ih the themepart
+        // which defaults the bitmap font "System"
+        // so we pre-select a reasonable default to fallback to
+        LOGFONTW logfont = {};
+        if ( FAILED( ::GetThemeSysFont( theme, fontprop, &logfont ) ) )
+            qwr::error::CheckHR( ::GetThemeSysFont( theme, TMT_FIRSTFONT, &logfont ), "GetThemeSysFont" );
+
+        auto selected = SelectObject( dc, ::CreateFontIndirectW( &logfont ) );
+
+        // call DrawThemeTextEx
+        qwr::error::CheckHR( ::DrawThemeTextEx
+        (
+            theme, dc, partID, stateID, const_cast<wchar_t*>( text.c_str() ), text.length(), format, &rect, &opts
+        ), "DrawThemeText" );
+
+        // delete temp font, restore previously selected
+        DeleteObject ( SelectObject( dc, selected ) );
     };
 
-    gr->TransferGdiplusClipTransformFor( draw );
+    gr->WrapGdiCall( draw );
 }
 
-void JsThemeManager::DrawThemeTextWithOpt( size_t optArgCount, JsGdiGraphics* gr,
-                                           const std::wstring& str,
-                                           int32_t x, int32_t y, uint32_t w, uint32_t h,
-                                           uint32_t format )
+void JsThemeManager::DrawThemeTextWithOpt( size_t optArgCount, JsGdiGraphics* gr, const std::wstring& text,
+                                           int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH,
+                                           uint32_t format, uint32_t fontprop )
 {
     switch ( optArgCount )
     {
     case 0:
-        return DrawThemeText( gr, str, x, y, w, h, format );
+        return DrawThemeText( gr, text, rectX, rectY, rectW, rectH, format, fontprop );
     case 1:
-        return DrawThemeText( gr, str, x, y, w, h );
+        return DrawThemeText( gr, text, rectX, rectY, rectW, rectH, format );
+    case 2:
+        return DrawThemeText( gr, text, rectX, rectY, rectW, rectH );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -275,26 +316,32 @@ void JsThemeManager::DrawThemeTextWithOpt( size_t optArgCount, JsGdiGraphics* gr
 bool JsThemeManager::GetThemeBool( int32_t propId )
 {
     BOOL value;
-    qwr::error::CheckHR( ::GetThemeBool( hTheme_, partId_, stateId_, propId, &value ), "GetThemeBool" );
+    qwr::error::CheckHR( ::GetThemeBool( theme, partID, stateID, propId, &value ), "GetThemeBool" );
 
     return ( value != FALSE );
 }
 
-JS::Value JsThemeManager::GetThemeBackgroundContentRect( int32_t x, int32_t y, uint32_t w, uint32_t h )
+JS::Value JsThemeManager::GetThemeBackgroundContentRect( int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH )
 {
     const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
     const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
 
-    const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+    const makeRECT( rect );
 
-    RECT value;
-    qwr::error::CheckHR( ::GetThemeBackgroundContentRect( hTheme_, dc, partId_, stateId_, &rect, &value ), "GetThemeBackgroundContentRect" );
+    RECT bgRect;
+    qwr::error::CheckHR( ::GetThemeBackgroundContentRect
+    (
+        theme, dc, partID, stateID, &rect, &bgRect
+    ), "GetThemeBackgroundContentRect" );
 
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue( pJsCtx_,
-                                  std::vector<int32_t>{ value.top, value.left, value.bottom - value.top, value.right - value.left },
-                                  &jsValue );
+    convert::to_js::ToArrayValue
+    (
+        pJsCtx_,
+        std::vector<int32_t>{ bgRect.top, bgRect.left, bgRect.bottom - bgRect.top, bgRect.right - bgRect.left },
+        &jsValue
+    );
 
     return jsValue;
 }
@@ -302,7 +349,7 @@ JS::Value JsThemeManager::GetThemeBackgroundContentRect( int32_t x, int32_t y, u
 uint32_t JsThemeManager::GetThemeColour( int32_t propId )
 {
     COLORREF value;
-    qwr::error::CheckHR( ::GetThemeColor( hTheme_, partId_, stateId_, propId, &value ), "GetThemeColour" );
+    qwr::error::CheckHR( ::GetThemeColor( theme, partID, stateID, propId, &value ), "GetThemeColour" );
 
     return smp::colour::ColorrefToArgb( value );
 }
@@ -310,31 +357,39 @@ uint32_t JsThemeManager::GetThemeColour( int32_t propId )
 int32_t JsThemeManager::GetThemeEnumValue( int32_t propId )
 {
     int32_t value;
-    qwr::error::CheckHR( ::GetThemeEnumValue( hTheme_, partId_, stateId_, propId, &value ), "GetThemeEnumValue" );
+    qwr::error::CheckHR( ::GetThemeEnumValue( theme, partID, stateID, propId, &value ), "GetThemeEnumValue" );
 
     return value;
 }
 
 JSObject* JsThemeManager::GetThemeFont( int32_t propId )
 {
-    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    const HWND wnd = GetPanelHwndForCurrentGlobal( pJsCtx_ );
     const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
 
-    LOGFONTW value;
-    qwr::error::CheckHR( ::GetThemeFont( hTheme_, dc, partId_, stateId_, propId, &value ), "GetThemeFont" );
+    LOGFONTW logfont;
+    if ( FAILED( ::GetThemeFont( theme, dc, partID, stateID, propId, &logfont ) ) )
+    {
+        if ( FAILED( ::GetThemeSysFont( theme, propId, &logfont ) ) )
+            qwr::error::CheckHR( ::GetThemeSysFont( theme, TMT_FIRSTFONT, &logfont ), "GetThemeFont" );
+    }
 
-    return MakeFont( dc, &value );
+    return JsGdiFont::CreateJs( pJsCtx_, logfont );
 }
 
 JS::Value JsThemeManager::GetThemeFontArgs( int32_t propId )
 {
-    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    const HWND wnd = GetPanelHwndForCurrentGlobal( pJsCtx_ );
     const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
 
     LOGFONTW value;
-    qwr::error::CheckHR( ::GetThemeFont( hTheme_, dc, partId_, stateId_, propId, &value ), "GetThemeFont" );
+    if ( FAILED( ::GetThemeFont( theme, dc, partID, stateID, propId, &value ) ) )
+    {
+        if ( FAILED( ::GetThemeSysFont( theme, propId, &value ) ) )
+            qwr::error::CheckHR( ::GetThemeSysFont( theme, TMT_FIRSTFONT, &value ), "GetThemeFont" );
+    }
 
     return MakeFontArgs( &value );
 }
@@ -342,15 +397,14 @@ JS::Value JsThemeManager::GetThemeFontArgs( int32_t propId )
 int32_t JsThemeManager::GetThemeInt( int32_t propId )
 {
     int32_t value;
-    qwr::error::CheckHR( ::GetThemeInt( hTheme_, partId_, stateId_, propId, &value ), "GetThemeInt" );
-
+    qwr::error::CheckHR( ::GetThemeInt( theme, partID, stateID, propId, &value ), "GetThemeInt" );
     return value;
 }
 
 JS::Value JsThemeManager::GetThemeIntList( int32_t propId )
 {
     INTLIST value;
-    qwr::error::CheckHR( ::GetThemeIntList( hTheme_, partId_, stateId_, propId, &value ), "GetThemeInt" );
+    qwr::error::CheckHR( ::GetThemeIntList( theme, partID, stateID, propId, &value ), "GetThemeInt" );
 
     std::vector<int32_t> intList{ std::begin( value.iValues ), std::end( value.iValues ) };
     intList.resize( value.iValueCount );
@@ -365,10 +419,10 @@ JS::Value JsThemeManager::GetThemeMargins( int32_t propId )
 {
     const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
     const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
 
     MARGINS value;
-    qwr::error::CheckHR( ::GetThemeMargins( hTheme_, dc, partId_, stateId_, propId, nullptr, &value ), "GetThemeMargins" );
+    qwr::error::CheckHR( ::GetThemeMargins( theme, dc, partID, stateID, propId, nullptr, &value ), "GetThemeMargins" );
 
     // ccw order (tlbr), as in css3
     std::vector<int32_t> margins{ value.cyTopHeight, value.cxLeftWidth, value.cyBottomHeight, value.cxRightWidth };
@@ -383,24 +437,27 @@ int32_t JsThemeManager::GetThemeMetric( int32_t propId )
 {
     const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
     const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
 
     int32_t value;
-    qwr::error::CheckHR( ::GetThemeMetric( hTheme_, dc, partId_, stateId_, propId, &value ), "GetThemeMetric" );
+    qwr::error::CheckHR( ::GetThemeMetric( theme, dc, partID, stateID, propId, &value ), "GetThemeMetric" );
 
     return value;
 }
 
-JS::Value JsThemeManager::GetThemePartSize( int32_t themeSize, JsGdiGraphics* gr, int32_t x, int32_t y, uint32_t w, uint32_t h )
+JS::Value JsThemeManager::GetThemePartSize( int32_t themeSize,
+                                            int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH )
 {
     const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
     const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
+    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
 
-    const RECT rect{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
+    const makeRECT( rect );
 
     SIZE value;
-    qwr::error::CheckHR( ::GetThemePartSize( hTheme_, dc, partId_, stateId_, &rect, static_cast<THEMESIZE>( themeSize ), &value ), "GetThemePartSize" );
+    qwr::error::CheckHR( ::GetThemePartSize(
+        theme, dc, partID, stateID, &rect, static_cast<THEMESIZE>( themeSize ), &value
+    ), "GetThemePartSize" );
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue( pJsCtx_, std::vector<int32_t>{ value.cx, value.cy }, &jsValue );
@@ -408,21 +465,19 @@ JS::Value JsThemeManager::GetThemePartSize( int32_t themeSize, JsGdiGraphics* gr
     return jsValue;
 }
 
-JS::Value JsThemeManager::GetThemePartSizeWithOpt( size_t optArgCount, int32_t themeSize, JsGdiGraphics* gr, int32_t x, int32_t y, uint32_t w, uint32_t h )
+JS::Value JsThemeManager::GetThemePartSizeWithOpt( size_t optArgCount, int32_t themeSize, int32_t x, int32_t y, uint32_t w, uint32_t h )
 {
     switch ( optArgCount )
     {
     case 0:
-        return GetThemePartSize( themeSize, gr, x, y, w, h );
+        return GetThemePartSize( themeSize, x, y, w, h );
     case 1:
-        return GetThemePartSize( themeSize, gr, x, y, w );
+        return GetThemePartSize( themeSize, x, y, w );
     case 2:
-        return GetThemePartSize( themeSize, gr, x, y );
+        return GetThemePartSize( themeSize, x, y );
     case 3:
-        return GetThemePartSize( themeSize, gr, x );
+        return GetThemePartSize( themeSize, x );
     case 4:
-        return GetThemePartSize( themeSize, gr );
-    case 5:
         return GetThemePartSize( themeSize );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
@@ -432,7 +487,7 @@ JS::Value JsThemeManager::GetThemePartSizeWithOpt( size_t optArgCount, int32_t t
 JS::Value JsThemeManager::GetThemePosition( int32_t propId )
 {
     POINT value;
-    qwr::error::CheckHR( ::GetThemePosition( hTheme_, partId_, stateId_, propId, &value ), "GetThemePosition" );
+    qwr::error::CheckHR( ::GetThemePosition( theme, partID, stateID, propId, &value ), "GetThemePosition" );
 
     JS::RootedValue jsValue( pJsCtx_ );
     convert::to_js::ToArrayValue( pJsCtx_, std::vector<int32_t>{ value.x, value.y }, &jsValue );
@@ -443,7 +498,7 @@ JS::Value JsThemeManager::GetThemePosition( int32_t propId )
 int32_t JsThemeManager::GetThemePropertyOrigin( int32_t propId )
 {
     PROPERTYORIGIN value;
-    qwr::error::CheckHR( ::GetThemePropertyOrigin( hTheme_, partId_, stateId_, propId, &value ), "GetThemePropertyOrigin" );
+    qwr::error::CheckHR( ::GetThemePropertyOrigin( theme, partID, stateID, propId, &value ), "GetThemePropertyOrigin" );
 
     return value;
 }
@@ -451,7 +506,7 @@ int32_t JsThemeManager::GetThemePropertyOrigin( int32_t propId )
 JS::Value JsThemeManager::GetThemeRect( int32_t propId )
 {
     RECT value;
-    qwr::error::CheckHR( ::GetThemeRect( hTheme_, partId_, stateId_, propId, &value ), "GetThemeRect" );
+    qwr::error::CheckHR( ::GetThemeRect( theme, partID, stateID, propId, &value ), "GetThemeRect" );
 
     std::vector<int32_t> rect{ value.top, value.left, value.bottom - value.top, value.right - value.left };
 
@@ -463,30 +518,25 @@ JS::Value JsThemeManager::GetThemeRect( int32_t propId )
 
 BOOL JsThemeManager::GetThemeSysBool( int32_t boolId )
 {
-    return ::GetThemeSysBool( hTheme_, boolId );
+    return ::GetThemeSysBool( theme, boolId );
 }
 
 uint32_t JsThemeManager::GetThemeSysColour( int32_t colorId )
 {
-    return smp::colour::ColorrefToArgb( ::GetThemeSysColor( hTheme_, colorId ) );
+    return smp::colour::ColorrefToArgb( ::GetThemeSysColor( theme, colorId ) );
 }
 
 JSObject* JsThemeManager::GetThemeSysFont( int32_t fontId )
 {
-    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
-    const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc]() { ReleaseDC( wnd, dc ); } );
-
     LOGFONTW value;
-    qwr::error::CheckHR( ::GetThemeSysFont( hTheme_, fontId, &value ), "GetThemeSysFont" );
-
-    return MakeFont( dc, &value );
+    qwr::error::CheckHR( ::GetThemeSysFont( theme, fontId, &value ), "GetThemeSysFont" );
+    return JsGdiFont::CreateJs( pJsCtx_, value );
 }
 
 JS::Value JsThemeManager::GetThemeSysFontArgs( int32_t fontId )
 {
     LOGFONTW value;
-    qwr::error::CheckHR( ::GetThemeSysFont( hTheme_, fontId, &value ), "GetThemeSysFont" );
+    qwr::error::CheckHR( ::GetThemeSysFont( theme, fontId, &value ), "GetThemeSysFont" );
 
     return MakeFontArgs( &value );
 }
@@ -494,24 +544,34 @@ JS::Value JsThemeManager::GetThemeSysFontArgs( int32_t fontId )
 int32_t JsThemeManager::GetThemeSysInt( int32_t intId )
 {
     int32_t value;
-    qwr::error::CheckHR( ::GetThemeSysInt( hTheme_, intId, &value ), "GetThemeSysInt" );
+    qwr::error::CheckHR( ::GetThemeSysInt( theme, intId, &value ), "GetThemeSysInt" );
     return value;
 }
 
 int32_t JsThemeManager::GetThemeSysSize( int32_t sizeId )
 {
-    return ::GetThemeSysSize( hTheme_, sizeId );
+    return ::GetThemeSysSize( theme, sizeId );
+}
+
+bool JsThemeManager::IsThemeFontDefined( int32_t propId )
+{
+    const HWND wnd = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    const HDC dc = GetDC( wnd );
+    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
+
+    LOGFONTW value;
+    return !FAILED( ::GetThemeFont( theme, dc, partID, stateID, propId, &value ) );
 }
 
 bool JsThemeManager::IsThemePartDefined( int32_t partId, int32_t stateId )
 {
-    return ::IsThemePartDefined( hTheme_, partId, stateId );
+    return ::IsThemePartDefined( theme, partId, stateId );
 }
 
 void JsThemeManager::SetPartAndStateID( int32_t partId, int32_t stateId )
 {
-    partId_ = partId;
-    stateId_ = stateId;
+    partID = partId;
+    stateID = stateId;
 }
 
 void JsThemeManager::SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partId, int32_t stateId )
@@ -527,37 +587,17 @@ void JsThemeManager::SetPartAndStateIDWithOpt( size_t optArgCount, int32_t partI
     }
 }
 
-JSObject* JsThemeManager::MakeFont( HDC dc, LOGFONTW* plf )
-{
-    HFONT hFont = ::CreateFontIndirectW( plf );
-
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( dc, hFont ) );
-    if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
-    { // Not an error: font not found
-        return nullptr;
-    }
-
-    return JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false );
-}
-
 JS::Value JsThemeManager::MakeFontArgs( LOGFONTW* plf )
 {
     JS::RootedObject jsArray( pJsCtx_, JS_NewArrayObject( pJsCtx_, 3 ) );
     smp::JsException::ExpectTrue( jsArray );
 
     JS::RootedValue jsValue( pJsCtx_ );
-    size_t i = 0;
     mozjs::convert::to_js::ToValue( pJsCtx_, std::wstring( plf->lfFaceName ), &jsValue );
-    if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
-    {
-        throw smp::JsException();
-    }
+    smp::JsException::ExpectTrue( JS_SetElement( pJsCtx_, jsArray, 0, jsValue ) );
 
     mozjs::convert::to_js::ToValue( pJsCtx_, (int32_t)( 0 - plf->lfHeight ), &jsValue );
-    if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
-    {
-        throw smp::JsException();
-    }
+    smp::JsException::ExpectTrue( JS_SetElement( pJsCtx_, jsArray, 1, jsValue ) );
 
     uint32_t fontStyle = 0;
 
@@ -574,11 +614,9 @@ JS::Value JsThemeManager::MakeFontArgs( LOGFONTW* plf )
         fontStyle &= Gdiplus::FontStyle::FontStyleStrikeout;
 
     mozjs::convert::to_js::ToValue( pJsCtx_, fontStyle, &jsValue );
-    if ( !JS_SetElement( pJsCtx_, jsArray, i++, jsValue ) )
-    {
-        throw smp::JsException();
-    }
+    smp::JsException::ExpectTrue( JS_SetElement( pJsCtx_, jsArray, 2, jsValue ) );
 
     return JS::ObjectValue( *jsArray );
 }
+
 } // namespace mozjs
