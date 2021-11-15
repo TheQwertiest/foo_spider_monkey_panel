@@ -9,6 +9,9 @@
 // purge unused elements from the cache every N-th access
 #define FONT_CACHE_PURGE_FREQ 16
 
+// convert negative fontSize to fontHeight in LOGFONT-s, and avoid duplicate cache entries
+#define FONT_CACHE_ABSOLUTE_HEIGHT 1
+
 // wether to enable getters for font metrics
 #define _FONT_DEV_METRICS 1
 
@@ -105,9 +108,11 @@ private:
 
     wil::shared_hfont font = nullptr;
 
-    void ReloadMetrics();
+    void Reload();
     LOGFONTW logfont = {};
     TEXTMETRICW metric = {};
+
+    void GetMetrics( HFONT font, LPTEXTMETRICW metric );
 };
 
 } // namespace mozjs
