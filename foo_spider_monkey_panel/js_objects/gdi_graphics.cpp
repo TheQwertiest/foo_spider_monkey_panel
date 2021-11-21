@@ -3,13 +3,16 @@
 #include "gdi_graphics.h"
 
 #include <js_engine/js_to_native_invoker.h>
+
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_raw_bitmap.h>
 #include <js_objects/measure_string_info.h>
+
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
+
 #include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/text_helpers.h>

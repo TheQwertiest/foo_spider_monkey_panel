@@ -3,7 +3,9 @@
 #include "fb_tooltip.h"
 
 #include <js_engine/js_to_native_invoker.h>
+
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_object_helper.h>
 
 #include <qwr/final_action.h>
@@ -81,9 +83,9 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd )
     : pJsCtx_( cx )
     , hParentWnd_( hParentWnd )
     , tipBuffer_( TEXT( SMP_NAME ) )
-    , pFont_( smp::gdi::CreateUniquePtr<HFONT>( nullptr ) )
 {
-    hTooltipWnd_ = CreateWindowEx(
+    hTooltipWnd_ = CreateWindowEx
+    (
         WS_EX_TOPMOST,
         TOOLTIPS_CLASS,
         nullptr,
@@ -95,14 +97,14 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd )
         hParentWnd_,
         nullptr,
         core_api::get_my_instance(),
-        nullptr );
+        nullptr
+    );
+
     qwr::error::CheckWinApi( hTooltipWnd_, "CreateWindowEx" );
 
     qwr::final_action autoHwnd( [hTooltipWnd = hTooltipWnd_] {
         if ( IsWindow( hTooltipWnd ) )
-        {
             DestroyWindow( hTooltipWnd );
-        }
     } );
 
     // Original position
@@ -173,46 +175,39 @@ void JsFbTooltip::SetDelayTime( uint32_t type, int32_t time )
     SendMessage( hTooltipWnd_, TTM_SETDELAYTIME, type, static_cast<LPARAM>( static_cast<int>( MAKELONG( time, 0 ) ) ) );
 }
 
-void JsFbTooltip::SetFont( const std::wstring& name, uint32_t pxSize, uint32_t style )
+void JsFbTooltip::SetFont( const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
-    fontName_ = name;
-    fontSize_ = pxSize;
-    fontStyle_ = style;
+    LOGFONTW logfont;
+    logfont::Make( fontName, fontSize, fontStyle, logfont );
 
-    if ( !fontName_.empty() )
-    {
-        pFont_.reset( CreateFont(
-            // from msdn: "< 0, The font mapper transforms this value into device units
-            //             and matches its absolute value against the character height of the available fonts."
-            -static_cast<int>( fontSize_ ),
-            0,
-            0,
-            0,
-            ( fontStyle_ & Gdiplus::FontStyleBold ) ? FW_BOLD : FW_NORMAL,
-            ( fontStyle_ & Gdiplus::FontStyleItalic ) ? TRUE : FALSE,
-            ( fontStyle_ & Gdiplus::FontStyleUnderline ) ? TRUE : FALSE,
-            ( fontStyle_ & Gdiplus::FontStyleStrikeout ) ? TRUE : FALSE,
-            DEFAULT_CHARSET,
-            OUT_DEFAULT_PRECIS,
-            CLIP_DEFAULT_PRECIS,
-            DEFAULT_QUALITY,
-            DEFAULT_PITCH | FF_DONTCARE,
-            fontName_.c_str() ) );
-        qwr::error::CheckWinApi( !!pFont_, "CreateFont" );
-        SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)pFont_.get(), MAKELPARAM( FALSE, 0 ) );
-    }
+#if FONT_CACHE_ABSOLUTE_HEIGHT
+    const HWND wnd = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    const HDC dc = GetDC( wnd );
+    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
+    logfont::Normalize( dc, logfont );
+#endif
+
+    fontcache::shared_hfont hfont = fontcache::Cache( logfont );
+
+    if ( font == hfont )
+        return;
+
+    font = hfont;
+
+    SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)font.get(), MAKELPARAM( FALSE, 0 ) );
 }
 
-void JsFbTooltip::SetFontWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style )
+void JsFbTooltip::SetFontWithOpt( size_t optArgCount,
+                                  const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
     switch ( optArgCount )
     {
     case 0:
-        return SetFont( name, pxSize, style );
+        return SetFont( fontName, fontSize, fontStyle );
     case 1:
-        return SetFont( name, pxSize );
+        return SetFont( fontName, fontSize );
     case 2:
-        return SetFont( name );
+        return SetFont( fontName );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }

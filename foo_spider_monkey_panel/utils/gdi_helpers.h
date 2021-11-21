@@ -77,13 +77,6 @@ requires std::is_any<Hx, HGDIOBJ, HDC, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBIT
 using unique_gdi_ptr = std::unique_ptr<TxOF<Hx>>;
 
 template <typename Hx>
-requires std::is_any<Hx, HGDIOBJ, HDC, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBITMAP>::value
-[[nodiscard]] unique_gdi_ptr<Hx> CreateUniquePtr( Hx obj )
-{
-    return unique_gdi_ptr<Hx>( obj );
-}
-
-template <typename Hx>
 requires std::is_any<Hx, HGDIOBJ, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBITMAP>::value
 class ObjectSelector
 {

@@ -7,27 +7,27 @@ namespace smp::gdi
 
 unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap )
 {
-    const Gdiplus::Rect rect{ 0, 0, static_cast<int>( bitmap.GetWidth() ), static_cast<int>( bitmap.GetHeight() ) };
+    const Gdiplus::Rect rect{ 0, 0, static_cast<INT>( bitmap.GetWidth() ), static_cast<INT>( bitmap.GetHeight() ) };
     Gdiplus::BitmapData bmpdata{};
 
     if ( bitmap.LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata ) != Gdiplus::Ok )
-    { // Error
-        return CreateUniquePtr( HBITMAP( nullptr ) );
-    }
+        return unique_gdi_ptr<HBITMAP>( nullptr ); // Error -> return null handle
 
-    BITMAP bm{};
-    bm.bmType = 0;
-    bm.bmWidth = bmpdata.Width;
-    bm.bmHeight = bmpdata.Height;
-    bm.bmWidthBytes = bmpdata.Stride;
-    bm.bmPlanes = 1;
-    bm.bmBitsPixel = 32;
-    bm.bmBits = bmpdata.Scan0;
+    BITMAP bm
+    {
+        0,                                      // bmType
+        static_cast<LONG>( bmpdata.Width ),     // bmWidth
+        static_cast<LONG>( bmpdata.Height ),    // bmheight
+        bmpdata.Stride,                         // bmWidthBytes
+        1,                                      // bmPlanes
+        32,                                     // bmBitsPixel
+        bmpdata.Scan0                           // bmBits
+    };
 
     HBITMAP hBitmap = CreateBitmapIndirect( &bm );
     bitmap.UnlockBits( &bmpdata );
 
-    return CreateUniquePtr( hBitmap );
+    return unique_gdi_ptr<HBITMAP>( hBitmap );
 }
 
 } // namespace smp::gdi
