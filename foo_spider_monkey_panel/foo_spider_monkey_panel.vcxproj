@@ -282,6 +282,7 @@
     <ClCompile Include="utils\menu_helpers.cpp" />
     <ClCompile Include="utils\path_helpers.cpp" />
     <ClCompile Include="utils\resource_helpers.cpp" />
+    <ClCompile Include="utils\font_cache.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\stacktrace.cpp" />
     <ClCompile Include="utils\text_helpers.cpp" />
@@ -436,9 +437,11 @@
     <ClInclude Include="utils\dwrite_renderer.h" />
     <ClInclude Include="utils\edit_text.h" />
     <ClInclude Include="utils\fmt_pfc_adaptor.h" />
+    <ClInclude Include="utils\font_cache.h" />
     <ClInclude Include="utils\gdi_error_helpers.h" />
     <ClInclude Include="utils\gdi_helpers.h" />
     <ClInclude Include="utils\guid_helpers.h" />
+    <ClInclude Include="utils\hash_combine.h" />
     <ClInclude Include="utils\image_helpers.h" />
     <ClInclude Include="utils\js_exception.h" />
     <ClInclude Include="utils\kmeans.h" />

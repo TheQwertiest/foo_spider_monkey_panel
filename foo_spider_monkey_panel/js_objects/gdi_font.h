@@ -4,14 +4,7 @@
 
 #include <optional>
 
-#include <utils/gdi_helpers.h>
-
-// purge unused elements from the cache every N-th access
-// FIXME: call after JS GC instead?
-#define FONT_CACHE_PURGE_FREQ 16
-
-// convert negative fontSize to fontHeight in LOGFONT-s, and avoid duplicate cache entries
-#define FONT_CACHE_ABSOLUTE_HEIGHT 1
+#include <utils/font_cache.h>
 
 // wether to enable getters for font metrics
 #define _FONT_DEV_METRICS 1
@@ -27,9 +20,7 @@ struct JSPropertySpec;
 
 namespace mozjs
 {
-using unique_hfont = smp::gdi::unique_gdi_ptr<HFONT>;
-using shared_hfont = std::shared_ptr<unique_hfont::element_type>;
-using weak_hfont = shared_hfont::weak_type;
+    using namespace smp;
 
 class JsGdiFont
     : public JsObjectBase<JsGdiFont>
@@ -110,98 +101,11 @@ public: // props
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
-    shared_hfont font = nullptr;
+    fontcache::shared_hfont font = nullptr;
 
     void Reload();
     LOGFONTW logfont = {};
     TEXTMETRICW metric = {};
-
-    void GetMetrics( HFONT font, LPTEXTMETRICW metric );
 };
 
 } // namespace mozjs
-
-namespace
-{
-// wether to use a custom hash combiner (with supposedly less collisions), or one based on boost's
-#define HASH_CUSTOM_COMBINER 1
-// wether to combine size + weight + italic + underlune + striketrough into one hash or not
-// or: hash_combine once, or once for each property
-#define HASH_PACKED_PROPS    1
-
-#if HASH_CUSTOM_COMBINER
-inline const size_t mxs( const size_t m, const size_t& x ) noexcept
-{
-    return m * ( x ^ ( x >> 16 ) );
-}
-
-inline const size_t dsp( const size_t& z ) noexcept
-{
-    constexpr size_t a = 0x55555555; // alternating 0101
-    constexpr size_t r = 0x2e5bf271; // random uneven int constant
-    return mxs( r, mxs( a, z ) );
-}
-
-inline const size_t cohash( const size_t& seed, const size_t& hash ) noexcept
-{
-    return std::rotl( seed, 11 ) ^ dsp( hash );
-}
-#else
-inline const size_t cohash( const size_t& seed, const size_t& add ) noexcept
-{
-    constexpr size_t boost_magic = 0x9e3779b9;
-    return ( seed ^ add ) + boost_magic + ( seed << 6 ) + ( seed >> 2 );
-}
-#endif
-
-inline const size_t hash_combine( const std::size_t& seed ) noexcept
-{
-    return seed;
-}
-
-template <typename T, typename... Rest>
-inline const size_t hash_combine( const size_t& seed, const T& val, Rest... rest ) noexcept
-{
-    return hash_combine( cohash( seed, std::hash<T>{}( val ) ), rest... );
-};
-
-} // namespace
-
-namespace std
-{
-
-template <>
-struct hash<LOGFONTW>
-{
-    inline const size_t operator()( const LOGFONTW& logfont ) const noexcept
-    {
-        return hash_combine
-        (
-            hash<wstring>{}( wstring( logfont.lfFaceName ) ),
-#if HASH_PACKED_PROPS
-            ( ( logfont.lfHeight            ) << 13 ) |
-            ( ( logfont.lfWeight    & 0x3ff ) <<  3 ) |
-            ( ( logfont.lfItalic    ? 1 : 0 ) <<  2 ) |
-            ( ( logfont.lfUnderline ? 1 : 0 ) <<  1 ) |
-            ( ( logfont.lfStrikeOut ? 1 : 0 )       )
-#else
-            logfont.lfHeight,
-            logfont.lfWeight,
-            logfont.lfItalic,
-            logfont.lfUnderline,
-            logfont.lfStrikeOut
-#endif
-        );
-    }
-};
-
-template<>
-struct equal_to<LOGFONTW>
-{
-    inline bool operator()( const LOGFONTW& lhs, const LOGFONTW& rhs ) const noexcept
-    {
-        return hash<LOGFONTW>{}( lhs ) == hash<LOGFONTW>{}( rhs );
-    }
-};
-
-} // namespace std

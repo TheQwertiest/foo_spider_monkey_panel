@@ -88,20 +88,25 @@ requires std::is_any<Hx, HGDIOBJ, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBITMAP>:
 class ObjectSelector
 {
 public:
-    [[nodiscard]] ObjectSelector( HDC dc, Hx obj )
+    [[nodiscard]] ObjectSelector( HDC dc, Hx obj, bool delete_after = false )
         : hdc( dc )
         , old( SelectObject( dc, (HGDIOBJ)obj ) )
+        , tmp( delete_after )
     {
     }
 
     ~ObjectSelector()
     {
-        (void)SelectObject( hdc, old );
+        HGDIOBJ obj = SelectObject( hdc, old );
+
+        if ( tmp )
+            DeleteObject( obj );
     }
 
 private:
     HDC hdc = nullptr;
     HGDIOBJ old = nullptr;
+    bool tmp = false;
 };
 
 /// @details Does not report
