@@ -3,15 +3,17 @@
 #include "gdi_font.h"
 
 #include <js_engine/js_to_native_invoker.h>
+
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
-#include <utils/gdi_error_helpers.h>
 
+#include <utils/gdi_error_helpers.h>
 #include <utils/dwrite_renderer.h>
 
 #include <qwr/final_action.h>
+
 #include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
@@ -98,14 +100,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GdiFont_Constructor, JsGdiFont::Construct
 namespace fontcache
 {
 
-static std::unordered_map<LOGFONTW, wil::weak_hfont> cache = {};
+static std::unordered_map<LOGFONTW, weak_hfont> cache = {};
 constexpr size_t purge_freq = FONT_CACHE_PURGE_FREQ; // purge map every nth access
 static size_t access_count = 0;
 
 inline size_t Purge( bool force = false ) noexcept
 {
-    if ( !force && ( ++access_count % purge_freq ) )
-        return -1;
+    if ( ( !force ) && ( ++access_count % purge_freq ) )
+        return 0;
 
     return std::erase_if( cache, []( const auto& item )
     {
@@ -114,15 +116,15 @@ inline size_t Purge( bool force = false ) noexcept
     } );
 };
 
-wil::shared_hfont Cache( const LOGFONTW& logfont ) noexcept
+shared_hfont Cache( const LOGFONTW& logfont ) noexcept
 {
     static std::mutex m;
     std::scoped_lock<std::mutex> hold( m );
 
-    wil::shared_hfont font = cache[logfont].lock();
+    shared_hfont font = cache[logfont].lock();
 
     if ( !font )
-        cache[logfont] = ( font = wil::shared_hfont( CreateFontIndirectW( &logfont ) ) );
+        cache[logfont] = ( font = unique_hfont( CreateFontIndirectW( &logfont ) ) );
 
     Purge();
 
@@ -158,7 +160,7 @@ JsGdiFont::CreateNative( JSContext* ctx, const LOGFONTW& font )
 
 size_t JsGdiFont::GetInternalSize( const LOGFONTW& )
 {
-    return sizeof( LOGFONTW ) + sizeof( TEXTMETRICW );
+    return sizeof( LOGFONTW ) + sizeof( TEXTMETRICW ) + sizeof( shared_hfont );
 }
 
 JSObject* JsGdiFont::Constructor( JSContext* ctx,
@@ -231,7 +233,7 @@ void JsGdiFont::Reload()
     }
 #endif
 
-    wil::shared_hfont hfont = fontcache::Cache( logfont );
+    shared_hfont hfont = fontcache::Cache( logfont );
 
     if ( font == hfont )
         return;
@@ -504,7 +506,7 @@ JS::Value JsGdiFont::get_Cache() const
 
         JS::RootedObject jsValue = JS::RootedObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
 
-        wil::shared_hfont sp = item->second.lock(); // shared_hfont to get a count
+        shared_hfont sp = item->second.lock(); // shared_hfont to get a count
         AddProperty( pJsCtx_, jsValue, "HFONT", fmt::format( "{:#08x}", (size_t)sp.get() ) );
         AddProperty( pJsCtx_, jsValue, "expired", item->second.expired() );
         AddProperty( pJsCtx_, jsValue, "valid", (bool)( sp.use_count() >= 1 ) );

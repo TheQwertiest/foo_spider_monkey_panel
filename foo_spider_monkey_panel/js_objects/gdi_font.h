@@ -4,9 +4,10 @@
 
 #include <optional>
 
-#include <wil/resource.h>
+#include <utils/gdi_helpers.h>
 
 // purge unused elements from the cache every N-th access
+// FIXME: call after JS GC instead?
 #define FONT_CACHE_PURGE_FREQ 16
 
 // convert negative fontSize to fontHeight in LOGFONT-s, and avoid duplicate cache entries
@@ -26,6 +27,9 @@ struct JSPropertySpec;
 
 namespace mozjs
 {
+using unique_hfont = smp::gdi::unique_gdi_ptr<HFONT>;
+using shared_hfont = std::shared_ptr<unique_hfont::element_type>;
+using weak_hfont = shared_hfont::weak_type;
 
 class JsGdiFont
     : public JsObjectBase<JsGdiFont>
@@ -106,7 +110,7 @@ public: // props
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
-    wil::shared_hfont font = nullptr;
+    shared_hfont font = nullptr;
 
     void Reload();
     LOGFONTW logfont = {};
@@ -165,6 +169,7 @@ inline const size_t hash_combine( const size_t& seed, const T& val, Rest... rest
 
 namespace std
 {
+
 template <>
 struct hash<LOGFONTW>
 {
