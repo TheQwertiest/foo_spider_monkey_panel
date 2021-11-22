@@ -37,7 +37,7 @@ void Make
 void Normalize
 (
     const HDC _In_ dc,
-    LOGFONTW& _Out_ logfont
+    LOGFONTW& _Inout_ logfont
 );
 
 } // namespace smp::logfont

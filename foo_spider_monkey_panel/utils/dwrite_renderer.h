@@ -11,7 +11,6 @@ namespace smp::dwrite
 class GdiTextRenderer
     : public IDWriteTextRenderer1
 {
-
 public:
     GdiTextRenderer( HDC hdc, bool pixelSnapping = true );
     static CComPtr<IDWriteFactory3> DWriteFactory();

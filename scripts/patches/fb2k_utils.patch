@@ -1,33 +1,38 @@
 diff --git a/submodules/fb2k_utils/src/qwr/error_popup.cpp b/submodules/fb2k_utils/src/qwr/error_popup.cpp
-index 17ceb22..04d12b0 100644
+index 17ceb22..43351a9 100644
 --- a/submodules/fb2k_utils/src/qwr/error_popup.cpp
 +++ b/submodules/fb2k_utils/src/qwr/error_popup.cpp
-@@ -9,26 +9,32 @@ namespace qwr
+@@ -9,26 +9,25 @@ namespace qwr
 
  void ReportErrorWithPopup( const std::string& title, const std::string& errorText )
  {
 -    const auto report = [title, errorText] {
 -        assert( core_api::assert_main_thread() );
-+    ::fb2k::inMainThread2( [title, errorText]
-+    {
-+        FB2K_console_formatter() << title << ":\n"  << errorText << "\n";
++    ReportError( title, errorText );
 
 -        FB2K_console_formatter() << title << ":\n"
 -                                 << errorText << "\n";
-         qwr::DelayedExecutor::GetInstance().AddTask( [errorText, title] {
-             popup_message::g_show( errorText.c_str(), title.c_str() );
-         } );
-
-         MessageBeep( MB_ICONASTERISK );
+-        qwr::DelayedExecutor::GetInstance().AddTask( [errorText, title] {
+-            popup_message::g_show( errorText.c_str(), title.c_str() );
+-        } );
+-
+-        MessageBeep( MB_ICONASTERISK );
 -    };
-+    });
-+}
-
+-
 -    if ( core_api::is_main_thread() )
--    {
++    ::fb2k::inMainThread2( [title, errorText]
+     {
 -        report();
 -    }
 -    else
++        qwr::DelayedExecutor::GetInstance()
++            .AddTask ( [errorText, title]
++            {
++                popup_message::g_show( errorText.c_str(), title.c_str(), popup_message::icon_error );
++            });
++    });
++}
++
 +void ReportError( const std::string& title, const std::string& errorText )
 +{
 +    ::fb2k::inMainThread2 ( [title, errorText]
@@ -35,13 +40,6 @@ index 17ceb22..04d12b0 100644
 -        ::fb2k::inMainThread2( report );
 -    }
 +        FB2K_console_formatter() << title << ":\n"  << errorText << "\n";
-+
-+        qwr::DelayedExecutor::GetInstance()
-+            .AddTask ( [errorText, title]
-+            {
-+                popup_message::g_show( errorText.c_str(), title.c_str() );
-+            });
-+
 +        MessageBeep( MB_ICONASTERISK );
 +    });
  }
@@ -58,3 +56,4 @@ index 71baf87..549b2f2 100644
 +void ReportError( const std::string& title, const std::string& errorText );
 
  } // namespace qwr
+

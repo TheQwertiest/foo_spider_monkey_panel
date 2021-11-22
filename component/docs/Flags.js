@@ -273,14 +273,6 @@ const InterpolationMode = {
     HighQualityBicubic  : 7
 };
 
-// Used in GetCompositngMode() / SetCompositngMode()
-// For more information, see: https://docs.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-compositingmode
-const CompositingMode =
-{
-    SourceOver: 0,
-    SourceCopy: 1
-}
-
 // Used in GetCompositingQuality() / SetCompositingQuality()
 // For more information, see: https://docs.microsoft.com/en-us/windows/win32/api/gdiplusenums/ne-gdiplusenums-compositingquality
 const CompositingQuality =

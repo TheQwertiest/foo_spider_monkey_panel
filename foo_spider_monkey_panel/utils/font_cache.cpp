@@ -12,7 +12,7 @@ static std::unordered_map<LOGFONTW, weak_hfont> cache = {};
 inline size_t Purge( bool force ) noexcept
 {
     // FIXME: call after/from JS GC instead?
-    inline constexpr size_t purge_freq = 32; // purge map every nth access
+    constexpr size_t purge_freq = 32; // purge map every nth access
     static size_t access_count = 0;
     if ( ( !force ) && ( ++access_count % purge_freq ) )
         return 0;
@@ -70,7 +70,7 @@ void Make
         // size = 0  ==      " default "
         // size > 0  ==      line height px (tmHeight)
         // size < 0  ==      char height px (tmHeight - tmInternalLeading)
-      ( 0 - fontSize ),   // size, se above,
+      ( 0 - fontSize ),   // size, see above,
         0,                // avg width
         0,                // escapement, letter orientation vs baseline (only in GM_ADVANCED)
         0,                // baseline orientation, both on 0.1-units (450=45deg)
@@ -96,7 +96,7 @@ void Make
 void Normalize
 (
     const HDC _In_ dc,
-    LOGFONTW& _Out_ logfont
+    LOGFONTW& _Inout_ logfont
 )
 {
     if ( logfont.lfHeight > 0 )
@@ -107,7 +107,9 @@ void Normalize
     TEXTMETRICW metric = {};
     GetTextMetricsW( dc, &metric );
 
-    logfont.lfHeight = metric.tmHeight;
+    logfont.lfHeight = logfont.lfHeight == 0
+                ? metric.tmHeight - metric.tmInternalLeading
+                : metric.tmHeight;
 }
 
 } // namespace smp::logfont

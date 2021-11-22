@@ -91,14 +91,9 @@ void js_panel_window::Fail( const qwr::u8string& errorText )
 {
     hasFailed_ = true;
 
-    if ( smp::config::advanced::js_suppress_error_popup.GetValue() )
-    {
-        qwr::ReportError( SMP_UNDERSCORE_NAME, errorText );
-    }
-    else
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
-    }
+    smp::config::advanced::js_suppress_error_popup.GetValue()
+        ? qwr::ReportError( SMP_UNDERSCORE_NAME, errorText )
+        : qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
 
     // can be null during startup
     if ( wnd_ )
@@ -700,6 +695,8 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
     }
     case WM_PAINT:
     {
+        wnd_.GetClientRect( &clientRect );
+
         if ( hRepaintTimer_ )
         {
             KillTimer( wnd_, hRepaintTimer_ );
@@ -1647,7 +1644,12 @@ void js_panel_window::OnPaint( HDC hDC, const CRect& updateRect )
         OnPaintJs( cDC, updateRect );
     }
 
-    BitBlt( hDC, updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height(), cDC, updateRect.left, updateRect.top, SRCCOPY );
+    BitBlt
+    (
+        hDC, updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height(),
+        cDC, updateRect.left, updateRect.top,
+        SRCCOPY
+    );
 }
 
 void js_panel_window::OnPaintErrorScreen( HDC hDC )
@@ -1687,14 +1689,14 @@ void js_panel_window::OnPaintJs( HDC memDC, const CRect& updateRect )
     // GM_ADVANCED is needed for GDI transforms (and DirectWrite textOrientations)
     qwr::error::CheckWinApi( ERROR != SetGraphicsMode( memDC, GM_ADVANCED ), "SetGraphicsMode" );
 
-    UINT textContrast = 1000; // range 1000 - 2200, defaults differ: GDI is 1900 vs 1400 in GDI+
+    UINT textContrast = 1000; // range 1000 - 2200, defaults differ: GDI is 1900 vs 1400 in GDI+ (according to docs)
     SystemParametersInfoW( SPI_GETFONTSMOOTHINGCONTRAST, 0, &textContrast, 0 );
-
-    //UINT fontSmoothingType = 0;
-    //SystemParametersInfoW( SPI_GETFONTSMOOTHINGTYPE, 0, &fontSmoothingType, 0 );
 
     Gdiplus::Graphics graphics( memDC );
     graphics.SetTextContrast( textContrast );
+
+    // optimize away invisible / empty redraws
+    // note: default cliprect (which is intersected here) is the paintrect from WM_PAINT
     graphics.IntersectClip( Gdiplus::Rect{ updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height() } );
 
     if ( graphics.IsClipEmpty() || graphics.IsVisibleClipEmpty() )
@@ -1746,6 +1748,7 @@ void js_panel_window::SetDragAndDropStatus( bool isEnabled )
     isDraggingInside_ = false;
     hasInternalDrag_ = false;
     lastDragParams_.reset();
+
     if ( isEnabled )
     {
         if ( dropTargetHandler_ )
@@ -1759,9 +1762,8 @@ void js_panel_window::SetDragAndDropStatus( bool isEnabled )
         if ( !dropTargetHandler_ )
             return;
 
-            dropTargetHandler_->RevokeDragDrop();
-            dropTargetHandler_.Release();
-
+        dropTargetHandler_->RevokeDragDrop();
+        dropTargetHandler_.Release();
     }
 }
 
