@@ -68,7 +68,7 @@ void Make
     logfont = LOGFONTW
     {
         // size = 0  ==      " default "
-        // size > 0  ==      line height px (tmHeight)
+        // size > 0  ==      line height px (tmHeight)  (aka em height)
         // size < 0  ==      char height px (tmHeight - tmInternalLeading)
       ( 0 - fontSize ),   // size, see above,
         0,                // avg width

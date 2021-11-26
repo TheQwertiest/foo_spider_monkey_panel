@@ -143,8 +143,8 @@ const TTDT_RESHOW    = 1;
 const TTDT_AUTOPOP   = 2;
 const TTDT_INITIAL   = 3;
 
-// Used in Graphics.DrawEdge() and ThemeManager.DrawEdge
-// for more information see:
+// Used in GdiGraphics.DrawEdge()
+// for more information see: https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-drawedge
 /* 3D border styles */
 const BDR_RAISEDOUTER = 0x0001;
 const BDR_SUNKENOUTER = 0x0002;
@@ -166,17 +166,64 @@ const BF_SOFT     = 0x1000;  /* For softer buttons */
 const BF_ADJUST   = 0x2000;  /* Calculate the space left over */
 const BF_FLAT     = 0x4000;  /* For flat rather than 3D borders */
 const BF_MONO     = 0x8000;  /* For monochrome borders */
+
 const BF_TOPLEFT     = (BF_TOP | BF_LEFT);
 const BF_TOPRIGHT    = (BF_TOP | BF_RIGHT);
 const BF_BOTTOMLEFT  = (BF_BOTTOM | BF_LEFT);
 const BF_BOTTOMRIGHT = (BF_BOTTOM | BF_RIGHT);
 const BF_RECT        = (BF_LEFT | BF_TOP | BF_RIGHT | BF_BOTTOM);
+
 // For diagonal lines, the BF_RECT flags specify the end point of the
 // vector bounded by the rectangle parameter.
 const BF_DIAGONAL_ENDTOPRIGHT    = (BF_DIAGONAL | BF_TOP | BF_RIGHT);
 const BF_DIAGONAL_ENDTOPLEFT     = (BF_DIAGONAL | BF_TOP | BF_LEFT);
 const BF_DIAGONAL_ENDBOTTOMLEFT  = (BF_DIAGONAL | BF_BOTTOM | BF_LEFT);
 const BF_DIAGONAL_ENDBOTTOMRIGHT = (BF_DIAGONAL | BF_BOTTOM | BF_RIGHT);
+
+// used in Gdigraphics.DrawFrameControl()
+// for more information see: https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-drawframecontrol1
+// and https://devblogs.microsoft.com/oldnewthing/20050801-11/?p=34763
+const DFC_BUTTON               = 1;       // DrawFrameControl control type: button.
+const DFC_CAPTION              = 2;       // DrawFrameControl control type: title bar.
+const DFC_MENU                 = 3;       // DrawFrameControl control type: menu bar.
+const DFC_SCROLL               = 4;       // DrawFrameControl control type: scroll bar.
+const DFC_POPUPMENU            = 5;       // if WINVER >= 0x0500 :  DrawFrameControl control type: popup_menu.
+
+const DFCS_BUTTONCHECK         = 0x00;    // DrawFrameControl button control style: checkbox.
+const DFCS_BUTTONRADIOIMAGE    = 0x01;    // DrawFrameControl button control style: radio button image.
+const DFCS_BUTTONRADIOMASK     = 0x02;    // DrawFrameControl button control style: radio button mask.
+const DFCS_BUTTONRADIO         = 0x04;    // DrawFrameControl button control style: radio button.
+const DFCS_BUTTON3STATE        = 0x08;    // DrawFrameControl button control style: three-state button.
+const DFCS_BUTTONPUSH          = 0x10;    // DrawFrameControl button control style: push button.
+
+const DFCS_CAPTIONCLOSE        = 0x00;    // DrawFrameControl caption control style: Close button.
+const DFCS_CAPTIONMAX          = 0x01;    // DrawFrameControl caption control style: Maximize button.
+const DFCS_CAPTIONMIN          = 0x02;    // DrawFrameControl caption control style: Minimize button.
+const DFCS_CAPTIONRESTORE      = 0x03;    // DrawFrameControl caption control style: Restore button.
+const DFCS_CAPTIONHELP         = 0x04;    // DrawFrameControl caption control style: Help button.
+
+const DFCS_MENUARROW           = 0x00;    // DrawFrameControl menubar control style: submenu arrow.
+const DFCS_MENUBULLET          = 0x01;    // DrawFrameControl menubar control style: bullet.
+const DFCS_MENUCHECK           = 0x02;    // DrawFrameControl menubar control style: check mark.
+
+const DFCS_SCROLLUP            = 0x00;    // DrawFrameControl scrollbar control style: up arrow.
+const DFCS_SCROLLDOWN          = 0x01;    // DrawFrameControl scrollbar control style: down arrow.
+const DFCS_SCROLLLEFT          = 0x02;    // DrawFrameControl scrollbar control style: left arrow.
+const DFCS_SCROLLRIGHT         = 0x03;    // DrawFrameControl scrollbar control style: right arrow.
+const DFCS_SCROLLCOMBOBOX      = 0x05;    // DrawFrameControl scrollbar control style: combobox scrollbar.
+const DFCS_SCROLLSIZEGRIP      = 0x08;    // DrawFrameControl scrollbar control style: size grip in the bottom-right window corner.
+const DFCS_SCROLLSIZEGRIPRIGHT = 0x10;    // DrawFrameControl scrollbar control style: size grip in the bottom-right window corner.
+
+const DFCS_INACTIVE            = 0x0100;  // DrawFrameControl control state: inactive (grayed).
+const DFCS_PUSHED              = 0x0200;  // DrawFrameControl button control state: button pushed.
+const DFCS_CHECKED             = 0x0400;  // DrawFrameControl button control state: button checked.
+
+const DFCS_TRANSPARENT         = 0x0800;  // if WINVER >= 0x0500 : DrawFrameControl control style: transparent (title bar...).
+const DFCS_HOT                 = 0x1000;  // if WINVER >= 0x0500 :  DrawFrameControl scrollbar control state: button hot-tracked.
+
+const DFCS_ADJUSTRECT          = 0x2000;  // DrawFrameControl button control style: exclude frame.
+const DFCS_FLAT                = 0x4000;  // DrawFrameControl button control style: flat.
+const DFCS_MONO                = 0x8000;  // DrawFrameControl button control style: monochrome border.
 
 // Device Parameters for utils.GetDeviceCaps()
 // See: https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdevicecaps
@@ -228,7 +275,8 @@ const COLORMGMTCAPS   = 121;  // Color Management caps
 
 // Used in gdi.Font(), can be combined
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534124(VS.85).aspx
-const FontStyle = {
+const FontStyle =
+{
     Regular    : 0,
     Bold       : 1,
     Italic     : 2,
@@ -239,7 +287,8 @@ const FontStyle = {
 
 // Used in GetTextRenderingHint() / SetTextRenderingHint()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534404(VS.85).aspx
-const TextRenderingHint = {
+const TextRenderingHint =
+{
     SystemDefault            : 0,
     SingleBitPerPixelGridFit : 1,
     SingleBitPerPixel        : 2,
@@ -250,7 +299,8 @@ const TextRenderingHint = {
 
 // Used in GetSmoothingMode() / SetSmoothingMode()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534173(VS.85).aspx
-const SmoothingMode = {
+const SmoothingMode =
+{
     Invalid     :-1,
     Default     : 0,
     HighSpeed   : 1,
@@ -261,7 +311,8 @@ const SmoothingMode = {
 
 // Used in GetInterpolationMode() / SetInterpolationMode()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534141(VS.85).aspx
-const InterpolationMode = {
+const InterpolationMode =
+{
     Invalid             :-1,
     Default             : 0,
     LowQuality          : 1,
@@ -307,7 +358,8 @@ const MatrixOrder =
 
 // Used in RotateFlip()
 // For more information, see: http://msdn.microsoft.com/en-us/library/ms534171(VS.85).aspx
-const RotateFlipType = {
+const RotateFlipType =
+{
     RotateNoneFlipNone : 0,
     Rotate90FlipNone   : 1,
     Rotate180FlipNone  : 2,
@@ -331,26 +383,30 @@ const RotateFlipType = {
 
 // h_align/v_align:
 // http://msdn.microsoft.com/en-us/library/ms534177(VS.85).aspx
-const StringAlignment = {
+const StringAlignment =
+{
     Near   : 0,
     Center : 1,
     Far    : 2
 };
 
 // aliases for code readabiliy
-const HorizontalStringAlignment = {
+const HorizontalStringAlignment =
+{
     Left   : 0,
     Center : 1,
     Right  : 2
 };
 
-const RTLHorizontalStringAlignment = {
+const RTLHorizontalStringAlignment =
+{
     Right  : 0,
     Center : 1,
     Left   : 2
 };
 
-const VerticalStringAlignment = {
+const VerticalStringAlignment =
+{
     Top    : 0,
     Middle : 1,
     Bottom : 2
@@ -358,7 +414,8 @@ const VerticalStringAlignment = {
 
 // trimming:
 // http://msdn.microsoft.com/en-us/library/ms534403(VS.85).aspx
-const StringTrimming = {
+const StringTrimming =
+{
     None              : 0,
     Character         : 1,
     Word              : 2,
@@ -369,7 +426,8 @@ const StringTrimming = {
 
 // flags, can be combined:
 // http://msdn.microsoft.com/en-us/library/ms534181(VS.85).aspx
-const StringFormatFlags = {
+const StringFormatFlags =
+{
     DirectionRightToLeft  : 0x00000001,
     DirectionVertical     : 0x00000002,
     NoFitBlackBox         : 0x00000004,
@@ -382,7 +440,8 @@ const StringFormatFlags = {
 };
 
 // Used in utils.GetAlbumArt()
-const AlbumArtId = {
+const AlbumArtId =
+{
     front  : 0,
     back   : 1,
     disc   : 2,
@@ -391,7 +450,8 @@ const AlbumArtId = {
 };
 
 // Used in window.GetColourCUI()
-const ColourTypeCUI = {
+const ColourTypeCUI =
+{
     text                          : 0,
     selection_text                : 1,
     inactive_selection_text       : 2,
@@ -402,13 +462,15 @@ const ColourTypeCUI = {
 };
 
 // Used in window.GetFontCUI()
-const FontTypeCUI = {
+const FontTypeCUI =
+{
     items  : 0,
     labels : 1
 };
 
 // Used in window.GetColourDUI()
-const ColourTypeDUI = {
+const ColourTypeDUI =
+{
     text       : 0,
     background : 1,
     highlight  : 2,
@@ -416,7 +478,8 @@ const ColourTypeDUI = {
 };
 
 // Used in window.GetFontDUI()
-const FontTypeDUI = {
+const FontTypeDUI =
+{
     defaults  : 0,
     tabs      : 1,
     lists     : 2,
@@ -424,6 +487,8 @@ const FontTypeDUI = {
     statusbar : 4,
     console   : 5
 };
+
+
 
 /*
 SupportColourFlagCUI = {

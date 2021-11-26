@@ -95,11 +95,8 @@ void js_panel_window::Fail( const qwr::u8string& errorText )
         ? qwr::ReportError( SMP_UNDERSCORE_NAME, errorText )
         : qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
 
-    // can be null during startup
-    if ( wnd_ )
-    {
-        Repaint(); ///< repaint to display error message
-    }
+    if ( wnd_ )     // can be null during startup
+        Repaint();  ///< repaint to display error message
 
     UnloadScript( true );
 }
@@ -123,35 +120,49 @@ TimeoutManager& js_panel_window::GetTimeoutManager()
 void js_panel_window::ReloadScript()
 {
     if ( pJsContainer_ )
-    { // Panel might be not loaded at all, if settings are changed from Preferences.
+    {
+        // Panel might be not loaded at all, if settings are changed from Preferences.
         UnloadScript();
+
         if ( !ReloadSettings() )
-        {
             return;
-        }
+
         LoadScript( false );
     }
 }
 
 void js_panel_window::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel )
 {
-    const smp::config::PanelSettings settings = [&] {
+    const smp::config::PanelSettings settings = [&]
+    {
         try
         {
             return config::PanelSettings::Load( reader, size, abort );
         }
         catch ( const qwr::QwrException& e )
         {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!\n"
-                                                                         "Error: {}",
-                                                                         e.what() ) );
+            qwr::ReportErrorWithPopup
+            (
+                SMP_UNDERSCORE_NAME,
+                fmt::format
+                (
+                    "Can't load panel settings. Your panel will be completely reset!\nError: {}",
+                    e.what()
+                )
+            );
+
             return config::PanelSettings{};
         }
     }();
 
     if ( !UpdateSettings( settings, reloadPanel ) )
     {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!" ) );
+        qwr::ReportErrorWithPopup
+        (
+            SMP_UNDERSCORE_NAME,
+            "Can't load panel settings. Your panel will be completely reset!"
+        );
+
         UpdateSettings( config::PanelSettings{}, reloadPanel );
     }
 }
@@ -177,9 +188,8 @@ bool js_panel_window::UpdateSettings( const smp::config::PanelSettings& settings
     properties_ = settings.properties;
 
     if ( reloadPanel )
-    {
         ReloadScript();
-    }
+
     return true;
 }
 
@@ -234,19 +244,20 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     // so as not to stall WM_PAINT and WM_TIMER messages.
 
     static uint32_t msgNestedCounter = 0;
+
     ++msgNestedCounter;
-    const qwr::final_action autoComObjectDeleter( [&] {
+
+    const qwr::final_action autoComObjectDeleter( [&]
+    {
         // delete only on exit as to avoid delaying processing of the current message due to reentrancy
-        --msgNestedCounter;
-        if ( !msgNestedCounter )
-        {
+        if ( --msgNestedCounter == 0)
             com::DeleteMarkedObjects();
-        }
     } );
 
     if ( EventDispatcher::IsRequestEventMessage( msg ) )
     {
         EventDispatcher::Get().OnRequestEventMessageReceived( wnd_ );
+
         if ( auto retVal = ProcessEvent();
              retVal.has_value() )
         {
@@ -308,17 +319,23 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
     }
     case EventId::kWndPaint:
     {
+        wnd_.GetClientRect( &clientRect );
+
         if ( isPaintInProgress_ )
-        {
             break;
-        }
+
+        CRect updateRect;
+        wnd_.GetUpdateRect( &updateRect, FALSE );
+
+        if ( updateRect.IsRectEmpty() )
+            break;
+
         isPaintInProgress_ = true;
 
         if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
-        { // Two pass redraw: paint BG > Repaint() > paint FG
-            CRect rc;
-            wnd_.GetUpdateRect( &rc, FALSE );
-            RepaintBackground( &rc ); ///< Calls Repaint() inside
+        {
+            // Two pass redraw: paint BG > Repaint() > paint FG
+            RepaintBackground( &updateRect ); ///< Calls Repaint() inside
 
             isBgRepaintNeeded_ = false;
             isPaintInProgress_ = false;
@@ -326,32 +343,32 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
             Repaint( true );
             break;
         }
+
+        [&]
         {
             CPaintDC dc{ wnd_ };
-            OnPaint( dc, dc.m_ps.rcPaint );
-        }
+            if ( dc.RectVisible( updateRect ) )
+                OnPaint( dc, dc.m_ps.rcPaint );
+        }();
 
         isPaintInProgress_ = false;
-
         break;
     }
     case EventId::kWndRepaintBackground:
     {
+        wnd_.GetClientRect( &clientRect );
         isBgRepaintNeeded_ = true;
         Repaint( true );
-
         break;
     }
     case EventId::kWndResize:
     {
-        if ( !pJsContainer_ )
-        {
-            break;
-        }
-
         wnd_.GetClientRect( &clientRect );
-        OnSizeUser();
 
+        if ( !pJsContainer_ )
+            break;
+
+        OnSizeUser();
         break;
     }
     default:
@@ -726,7 +743,8 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
         return 0;
     }
     case WM_GETMINMAXINFO:
-    { // This message will be called before WM_CREATE as well,
+    {
+        // This message will be called before WM_CREATE as well,
         // but we don't need to handle it before panel creation,
         // since default values suit us just fine
         auto pmmi = reinterpret_cast<LPMINMAXINFO>( msg.lParam );
@@ -1343,62 +1361,73 @@ void js_panel_window::RepaintRect( const CRect& requestedRect, bool force )
 
 void js_panel_window::RepaintBackground( const CRect& updateRect )
 {
-    CWindow wnd_parent = GetAncestor( wnd_, GA_PARENT );
+    CWindow parentWND = GetAncestor( wnd_, GA_PARENT );
 
-    if ( !wnd_parent || IsIconic( core_api::get_main_window() ) || !wnd_.IsWindowVisible() )
+    if ( !parentWND || IsIconic( core_api::get_main_window() ) || !wnd_.IsWindowVisible() )
     {
         return;
     }
 
     // HACK: for Tab control
     // Find siblings
-    HWND hwnd = nullptr;
-    while ( ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) ) )
+    HWND hWND = nullptr;
+    while ( hWND = FindWindowEx( parentWND, hWND, nullptr, nullptr ) )
     {
-        if ( hwnd == wnd_ )
-        {
+        if ( hWND == wnd_ )
             continue;
-        }
-        std::array<wchar_t, 64> buff{};
-        GetClassName( hwnd, buff.data(), buff.size() );
+
+        std::array<wchar_t, 64> buff = {};
+        GetClassName( hWND, buff.data(), buff.size() );
+
         if ( wcsstr( buff.data(), L"SysTabControl32" ) )
         {
-            wnd_parent = hwnd;
+            parentWND = hWND;
             break;
         }
     }
 
-    CRect childRect{ { 0, 0 }, clientRect.Size() };
+    CRect childRect{ clientRect };
     CRgn childRgn{ ::CreateRectRgnIndirect( &childRect ) };
     childRgn.CombineRgn( ::CreateRectRgnIndirect( &updateRect ), RGN_DIFF );
 
+    CRect combineRect{};
+    childRgn.GetRgnBox( &combineRect );
+
+    if ( combineRect.IsRectEmpty() )
+        return;
+
     CPoint position{ 0, 0 };
     wnd_.ClientToScreen( &position );
-    wnd_parent.ScreenToClient( &position );
+    parentWND.ScreenToClient( &position );
 
     CRect parentRect{ childRect };
     wnd_.ClientToScreen( &parentRect );
-    wnd_parent.ScreenToClient( &parentRect );
+    parentWND.ScreenToClient( &parentRect );
 
     // Force Repaint
     wnd_.SetWindowRgn( childRgn, FALSE );
-    wnd_parent.RedrawWindow( &parentRect, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW );
+    parentWND.RedrawWindow( &parentRect, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW );
 
+    [&]
     {
         // Background bitmap
-        CClientDC parentDC{ wnd_parent };
+        CClientDC parentDC{ parentWND };
         CDC bgDC{ ::CreateCompatibleDC( parentDC ) };
         gdi::ObjectSelector autoBmp( bgDC, bmpBg_.m_hBitmap );
 
         // Paint BK
-        bgDC.BitBlt( childRect.left, childRect.top, childRect.Width(), childRect.Height(), parentDC, position.x, position.y, SRCCOPY );
-    }
+        BitBlt
+        (
+            bgDC,     childRect.left, childRect.top, childRect.Width(), childRect.Height(),
+            parentDC, position.x,     position.y,
+            SRCCOPY
+        );
+    }();
 
     wnd_.SetWindowRgn( nullptr, FALSE );
+
     if ( smp::config::EdgeStyle::NoEdge != settings_.edgeStyle )
-    {
         wnd_.SendMessage( WM_NCPAINT, 1, 0 );
-    }
 }
 
 bool js_panel_window::LoadScript( bool isFirstLoad )
@@ -1578,13 +1607,10 @@ void js_panel_window::OnCreate( HWND hWnd )
 void js_panel_window::OnDestroy()
 {
     // Careful when changing invocation order here!
-
     UnloadScript();
 
     if ( pTarget_ )
-    {
         pTarget_->UnlinkPanel();
-    }
 
     if ( pTimeoutManager_ )
     {
@@ -1603,6 +1629,7 @@ void js_panel_window::OnDestroy()
     pJsContainer_.reset();
 
     DeleteDrawContext();
+
     ReleaseDC( wnd_, hDc_ );
 }
 
@@ -1629,13 +1656,13 @@ void js_panel_window::OnPaint( HDC hDC, const CRect& updateRect )
     {
         if ( settings_.isPseudoTransparent )
         {
-            CDC bgDC{ CreateCompatibleDC( hDC ) };
-            gdi::ObjectSelector autoBg( bgDC, bmpBg_.m_hBitmap );
+            CDC bDC{ CreateCompatibleDC( hDC ) };
+            gdi::ObjectSelector autoBg( bDC, bmpBg_.m_hBitmap );
 
-            cDC.BitBlt
+            BitBlt
             (
-                updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height(),
-                bgDC, updateRect.left, updateRect.top, SRCCOPY
+                cDC, updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height(),
+                bDC, updateRect.left, updateRect.top, SRCCOPY
             );
         }
         else

@@ -3,12 +3,16 @@
 #include "theme_manager.h"
 
 #include <convert/native_to_js.h>
+
 #include <js_engine/js_to_native_invoker.h>
+
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_graphics.h>
+
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_object_helper.h>
+
 #include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/gdi_helpers.h>
@@ -19,6 +23,8 @@
 //#include <atlgdi.h>
 
 using namespace smp;
+
+using smp::gdi::WrapGdiCalls;
 
 namespace
 {
@@ -45,7 +51,6 @@ JSClass jsClass = {
 };
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeBackground, JsThemeManager::DrawThemeBackground, JsThemeManager::DrawThemeBackgroundWithOpt, 4 )
-MJS_DEFINE_JS_FN_FROM_NATIVE( DrawThemeEdge, JsThemeManager::DrawThemeEdge )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawThemeText, JsThemeManager::DrawThemeText, JsThemeManager::DrawThemeTextWithOpt, 2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeBackgroundContentRect, JsThemeManager::GetThemeBackgroundContentRect )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetThemeBool, JsThemeManager::GetThemeBool )
@@ -74,7 +79,6 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPartAndStateID, JsThemeManager::SetPar
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "DrawThemeBackground", DrawThemeBackground, 5, kDefaultPropsFlags ),
-        JS_FN( "DrawThemeEdge", DrawThemeEdge, 7, kDefaultPropsFlags ),
         JS_FN( "DrawThemeText", DrawThemeText, 6, kDefaultPropsFlags ),
         JS_FN( "GetThemeBackgroundContentRect", GetThemeBackgroundContentRect, 4, kDefaultPropsFlags ),
         JS_FN( "GetThemeBool", GetThemeBool, 1, kDefaultPropsFlags ),
@@ -106,6 +110,7 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PS_END,
     } );
+
 } // namespace
 
 namespace mozjs
@@ -160,7 +165,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
 {
     qwr::QwrException::ExpectTrue( gr, "gr argument is null" );
 
-    auto draw = [&]( HDC dc )
+    WrapGdiCalls( gr->GetGraphicsObject(), [&]( HDC dc )
     {
         const makeRECT( rect );
         const makeRECT( clip );
@@ -170,9 +175,7 @@ void JsThemeManager::DrawThemeBackground( JsGdiGraphics* gr,
             theme, dc, partID, stateID, &rect,
             IsRectEmpty (&clip) ? nullptr : &clip
         ), "DrawThemeBackground" );
-    };
-
-    gr->WrapGdiCall( draw );
+    } );
 }
 
 void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphics* gr,
@@ -196,45 +199,13 @@ void JsThemeManager::DrawThemeBackgroundWithOpt( size_t optArgCount, JsGdiGraphi
     }
 }
 
-JS::Value JsThemeManager::DrawThemeEdge( JsGdiGraphics* gr,
-                                         int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH,
-                                         uint32_t edge, uint32_t flags )
-{
-    JS::RootedValue jsValue( pJsCtx_ );
-
-    auto draw = [&]( HDC dc )
-    {
-        const makeRECT( rect );
-        RECT out{};
-
-        qwr::error::CheckHR( ::DrawThemeEdge
-        (
-            theme, dc, partID, stateID, &rect, edge, flags, &out
-        ), "DrawThemeEdge" );
-
-        if ( flags & BF_ADJUST )
-        {
-            std::vector<int32_t> content { out.left, out.top, RECT_CX( out ), RECT_CY(out) };
-            convert::to_js::ToArrayValue( pJsCtx_, content, &jsValue );
-        }
-    };
-
-    gr->WrapGdiCall( draw );
-
-    return jsValue;
-}
-
-/**/
-
-/**/
-
 void JsThemeManager::DrawThemeText( JsGdiGraphics* gr, const std::wstring& text,
                                     int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH,
                                     uint32_t format, uint32_t fontprop )
 {
     qwr::QwrException::ExpectTrue( gr, "GdiGraphics argument is null" );
 
-    const auto draw = [&]( HDC dc )
+    WrapGdiCalls( gr->GetGraphicsObject(), [&]( HDC dc )
     {
         makeRECT( rect );
 
@@ -291,9 +262,7 @@ void JsThemeManager::DrawThemeText( JsGdiGraphics* gr, const std::wstring& text,
 
         // delete temp font, restore previously selected
         DeleteObject ( SelectObject( dc, selected ) );
-    };
-
-    gr->WrapGdiCall( draw );
+    } );
 }
 
 void JsThemeManager::DrawThemeTextWithOpt( size_t optArgCount, JsGdiGraphics* gr, const std::wstring& text,

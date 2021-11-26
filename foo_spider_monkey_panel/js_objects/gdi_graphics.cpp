@@ -15,6 +15,7 @@
 
 #include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
+#include <utils/gdi_helpers.h>
 #include <utils/text_helpers.h>
 
 #include <utils/dwrite_renderer.h>
@@ -25,6 +26,7 @@
 using namespace smp;
 
 using smp::dwrite::GdiTextRenderer;
+using smp::gdi::WrapGdiCalls;
 
 namespace
 {
@@ -57,6 +59,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CalcTextWidth, JsGdiGraphics::CalcTextWid
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CalcWriteTextHeight, JsGdiGraphics::CalcWriteTextHeight, JsGdiGraphics::CalcWriteTextHeightWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( CalcWriteTextWidth, JsGdiGraphics::CalcWriteTextWidth, JsGdiGraphics::CalcWriteTextWidthWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( DrawEllipse, JsGdiGraphics::DrawEllipse )
+MJS_DEFINE_JS_FN_FROM_NATIVE( DrawFrameControl, JsGdiGraphics::DrawFrameControl )
+MJS_DEFINE_JS_FN_FROM_NATIVE( DrawFocusRect, JsGdiGraphics::DrawFocusRect )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawImage, JsGdiGraphics::DrawImage, JsGdiGraphics::DrawImageWithOpt, 2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( DrawLine, JsGdiGraphics::DrawLine )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( DrawString, JsGdiGraphics::DrawString, JsGdiGraphics::DrawStringWithOpt, 1 )
@@ -75,14 +79,10 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( GdiDrawBitmap, JsGdiGraphics::GdiDrawBitmap )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GdiDrawText, JsGdiGraphics::GdiDrawText, JsGdiGraphics::GdiDrawTextWithOpt, 1 )
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetClip, JsGdiGraphics::GetClip )
-//MJS_DEFINE_JS_FN_FROM_NATIVE( GetCompositingMode, JsGdiGraphics::GetCompositingMode )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetCompositingQuality, JsGdiGraphics::GetCompositingQuality )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetDpiX, JsGdiGraphics::GetDpiX )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetDpiY, JsGdiGraphics::GetDpiY )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetInterpolationMode, JsGdiGraphics::GetInterpolationMode )
-#ifdef DEBUG_FONT_METRICS
-MJS_DEFINE_JS_FN_FROM_NATIVE( GetMetrics, JsGdiGraphics::GetMetrics )
-#endif
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPixelOffsetMode, JsGdiGraphics::GetPixelOffsetMode )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetSmoothingMode, JsGdiGraphics::GetSmoothingMode )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetTextContrast, JsGdiGraphics::GetTextContrast )
@@ -104,7 +104,6 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( ResetTransform, JsGdiGraphics::ResetTransform )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Restore, JsGdiGraphics::Restore )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( RotateTransform, JsGdiGraphics::RotateTransform, JsGdiGraphics::RotateTransformWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetClip, JsGdiGraphics::SetClip )
-//MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetCompositingMode, JsGdiGraphics::SetCompositingMode, JsGdiGraphics::SetCompositingModeWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetCompositingQuality, JsGdiGraphics::SetCompositingQuality, JsGdiGraphics::SetCompositingQualityWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetInterpolationMode, JsGdiGraphics::SetInterpolationMode, JsGdiGraphics::SetInterpolationModeWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetPixelOffsetMode, JsGdiGraphics::SetPixelOffsetMode, JsGdiGraphics::SetPixelOffsetModeWithOpt, 1 )
@@ -130,6 +129,8 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "CalcWriteTextWidth", CalcWriteTextWidth, 2, kDefaultPropsFlags ),
         JS_FN( "Clear", Clear, 1, kDefaultPropsFlags ),
         JS_FN( "DrawEllipse", DrawEllipse, 6, kDefaultPropsFlags ),
+        JS_FN( "DrawFrameControl", DrawFrameControl, 4, kDefaultPropsFlags ),
+        JS_FN( "DrawFocusRect", DrawFocusRect, 6, kDefaultPropsFlags ),
         JS_FN( "DrawLine", DrawLine, 6, kDefaultPropsFlags ),
         JS_FN( "DrawImage", DrawImage, 9, kDefaultPropsFlags ),
         JS_FN( "DrawRect", DrawRect, 6, kDefaultPropsFlags ),
@@ -149,12 +150,8 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "GetClip", GetClip, 0, kDefaultPropsFlags ),
         JS_FN( "GetDpiX", GetDpiX, 0, kDefaultPropsFlags ),
         JS_FN( "GetDpiY", GetDpiY, 0, kDefaultPropsFlags ),
-//        JS_FN( "GetCompositingMode", GetCompositingMode, 0, kDefaultPropsFlags ),
         JS_FN( "GetCompositingQuality", GetCompositingQuality, 0, kDefaultPropsFlags ),
         JS_FN( "GetInterpolationMode", GetInterpolationMode, 0, kDefaultPropsFlags ),
-#ifdef DEBUG_FONT_METRICS
-        JS_FN( "GetMetrics", GetMetrics, 7, kDefaultPropsFlags ),
-#endif
         JS_FN( "GetPixelOffsetMode", SetPixelOffsetMode, 0, kDefaultPropsFlags ),
         JS_FN( "GetSmoothingMode", GetSmoothingMode, 0, kDefaultPropsFlags ),
         JS_FN( "GetTextContrast", GetTextContrast, 0, kDefaultPropsFlags ),
@@ -173,7 +170,6 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "Save", Save, 0, kDefaultPropsFlags ),
         JS_FN( "ScaleTransform", ScaleTransform, 2, kDefaultPropsFlags ),
         JS_FN( "SetClip", SetClip, 4, kDefaultPropsFlags ),
-//        JS_FN( "SetCompositingMode", SetCompositingMode, 0, kDefaultPropsFlags ),
         JS_FN( "SetCompositingQuality", SetCompositingQuality, 0, kDefaultPropsFlags ),
         JS_FN( "SetInterpolationMode", SetInterpolationMode, 0, kDefaultPropsFlags ),
         JS_FN( "SetSmoothingMode", SetSmoothingMode, 0, kDefaultPropsFlags ),
@@ -193,7 +189,6 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
-//        JS_PSGS( "CompositingMode", GetCompositingMode, SetCompositingMode, kDefaultPropsFlags ),
         JS_PSGS( "CompositingQuality", GetCompositingQuality, SetCompositingQuality, kDefaultPropsFlags ),
         JS_PSG( "DpiX", GetDpiX, kDefaultPropsFlags ),
         JS_PSG( "DpiY", GetDpiY, kDefaultPropsFlags ),
@@ -204,10 +199,12 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
         JS_PSGS( "TextRenderingHint", GetTextRenderingHint, SetTextRenderingHint, kDefaultPropsFlags ),
         JS_PS_END,
     } );
+
 } // namespace
 
 namespace mozjs
 {
+
 const JSClass JsGdiGraphics::JsClass = jsClass;
 const JSFunctionSpec* JsGdiGraphics::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsGdiGraphics::JsProperties = jsProperties.data();
@@ -219,9 +216,9 @@ JsGdiGraphics::JsGdiGraphics( JSContext* cx )
 }
 
 std::unique_ptr<JsGdiGraphics>
-JsGdiGraphics::CreateNative( JSContext* cx )
+JsGdiGraphics::CreateNative( JSContext* ctx )
 {
-    return std::unique_ptr<JsGdiGraphics>( new JsGdiGraphics( cx ) );
+    return std::unique_ptr<JsGdiGraphics>( new JsGdiGraphics( ctx ) );
 }
 
 size_t JsGdiGraphics::GetInternalSize()
@@ -237,52 +234,6 @@ Gdiplus::Graphics* JsGdiGraphics::GetGraphicsObject() const
 void JsGdiGraphics::SetGraphicsObject( Gdiplus::Graphics* graphics )
 {
     pGraphics = graphics;
-}
-
-// wrap GDI calls inside GDI+ blocks, while transferring clipping regions and transforms
-void JsGdiGraphics::WrapGdiCall( std::function<void( HDC dc )> const& GdiDrawerCallback )
-{
-    qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
-
-    // get current clip region and transform
-    // we need to do this before getting the dc
-    Gdiplus::Region region = {};
-    qwr::error::CheckGdi( pGraphics->GetClip( &region ), "GetClip" );
-    HRGN hrgn{ region.GetHRGN( pGraphics ) };
-
-    Gdiplus::Matrix matrix = {};
-    qwr::error::CheckGdi( pGraphics->GetTransform( &matrix ), "GetTransform" );
-
-    XFORM xform = {};
-    qwr::error::CheckGdi( matrix.GetElements( (Gdiplus::REAL*)( &xform ) ), "GetElements" );
-
-    // get the device context
-    // no Gdiplus draw-calls beyond this point until releaseDC
-    // see: https://docs.microsoft.com/en-GB/troubleshoot/windows/win32/mix-gdi-and-gdi-plus-drawing
-    const HDC dc = pGraphics->GetHDC();
-    qwr::final_action autoReleaseDc( [graphics = pGraphics, dc] { graphics->ReleaseHDC( dc ); } );
-
-    // set clip and transform
-    HRGN oldhrgn = CreateRectRgn( 0, 0, 0, 0 ); // dummy region for getting the current clip region into
-    auto oldclip = GetClipRgn( dc, oldhrgn );
-
-    qwr::error::CheckWinApi( GDI_ERROR != oldclip, "GetClipRgn" );
-    qwr::final_action autoReleaseRegion( [dc, oldhrgn, oldclip]
-        {
-           if (RGN_ERROR != oldclip) SelectClipRgn( dc, oldhrgn );
-           ::DeleteObject( oldhrgn );
-        } );
-
-    qwr::error::CheckWinApi( ERROR != ExtSelectClipRgn( dc, hrgn, RGN_AND ), "SelectClipRgn" );
-    DeleteObject( hrgn );
-
-    XFORM oldxform = {};
-    qwr::error::CheckWinApi( ERROR != GetWorldTransform( dc, &oldxform ), "GetWorldTransform" );
-    qwr::final_action autoResetTansform( [dc, oldxform]() { SetWorldTransform( dc, &oldxform ); } );
-
-    qwr::error::CheckWinApi( ERROR != SetWorldTransform( dc, &xform ), "SetWorldTransform" );
-
-    GdiDrawerCallback( dc );
 }
 
 uint32_t JsGdiGraphics::BeginContainer( float dstX, float dstY, float dstW, float dstH,
@@ -370,95 +321,6 @@ uint32_t JsGdiGraphics::CalcTextWidthWithOpt( size_t optArgCount, const std::wst
     }
 }
 
-#ifdef DEBUG_FONT_METRICS
-JS::Value JsGdiGraphics::GetMetrics( const std::wstring& text, JsGdiFont* font )
-{
-    qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
-    qwr::QwrException::ExpectTrue( font, "font argument is null" );
-
-    const HDC dc = pGraphics->GetHDC();
-    qwr::final_action autoHdcReleaser( [dc, pGdi = pGraphics] { pGdi->ReleaseHDC( dc ); } );
-
-    CComPtr<GdiTextRenderer> renderer = new GdiTextRenderer( dc );
-    CComPtr<IDWriteTextFormat> textFormat = renderer->GetTextFormat( font->HFont() );
-    CComQIPtr<IDWriteTextFormat1> textFormat1( textFormat );
-
-    textFormat->SetParagraphAlignment( DWRITE_PARAGRAPH_ALIGNMENT_CENTER );
-    textFormat->SetTextAlignment( DWRITE_TEXT_ALIGNMENT_CENTER );
-
-    CComPtr<IDWriteTextLayout> textLayout = renderer->GetTextLayout( textFormat, text, 4096.0f, 4096.0f );
-    CComQIPtr<IDWriteTextLayout2> textLayout2( textLayout );
-
-    FLOAT minWidth;
-    textLayout->DetermineMinWidth( &minWidth );
-
-    DWRITE_TEXT_METRICS1 textMetrics1;
-    textLayout2->GetMetrics( &textMetrics1 );
-
-    DWRITE_OVERHANG_METRICS overhangs;
-    textLayout->GetOverhangMetrics( &overhangs );
-
-    JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
-
-    AddProperty( pJsCtx_, jsObject, "left", textMetrics1.left );
-    AddProperty( pJsCtx_, jsObject, "top", textMetrics1.top );
-    AddProperty( pJsCtx_, jsObject, "width", textMetrics1.width );
-    AddProperty( pJsCtx_, jsObject, "height", textMetrics1.height );
-    AddProperty( pJsCtx_, jsObject, "layoutWidth", textMetrics1.layoutWidth );
-    AddProperty( pJsCtx_, jsObject, "layoutHeight", textMetrics1.layoutHeight );
-    AddProperty( pJsCtx_, jsObject, "maxBidiReorderingDepth", textMetrics1.maxBidiReorderingDepth );
-    AddProperty( pJsCtx_, jsObject, "lineCount", textMetrics1.lineCount );
-    AddProperty( pJsCtx_, jsObject, "widthIncludingTrailingWhitespace", textMetrics1.widthIncludingTrailingWhitespace );
-    AddProperty( pJsCtx_, jsObject, "heightIncludingTrailingWhitespace", textMetrics1.heightIncludingTrailingWhitespace );
-
-    AddProperty( pJsCtx_, jsObject, "overhangLeft", overhangs.left );
-    AddProperty( pJsCtx_, jsObject, "overhangRight", overhangs.right );
-    AddProperty( pJsCtx_, jsObject, "overHangTop", overhangs.top );
-    AddProperty( pJsCtx_, jsObject, "overHangBottom", overhangs.bottom );
-
-    AddProperty( pJsCtx_, jsObject, "calcWidth", textMetrics1.layoutWidth + (overhangs.left + overhangs.right) );
-    AddProperty( pJsCtx_, jsObject, "calcHeight", textMetrics1.layoutHeight + (overhangs.top + overhangs.bottom) );
-
-    AddProperty( pJsCtx_, jsObject, "minWidth", minWidth );
-    AddProperty( pJsCtx_, jsObject, "maxWidth", textLayout2->GetMaxWidth() );
-    AddProperty( pJsCtx_, jsObject, "maxHeight", textLayout2->GetMaxHeight() );
-
-    #if 0
-    textLayout->SetMaxWidth( textMetrics1.width );
-    textLayout->SetMaxHeight( textMetrics1.height );
-
-    textLayout->DetermineMinWidth( &minWidth );
-    textLayout2->GetMetrics( &textMetrics1 );
-    textLayout->GetOverhangMetrics( &overhangs );
-
-    AddProperty( pJsCtx_, jsObject, "left1", textMetrics1.left );
-    AddProperty( pJsCtx_, jsObject, "top1", textMetrics1.top );
-    AddProperty( pJsCtx_, jsObject, "width1", textMetrics1.width );
-    AddProperty( pJsCtx_, jsObject, "height1", textMetrics1.height );
-    AddProperty( pJsCtx_, jsObject, "layoutWidth1", textMetrics1.layoutWidth );
-    AddProperty( pJsCtx_, jsObject, "layoutHeight1", textMetrics1.layoutHeight );
-    AddProperty( pJsCtx_, jsObject, "maxBidiReorderingDepth1", textMetrics1.maxBidiReorderingDepth );
-    AddProperty( pJsCtx_, jsObject, "lineCount1", textMetrics1.lineCount );
-    AddProperty( pJsCtx_, jsObject, "widthIncludingTrailingWhitespace1", textMetrics1.widthIncludingTrailingWhitespace );
-    AddProperty( pJsCtx_, jsObject, "heightIncludingTrailingWhitespace1", textMetrics1.heightIncludingTrailingWhitespace );
-
-    AddProperty( pJsCtx_, jsObject, "overhangLeft1", overhangs.left );
-    AddProperty( pJsCtx_, jsObject, "overhangRight1", overhangs.right );
-    AddProperty( pJsCtx_, jsObject, "overHangTop1", overhangs.top );
-    AddProperty( pJsCtx_, jsObject, "overHangBottom1", overhangs.bottom );
-
-    AddProperty( pJsCtx_, jsObject, "calcWidth1", textMetrics1.layoutWidth - ( overhangs.left + overhangs.right ) );
-    AddProperty( pJsCtx_, jsObject, "calcHeight1", textMetrics1.layoutHeight - ( overhangs.top + overhangs.bottom ) );
-
-    AddProperty( pJsCtx_, jsObject, "minWidth1", minWidth );
-    AddProperty( pJsCtx_, jsObject, "maxWidth1", textLayout2->GetMaxWidth() );
-    AddProperty( pJsCtx_, jsObject, "maxHeight1", textLayout2->GetMaxHeight() );
-    #endif
-
-    return JS::ObjectValue( *jsObject );
-}
-#endif
-
 uint32_t JsGdiGraphics::CalcWriteTextHeight( const std::wstring& text, JsGdiFont* font, boolean use_exact )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
@@ -535,7 +397,7 @@ JS::Value JsGdiGraphics::DrawEdge( int32_t rectX, int32_t rectY, uint32_t rectW,
 {
     JS::RootedValue jsValue( pJsCtx_ );
 
-    auto draw = [&]( HDC dc )
+    WrapGdiCalls( pGraphics, [&]( HDC dc )
     {
         makeRECT( rect );
 
@@ -546,30 +408,36 @@ JS::Value JsGdiGraphics::DrawEdge( int32_t rectX, int32_t rectY, uint32_t rectW,
             std::vector<int32_t> content{ rect.top, rect.left, RECT_CX(rect), RECT_CY(rect) };
             convert::to_js::ToArrayValue( pJsCtx_, content, &jsValue );
         }
-    };
-
-    WrapGdiCall( draw );
+    } );
 
     return jsValue;
 }
 
-void JsGdiGraphics::DrawEllipse( float x, float y, float w, float h, float line_width, uint32_t colour )
+void JsGdiGraphics::DrawEllipse( float x, float y, float w, float h,
+                                  float lineWidth, uint32_t colour )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
-    Gdiplus::Pen pen( colour, line_width );
+    Gdiplus::Pen pen( colour, lineWidth );
     qwr::error::CheckGdi( pGraphics->DrawEllipse( &pen, x, y, w, h ), "DrawEllipse" );
+}
+
+void JsGdiGraphics::DrawFrameControl( int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH,
+                                      uint32_t type, uint32_t state )
+{
+    WrapGdiCalls( pGraphics, [&]( HDC dc ) {
+        makeRECT( rect );
+        qwr::error::CheckWinApi( ::DrawFrameControl( dc, &rect, type, state ), "DrawFocusRect" );
+    } );
 }
 
 void JsGdiGraphics::DrawFocusRect( int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH)
 {
-    auto draw = [&]( HDC dc )
+    WrapGdiCalls( pGraphics, [&]( HDC dc )
     {
         makeRECT( rect );
         qwr::error::CheckWinApi( ::DrawFocusRect( dc, &rect ), "DrawFocusRect" );
-    };
-
-    WrapGdiCall( draw );
+    } );
 }
 
 void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
@@ -600,7 +468,7 @@ void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
         qwr::error::CheckGdi( rotate.RotateAt( angle, Gdiplus::PointF{ dstX + dstW / 2, dstY + dstH / 2 } ), "RotateAt" );
     }
 
-    Gdiplus::ImageAttributes ia = {};
+    Gdiplus::ImageAttributes imgAttrs = {};
 
     if ( alpha < 0xff )
     {
@@ -609,10 +477,10 @@ void JsGdiGraphics::DrawImage( JsGdiBitmap* image,
         cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0f;
         cm.m[3][3] = static_cast<float>( alpha ) / 255;
 
-        qwr::error::CheckGdi( ia.SetColorMatrix( &cm ), "SetColorMatrix" );
+        qwr::error::CheckGdi( imgAttrs.SetColorMatrix( &cm ), "SetColorMatrix" );
     }
 
-    qwr::error::CheckGdi( pGraphics->DrawImage( img, dst, src, Gdiplus::UnitPixel, &ia ), "DrawImage" );
+    qwr::error::CheckGdi( pGraphics->DrawImage( img, dst, src, Gdiplus::UnitPixel, &imgAttrs ), "DrawImage" );
 }
 
 void JsGdiGraphics::DrawImageWithOpt( size_t optArgCount, JsGdiBitmap* image,
@@ -633,46 +501,52 @@ void JsGdiGraphics::DrawImageWithOpt( size_t optArgCount, JsGdiBitmap* image,
     }
 }
 
-void JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float line_width, uint32_t colour )
+void JsGdiGraphics::DrawLine( float x1, float y1, float x2, float y2, float lineWidth, uint32_t colour )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
-    Gdiplus::Pen pen( colour, line_width );
+    Gdiplus::Pen pen( colour, lineWidth );
     qwr::error::CheckGdi( pGraphics->DrawLine( &pen, x1, y1, x2, y2 ), "DrawLine" );
 }
 
-void JsGdiGraphics::DrawPolygon( uint32_t colour, float line_width, JS::HandleValue points )
+void JsGdiGraphics::DrawPolygon( uint32_t colour, float lineWidth, JS::HandleValue points )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
     std::vector<Gdiplus::PointF> gdiPoints;
     ParsePoints( points, gdiPoints );
 
-    Gdiplus::Pen pen( colour, line_width );
+    Gdiplus::Pen pen( colour, lineWidth );
     qwr::error::CheckGdi( pGraphics->DrawPolygon( &pen, gdiPoints.data(), gdiPoints.size() ), "DrawPolygon" );
 }
 
-void JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_width, uint32_t colour )
+void JsGdiGraphics::DrawRect( float rectX, float rectY, float rectW, float rectH, float lineWidth, uint32_t colour )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
-    Gdiplus::Pen pen( colour, line_width );
-    qwr::error::CheckGdi( pGraphics->DrawRectangle( &pen, x, y, w, h ), "DrawRectangle" );
+    Gdiplus::Pen pen( colour, lineWidth );
+    qwr::error::CheckGdi( pGraphics->DrawRectangle( &pen, rectX, rectY, rectW, rectH ), "DrawRectangle" );
 }
 
-void JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
+void JsGdiGraphics::DrawRoundRect( float rectX, float rectY, float rectW, float rectH,
+                                   float arcW, float arcH, float lineWidth, uint32_t colour )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
-    Gdiplus::Pen pen( colour, line_width );
+    Gdiplus::Pen pen( colour, lineWidth );
     Gdiplus::GraphicsPath path;
-    GetRoundRectPath( path, Gdiplus::RectF{ x, y, w, h }, std::min( w / 2, arc_width ), std::min( h / 2, arc_height ) );
+    GetRoundRectPath
+    (
+        path,
+        Gdiplus::RectF{ rectX, rectY, rectW, rectH },
+        std::min( rectW / 2, arcW ), std::min( rectH / 2, arcH )
+    );
 
     qwr::error::CheckGdi( pGraphics->DrawPath( &pen, &path ), "DrawPath" );
 }
 
 void JsGdiGraphics::DrawString( const std::wstring& text, JsGdiFont* font, uint32_t colour,
-                                float x, float y, float w, float h,
+                                float rectX, float rectY, float rectW, float rectH,
                                 uint32_t flags )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
@@ -689,22 +563,23 @@ void JsGdiGraphics::DrawString( const std::wstring& text, JsGdiFont* font, uint3
     qwr::error::CheckGdi( pGraphics->DrawString
     (
         text.c_str(), text.length(), gdipFont,
-        Gdiplus::RectF( x, y, w, h ),
+        Gdiplus::RectF( rectX, rectY, rectW, rectH ),
         UnpackStringFormat( flags ),
         &brush
     ), "DrawString" );
 }
 
-void JsGdiGraphics::DrawStringWithOpt( size_t optArgCount, const std::wstring& text, JsGdiFont* font, uint32_t colour,
-                                       float x, float y, float w, float h,
+void JsGdiGraphics::DrawStringWithOpt( size_t optArgCount,
+                                       const std::wstring& text, JsGdiFont* font, uint32_t colour,
+                                       float rectX, float rectY, float rectW, float rectH,
                                        uint32_t flags )
 {
     switch ( optArgCount )
     {
     case 0:
-        return DrawString( text, font, colour, x, y, w, h, flags );
+        return DrawString( text, font, colour, rectX, rectY, rectW, rectH, flags );
     case 1:
-        return DrawString( text, font, colour, x, y, w, h );
+        return DrawString( text, font, colour, rectX, rectY, rectW, rectH );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -765,31 +640,32 @@ void JsGdiGraphics::FillEllipse( float x, float y, float w, float h, uint32_t co
     qwr::error::CheckGdi( pGraphics->FillEllipse( &brush, x, y, w, h ), "FillEllipse" );
 }
 
-void JsGdiGraphics::FillGradRect( float x, float y, float w, float h,
+void JsGdiGraphics::FillGradRect( float rectX, float rectY, float rectW, float rectH,
                                   float angle, uint32_t colour1, uint32_t colour2,
                                   float focus, float scale )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
-    const Gdiplus::RectF rect{ x, y, w, h };
+    const Gdiplus::RectF rect{ rectX, rectY, rectW, rectH };
     Gdiplus::LinearGradientBrush brush( rect, colour1, colour2, angle, TRUE );
     qwr::error::CheckGdi( brush.SetBlendTriangularShape( focus, scale ), "SetBlendTriangularShape" );
 
     qwr::error::CheckGdi( pGraphics->FillRectangle( &brush, rect ), "FillRectangle" );
 }
 
-void JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount, float x, float y, float w, float h,
+void JsGdiGraphics::FillGradRectWithOpt( size_t optArgCount,
+                                         float rectX, float rectY, float rectW, float rectH,
                                          float angle, uint32_t colour1, uint32_t colour2,
                                          float focus, float scale )
 {
     switch ( optArgCount )
     {
     case 0:
-        return FillGradRect( x, y, w, h, angle, colour1, colour2, focus, scale );
+        return FillGradRect( rectX, rectY, rectW, rectH, angle, colour1, colour2, focus, scale );
     case 1:
-        return FillGradRect( x, y, w, h, angle, colour1, colour2, focus );
+        return FillGradRect( rectX, rectY, rectW, rectH, angle, colour1, colour2, focus );
     case 2:
-        return FillGradRect( x, y, w, h, angle, colour1, colour2 );
+        return FillGradRect( rectX, rectY, rectW, rectH, angle, colour1, colour2 );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -812,26 +688,25 @@ void JsGdiGraphics::FillPolygon( uint32_t colour, uint32_t fillmode, JS::HandleV
     ), "FillPolygon" );
 }
 
-void JsGdiGraphics::FillRoundRect( float x, float y, float w, float h,
-                                   float arc_width, float arc_height, uint32_t colour )
+void JsGdiGraphics::FillRoundRect( float rectX, float rectY, float rectW, float rectH,
+                                   float arcW, float arcH, uint32_t colour )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
-    qwr::QwrException::ExpectTrue( 2 * arc_width <= w && 2 * arc_height <= h, "Arc argument has invalid value" );
 
     Gdiplus::SolidBrush brush( colour );
     Gdiplus::GraphicsPath path;
-    const Gdiplus::RectF rect{ x, y, w, h };
-    GetRoundRectPath( path, rect, arc_width, arc_height );
+    const Gdiplus::RectF rect{ rectX, rectY, rectW, rectH };
+    GetRoundRectPath( path, rect, std::max( rectW / 2, arcW ), std::max( rectH / 2, arcH ) );
 
     qwr::error::CheckGdi( pGraphics->FillPath( &brush, &path ), "FillPath" );
 }
 
-void JsGdiGraphics::FillSolidRect( float x, float y, float w, float h, uint32_t colour )
+void JsGdiGraphics::FillSolidRect( float rectX, float rectY, float rectW, float rectH, uint32_t colour )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
     Gdiplus::SolidBrush brush( colour );
-    qwr::error::CheckGdi( pGraphics->FillRectangle( &brush, x, y, w, h ), "FillRectangle" );
+    qwr::error::CheckGdi( pGraphics->FillRectangle( &brush, rectX, rectY, rectW, rectH ), "FillRectangle" );
 }
 
 void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
@@ -841,7 +716,8 @@ void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
 {
     qwr::QwrException::ExpectTrue( bitmap, "bitmap argument is null" );
 
-    const auto draw = [&]( HDC dstDC ) {
+    WrapGdiCalls( pGraphics, [&]( HDC dstDC )
+    {
         const HDC srcDC = bitmap->GetHDC();
         assert( srcDC );
 
@@ -851,12 +727,11 @@ void JsGdiGraphics::GdiAlphaBlend( JsGdiRawBitmap* bitmap,
             srcDC, srcX, srcY, srcW, srcH,
             { AC_SRC_OVER, 0, alpha, AC_SRC_ALPHA }
         ), "GdiAlphaBlend" );
-    };
-
-    WrapGdiCall( draw );
+    } );
 }
 
-void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount, JsGdiRawBitmap* bitmap,
+void JsGdiGraphics::GdiAlphaBlendWithOpt( size_t optArgCount,
+                                          JsGdiRawBitmap* bitmap,
                                           int32_t dstX, int32_t dstY, uint32_t dstW, uint32_t dstH,
                                           int32_t srcX, int32_t srcY, uint32_t srcW, uint32_t srcH,
                                           uint8_t alpha )
@@ -878,7 +753,8 @@ void JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
 {
     qwr::QwrException::ExpectTrue( bitmap, "bitmap argument is null" );
 
-    const auto draw = [&]( HDC dstDC ) {
+    WrapGdiCalls( pGraphics, [&]( HDC dstDC )
+    {
         const HDC srcDC = bitmap->GetHDC();
         assert( srcDC );
 
@@ -899,9 +775,7 @@ void JsGdiGraphics::GdiDrawBitmap( JsGdiRawBitmap* bitmap,
             srcDC, srcX, srcY, srcW, srcH,
             SRCCOPY
         ), "StretchBlt" );
-    };
-
-    WrapGdiCall( draw );
+    } );
 }
 
 void JsGdiGraphics::GdiDrawText( const std::wstring& text, JsGdiFont* font, uint32_t colour,
@@ -910,7 +784,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& text, JsGdiFont* font, uint
 {
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    const auto draw = [&]( HDC dc )
+    WrapGdiCalls( pGraphics, [&]( HDC dc )
     {
         gdi::ObjectSelector autoFont( dc, font->HFont() );
 
@@ -947,22 +821,24 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& text, JsGdiFont* font, uint
             }
         }
 
-        qwr::error::CheckWinApi( DrawTextExW( dc, const_cast<wchar_t*>( text.c_str() ), text.length(), &rect, format, &dpt ), "DrawTextEx" );
-    };
-
-    WrapGdiCall( draw );
+        qwr::error::CheckWinApi( DrawTextExW
+        (
+            dc, const_cast<wchar_t*>( text.c_str() ), text.length(), &rect, format, &dpt
+        ), "DrawTextEx" );
+    } );
 }
 
-void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount, const std::wstring& str, JsGdiFont* font, uint32_t colour,
+void JsGdiGraphics::GdiDrawTextWithOpt( size_t optArgCount,
+                                        const std::wstring& text, JsGdiFont* font, uint32_t colour,
                                         int32_t rectX, int32_t rectY, uint32_t rectW, uint32_t rectH,
                                         uint32_t format )
 {
     switch ( optArgCount )
     {
     case 0:
-        return GdiDrawText( str, font, colour, rectX, rectY, rectW, rectH, format );
+        return GdiDrawText( text, font, colour, rectX, rectY, rectW, rectH, format );
     case 1:
-        return GdiDrawText( str, font, colour, rectX, rectY, rectW, rectH );
+        return GdiDrawText( text, font, colour, rectX, rectY, rectW, rectH );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -979,14 +855,6 @@ JS::Value JsGdiGraphics::GetClip()
     convert::to_js::ToArrayValue( pJsCtx_, std::vector<float>{ value.X, value.Y, value.Width, value.Height }, &jsValue );
     return jsValue;
 }
-
-/** /
-uint32_t JsGdiGraphics::GetCompositingMode()
-{
-    qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
-    return pGraphics->GetCompositingMode();
-}
-/**/
 
 uint32_t JsGdiGraphics::GetCompositingQuality()
 {
@@ -1064,10 +932,10 @@ bool JsGdiGraphics::IsPointVisible( float x, float y )
     return pGraphics->IsVisible( x, y );
 }
 
-bool JsGdiGraphics::IsRectVisible( float x, float y, float w, float h )
+bool JsGdiGraphics::IsRectVisible( float rectX, float rectY, float rectW, float rectH )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
-    return pGraphics->IsVisible( x, y, w, h );
+    return pGraphics->IsVisible( rectX, rectY, rectW, rectH );
 }
 
 bool JsGdiGraphics::IsVisibleClipEmpty()
@@ -1077,7 +945,7 @@ bool JsGdiGraphics::IsVisibleClipEmpty()
 }
 
 JSObject* JsGdiGraphics::MeasureString( const std::wstring& text, JsGdiFont* font,
-                                        float x, float y, float w, float h,
+                                        float rectX, float rectY, float rectW, float rectH,
                                         uint32_t flags )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
@@ -1096,7 +964,7 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& text, JsGdiFont* fon
     qwr::error::CheckGdi( pGraphics->MeasureString
     (
         text.c_str(), -1, gdipFont,
-        Gdiplus::RectF( x, y, w, h ), UnpackStringFormat( flags ),
+        Gdiplus::RectF( rectX, rectY, rectW, rectH ), UnpackStringFormat( flags ),
         &bounds, &chars, &lines
     ), "MeasureString" );
 
@@ -1104,26 +972,26 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& text, JsGdiFont* fon
 }
 
 JSObject* JsGdiGraphics::MeasureStringWithOpt( size_t optArgCount, const std::wstring& text, JsGdiFont* font,
-                                               float x, float y, float w, float h,
+                                               float rectX, float rectY, float rectW, float rectH,
                                                uint32_t flags )
 {
     switch ( optArgCount )
     {
     case 0:
-        return MeasureString( text, font, x, y, w, h, flags );
+        return MeasureString( text, font, rectX, rectY, rectW, rectH, flags );
     case 1:
-        return MeasureString( text, font, x, y, w, h );
+        return MeasureString( text, font, rectX, rectY, rectW, rectH );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-void JsGdiGraphics::MultiplyTransform( float m11, float m12, float m21, float m22, float dx, float dy,
+void JsGdiGraphics::MultiplyTransform( float M11, float M12, float M21, float M22, float dX, float dY,
                                        uint32_t matrixOrder )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
-    Gdiplus::Matrix matrix{ m11, m12, m21, m22, dx, dy };
+    Gdiplus::Matrix matrix{ M11, M12, M21, M22, dX, dY };
     qwr::error::CheckGdi( pGraphics->MultiplyTransform
     (
         &matrix,  static_cast<Gdiplus::MatrixOrder>( matrixOrder )
@@ -1131,15 +999,15 @@ void JsGdiGraphics::MultiplyTransform( float m11, float m12, float m21, float m2
 }
 
 void JsGdiGraphics::MultiplyTransformWithOpt( size_t optArgCount,
-                                              float m11, float m12, float m21, float m22, float dx, float dy,
+                                              float M11, float M12, float M21, float M22, float dX, float dY,
                                               uint32_t matrixOrder )
 {
     switch ( optArgCount )
     {
     case 0:
-        return MultiplyTransform( m11, m12, m21, m22, dx, dy, matrixOrder );
+        return MultiplyTransform( M11, M12, M21, M22, dX, dY, matrixOrder );
     case 1:
-        return MultiplyTransform( m11, m12, m21, m22, dx, dy );
+        return MultiplyTransform( M11, M12, M21, M22, dX, dY );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -1192,59 +1060,39 @@ uint32_t JsGdiGraphics::Save()
     return pGraphics->Save();
 }
 
-void JsGdiGraphics::ScaleTransform( float sx, float sy, uint32_t matrixOrder )
+void JsGdiGraphics::ScaleTransform( float sX, float sY, uint32_t matrixOrder )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
     qwr::error::CheckGdi( pGraphics->ScaleTransform
     (
-        sx, sy, static_cast<Gdiplus::MatrixOrder>( matrixOrder )
+        sX, sY, static_cast<Gdiplus::MatrixOrder>( matrixOrder )
     ), "ScaleTransform" );
 }
 
-void JsGdiGraphics::ScaleTransformWithOpt( size_t optArgCount, float sx, float sy, uint32_t matrixOrder )
+void JsGdiGraphics::ScaleTransformWithOpt( size_t optArgCount, float sX, float sY, uint32_t matrixOrder )
 {
     switch ( optArgCount )
     {
     case 0:
-        return ScaleTransform( sx, sy, matrixOrder );
+        return ScaleTransform( sX, sY, matrixOrder );
     case 1:
-        return ScaleTransform( sx, sy );
+        return ScaleTransform( sX, sY );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-void JsGdiGraphics::SetClip( float x, float y, float w, float h )
+void JsGdiGraphics::SetClip( float rectX, float rectY, float rectW, float rectH )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
-    qwr::error::CheckGdi( pGraphics->SetClip( Gdiplus::RectF( x, y, w, h ), Gdiplus::CombineModeReplace ), "SetClip" );
+    qwr::error::CheckGdi( pGraphics->SetClip
+    (
+        Gdiplus::RectF( rectX, rectY, rectW, rectH ), Gdiplus::CombineModeReplace
+    ), "SetClip" );
 }
 
-/** /
-void JsGdiGraphics::SetCompositingMode( uint32_t mode )
-{
-    qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
-
-    qwr::error::CheckGdi( pGraphics->SetCompositingMode(
-        static_cast<Gdiplus::CompositingMode>( mode )
-    ), "SetCompositingMode" );
-}
-
-void JsGdiGraphics::SetCompositingModeWithOpt( size_t optArgCount, uint32_t mode )
-{
-    switch ( optArgCount )
-    {
-    case 0:
-        return SetCompositingMode( mode );
-    case 1:
-        return SetCompositingMode();
-    default:
-        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
-    }
-}
-/**/
 void JsGdiGraphics::SetCompositingQuality( uint32_t mode )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
@@ -1358,10 +1206,10 @@ void JsGdiGraphics::SetTextRenderingHintWithOpt( size_t optArgCount, uint32_t mo
     }
 }
 
-void JsGdiGraphics::SetTransform( float m11, float m12, float m21, float m22, float dx, float dy )
+void JsGdiGraphics::SetTransform( float M11, float M12, float M21, float M22, float dX, float dY )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
-    Gdiplus::Matrix matrix{ m11, m12, m21, m22, dx, dy };
+    Gdiplus::Matrix matrix{ M11, M12, M21, M22, dX, dY };
     qwr::error::CheckGdi( pGraphics->SetTransform( &matrix ), "SetTransform" );
 }
 
@@ -1369,7 +1217,8 @@ JS::Value JsGdiGraphics::TransformPoint( float x, float y )
 {
     Gdiplus::PointF point{ x, y };
 
-    qwr::error::CheckGdi( pGraphics->TransformPoints(
+    qwr::error::CheckGdi( pGraphics->TransformPoints
+    (
         Gdiplus::CoordinateSpaceWorld,
         Gdiplus::CoordinateSpacePage,
         &point, 1
@@ -1381,45 +1230,52 @@ JS::Value JsGdiGraphics::TransformPoint( float x, float y )
     return jsValue;
 }
 
-JS::Value JsGdiGraphics::TransformRect( float x, float y, float w, float h )
+JS::Value JsGdiGraphics::TransformRect( float rectX, float rectY, float rectW, float rectH )
 {
-    Gdiplus::PointF points[4]{ { x, y }, { x + w, y }, { x + w, y + h }, { x, y + h } };
+    Gdiplus::PointF points[4]
+    {
+        { rectX,         rectY },
+        { rectX + rectW, rectY },
+        { rectX + rectW, rectY + rectH },
+        { rectX,         rectY + rectH }
+    };
 
-    qwr::error::CheckGdi( pGraphics->TransformPoints(
+    qwr::error::CheckGdi( pGraphics->TransformPoints
+    (
         Gdiplus::CoordinateSpaceWorld,
         Gdiplus::CoordinateSpacePage,
         (Gdiplus::PointF*)&points, 4
     ), "TransformPoints" );
 
-    float xmin = std::min<float>( { points[0].X, points[1].X, points[2].X, points[3].X } );
-    float xmax = std::max<float>( { points[0].X, points[1].X, points[2].X, points[3].X } );
-    float ymin = std::min<float>( { points[0].Y, points[1].Y, points[2].Y, points[3].Y } );
-    float ymax = std::max<float>( { points[0].Y, points[1].Y, points[2].Y, points[3].Y } );
+    float xMin = std::min<float>( { points[0].X, points[1].X, points[2].X, points[3].X } );
+    float xMax = std::max<float>( { points[0].X, points[1].X, points[2].X, points[3].X } );
+    float yMin = std::min<float>( { points[0].Y, points[1].Y, points[2].Y, points[3].Y } );
+    float yMax = std::max<float>( { points[0].Y, points[1].Y, points[2].Y, points[3].Y } );
 
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue( pJsCtx_, std::vector<float>{ xmin, ymin, xmax - xmin, ymax - ymin }, &jsValue );
+    convert::to_js::ToArrayValue( pJsCtx_, std::vector<float>{ xMin, yMin, xMax - xMin, yMax - yMin }, &jsValue );
 
     return jsValue;
 }
 
-void JsGdiGraphics::TranslateTransform( float dx, float dy, uint32_t matrixOrder )
+void JsGdiGraphics::TranslateTransform( float dX, float dY, uint32_t matrixOrder )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
 
     qwr::error::CheckGdi( pGraphics->TranslateTransform
     (
-        dx, dy, static_cast<Gdiplus::MatrixOrder>( matrixOrder )
+        dX, dY, static_cast<Gdiplus::MatrixOrder>( matrixOrder )
     ), "TranslateTransform" );
 }
 
-void JsGdiGraphics::TranslateTransformWithOpt( size_t optArgCount, float dx, float dy, uint32_t matrixOrder )
+void JsGdiGraphics::TranslateTransformWithOpt( size_t optArgCount, float dX, float dY, uint32_t matrixOrder )
 {
     switch ( optArgCount )
     {
     case 0:
-        return TranslateTransform( dx, dy, matrixOrder );
+        return TranslateTransform( dX, dY, matrixOrder );
     case 1:
-        return TranslateTransform( dx, dy );
+        return TranslateTransform( dX, dY );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -1427,9 +1283,10 @@ void JsGdiGraphics::TranslateTransformWithOpt( size_t optArgCount, float dx, flo
 
 JS::Value JsGdiGraphics::UnTransformPoint( float x, float y )
 {
-    Gdiplus::PointF point{ x, y };
+   Gdiplus::PointF point{ x, y };
 
-    qwr::error::CheckGdi( pGraphics->TransformPoints(
+    qwr::error::CheckGdi( pGraphics->TransformPoints
+    (
         Gdiplus::CoordinateSpacePage,
         Gdiplus::CoordinateSpaceWorld,
         &point, 1
@@ -1441,39 +1298,46 @@ JS::Value JsGdiGraphics::UnTransformPoint( float x, float y )
     return jsValue;
 }
 
-JS::Value JsGdiGraphics::UnTransformRect( float x, float y, float w, float h )
+JS::Value JsGdiGraphics::UnTransformRect( float rectX, float rectY, float rectW, float rectH )
 {
-    Gdiplus::PointF points[4]{ { x, y }, { x + w, y }, { x + w, y + h }, { x, y + h } };
+    Gdiplus::PointF points[4]
+    {
+        { rectX,         rectY },
+        { rectX + rectW, rectY },
+        { rectX + rectW, rectY + rectH },
+        { rectX,         rectY + rectH }
+    };
 
-    qwr::error::CheckGdi( pGraphics->TransformPoints(
+    qwr::error::CheckGdi( pGraphics->TransformPoints
+    (
         Gdiplus::CoordinateSpacePage,
         Gdiplus::CoordinateSpaceWorld,
         (Gdiplus::PointF*)&points, 4
     ), "TransformPoints" );
 
-    float xmin = std::min<float>( { points[0].X, points[1].X, points[2].X, points[3].X } );
-    float xmax = std::max<float>( { points[0].X, points[1].X, points[2].X, points[3].X } );
-    float ymin = std::min<float>( { points[0].Y, points[1].Y, points[2].Y, points[3].Y } );
-    float ymax = std::max<float>( { points[0].Y, points[1].Y, points[2].Y, points[3].Y } );
+    float xMin = std::min<float>( { points[0].X, points[1].X, points[2].X, points[3].X } );
+    float xMax = std::max<float>( { points[0].X, points[1].X, points[2].X, points[3].X } );
+    float yMin = std::min<float>( { points[0].Y, points[1].Y, points[2].Y, points[3].Y } );
+    float yMax = std::max<float>( { points[0].Y, points[1].Y, points[2].Y, points[3].Y } );
 
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue( pJsCtx_, std::vector<float>{ xmin, ymin, xmax - xmin, ymax - ymin }, &jsValue );
+    convert::to_js::ToArrayValue( pJsCtx_, std::vector<float>{ xMin, yMin, xMax - xMin, yMax - yMin }, &jsValue );
 
     return jsValue;
 }
 
 void JsGdiGraphics::WriteString( const std::wstring& text, JsGdiFont* font, uint32_t colour,
-                                 float x, float y, float w, float h,
+                                 float rectX, float rectY, float rectW, float rectH,
                                  uint32_t flags )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    const auto draw = [&]( HDC dc )
+    WrapGdiCalls( pGraphics, [&]( HDC dc )
     {
         CComPtr<GdiTextRenderer> renderer = new GdiTextRenderer( dc );
         CComPtr<IDWriteTextFormat> textFormat = renderer->GetTextFormat( font->HFont() );
-        CComPtr<IDWriteTextLayout> textLayout = renderer->GetTextLayout( textFormat, text, w, h );
+        CComPtr<IDWriteTextLayout> textLayout = renderer->GetTextLayout( textFormat, text, rectW, rectH );
 
         DWRITE_TEXT_METRICS textMetrics;
         textLayout->GetMetrics( &textMetrics );
@@ -1563,35 +1427,34 @@ void JsGdiGraphics::WriteString( const std::wstring& text, JsGdiFont* font, uint
             textLayout->SetStrikethrough( true, { 0, text.length() } );
 
         // render
-        renderer->RenderLayout( textLayout, colour, x, y, fmts & Gdiplus::StringFormatFlagsNoClip );
-    };
-
-    WrapGdiCall( draw );
+        renderer->RenderLayout( textLayout, colour, rectX, rectX, fmts & Gdiplus::StringFormatFlagsNoClip );
+    } );
 }
 
-void JsGdiGraphics::WriteStringWithOpt( size_t optArgCount, const std::wstring& text, JsGdiFont* font, uint32_t colour,
-                                        float x, float y, float w, float h,
+void JsGdiGraphics::WriteStringWithOpt( size_t optArgCount,
+                                        const std::wstring& text, JsGdiFont* font, uint32_t colour,
+                                        float rectX, float rectY, float rectW, float rectH,
                                         uint32_t flags )
 {
     switch ( optArgCount )
     {
     case 0:
-        return WriteString( text, font, colour, x, y, w, h, flags );
+        return WriteString( text, font, colour, rectX, rectY, rectW, rectH, flags );
     case 1:
-        return WriteString( text, font, colour, x, y, w, h );
+        return WriteString( text, font, colour, rectX, rectY, rectW, rectH );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
 void JsGdiGraphics::WriteText( const std::wstring& text, JsGdiFont* font, uint32_t colour,
-                               float x, float y, float w, float h,
+                               float rectX, float rectY, float rectW, float rectH,
                                uint32_t flags )
 {
     qwr::QwrException::ExpectTrue( pGraphics, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    const auto draw = [&]( HDC dc )
+    WrapGdiCalls( pGraphics, [&]( HDC dc )
     {
         CComPtr<GdiTextRenderer> renderer = new GdiTextRenderer( dc );
         CComPtr<IDWriteTextFormat> textFormat = renderer->GetTextFormat( font->HFont() );
@@ -1636,7 +1499,7 @@ void JsGdiGraphics::WriteText( const std::wstring& text, JsGdiFont* font, uint32
         }
 
         // get layout
-        CComPtr<IDWriteTextLayout> textLayout = renderer->GetTextLayout( textFormat, out, w, h );
+        CComPtr<IDWriteTextLayout> textLayout = renderer->GetTextLayout( textFormat, out, rectW, rectH );
 
         DWRITE_TEXT_METRICS textMetrics;
         textLayout->GetMetrics( &textMetrics );
@@ -1718,34 +1581,32 @@ void JsGdiGraphics::WriteText( const std::wstring& text, JsGdiFont* font, uint32
             textLayout->SetMaxHeight( std::floorf( textLayout->GetMaxHeight() / font->get_Height() ) * font->get_Height() );
 
         // render
-        renderer->RenderLayout( textLayout, colour, x, y, flags & DT_NOCLIP );
-    };
-
-    WrapGdiCall( draw );
+        renderer->RenderLayout( textLayout, colour, rectX, rectY, flags & DT_NOCLIP );
+    } );
 }
 
-void JsGdiGraphics::WriteTextWithOpt( size_t optArgCount, const std::wstring& text, JsGdiFont* font, uint32_t colour,
-                                      float x, float y, float w, float h,
+void JsGdiGraphics::WriteTextWithOpt( size_t optArgCount,
+                                      const std::wstring& text, JsGdiFont* font, uint32_t colour,
+                                      float rectX, float rectY, float rectW, float rectH,
                                       uint32_t flags )
 {
     switch ( optArgCount )
     {
     case 0:
-        return WriteText( text, font, colour, x, y, w, h, flags );
+        return WriteText( text, font, colour, rectX, rectY, rectW, rectH, flags );
     case 1:
-        return WriteText( text, font, colour, x, y, w, h );
+        return WriteText( text, font, colour, rectX, rectY, rectW, rectH );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
 
-
 void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& path, const Gdiplus::RectF& rect,
-                                      float arc_width, float arc_height ) const
+                                      float arcWidth, float arcHeight ) const
 {
-    const float arc_dia_w = arc_width * 2;
-    const float arc_dia_h = arc_height * 2;
-    Gdiplus::RectF corner{ rect.X, rect.Y, arc_dia_w, arc_dia_h };
+    const float arcDiaW = arcWidth * 2;
+    const float arcDiaH = arcHeight * 2;
+    Gdiplus::RectF corner{ rect.X, rect.Y, arcDiaW, arcDiaH };
 
     qwr::error::CheckGdi( path.Reset(), "Reset" );
 
@@ -1753,15 +1614,15 @@ void JsGdiGraphics::GetRoundRectPath( Gdiplus::GraphicsPath& path, const Gdiplus
     qwr::error::CheckGdi( path.AddArc( corner, 180, 90 ), "AddArc" );
 
     // top right
-    corner.X += ( rect.Width - arc_dia_w );
+    corner.X += ( rect.Width - arcDiaW );
     qwr::error::CheckGdi( path.AddArc( corner, 270, 90 ), "AddArc" );
 
     // bottom right
-    corner.Y += ( rect.Height - arc_dia_h );
+    corner.Y += ( rect.Height - arcDiaH );
     qwr::error::CheckGdi( path.AddArc( corner, 0, 90 ), "AddArc" );
 
     // bottom left
-    corner.X -= ( rect.Width - arc_dia_w );
+    corner.X -= ( rect.Width - arcDiaW );
     qwr::error::CheckGdi( path.AddArc( corner, 90, 90 ), "AddArc" );
     qwr::error::CheckGdi( path.CloseFigure(), "CloseFigure" );
 }

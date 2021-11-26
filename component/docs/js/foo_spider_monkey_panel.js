@@ -3474,12 +3474,25 @@ function GdiGraphics() {
     this.DrawEllipse = function (x, y, w, h, line_width, colour) { }; // (void)
 
     /**
+     * Draw un-themed standard controls
+     * see {@link https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-drawframecontrol}
+     *
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number} control   See Flags.js > DFC_*
+     * @param {number} state     See Flags.js > DFCS_*
+     */
+    this.DrawFrameControl = function (x, y, w, h, type, state) { }; // (void)
+
+    /**
      * @param {number} x
      * @param {number} y
      * @param {number} w
      * @param {number} h
      */
-    this.DrawFocusRect = function (x, y, w, h) { }; // (void)
+     this.DrawFocusRect = function (x, y, w, h) { }; // (void)
 
     /**
      * @param {GdiBitmap} img
