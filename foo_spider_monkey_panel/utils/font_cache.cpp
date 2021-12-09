@@ -9,21 +9,14 @@ namespace smp::fontcache
 {
 static std::unordered_map<LOGFONTW, weak_hfont> cache = {};
 
-inline size_t Purge( bool force ) noexcept
-{
-    // FIXME: call after/from JS GC instead?
-    constexpr size_t purge_freq = 32; // purge map every nth access
-    static size_t access_count = 0;
-    if ( ( !force ) && ( ++access_count % purge_freq ) )
-        return 0;
-
-    return std::erase_if( cache, []( const auto& item ) {
-        return item.second.expired();
-    } );
-};
+// FIXME: call after/from JS GC instead?
+inline constexpr size_t purge_freq = 32; // purge map every nth access
+static size_t access_count = 0;
 
 shared_hfont Cache( const LOGFONTW& logfont ) noexcept
 {
+    ++access_count;
+
     static std::mutex m;
     std::scoped_lock<std::mutex> hold( m );
 
@@ -35,6 +28,24 @@ shared_hfont Cache( const LOGFONTW& logfont ) noexcept
     Purge();
 
     return font;
+};
+
+void Release( shared_hfont font ) noexcept
+{
+    ++access_count;
+
+    font.reset();
+}
+
+inline size_t Purge( bool force ) noexcept
+{
+    // FIXME: call after/from JS GC instead?
+    if ( ( !force ) && ( access_count % purge_freq ) )
+        return 0;
+
+    return std::erase_if( cache, []( const auto& item ) {
+        return item.second.expired();
+    } );
 };
 
 void ForEach( std::function<void( const std::pair<LOGFONTW, weak_hfont>& )> callback )
@@ -49,10 +60,10 @@ namespace smp::logfont
 
 void Make
 (
-    const std::wstring& _In_ fontName,
-    const int32_t _In_ fontSize,
-    const uint32_t _In_ fontStyle,
-    LOGFONTW& _Out_ logfont
+    _In_ const std::wstring& fontName,
+    _In_ const int32_t fontSize,
+    _In_ const uint32_t fontStyle,
+    _Out_ LOGFONTW& logfont
 )
 {
     BOOL font_smoothing = 0;
@@ -95,8 +106,8 @@ void Make
 
 void Normalize
 (
-    const HDC _In_ dc,
-    LOGFONTW& _Inout_ logfont
+    _In_ const HDC dc,
+    _Inout_ LOGFONTW& logfont
 )
 {
     if ( logfont.lfHeight > 0 )

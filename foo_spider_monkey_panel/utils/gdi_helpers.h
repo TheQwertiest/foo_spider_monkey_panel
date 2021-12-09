@@ -9,7 +9,7 @@ namespace
 
 // variadic std::is_same for checking if T same as (at least) one of the listed Ts types
 template <class T, class... Ts>
-using is_any_same = std::disjunction<std::is_same<T,Ts>...>;
+using is_any_same = std::disjunction<std::is_same<T, Ts>...>;
 
 // handle-x -> "handled-x-type"
 // eg: TxOF<HGDIOBJ> = "TGDIOBJ"  (aka "HGDIOBJ__" or "void");

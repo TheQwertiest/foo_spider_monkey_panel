@@ -118,11 +118,12 @@ CComPtr<IDWriteTextFormat> GdiTextRenderer::GetTextFormat( HFONT hfont )
     CComPtr<IDWriteFontFace> face = nullptr;
     TEXTMETRICW textmetric;
 
+    [&]
     {
         gdi::ObjectSelector autoFont( targetDC, hfont );
         qwr::error::CheckHR( GdiInterop()->CreateFontFaceFromHdc( targetDC, &face ), "CreateFontFaceFromHdc" );
         GetTextMetricsW( targetDC, &textmetric );
-    }
+    }();
 
     CComPtr<IDWriteFontFace3> face3;
     qwr::error::CheckHR( face.QueryInterface( &face3 ), "IDWriteFontFace::QueryInterface<IDWriteFontFace3>" );
@@ -244,17 +245,13 @@ void GdiTextRenderer::RenderLayout
     POINT origin =
     {
         static_cast<LONG>( x + textMetrics.left ),
-        static_cast<LONG>( y + textMetrics.top )
+        static_cast<LONG>( y + textMetrics.top  )
     };
 
     SIZE bounds =
     {
-        static_cast<LONG>( 1.0f + ( noclip
-            ? textMetrics.widthIncludingTrailingWhitespace
-            : std::min( textMetrics.widthIncludingTrailingWhitespace, textMetrics.layoutWidth ) ) ),
-        static_cast<LONG>( 1.0f + ( noclip
-            ? textMetrics.height
-            : std::min( textMetrics.height, textMetrics.layoutHeight ) ) )
+        1 + static_cast<LONG>( ( noclip ? textMetrics.widthIncludingTrailingWhitespace : std::min( textMetrics.widthIncludingTrailingWhitespace, textMetrics.layoutWidth ) ) ),
+        1 + static_cast<LONG>( ( noclip ? textMetrics.height                           : std::min( textMetrics.height, textMetrics.layoutHeight ) ) )
     };
 
     SIZE size;
@@ -281,7 +278,6 @@ void GdiTextRenderer::RenderLayout
         (
             targetDC, origin.x, origin.y, bounds.cx, bounds.cy,
             RenderDC(),      0,        0,
-            //SRCINVERT | NOMIRRORBITMAP
             SRCCOPY | NOMIRRORBITMAP
         ), "BitBlt->targetDC" );
     }
@@ -319,9 +315,9 @@ GdiTextRenderer::QueryInterface
 {
     if
     (
-        riid == __uuidof( IUnknown ) ||
+        riid == __uuidof( IUnknown             ) ||
         riid == __uuidof( IDWritePixelSnapping ) ||
-        riid == __uuidof( IDWriteTextRenderer )  ||
+        riid == __uuidof( IDWriteTextRenderer  ) ||
         riid == __uuidof( IDWriteTextRenderer1 )
     )
     {
@@ -338,14 +334,14 @@ GdiTextRenderer::QueryInterface
 IFACEMETHODIMP_( DWORD )
 GdiTextRenderer::AddRef()
 {
-    return ++refCount;
+    return ( ++refCount );
 }
 
 // IUnknown
 IFACEMETHODIMP_( DWORD )
 GdiTextRenderer::Release()
 {
-    DWORD newCount = --refCount;
+    DWORD newCount = ( --refCount );
 
     if ( newCount == 0 )
         delete this;

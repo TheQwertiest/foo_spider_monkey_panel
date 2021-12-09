@@ -17,27 +17,28 @@ using shared_hfont = std::shared_ptr<unique_hfont::element_type>;
 using weak_hfont = shared_hfont::weak_type;
 
 shared_hfont Cache( const LOGFONTW& logfont ) noexcept;
+void Release( shared_hfont font ) noexcept;
 size_t Purge( bool force = false ) noexcept;
-
 void ForEach( std::function<void( const std::pair<LOGFONTW, weak_hfont>& )> callback );
 
 } // namespace smp::fontcache
 
+// FIXME: move into own cpp/h?
 namespace smp::logfont
-{ // FIXME: move into own cpp/h?
+{
 
 void Make
 (
-    const std::wstring& _In_ fontName,
-    const int32_t _In_ fontSize,
-    const uint32_t _In_ fontStyle,
-    LOGFONTW& _Out_ logfont
+    _In_ const std::wstring& fontName,
+    _In_ const int32_t fontSize,
+    _In_ const uint32_t fontStyle,
+    _Out_ LOGFONTW& logfont
 );
 
 void Normalize
 (
-    const HDC _In_ dc,
-    LOGFONTW& _Inout_ logfont
+    _In_ const HDC dc,
+    _Inout_ LOGFONTW& logfont
 );
 
 } // namespace smp::logfont
@@ -56,7 +57,7 @@ struct hash<LOGFONTW>
             hash<wstring>{}( wstring( logfont.lfFaceName ) ),
 #if HASH_PACKED_PROPS
             ( ( logfont.lfHeight            ) << 13 ) |  // shift height into upper bits
-            ( ( logfont.lfWeight    & 0x3ff ) <<  3 ) |  // 10 bits = weight (0-1000),
+            ( ( logfont.lfWeight    & 0x3ff ) <<  3 ) |  // 10 bits for weight (0-1000),
             ( ( logfont.lfItalic    ? 1 : 0 ) <<  2 ) |  //  1 bit for the italic flag
             ( ( logfont.lfUnderline ? 1 : 0 ) <<  1 ) |  //  1 bit for the underline flag
             ( ( logfont.lfStrikeOut ? 1 : 0 )       )    //  1 but for the strikeout flag

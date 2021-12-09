@@ -231,7 +231,7 @@ bool js_panel_window::IsPanelIdOverridenByScript() const
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
     // According to MSDN:
-    ////
+    //
     // If no filter is specified, messages are processed in the following order:
     // - Sent messages
     // - Posted messages
@@ -239,7 +239,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     // - Sent messages (again)
     // - WM_PAINT messages
     // - WM_TIMER messages
-    ////
+    //
     // Since we are constantly processing our own `event` messages, we need to take additional care
     // so as not to stall WM_PAINT and WM_TIMER messages.
 
@@ -324,6 +324,7 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
         if ( isPaintInProgress_ )
             break;
 
+        // skip redraw if updaterect is empty
         CRect updateRect;
         wnd_.GetUpdateRect( &updateRect, FALSE );
 
@@ -566,9 +567,8 @@ void js_panel_window::OnProcessingEventFinish()
 std::optional<LRESULT> js_panel_window::ProcessEvent()
 {
     OnProcessingEventStart();
-    qwr::final_action onEventProcessed( [&] {
-        OnProcessingEventFinish();
-    } );
+
+    qwr::final_action onEventProcessed( [&] { OnProcessingEventFinish(); } );
 
     if ( const auto stalledMsgOpt = GetStalledMessage(); stalledMsgOpt )
     { // stalled messages always have a higher priority
@@ -594,9 +594,8 @@ std::optional<LRESULT> js_panel_window::ProcessEvent()
 void js_panel_window::ProcessEventManually( Runnable& runnable )
 {
     OnProcessingEventStart();
-    qwr::final_action onEventProcessed( [&] {
-        OnProcessingEventFinish();
-    } );
+
+    qwr::final_action onEventProcessed( [&] { OnProcessingEventFinish(); } );
 
     runnable.Run();
 }
@@ -610,10 +609,9 @@ std::optional<MSG> js_panel_window::GetStalledMessage()
         return std::nullopt;
     }
 
+    // means that WM_PAINT was invoked properly
     if ( !hRepaintTimer_ )
-    { // means that WM_PAINT was invoked properly
         return std::nullopt;
-    }
 
     KillTimer( wnd_, hRepaintTimer_ );
     hRepaintTimer_ = NULL;
@@ -822,6 +820,7 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
     }
     case WM_LBUTTONDBLCLK:
     {
+        // check if the panel is currently crashed and try to reload instead
         if ( HasFailed() )
         {
             ReloadScript();
@@ -1134,18 +1133,16 @@ void js_panel_window::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t i
             cSubMenu.CreatePopupMenu();
 
             auto scriptIdx = id_base + 100;
+
             for ( const auto& file: scriptFiles )
             {
-                const std::filesystem::path relativePath = [&] {
-                    if ( file.filename() == "main.js" )
+                const std::filesystem::path relativePath = [&]
                     {
-                        return fs::path( "main.js" );
-                    }
-                    else
-                    {
-                        return fs::relative( file, scriptsDir );
-                    }
+                    return ( file.filename() == "main.js" )
+                        ? fs::path( "main.js" )
+                        : fs::relative( file, scriptsDir );
                 }();
+
                 cSubMenu.AppendMenu( MF_STRING, ++scriptIdx, relativePath.c_str() );
             }
 
@@ -1156,6 +1153,7 @@ void js_panel_window::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t i
         {
             menu.AppendMenu( MF_STRING, ++curIdx, L"&Edit panel script..." );
         }
+
         menu.AppendMenu( MF_STRING, ++curIdx, L"&Panel properties..." );
         menu.AppendMenu( MF_STRING, ++curIdx, L"&Configure panel..." );
     }
@@ -1236,16 +1234,14 @@ qwr::u8string js_panel_window::GetPanelDescription( bool includeVersionAndAuthor
     if ( !settings_.scriptName.empty() )
     {
         ret += fmt::format( ": {}", settings_.scriptName );
+
         if ( includeVersionAndAuthor )
         {
             if ( !settings_.scriptVersion.empty() )
-            {
                 ret += fmt::format( " v{}", settings_.scriptVersion );
-            }
+
             if ( !settings_.scriptAuthor.empty() )
-            {
                 ret += fmt::format( " by {}", settings_.scriptAuthor );
-            }
         }
     }
 
@@ -1364,13 +1360,11 @@ void js_panel_window::RepaintBackground( const CRect& updateRect )
     CWindow parentWND = GetAncestor( wnd_, GA_PARENT );
 
     if ( !parentWND || IsIconic( core_api::get_main_window() ) || !wnd_.IsWindowVisible() )
-    {
         return;
-    }
 
-    // HACK: for Tab control
-    // Find siblings
     HWND hWND = nullptr;
+
+    // HACK: for Tabbed controls : Find siblings
     while ( hWND = FindWindowEx( parentWND, hWND, nullptr, nullptr ) )
     {
         if ( hWND == wnd_ )
@@ -1393,6 +1387,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRect )
     CRect combineRect{};
     childRgn.GetRgnBox( &combineRect );
 
+    // bail out if the computed region('s bounding box) is empty
     if ( combineRect.IsRectEmpty() )
         return;
 
@@ -1465,20 +1460,19 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     minSize_ = { 0, 0 };
     wnd_.PostMessage( static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_all, 0 );
 
+    // error reporting handled inside
     if ( !pJsContainer_->Initialize() )
-    { // error reporting handled inside
         return false;
-    }
 
     pTimeoutManager_->SetLoadingStatus( true );
 
     if ( settings_.script )
     {
         modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
+
+        // error reporting handled inside
         if ( !pJsContainer_->ExecuteScript( *settings_.script ) )
-        { // error reporting handled inside
             return false;
-        }
     }
     else
     {
@@ -1516,15 +1510,13 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
 
 void js_panel_window::UnloadScript( bool force )
 {
+    // possible during startup config load
     if ( !pJsContainer_ )
-    { // possible during startup config load
         return;
-    }
 
+    // should not go in JS again when forced to unload (e.g. in case of an error)
     if ( !force )
-    { // should not go in JS again when forced to unload (e.g. in case of an error)
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
-    }
 
     DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
     pJsContainer_->Finalize();
@@ -1716,16 +1708,18 @@ void js_panel_window::OnPaintJs( HDC memDC, const CRect& updateRect )
     // GM_ADVANCED is needed for GDI transforms (and DirectWrite textOrientations)
     qwr::error::CheckWinApi( ERROR != SetGraphicsMode( memDC, GM_ADVANCED ), "SetGraphicsMode" );
 
-    UINT textContrast = 1000; // range 1000 - 2200, defaults differ: GDI is 1900 vs 1400 in GDI+ (according to docs)
+    // copy textcontrast to the GDI+ graphics object
+    // range 1000 - 2200, defaults differ: GDI is 1900 vs 1400 in GDI+ (according to docs)
+    UINT textContrast = 1000;
     SystemParametersInfoW( SPI_GETFONTSMOOTHINGCONTRAST, 0, &textContrast, 0 );
 
     Gdiplus::Graphics graphics( memDC );
     graphics.SetTextContrast( textContrast );
 
-    // optimize away invisible / empty redraws
     // note: default cliprect (which is intersected here) is the paintrect from WM_PAINT
     graphics.IntersectClip( Gdiplus::Rect{ updateRect.left, updateRect.top, updateRect.Width(), updateRect.Height() } );
 
+    // check if the redraw would be visible at all
     if ( graphics.IsClipEmpty() || graphics.IsVisibleClipEmpty() )
         return;
 
@@ -1741,8 +1735,12 @@ void js_panel_window::OnSizeUser()
 {
     pJsContainer_->InvokeJsCallback( "on_size", clientRect.Width(), clientRect.Height() );
 
-    if ( settings_.isPseudoTransparent )
+    if ( !settings_.isPseudoTransparent )
     {
+        Repaint();
+        return;
+    }
+
         EventDispatcher::Get()
             .PutEvent
             (
@@ -1750,11 +1748,6 @@ void js_panel_window::OnSizeUser()
                 std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ),
                 EventPriority::kRedraw
             );
-    }
-    else
-    {
-        Repaint();
-    }
 }
 
 void js_panel_window::SetCaptureMouseState( bool shouldCapture )
@@ -1778,6 +1771,7 @@ void js_panel_window::SetDragAndDropStatus( bool isEnabled )
 
     if ( isEnabled )
     {
+        // if we have a handler already, skip
         if ( dropTargetHandler_ )
             return;
 
@@ -1786,6 +1780,7 @@ void js_panel_window::SetDragAndDropStatus( bool isEnabled )
     }
     else
     {
+        // release the handler if held
         if ( !dropTargetHandler_ )
             return;
 

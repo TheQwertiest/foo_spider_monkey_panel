@@ -1427,7 +1427,7 @@ void JsGdiGraphics::WriteString( const std::wstring& text, JsGdiFont* font, uint
             textLayout->SetStrikethrough( true, { 0, text.length() } );
 
         // render
-        renderer->RenderLayout( textLayout, colour, rectX, rectX, fmts & Gdiplus::StringFormatFlagsNoClip );
+        renderer->RenderLayout( textLayout, colour, rectX, rectY, fmts & Gdiplus::StringFormatFlagsNoClip );
     } );
 }
 

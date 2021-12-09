@@ -9,8 +9,8 @@
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
 
-#include <utils/gdi_error_helpers.h>
 #include <utils/dwrite_renderer.h>
+#include <utils/gdi_error_helpers.h>
 
 #include <qwr/final_action.h>
 
@@ -111,6 +111,7 @@ JsGdiFont::JsGdiFont( JSContext* ctx, const LOGFONTW& font )
 
 JsGdiFont::~JsGdiFont()
 {
+    fontcache::Release( font );
 }
 
 std::unique_ptr<JsGdiFont>
@@ -131,7 +132,7 @@ JSObject* JsGdiFont::Constructor( JSContext* ctx,
 
     logfont::Make( fontName, fontSize, fontStyle, logfont );
 
-    JS::RootedObject jsObject( ctx, JsGdiFont::CreateJs( ctx, logfont) );
+    JS::RootedObject jsObject( ctx, JsGdiFont::CreateJs( ctx, logfont ) );
     return jsObject;
 }
 

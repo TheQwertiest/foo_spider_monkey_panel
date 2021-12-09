@@ -84,6 +84,8 @@ void WrapGdiCalls( Gdiplus::Graphics* graphics, std::function<void( HDC dc )> co
     GdiOnlyDrawer( dc );
 
     qwr::QwrException::ExpectTrue( GdiFlush(), "WrapGdiCalls: post-GdiFlush failed" );
+
+    GdiFlush();
 }
 
 } // namespace smp::gdi

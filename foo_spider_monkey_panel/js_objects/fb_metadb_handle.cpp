@@ -128,10 +128,9 @@ bool JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
 JSObject* JsFbMetadbHandle::GetFileInfo()
 {
     metadb_info_container::ptr containerInfo;
+    
     if ( !metadbHandle_->get_info_ref( containerInfo ) )
-    { // Not an error: info not loaded yet
-        return nullptr;
-    }
+        containerInfo = metadbHandle_->get_info_ref();
 
     return JsFbFileInfo::CreateJs( pJsCtx_, containerInfo );
 }
