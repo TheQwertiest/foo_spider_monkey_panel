@@ -35,7 +35,8 @@ ___
   - Reverted changes in `window.NotifyOthers()` behaviour. Now it's executed synchronously as before.
 
 ### Fixed
-- Fixed various bugs in event handling system, which were causing unexpected behaviour and crashes.
+- Fixed various bugs in the event handling system, which were causing unexpected behaviour and crashes.
+- Fixed right-mouse-btn-down and middle-mouse-btn-down events not being processed.
 
 ## [1.6.0][] - 2021-09-11
 
