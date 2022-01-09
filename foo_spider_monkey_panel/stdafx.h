@@ -7,6 +7,11 @@
 #define _WIN32_WINNT _WIN32_WINNT_WIN7
 #define WINVER _WIN32_WINNT_WIN7
 
+// bump GDI+ version to 1.1
+#if WINVER >= _WIN32_WINNT_VISTA
+#define GDIPVER 0x0110
+#endif
+
 // Fix std min max conflicts
 #define NOMINMAX
 #include <algorithm>
@@ -20,7 +25,7 @@ using std::max;
 #include <Windows.h>
 #pragma warning( push, 0 )
 #   include <GdiPlus.h>
-#pragma warning( pop ) 
+#pragma warning( pop )
 
 // COM objects
 #include <ActivScp.h>
@@ -37,7 +42,7 @@ using std::max;
 /// atlstr.h (includes atlbase.h) must be included first for CString to LPTSTR conversion to work.
 /// windowsx.h must be included first to avoid conflicts.
 #include <windowsx.h>
-#include <atlstr.h> 
+#include <atlstr.h>
 #include <atlapp.h>
 #include <atlcom.h>
 #include <atlcrack.h>
@@ -61,12 +66,12 @@ using std::max;
 // foobar2000 SDK
 #pragma warning( push, 0 )
 #   include <foobar2000/SDK/foobar2000.h>
-#pragma warning( pop ) 
+#pragma warning( pop )
 
 // Columns UI SDK
 #pragma warning( push, 0 )
 #   include <columns_ui-sdk/ui_extension.h>
-#pragma warning( pop ) 
+#pragma warning( pop )
 
 #if defined(__clang__)
 
@@ -93,7 +98,7 @@ using std::max;
 // 4251: dll interface warning
 #define SMP_MJS_SUPPRESS_WARNINGS_PUSH \
     __pragma( warning( push ) )        \
-    __pragma( warning( disable : 4251 ) ) 
+    __pragma( warning( disable : 4251 ) )
 
 #define SMP_MJS_SUPPRESS_WARNINGS_POP \
     __pragma( warning( pop ) )

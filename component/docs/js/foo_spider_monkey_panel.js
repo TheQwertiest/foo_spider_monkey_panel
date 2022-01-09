@@ -18,7 +18,7 @@
  * @param {object=} [options=undefined]
  * @param {boolean=} [options.always_evaluate=false] If true, evaluates the script even if it was included before.
  *
- * @example <caption>Include sample from `foo_spider_monkey_panel`</caption> 
+ * @example <caption>Include sample from `foo_spider_monkey_panel`</caption>
  * include('samples/complete/properties.js')
  */
 function include(path, options) { }
@@ -75,19 +75,19 @@ function ActiveXObject(name) {
      * Creates an `ActiveXObject` that contains an object of type (VT_ARRAY|SOME_TYPE).
      *
      * @static
-     * 
+     *
      * @param {Array<*>} arr An array that contains elements of primitive type.
      * @param {number} element_variant_type A variant type of array elements.
      *
      * @return {ActiveXObject}
-     * 
+     *
      * @example
      * let filename = 'x:\\file.bin';
      * let bin_data = [0x01, 0x00, 0x00, 0x02]
      * let com_bin_data = ActiveXObject.ActiveX_CreateArray(bin_data, 0x11) // VT_UI1
-     * 
+     *
      * let stm = new ActiveXObject('ADODB.Stream');
-     * 
+     *
      * stm.Open();
      * stm.Type = 1; //adTypeBinary
      * stm.Write(com_bin_data);
@@ -124,12 +124,12 @@ function ActiveXObject(name) {
 
 /**
  * Deprecated: use `for ... of` loop instead.
- * 
+ *
  * @deprecated
- * 
+ *
  * @constructor
  * @param {ActiveXObject} active_x_object Any ActiveX collection object.
- * 
+ *
  * @example
      * let e = new Enumerator(active_x_object);
      * for (e.moveFirst(); !e.atEnd(); e.moveNext()) {
@@ -348,7 +348,7 @@ let fb = {
      * Deprecated: use {@link FbMetadbHandleList} constructor instead.
      *
      * @deprecated
-     * 
+     *
      * @return {FbMetadbHandleList}
      */
     CreateHandleList: function () { }, // (FbMetadbHandleList)
@@ -393,7 +393,7 @@ let fb = {
      * <br>
      * Related callbacks: {@link module:callbacks~on_drag_enter on_drag_enter, {@link module:callbacks~on_drag_drop on_drag_drop},
      * {@link module:callbacks~on_drag_over on_drag_over}, {@link module:callbacks~on_drag_leave on_drag_leave}
-     * 
+     *
      * @param {number} window_id unused
      * @param {FbMetadbHandleList} handle_list
      * @param {number} effect Allowed effects.
@@ -441,7 +441,7 @@ let fb = {
      * Returns a JSON array in string form so you need to use JSON.parse() on the result.
      * <br>
      * Related methods: {@link fb.SetDSPPreset}.
-     * 
+     *
      * @return {string}
      *
      * @example
@@ -506,7 +506,7 @@ let fb = {
      * Returns a JSON array in string form so you need to use JSON.parse() on the result.
      * <br>
      * Related methods: {@link fb.SetOutputDevice}.
-     * 
+     *
      * @return {string}
      *
      * @example
@@ -657,7 +657,7 @@ let fb = {
      * <br>
      * Related methods: {@link fb.UnregisterMainMenuCommand}<br>
      * Related callbacks: {@link module:callbacks~on_main_menu_dynamic on_main_menu_dynamic}
-     * 
+     *
      * @param {number} id
      * @param {string} name
      * @param {string=} [description='']
@@ -1043,7 +1043,7 @@ let plman = {
 
     /**
      * Returns the list of blocked actions
-     * 
+     *
      * @param {number} playlistIndex
      * @return {Array<string>} May contain the following:<br>
      *   - 'AddItems'<br>
@@ -1126,7 +1126,7 @@ let plman = {
      * Deprecated: use {@link plman.GetPlaylistLockedActions}.
      *
      * @deprecated
-     * 
+     *
      * @param {number} playlistIndex
      * @return {boolean}
      */
@@ -1267,8 +1267,8 @@ let plman = {
      * Blocks requested actions.<br>
      * Note: the lock can be changed only if there is no lock or if it's owned by `foo_spider_monkey_panel`.
      * The owner of the lock can be checked via {@link plman.GetPlaylistLockName}.
-     * 
-     * 
+     *
+     *
      * @param {number} playlistIndex
      * @param {Array<string>} lockedActions May contain the following:<br>
      *   - 'AddItems'<br>
@@ -1361,7 +1361,7 @@ let plman = {
      * Note: this method should be called before performing modification to the playlist.<br>
      * <br>
      * Related methods: {@link plman.IsRedoAvailable}, {@link plman.IsUndoAvailable}, {@link plman.Redo}, {@link plman.Undo}
-     * 
+     *
      * @param {number} playlistIndex
      */
     UndoBackup: function (playlistIndex) { }, // (void)
@@ -1497,7 +1497,7 @@ let utils = {
     /**
      * Detect the codepage of the file.\n
      * Note: detection algorithm is probability based (unless there is a UTF BOM),
-     * i.e. even though the returned codepage is the most likely one, 
+     * i.e. even though the returned codepage is the most likely one,
      * there's no 100% guarantee it's the correct one.\n
      * Performance note: detection algorithm is quite slow, so results should be cached as much as possible.
      *
@@ -1527,7 +1527,7 @@ let utils = {
      * {@link utils.IsDirectory}, {@link utils.IsFile} and {@link utils.SplitFilePath} instead.
      *
      * @deprecated
-     * 
+     *
      * @param {string} path
      * @param {string} mode
      *     "chardet" - Detects the codepage of the given file. Returns a corresponding codepage number on success, 0 if codepage detection failed.<br>
@@ -1634,6 +1634,15 @@ let utils = {
     GetAlbumArtV2: function (handle, art_id, need_stub) { }, // (GdiBitmap) [, art_id][, need_stub]
 
     /**
+     * Get Device Capabilites for the monitor the panel is displayed on.
+     * see: {@link https://docs.microsoft.com/en-us/windows/win32/api/wingdi/nf-wingdi-getdevicecaps}
+     *
+     * @param {number} index See Flags.js > DeviceCaps
+     * @return {number} value
+     */
+    GetDeviceCaps: function (index) { },
+
+    /**
      * @param {string} path
      * @return {number} File size, in bytes
      */
@@ -1641,7 +1650,7 @@ let utils = {
 
     /**
      * Note: returned directories are not guaranteed to exist.
-     * 
+     *
      * @typedef {Object} JsPackageDirs
      * @property {string} Root Root directory of the package
      * @property {string} Assets Directory inside package folder that contains assets
@@ -1659,7 +1668,7 @@ let utils = {
 
     /**
      * Get information about a package with the specified id.<br>
-     * 
+     *
      * @param {string} package_id
      * @return {?JsPackageInfo} null if not found, package information otherwise
      */
@@ -1670,9 +1679,9 @@ let utils = {
      * Throws exception if package is not found. <br>
      * <br>
      * Deprecated: use {@link window.GetPackageInfo} instead.
-     * 
+     *
      * @deprecated
-     * 
+     *
      * @param {string} package_id
      * @return {string}
      */
@@ -1936,18 +1945,18 @@ let window = {
 
     /**
     * Return value of {@link window.JsMemoryStats}.<br>
-    * 
+    *
     * @typedef {Object} JsMemoryStats
     * @property {number} MemoryUsage Memory usage of the current panel (in bytes)
     * @property {number} TotalMemoryUsage Total memory usage of all panels (in bytes)
-    * @property {number} TotalMemoryLimit 
+    * @property {number} TotalMemoryLimit
     *    Maximum allowed memory usage for the component (in bytes).<br>
     *    If the total memory usage exceeds this value, all panels will fail with OOM error.
     */
 
     /**
      * Get memory statistics for JavaScript engine.
-     * 
+     *
      * @type {JsMemoryStats}
      * @readonly
      */
@@ -1981,7 +1990,7 @@ let window = {
      * Deprecated: use {@link window.JsMemoryStats.total_memory_limit} instead.
      *
      * @deprecated
-     * 
+     *
      * @type {number}
      * @readonly
      */
@@ -2015,7 +2024,7 @@ let window = {
      * Deprecated: use {@link window.JsMemoryStats.memory_usage} instead.
      *
      * @deprecated
-     * 
+     *
      * @type {number}
      * @readonly
      */
@@ -2024,7 +2033,7 @@ let window = {
     /**
     * Return value of {@link window.ScriptInfo}.<br>
     * Note: package_id is only present when the panel script is a package.
-    * 
+    *
     * @typedef {Object} ScriptInfo
     * @property {string} Name
     * @property {string} [Author]
@@ -2054,7 +2063,7 @@ let window = {
      * Deprecated: use {@link window.JsMemoryStats.total_memory_usage} instead.
      *
      * @deprecated
-     * 
+     *
      * @type {number}
      * @readonly
      */
@@ -2102,7 +2111,7 @@ let window = {
     /**
      * Setup the script information.<br>
      * Can be called only once for the whole panel.
-     * 
+     *
      * @param {string} name Script name
      * @param {object=} [options={}]
      * @param {string=} [options.author=''] Script author
@@ -2143,7 +2152,7 @@ let window = {
      * Deprecated: use {@link fb.Tooltip} and {@link FbTooltip.SetFont} instead.
      *
      * @deprecated
-     * 
+     *
      * @param {string=} [font_name='Segoe UI']
      * @param {number=} [font_size_px=12]
      * @param {number=} [font_style=0] See Flags.js > FontStyle
@@ -2207,13 +2216,13 @@ let window = {
      *
      * @param {string} name
      * @param {*} info
-     * 
+     *
      * @example
-     * let data = { 
+     * let data = {
      *    // some data
      * };
      * window.NotifyOthers('have_some_data', data);
-     * 
+     *
      * data = null; // stop using the object immediately
      * // AddSomeAdditionalValues(data); // don't try to modify it, since it will affect the object in the other panel as well
      */
@@ -2296,7 +2305,7 @@ let window = {
      * Deprecated: use {@link window.ShowConfigureV2} to configure panel and {@link window.EditScript} to edit script.
      *
      * @deprecated
-     * 
+     *
      * @method
      */
     ShowConfigure: function () { }, // (void)
@@ -3000,7 +3009,7 @@ function FbTooltip() {
      * Note: this also updates text on the active tooltip
      * i.e. there is no need to manually cycle Deactivate()/Activate()
      * to update text.
-     * 
+     *
      * @type {string}
      *
      * @example
@@ -3111,7 +3120,7 @@ function FbUiSelectionHolder() {
      * Sets the selected items.
      *
      * @param {FbMetadbHandleList} handle_list
-     * 
+     *
      * @param {number} [type=0] Selection type. Possible values:<br>
      *     0 - default, undefined<br>
      *     1 - active_playlist_selection<br>
@@ -3120,7 +3129,7 @@ function FbUiSelectionHolder() {
      *     4 - now_playing<br>
      *     5 - keyboard_shortcut_list<br>
      *     6 - media_library_viewer
-     * 
+     *
      */
     this.SetSelection = function (handle_list, type) { }; // (void)
 
@@ -3297,42 +3306,64 @@ function GdiBitmap(arg) {
  */
 function GdiFont(name, size_px, style) {
     /**
+     * Get / set the font line height in pixels
      * @type {number}
-     * @readonly
      *
      * @example
-     * console.log(my_font.Height); // 15
+     *   console.log(my_font.Height); // 15
      */
-    this.Height = undefined;//    (uint)(read)
+    this.Height = undefined;//    (uint)
+
+    /**
+     * Get / set the italic style flag
+     * @type {bool}
+     *
+     * @see {@link GdiFont#Style}
+     *
+     * @example
+     *    console.log(my_font.Italic); // false
+     *    my_font.Italic = true;
+     */
+    this.Italic = undefined;//    (bool)
 
     /**
      * @type {string}
-     * @readonly
      *
      * @example
-     * console.log(my_font.Name); // Segoe UI
+     *   console.log(my_font.Name); // Segoe UI
      */
-    this.Name = undefined;//    (string)(read)
+    this.Name = undefined;//    (string)
 
     /**
+     * font height (the "em" height) in pixels
      * @type {float}
-     * @readonly
      *
      * @example
-     * console.log(my_font.Size); // 12
+     *     console.log(my_font.Size); // 12
      */
-    this.Size = undefined;//    (float)(read)
+    this.Size = undefined;//    (float)
+
+    /**
+     * Get / set the strikeout style flag
+     * @type {bool}
+     *
+     * @see {@link GdiFont#Style}
+     *
+     * @example
+     *    console.log(my_font.Strikeour); // false
+     *    my_font.Italic = true;
+     */
+    this.Strikeout = undefined;//    (bool)
 
     /**
      * See Flags.js > FontStyle for value interpretation.
      *
      * @type {number}
-     * @readonly
      *
      * @example
-     * console.log(my_font.Style);
+     *    console.log(my_font.Style);
      */
-    this.Style = undefined;//    (uint)(read)
+    this.Style = undefined;//    (uint)
 }
 
 /**
@@ -3347,29 +3378,90 @@ function GdiFont(name, size_px, style) {
  * @hideconstructor
  */
 function GdiGraphics() {
+
+    /**
+     * The BeginContainer method begins a new graphics container. The call must be paired with a call to {@link GdiGraphics#EndContainer}.
+     * See: {@link https://docs.microsoft.com/en-us/windows/win32/gdiplus/-gdiplus-using-graphics-containers-use}
+     *
+     * @param {number=} [dst_x=0]
+     * @param {number=} [dst_y=0]
+     * @param {number=} [dst_w=0]
+     * @param {number=} [dst_h=0]
+     * @param {number=} [src_x=0]
+     * @param {number=} [src_y=0]
+     * @param {number=} [src_w=0]
+     * @param {number=} [src_h=0]
+     * @return {number} state
+     */
+    this.BeginContainer = function (dst_x, dst_y, dst_w, dst_h, src_x, src_y, src_w, src_h) { }; // (uint)
+
     /**
      * Calculates text height for {@link GdiGraphics#GdiDrawText}.<br>
      * Note: this will only calculate the text height of one line.
      *
-     * @param {string} str
+     * @param {string} text
      * @param {GdiFont} font
      * @return {number}
      */
-    this.CalcTextHeight = function (str, font) { }; // (uint)
+    this.CalcTextHeight = function (text, font) { }; // (uint)
 
     /**
      * Calculates text width for {@link GdiGraphics#GdiDrawText}.
-     * 
-     * Note: When the str contains a kerning pair that is found in the specified 
-     * font, the return value will be larger than the actual drawn width of the
-     * text. If accurate values are required, set use_exact to true.
      *
-     * @param {string} str
+     * Note: When the str contains a kerning pair that is found in the specified font,
+     * the return value will be larger than the actual drawn width of the text.
+     * If accurate values are required, set use_exact to true.
+     *
+     * @param {string} text
      * @param {GdiFont} font
-     * @param {boolean=} [use_exact=false] Uses a slower, but more accurate method of calculating text width which accounts for kerning pairs.  
+     * @param {boolean=} [use_exact=false] Uses a slower, but more accurate method of calculating text width which accounts for kerning pairs.
      * @return {number}
      */
-    this.CalcTextWidth = function (str, font, use_exact) { }; // (uint)
+    this.CalcTextWidth = function (text, font, use_exact) { }; // (uint)
+
+    /**
+     * Calculates text height for {@link GdiGraphics#WriteText} and {@link GdiGraphics#WriteString}.
+     * <br>
+     * Note: this will calculate the overall height of of the whole text,
+     * accounting for included newlines, without word-wrapping/trimming.
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {boolean=} [use_exact=false] Adjust measurement with trailing whitespace
+     *
+     * @return {number}
+     */
+    this.CalcWriteTextHeight = function (text, font, use_exact) { }; // (uint)
+
+    /**
+     * Calculates text width for {@link GdiGraphics#WriteText} and {@link GdiGraphics#WriteString}.
+     * <br>
+     * Note: this will calculate the overall width of the whole text,
+     * accounting for included newlines, without word-wrapping/trimming.
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {boolean=} [use_exact=false] Adjust measurement with trailing whitespace
+     *
+     * @return {number}
+     */
+    this.CalcWriteTextWidth = function (text, font, use_exact) { }; // (uint)
+
+    /**
+     * @param {number} colour
+     */
+    this.Clear = function (colour) { }; // (uint)
+
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number=} [edge=0] See Flags.js > BRD_* and EDGE_*
+     * @param {number=} [flags=0] See Flags.js > BF_*
+     * @returns {Array<number>|undefined} the content rectangle if BF_ADJUST was specified in the flags, otherwise undefined
+     */
+    this.DrawEdge = function (x, y, w, h, edge, flags) { }; // (Array<number>|undefined)
 
     /**
      * @param {number} x
@@ -3380,6 +3472,27 @@ function GdiGraphics() {
      * @param {number} colour
      */
     this.DrawEllipse = function (x, y, w, h, line_width, colour) { }; // (void)
+
+    /**
+     * Draw un-themed standard controls
+     * see {@link https://docs.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-drawframecontrol}
+     *
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number} control   See Flags.js > DFC_*
+     * @param {number} state     See Flags.js > DFCS_*
+     */
+    this.DrawFrameControl = function (x, y, w, h, type, state) { }; // (void)
+
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     */
+     this.DrawFocusRect = function (x, y, w, h) { }; // (void)
 
     /**
      * @param {GdiBitmap} img
@@ -3414,20 +3527,6 @@ function GdiGraphics() {
     this.DrawPolygon = function (colour, line_width, points) { }; // (void)
 
     /**
-     * Should be only used when {@link GdiGraphics#GdiDrawText} is not applicable.
-     *
-     * @param {string} str
-     * @param {GdiFont} font
-     * @param {number} colour
-     * @param {number} x
-     * @param {number} y
-     * @param {number} w
-     * @param {number} h
-     * @param {number=} [flags=0] See Flags.js > StringFormatFlags
-     */
-    this.DrawString = function (str, font, colour, x, y, w, h, flags) { }; // (void) [, flags]
-
-    /**
      * @param {number} x
      * @param {number} y
      * @param {number} w
@@ -3450,20 +3549,18 @@ function GdiGraphics() {
     this.DrawRoundRect = function (x, y, w, h, arc_width, arc_height, line_width, colour) { }; // (void)
 
     /**
+     * Should be only used when {@link GdiGraphics#GdiDrawText} is not applicable.
+     *
      * @param {string} str
      * @param {GdiFont} font
-     * @param {number} max_width
-     * @return {Array<Array>}
-     *    index | meaning <br>
-     *    [0] text line 1 <br>
-     *    [1] width of text line 1 (in pixel) <br>
-     *    [2] text line 2 <br>
-     *    [3] width of text line 2 (in pixel) <br>
-     *    ... <br>
-     *    [2n + 2] text line n <br>
-     *    [2n + 3] width of text line n (px)
+     * @param {number} colour
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number=} [flags=0] See Flags.js > StringFormatFlags and Helpers.js > StringFormat()
      */
-    this.EstimateLineWrap = function (str, font, max_width) { }; // (Array)
+    this.DrawString = function (str, font, colour, x, y, w, h, flags) { }; // (void) [, flags]
 
     /**
      * @param {number} x
@@ -3517,6 +3614,30 @@ function GdiGraphics() {
     this.FillSolidRect = function (x, y, w, h, colour) { }; // (void)
 
     /**
+     * The EndContainer method closes a graphics container that was
+     * previously opened by the {@link GdiGraphics#BeginContainer} method.
+     *
+     * @param {number} state
+     */
+    this.EndContainer = function (state) { }; // (void)
+
+    /**
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {number} max_width
+     * @return {Array<Array>}
+     *    index | meaning <br>
+     *    [0] text line 1 <br>
+     *    [1] width of text line 1 (in pixel) <br>
+     *    [2] text line 2 <br>
+     *    [3] width of text line 2 (in pixel) <br>
+     *    ... <br>
+     *    [2n + 2] text line n <br>
+     *    [2n + 3] width of text line n (px)
+     */
+    this.EstimateLineWrap = function (text, font, max_width) { }; // (Array)
+
+    /**
      * @param {GdiRawBitmap} img
      * @param {number} dstX
      * @param {number} dstY
@@ -3558,7 +3679,7 @@ function GdiGraphics() {
      * Note: uses special rules for `&` character by default, which consumes the `&` and causes the next character to be underscored.
      * This behaviour can be changed (or disabled) via `format` parameter.
      *
-     * @param {string} str
+     * @param {string} text
      * @param {GdiFont} font
      * @param {number} colour
      * @param {number} x
@@ -3567,21 +3688,114 @@ function GdiGraphics() {
      * @param {number} h
      * @param {number=} [format=0] See Flags.js > DT_*
      */
-    this.GdiDrawText = function (str, font, colour, x, y, w, h, format) { };
+    this.GdiDrawText = function (text, font, colour, x, y, w, h, format) { };
+
+    /**
+     * Get current clip rectangle
+     *
+     * @returns {Array<number>} as [x, y, w, h]
+     */
+    this.GetClip = function () { }; // (Array<number>)
+
+    /**
+     * @returns {number} See Flags.js > CompositingMode
+     */
+    this.GetCompositingMode = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > CompositingQuality
+     */
+    this.GetCompositingQuality = function () { }; // (number)
+
+    /**
+     * @returns {number}
+     */
+    this.GetDpiX = function () { }; // (number)
+
+    /**
+     * @returns {number}
+     */
+    this.GetDpiY = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > InterpolationMode
+     */
+    this.GetInterpolationMode = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > PixelOffsetMode
+     */
+    this.GetPixelOffsetMode = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > SmoothingMode
+     */
+    this.GetSmoothingMode = function () { }; // (number)
+
+    /**
+     * @returns {number}
+     */
+    this.GetTextContrast = function () { }; // (number)
+
+    /**
+     * @returns {number} See Flags.js > TextRenderingHint
+     */
+    this.GetTextRenderingHint = function () { }; // (number)
+
+    /**
+     * Get current transform matrix as an array of numbers.
+     *
+     * @returns {Array<number>} as [m11, m12, m21, m22, dx, dy]
+     */
+    this.GetTransform = function () { }; // (Array<number>)
+
+    /**
+     * Check if clipping region is empty
+     *
+     * @returns {boolean}
+     */
+    this.IsClipEmpty = function () { };
+
+    /**
+     * Check if a point is visible (not clipped)
+     *
+     * @param {number} x
+     * @param {number} y
+     * @returns {boolean}
+     */
+    this.IsPointVisible = function (x, y) { };
+
+    /**
+     * Check if a rectangle is visible (not clipped)
+     *
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @returns {boolean}
+     */
+    this.IsRectVisible = function (x, y, w, h) { };
+
+    /**
+     * Check if visible clipping region is empty
+     *
+     * @returns {boolean}
+     */
+    this.IsVisibleClipEmpty = function () { };
 
     /**
      * Calculates text dimensions for {@link GdiGraphics#DrawString}.
      *
-     * @param {string} str
+     * @param {string} text
      * @param {GdiFont} font
      * @param {number} x
      * @param {number} y
      * @param {number} w
      * @param {number} h
-     * @param {number=} [flags=0] See Flags.js > StringFormatFlags
+     * @param {number=} [flags=0] See Flags.js > StringFormatFlags and Helpers.js > StringFormat()
      * @return {MeasureStringInfo}
      */
-    this.MeasureString = function (str, font, x, y, w, h, flags) { }; // (MeasureStringInfo) [, flags]
+    this.MeasureString = function (text, font, x, y, w, h, flags) { }; // (MeasureStringInfo) [, flags]
 
     /**
      * @constructor
@@ -3645,9 +3859,104 @@ function GdiGraphics() {
     }
 
     /**
+     * Update the transform matrix with the product of itself and another matrix
+     *
+     * @param {number} m11
+     * @param {number} m12
+     * @param {number} m21
+     * @param {number} m22
+     * @param {number} dx
+     * @param {number} dy
+     * @param {number=} [order=0] See Flags.js > MatrixOrder
+     */
+    this.MultiplyTransform = function (m11, m12, m21, m22, dx, dy, order) { };
+
+    /**
+     * Resets clip rectangle to default
+     *
+     * @method
+     */
+    this.ResetClip = function () { };
+
+    /**
+     * Reset transform matrix to the identity matrix
+     *
+     * @method
+     */
+    this.ResetTransform = function () { };
+
+    /**
+     * The Restore method sets the state of this Graphics object
+     * to the state stored by a previous call to the
+     * {@link GdiGraphics#Save} method of this GdiGraphics object.
+     *
+     * @param {number} state
+     */
+    this.Restore = function () { };
+
+    /**
+     * Update the transform matrix with the product of itself and a rotation matrix
+     *
+     * @param {number} angle
+     * @param {number=} [order=0] See Flags.js > MatrixOrder
+     */
+    this.RotateTransform = function (angle, order) { };
+
+    /**
+     * The Save method saves the current state (transformations, clipping
+     * region, and quality settings) of this Graphics object.
+     * You can restore the state later by calling the
+     * {@link Graphics#Restore} method.
+     *
+     * @returns {number} state
+     */
+    this.Save = function () { };
+
+    /**
+     * Set the clip rectangle
+     *
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     */
+    this.SetClip = function (x, y, w, h) { };
+
+    /**
+     * Set transform matrix
+     *
+     * @param {number} m11
+     * @param {number} m12
+     * @param {number} m21
+     * @param {number} m22
+     * @param {number} dx
+     * @param {number} dy
+     */
+    this.SetTransform = function (m11, m12, m21, m22, dx, dy) { };
+
+    /**
+     * Update the transform matrix with the product of itself and a scaling matrix
+     *
+     * @param {number} sx
+     * @param {number} sy
+     * @param {number=} [order=0]
+     */
+    this.ScaleTransform = function (sx, sy, order) { };
+
+    /**
+     * @param {number=} [mode=0] See Flags.js > CompositingQuality
+     */
+    this.SetCompositingQuality = function (mode) { }; // (void)
+
+    /**
      * @param {number=} [mode=0] See Flags.js > InterpolationMode
      */
     this.SetInterpolationMode = function (mode) { }; // (void)
+
+    /**
+     * @param {number=} [mode=0] See Flags.js > PixelOffsetMode
+     */
+    this.SetPixelOffsetMode = function (mode) { }; // (void)
 
     /**
      * @param {number=} [mode=0] See Flags.js > SmoothingMode
@@ -3655,9 +3964,103 @@ function GdiGraphics() {
     this.SetSmoothingMode = function (mode) { }; // (void)
 
     /**
+     * @param {number} contrast
+     */
+    this.SetTextContrast = function (contrast) { }; // (void)
+
+    /**
      * @param {number=} [mode=0] See Flags.js > TextRenderingHint
      */
     this.SetTextRenderingHint = function (mode) { }; // (void)
+
+    /**
+     * Transform point using the current transformation matrix
+     *
+     * @param {number} x
+     * @param {number} y
+     * @returns {Array<number>} as [x, y]
+     */
+    this.TransformPoint = function (x, y) { }; // (Array<number>)
+
+    /**
+     * Transform a rectangle using the current transformation matrix
+     * and return the _bounding_ rectangle
+     *
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @returns {Array<number>} as [x, y, w, h]
+     */
+    this.TransformRect = function (x, y, w, h) { }; // (Array<number>)
+
+    /**
+     * Update the transform matrix with the product of itself and a translation matrix
+     *
+     * @param {number} dx
+     * @param {number} dy
+     * @param {number=} [order=0]
+     */
+    this.TranslateTransform = function (dx, dy, order) { };
+
+    /**
+     * Un-Transform a transformed point using the current transformation matrix
+     *
+     * @param {number} x
+     * @param {number} y
+     * @returns {Array<number>} as [x, y]
+     */
+    this.UnTranformPoint = function (x, y) { }; // (Array<number>)
+
+    /**
+     * Un-Transform a transformed rectangle using the current transformation matrix
+     * and return the _bounding_ rectangle
+     *
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @returns {Array<number>} as [x, y, w, h]
+     */
+    this.UnTransformRect = function (x, y, w, h) { }; // (Array<number>)
+
+    /**
+     * Renders text with DirectWrite using a {@link GdiGraphics#DrawString} compatible call.
+     * <br>
+     * To calculate text dimensions use {@link GdiGraphics#CalcWriteTextHeight}, {@link GdiGraphics#CalcWriteTextWidth}.
+     * <br>
+     *
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {number} colour
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number=} [flags=0] See Flags.js > StringFormatFlags and Helpers.js > StringFormat()
+     */
+    this.WriteString = function (text, font, colour, x, y, w, h, flags) { }; // (void) [, flags]
+
+    /**
+     * Renders text with DirectWrite using a {@link GdiGraphics#GdiDrawText} compatible call.
+     * <br>
+     * To calculate text dimensions use {@link GdiGraphics#CalcWriteTextHeight}, {@link GdiGraphics#CalcWriteTextWidth}.
+     * <br>
+     * Supported DT_* flags are:
+     * - DT_LEFT, DT_RIGHT, DT_CENTER, DT_RLTREADING, DT_TOP, DT_BOTTOM, DT_VCENTER,
+     *   DT_WORDBREAK, DT_SINGLELINE, DT_END_ELLIPSIS, DT_WORD_ELLIPSIS, DT_PATH_ELLIPSIS,
+     *
+     * @param {string} text
+     * @param {GdiFont} font
+     * @param {number} colour
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number=} [format=0] See Flags.js > DT_*
+     */
+    this.WriteText = function (text, font, colour, x, y, w, h, format) { };
 }
 
 /**
@@ -3725,7 +4128,7 @@ function DropTargetAction() {
     /**
      * True, if the drag session was started by {@link fb.DoDragDrop}.
      * False, otherwise.
-     * 
+     *
      * @type {boolean}
      * @readonly
      */
@@ -3845,6 +4248,7 @@ function MenuObject() {
  * @hideconstructor
  */
 function ThemeManager() {
+
     /**
      * @param {GdiGraphics} gr
      * @param {number} x
@@ -3859,16 +4263,178 @@ function ThemeManager() {
     this.DrawThemeBackground = function (gr, x, y, w, h, clip_x, clip_y, clip_w, clip_h) { }; // (void) [, clip_x][, clip_y][, clip_w][, clip_h]
 
     /**
-     * @param {number} partid
+     * @param {GdiGraphics} gr
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number=} [edge=0] See Flags.js > BRD_* and EDGE_*
+     * @param {number=} [flags=0] See Flags.js > BF_*
+     * @returns {Array<number>|undefined} the content rectangle if BF_ADJUST was specified in the flags, otherwise undefined
+     */
+    this.DrawThemeEdge = function (gr, x, y, w, h, edge, flags) { }; // (Array<number>|undefined)
+
+    /**
+     * @param {GdiGraphics} gr
+     * @param {string} str
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @param {number=} [format=0] See Flags.js > DT_*
+     */
+    this.DrawThemeText = function (gr, str, x, y, w, h, format) { }; // (void)
+
+    /**
+     * @param {number} x
+     * @param {number} y
+     * @param {number} w
+     * @param {number} h
+     * @returns {Array<number>} as [x, y, w, h]
+     */
+    this.GetThemeBackgroundContentRect = function (x, y, w, h) { }; // ({Array<number>})
+
+    /**
+     * @param {number} propId
+     * @returns {boolean}
+     */
+    this.GetThemeBool = function (propId) { }; // (boolean)
+
+    /**
+     * @param {number} propId
+     * @returns {number}
+     */
+    this.GetThemeColour = function (propId) { }; // (number)
+
+    /**
+     * @param {number} propId
+     * @returns {number}
+     */
+    this.GetThemeEnumValue = function (propId) { }; // (number)
+
+    /**
+     * @param {number} propId
+     * @returns {GdiFont}
+     */
+    this.GetThemeFont = function (propId) { }; // (GdiFont)
+
+    /**
+     * @param {number} propId
+     * @returns {Array<string|number>} as [{string} fontName, {number}fontSize, {number}fontStyle]
+     */
+     this.GetThemeFontArgs = function (propId) { }; // (Array<string|number>)
+
+     /**
+      * @param {number} propId
+      * @returns {number}
+      */
+     this.GetThemeInt = function (propId) { }; // (number)
+
+     /**
+      * @param {number} propId
+      * @returns {Array<number>}
+      */
+     this.GetThemeIntList = function (propId) { }; // (Array<number>)
+
+     /**
+      * @param {number} propId
+      * @param {number=} [x=0]
+      * @param {number=} [y=0]
+      * @param {number=} [w=0]
+      * @param {number=} [h=0]
+      * @returns {Array<number>} as [left, top, right, bottom]
+      */
+     this.GetThemeMargins = function (propId, x, y, w, h) { }; // ({Array<number>})
+
+     /**
+      * @param {number} propId
+      * @returns {number}
+      */
+     this.GetThemeMetric = function (propId) { }; // (number)
+
+    /**
+     * See: {@link https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/ne-uxtheme-themesize}
+     *
+     * @param {number} themeSize
+     * @param {number=} [x=0]
+     * @param {number=} [y=0]
+     * @param {number=} [w=0]
+     * @param {number=} [h=0]
+     * @returns {Array<number>} as [w, h]
+     */
+    this.GetThemePartSize = function (themeSize, x, y, w, h) { }; // ({Array<number>})
+
+    /**
+     * @param {number} propId
+     * @returns {Array<number>} as [x, y]
+     */
+    this.GetThemePosition = function (propId) { }; // ({Array<number>})
+
+    /**
+     * See {@link https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/ne-uxtheme-propertyorigin}
+     *
+     * @param {number} propId
+     * @returns {number}
+     */
+    this.GetThemePropertyOrigin = function (propId) { }; // ({number})
+
+    /**
+     * @param {number} propId
+     * @returns {Array<number>} as [x, y, w, h]
+     */
+    this.GetThemeRect = function (propId) { }; // ({Array<number>})
+
+    /**
+     * @param {number} propId
+     * @returns {number}
+     */
+    this.GetThemeSysColour = function (propId) { }; // (number)
+
+    /**
+     * Retrieves the {@link GdiFont} of a system font.
+     * See: {@link https://docs.microsoft.com/en-us/windows/win32/api/uxtheme/nf-uxtheme-getthemesysfont}
+     *
+     * @param {number} propId
+     * @returns {GdiFont}
+     */
+    this.GetThemeSysFont = function (propId) { }; // (GdiFont)
+
+    /**
+     * @param {number} propId
+     * @returns {Array<string|number>} as [{string} fontName, {number}fontSize, {number}fontStyle]
+     */
+    this.GetThemeSysFontArgs = function (propId) { }; // (Array<string|number>)
+
+    /**
+     * @param {number} propId
+     * @returns {number}
+     */
+    this.GetThemeSysInt = function (propId) { }; // (number)
+
+    /**
+     * @param {number} propId
+     * @returns {number}
+     */
+    this.GetThemeSysSize = function (propId) { }; // (number)
+
+    /**
+     * @param {number} propId
      * @return {boolean}
      */
-    this.IsThemePartDefined = function (partid) { }; // (boolean)
+     this.IsThemeFontDefined = function (propId) { }; // (boolean)
+
+    /**
+     * @param {number} partId
+     * @param {number} stateId
+     * @return {boolean}
+     */
+     this.IsThemePartDefined = function (partId, stateId) { }; // (boolean)
 
     /**
      * See {@link https://docs.microsoft.com/en-us/windows/win32/controls/parts-and-states}
      *
-     * @param {number} partid
-     * @param {number=} [stateid=0]
+     * @param {number} partId
+     * @param {number=} [stateId=0]
      */
-    this.SetPartAndStateID = function (partid, stateid) { }; // (void)
+     this.SetPartAndStateID = function (partId, stateId) { }; // (void)
 }

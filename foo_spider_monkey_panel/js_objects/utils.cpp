@@ -18,6 +18,7 @@
 #include <utils/edit_text.h>
 #include <utils/gdi_error_helpers.h>
 
+#include <qwr/final_action.h>
 #include <qwr/file_helpers.h>
 #include <qwr/winapi_error_helpers.h>
 
@@ -68,6 +69,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsync, JsUtils::GetAlbumArtAsy
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2WithOpt, 4 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbeddedWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtV2, JsUtils::GetAlbumArtV2, JsUtils::GetAlbumArtV2WithOpt, 2 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetDeviceCaps, JsUtils::GetDeviceCaps );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetFileSize, JsUtils::GetFileSize );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPackageInfo, JsUtils::GetPackageInfo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPackagePath, JsUtils::GetPackagePath );
@@ -102,6 +104,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "GetAlbumArtAsyncV2", GetAlbumArtAsyncV2, 2, kDefaultPropsFlags ),
         JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, kDefaultPropsFlags ),
         JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, kDefaultPropsFlags ),
+        JS_FN( "GetDeviceCaps", GetDeviceCaps, 1, kDefaultPropsFlags ),
         JS_FN( "GetFileSize", GetFileSize, 1, kDefaultPropsFlags ),
         JS_FN( "GetPackageInfo", GetPackageInfo, 1, kDefaultPropsFlags ),
         JS_FN( "GetPackagePath", GetPackagePath, 1, kDefaultPropsFlags ),
@@ -430,6 +433,15 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
     }
 }
 
+int32_t JsUtils::GetDeviceCaps( int32_t capId )
+{
+    const HWND wnd = ::GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    const HDC dc = GetDC( wnd );
+    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
+
+    return ::GetDeviceCaps( dc, capId );
+}
+
 uint64_t JsUtils::GetFileSize( const std::wstring& path ) const
 {
     namespace fs = std::filesystem;
@@ -487,7 +499,19 @@ uint32_t JsUtils::GetSystemMetrics( uint32_t index ) const
 {
     return ::GetSystemMetrics( index );
 }
+/*
+void JsUtils::GetSystemParametersInfo( int32_t uiAction )
+{
+    uint32_t uiParam;
+    PVOID pvParam;
 
+    // SPI_GETICONTITLELOGFONT, sizeof(LOGFONT), &LOGFONT
+
+    // SPI_GETNONCLIENTMETRICS, sizeof(NONCLIENTMETRICS), &NONCLIENTMETRICS
+
+    ::SystemParametersInfoW( uiAction, uiParam, pvParam, 0 );
+}
+*/
 JS::Value JsUtils::Glob( const qwr::u8string& pattern, uint32_t exc_mask, uint32_t inc_mask )
 {
     std::vector<qwr::u8string> files;

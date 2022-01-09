@@ -138,12 +138,14 @@ private: // callback handling
     void OnCreate( HWND hWnd );
     void OnDestroy();
 
+    bool HasFailed();
+
     // JS callbacks
-    void OnPaint( HDC dc, const CRect& updateRc );
+    void OnPaint( HDC dc, const CRect& updateRect );
     void OnPaintErrorScreen( HDC memdc );
-    void OnPaintJs( HDC memdc, const CRect& updateRc );
-    void OnSizeDefault( uint32_t w, uint32_t h );
-    void OnSizeUser( uint32_t w, uint32_t h );
+    void OnPaintJs( HDC memdc, const CRect& updateRect );
+    void OnSizeDefault();
+    void OnSizeUser();
 
 private:
     const PanelType panelType_;
@@ -154,21 +156,24 @@ private:
     std::shared_ptr<PanelTarget> pTarget_;
     std::unique_ptr<TimeoutManager> pTimeoutManager_;
 
-    CWindow wnd_;
+    CWindow wnd_ = nullptr;
     HDC hDc_ = nullptr;
 
-    uint32_t height_ = 0;     // used externally as well
-    uint32_t width_ = 0;      // used externally as well
-    CBitmap bmp_ = nullptr;   // used only internally
-    CBitmap bmpBg_ = nullptr; // used only internally
+    //int height_ = 0;          // used externally as well
+    //int width_ = 0;           // used externally as well
 
-    bool hasFailed_ = false; // // used only internally
+    CRect clientRect = { };
+
+    CBitmap bmp_ = nullptr;     // used only internally
+    CBitmap bmpBg_ = nullptr;   // used only internally
+
+    bool hasFailed_ = false;    // // used only internally
 
     uint32_t eventNestedCounter_ = 0;
 
-    int32_t hRepaintTimer_ = NULL;   // used only internally
-    bool isBgRepaintNeeded_ = false; // used only internally
-    bool isPaintInProgress_ = false; // used only internally
+    int32_t hRepaintTimer_ = NULL;             // used only internally
+    bool isBgRepaintNeeded_ = false;           // used only internally
+    bool isPaintInProgress_ = false;           // used only internally
 
     bool isMouseTracked_ = false;              // used only internally
     bool isMouseCaptured_ = false;             // used only internally
