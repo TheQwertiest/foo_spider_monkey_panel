@@ -730,6 +730,8 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
         return DlgCode();
     }
     case WM_LBUTTONDOWN:
+    case WM_MBUTTONDOWN:
+    case WM_RBUTTONDOWN:
     {
         static const std::unordered_map<int, EventId> kMsgToEventId{
             { WM_LBUTTONDOWN, EventId::kMouseLeftButtonDown },
