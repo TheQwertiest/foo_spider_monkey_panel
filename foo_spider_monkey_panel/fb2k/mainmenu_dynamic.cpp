@@ -61,7 +61,7 @@ public:
     mainmenu_node::ptr get_child( t_size index ) override;
 
 private:
-    std::vector<mainmenu_node::ptr> commandNodes_;
+    std::vector<mainmenu_node::ptr> panelNodes_;
 };
 
 class MainMenuCommands_Panels : public mainmenu_commands_v2
@@ -186,7 +186,7 @@ MainMenuNodeGroup_Panels::MainMenuNodeGroup_Panels()
             continue;
         }
 
-        commandNodes_.emplace_back( fb2k::service_new<MainMenuNodeGroup_PanelCommands>( hWnd, panelData.name, panelData.commands ) );
+        panelNodes_.emplace_back( fb2k::service_new<MainMenuNodeGroup_PanelCommands>( hWnd, panelData.name, panelData.commands ) );
     }
 }
 
@@ -198,13 +198,13 @@ void MainMenuNodeGroup_Panels::get_display( pfc::string_base& text, t_uint32& fl
 
 t_size MainMenuNodeGroup_Panels::get_children_count()
 {
-    return commandNodes_.size();
+    return panelNodes_.size();
 }
 
 mainmenu_node::ptr MainMenuNodeGroup_Panels::get_child( t_size index )
 {
-    assert( index < commandNodes_.size() );
-    return commandNodes_.at( index );
+    assert( index < panelNodes_.size() );
+    return panelNodes_.at( index );
 }
 
 t_uint32 MainMenuCommands_Panels::get_command_count()
