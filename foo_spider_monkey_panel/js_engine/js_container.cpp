@@ -82,8 +82,7 @@ bool JsContainer::Initialize()
     }
     catch ( ... )
     {
-        mozjs::error::ExceptionToJsError( pJsCtx_ );
-        Fail( mozjs::error::JsErrorToText( pJsCtx_ ) );
+        Fail( mozjs::error::ExceptionToText( pJsCtx_ ) );
         return false;
     }
 

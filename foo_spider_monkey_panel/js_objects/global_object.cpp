@@ -235,9 +235,9 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" );
         CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" );
         CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentContainer.GetParentPanel() );
-#ifdef _DEBUG
-        CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" );
-#endif
+        //#ifdef _DEBUG
+        //CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" );
+        //#endif
 
         if ( !JS_DefineFunctions( cx, jsObj, jsFunctions.data() ) )
         {
