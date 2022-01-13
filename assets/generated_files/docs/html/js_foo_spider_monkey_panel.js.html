@@ -28,7 +28,7 @@
     <div class="title">
         <h1><a href="index.html" class="link">Spider Monkey Panel</a></h1>
         
-            <span class="version">v1.6.0</span>
+            <span class="version">v1.6.1</span>
         
     </div>
     <div class="search-container" id="search-container">
@@ -2253,8 +2253,7 @@ let window = {
 
     /**
      * This will trigger {@link module:callbacks~on_notify_data on_notify_data}(name, info) in other panels.&lt;br>
-     * &lt;b>!!! Beware !!!&lt;/b>: this operation is ASYNCHRONOUS, hence the data passed via `info` argument
-     * must NOT be used or modified in the source panel after invoking this method.
+     * &lt;b>!!! Beware !!!&lt;/b>: data passed via `info` argument must NOT be used or modified in the source panel after invoking this method.
      *
      * @param {string} name
      * @param {*} info

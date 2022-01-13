@@ -2203,8 +2203,7 @@ let window = {
 
     /**
      * This will trigger {@link module:callbacks~on_notify_data on_notify_data}(name, info) in other panels.<br>
-     * <b>!!! Beware !!!</b>: this operation is ASYNCHRONOUS, hence the data passed via `info` argument
-     * must NOT be used or modified in the source panel after invoking this method.
+     * <b>!!! Beware !!!</b>: data passed via `info` argument must NOT be used or modified in the source panel after invoking this method.
      *
      * @param {string} name
      * @param {*} info
