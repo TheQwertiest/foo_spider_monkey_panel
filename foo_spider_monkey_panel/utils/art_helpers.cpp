@@ -232,7 +232,7 @@ const GUID& GetGuidForArtId( uint32_t art_id )
 
 std::unique_ptr<Gdiplus::Bitmap> GetBitmapFromEmbeddedData( const qwr::u8string& rawpath, uint32_t art_id )
 {
-    const pfc::string_extension extension( rawpath.c_str() );
+    const auto extension = pfc::string_extension( rawpath.c_str() );
     const GUID& artTypeGuid = GetGuidForArtId( art_id );
 
     qwr::TimedAbortCallback abort;

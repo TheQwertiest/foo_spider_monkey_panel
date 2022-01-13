@@ -54,7 +54,7 @@ IncludeCategories:
   - Regex:           '"[[:alnum:]_]+'
     Priority:        1
   # <dependency/header>
-  - Regex:           '^<(acfu-sdk|columns_ui-sdk|fmt|foobar2000|js|nlohmann|nonstd|qwr|range|tim)/'
+  - Regex:           '^<(acfu-sdk|columns_ui-sdk|fmt|foobar2000|js|nlohmann|nonstd|pfc|qwr|range|tim)/'
     Priority:        4 
   # <dependency_header>
   - Regex:           '^<(atl.*\.h|jsapi\.h|jsfriendapi\.h|ILexer.\h|Lexilla.\h|SciLexer\.h|Scintilla\.h)>'
