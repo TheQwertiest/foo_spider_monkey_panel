@@ -1,0 +1,35 @@
+diff --git a/submodules/columns_ui-sdk/columns_ui-sdk.vcxproj b/submodules/columns_ui-sdk/columns_ui-sdk.vcxproj
+index 5dda015..fd26c2a 100644
+--- a/submodules/columns_ui-sdk/columns_ui-sdk.vcxproj
++++ b/submodules/columns_ui-sdk/columns_ui-sdk.vcxproj
+@@ -30,26 +30,26 @@
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v143</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+     <WholeProgramOptimization>true</WholeProgramOptimization>
+-    <PlatformToolset>v143</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v143</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
+     <ConfigurationType>StaticLibrary</ConfigurationType>
+     <UseOfMfc>false</UseOfMfc>
+     <CharacterSet>Unicode</CharacterSet>
+-    <PlatformToolset>v143</PlatformToolset>
++    <PlatformToolset>v142</PlatformToolset>
+   </PropertyGroup>
+   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+   <ImportGroup Label="ExtensionSettings">
