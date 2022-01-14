@@ -23,6 +23,11 @@ Legend:
 
 ___
 
+## v1.6.1
+
+### Changed
+- Reverted changes in `window.NotifyOthers()` behaviour. Now it's executed synchronously as before.
+
 ## v1.6.0
 
 ### Added
@@ -43,7 +48,7 @@ ___
 
 ### Changed
 - `fb.DoDragDrop()` is now executed asynchronously. Which means that it might exit before `on_drag_drop` callback is triggered when dropping data on the same panel as the one that had a call to `fb.DoDragDrop()`.
-- `window.NotifyOthers()` is now executed asynchronously, hence the data passed via `info` argument
+- **\[Rollbacked in v1.6.1]** `window.NotifyOthers()` is now executed asynchronously, hence the data passed via `info` argument
   must NOT be used or modified in the source panel after invoking this method.
 - `on_main_menu()` callback is marked as **\[Deprecated]**. Use dynamically generated main menu items and corresponding `on_main_menu_dynamic()` callback instead.
 
