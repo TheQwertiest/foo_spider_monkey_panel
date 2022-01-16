@@ -12,7 +12,7 @@ unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap 
 
     if ( bitmap.LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppPARGB, &bmpdata ) != Gdiplus::Ok )
     { // Error
-        return CreateUniquePtr( HBITMAP( nullptr ) );
+        return unique_gdi_ptr<HBITMAP>( nullptr );
     }
 
     BITMAP bm{};
@@ -27,7 +27,7 @@ unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap 
     HBITMAP hBitmap = CreateBitmapIndirect( &bm );
     bitmap.UnlockBits( &bmpdata );
 
-    return CreateUniquePtr( hBitmap );
+    return unique_gdi_ptr<HBITMAP>( hBitmap );
 }
 
 } // namespace smp::gdi

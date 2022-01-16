@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include <utils/std_helpers.h>
+
 namespace smp::gdi
 {
 
@@ -21,47 +23,34 @@ template <typename T>
     return IsGdiPlusObjectValid( obj.get() );
 }
 
-template <typename T>
-using unique_gdi_ptr = std::unique_ptr<std::remove_pointer_t<T>, void ( * )( T )>;
+template <typename Hx>
+requires is_any_same<Hx, HGDIOBJ, HDC, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBITMAP>::value
+using unique_gdi_ptr = std::unique_ptr<TxOF<Hx>>;
 
-template <typename T>
-[[nodiscard]] unique_gdi_ptr<T> CreateUniquePtr( T pObject )
-{
-    static_assert( std::is_same_v<T, HDC> || std::is_same_v<T, HPEN> || std::is_same_v<T, HBRUSH> || std::is_same_v<T, HRGN> || std::is_same_v<T, HPALETTE> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBITMAP>,
-                   "Unsupported GDI type" );
-
-    return unique_gdi_ptr<T>( pObject, []( auto pObject ) {
-        if constexpr ( std::is_same_v<T, HDC> )
-        {
-            DeleteDC( pObject );
-        }
-        else
-        {
-            DeleteObject( pObject );
-        }
-    } );
-}
-
-template <typename T>
+template <typename Hx>
+requires is_any_same<Hx, HBITMAP, HBRUSH, HFONT, HPEN>::value
 class ObjectSelector
 {
-    static_assert( std::is_same_v<T, HPEN> || std::is_same_v<T, HBRUSH> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBITMAP>,
-                   "Unsupported GDI type" );
-
 public:
-    [[nodiscard]] ObjectSelector( HDC hDc, T pNewObject )
-        : hDc_( hDc )
-        , pOldObject_( SelectObject( hDc, pNewObject ) )
+    [[nodiscard]] ObjectSelector( HDC dc, Hx obj, bool delete_after = false )
+        : hdc( dc )
+        , old( SelectObject( dc, (HGDIOBJ)obj ) )
+        , tmp( delete_after )
     {
     }
+
     ~ObjectSelector()
     {
-        (void)SelectObject( hDc_, pOldObject_ );
+        HGDIOBJ obj = SelectObject( hdc, old );
+
+        if ( tmp )
+            DeleteObject( obj );
     }
 
 private:
-    HDC hDc_ = nullptr;
-    HGDIOBJ pOldObject_ = nullptr;
+    HDC hdc = nullptr;
+    HGDIOBJ old = nullptr;
+    bool tmp = false;
 };
 
 /// @details Does not report

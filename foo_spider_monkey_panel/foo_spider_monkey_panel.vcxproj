@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="..\workspaces\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.props" Condition="Exists('..\workspaces\packages\Microsoft.SourceLink.GitHub.1.0.0\build\Microsoft.SourceLink.GitHub.props')" />
   <Import Project="..\workspaces\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.props" Condition="Exists('..\workspaces\packages\Microsoft.SourceLink.Common.1.0.0\build\Microsoft.SourceLink.Common.props')" />
@@ -400,6 +400,7 @@
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="utils\std_helpers.h" />
     <ClInclude Include="timeout\timeout.h" />
     <ClInclude Include="timeout\timeout_executor.h" />
     <ClInclude Include="timeout\timeout_manager.h" />

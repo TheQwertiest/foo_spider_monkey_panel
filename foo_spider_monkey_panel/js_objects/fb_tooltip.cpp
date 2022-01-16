@@ -81,7 +81,6 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd )
     : pJsCtx_( cx )
     , hParentWnd_( hParentWnd )
     , tipBuffer_( TEXT( SMP_NAME ) )
-    , pFont_( smp::gdi::CreateUniquePtr<HFONT>( nullptr ) )
 {
     hTooltipWnd_ = CreateWindowEx(
         WS_EX_TOPMOST,
