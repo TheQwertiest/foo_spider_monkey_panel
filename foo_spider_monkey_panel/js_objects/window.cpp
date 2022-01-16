@@ -516,19 +516,15 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         qwr::error::CheckHR( hr, u8"CLSIDFromString" );
     }
 
-    auto hFont = gdi::CreateUniquePtr( parentPanel_.GetFont( type, guid ) );
-    if ( !hFont )
+    HFONT hfont = parentPanel_.GetFont( type, guid );
+    if ( !hfont )
     { // Not an error: font not found
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont.get() ) );
-    if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
-    { // Not an error: font not found
-        return nullptr;
-    }
-
-    return JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont.release(), true );
+    LOGFONTW logfont = {};
+    qwr::error::CheckHR( GetObjectW( hfont, sizeof( LOGFONTW ), &logfont ), "GetObjectW" );
+    return JsGdiFont::CreateJs( pJsCtx_, std::move( logfont ) );
 }
 
 JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
@@ -559,13 +555,9 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont ) );
-    if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
-    { // Not an error: font not found
-        return nullptr;
-    }
-
-    return JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false );
+    LOGFONTW logfont = {};
+    qwr::error::CheckHR( GetObjectW( hFont, sizeof( LOGFONTW ), &logfont ), "GetObjectW" );
+    return JsGdiFont::CreateJs( pJsCtx_, std::move( logfont ) );
 }
 
 JS::Value JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )

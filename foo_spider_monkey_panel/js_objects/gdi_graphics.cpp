@@ -3,12 +3,15 @@
 #include "gdi_graphics.h"
 
 #include <js_engine/js_to_native_invoker.h>
+
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_raw_bitmap.h>
 #include <js_objects/measure_string_info.h>
+
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+
 #include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/text_helpers.h>
@@ -141,7 +144,7 @@ uint32_t JsGdiGraphics::CalcTextHeight( const std::wstring& str, JsGdiFont* font
 
     const auto hDc = pGdi_->GetHDC();
     qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
-    gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
+    gdi::ObjectSelector autoFont( hDc, font->HFont() );
 
     return smp::utils::GetTextHeight( hDc, str );
 }
@@ -153,7 +156,7 @@ uint32_t JsGdiGraphics::CalcTextWidth( const std::wstring& str, JsGdiFont* font,
 
     const auto hDc = pGdi_->GetHDC();
     qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
-    gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
+    gdi::ObjectSelector autoFont( hDc, font->HFont() );
 
     return smp::utils::GetTextWidth( hDc, str, use_exact );
 }
@@ -306,7 +309,10 @@ void JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    Gdiplus::Font* pGdiFont = font->GdiFont();
+    HDC dc = pGdi_->GetHDC();
+    Gdiplus::Font* pGdiFont = new Gdiplus::Font( dc, font->HFont() );
+    pGdi_->ReleaseHDC( dc );
+
     qwr::QwrException::ExpectTrue( pGdiFont, "Internal error: GdiFont is null" );
 
     Gdiplus::SolidBrush br( colour );
@@ -355,7 +361,7 @@ JSObject* JsGdiGraphics::EstimateLineWrap( const std::wstring& str, JsGdiFont* f
     {
         const auto hDc = pGdi_->GetHDC();
         qwr::final_action autoHdcReleaser( [hDc, pGdi = pGdi_] { pGdi->ReleaseHDC( hDc ); } );
-        gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
+        gdi::ObjectSelector autoFont( hDc, font->HFont() );
 
         result = smp::utils::WrapText( hDc, str, max_width );
     }
@@ -528,7 +534,7 @@ void JsGdiGraphics::GdiDrawText( const std::wstring& str, JsGdiFont* font, uint3
 
     const auto hDc = pGdi_->GetHDC();
     qwr::final_action autoHdcReleaser( [pGdi = pGdi_, hDc] { pGdi->ReleaseHDC( hDc ); } );
-    gdi::ObjectSelector autoFont( hDc, font->GetHFont() );
+    gdi::ObjectSelector autoFont( hDc, font->HFont() );
 
     RECT rc{ x, y, static_cast<LONG>( x + w ), static_cast<LONG>( y + h ) };
     DRAWTEXTPARAMS dpt = { sizeof( DRAWTEXTPARAMS ), 4, 0, 0, 0 };
@@ -593,8 +599,11 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    Gdiplus::Font* fn = font->GdiFont();
-    assert( fn );
+    HDC dc = pGdi_->GetHDC();
+    Gdiplus::Font* fn = new Gdiplus::Font( dc, font->HFont() );
+    pGdi_->ReleaseHDC( dc );
+
+    qwr::QwrException::ExpectTrue( fn, "Internal error: GdiFont is null" );
 
     Gdiplus::StringFormat fmt = Gdiplus::StringFormat::GenericTypographic();
     if ( flags != 0 )

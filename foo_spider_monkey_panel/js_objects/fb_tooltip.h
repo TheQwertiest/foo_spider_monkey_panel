@@ -1,7 +1,8 @@
 #pragma once
 
 #include <js_objects/object_base.h>
-#include <utils/gdi_helpers.h>
+
+#include <utils/gdi_font_cache.h>
 
 #include <memory>
 #include <optional>
@@ -13,6 +14,7 @@ struct JSClass;
 
 namespace mozjs
 {
+    using namespace smp;
 
 class JsFbTooltip
     : public JsObjectBase<JsFbTooltip>
@@ -42,8 +44,8 @@ public:
     void Deactivate();
     uint32_t GetDelayTime( uint32_t type );
     void SetDelayTime( uint32_t type, int32_t time );
-    void SetFont( const std::wstring& name, uint32_t pxSize = 12, uint32_t style = 0 );
-    void SetFontWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style );
+    void SetFont( const std::wstring& fontName, int32_t fontSize = 0, uint32_t fontStyle = 0 );
+    void SetFontWithOpt( size_t optArgCount, const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle );
     void SetMaxWidth( uint32_t width );
     void TrackPosition( int x, int y );
 
@@ -66,7 +68,7 @@ private:
     uint32_t fontStyle_{};
     std::wstring tipBuffer_;
 
-    smp::gdi::unique_gdi_ptr<HFONT> pFont_;
+    fontcache::shared_hfont font = nullptr;
     std::unique_ptr<TOOLINFO> toolInfo_;
 };
 
