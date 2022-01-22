@@ -307,12 +307,21 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
             break;
         }
 
-        // skip redraw if updaterect is empty
+        // from ms-docs: The update rectange retrieved by GetUpdateRect
+        // is identical to the one retrieved by the BeginPaint function.
+
+        // BeginPaint automatically validates the update region, so any
+        // call to GetUpdateRect made immediately after the call to BeginPaint
+        // retrieves an empty update region.
+
+        // skip redraw if the update rectangle is empty
         CRect updateRect;
         wnd_.GetUpdateRect( &updateRect, FALSE );
 
         if ( updateRect.IsRectEmpty() )
+        {
             break;
+        }
 
         isPaintInProgress_ = true;
 
@@ -329,11 +338,13 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
         }
 
         {
+            ///< BeginPaint() called here
             CPaintDC dc{ wnd_ };
             if ( dc.RectVisible( updateRect ) )
             {
-                OnPaint( dc, dc.m_ps.rcPaint );
+                OnPaint( dc, updateRect );
             }
+            ///< Endpaint called here
         };
 
         isPaintInProgress_ = false;
@@ -1376,7 +1387,9 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
 
     // bail out if the computed region('s bounding box) is empty
     if ( rc_combined.IsRectEmpty() )
+    {
         return;
+    }
 
     CPoint pt{ 0, 0 };
     wnd_.ClientToScreen( &pt );
@@ -1693,12 +1706,12 @@ void js_panel_window::OnPaintJs( HDC memdc, const CRect& updateRc )
 {
     Gdiplus::Graphics gr( memdc );
 
-    // note: default clip region (which is intersected here) is the paint rect from WM_PAINT (updateRc)
-    gr.IntersectClip( Gdiplus::Rect{ updateRc.left, updateRc.top, updateRc.Width(), updateRc.Height() } );
-
+    // note: the default clip region is the update rect
     // check if the redraw would be visible at all
     if ( gr.IsClipEmpty() || gr.IsVisibleClipEmpty() )
+    {
         return;
+    }
 
     pJsContainer_->InvokeOnPaint( gr );
 }
