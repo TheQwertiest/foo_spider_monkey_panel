@@ -31,7 +31,7 @@ namespace std
 // the unique_ptr<TxOF<Hx>> semantic allows initializing a shared_ptr<TxOF<Hx>> from an unique ptr
 // copying the default_delete specialized deleter, also returning a Hx from shared_ptr<TxOF<Hx>>.get()
 template <class Tx>
-requires is_any_same<HxOF<Tx>, HGDIOBJ, HDC, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBITMAP>::value
+requires is_any_same<HxOF<Tx>, HDC, HGDIOBJ, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBITMAP>::value
 struct default_delete<Tx>
 {
     typedef HxOF<Tx> pointer; // return type of unique_ptr<Tx>.get()

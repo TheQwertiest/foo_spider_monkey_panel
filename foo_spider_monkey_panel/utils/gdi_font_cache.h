@@ -3,50 +3,14 @@
 #include <utils/gdi_helpers.h>
 #include <utils/hash_combine.h>
 
-// convert negative fontSize to fontHeight in LOGFONT-s, and avoid duplicate cache entries
-#define FONT_CACHE_ABSOLUTE_HEIGHT 1
+namespace std
+{
 
 // wether to combine size + weight + italic + underlune + striketrough into one hash or not
 // or: hash_combine once, or once for each property
 #define HASH_PACKED_PROPS 1
 
-namespace smp::fontcache
-{
-using unique_hfont = smp::gdi::unique_gdi_ptr<HFONT>;
-using shared_hfont = std::shared_ptr<unique_hfont::element_type>;
-using weak_hfont = shared_hfont::weak_type;
-
-shared_hfont Cache( const LOGFONTW& logfont ) noexcept;
-void Release( shared_hfont font ) noexcept;
-size_t Purge( bool force = false ) noexcept;
-void ForEach( std::function<void( const std::pair<LOGFONTW, weak_hfont>& )> callback );
-
-} // namespace smp::fontcache
-
-// FIXME: move into own cpp/h?
-namespace smp::logfont
-{
-
-void Make
-(
-    _In_ const std::wstring& fontName,
-    _In_ const int32_t fontSize,
-    _In_ const uint32_t fontStyle,
-    _Out_ LOGFONTW& logfont
-);
-
-void Normalize
-(
-    _In_ const HDC dc,
-    _Inout_ LOGFONTW& logfont
-);
-
-} // namespace smp::logfont
-
-namespace std
-{
-
-// specialized std::hash for LOGFONTW
+// std:hash specialization for LOGFONTW
 template <>
 struct hash<LOGFONTW>
 {
@@ -72,7 +36,7 @@ struct hash<LOGFONTW>
     }
 };
 
-// specialized std::equal_to for LOGFONTW-s, based on their hash
+// std::equal to specialization for (hashed) LOGFONTWs
 template <>
 struct equal_to<LOGFONTW>
 {
@@ -83,3 +47,31 @@ struct equal_to<LOGFONTW>
 };
 
 } // namespace std
+
+namespace smp::gdi
+{
+
+class FontCache
+{
+public:
+    using container = std::unordered_map<LOGFONTW, weak_hfont>;
+    using enumproc = std::function<void( const container::value_type)>;
+
+public:
+    static FontCache& Instance();
+
+public: // cache methods
+    shared_hfont CacheFontW( const LOGFONTW& logfont ) noexcept;
+    size_t RemoveUnused( bool force = false ) noexcept;
+    void Enumerate( enumproc callback ) const;
+    void NornalizeLogfontW( const HDC dc, LOGFONTW& logfont );
+    void NornalizeLogfontW( const HWND wnd, LOGFONTW& logfont );
+
+private:
+    inline const FontCache() = default;
+
+    static container cache;
+};
+
+} // namespace smp::gdi
+

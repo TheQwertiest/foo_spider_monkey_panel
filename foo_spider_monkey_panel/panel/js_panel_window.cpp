@@ -19,6 +19,7 @@
 #include <timeout/timeout_manager.h>
 #include <ui/ui_conf.h>
 #include <utils/art_helpers.h>
+#include <utils/gdi_font_cache.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/logging.h>
@@ -1641,29 +1642,20 @@ void js_panel_window::OnPaint( HDC dc, const CRect& updateRc )
 
 void js_panel_window::OnPaintErrorScreen( HDC memdc )
 {
-    CDCHandle cdc{ memdc };
-    CFont font;
-    font.CreateFont( 20,
-                     0,
-                     0,
-                     0,
-                     FW_BOLD,
-                     FALSE,
-                     FALSE,
-                     FALSE,
-                     DEFAULT_CHARSET,
-                     OUT_DEFAULT_PRECIS,
-                     CLIP_DEFAULT_PRECIS,
-                     DEFAULT_QUALITY,
-                     DEFAULT_PITCH | FF_DONTCARE,
-                     L"Tahoma" );
-    gdi::ObjectSelector autoFontSelector( cdc, font.m_hFont );
+    CDCHandle cdc = { memdc };
+
+    LOGFONTW logfont = {};
+    gdi::MakeLogfontW( logfont, L"Tahoma", 20 );
+    smp::gdi::FontCache::Instance().NornalizeLogfontW( cdc, logfont );
+
+    gdi::shared_hfont font = gdi::FontCache::Instance().CacheFontW( logfont );
+    gdi::ObjectSelector autoFontSelector( cdc, font.get() );
 
     LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
     CBrush brush;
     brush.CreateBrushIndirect( &lbBack );
 
-    CRect rc{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
+    CRect rc = { 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
     cdc.FillRect( &rc, brush );
     cdc.SetBkMode( TRANSPARENT );
 

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
     <ClCompile Include="js_engine\js_engine.cpp">
@@ -922,9 +922,9 @@
     <ClInclude Include="utils\hash_combine.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClCompile Include="utils\gdi_font_cache.h">
+    <ClInclude Include="utils\gdi_font_cache.h">
       <Filter>utils</Filter>
-    </ClCompile>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

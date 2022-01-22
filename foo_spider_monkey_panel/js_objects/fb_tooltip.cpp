@@ -42,7 +42,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Activate, JsFbTooltip::Activate )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Deactivate, JsFbTooltip::Deactivate )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetDelayTime, JsFbTooltip::GetDelayTime )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetDelayTime, JsFbTooltip::SetDelayTime )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetFont, JsFbTooltip::SetFont, JsFbTooltip::SetFontWithOpt, 2 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetFont, JsFbTooltip::SetFont, JsFbTooltip::SetFontWithOpt, 3 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetMaxWidth, JsFbTooltip::SetMaxWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( TrackPosition, JsFbTooltip::TrackPosition )
 
@@ -73,7 +73,6 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
 
 namespace mozjs
 {
-
 const JSClass JsFbTooltip::JsClass = jsClass;
 const JSFunctionSpec* JsFbTooltip::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsFbTooltip::JsProperties = jsProperties.data();
@@ -177,23 +176,16 @@ void JsFbTooltip::SetDelayTime( uint32_t type, int32_t time )
 void JsFbTooltip::SetFont( const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
     LOGFONTW logfont;
-    logfont::Make( fontName, fontSize, fontStyle, logfont );
+    smp::gdi::MakeLogfontW( logfont, fontName, fontSize, fontStyle );
+    smp::gdi::FontCache::Instance().NornalizeLogfontW( GetPanelHwndForCurrentGlobal( pJsCtx_ ), logfont );
 
-#if FONT_CACHE_ABSOLUTE_HEIGHT
-    const HWND wnd = GetPanelHwndForCurrentGlobal( pJsCtx_ );
-    const HDC dc = GetDC( wnd );
-    qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
-    logfont::Normalize( dc, logfont );
-#endif
+    smp::gdi::shared_hfont hfont = smp::gdi::FontCache::Instance().CacheFontW( logfont );
 
-    fontcache::shared_hfont hfont = fontcache::Cache( logfont );
-
-    if ( font == hfont )
-        return;
-
-    font = hfont;
-
-    SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)font.get(), MAKELPARAM( FALSE, 0 ) );
+    if ( font != hfont )
+    {
+        font = hfont;
+        SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)font.get(), MAKELPARAM( FALSE, 0 ) );
+    }
 }
 
 void JsFbTooltip::SetFontWithOpt( size_t optArgCount,
@@ -207,6 +199,8 @@ void JsFbTooltip::SetFontWithOpt( size_t optArgCount,
         return SetFont( fontName, fontSize );
     case 2:
         return SetFont( fontName );
+    case 3:
+        return SetFont();
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }

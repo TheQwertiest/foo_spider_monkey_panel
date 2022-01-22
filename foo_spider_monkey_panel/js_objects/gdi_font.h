@@ -20,8 +20,6 @@ struct JSPropertySpec;
 
 namespace mozjs
 {
-    using namespace smp;
-
 
 class JsGdiFont
     : public JsObjectBase<JsGdiFont>
@@ -50,13 +48,13 @@ public:
 
 public: // ctor
     static JSObject* Constructor( JSContext* ctx,
-                                  const std::wstring& fontName, int32_t fontSize = 0,  uint32_t fontStyle = 0);
+                                  const std::wstring& fontName = L"", int32_t fontSize = 0, uint32_t fontStyle = 0 );
 
     static JSObject* ConstructorWithOpt( JSContext* ctx, size_t optArgCount,
                                          const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle );
 
 public:
-    HFONT HFont() const;
+    HFONT GetHFont() const;
 
 public: // props
     std::wstring get_Name() const;
@@ -93,12 +91,12 @@ public: // props
 #endif
 
 private:
-    void Reload();
+    void ReloadFont();
 
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
-    fontcache::shared_hfont font = nullptr;
+    smp::gdi::shared_hfont font = nullptr;
 
     LOGFONTW logfont = {};
     TEXTMETRICW metric = {};

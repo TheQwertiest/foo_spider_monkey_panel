@@ -14,11 +14,8 @@
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
 
-using namespace smp;
-
 namespace
 {
-
 using namespace mozjs;
 
 JSClassOps jsOps = {
@@ -94,7 +91,6 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GdiFont_Constructor, JsGdiFont::Construct
 
 namespace mozjs
 {
-
 const JSClass JsGdiFont::JsClass = jsClass;
 const JSFunctionSpec* JsGdiFont::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsGdiFont::JsProperties = jsProperties.data();
@@ -105,12 +101,12 @@ JsGdiFont::JsGdiFont( JSContext* ctx, const LOGFONTW& font )
     : pJsCtx_( ctx )
     , logfont( font )
 {
-    Reload();
+    ReloadFont();
 }
 
 JsGdiFont::~JsGdiFont()
 {
-    fontcache::Release( font );
+    font.reset();
 }
 
 std::unique_ptr<JsGdiFont>
@@ -121,59 +117,60 @@ JsGdiFont::CreateNative( JSContext* ctx, const LOGFONTW& font )
 
 size_t JsGdiFont::GetInternalSize( const LOGFONTW& )
 {
-    return sizeof( LOGFONTW ) + sizeof( TEXTMETRICW ) + sizeof( fontcache::shared_hfont );
+    return sizeof( LOGFONTW ) + sizeof( TEXTMETRICW ) + sizeof( smp::gdi::shared_hfont );
 }
 
 JSObject* JsGdiFont::Constructor( JSContext* ctx,
                                   const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
     LOGFONTW logfont;
-
-    logfont::Make( fontName, fontSize, fontStyle, logfont );
+    smp::gdi::MakeLogfontW( logfont, fontName, fontSize, fontStyle );
 
     JS::RootedObject jsObject( ctx, JsGdiFont::CreateJs( ctx, logfont ) );
 
     return jsObject;
 }
 
-JSObject* JsGdiFont::ConstructorWithOpt( JSContext* cx, size_t optArgCount,
+JSObject* JsGdiFont::ConstructorWithOpt( JSContext* ctx, size_t optArgCount,
                                          const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
     switch ( optArgCount )
     {
     case 0:
-        return Constructor( cx, fontName, fontSize, fontStyle );
+        return Constructor( ctx, fontName, fontSize, fontStyle );
     case 1:
-        return Constructor( cx, fontName, fontSize );
+        return Constructor( ctx, fontName, fontSize );
     case 2:
-        return Constructor( cx, fontName );
+        return Constructor( ctx, fontName );
+    case 3:
+        return Constructor( ctx );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
 }
-void JsGdiFont::Reload()
+
+void JsGdiFont::ReloadFont()
 {
     const HWND wnd = GetPanelHwndForCurrentGlobal( pJsCtx_ );
     const HDC dc = GetDC( wnd );
     qwr::final_action autoHdcReleaser( [wnd, dc] { ReleaseDC( wnd, dc ); } );
 
-#if FONT_CACHE_ABSOLUTE_HEIGHT
-    logfont::Normalize( dc, logfont );
-#endif
+    // normalize logfont
+    smp::gdi::FontCache::Instance().NornalizeLogfontW( dc, logfont );
 
-    fontcache::shared_hfont hfont = fontcache::Cache( logfont );
+    smp::gdi::shared_hfont hfont = smp::gdi::FontCache::Instance().CacheFontW( logfont );
 
-    if ( font == hfont )
-        return;
+    if ( font != hfont )
+    {
+        font = hfont;
 
-    font = hfont;
-
-    // reload metrics
-    smp::gdi::ObjectSelector autoFont( dc, HFont() );
-    qwr::QwrException::ExpectTrue( GetTextMetricsW( dc, &metric ), "GetTextMetrics" );
+        // reload metrics
+        smp::gdi::ObjectSelector autoFont( dc, GetHFont() );
+        qwr::QwrException::ExpectTrue( GetTextMetricsW( dc, &metric ), "GetTextMetrics" );
+    }
 }
 
-HFONT JsGdiFont::HFont() const
+HFONT JsGdiFont::GetHFont() const
 {
     return font.get();
 }
@@ -186,7 +183,7 @@ std::wstring JsGdiFont::get_Name() const
 void JsGdiFont::set_Name( const std::wstring& fontName )
 {
     fontName.copy( logfont.lfFaceName, LF_FACESIZE - 1 );
-    Reload();
+    ReloadFont();
 }
 
 uint32_t JsGdiFont::get_Height() const
@@ -197,7 +194,7 @@ uint32_t JsGdiFont::get_Height() const
 void JsGdiFont::set_Height( uint32_t fontHeight )
 {
     logfont.lfHeight = fontHeight;
-    Reload();
+    ReloadFont();
 }
 
 uint32_t JsGdiFont::get_Size() const
@@ -208,38 +205,32 @@ uint32_t JsGdiFont::get_Size() const
 void JsGdiFont::set_Size( uint32_t fontSize )
 {
     logfont.lfHeight = ( 0 - fontSize );
-    Reload();
+    ReloadFont();
 }
 
 uint32_t JsGdiFont::get_Style() const
 {
     uint32_t style = Gdiplus::FontStyleRegular;
 
-    if ( logfont.lfWeight > FW_MEDIUM )
-        style |= Gdiplus::FontStyleBold;
-
-    if ( logfont.lfItalic )
-        style |= Gdiplus::FontStyleItalic;
-
-    if ( logfont.lfUnderline )
-        style |= Gdiplus::FontStyleUnderline;
-
-    if ( logfont.lfStrikeOut )
-        style |= Gdiplus::FontStyleStrikeout;
+    style |= logfont.lfWeight > FW_MEDIUM ? Gdiplus::FontStyleBold      : style;
+    style |= logfont.lfItalic             ? Gdiplus::FontStyleItalic    : style;
+    style |= logfont.lfUnderline          ? Gdiplus::FontStyleUnderline : style;
+    style |= logfont.lfStrikeOut          ? Gdiplus::FontStyleStrikeout : style;
 
     return style;
 }
 
 void JsGdiFont::set_Style( uint32_t fontStyle )
 {
-    logfont.lfWeight = ( fontStyle & Gdiplus::FontStyleBold )
+    logfont.lfWeight    = ( fontStyle & Gdiplus::FontStyleBold )
                            ? std::max<LONG>( FW_BOLD, logfont.lfWeight )
                            : std::min<LONG>( FW_NORMAL, logfont.lfWeight );
+
     logfont.lfItalic    = !!( fontStyle & Gdiplus::FontStyleItalic );
     logfont.lfUnderline = !!( fontStyle & Gdiplus::FontStyleUnderline );
     logfont.lfStrikeOut = !!( fontStyle & Gdiplus::FontStyleStrikeout );
 
-    Reload();
+    ReloadFont();
 }
 
 uint32_t JsGdiFont::get_Weight() const
@@ -250,7 +241,7 @@ uint32_t JsGdiFont::get_Weight() const
 void JsGdiFont::set_Weight( uint32_t fontWeight )
 {
     logfont.lfWeight = std::clamp<LONG>( fontWeight, 1, 1000 );
-    Reload();
+    ReloadFont();
 }
 
 bool JsGdiFont::get_Italic() const
@@ -261,7 +252,7 @@ bool JsGdiFont::get_Italic() const
 void JsGdiFont::set_Italic( bool italic )
 {
     logfont.lfItalic = italic;
-    Reload();
+    ReloadFont();
 }
 
 bool JsGdiFont::get_Underline() const
@@ -272,7 +263,7 @@ bool JsGdiFont::get_Underline() const
 void JsGdiFont::set_Underline( bool underline )
 {
     logfont.lfUnderline = underline;
-    Reload();
+    ReloadFont();
 }
 
 bool JsGdiFont::get_Strikeout() const
@@ -283,7 +274,7 @@ bool JsGdiFont::get_Strikeout() const
 void JsGdiFont::set_Strikeout( bool strikeout )
 {
     logfont.lfStrikeOut = strikeout;
-    Reload();
+    ReloadFont();
 }
 
 #if _FONT_DEV_METRICS
@@ -350,11 +341,11 @@ JS::Value JsGdiFont::get_Cache() const
         {  900, "Black" },
     };
 
-    fontcache::Purge( true );
+    smp::gdi::FontCache::Instance().RemoveUnused( true );
 
     JS::RootedObject jsObject = JS::RootedObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
 
-    fontcache::ForEach( [&]( const std::pair<LOGFONTW, fontcache::weak_hfont>& item )
+    smp::gdi::FontCache::Instance().Enumerate( [&]( const std::pair<LOGFONTW, smp::gdi::weak_hfont>& item )
     {
         std::string hash = fmt::format( "{:#08x}", std::hash<LOGFONTW>{}( item.first ) );
         std::string weight = wts.lower_bound( item.first.lfWeight )->second;
@@ -370,7 +361,9 @@ JS::Value JsGdiFont::get_Cache() const
 
         JS::RootedObject jsValue = JS::RootedObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
 
-        HFONT handle = [&] { auto temp = item.second.lock(); return temp.get(); }();
+        smp::gdi::shared_hfont temp = item.second.lock();
+        HFONT handle = temp.get();
+        temp.reset();
 
         AddProperty( pJsCtx_, jsValue, "HFONT", fmt::format( "{:#08x}", (size_t)handle ) );
         AddProperty( pJsCtx_, jsValue, "expired", item.second.expired() );

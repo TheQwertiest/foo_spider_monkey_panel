@@ -14,7 +14,6 @@ struct JSClass;
 
 namespace mozjs
 {
-    using namespace smp;
 
 class JsFbTooltip
     : public JsObjectBase<JsFbTooltip>
@@ -44,7 +43,7 @@ public:
     void Deactivate();
     uint32_t GetDelayTime( uint32_t type );
     void SetDelayTime( uint32_t type, int32_t time );
-    void SetFont( const std::wstring& fontName, int32_t fontSize = 0, uint32_t fontStyle = 0 );
+    void SetFont( const std::wstring& fontName = L"", int32_t fontSize = 0, uint32_t fontStyle = 0 );
     void SetFontWithOpt( size_t optArgCount, const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle );
     void SetMaxWidth( uint32_t width );
     void TrackPosition( int x, int y );
@@ -58,17 +57,17 @@ private:
     JsFbTooltip( JSContext* cx, HWND hParentWnd );
 
 private:
-    [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
+    [[maybe_unused]] JSContext* pJsCtx_ = {};
 
-    HWND hTooltipWnd_ = nullptr;
-    HWND hParentWnd_ = nullptr;
+    HWND hTooltipWnd_ = {};
+    HWND hParentWnd_ = {};
 
     std::wstring fontName_;
-    uint32_t fontSize_{};
-    uint32_t fontStyle_{};
+    uint32_t fontSize_ = {};
+    uint32_t fontStyle_ = {};
     std::wstring tipBuffer_;
 
-    fontcache::shared_hfont font = nullptr;
+    smp::gdi::shared_hfont font = {};
     std::unique_ptr<TOOLINFO> toolInfo_;
 };
 
