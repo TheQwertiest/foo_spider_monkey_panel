@@ -306,13 +306,20 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
         {
             break;
         }
+
+        // skip redraw if updaterect is empty
+        CRect updateRect;
+        wnd_.GetUpdateRect( &updateRect, FALSE );
+
+        if ( updateRect.IsRectEmpty() )
+            break;
+
         isPaintInProgress_ = true;
 
         if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
-        { // Two pass redraw: paint BG > Repaint() > paint FG
-            CRect rc;
-            wnd_.GetUpdateRect( &rc, FALSE );
-            RepaintBackground( &rc ); ///< Calls Repaint() inside
+        {
+            // Two pass redraw: paint BG > Repaint() > paint FG
+            RepaintBackground( &updateRect ); ///< Calls Repaint() inside
 
             isBgRepaintNeeded_ = false;
             isPaintInProgress_ = false;
@@ -320,10 +327,14 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
             Repaint( true );
             break;
         }
+
         {
             CPaintDC dc{ wnd_ };
-            OnPaint( dc, dc.m_ps.rcPaint );
-        }
+            if ( dc.RectVisible( updateRect ) )
+            {
+                OnPaint( dc, dc.m_ps.rcPaint );
+            }
+        };
 
         isPaintInProgress_ = false;
 
@@ -1345,8 +1356,10 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
         {
             continue;
         }
+
         std::array<wchar_t, 64> buff;
         GetClassName( hwnd, buff.data(), buff.size() );
+
         if ( wcsstr( buff.data(), L"SysTabControl32" ) )
         {
             wnd_parent = hwnd;
@@ -1356,10 +1369,14 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
 
     CRect rc_child{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
     CRgn rgn_child{ ::CreateRectRgnIndirect( &rc_child ) };
-    {
-        CRgn rgn{ ::CreateRectRgnIndirect( &updateRc ) };
-        rgn_child.CombineRgn( rgn, RGN_DIFF );
-    }
+    rgn_child.CombineRgn( ::CreateRectRgnIndirect( &updateRc ), RGN_DIFF );
+
+    CRect rc_combined{};
+    rgn_child.GetRgnBox( &rc_combined );
+
+    // bail out if the computed region('s bounding box) is empty
+    if ( rc_combined.IsRectEmpty() )
+        return;
 
     CPoint pt{ 0, 0 };
     wnd_.ClientToScreen( &pt );
@@ -1384,6 +1401,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
     }
 
     wnd_.SetWindowRgn( nullptr, FALSE );
+
     if ( smp::config::EdgeStyle::NoEdge != settings_.edgeStyle )
     {
         wnd_.SendMessage( WM_NCPAINT, 1, 0 );
@@ -1675,11 +1693,12 @@ void js_panel_window::OnPaintJs( HDC memdc, const CRect& updateRc )
 {
     Gdiplus::Graphics gr( memdc );
 
-    // SetClip() may improve performance slightly
-    gr.SetClip( Gdiplus::Rect{ updateRc.left,
-                               updateRc.top,
-                               updateRc.Width(),
-                               updateRc.Height() } );
+    // note: default clip region (which is intersected here) is the paint rect from WM_PAINT (updateRc)
+    gr.IntersectClip( Gdiplus::Rect{ updateRc.left, updateRc.top, updateRc.Width(), updateRc.Height() } );
+
+    // check if the redraw would be visible at all
+    if ( gr.IsClipEmpty() || gr.IsVisibleClipEmpty() )
+        return;
 
     pJsContainer_->InvokeOnPaint( gr );
 }
