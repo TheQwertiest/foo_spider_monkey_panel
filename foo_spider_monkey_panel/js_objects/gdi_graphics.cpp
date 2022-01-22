@@ -285,11 +285,10 @@ void JsGdiGraphics::DrawRect( float x, float y, float w, float h, float line_wid
 void JsGdiGraphics::DrawRoundRect( float x, float y, float w, float h, float arc_width, float arc_height, float line_width, uint32_t colour )
 {
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
-    qwr::QwrException::ExpectTrue( 2 * arc_width <= w && 2 * arc_height <= h, "Arc argument has invalid value" );
 
     Gdiplus::Pen pen( colour, line_width );
     Gdiplus::GraphicsPath gp;
-    GetRoundRectPath( gp, Gdiplus::RectF{ x, y, w, h }, arc_width, arc_height );
+    GetRoundRectPath( gp, Gdiplus::RectF{ x, y, w, h }, std::min( w / 2, arc_width ), std::min( h / 2, arc_height ) );
 
     Gdiplus::Status gdiRet = pen.SetStartCap( Gdiplus::LineCapRound );
     qwr::error::CheckGdi( gdiRet, "SetStartCap" );
@@ -435,12 +434,10 @@ void JsGdiGraphics::FillRoundRect( float x, float y, float w, float h, float arc
 {
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
 
-    qwr::QwrException::ExpectTrue( 2 * arc_width <= w && 2 * arc_height <= h, "Arc argument has invalid value" );
-
     Gdiplus::SolidBrush br( colour );
     Gdiplus::GraphicsPath gp;
     const Gdiplus::RectF rect{ x, y, w, h };
-    GetRoundRectPath( gp, rect, arc_width, arc_height );
+    GetRoundRectPath( gp, rect, std::min( w / 2, arc_width ), std::min( h / 2, arc_height ) );
 
     Gdiplus::Status gdiRet = pGdi_->FillPath( &br, &gp );
     qwr::error::CheckGdi( gdiRet, "FillPath" );
