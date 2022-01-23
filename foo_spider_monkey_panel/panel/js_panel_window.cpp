@@ -320,6 +320,14 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
 
         if ( updateRect.IsRectEmpty() )
         {
+            if ( settings_.isPseudoTransparent )
+            {
+                // theoretically a bg repaint is only needed when the user resizes the window (panel)
+                // however, in the case of the new size being 0 width/height and the WM_ERASEBACKGROUND
+                // still happening from the OS side:
+                // it should be safe to set the bg repaint needed flag to false
+                isBgRepaintNeeded_ = false;
+            }
             break;
         }
 
