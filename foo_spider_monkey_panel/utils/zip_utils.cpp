@@ -18,7 +18,7 @@ void CheckMZip( mz_bool mzBool, const mz_zip_archive& mzZip, std::string_view fu
 {
     if ( !mzBool )
     {
-        const auto introMessage = fmt::format( introMessageFmt, std::forward<Args>( introMessageFmtArgs )... );
+        const auto introMessage = fmt::format( fmt::runtime( introMessageFmt ), std::forward<Args>( introMessageFmtArgs )... );
         throw qwr::QwrException( "{}{} failed with error {:#x}: {}", introMessage, functionName, mzZip.m_last_error, mz_zip_get_error_string( mzZip.m_last_error ) );
     }
 }

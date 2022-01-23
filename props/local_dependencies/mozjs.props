@@ -3,7 +3,7 @@
     <ImportGroup Label="PropertySheets">
     </ImportGroup>
     <PropertyGroup>
-        <_PropertySheetDisplayName>pfc</_PropertySheetDisplayName>
+        <_PropertySheetDisplayName>mozjs</_PropertySheetDisplayName>
     </PropertyGroup>
     <PropertyGroup Label="UserMacros">
         <MozJsDirectory>$(MainDir)mozjs\</MozJsDirectory>
