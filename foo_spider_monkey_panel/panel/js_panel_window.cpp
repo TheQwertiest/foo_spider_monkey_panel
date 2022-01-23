@@ -1645,7 +1645,7 @@ void js_panel_window::OnPaintErrorScreen( HDC memdc )
     CDCHandle cdc = { memdc };
 
     LOGFONTW logfont = {};
-    gdi::MakeLogfontW( logfont, L"Tahoma", 20 );
+    gdi::MakeLogfontW( logfont, L"Tahoma", 20, Gdiplus::FontStyle::FontStyleBold );
     smp::gdi::FontCache::Instance().NornalizeLogfontW( cdc, logfont );
 
     gdi::shared_hfont font = gdi::FontCache::Instance().CacheFontW( logfont );
