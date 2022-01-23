@@ -117,7 +117,7 @@ JsGdiFont::CreateNative( JSContext* ctx, const LOGFONTW& font )
 
 size_t JsGdiFont::GetInternalSize( const LOGFONTW& )
 {
-    return sizeof( LOGFONTW ) + sizeof( TEXTMETRICW ) + sizeof( smp::gdi::shared_hfont );
+    return sizeof( smp::gdi::shared_hfont ) + sizeof( LOGFONTW ) + sizeof( TEXTMETRICW ) + sizeof( Gdiplus::Font );
 }
 
 JSObject* JsGdiFont::Constructor( JSContext* ctx,
@@ -167,12 +167,25 @@ void JsGdiFont::ReloadFont()
         // reload metrics
         smp::gdi::ObjectSelector autoFont( dc, GetHFont() );
         qwr::QwrException::ExpectTrue( GetTextMetricsW( dc, &metric ), "GetTextMetrics" );
+
+        // reload Gdiplus::Font stored
+        if (gpFont)
+        {
+            delete gpFont;
+        }
+
+        gpFont = new Gdiplus::Font( dc, &logfont );
     }
 }
 
 HFONT JsGdiFont::GetHFont() const
 {
     return font.get();
+}
+
+Gdiplus::Font* JsGdiFont::GdiFont() const
+{
+    return gpFont;
 }
 
 std::wstring JsGdiFont::get_Name() const

@@ -55,6 +55,7 @@ public: // ctor
 
 public:
     HFONT GetHFont() const;
+    Gdiplus::Font* GdiFont() const;
 
 public: // props
     std::wstring get_Name() const;
@@ -100,6 +101,7 @@ private:
 
     LOGFONTW logfont = {};
     TEXTMETRICW metric = {};
+    Gdiplus::Font* gpFont = {};
 };
 
 } // namespace mozjs

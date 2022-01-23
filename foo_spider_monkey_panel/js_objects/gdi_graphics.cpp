@@ -309,9 +309,7 @@ void JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    HDC dc = pGdi_->GetHDC();
-    Gdiplus::Font* pGdiFont = new Gdiplus::Font( dc, font->GetHFont() );
-    pGdi_->ReleaseHDC( dc );
+    Gdiplus::Font* pGdiFont = font->GdiFont();
 
     qwr::QwrException::ExpectTrue( pGdiFont, "Internal error: GdiFont is null" );
 
@@ -599,11 +597,8 @@ JSObject* JsGdiGraphics::MeasureString( const std::wstring& str, JsGdiFont* font
     qwr::QwrException::ExpectTrue( pGdi_, "Internal error: Gdiplus::Graphics object is null" );
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
-    HDC dc = pGdi_->GetHDC();
-    Gdiplus::Font* fn = new Gdiplus::Font( dc, font->GetHFont() );
-    pGdi_->ReleaseHDC( dc );
-
-    qwr::QwrException::ExpectTrue( fn, "Internal error: GdiFont is null" );
+    Gdiplus::Font* fn = font->GdiFont();
+    assert( fn );
 
     Gdiplus::StringFormat fmt = Gdiplus::StringFormat::GenericTypographic();
     if ( flags != 0 )
