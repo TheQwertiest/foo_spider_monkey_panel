@@ -306,13 +306,37 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
         {
             break;
         }
+
+        // from ms-docs: The update rectange retrieved by GetUpdateRect
+        // is identical to the one retrieved by the BeginPaint function.
+
+        // BeginPaint automatically validates the update region, so any
+        // call to GetUpdateRect made immediately after the call to BeginPaint
+        // retrieves an empty update region.
+
+        // skip redraw if the update rectangle is empty
+        CRect updateRect;
+        wnd_.GetUpdateRect( &updateRect, FALSE );
+
+        if ( updateRect.IsRectEmpty() )
+        {
+            if ( settings_.isPseudoTransparent )
+            {
+                // theoretically a bg repaint is only needed when the user resizes the window (panel)
+                // however, in the case of the new size being 0 width/height and the WM_ERASEBACKGROUND
+                // still happening from the OS side:
+                // it should be safe to set the bg repaint needed flag to false
+                isBgRepaintNeeded_ = false;
+            }
+            break;
+        }
+
         isPaintInProgress_ = true;
 
         if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
-        { // Two pass redraw: paint BG > Repaint() > paint FG
-            CRect rc;
-            wnd_.GetUpdateRect( &rc, FALSE );
-            RepaintBackground( &rc ); ///< Calls Repaint() inside
+        {
+            // Two pass redraw: paint BG > Repaint() > paint FG
+            RepaintBackground( &updateRect ); ///< Calls Repaint() inside
 
             isBgRepaintNeeded_ = false;
             isPaintInProgress_ = false;
@@ -320,10 +344,16 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
             Repaint( true );
             break;
         }
+
         {
+            ///< BeginPaint() called here
             CPaintDC dc{ wnd_ };
-            OnPaint( dc, dc.m_ps.rcPaint );
-        }
+            if ( dc.RectVisible( updateRect ) )
+            {
+                OnPaint( dc, updateRect );
+            }
+            ///< Endpaint called here
+        };
 
         isPaintInProgress_ = false;
 
@@ -1345,8 +1375,10 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
         {
             continue;
         }
+
         std::array<wchar_t, 64> buff;
         GetClassName( hwnd, buff.data(), buff.size() );
+
         if ( wcsstr( buff.data(), L"SysTabControl32" ) )
         {
             wnd_parent = hwnd;
@@ -1356,9 +1388,15 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
 
     CRect rc_child{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
     CRgn rgn_child{ ::CreateRectRgnIndirect( &rc_child ) };
+    rgn_child.CombineRgn( ::CreateRectRgnIndirect( &updateRc ), RGN_DIFF );
+
+    CRect rc_combined{};
+    rgn_child.GetRgnBox( &rc_combined );
+
+    // bail out if the computed region('s bounding box) is empty
+    if ( rc_combined.IsRectEmpty() )
     {
-        CRgn rgn{ ::CreateRectRgnIndirect( &updateRc ) };
-        rgn_child.CombineRgn( rgn, RGN_DIFF );
+        return;
     }
 
     CPoint pt{ 0, 0 };
@@ -1384,6 +1422,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
     }
 
     wnd_.SetWindowRgn( nullptr, FALSE );
+
     if ( smp::config::EdgeStyle::NoEdge != settings_.edgeStyle )
     {
         wnd_.SendMessage( WM_NCPAINT, 1, 0 );
@@ -1675,11 +1714,12 @@ void js_panel_window::OnPaintJs( HDC memdc, const CRect& updateRc )
 {
     Gdiplus::Graphics gr( memdc );
 
-    // SetClip() may improve performance slightly
-    gr.SetClip( Gdiplus::Rect{ updateRc.left,
-                               updateRc.top,
-                               updateRc.Width(),
-                               updateRc.Height() } );
+    // note: the default clip region is the update rect
+    // check if the redraw would be visible at all
+    if ( gr.IsClipEmpty() || gr.IsVisibleClipEmpty() )
+    {
+        return;
+    }
 
     pJsContainer_->InvokeOnPaint( gr );
 }
