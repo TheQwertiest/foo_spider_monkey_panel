@@ -1,5 +1,7 @@
 #pragma once
 
+#include <qwr/type_traits.h>
+
 namespace mozjs::convert::to_js
 {
 
@@ -12,7 +14,7 @@ void ToValue( JSContext* cx, const std::reference_wrapper<T>& inValue, JS::Mutab
 template <typename T>
 void ToValue( JSContext* cx, JS::Handle<T> inValue, JS::MutableHandleValue wrappedValue )
 {
-    static_assert( 0, "Unsupported type" );
+    static_assert( qwr::always_false_v<T>, "Unsupported type" );
 }
 
 template <>
@@ -24,7 +26,7 @@ void ToValue( JSContext* cx, JS::HandleValue inValue, JS::MutableHandleValue wra
 template <typename T>
 void ToValue( JSContext* cx, const T& inValue, JS::MutableHandleValue wrappedValue )
 {
-    static_assert( 0, "Unsupported type" );
+    static_assert( qwr::always_false_v<T>, "Unsupported type" );
 }
 
 template <>
@@ -86,7 +88,7 @@ void ToValue( JSContext* cx, const t_playback_queue_item& inValue, JS::MutableHa
 template <typename T>
 void ToValue( JSContext* cx, std::unique_ptr<T> inValue, JS::MutableHandleValue wrappedValue )
 {
-    static_assert( 0, "Unsupported type" );
+    static_assert( qwr::always_false_v<T>, "Unsupported type" );
 }
 
 template <>
