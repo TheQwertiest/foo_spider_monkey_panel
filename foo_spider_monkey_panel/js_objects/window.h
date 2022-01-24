@@ -49,9 +49,9 @@ public: // methods
     JSObject* CreatePopupMenu();
     JSObject* CreateThemeManager( const std::wstring& classid );
     // TODO v2: remove
-    JSObject* CreateTooltip( const std::wstring& name = L"Segoe UI", uint32_t pxSize = 12, uint32_t style = 0 );
+    JSObject* CreateTooltip( const std::wstring& fontName = L"", int32_t fontSize = 0, uint32_t fontStyle = 0 );
     // TODO v2: remove
-    JSObject* CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style );
+    JSObject* CreateTooltipWithOpt( size_t optArgCount, const std::wstring& fontName, uint32_t fontSize, uint32_t fontStyle );
     // TODO v2: remove
     void DefinePanel( const qwr::u8string& name, JS::HandleValue options = JS::UndefinedHandleValue );
     // TODO v2: remove

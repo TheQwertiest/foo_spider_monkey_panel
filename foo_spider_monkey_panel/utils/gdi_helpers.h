@@ -4,6 +4,8 @@
 
 #include <memory>
 
+#include <utils/std_helpers.h>
+
 namespace smp::gdi
 {
 
@@ -21,51 +23,54 @@ template <typename T>
     return IsGdiPlusObjectValid( obj.get() );
 }
 
-template <typename T>
-using unique_gdi_ptr = std::unique_ptr<std::remove_pointer_t<T>, void ( * )( T )>;
 
-template <typename T>
-[[nodiscard]] unique_gdi_ptr<T> CreateUniquePtr( T pObject )
-{
-    static_assert( std::is_same_v<T, HDC> || std::is_same_v<T, HPEN> || std::is_same_v<T, HBRUSH> || std::is_same_v<T, HRGN> || std::is_same_v<T, HPALETTE> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBITMAP>,
-                   "Unsupported GDI type" );
+template <typename Hx>
+requires is_any_same<Hx, HGDIOBJ, HDC, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBITMAP>::value
+using unique_gdi_ptr = std::unique_ptr<TxOF<Hx>>;
 
-    return unique_gdi_ptr<T>( pObject, []( auto pObject ) {
-        if constexpr ( std::is_same_v<T, HDC> )
-        {
-            DeleteDC( pObject );
-        }
-        else
-        {
-            DeleteObject( pObject );
-        }
-    } );
-}
+#define SMP_GDI_DEFINE_SMART_HANDLES( handle, Hx )                          \
+    using unique_##handle = unique_gdi_ptr<Hx>;                             \
+    using shared_##handle = std::shared_ptr<unique_##handle::element_type>; \
+    using   weak_##handle = shared_##handle::weak_type;
 
-template <typename T>
+SMP_GDI_DEFINE_SMART_HANDLES( hfont, HFONT );
+SMP_GDI_DEFINE_SMART_HANDLES( hbitmap, HBITMAP );
+
+
+template <typename Hx>
+concept Selectable = is_any_same<Hx, HBITMAP, HBRUSH, HFONT, HPEN>::value;
+
+template <typename Hx>
+requires Selectable<Hx>
 class ObjectSelector
 {
-    static_assert( std::is_same_v<T, HPEN> || std::is_same_v<T, HBRUSH> || std::is_same_v<T, HFONT> || std::is_same_v<T, HBITMAP>,
-                   "Unsupported GDI type" );
+    const HDC hdc = {};
+    const HGDIOBJ old = {};
 
 public:
-    [[nodiscard]] ObjectSelector( HDC hDc, T pNewObject )
-        : hDc_( hDc )
-        , pOldObject_( SelectObject( hDc, pNewObject ) )
-    {
-    }
-    ~ObjectSelector()
-    {
-        (void)SelectObject( hDc_, pOldObject_ );
-    }
-
-private:
-    HDC hDc_ = nullptr;
-    HGDIOBJ pOldObject_ = nullptr;
+    [[nodiscard]] ObjectSelector( const HDC dc, const Hx obj ) : hdc( dc ), old( SelectObject( hdc, (HGDIOBJ)obj ) ) { }
+    ~ObjectSelector() { SelectObject( hdc, old ); }
 };
+
+template <typename Hx>
+requires Selectable<Hx>
+class TempObjectSelector
+{
+    const HDC hdc = {};
+    const HGDIOBJ old = {};
+
+public:
+    [[nodiscard]] TempObjectSelector( const HDC dc, Hx obj ) : hdc( dc ), old( SelectObject( hdc, (HGDIOBJ)obj ) ) { }
+    ~TempObjectSelector() { DeleteObject( SelectObject( hdc, old ) ); }
+};
+
 
 /// @details Does not report
 /// @return nullptr - error, create HBITMAP - otherwise
-[[nodiscard]] unique_gdi_ptr<HBITMAP> CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap );
+[[nodiscard]] unique_hbitmap CreateHBitmapFromGdiPlusBitmap( Gdiplus::Bitmap& bitmap );
+
+// helper fn to make LOGFONTW-s using unified params
+void MakeLogfontW( LOGFONTW& logfontOut,
+                   const std::wstring& fontName = L"", const int32_t fontSize = 0, const uint32_t fontStyle = 0 );
 
 } // namespace smp::gdi

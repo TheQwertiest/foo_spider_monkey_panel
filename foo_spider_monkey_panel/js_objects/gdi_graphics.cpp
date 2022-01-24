@@ -3,12 +3,15 @@
 #include "gdi_graphics.h"
 
 #include <js_engine/js_to_native_invoker.h>
+
 #include <js_objects/gdi_bitmap.h>
 #include <js_objects/gdi_font.h>
 #include <js_objects/gdi_raw_bitmap.h>
 #include <js_objects/measure_string_info.h>
+
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
+
 #include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/text_helpers.h>
@@ -307,6 +310,7 @@ void JsGdiGraphics::DrawString( const std::wstring& str, JsGdiFont* font, uint32
     qwr::QwrException::ExpectTrue( font, "font argument is null" );
 
     Gdiplus::Font* pGdiFont = font->GdiFont();
+
     qwr::QwrException::ExpectTrue( pGdiFont, "Internal error: GdiFont is null" );
 
     Gdiplus::SolidBrush br( colour );

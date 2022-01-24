@@ -21,6 +21,7 @@
 #include <timeout/timeout_manager.h>
 #include <utils/gdi_helpers.h>
 
+#include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
@@ -338,7 +339,7 @@ JSObject* JsWindow::CreateThemeManager( const std::wstring& classid )
     return JsThemeManager::CreateJs( pJsCtx_, parentPanel_.GetHWND(), classid );
 }
 
-JSObject* JsWindow::CreateTooltip( const std::wstring& name, uint32_t pxSize, uint32_t style )
+JSObject* JsWindow::CreateTooltip( const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
     if ( isFinalized_ )
     {
@@ -352,21 +353,21 @@ JSObject* JsWindow::CreateTooltip( const std::wstring& name, uint32_t pxSize, ui
     }
 
     assert( pNativeTooltip_ );
-    pNativeTooltip_->SetFont( name, pxSize, style );
+    pNativeTooltip_->SetFont( fontName, fontSize, fontStyle );
 
     return jsTooltip_;
 }
 
-JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style )
+JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring& fontName, uint32_t fontSize, uint32_t fontStyle )
 {
     switch ( optArgCount )
     {
     case 0:
-        return CreateTooltip( name, pxSize, style );
+        return CreateTooltip( fontName, fontSize, fontStyle );
     case 1:
-        return CreateTooltip( name, pxSize );
+        return CreateTooltip( fontName, fontSize );
     case 2:
-        return CreateTooltip( name );
+        return CreateTooltip( fontName );
     case 3:
         return CreateTooltip();
     default:
@@ -506,6 +507,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     qwr::QwrException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::CUI, "Can be called only in CUI" );
 
     GUID guid;
+
     if ( guidstr.empty() )
     {
         memcpy( &guid, &pfc::guid_null, sizeof( guid ) );
@@ -516,19 +518,18 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         qwr::error::CheckHR( hr, u8"CLSIDFromString" );
     }
 
-    auto hFont = gdi::CreateUniquePtr( parentPanel_.GetFont( type, guid ) );
-    if ( !hFont )
-    { // Not an error: font not found
-        return nullptr;
-    }
+    // CUI always returns a NEW handle constructed with CreateLogfont(), so it's never null...
+    HFONT hfont = parentPanel_.GetFont( type, guid );
+    assert( hfont != nullptr );
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont.get() ) );
-    if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
-    { // Not an error: font not found
-        return nullptr;
-    }
+    // ...and we shoudld, delete the handle after we're done copying it
+    qwr::final_action autoFontReleaser( [hfont] { DeleteObject( hfont ); } );
 
-    return JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont.release(), true );
+    // get logfont for the cache
+    LOGFONTW logfont = {};
+    qwr::error::CheckHR( GetObjectW( hfont, sizeof( LOGFONTW ), &logfont ), "GetObjectW" );
+
+    return JsGdiFont::CreateJs( pJsCtx_, std::move( logfont ) );
 }
 
 JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const std::wstring& guidstr )
@@ -553,19 +554,25 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
 
     qwr::QwrException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
-    HFONT hFont = parentPanel_.GetFont( type, pfc::guid_null ); // No need to delete, it is managed by DUI
-    if ( !hFont )
-    { // Not an error: font not found
-        return nullptr;
+    HFONT hFont = parentPanel_.GetFont( type, pfc::guid_null );
+
+    // we shouldn't delete the font handle, it is managed by the DUI
+
+    LOGFONTW logfont = {};
+
+    if ( hFont )
+    {
+        // if found: get logfont for the cache
+        qwr::error::CheckHR( GetObjectW( hFont, sizeof( LOGFONTW ), &logfont ), "GetObjectW" );
+    }
+    else
+    {
+        // if not found:
+        // create a default font from a zeroed logfont, akin to the CUI callback
+        memset( &logfont, 0, sizeof( LOGFONTW ) );
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont ) );
-    if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
-    { // Not an error: font not found
-        return nullptr;
-    }
-
-    return JsGdiFont::CreateJs( pJsCtx_, std::move( pGdiFont ), hFont, false );
+    return JsGdiFont::CreateJs( pJsCtx_, std::move( logfont ) );
 }
 
 JS::Value JsWindow::GetProperty( const std::wstring& name, JS::HandleValue defaultval )

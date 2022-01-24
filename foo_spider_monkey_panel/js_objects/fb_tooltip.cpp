@@ -3,7 +3,9 @@
 #include "fb_tooltip.h"
 
 #include <js_engine/js_to_native_invoker.h>
+
 #include <js_utils/js_error_helper.h>
+#include <js_utils/js_hwnd_helpers.h>
 #include <js_utils/js_object_helper.h>
 
 #include <qwr/final_action.h>
@@ -40,7 +42,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Activate, JsFbTooltip::Activate )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Deactivate, JsFbTooltip::Deactivate )
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetDelayTime, JsFbTooltip::GetDelayTime )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetDelayTime, JsFbTooltip::SetDelayTime )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetFont, JsFbTooltip::SetFont, JsFbTooltip::SetFontWithOpt, 2 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( SetFont, JsFbTooltip::SetFont, JsFbTooltip::SetFontWithOpt, 3 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( SetMaxWidth, JsFbTooltip::SetMaxWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( TrackPosition, JsFbTooltip::TrackPosition )
 
@@ -71,7 +73,6 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
 
 namespace mozjs
 {
-
 const JSClass JsFbTooltip::JsClass = jsClass;
 const JSFunctionSpec* JsFbTooltip::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsFbTooltip::JsProperties = jsProperties.data();
@@ -81,7 +82,6 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd )
     : pJsCtx_( cx )
     , hParentWnd_( hParentWnd )
     , tipBuffer_( TEXT( SMP_NAME ) )
-    , pFont_( smp::gdi::CreateUniquePtr<HFONT>( nullptr ) )
 {
     hTooltipWnd_ = CreateWindowEx(
         WS_EX_TOPMOST,
@@ -173,46 +173,34 @@ void JsFbTooltip::SetDelayTime( uint32_t type, int32_t time )
     SendMessage( hTooltipWnd_, TTM_SETDELAYTIME, type, static_cast<LPARAM>( static_cast<int>( MAKELONG( time, 0 ) ) ) );
 }
 
-void JsFbTooltip::SetFont( const std::wstring& name, uint32_t pxSize, uint32_t style )
+void JsFbTooltip::SetFont( const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
-    fontName_ = name;
-    fontSize_ = pxSize;
-    fontStyle_ = style;
+    LOGFONTW logfont;
+    smp::gdi::MakeLogfontW( logfont, fontName, fontSize, fontStyle );
+    smp::gdi::FontCache::Instance().NornalizeLogfontW( GetPanelHwndForCurrentGlobal( pJsCtx_ ), logfont );
 
-    if ( !fontName_.empty() )
+    smp::gdi::shared_hfont hfont = smp::gdi::FontCache::Instance().CacheFontW( logfont );
+
+    if ( font != hfont )
     {
-        pFont_.reset( CreateFont(
-            // from msdn: "< 0, The font mapper transforms this value into device units
-            //             and matches its absolute value against the character height of the available fonts."
-            -static_cast<int>( fontSize_ ),
-            0,
-            0,
-            0,
-            ( fontStyle_ & Gdiplus::FontStyleBold ) ? FW_BOLD : FW_NORMAL,
-            ( fontStyle_ & Gdiplus::FontStyleItalic ) ? TRUE : FALSE,
-            ( fontStyle_ & Gdiplus::FontStyleUnderline ) ? TRUE : FALSE,
-            ( fontStyle_ & Gdiplus::FontStyleStrikeout ) ? TRUE : FALSE,
-            DEFAULT_CHARSET,
-            OUT_DEFAULT_PRECIS,
-            CLIP_DEFAULT_PRECIS,
-            DEFAULT_QUALITY,
-            DEFAULT_PITCH | FF_DONTCARE,
-            fontName_.c_str() ) );
-        qwr::error::CheckWinApi( !!pFont_, "CreateFont" );
-        SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)pFont_.get(), MAKELPARAM( FALSE, 0 ) );
+        font = hfont;
+        SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)font.get(), MAKELPARAM( FALSE, 0 ) );
     }
 }
 
-void JsFbTooltip::SetFontWithOpt( size_t optArgCount, const std::wstring& name, uint32_t pxSize, uint32_t style )
+void JsFbTooltip::SetFontWithOpt( size_t optArgCount,
+                                  const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle )
 {
     switch ( optArgCount )
     {
     case 0:
-        return SetFont( name, pxSize, style );
+        return SetFont( fontName, fontSize, fontStyle );
     case 1:
-        return SetFont( name, pxSize );
+        return SetFont( fontName, fontSize );
     case 2:
-        return SetFont( name );
+        return SetFont( fontName );
+    case 3:
+        return SetFont();
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }

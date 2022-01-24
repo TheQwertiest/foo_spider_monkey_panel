@@ -4,16 +4,19 @@
 
 #include <optional>
 
+#include <utils/gdi_font_cache.h>
+
+// wether to enable getters for font metrics
+#define _FONT_DEV_METRICS 1
+
+// wether to enable a getter listing the font cache
+#define _FONT_DEV_CACHE 1
+
 class JSObject;
 struct JSContext;
 struct JSClass;
 struct JSFunctionSpec;
 struct JSPropertySpec;
-
-namespace Gdiplus
-{
-class Font;
-}
 
 namespace mozjs
 {
@@ -34,34 +37,71 @@ public:
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
 
+private:
+    JsGdiFont( JSContext* ctx, const LOGFONTW& font );
+
 public:
     ~JsGdiFont() override;
 
-    static std::unique_ptr<JsGdiFont> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> gdiFont, HFONT hFont, bool isManaged );
-    [[nodiscard]] static size_t GetInternalSize( const std::unique_ptr<Gdiplus::Font>& gdiFont, HFONT hFont, bool isManaged );
-
-public:
-    [[nodiscard]] Gdiplus::Font* GdiFont() const;
-    [[nodiscard]] HFONT GetHFont() const;
+    static std::unique_ptr<JsGdiFont> CreateNative( JSContext* ctx, const LOGFONTW& font );
+    [[nodiscard]] static size_t GetInternalSize( const LOGFONTW& font );
 
 public: // ctor
-    static JSObject* Constructor( JSContext* cx, const std::wstring& fontName, uint32_t pxSize, uint32_t style = 0 );
-    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const std::wstring& fontName, uint32_t pxSize, uint32_t style );
+    static JSObject* Constructor( JSContext* ctx,
+                                  const std::wstring& fontName = L"", int32_t fontSize = 0, uint32_t fontStyle = 0 );
+
+    static JSObject* ConstructorWithOpt( JSContext* ctx, size_t optArgCount,
+                                         const std::wstring& fontName, int32_t fontSize, uint32_t fontStyle );
+
+public:
+    HFONT GetHFont() const;
+    Gdiplus::Font* GdiFont() const;
 
 public: // props
-    [[nodiscard]] uint32_t get_Height() const;
-    [[nodiscard]] std::wstring get_Name() const;
-    [[nodiscard]] float get_Size() const;
-    [[nodiscard]] uint32_t get_Style() const;
+    std::wstring get_Name() const;
+    void set_Name( const std::wstring& fontName );
+
+    uint32_t get_Height() const;
+    void set_Height( uint32_t fontHeight );
+
+    uint32_t get_Size() const;
+    void set_Size( uint32_t fontSize );
+
+    uint32_t get_Style() const;
+    void set_Style( uint32_t fontStyle );
+
+    uint32_t get_Weight() const;
+    void set_Weight( uint32_t fontWeight );
+
+    bool get_Italic() const;
+    void set_Italic( bool italic );
+
+    bool get_Underline() const;
+    void set_Underline( bool underline );
+
+    bool get_Strikeout() const;
+    void set_Strikeout( bool strikeout );
+
+#if _FONT_DEV_METRICS
+    JS::Value get_Logfont() const;
+    JS::Value get_Metrics() const;
+#endif
+
+#if _FONT_DEV_CACHE
+    JS::Value get_Cache() const;
+#endif
 
 private:
-    JsGdiFont( JSContext* cx, std::unique_ptr<Gdiplus::Font> gdiFont, HFONT hFont, bool isManaged );
+    void ReloadFont();
 
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
-    bool isManaged_;
-    std::unique_ptr<Gdiplus::Font> pGdi_;
-    HFONT hFont_ = nullptr;
+
+    smp::gdi::shared_hfont font = nullptr;
+
+    LOGFONTW logfont = {};
+    TEXTMETRICW metric = {};
+    Gdiplus::Font* gpFont = {};
 };
 
 } // namespace mozjs

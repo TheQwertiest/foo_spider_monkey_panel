@@ -271,6 +271,7 @@
     <ClCompile Include="utils\art_loading_options.cpp" />
     <ClCompile Include="utils\edit_text.cpp" />
     <ClCompile Include="utils\gdi_error_helpers.cpp" />
+    <ClCompile Include="utils\gdi_font_cache.cpp" />
     <ClCompile Include="utils\gdi_helpers.cpp" />
     <ClCompile Include="utils\guid_helpers.cpp" />
     <ClCompile Include="utils\image_helpers.cpp" />
@@ -332,6 +333,8 @@
     <ClInclude Include="fb2k\playlist_lock.h" />
     <ClInclude Include="fb2k\selection_holder_helper.h" />
     <ClInclude Include="fb2k\stats.h" />
+    <ClInclude Include="utils\gdi_font_cache.h" />
+    <ClInclude Include="utils\hash_combine.h" />
     <ClInclude Include="js_engine\heartbeat_window.h" />
     <ClInclude Include="js_engine\js_realm_inner.h" />
     <ClInclude Include="js_engine\js_container.h" />
@@ -400,6 +403,7 @@
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />
     <ClInclude Include="stdafx.h" />
+    <ClInclude Include="utils\std_helpers.h" />
     <ClInclude Include="timeout\timeout.h" />
     <ClInclude Include="timeout\timeout_executor.h" />
     <ClInclude Include="timeout\timeout_manager.h" />
