@@ -50,6 +50,7 @@ public:
     JSObject* GetAlbumArtEmbeddedWithOpt( size_t optArgCount, const qwr::u8string& rawpath, uint32_t art_id );
     JSObject* GetAlbumArtV2( JsFbMetadbHandle* handle, uint32_t art_id = 0, bool need_stub = true );
     JSObject* GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* handle, uint32_t art_id, bool need_stub );
+    qwr::u8string GetClipboardText() const;
     uint64_t GetFileSize( const std::wstring& path ) const;
     JSObject* GetPackageInfo( const qwr::u8string& packageId ) const;
     // TODO: remove in the next version (not necessarily v2)
@@ -69,6 +70,7 @@ public:
     std::wstring ReadINIWithOpt( size_t optArgCount, const std::wstring& filename, const std::wstring& section, const std::wstring& key, const std::wstring& defaultval );
     std::wstring ReadTextFile( const std::wstring& filePath, uint32_t codepage = CP_ACP );
     std::wstring ReadTextFileWithOpt( size_t optArgCount, const std::wstring& filePath, uint32_t codepage );
+    void SetClipboardText( const qwr::u8string& text );
     JS::Value ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options = JS::UndefinedHandleValue );
     JS::Value ShowHtmlDialogWithOpt( size_t optArgCount, uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options );
     JS::Value SplitFilePath( const std::wstring& path );
