@@ -7,7 +7,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/serialized_value.h>
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 
 #include <qwr/string_helpers.h>
 

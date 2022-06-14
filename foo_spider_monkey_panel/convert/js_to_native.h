@@ -127,7 +127,7 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
     }
     else if constexpr ( qwr::is_specialization_of_v<T, std::optional> )
     { // Construct and copy
-        return to_native::internal::ToOptional<T::value_type>( cx, jsValue );
+        return to_native::internal::ToOptional<typename T::value_type>( cx, jsValue );
     }
     else if constexpr ( std::is_pointer_v<T> )
     { // Extract native pointer
@@ -143,11 +143,11 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
         }
 
         JS::RootedObject jsObject( cx, &jsValue.toObject() );
-        return internal::ToSimpleValue<T>( cx, jsObject );
+        return to_native::internal::ToSimpleValue<T>( cx, jsObject );
     }
     else if constexpr ( qwr::is_specialization_of_v<T, std::vector> )
     {
-        return internal::ToVector<T::value_type>( cx, jsValue );
+        return to_native::internal::ToVector<typename T::value_type>( cx, jsValue );
     }
     else
     {
@@ -158,7 +158,7 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
 template <typename T>
 T ToValue( JSContext* cx, const JS::HandleString& jsString )
 {
-    static_assert( 0, "Unsupported type" );
+    static_assert( qwr::always_false_v<T>, "Unsupported type" );
 }
 
 template <>

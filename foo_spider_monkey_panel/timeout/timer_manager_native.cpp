@@ -4,7 +4,7 @@
 
 #include <events/event_dispatcher.h>
 #include <events/event_timer.h>
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 #include <timeout/timer_native.h>
 #include <utils/logging.h>
 

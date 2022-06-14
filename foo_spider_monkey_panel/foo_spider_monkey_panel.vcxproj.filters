@@ -226,13 +226,13 @@
     <ClCompile Include="panel\modal_blocking_scope.cpp">
       <Filter>panel</Filter>
     </ClCompile>
-    <ClCompile Include="panel\js_panel_window.cpp">
+    <ClCompile Include="panel\panel_window.cpp">
       <Filter>panel</Filter>
     </ClCompile>
-    <ClCompile Include="panel\js_panel_window_cui.cpp">
+    <ClCompile Include="panel\panel_window_cui.cpp">
       <Filter>panel</Filter>
     </ClCompile>
-    <ClCompile Include="panel\js_panel_window_dui.cpp">
+    <ClCompile Include="panel\panel_window_dui.cpp">
       <Filter>panel</Filter>
     </ClCompile>
     <ClCompile Include="fb2k\acfu_integration.cpp">
@@ -690,13 +690,13 @@
     <ClInclude Include="panel\drag_action_params.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="panel\js_panel_window.h">
+    <ClInclude Include="panel\panel_window.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="panel\js_panel_window_cui.h">
+    <ClInclude Include="panel\panel_window_cui.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="panel\js_panel_window_dui.h">
+    <ClInclude Include="panel\panel_window_dui.h">
       <Filter>panel</Filter>
     </ClInclude>
     <ClInclude Include="js_engine\heartbeat_window.h">
@@ -912,6 +912,9 @@
     </ClInclude>
     <ClInclude Include="utils\fmt_pfc_adaptor.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\panel_window_base.h">
+      <Filter>panel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

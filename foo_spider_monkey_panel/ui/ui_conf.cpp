@@ -3,7 +3,7 @@
 #include "ui_conf.h"
 
 #include <config/package_utils.h>
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 #include <ui/impl/ui_conf_tab_appearance.h>
 #include <ui/impl/ui_conf_tab_package.h>
 #include <ui/impl/ui_conf_tab_properties.h>

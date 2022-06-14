@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "js_panel_window.h"
+#include "panel_window.h"
 
 #include <com_objects/track_drop_target.h>
 #include <com_utils/com_destruction_handler.h>
@@ -56,8 +56,12 @@ class JsAsyncTask;
 namespace smp::panel
 {
 
-js_panel_window::js_panel_window( PanelType instanceType )
-    : panelType_( instanceType )
+js_panel_window::js_panel_window( PanelType instanceType, IPanelWindowBase& impl )
+    : uie::container_window_v3(
+        get_window_config(),
+        [this]( auto&&... args ) { return impl_.on_message( std::forward<decltype( args )>( args )... ); } )
+    , panelType_( instanceType )
+    , impl_( impl )
 {
 }
 
@@ -65,25 +69,16 @@ js_panel_window::~js_panel_window()
 {
 }
 
-ui_helpers::container_window::class_data& js_panel_window::get_class_data() const
+uie::container_window_v3_config js_panel_window::get_window_config()
 {
-    static class_data my_class_data = {
-        TEXT( SMP_WINDOW_CLASS_NAME ),
-        L"",
-        0,
-        false,
-        false,
-        0,
-        WS_CHILD | WS_CLIPSIBLINGS | WS_CLIPCHILDREN,
-        ConvertEdgeStyleToNativeFlags( settings_.edgeStyle ),
-        CS_DBLCLKS,
-        true,
-        true,
-        true,
-        IDC_ARROW
-    };
+    uie::container_window_v3_config config( TEXT( SMP_WINDOW_CLASS_NAME ) );
 
-    return my_class_data;
+    config.use_transparent_background = false;
+    config.extended_window_styles = ConvertEdgeStyleToNativeFlags( settings_.edgeStyle );
+    config.class_styles = CS_DBLCLKS;
+    config.class_cursor = IDC_ARROW;
+
+    return config;
 }
 
 void js_panel_window::Fail( const qwr::u8string& errorText )
@@ -127,22 +122,23 @@ void js_panel_window::ReloadScript()
     }
 }
 
-void js_panel_window::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel )
+config::PanelSettings js_panel_window::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort )
 {
-    const auto settings = [&] {
-        try
-        {
-            return config::PanelSettings::Load( reader, size, abort );
-        }
-        catch ( const qwr::QwrException& e )
-        {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!\n"
-                                                                         "Error: {}",
-                                                                         e.what() ) );
-            return config::PanelSettings{};
-        }
-    }();
+    try
+    {
+        return config::PanelSettings::Load( reader, size, abort );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!\n"
+                                                                     "Error: {}",
+                                                                     e.what() ) );
+        return config::PanelSettings{};
+    }
+}
 
+void js_panel_window::InitSettings( const smp::config::PanelSettings& settings, bool reloadPanel )
+{
     if ( !UpdateSettings( settings, reloadPanel ) )
     {
         qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!" ) );
@@ -210,6 +206,11 @@ bool js_panel_window::ReloadSettings()
 bool js_panel_window::IsPanelIdOverridenByScript() const
 {
     return isPanelIdOverridenByScript_;
+}
+
+void js_panel_window::notify_size_limit_changed( LPARAM lp )
+{
+    return impl_.notify_size_limit_changed( lp );
 }
 
 LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -1261,6 +1262,16 @@ PanelType js_panel_window::GetPanelType() const
     return panelType_;
 }
 
+DWORD js_panel_window::GetColour( unsigned type, const GUID& guid )
+{
+    return impl_.GetColour( type, guid );
+}
+
+HFONT js_panel_window::GetFont( unsigned type, const GUID& guid )
+{
+    return impl_.GetFont( type, guid );
+}
+
 void js_panel_window::SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion )
 {
     assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
@@ -1463,8 +1474,9 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
 
     if ( !isFirstLoad )
     { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
-        // We need to go through message loop to handle all JS logic correctly (e.g. jobs).
-        EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndResize ), EventPriority::kResize );
+        auto pEvent = std::make_unique<Event_Basic>( EventId::kWndResize );
+        pEvent->SetTarget( pTarget_ );
+        ProcessEventManually( *pEvent );
     }
 
     return true;

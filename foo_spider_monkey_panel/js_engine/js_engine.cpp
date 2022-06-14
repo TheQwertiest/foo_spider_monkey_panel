@@ -10,8 +10,8 @@
 #include <js_engine/js_realm_inner.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
-#include <panel/js_panel_window.h>
 #include <panel/modal_blocking_scope.h>
+#include <panel/panel_window.h>
 #include <panel/user_message.h>
 #include <timeout/timer_interface.h>
 #include <utils/make_unique_ptr.h>

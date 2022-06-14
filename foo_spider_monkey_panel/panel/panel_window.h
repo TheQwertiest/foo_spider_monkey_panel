@@ -4,6 +4,7 @@
 #include <events/event.h>
 #include <events/event_js_executor.h>
 #include <panel/drag_action_params.h>
+#include <panel/panel_window_base.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>
 
@@ -37,18 +38,22 @@ enum class PanelType : uint8_t
 };
 
 class js_panel_window
-    : public ui_helpers::container_window
+    : public uie::container_window_v3
 {
+    friend class js_panel_window_cui;
+    friend class js_panel_window_dui;
+
 public:
-    js_panel_window( PanelType instanceType );
+    js_panel_window( PanelType instanceType, IPanelWindowBase& impl );
     virtual ~js_panel_window();
 
 public:
-    // ui_helpers::container_window
-    [[nodiscard]] class_data& get_class_data() const override;
+    // uie::container_window_v3
+    uie::container_window_v3_config get_window_config();
 
     void ReloadScript();
-    void LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel = true );
+    static config::PanelSettings LoadSettings( stream_reader& reader, t_size size, abort_callback& abort );
+    void InitSettings( const smp::config::PanelSettings& settings, bool reloadPanel = true );
     void SetSettings( const smp::config::ParsedPanelSettings& settings );
     bool UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel = true );
     bool SaveSettings( stream_writer& writer, abort_callback& abort ) const;
@@ -78,8 +83,8 @@ public: // accessors
 
     [[nodiscard]] t_size& DlgCode();
     [[nodiscard]] PanelType GetPanelType() const;
-    virtual DWORD GetColour( unsigned type, const GUID& guid ) = 0;
-    virtual HFONT GetFont( unsigned type, const GUID& guid ) = 0;
+    DWORD GetColour( unsigned type, const GUID& guid );
+    HFONT GetFont( unsigned type, const GUID& guid );
 
     void SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion );
     void SetSettings_PanelName( const qwr::u8string& panelName );
@@ -92,10 +97,9 @@ public: // accessors
     [[nodiscard]] bool HasInternalDrag() const;
 
 protected:
-    virtual void notify_size_limit_changed( LPARAM lp ) = 0;
+    void notify_size_limit_changed( LPARAM lp );
 
-    // ui_helpers::container_window
-    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
+    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
 
     void EditScript();
     void ShowConfigure( HWND parent, ui::CDialogConf::Tab tab = ui::CDialogConf::Tab::def );
@@ -147,6 +151,7 @@ private: // callback handling
 
 private:
     const PanelType panelType_;
+    IPanelWindowBase& impl_;
     config::ParsedPanelSettings settings_ = config::ParsedPanelSettings::GetDefault();
     config::PanelProperties properties_;
 

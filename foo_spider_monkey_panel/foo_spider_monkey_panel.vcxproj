@@ -24,7 +24,7 @@
   <PropertyGroup Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
-    <PlatformToolset>v142</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Release'" Label="Configuration">
     <UseOfMfc>false</UseOfMfc>
@@ -68,8 +68,8 @@
     <ClCompile>
       <PreprocessorDefinitions>_WINDOWS;_USRDLL;_SILENCE_CXX20_U8PATH_DEPRECATION_WARNING;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(ProjectDir);$(IncludePath);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalOptions>/Zm200 /Zc:__cplusplus /experimental:newLambdaProcessor /Zc:char8_t- %(AdditionalOptions)</AdditionalOptions>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalOptions>/Zm200 /Zc:__cplusplus /Zc:char8_t- %(AdditionalOptions)</AdditionalOptions>
       <UseStandardPreprocessor>true</UseStandardPreprocessor>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <DisableSpecificWarnings>5105;26812;33005</DisableSpecificWarnings>
@@ -232,9 +232,9 @@
     <ClCompile Include="js_utils\js_object_helper.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
     <ClCompile Include="panel\edit_script.cpp" />
-    <ClCompile Include="panel\js_panel_window.cpp" />
-    <ClCompile Include="panel\js_panel_window_cui.cpp" />
-    <ClCompile Include="panel\js_panel_window_dui.cpp" />
+    <ClCompile Include="panel\panel_window.cpp" />
+    <ClCompile Include="panel\panel_window_cui.cpp" />
+    <ClCompile Include="panel\panel_window_dui.cpp" />
     <ClCompile Include="panel\modal_blocking_scope.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -393,9 +393,10 @@
     <ClInclude Include="js_utils\serialized_value.h" />
     <ClInclude Include="panel\drag_action_params.h" />
     <ClInclude Include="panel\edit_script.h" />
-    <ClInclude Include="panel\js_panel_window.h" />
-    <ClInclude Include="panel\js_panel_window_cui.h" />
-    <ClInclude Include="panel\js_panel_window_dui.h" />
+    <ClInclude Include="panel\panel_window.h" />
+    <ClInclude Include="panel\panel_window_base.h" />
+    <ClInclude Include="panel\panel_window_cui.h" />
+    <ClInclude Include="panel\panel_window_dui.h" />
     <ClInclude Include="panel\modal_blocking_scope.h" />
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />

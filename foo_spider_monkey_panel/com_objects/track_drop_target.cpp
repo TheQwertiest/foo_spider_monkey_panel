@@ -8,7 +8,7 @@
 #include <js_engine/js_container.h>
 #include <js_objects/drop_source_action.h>
 #include <js_objects/global_object.h>
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 #include <utils/location_processor.h>
 
 namespace

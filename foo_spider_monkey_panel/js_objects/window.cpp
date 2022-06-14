@@ -17,7 +17,7 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_property_helper.h>
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 #include <timeout/timeout_manager.h>
 #include <utils/gdi_helpers.h>
 

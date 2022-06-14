@@ -2,7 +2,7 @@
 
 #include "ui_conf_tab_properties.h"
 
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 #include <ui/ui_conf.h>
 
 #include <qwr/abort_callback.h>

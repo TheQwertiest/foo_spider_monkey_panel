@@ -11,7 +11,7 @@
 #include <js_utils/js_async_task.h>
 #include <js_utils/js_error_helper.h>
 #include <js_utils/scope_helper.h>
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 
 #include <qwr/final_action.h>
 

@@ -2,7 +2,7 @@
 
 #include "timer_custom.h"
 
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 #include <timeout/timer_manager_custom.h>
 
 #include <qwr/thread_helpers.h>

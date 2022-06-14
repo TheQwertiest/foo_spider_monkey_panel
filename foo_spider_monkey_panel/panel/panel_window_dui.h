@@ -1,12 +1,14 @@
 #pragma once
 
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 
 namespace smp::panel
 {
 
+class js_panel_window;
+
 class js_panel_window_dui
-    : public js_panel_window
+    : public IPanelWindowBase
     , public ui_element_instance
 {
 public:
@@ -19,9 +21,10 @@ public:
     static ui_element_config::ptr g_get_default_configuration();
     static void g_get_name( pfc::string_base& out );
 
-    // js_panel_window
+    // IPanelWindowImpl
     DWORD GetColour( unsigned type, const GUID& guid ) override;
     HFONT GetFont( unsigned type, const GUID& guid ) override;
+    void notify_size_limit_changed( LPARAM lp ) override;
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
     // ui_element_instance
@@ -39,15 +42,13 @@ public:
     void initialize_window( HWND parent );
 
 private:
-    // js_panel_window
-    void notify_size_limit_changed( LPARAM lp ) override;
-
     void notify_is_edit_mode_changed( bool enabled );
 
 private:
-    using t_parent = js_panel_window;
     ui_element_instance_callback::ptr uiCallback_;
     bool isEditMode_;
+    std::unique_ptr<js_panel_window> wndContainer_;
+    config::PanelSettings panel_settings_;
 };
 
 } // namespace smp::panel

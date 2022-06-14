@@ -6,7 +6,7 @@
 
 #include <events/event_dispatcher.h>
 #include <fb2k/advanced_config.h>
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 #include <timeout/timeout_manager.h>
 #include <timeout/timer_interface.h>
 #include <timeout/timer_manager_native.h>

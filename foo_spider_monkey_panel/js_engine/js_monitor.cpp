@@ -7,8 +7,8 @@
 #include <fb2k/advanced_config.h>
 #include <js_engine/js_container.h>
 #include <js_engine/js_engine.h>
-#include <panel/js_panel_window.h>
 #include <panel/modal_blocking_scope.h>
+#include <panel/panel_window.h>
 #include <ui/ui_slow_script.h>
 
 #include <qwr/delayed_executor.h>

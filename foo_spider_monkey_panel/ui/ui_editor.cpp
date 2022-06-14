@@ -2,7 +2,7 @@
 
 #include "ui_editor.h"
 
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 #include <ui/scintilla/sci_config.h>
 #include <ui/ui_editor_config.h>
 

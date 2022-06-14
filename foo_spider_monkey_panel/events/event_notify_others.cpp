@@ -3,7 +3,7 @@
 #include "event_notify_others.h"
 
 #include <js_engine/js_container.h>
-#include <panel/js_panel_window.h>
+#include <panel/panel_window.h>
 
 namespace smp
 {

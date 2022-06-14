@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "js_panel_window_dui.h"
+#include "panel_window_dui.h"
 
 #include <com_objects/drop_target_impl.h>
 #include <events/event_dispatcher.h>
@@ -67,8 +67,7 @@ namespace smp::panel
 {
 
 js_panel_window_dui::js_panel_window_dui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
-    : js_panel_window( PanelType::DUI )
-    , uiCallback_( callback )
+    : uiCallback_( callback )
     , isEditMode_( callback->is_edit_mode_enabled() )
 {
     set_configuration( cfg );
@@ -76,7 +75,11 @@ js_panel_window_dui::js_panel_window_dui( ui_element_config::ptr cfg, ui_element
 
 js_panel_window_dui::~js_panel_window_dui()
 {
-    t_parent::destroy();
+    if ( wndContainer_ )
+    {
+        wndContainer_->destroy();
+        wndContainer_.reset();
+    }
 }
 
 GUID js_panel_window_dui::g_get_guid()
@@ -184,7 +187,8 @@ HFONT js_panel_window_dui::GetFont( unsigned type, const GUID& guid )
 
 HWND js_panel_window_dui::get_wnd()
 {
-    return t_parent::get_wnd();
+    assert( wndContainer_ );
+    return wndContainer_->get_wnd();
 }
 
 LRESULT js_panel_window_dui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
@@ -211,7 +215,8 @@ LRESULT js_panel_window_dui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
         break;
     }
 
-    return t_parent::on_message( hwnd, msg, wp, lp );
+    assert( wndContainer_ );
+    return wndContainer_->on_message( hwnd, msg, wp, lp );
 }
 
 bool js_panel_window_dui::edit_mode_context_menu_get_description( unsigned, unsigned, pfc::string_base& )
@@ -227,18 +232,23 @@ bool js_panel_window_dui::edit_mode_context_menu_test( const POINT&, bool )
 ui_element_config::ptr js_panel_window_dui::get_configuration()
 {
     ui_element_config_builder builder;
-    SaveSettings( builder.m_stream, fb2k::noAbort );
+    if ( wndContainer_ )
+    {
+        wndContainer_->SaveSettings( builder.m_stream, fb2k::noAbort );
+    }
     return builder.finish( g_get_guid() );
 }
 
 void js_panel_window_dui::edit_mode_context_menu_build( const POINT& p_point, bool, HMENU p_menu, unsigned p_id_base )
 {
-    GenerateContextMenu( p_menu, p_point.x, p_point.y, p_id_base );
+    assert( wndContainer_ );
+    wndContainer_->GenerateContextMenu( p_menu, p_point.x, p_point.y, p_id_base );
 }
 
 void js_panel_window_dui::edit_mode_context_menu_command( const POINT&, bool, unsigned p_id, unsigned p_id_base )
 {
-    ExecuteContextMenu( p_id, p_id_base );
+    assert( wndContainer_ );
+    wndContainer_->ExecuteContextMenu( p_id, p_id_base );
 }
 
 void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_size )
@@ -249,11 +259,13 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_siz
     }
     else if ( p_what == ui_element_notify_font_changed )
     {
-        EventDispatcher::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiFontChanged ) );
+        assert( wndContainer_ );
+        EventDispatcher::Get().PutEvent( wndContainer_->GetHWND(), GenerateEvent_JsCallback( EventId::kUiFontChanged ) );
     }
     else if ( p_what == ui_element_notify_colors_changed )
     {
-        EventDispatcher::Get().PutEvent( t_parent::GetHWND(), GenerateEvent_JsCallback( EventId::kUiColoursChanged ) );
+        assert( wndContainer_ );
+        EventDispatcher::Get().PutEvent( wndContainer_->GetHWND(), GenerateEvent_JsCallback( EventId::kUiColoursChanged ) );
     }
 }
 
@@ -261,14 +273,21 @@ void js_panel_window_dui::set_configuration( ui_element_config::ptr data )
 {
     ui_element_config_parser parser( data );
 
-    LoadSettings( parser.m_stream, parser.get_remaining(), fb2k::noAbort,
-                  // FIX: If window already created, DUI won't destroy it and create it again.
-                  !!t_parent::GetHWND() );
+    panel_settings_ = js_panel_window::LoadSettings( parser.m_stream, parser.get_remaining(), fb2k::noAbort );
+    if ( wndContainer_ )
+    {
+        // FIX: If window already created, DUI won't destroy it and create it again.
+        wndContainer_->InitSettings( panel_settings_, !!wndContainer_->GetHWND() );
+    }
 }
 
 void js_panel_window_dui::initialize_window( HWND parent )
 {
-    create( parent );
+    wndContainer_ = std::make_unique<js_panel_window>(
+        PanelType::DUI,
+        *this );
+    wndContainer_->InitSettings( panel_settings_, false );
+    wndContainer_->create( parent );
 }
 
 void js_panel_window_dui::notify_size_limit_changed( LPARAM )

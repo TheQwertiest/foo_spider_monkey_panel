@@ -80,8 +80,6 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
         static_assert( InvokeNativeCallback_ParseArguments_Check<ArgTypes...>() );
     }
 
-    // https://developercommunity.visualstudio.com/content/problem/842828/evaluation-of-false-constexpr-branch-in-lambda-whe.html
-    /*
     constexpr bool hasValueArray = []() constexpr
     {
         if constexpr ( !argCount )
@@ -90,22 +88,19 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
         }
         else
         {
-            return  std::is_same_v<std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray;
+            return std::is_same_v<std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray>;
         }
-    }();
-    */
+    }
+    ();
 
-    if constexpr ( argCount > 0 )
+    if constexpr ( hasValueArray )
     {
-        if constexpr ( std::is_same_v<typename std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray> )
+        if ( argCount <= jsArgs.length() )
         {
-            if ( argCount <= jsArgs.length() )
+            // Reserve memory, so that we can initialize JS::HandleValueArray correctly
+            if ( !valueVector.resize( jsArgs.length() - ( argCount - 1 ) ) )
             {
-                // Reserve memory, so that we can initialize JS::HandleValueArray correctly
-                if ( !valueVector.resize( jsArgs.length() - ( argCount - 1 ) ) )
-                {
-                    throw std::bad_alloc();
-                }
+                throw std::bad_alloc();
             }
         }
     }
@@ -155,17 +150,14 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
                 }
             } );
 
-    if constexpr ( argCount > 0 )
+    if constexpr ( hasValueArray )
     {
-        if constexpr ( std::is_same_v<typename std::tuple_element<argCount - 1, std::tuple<ArgTypes...>>::type, JS::HandleValueArray> )
+        if ( !valueVector.empty() )
         {
-            if ( !valueVector.empty() )
+            size_t startIdx = 0;
+            for ( auto i: ranges::views::indices( argCount - 1, jsArgs.length() ) )
             {
-                size_t startIdx = 0;
-                for ( auto i: ranges::views::indices( argCount - 1, jsArgs.length() ) )
-                {
-                    valueVector[startIdx++].set( jsArgs[i] );
-                }
+                valueVector[startIdx++].set( jsArgs[i] );
             }
         }
     }

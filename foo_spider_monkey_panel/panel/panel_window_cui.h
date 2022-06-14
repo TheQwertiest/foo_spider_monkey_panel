@@ -1,23 +1,27 @@
 #pragma once
 
-#include <panel/js_panel_window.h>
+#include <config/panel_config.h>
+#include <panel/panel_window_base.h>
 
 namespace smp::panel
 {
 
+class js_panel_window;
+
 class js_panel_window_cui
-    : public js_panel_window
-    , public uie::window
+    : public uie::window
     , public cui::fonts::common_callback
     , public cui::colours::common_callback
+    , public IPanelWindowBase
 {
 public:
     js_panel_window_cui();
 
 protected:
-    // js_panel_window
+    // IPanelWindowImpl
     DWORD GetColour( unsigned type, const GUID& guid ) override;
     HFONT GetFont( unsigned type, const GUID& guid ) override;
+    void notify_size_limit_changed( LPARAM lp ) override;
     LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
     // uie::window
@@ -42,11 +46,10 @@ protected:
     void on_font_changed( t_size mask ) const override;
 
 private:
-    // js_panel_window
-    void notify_size_limit_changed( LPARAM lp ) override;
-
     using t_parent = js_panel_window;
+    std::unique_ptr<js_panel_window> wndContainer_;
     uie::window_host_ptr m_host;
+    config::PanelSettings panel_settings_;
 };
 
 } // namespace smp::panel
