@@ -16,14 +16,14 @@ using namespace smp;
 namespace mozjs
 {
 
-FbProperties::FbProperties( JSContext* cx, panel::js_panel_window& parentPanel )
+FbProperties::FbProperties( JSContext* cx, panel::PanelWindow& parentPanel )
     : pJsCtx_( cx )
     , parentPanel_( parentPanel )
 {
 }
 
 std::unique_ptr<FbProperties>
-FbProperties::Create( JSContext* cx, panel::js_panel_window& parentPanel )
+FbProperties::Create( JSContext* cx, panel::PanelWindow& parentPanel )
 {
     return std::unique_ptr<FbProperties>( new FbProperties( cx, parentPanel ) );
 }

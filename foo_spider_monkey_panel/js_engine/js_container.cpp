@@ -26,7 +26,7 @@ using namespace smp;
 namespace mozjs
 {
 
-JsContainer::JsContainer( panel::js_panel_window& parentPanel )
+JsContainer::JsContainer( panel::PanelWindow& parentPanel )
 {
     pParentPanel_ = &parentPanel;
 
@@ -236,7 +236,7 @@ void JsContainer::RunJobs()
     JsEngine::GetInstance().MaybeRunJobs();
 }
 
-smp::panel::js_panel_window& JsContainer::GetParentPanel() const
+smp::panel::PanelWindow& JsContainer::GetParentPanel() const
 {
     assert( pParentPanel_ );
     return *pParentPanel_;

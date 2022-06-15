@@ -233,8 +233,8 @@
     <ClCompile Include="js_utils\serialized_value.cpp" />
     <ClCompile Include="panel\edit_script.cpp" />
     <ClCompile Include="panel\panel_window.cpp" />
-    <ClCompile Include="panel\panel_window_cui.cpp" />
-    <ClCompile Include="panel\panel_window_dui.cpp" />
+    <ClCompile Include="panel\panel_adaptor_cui.cpp" />
+    <ClCompile Include="panel\panel_adaptor_dui.cpp" />
     <ClCompile Include="panel\modal_blocking_scope.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
@@ -394,9 +394,9 @@
     <ClInclude Include="panel\drag_action_params.h" />
     <ClInclude Include="panel\edit_script.h" />
     <ClInclude Include="panel\panel_window.h" />
-    <ClInclude Include="panel\panel_window_base.h" />
-    <ClInclude Include="panel\panel_window_cui.h" />
-    <ClInclude Include="panel\panel_window_dui.h" />
+    <ClInclude Include="panel\panel_adaptor_iface.h" />
+    <ClInclude Include="panel\panel_adaptor_cui.h" />
+    <ClInclude Include="panel\panel_adaptor_dui.h" />
     <ClInclude Include="panel\modal_blocking_scope.h" />
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />

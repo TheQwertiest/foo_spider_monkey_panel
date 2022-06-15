@@ -5,15 +5,15 @@
 namespace smp::panel
 {
 
-class js_panel_window;
+class PanelWindow;
 
-class js_panel_window_dui
-    : public IPanelWindowBase
-    , public ui_element_instance
+class PanelAdaptorDui
+    : public ui_element_instance
+    , public IPanelAdaptor
 {
 public:
-    js_panel_window_dui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback );
-    ~js_panel_window_dui() override;
+    PanelAdaptorDui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback );
+    ~PanelAdaptorDui() override;
 
     static GUID g_get_guid();
     static GUID g_get_subclass();
@@ -21,11 +21,12 @@ public:
     static ui_element_config::ptr g_get_default_configuration();
     static void g_get_name( pfc::string_base& out );
 
-    // IPanelWindowImpl
+    // IPanelAdaptor
+    PanelType GetPanelType() const override;
     DWORD GetColour( unsigned type, const GUID& guid ) override;
     HFONT GetFont( unsigned type, const GUID& guid ) override;
-    void notify_size_limit_changed( LPARAM lp ) override;
-    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
+    void OnSizeLimitChanged( LPARAM lp ) override;
+    LRESULT OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
     // ui_element_instance
     GUID get_guid() override;
@@ -47,8 +48,8 @@ private:
 private:
     ui_element_instance_callback::ptr uiCallback_;
     bool isEditMode_;
-    std::unique_ptr<js_panel_window> wndContainer_;
-    config::PanelSettings panel_settings_;
+    std::unique_ptr<PanelWindow> wndContainer_;
+    config::PanelSettings cachedPanelSettings_;
 };
 
 } // namespace smp::panel

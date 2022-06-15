@@ -1,28 +1,29 @@
 #pragma once
 
 #include <config/panel_config.h>
-#include <panel/panel_window_base.h>
+#include <panel/panel_adaptor_iface.h>
 
 namespace smp::panel
 {
 
-class js_panel_window;
+class PanelWindow;
 
-class js_panel_window_cui
+class PanelAdaptorCui
     : public uie::window
     , public cui::fonts::common_callback
     , public cui::colours::common_callback
-    , public IPanelWindowBase
+    , public IPanelAdaptor
 {
 public:
-    js_panel_window_cui();
+    PanelAdaptorCui();
 
 protected:
-    // IPanelWindowImpl
+    // IPanelAdaptor
+    PanelType GetPanelType() const override;
     DWORD GetColour( unsigned type, const GUID& guid ) override;
     HFONT GetFont( unsigned type, const GUID& guid ) override;
-    void notify_size_limit_changed( LPARAM lp ) override;
-    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
+    void OnSizeLimitChanged( LPARAM lp ) override;
+    LRESULT OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp ) override;
 
     // uie::window
     HWND create_or_transfer_window( HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position ) override;
@@ -46,10 +47,9 @@ protected:
     void on_font_changed( t_size mask ) const override;
 
 private:
-    using t_parent = js_panel_window;
-    std::unique_ptr<js_panel_window> wndContainer_;
-    uie::window_host_ptr m_host;
-    config::PanelSettings panel_settings_;
+    std::unique_ptr<PanelWindow> wndContainer_;
+    uie::window_host_ptr pHost_;
+    config::PanelSettings cachedPanelSettings_;
 };
 
 } // namespace smp::panel

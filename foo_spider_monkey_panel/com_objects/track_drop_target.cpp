@@ -57,7 +57,7 @@ const wchar_t* GetDropTextFromEffect( DWORD dwEffect )
 namespace smp::com
 {
 
-TrackDropTarget::TrackDropTarget( panel::js_panel_window& panel )
+TrackDropTarget::TrackDropTarget( panel::PanelWindow& panel )
     : IDropTargetImpl( panel.GetHWND() )
     , pPanel_( &panel )
 {

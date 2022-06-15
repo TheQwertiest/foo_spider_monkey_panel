@@ -8,7 +8,7 @@
 namespace smp::panel
 {
 
-class js_panel_window;
+class PanelWindow;
 
 }
 
@@ -22,7 +22,7 @@ protected:
     virtual void FinalRelease();
 
 public:
-    TrackDropTarget( panel::js_panel_window& panel );
+    TrackDropTarget( panel::PanelWindow& panel );
     ~TrackDropTarget() override = default;
 
     // IDropTargetImpl
@@ -38,7 +38,7 @@ private:
     PutDragEvent( EventId eventId, DWORD grfKeyState, POINTL pt, DWORD allowedEffects );
 
 private:
-    panel::js_panel_window* pPanel_ = nullptr;
+    panel::PanelWindow* pPanel_ = nullptr;
     IDataObjectPtr pDataObject_;
     DWORD fb2kAllowedEffect_ = DROPEFFECT_NONE;
 

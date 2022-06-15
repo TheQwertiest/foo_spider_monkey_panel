@@ -37,7 +37,7 @@ WINDOWPLACEMENT g_WindowPlacement{};
 namespace smp::ui
 {
 
-CDialogConf::CDialogConf( smp::panel::js_panel_window* pParent, Tab tabId )
+CDialogConf::CDialogConf( smp::panel::PanelWindow* pParent, Tab tabId )
     : pParent_( pParent )
     , isCleanSlate_( ::IsCleanSlate( pParent->GetSettings() ) )
     , panelNameDdx_(

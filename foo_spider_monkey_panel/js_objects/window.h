@@ -10,7 +10,7 @@ struct JSClass;
 
 namespace smp::panel
 {
-class js_panel_window;
+class PanelWindow;
 }
 
 namespace mozjs
@@ -35,8 +35,8 @@ public:
     // @remark No need to cleanup JS here, since it must be performed manually beforehand anyway
     ~JsWindow() override;
 
-    static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, smp::panel::js_panel_window& parentPanel );
-    static size_t GetInternalSize( const smp::panel::js_panel_window& parentPanel );
+    static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel );
+    static size_t GetInternalSize( const smp::panel::PanelWindow& parentPanel );
 
 public:
     static void Trace( JSTracer* trc, JSObject* obj );
@@ -113,7 +113,7 @@ public: // props
     void put_MinWidth( uint32_t width );
 
 private:
-    JsWindow( JSContext* cx, smp::panel::js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties );
+    JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties );
 
     struct DefineScriptOptions
     {
@@ -129,7 +129,7 @@ private:
 
 private:
     JSContext* pJsCtx_;
-    smp::panel::js_panel_window& parentPanel_;
+    smp::panel::PanelWindow& parentPanel_;
 
     bool isFinalized_ = false; ///< if true, then parentPanel_ might be already inaccessible
 

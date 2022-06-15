@@ -4,7 +4,7 @@
 #include <events/event.h>
 #include <events/event_js_executor.h>
 #include <panel/drag_action_params.h>
-#include <panel/panel_window_base.h>
+#include <panel/panel_adaptor_iface.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>
 
@@ -31,21 +31,15 @@ namespace smp::panel
 
 class CallbackData;
 
-enum class PanelType : uint8_t
-{
-    CUI = 0,
-    DUI = 1
-};
-
-class js_panel_window
+class PanelWindow
     : public uie::container_window_v3
 {
-    friend class js_panel_window_cui;
-    friend class js_panel_window_dui;
+    friend class PanelAdaptorCui;
+    friend class PanelAdaptorDui;
 
 public:
-    js_panel_window( PanelType instanceType, IPanelWindowBase& impl );
-    virtual ~js_panel_window();
+    PanelWindow( IPanelAdaptor& impl );
+    virtual ~PanelWindow();
 
 public:
     // uie::container_window_v3
@@ -97,9 +91,9 @@ public: // accessors
     [[nodiscard]] bool HasInternalDrag() const;
 
 protected:
-    void notify_size_limit_changed( LPARAM lp );
+    void OnSizeLimitChanged( LPARAM lp );
 
-    LRESULT on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
+    LRESULT OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
 
     void EditScript();
     void ShowConfigure( HWND parent, ui::CDialogConf::Tab tab = ui::CDialogConf::Tab::def );
@@ -151,7 +145,7 @@ private: // callback handling
 
 private:
     const PanelType panelType_;
-    IPanelWindowBase& impl_;
+    IPanelAdaptor& impl_;
     config::ParsedPanelSettings settings_ = config::ParsedPanelSettings::GetDefault();
     config::PanelProperties properties_;
 

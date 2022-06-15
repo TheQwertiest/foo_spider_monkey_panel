@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "panel_window_cui.h"
+#include "panel_adaptor_cui.h"
 
 #include <com_objects/drop_target_impl.h>
 #include <events/event_dispatcher.h>
@@ -10,17 +10,24 @@
 
 namespace
 {
-uie::window_factory<smp::panel::js_panel_window_cui> g_js_panel_window_cui;
+
+uie::window_factory<smp::panel::PanelAdaptorCui> g_panelAdaptor;
+
 } // namespace
 
 namespace smp::panel
 {
 
-js_panel_window_cui::js_panel_window_cui()
+PanelAdaptorCui::PanelAdaptorCui()
 {
 }
 
-DWORD js_panel_window_cui::GetColour( unsigned type, const GUID& guid )
+PanelType PanelAdaptorCui::GetPanelType() const
+{
+    return PanelType::CUI;
+}
+
+DWORD PanelAdaptorCui::GetColour( unsigned type, const GUID& guid )
 {
     COLORREF colour = 0; ///< black
     if ( type <= cui::colours::colour_active_item_frame )
@@ -32,7 +39,7 @@ DWORD js_panel_window_cui::GetColour( unsigned type, const GUID& guid )
     return smp::colour::ColorrefToArgb( colour );
 }
 
-HFONT js_panel_window_cui::GetFont( unsigned type, const GUID& guid )
+HFONT PanelAdaptorCui::GetFont( unsigned type, const GUID& guid )
 {
     try
     {
@@ -53,37 +60,13 @@ HFONT js_panel_window_cui::GetFont( unsigned type, const GUID& guid )
     return nullptr;
 }
 
-HWND js_panel_window_cui::create_or_transfer_window( HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position )
-{
-    if ( m_host.is_valid() )
-    {
-        ShowWindow( wndContainer_->GetHWND(), SW_HIDE );
-        SetParent( wndContainer_->GetHWND(), parent );
-        m_host->relinquish_ownership( wndContainer_->GetHWND() );
-        m_host = host;
-
-        SetWindowPos( wndContainer_->GetHWND(), nullptr, p_position.x, p_position.y, p_position.cx, p_position.cy, SWP_NOZORDER );
-    }
-    else
-    {
-        m_host = host; //store interface to host
-        wndContainer_ = std::make_unique<js_panel_window>(
-            PanelType::CUI,
-            *this );
-        wndContainer_->InitSettings( panel_settings_, false );
-        wndContainer_->create( parent, p_position.x, p_position.y, p_position.cx, p_position.cy );
-    }
-
-    return get_wnd();
-}
-
-HWND js_panel_window_cui::get_wnd() const
+void PanelAdaptorCui::OnSizeLimitChanged( LPARAM lp )
 {
     assert( wndContainer_ );
-    return wndContainer_->get_wnd();
+    pHost_->on_size_limit_change( wndContainer_->GetHWND(), lp );
 }
 
-LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+LRESULT PanelAdaptorCui::OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
     switch ( msg )
     {
@@ -120,7 +103,7 @@ LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
     }
     case static_cast<UINT>( smp::MiscMessage::size_limit_changed ):
     {
-        notify_size_limit_changed( wp );
+        OnSizeLimitChanged( wp );
         return 0;
     }
     default:
@@ -128,49 +111,77 @@ LRESULT js_panel_window_cui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
     }
 
     assert( wndContainer_ );
-    return wndContainer_->on_message( hwnd, msg, wp, lp );
+    return wndContainer_->OnMessage( hwnd, msg, wp, lp );
 }
 
-bool js_panel_window_cui::have_config_popup() const
+HWND PanelAdaptorCui::create_or_transfer_window( HWND parent, const uie::window_host_ptr& host, const ui_helpers::window_position_t& p_position )
+{
+    if ( pHost_.is_valid() )
+    {
+        ShowWindow( wndContainer_->GetHWND(), SW_HIDE );
+        SetParent( wndContainer_->GetHWND(), parent );
+        pHost_->relinquish_ownership( wndContainer_->GetHWND() );
+        pHost_ = host;
+
+        SetWindowPos( wndContainer_->GetHWND(), nullptr, p_position.x, p_position.y, p_position.cx, p_position.cy, SWP_NOZORDER );
+    }
+    else
+    {
+        pHost_ = host; //store interface to host
+        wndContainer_ = std::make_unique<PanelWindow>( *this );
+        wndContainer_->InitSettings( cachedPanelSettings_, false );
+        wndContainer_->create( parent, p_position.x, p_position.y, p_position.cx, p_position.cy );
+    }
+
+    return get_wnd();
+}
+
+HWND PanelAdaptorCui::get_wnd() const
+{
+    assert( wndContainer_ );
+    return wndContainer_->get_wnd();
+}
+
+bool PanelAdaptorCui::have_config_popup() const
 {
     return true;
 }
 
-bool js_panel_window_cui::is_available( const uie::window_host_ptr& ) const
+bool PanelAdaptorCui::is_available( const uie::window_host_ptr& ) const
 {
     return true;
 }
 
-bool js_panel_window_cui::show_config_popup( HWND parent )
+bool PanelAdaptorCui::show_config_popup( HWND parent )
 {
     wndContainer_->ShowConfigure( parent );
     return true;
 }
 
-const GUID& js_panel_window_cui::get_extension_guid() const
+const GUID& PanelAdaptorCui::get_extension_guid() const
 {
     return smp::guid::window_cui;
 }
 
-unsigned js_panel_window_cui::get_type() const
+unsigned PanelAdaptorCui::get_type() const
 {
     return uie::type_toolbar | uie::type_panel;
 }
 
-void js_panel_window_cui::destroy_window()
+void PanelAdaptorCui::destroy_window()
 {
     assert( wndContainer_ );
     wndContainer_->destroy();
     wndContainer_.reset();
-    m_host.release();
+    pHost_.release();
 }
 
-void js_panel_window_cui::get_category( pfc::string_base& out ) const
+void PanelAdaptorCui::get_category( pfc::string_base& out ) const
 {
     out = "Panels";
 }
 
-void js_panel_window_cui::get_config( stream_writer* writer, abort_callback& abort ) const
+void PanelAdaptorCui::get_config( stream_writer* writer, abort_callback& abort ) const
 {
     if ( wndContainer_ )
     {
@@ -178,40 +189,34 @@ void js_panel_window_cui::get_config( stream_writer* writer, abort_callback& abo
     }
 }
 
-void js_panel_window_cui::get_name( pfc::string_base& out ) const
+void PanelAdaptorCui::get_name( pfc::string_base& out ) const
 {
     out = SMP_NAME;
 }
 
-void js_panel_window_cui::on_bool_changed( t_size ) const
+void PanelAdaptorCui::on_bool_changed( t_size ) const
 {
 }
 
-void js_panel_window_cui::on_colour_changed( t_size ) const
+void PanelAdaptorCui::on_colour_changed( t_size ) const
 {
     assert( wndContainer_ );
     EventDispatcher::Get().PutEvent( wndContainer_->GetHWND(), GenerateEvent_JsCallback( EventId::kUiColoursChanged ) );
 }
 
-void js_panel_window_cui::on_font_changed( t_size ) const
+void PanelAdaptorCui::on_font_changed( t_size ) const
 {
     assert( wndContainer_ );
     EventDispatcher::Get().PutEvent( wndContainer_->GetHWND(), GenerateEvent_JsCallback( EventId::kUiFontChanged ) );
 }
 
-void js_panel_window_cui::set_config( stream_reader* reader, t_size size, abort_callback& abort )
+void PanelAdaptorCui::set_config( stream_reader* reader, t_size size, abort_callback& abort )
 {
-    panel_settings_ = js_panel_window::LoadSettings( *reader, size, abort );
+    cachedPanelSettings_ = PanelWindow::LoadSettings( *reader, size, abort );
     if ( wndContainer_ )
     {
-        wndContainer_->InitSettings( panel_settings_, false );
+        wndContainer_->InitSettings( cachedPanelSettings_, false );
     }
-}
-
-void js_panel_window_cui::notify_size_limit_changed( LPARAM lp )
-{
-    assert( wndContainer_ );
-    m_host->on_size_limit_change( wndContainer_->GetHWND(), lp );
 }
 
 } // namespace smp::panel

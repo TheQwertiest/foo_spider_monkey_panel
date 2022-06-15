@@ -11,7 +11,7 @@ class HostTimerTask;
 
 namespace smp::panel
 {
-class js_panel_window;
+class PanelWindow;
 struct DragActionParams;
 } // namespace smp::panel
 
@@ -33,7 +33,7 @@ class JsContainer final
     friend class JsEngine;
 
 public:
-    JsContainer( smp::panel::js_panel_window& parentPanel );
+    JsContainer( smp::panel::PanelWindow& parentPanel );
     JsContainer( const JsContainer& ) = delete;
     ~JsContainer();
 
@@ -60,7 +60,7 @@ public:
     static void RunJobs();
 
 public:
-    smp::panel::js_panel_window& GetParentPanel() const;
+    smp::panel::PanelWindow& GetParentPanel() const;
 
 public:
     template <typename ReturnType = std::nullptr_t, typename... ArgTypes>
@@ -98,7 +98,7 @@ private:
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    smp::panel::js_panel_window* pParentPanel_ = nullptr;
+    smp::panel::PanelWindow* pParentPanel_ = nullptr;
 
     JS::PersistentRootedObject jsGlobal_;
     JS::PersistentRootedObject jsGraphics_;

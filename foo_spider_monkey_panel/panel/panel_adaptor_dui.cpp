@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "panel_window_dui.h"
+#include "panel_adaptor_dui.h"
 
 #include <com_objects/drop_target_impl.h>
 #include <events/event_dispatcher.h>
@@ -11,32 +11,32 @@ namespace
 {
 
 // Just because I don't want to include the helpers
-template <typename TImpl>
-class my_ui_element_impl : public ui_element
+template <typename T>
+class UiElementImpl : public ui_element
 {
 public:
     GUID get_guid() override
     {
-        return TImpl::g_get_guid();
+        return T::g_get_guid();
     }
     GUID get_subclass() override
     {
-        return TImpl::g_get_subclass();
+        return T::g_get_subclass();
     }
     void get_name( pfc::string_base& out ) override
     {
-        TImpl::g_get_name( out );
+        T::g_get_name( out );
     }
     ui_element_instance::ptr instantiate( HWND parent, ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback ) override
     {
         PFC_ASSERT( cfg->get_guid() == get_guid() );
-        service_nnptr_t<ui_element_instance_impl_helper> item = fb2k::service_new<ui_element_instance_impl_helper>( cfg, callback );
+        service_nnptr_t<UiElementInstanceImplHelper> item = fb2k::service_new<UiElementInstanceImplHelper>( cfg, callback );
         item->initialize_window( parent );
         return item;
     }
     ui_element_config::ptr get_default_configuration() override
     {
-        return TImpl::g_get_default_configuration();
+        return T::g_get_default_configuration();
     }
     ui_element_children_enumerator_ptr enumerate_children( ui_element_config::ptr ) override
     {
@@ -44,36 +44,36 @@ public:
     }
     bool get_description( pfc::string_base& out ) override
     {
-        out = TImpl::g_get_description();
+        out = T::g_get_description();
         return true;
     }
 
 private:
-    class ui_element_instance_impl_helper : public TImpl
+    class UiElementInstanceImplHelper : public T
     {
     public:
-        ui_element_instance_impl_helper( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
-            : TImpl( cfg, callback )
+        UiElementInstanceImplHelper( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
+            : T( cfg, callback )
         {
         }
     };
 };
 
-service_factory_t<my_ui_element_impl<smp::panel::js_panel_window_dui>> g_js_panel_window_dui;
+service_factory_t<UiElementImpl<smp::panel::PanelAdaptorDui>> g_panelAdaptor;
 
 } // namespace
 
 namespace smp::panel
 {
 
-js_panel_window_dui::js_panel_window_dui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
+PanelAdaptorDui::PanelAdaptorDui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
     : uiCallback_( callback )
     , isEditMode_( callback->is_edit_mode_enabled() )
 {
     set_configuration( cfg );
 }
 
-js_panel_window_dui::~js_panel_window_dui()
+PanelAdaptorDui::~PanelAdaptorDui()
 {
     if ( wndContainer_ )
     {
@@ -82,44 +82,49 @@ js_panel_window_dui::~js_panel_window_dui()
     }
 }
 
-GUID js_panel_window_dui::g_get_guid()
+GUID PanelAdaptorDui::g_get_guid()
 {
     return smp::guid::window_dui;
 }
 
-GUID js_panel_window_dui::g_get_subclass()
+GUID PanelAdaptorDui::g_get_subclass()
 {
     return ui_element_subclass_utility;
 }
 
-pfc::string8 js_panel_window_dui::g_get_description()
+pfc::string8 PanelAdaptorDui::g_get_description()
 {
     return "Customizable panel with JavaScript support.";
 }
 
-ui_element_config::ptr js_panel_window_dui::g_get_default_configuration()
+ui_element_config::ptr PanelAdaptorDui::g_get_default_configuration()
 {
     ui_element_config_builder builder;
     config::PanelSettings::SaveDefault( builder.m_stream, fb2k::noAbort );
     return builder.finish( g_get_guid() );
 }
 
-void js_panel_window_dui::g_get_name( pfc::string_base& out )
+void PanelAdaptorDui::g_get_name( pfc::string_base& out )
 {
     out = SMP_NAME;
 }
 
-GUID js_panel_window_dui::get_guid()
+GUID PanelAdaptorDui::get_guid()
 {
     return g_get_guid();
 }
 
-GUID js_panel_window_dui::get_subclass()
+GUID PanelAdaptorDui::get_subclass()
 {
     return g_get_subclass();
 }
 
-DWORD js_panel_window_dui::GetColour( unsigned type, const GUID& guid )
+PanelType PanelAdaptorDui::GetPanelType() const
+{
+    return PanelType::DUI;
+}
+
+DWORD PanelAdaptorDui::GetColour( unsigned type, const GUID& guid )
 {
     const auto& guidToQuery = [type, &guid] {
         // Take care when changing this array:
@@ -154,7 +159,7 @@ DWORD js_panel_window_dui::GetColour( unsigned type, const GUID& guid )
     return smp::colour::ColorrefToArgb( colour );
 }
 
-HFONT js_panel_window_dui::GetFont( unsigned type, const GUID& guid )
+HFONT PanelAdaptorDui::GetFont( unsigned type, const GUID& guid )
 {
     const auto& guidToQuery = [type, &guid] {
         // Take care when changing this array:
@@ -185,13 +190,7 @@ HFONT js_panel_window_dui::GetFont( unsigned type, const GUID& guid )
     return ( guidToQuery != pfc::guid_null ? uiCallback_->query_font_ex( guidToQuery ) : nullptr );
 }
 
-HWND js_panel_window_dui::get_wnd()
-{
-    assert( wndContainer_ );
-    return wndContainer_->get_wnd();
-}
-
-LRESULT js_panel_window_dui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+LRESULT PanelAdaptorDui::OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
     switch ( msg )
     {
@@ -208,7 +207,7 @@ LRESULT js_panel_window_dui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
     }
     case static_cast<UINT>( smp::MiscMessage::size_limit_changed ):
     {
-        notify_size_limit_changed( wp );
+        OnSizeLimitChanged( wp );
         return 0;
     }
     default:
@@ -216,20 +215,31 @@ LRESULT js_panel_window_dui::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM 
     }
 
     assert( wndContainer_ );
-    return wndContainer_->on_message( hwnd, msg, wp, lp );
+    return wndContainer_->OnMessage( hwnd, msg, wp, lp );
 }
 
-bool js_panel_window_dui::edit_mode_context_menu_get_description( unsigned, unsigned, pfc::string_base& )
+void PanelAdaptorDui::OnSizeLimitChanged( LPARAM )
+{
+    uiCallback_->on_min_max_info_change();
+}
+
+HWND PanelAdaptorDui::get_wnd()
+{
+    assert( wndContainer_ );
+    return wndContainer_->get_wnd();
+}
+
+bool PanelAdaptorDui::edit_mode_context_menu_get_description( unsigned, unsigned, pfc::string_base& )
 {
     return false;
 }
 
-bool js_panel_window_dui::edit_mode_context_menu_test( const POINT&, bool )
+bool PanelAdaptorDui::edit_mode_context_menu_test( const POINT&, bool )
 {
     return true;
 }
 
-ui_element_config::ptr js_panel_window_dui::get_configuration()
+ui_element_config::ptr PanelAdaptorDui::get_configuration()
 {
     ui_element_config_builder builder;
     if ( wndContainer_ )
@@ -239,19 +249,19 @@ ui_element_config::ptr js_panel_window_dui::get_configuration()
     return builder.finish( g_get_guid() );
 }
 
-void js_panel_window_dui::edit_mode_context_menu_build( const POINT& p_point, bool, HMENU p_menu, unsigned p_id_base )
+void PanelAdaptorDui::edit_mode_context_menu_build( const POINT& p_point, bool, HMENU p_menu, unsigned p_id_base )
 {
     assert( wndContainer_ );
     wndContainer_->GenerateContextMenu( p_menu, p_point.x, p_point.y, p_id_base );
 }
 
-void js_panel_window_dui::edit_mode_context_menu_command( const POINT&, bool, unsigned p_id, unsigned p_id_base )
+void PanelAdaptorDui::edit_mode_context_menu_command( const POINT&, bool, unsigned p_id, unsigned p_id_base )
 {
     assert( wndContainer_ );
     wndContainer_->ExecuteContextMenu( p_id, p_id_base );
 }
 
-void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_size )
+void PanelAdaptorDui::notify( const GUID& p_what, t_size, const void*, t_size )
 {
     if ( p_what == ui_element_notify_edit_mode_changed )
     {
@@ -269,33 +279,26 @@ void js_panel_window_dui::notify( const GUID& p_what, t_size, const void*, t_siz
     }
 }
 
-void js_panel_window_dui::set_configuration( ui_element_config::ptr data )
+void PanelAdaptorDui::set_configuration( ui_element_config::ptr data )
 {
     ui_element_config_parser parser( data );
 
-    panel_settings_ = js_panel_window::LoadSettings( parser.m_stream, parser.get_remaining(), fb2k::noAbort );
+    cachedPanelSettings_ = PanelWindow::LoadSettings( parser.m_stream, parser.get_remaining(), fb2k::noAbort );
     if ( wndContainer_ )
     {
         // FIX: If window already created, DUI won't destroy it and create it again.
-        wndContainer_->InitSettings( panel_settings_, !!wndContainer_->GetHWND() );
+        wndContainer_->InitSettings( cachedPanelSettings_, !!wndContainer_->GetHWND() );
     }
 }
 
-void js_panel_window_dui::initialize_window( HWND parent )
+void PanelAdaptorDui::initialize_window( HWND parent )
 {
-    wndContainer_ = std::make_unique<js_panel_window>(
-        PanelType::DUI,
-        *this );
-    wndContainer_->InitSettings( panel_settings_, false );
+    wndContainer_ = std::make_unique<PanelWindow>( *this );
+    wndContainer_->InitSettings( cachedPanelSettings_, false );
     wndContainer_->create( parent );
 }
 
-void js_panel_window_dui::notify_size_limit_changed( LPARAM )
-{
-    uiCallback_->on_min_max_info_change();
-}
-
-void js_panel_window_dui::notify_is_edit_mode_changed( bool enabled )
+void PanelAdaptorDui::notify_is_edit_mode_changed( bool enabled )
 {
     isEditMode_ = enabled;
 }

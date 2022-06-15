@@ -56,20 +56,20 @@ class JsAsyncTask;
 namespace smp::panel
 {
 
-js_panel_window::js_panel_window( PanelType instanceType, IPanelWindowBase& impl )
+PanelWindow::PanelWindow( IPanelAdaptor& impl )
     : uie::container_window_v3(
         get_window_config(),
-        [this]( auto&&... args ) { return impl_.on_message( std::forward<decltype( args )>( args )... ); } )
-    , panelType_( instanceType )
+        [this]( auto&&... args ) { return impl_.OnMessage( std::forward<decltype( args )>( args )... ); } )
     , impl_( impl )
+    , panelType_( impl.GetPanelType() )
 {
 }
 
-js_panel_window::~js_panel_window()
+PanelWindow::~PanelWindow()
 {
 }
 
-uie::container_window_v3_config js_panel_window::get_window_config()
+uie::container_window_v3_config PanelWindow::get_window_config()
 {
     uie::container_window_v3_config config( TEXT( SMP_WINDOW_CLASS_NAME ) );
 
@@ -81,7 +81,7 @@ uie::container_window_v3_config js_panel_window::get_window_config()
     return config;
 }
 
-void js_panel_window::Fail( const qwr::u8string& errorText )
+void PanelWindow::Fail( const qwr::u8string& errorText )
 {
     hasFailed_ = true;
     qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
@@ -93,23 +93,23 @@ void js_panel_window::Fail( const qwr::u8string& errorText )
     UnloadScript( true );
 }
 
-const config::ParsedPanelSettings& js_panel_window::GetSettings() const
+const config::ParsedPanelSettings& PanelWindow::GetSettings() const
 {
     return settings_;
 }
 
-config::PanelProperties& js_panel_window::GetPanelProperties()
+config::PanelProperties& PanelWindow::GetPanelProperties()
 {
     return properties_;
 }
 
-TimeoutManager& js_panel_window::GetTimeoutManager()
+TimeoutManager& PanelWindow::GetTimeoutManager()
 {
     assert( pTimeoutManager_ );
     return *pTimeoutManager_;
 }
 
-void js_panel_window::ReloadScript()
+void PanelWindow::ReloadScript()
 {
     if ( pJsContainer_ )
     { // Panel might be not loaded at all, if settings are changed from Preferences.
@@ -122,7 +122,7 @@ void js_panel_window::ReloadScript()
     }
 }
 
-config::PanelSettings js_panel_window::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort )
+config::PanelSettings PanelWindow::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort )
 {
     try
     {
@@ -137,7 +137,7 @@ config::PanelSettings js_panel_window::LoadSettings( stream_reader& reader, t_si
     }
 }
 
-void js_panel_window::InitSettings( const smp::config::PanelSettings& settings, bool reloadPanel )
+void PanelWindow::InitSettings( const smp::config::PanelSettings& settings, bool reloadPanel )
 {
     if ( !UpdateSettings( settings, reloadPanel ) )
     {
@@ -146,13 +146,13 @@ void js_panel_window::InitSettings( const smp::config::PanelSettings& settings, 
     }
 }
 
-void js_panel_window::SetSettings( const smp::config::ParsedPanelSettings& settings )
+void PanelWindow::SetSettings( const smp::config::ParsedPanelSettings& settings )
 {
     settings_ = settings;
     ReloadScript();
 }
 
-bool js_panel_window::UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel )
+bool PanelWindow::UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel )
 {
     try
     {
@@ -173,7 +173,7 @@ bool js_panel_window::UpdateSettings( const smp::config::PanelSettings& settings
     return true;
 }
 
-bool js_panel_window::SaveSettings( stream_writer& writer, abort_callback& abort ) const
+bool PanelWindow::SaveSettings( stream_writer& writer, abort_callback& abort ) const
 {
     try
     {
@@ -189,7 +189,7 @@ bool js_panel_window::SaveSettings( stream_writer& writer, abort_callback& abort
     }
 }
 
-bool js_panel_window::ReloadSettings()
+bool PanelWindow::ReloadSettings()
 {
     try
     {
@@ -203,17 +203,17 @@ bool js_panel_window::ReloadSettings()
     }
 }
 
-bool js_panel_window::IsPanelIdOverridenByScript() const
+bool PanelWindow::IsPanelIdOverridenByScript() const
 {
     return isPanelIdOverridenByScript_;
 }
 
-void js_panel_window::notify_size_limit_changed( LPARAM lp )
+void PanelWindow::OnSizeLimitChanged( LPARAM lp )
 {
-    return impl_.notify_size_limit_changed( lp );
+    return impl_.OnSizeLimitChanged( lp );
 }
 
-LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+LRESULT PanelWindow::OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
 {
     // According to MSDN:
     ////
@@ -260,7 +260,7 @@ LRESULT js_panel_window::on_message( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     return DefWindowProc( hwnd, msg, wp, lp );
 }
 
-void js_panel_window::ExecuteEvent_Basic( EventId id )
+void PanelWindow::ExecuteEvent_Basic( EventId id )
 {
     switch ( id )
     {
@@ -355,7 +355,7 @@ void js_panel_window::ExecuteEvent_Basic( EventId id )
     }
 }
 
-void js_panel_window::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
+void PanelWindow::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
 {
     const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
         if ( !pJsContainer_ )
@@ -509,7 +509,7 @@ void js_panel_window::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
     }
 }
 
-bool js_panel_window::ExecuteEvent_JsCode( mozjs::JsAsyncTask& jsTask )
+bool PanelWindow::ExecuteEvent_JsCode( mozjs::JsAsyncTask& jsTask )
 {
     if ( !pJsContainer_ )
     {
@@ -519,12 +519,12 @@ bool js_panel_window::ExecuteEvent_JsCode( mozjs::JsAsyncTask& jsTask )
     return pJsContainer_->InvokeJsAsyncTask( jsTask );
 }
 
-void js_panel_window::OnProcessingEventStart()
+void PanelWindow::OnProcessingEventStart()
 {
     ++eventNestedCounter_;
 }
 
-void js_panel_window::OnProcessingEventFinish()
+void PanelWindow::OnProcessingEventFinish()
 {
     --eventNestedCounter_;
 
@@ -540,7 +540,7 @@ void js_panel_window::OnProcessingEventFinish()
     }
 }
 
-std::optional<LRESULT> js_panel_window::ProcessEvent()
+std::optional<LRESULT> PanelWindow::ProcessEvent()
 {
     OnProcessingEventStart();
     qwr::final_action onEventProcessed( [&] {
@@ -568,7 +568,7 @@ std::optional<LRESULT> js_panel_window::ProcessEvent()
     }
 }
 
-void js_panel_window::ProcessEventManually( Runnable& runnable )
+void PanelWindow::ProcessEventManually( Runnable& runnable )
 {
     OnProcessingEventStart();
     qwr::final_action onEventProcessed( [&] {
@@ -578,7 +578,7 @@ void js_panel_window::ProcessEventManually( Runnable& runnable )
     runnable.Run();
 }
 
-std::optional<MSG> js_panel_window::GetStalledMessage()
+std::optional<MSG> PanelWindow::GetStalledMessage()
 {
     MSG msg;
     bool hasMessage = PeekMessage( &msg, wnd_, WM_TIMER, WM_TIMER, PM_REMOVE );
@@ -598,7 +598,7 @@ std::optional<MSG> js_panel_window::GetStalledMessage()
     return msg;
 }
 
-std::optional<LRESULT> js_panel_window::ProcessStalledMessage( const MSG& msg )
+std::optional<LRESULT> PanelWindow::ProcessStalledMessage( const MSG& msg )
 {
     switch ( msg.message )
     {
@@ -614,7 +614,7 @@ std::optional<LRESULT> js_panel_window::ProcessStalledMessage( const MSG& msg )
     }
 }
 
-std::optional<LRESULT> js_panel_window::ProcessSyncMessage( const MSG& msg )
+std::optional<LRESULT> PanelWindow::ProcessSyncMessage( const MSG& msg )
 {
     if ( auto retVal = ProcessCreationMessage( msg );
          retVal.has_value() )
@@ -640,7 +640,7 @@ std::optional<LRESULT> js_panel_window::ProcessSyncMessage( const MSG& msg )
     return std::nullopt;
 }
 
-std::optional<LRESULT> js_panel_window::ProcessCreationMessage( const MSG& msg )
+std::optional<LRESULT> PanelWindow::ProcessCreationMessage( const MSG& msg )
 {
     switch ( msg.message )
     {
@@ -661,7 +661,7 @@ std::optional<LRESULT> js_panel_window::ProcessCreationMessage( const MSG& msg )
     }
 }
 
-std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
+std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
 {
     if ( !pJsContainer_ )
     {
@@ -958,7 +958,7 @@ std::optional<LRESULT> js_panel_window::ProcessWindowMessage( const MSG& msg )
     }
 }
 
-std::optional<LRESULT> js_panel_window::ProcessInternalSyncMessage( InternalSyncMessage msg, WPARAM wp, LPARAM lp )
+std::optional<LRESULT> PanelWindow::ProcessInternalSyncMessage( InternalSyncMessage msg, WPARAM wp, LPARAM lp )
 {
     if ( !pJsContainer_ )
     {
@@ -1034,7 +1034,7 @@ std::optional<LRESULT> js_panel_window::ProcessInternalSyncMessage( InternalSync
     }
 }
 
-void js_panel_window::EditScript()
+void PanelWindow::EditScript()
 {
     switch ( settings_.GetSourceType() )
     {
@@ -1065,7 +1065,7 @@ void js_panel_window::EditScript()
     }
 }
 
-void js_panel_window::ShowConfigure( HWND parent, ui::CDialogConf::Tab tab )
+void PanelWindow::ShowConfigure( HWND parent, ui::CDialogConf::Tab tab )
 {
     if ( !modal_dialog_scope::can_create() )
     {
@@ -1078,7 +1078,7 @@ void js_panel_window::ShowConfigure( HWND parent, ui::CDialogConf::Tab tab )
     (void)dlg.DoModal( parent );
 }
 
-void js_panel_window::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t id_base )
+void PanelWindow::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t id_base )
 {
     namespace fs = std::filesystem;
 
@@ -1139,7 +1139,7 @@ void js_panel_window::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t i
     }
 }
 
-void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
+void PanelWindow::ExecuteContextMenu( uint32_t id, uint32_t id_base )
 {
     try
     {
@@ -1194,12 +1194,12 @@ void js_panel_window::ExecuteContextMenu( uint32_t id, uint32_t id_base )
     }
 }
 
-qwr::u8string js_panel_window::GetPanelId()
+qwr::u8string PanelWindow::GetPanelId()
 {
     return settings_.panelId;
 }
 
-qwr::u8string js_panel_window::GetPanelDescription( bool includeVersionAndAuthor )
+qwr::u8string PanelWindow::GetPanelDescription( bool includeVersionAndAuthor )
 {
     qwr::u8string ret = fmt::format( "{}", settings_.panelId );
 
@@ -1222,57 +1222,57 @@ qwr::u8string js_panel_window::GetPanelDescription( bool includeVersionAndAuthor
     return ret;
 }
 
-HDC js_panel_window::GetHDC() const
+HDC PanelWindow::GetHDC() const
 {
     return hDc_;
 }
 
-HWND js_panel_window::GetHWND() const
+HWND PanelWindow::GetHWND() const
 {
     return wnd_;
 }
 
-POINT& js_panel_window::MaxSize()
+POINT& PanelWindow::MaxSize()
 {
     return maxSize_;
 }
 
-POINT& js_panel_window::MinSize()
+POINT& PanelWindow::MinSize()
 {
     return minSize_;
 }
 
-int js_panel_window::GetHeight() const
+int PanelWindow::GetHeight() const
 {
     return height_;
 }
 
-int js_panel_window::GetWidth() const
+int PanelWindow::GetWidth() const
 {
     return width_;
 }
 
-t_size& js_panel_window::DlgCode()
+t_size& PanelWindow::DlgCode()
 {
     return dlgCode_;
 }
 
-PanelType js_panel_window::GetPanelType() const
+PanelType PanelWindow::GetPanelType() const
 {
     return panelType_;
 }
 
-DWORD js_panel_window::GetColour( unsigned type, const GUID& guid )
+DWORD PanelWindow::GetColour( unsigned type, const GUID& guid )
 {
     return impl_.GetColour( type, guid );
 }
 
-HFONT js_panel_window::GetFont( unsigned type, const GUID& guid )
+HFONT PanelWindow::GetFont( unsigned type, const GUID& guid )
 {
     return impl_.GetFont( type, guid );
 }
 
-void js_panel_window::SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion )
+void PanelWindow::SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion )
 {
     assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
 
@@ -1281,7 +1281,7 @@ void js_panel_window::SetSettings_ScriptInfo( const qwr::u8string& scriptName, c
     settings_.scriptVersion = scriptVersion;
 }
 
-void js_panel_window::SetSettings_PanelName( const qwr::u8string& panelName )
+void PanelWindow::SetSettings_PanelName( const qwr::u8string& panelName )
 {
     assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
 
@@ -1289,7 +1289,7 @@ void js_panel_window::SetSettings_PanelName( const qwr::u8string& panelName )
     isPanelIdOverridenByScript_ = true;
 }
 
-void js_panel_window::SetSettings_DragAndDropStatus( bool isEnabled )
+void PanelWindow::SetSettings_DragAndDropStatus( bool isEnabled )
 {
     assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
 
@@ -1298,29 +1298,29 @@ void js_panel_window::SetSettings_DragAndDropStatus( bool isEnabled )
     SetDragAndDropStatus( settings_.enableDragDrop );
 }
 
-void js_panel_window::SetSettings_CaptureFocusStatus( bool isEnabled )
+void PanelWindow::SetSettings_CaptureFocusStatus( bool isEnabled )
 {
     assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
 
     settings_.shouldGrabFocus = isEnabled;
 }
 
-void js_panel_window::ResetLastDragParams()
+void PanelWindow::ResetLastDragParams()
 {
     lastDragParams_.reset();
 }
 
-const std::optional<DragActionParams>& js_panel_window::GetLastDragParams() const
+const std::optional<DragActionParams>& PanelWindow::GetLastDragParams() const
 {
     return lastDragParams_;
 }
 
-bool js_panel_window::HasInternalDrag() const
+bool PanelWindow::HasInternalDrag() const
 {
     return hasInternalDrag_;
 }
 
-void js_panel_window::Repaint( bool force )
+void PanelWindow::Repaint( bool force )
 {
     if ( !force && !hRepaintTimer_ )
     { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
@@ -1329,7 +1329,7 @@ void js_panel_window::Repaint( bool force )
     wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
-void js_panel_window::RepaintRect( const CRect& rc, bool force )
+void PanelWindow::RepaintRect( const CRect& rc, bool force )
 {
     if ( !force && !hRepaintTimer_ )
     { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
@@ -1338,7 +1338,7 @@ void js_panel_window::RepaintRect( const CRect& rc, bool force )
     wnd_.RedrawWindow( &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
 }
 
-void js_panel_window::RepaintBackground( const CRect& updateRc )
+void PanelWindow::RepaintBackground( const CRect& updateRc )
 {
     CWindow wnd_parent = GetAncestor( wnd_, GA_PARENT );
 
@@ -1401,7 +1401,7 @@ void js_panel_window::RepaintBackground( const CRect& updateRc )
     }
 }
 
-bool js_panel_window::LoadScript( bool isFirstLoad )
+bool PanelWindow::LoadScript( bool isFirstLoad )
 {
     pfc::hires_timer timer;
     timer.start();
@@ -1482,7 +1482,7 @@ bool js_panel_window::LoadScript( bool isFirstLoad )
     return true;
 }
 
-void js_panel_window::UnloadScript( bool force )
+void PanelWindow::UnloadScript( bool force )
 {
     if ( !pJsContainer_ )
     { // possible during startup config load
@@ -1508,7 +1508,7 @@ void js_panel_window::UnloadScript( bool force )
     }
 }
 
-void js_panel_window::CreateDrawContext()
+void PanelWindow::CreateDrawContext()
 {
     DeleteDrawContext();
 
@@ -1520,7 +1520,7 @@ void js_panel_window::CreateDrawContext()
     }
 }
 
-void js_panel_window::DeleteDrawContext()
+void PanelWindow::DeleteDrawContext()
 {
     if ( bmp_ )
     {
@@ -1533,7 +1533,7 @@ void js_panel_window::DeleteDrawContext()
     }
 }
 
-void js_panel_window::OnContextMenu( int x, int y )
+void PanelWindow::OnContextMenu( int x, int y )
 {
     if ( modal::IsModalBlocked() )
     {
@@ -1554,7 +1554,7 @@ void js_panel_window::OnContextMenu( int x, int y )
     ExecuteContextMenu( ret, base_id );
 }
 
-void js_panel_window::OnCreate( HWND hWnd )
+void PanelWindow::OnCreate( HWND hWnd )
 {
     wnd_ = hWnd;
     hDc_ = wnd_.GetDC();
@@ -1575,7 +1575,7 @@ void js_panel_window::OnCreate( HWND hWnd )
     LoadScript( true );
 }
 
-void js_panel_window::OnDestroy()
+void PanelWindow::OnDestroy()
 {
     // Careful when changing invocation order here!
 
@@ -1606,7 +1606,7 @@ void js_panel_window::OnDestroy()
     ReleaseDC( wnd_, hDc_ );
 }
 
-void js_panel_window::OnPaint( HDC dc, const CRect& updateRc )
+void PanelWindow::OnPaint( HDC dc, const CRect& updateRc )
 {
     if ( !dc || !bmp_ )
     {
@@ -1651,7 +1651,7 @@ void js_panel_window::OnPaint( HDC dc, const CRect& updateRc )
     BitBlt( dc, 0, 0, width_, height_, memDc, 0, 0, SRCCOPY );
 }
 
-void js_panel_window::OnPaintErrorScreen( HDC memdc )
+void PanelWindow::OnPaintErrorScreen( HDC memdc )
 {
     CDCHandle cdc{ memdc };
     CFont font;
@@ -1683,7 +1683,7 @@ void js_panel_window::OnPaintErrorScreen( HDC memdc )
     cdc.DrawText( L"Aw, crashed :(", -1, &rc, DT_CENTER | DT_VCENTER | DT_NOPREFIX | DT_SINGLELINE );
 }
 
-void js_panel_window::OnPaintJs( HDC memdc, const CRect& updateRc )
+void PanelWindow::OnPaintJs( HDC memdc, const CRect& updateRc )
 {
     Gdiplus::Graphics gr( memdc );
 
@@ -1696,7 +1696,7 @@ void js_panel_window::OnPaintJs( HDC memdc, const CRect& updateRc )
     pJsContainer_->InvokeOnPaint( gr );
 }
 
-void js_panel_window::OnSizeDefault( uint32_t w, uint32_t h )
+void PanelWindow::OnSizeDefault( uint32_t w, uint32_t h )
 {
     width_ = w;
     height_ = h;
@@ -1705,7 +1705,7 @@ void js_panel_window::OnSizeDefault( uint32_t w, uint32_t h )
     CreateDrawContext();
 }
 
-void js_panel_window::OnSizeUser( uint32_t w, uint32_t h )
+void PanelWindow::OnSizeUser( uint32_t w, uint32_t h )
 {
     pJsContainer_->InvokeJsCallback( "on_size",
                                      static_cast<uint32_t>( w ),
@@ -1721,7 +1721,7 @@ void js_panel_window::OnSizeUser( uint32_t w, uint32_t h )
     }
 }
 
-void js_panel_window::SetCaptureMouseState( bool shouldCapture )
+void PanelWindow::SetCaptureMouseState( bool shouldCapture )
 {
     if ( shouldCapture )
     {
@@ -1734,7 +1734,7 @@ void js_panel_window::SetCaptureMouseState( bool shouldCapture )
     isMouseCaptured_ = shouldCapture;
 }
 
-void js_panel_window::SetDragAndDropStatus( bool isEnabled )
+void PanelWindow::SetDragAndDropStatus( bool isEnabled )
 {
     isDraggingInside_ = false;
     hasInternalDrag_ = false;

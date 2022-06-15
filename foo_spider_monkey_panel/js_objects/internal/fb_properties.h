@@ -10,7 +10,7 @@ struct JSClass;
 
 namespace smp::panel
 {
-class js_panel_window;
+class PanelWindow;
 }
 
 namespace mozjs
@@ -23,7 +23,7 @@ public:
     FbProperties& operator=( const FbProperties& ) = delete;
     ~FbProperties() = default;
 
-    static [[nodiscard]] std::unique_ptr<FbProperties> Create( JSContext* cx, smp::panel::js_panel_window& parentPanel );
+    static [[nodiscard]] std::unique_ptr<FbProperties> Create( JSContext* cx, smp::panel::PanelWindow& parentPanel );
 
 public:
     void Trace( JSTracer* trc );
@@ -33,11 +33,11 @@ public:
     void SetProperty( const std::wstring& propName, JS::HandleValue propValue );
 
 private:
-    FbProperties( JSContext* cx, smp::panel::js_panel_window& parentPanel );
+    FbProperties( JSContext* cx, smp::panel::PanelWindow& parentPanel );
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    smp::panel::js_panel_window& parentPanel_;
+    smp::panel::PanelWindow& parentPanel_;
 
     struct HeapElement
     {

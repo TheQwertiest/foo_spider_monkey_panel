@@ -232,7 +232,7 @@ JsWindow::~JsWindow()
 {
 }
 
-JsWindow::JsWindow( JSContext* cx, smp::panel::js_panel_window& parentPanel, std::unique_ptr<FbProperties> fbProperties )
+JsWindow::JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties )
     : pJsCtx_( cx )
     , parentPanel_( parentPanel )
     , fbProperties_( std::move( fbProperties ) )
@@ -240,7 +240,7 @@ JsWindow::JsWindow( JSContext* cx, smp::panel::js_panel_window& parentPanel, std
 }
 
 std::unique_ptr<JsWindow>
-JsWindow::CreateNative( JSContext* cx, smp::panel::js_panel_window& parentPanel )
+JsWindow::CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel )
 {
     std::unique_ptr<FbProperties> fbProperties = FbProperties::Create( cx, parentPanel );
     if ( !fbProperties )
@@ -251,7 +251,7 @@ JsWindow::CreateNative( JSContext* cx, smp::panel::js_panel_window& parentPanel 
     return std::unique_ptr<JsWindow>( new JsWindow( cx, parentPanel, std::move( fbProperties ) ) );
 }
 
-size_t JsWindow::GetInternalSize( const smp::panel::js_panel_window& )
+size_t JsWindow::GetInternalSize( const smp::panel::PanelWindow& )
 {
     return sizeof( FbProperties );
 }

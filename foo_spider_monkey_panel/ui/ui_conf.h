@@ -12,7 +12,7 @@
 
 namespace smp::panel
 {
-class js_panel_window;
+class PanelWindow;
 }
 
 namespace smp::ui
@@ -67,7 +67,7 @@ public:
         CHAIN_MSG_MAP( CDialogResize<CDialogConf> )
     END_MSG_MAP()
 
-    CDialogConf( smp::panel::js_panel_window* pParent, CDialogConf::Tab tabId = CDialogConf::Tab::def );
+    CDialogConf( smp::panel::PanelWindow* pParent, CDialogConf::Tab tabId = CDialogConf::Tab::def );
 
     bool IsCleanSlate() const;
 
@@ -113,7 +113,7 @@ private:
 private:
     bool suppressDdxFromUi_ = true;
 
-    panel::js_panel_window* pParent_ = nullptr;
+    panel::PanelWindow* pParent_ = nullptr;
     config::ParsedPanelSettings oldSettings_;
     config::ParsedPanelSettings localSettings_;
 

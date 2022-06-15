@@ -3,7 +3,7 @@
 namespace smp::panel
 {
 
-class js_panel_window;
+class PanelWindow;
 
 }
 
@@ -205,15 +205,15 @@ public:
 class PanelTarget final
 {
 public:
-    PanelTarget( panel::js_panel_window& panel );
+    PanelTarget( panel::PanelWindow& panel );
 
     [[nodiscard]] HWND GetHwnd();
 
-    [[nodiscard]] panel::js_panel_window* GetPanel();
+    [[nodiscard]] panel::PanelWindow* GetPanel();
     void UnlinkPanel();
 
 private:
-    panel::js_panel_window* pPanel_ = nullptr;
+    panel::PanelWindow* pPanel_ = nullptr;
     HWND hWnd_ = nullptr;
 };
 

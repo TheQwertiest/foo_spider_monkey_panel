@@ -7,7 +7,7 @@
 
 namespace smp::panel
 {
-class js_panel_window;
+class PanelWindow;
 }
 
 namespace smp::ui
