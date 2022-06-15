@@ -19,14 +19,17 @@ public:
     {
         return T::g_get_guid();
     }
+
     GUID get_subclass() override
     {
         return T::g_get_subclass();
     }
+
     void get_name( pfc::string_base& out ) override
     {
         T::g_get_name( out );
     }
+
     ui_element_instance::ptr instantiate( HWND parent, ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback ) override
     {
         PFC_ASSERT( cfg->get_guid() == get_guid() );
@@ -34,14 +37,17 @@ public:
         item->initialize_window( parent );
         return item;
     }
+
     ui_element_config::ptr get_default_configuration() override
     {
         return T::g_get_default_configuration();
     }
+
     ui_element_children_enumerator_ptr enumerate_children( ui_element_config::ptr ) override
     {
         return nullptr;
     }
+
     bool get_description( pfc::string_base& out ) override
     {
         out = T::g_get_description();
@@ -129,12 +135,12 @@ DWORD PanelAdaptorDui::GetColour( unsigned type, const GUID& guid )
     const auto& guidToQuery = [type, &guid] {
         // Take care when changing this array:
         // guid indexes are part of SMP API
-        const std::array<const GUID*, 4> guids = {
+        const auto guids = std::to_array( {
             &ui_color_text,
             &ui_color_background,
             &ui_color_highlight,
             &ui_color_selection,
-        };
+        } );
 
         if ( guid != pfc::guid_null )
         {
@@ -164,14 +170,14 @@ HFONT PanelAdaptorDui::GetFont( unsigned type, const GUID& guid )
     const auto& guidToQuery = [type, &guid] {
         // Take care when changing this array:
         // guid indexes are part of SMP API
-        const std::array<const GUID*, 6> guids = {
+        const auto guids = std::to_array( {
             &ui_font_default,
             &ui_font_tabs,
             &ui_font_lists,
             &ui_font_playlists,
             &ui_font_statusbar,
             &ui_font_console,
-        };
+        } );
 
         if ( guid != pfc::guid_null )
         {

@@ -108,7 +108,7 @@ protected:
 
         JS::RootedValue vFunc( pJsCtx_, heapMgr.Get( funcId_ ) );
         JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
-        std::array<VARIANT*, 7> args = { &arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7 };
+        auto args = std::to_array( { &arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7 } );
         JS::AutoValueArray<args.size()> wrappedArgs( pJsCtx_ );
 
         try
@@ -364,7 +364,7 @@ void VariantToJs( JSContext* cx, VARIANTARG& var, JS::MutableHandleValue rval )
         rval.setObjectOrNull( jsObject );
         break;
     }
-    case VT_VARIANT: //traverse the indirection list?
+    case VT_VARIANT: // traverse the indirection list?
         if ( ref )
         {
             VARIANTARG* v = var.pvarVal;
@@ -408,13 +408,13 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
             JsActiveXObject* x = pNative;
             if ( x->pStorage_->variant.vt != VT_EMPTY )
             {
-                //1.7.2.3
+                // 1.7.2.3
                 HRESULT hr = VariantCopyInd( &arg, &x->pStorage_->variant );
                 qwr::error::CheckHR( hr, "VariantCopyInd" );
-                //VariantCopy(&arg,&x->variant_);
-                //1.7.2.2 could address invalid memory if x is freed before arg
-                // arg.vt = VT_VARIANT | VT_BYREF;
-                // arg.pvarVal = &x->variant_;
+                // VariantCopy(&arg,&x->variant_);
+                // 1.7.2.2 could address invalid memory if x is freed before arg
+                //  arg.vt = VT_VARIANT | VT_BYREF;
+                //  arg.pvarVal = &x->variant_;
             }
             else if ( x->pStorage_->pDispatch )
             {

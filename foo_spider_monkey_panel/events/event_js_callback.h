@@ -36,7 +36,7 @@ public:
         , data_( std::forward<ArgsFwd>( args )... )
     {
         static_assert( !impl::Contains<metadb_handle_list, Args...>(), "Use shared_ptr instead" );
-        assert( kCallbackIdToName.count( id_ ) );
+        assert( kCallbackIdToName.contains( id_ ) );
     }
 
     std::optional<bool> JsExecute( mozjs::JsContainer& jsContainer ) override

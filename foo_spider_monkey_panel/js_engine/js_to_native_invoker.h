@@ -18,16 +18,10 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 namespace mozjs::internal
 {
 
-template <typename T>
-struct TypeWrapper
-{
-    using type = T;
-};
-
 template <typename... ArgTypes, typename FuncType, size_t... Indexes>
 auto ProcessJsArgs_Impl( const JS::CallArgs& jsArgs, FuncType&& func, std::index_sequence<Indexes...> )
 {
-    return std::make_tuple( func( jsArgs, TypeWrapper<ArgTypes>{}, Indexes )... );
+    return std::make_tuple( func( jsArgs, std::type_identity<ArgTypes>{}, Indexes )... );
 }
 
 template <typename... ArgTypes, typename FuncType>
@@ -75,7 +69,7 @@ template <typename... ArgTypes>
 auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueVector valueVector, const JS::CallArgs& jsArgs )
 {
     constexpr size_t argCount = sizeof...( ArgTypes );
-    if constexpr ( argCount > 0 )
+    if constexpr ( argCount )
     {
         static_assert( InvokeNativeCallback_ParseArguments_Check<ArgTypes...>() );
     }

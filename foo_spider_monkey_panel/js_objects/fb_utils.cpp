@@ -952,12 +952,10 @@ void JsFbUtils::put_ReplaygainMode( uint32_t p )
 {
     // Take care when changing this array:
     // guid indexes are part of SMP API
-    const std::array<const GUID*, 4> guids = {
-        &standard_commands::guid_main_rg_disable,
-        &standard_commands::guid_main_rg_set_track,
-        &standard_commands::guid_main_rg_set_album,
-        &standard_commands::guid_main_rg_byorder
-    };
+    const auto guids = std::to_array( { &standard_commands::guid_main_rg_disable,
+                                        &standard_commands::guid_main_rg_set_track,
+                                        &standard_commands::guid_main_rg_set_album,
+                                        &standard_commands::guid_main_rg_byorder } );
 
     qwr::QwrException::ExpectTrue( p < guids.size(), "Invalid replay gain mode: {}", p );
 

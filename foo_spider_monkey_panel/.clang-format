@@ -69,18 +69,23 @@ IncludeCategories:
   - Regex:           '<[[:alnum:]_]+>'
     Priority:        6
 IncludeIsMainRegex: '$'
-IndentCaseLabels: false
+IndentCaseLabels: 'false'
 IndentPPDirectives: AfterHash
+# clang 15
+# IndentRequires: 'true'
 IndentWidth: '4'
-IndentWrappedFunctionNames: false
+IndentWrappedFunctionNames: 'false'
+LambdaBodyIndentation: Signature
 Language: Cpp
-# clang 13+
-# LambdaBodyIndentation: OuterScope
 MacroBlockBegin: "^BEGIN_*"
 MacroBlockEnd: "^END_*"
 MaxEmptyLinesToKeep: '1'
+PackConstructorInitializers: Never
 PointerAlignment: Left
 ReflowComments: 'true'
+# clang 15
+# RequiresClausePosition: OwnLine
+SeparateDefinitionBlocks: Always
 SortIncludes: 'false'
 SpaceAfterCStyleCast: 'false'
 SpaceAfterTemplateKeyword : 'true'
@@ -90,6 +95,9 @@ SpaceBeforeRangeBasedForLoopColon: 'false'
 SpaceInEmptyParentheses: 'false'
 SpacesInAngles: 'false'
 SpacesInCStyleCastParentheses: 'false'
+SpacesInLineCommentPrefix:
+  Minimum: 1
+  Maximum: 1
 SpacesInParentheses: 'true'
 SpacesInSquareBrackets: 'false'
 SortIncludes: 'true'

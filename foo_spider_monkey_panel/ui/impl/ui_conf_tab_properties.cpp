@@ -9,6 +9,7 @@
 #include <qwr/error_popup.h>
 #include <qwr/file_helpers.h>
 #include <qwr/type_traits.h>
+#include <qwr/visitor.h>
 
 #include <filesystem>
 #include <iomanip>
@@ -306,43 +307,40 @@ void CConfigTabProperties::UpdateUiFromData()
 
     struct LowerLexCmp
     { // lexicographical comparison but with lower cased chars
+
         bool operator()( const std::wstring& a, const std::wstring& b ) const
         {
             return ( _wcsicmp( a.c_str(), b.c_str() ) < 0 );
         }
     };
+
     std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
     for ( const auto& [name, pSerializedValue]: properties_.values )
     {
-        HPROPERTY hProp = std::visit( [&name = name]( auto&& arg ) {
-            using T = std::decay_t<decltype( arg )>;
-            if constexpr ( std::is_same_v<T, bool> || std::is_same_v<T, int32_t> )
-            {
-                return PropCreateSimple( name.c_str(), arg );
-            }
-            else if constexpr ( std::is_same_v<T, double> )
-            {
-                const std::wstring strNumber = [arg] {
-                    if ( std::trunc( arg ) == arg )
-                    { // Most likely uint64_t
-                        return std::to_wstring( static_cast<uint64_t>( arg ) );
-                    }
+        HPROPERTY hProp = std::visit(
+            qwr::Visitor{
+                [&name]( bool arg ) {
+                    return PropCreateSimple( name.c_str(), arg );
+                },
+                [&name]( int32_t arg ) {
+                    return PropCreateSimple( name.c_str(), arg );
+                },
+                [&name]( double arg ) {
+                    const auto strNumber = [arg] {
+                        if ( std::trunc( arg ) == arg )
+                        { // Most likely uint64_t
+                            return std::to_wstring( static_cast<uint64_t>( arg ) );
+                        }
 
-                    // std::to_string(double) has precision of float
-                    return fmt::format( L"{:.16g}", arg );
-                }();
-                return PropCreateSimple( name.c_str(), strNumber.c_str() );
-            }
-            else if constexpr ( std::is_same_v<T, qwr::u8string> )
-            {
-                return PropCreateSimple( name.c_str(), qwr::unicode::ToWide( arg ).c_str() );
-            }
-            else
-            {
-                static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
-            }
-        },
-                                      *pSerializedValue );
+                        // std::to_string(double) has precision of float
+                        return fmt::format( L"{:.16g}", arg );
+                    }();
+                    return PropCreateSimple( name.c_str(), strNumber.c_str() );
+                },
+                [&name]( const qwr::u8string& arg ) {
+                    return PropCreateSimple( name.c_str(), qwr::unicode::ToWide( arg ).c_str() );
+                } },
+            *pSerializedValue );
 
         propMap.emplace( name, hProp );
     }

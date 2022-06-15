@@ -722,7 +722,7 @@ void JsFbPlaylistManager::SetPlaylistLockedActions( uint32_t playlistIndex, JS::
         const auto lockedActionsVec = convert::to_native::ToValue<std::vector<qwr::u8string>>( pJsCtx_, lockedActions );
         for ( const auto& action: lockedActionsVec )
         {
-            qwr::QwrException::ExpectTrue( actionToMask.count( action ), "Unknown action name: {}", action );
+            qwr::QwrException::ExpectTrue( actionToMask.contains( action ), "Unknown action name: {}", action );
             newLockMask |= actionToMask.at( action );
         }
     }

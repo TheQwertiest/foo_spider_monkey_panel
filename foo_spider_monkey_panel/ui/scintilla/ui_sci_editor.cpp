@@ -53,7 +53,7 @@ struct StyleToPropname
     const char* propname;
 };
 
-constexpr std::array<StyleToPropname, 16> js_style_table = {
+constexpr auto js_style_table = std::to_array<StyleToPropname>(
     { // Default
       { STYLE_DEFAULT, "style.default" },
       // Line number
@@ -79,8 +79,7 @@ constexpr std::array<StyleToPropname, 16> js_style_table = {
       { SCE_C_STRING, "style.string" },
       { SCE_C_CHARACTER, "style.string" },
       // Operators
-      { SCE_C_OPERATOR, "style.operator" } }
-};
+      { SCE_C_OPERATOR, "style.operator" } } );
 
 bool IsBraceChar( int ch )
 {

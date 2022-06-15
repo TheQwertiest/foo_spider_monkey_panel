@@ -5,7 +5,7 @@
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
 
-#include <qwr/type_traits.h>
+#include <qwr/visitor.h>
 
 namespace mozjs
 {
@@ -41,30 +41,13 @@ SerializedJsValue SerializeJsValue( JSContext* cx, JS::HandleValue jsValue )
 
 void DeserializeJsValue( JSContext* cx, const SerializedJsValue& serializedValue, JS::MutableHandleValue jsValue )
 {
-    std::visit( [cx, &jsValue]( auto&& arg ) {
-        using T = std::decay_t<decltype( arg )>;
-        if constexpr ( std::is_same_v<T, bool> )
-        {
-            jsValue.setBoolean( arg );
-        }
-        else if constexpr ( std::is_same_v<T, int32_t> )
-        {
-            jsValue.setInt32( arg );
-        }
-        else if constexpr ( std::is_same_v<T, double> )
-        {
-            jsValue.setDouble( arg );
-        }
-        else if constexpr ( std::is_same_v<T, qwr::u8string> )
-        {
-            convert::to_js::ToValue( cx, arg, jsValue );
-        }
-        else
-        {
-            static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
-        }
-    },
-                serializedValue );
+    std::visit(
+        qwr::Visitor{
+            [cx, &jsValue]( bool arg ) { jsValue.setBoolean( arg ); },
+            [cx, &jsValue]( int32_t arg ) { jsValue.setInt32( arg ); },
+            [cx, &jsValue]( double arg ) { jsValue.setDouble( arg ); },
+            [cx, &jsValue]( const qwr::u8string& arg ) { convert::to_js::ToValue( cx, arg, jsValue ); } },
+        serializedValue );
 }
 
 } // namespace mozjs

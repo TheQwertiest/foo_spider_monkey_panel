@@ -5,7 +5,7 @@
 #include <utils/guid_helpers.h>
 
 #include <qwr/string_helpers.h>
-#include <qwr/type_traits.h>
+#include <qwr/visitor.h>
 #include <qwr/winapi_error_helpers.h>
 
 namespace
@@ -173,45 +173,23 @@ void SaveProperties( stream_writer& writer, abort_callback& abort, const PanelPr
             qwr::pfc_x::WriteString( writer, qwr::unicode::ToU8( name ), abort );
 
             const auto& serializedValue = *pValue;
-
-            const JsValueType valueType = std::visit( []( auto&& arg ) {
-                using T = std::decay_t<decltype( arg )>;
-                if constexpr ( std::is_same_v<T, bool> )
-                {
-                    return JsValueType::pt_boolean;
-                }
-                else if constexpr ( std::is_same_v<T, int32_t> )
-                {
-                    return JsValueType::pt_int32;
-                }
-                else if constexpr ( std::is_same_v<T, double> )
-                {
-                    return JsValueType::pt_double;
-                }
-                else if constexpr ( std::is_same_v<T, qwr::u8string> )
-                {
-                    return JsValueType::pt_string;
-                }
-                else
-                {
-                    static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
-                }
-            },
-                                                      serializedValue );
+            const JsValueType valueType =
+                std::visit( qwr::Visitor{
+                                []( bool arg ) { return JsValueType::pt_boolean; },
+                                []( int32_t arg ) { return JsValueType::pt_int32; },
+                                []( double arg ) { return JsValueType::pt_double; },
+                                []( const qwr::u8string& arg ) { return JsValueType::pt_string; } },
+                            serializedValue );
 
             writer.write_lendian_t( static_cast<uint32_t>( valueType ), abort );
 
-            std::visit( [&writer, &abort]( auto&& arg ) {
-                using T = std::decay_t<decltype( arg )>;
-                if constexpr ( std::is_same_v<T, qwr::u8string> )
-                {
-                    qwr::pfc_x::WriteString( writer, arg, abort );
-                }
-                else
-                {
-                    writer.write_lendian_t( arg, abort );
-                }
-            },
+            std::visit( qwr::Visitor{
+                            [&writer, &abort]( const qwr::u8string& arg ) {
+                                qwr::pfc_x::WriteString( writer, arg, abort );
+                            },
+                            [&writer, &abort]( const auto& arg ) {
+                                writer.write_lendian_t( arg, abort );
+                            } },
                         serializedValue );
         }
     }

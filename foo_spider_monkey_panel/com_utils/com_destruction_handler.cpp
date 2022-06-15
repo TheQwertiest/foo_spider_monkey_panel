@@ -60,7 +60,7 @@ void MarkStoredObjectAsToBeDeleted( StorageObject* pObject )
 {
     assert( core_api::is_main_thread() );
     assert( pObject );
-    assert( g_objectStorage.count( pObject ) );
+    assert( g_objectStorage.contains( pObject ) );
 
     g_objectsToDelete.emplace_back( std::move( g_objectStorage.at( pObject ) ) );
     g_objectStorage.erase( pObject );

@@ -8,7 +8,7 @@
 
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
-#include <qwr/type_traits.h>
+#include <qwr/visitor.h>
 
 #include <filesystem>
 #include <optional>
@@ -179,30 +179,21 @@ ParsedPanelSettings ParsedPanelSettings::Parse( const PanelSettings& settings )
     parsedSettings.edgeStyle = settings.edgeStyle;
     parsedSettings.isPseudoTransparent = settings.isPseudoTransparent;
 
-    std::visit( [&parsedSettings]( const auto& data ) {
-        using T = std::decay_t<decltype( data )>;
-        if constexpr ( std::is_same_v<T, smp::config::PanelSettings_InMemory> )
-        {
-            Parse_InMemory( data, parsedSettings );
-        }
-        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_File> )
-        {
-            Parse_File( data, parsedSettings );
-        }
-        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Sample> )
-        {
-            Parse_Sample( data, parsedSettings );
-        }
-        else if constexpr ( std::is_same_v<T, smp::config::PanelSettings_Package> )
-        {
-            Parse_Package( data, parsedSettings );
-        }
-        else
-        {
-            static_assert( qwr::always_false_v<T>, "non-exhaustive visitor!" );
-        }
-    },
-                settings.payload );
+    std::visit(
+        qwr::Visitor{
+            [&parsedSettings]( const PanelSettings_InMemory& data ) {
+                Parse_InMemory( data, parsedSettings );
+            },
+            [&parsedSettings]( const PanelSettings_File& data ) {
+                Parse_File( data, parsedSettings );
+            },
+            [&parsedSettings]( const PanelSettings_Sample& data ) {
+                Parse_Sample( data, parsedSettings );
+            },
+            [&parsedSettings]( const PanelSettings_Package& data ) {
+                Parse_Package( data, parsedSettings );
+            } },
+        settings.payload );
 
     return parsedSettings;
 }
