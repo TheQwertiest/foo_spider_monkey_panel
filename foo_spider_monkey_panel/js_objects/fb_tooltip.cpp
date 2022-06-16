@@ -83,45 +83,31 @@ JsFbTooltip::JsFbTooltip( JSContext* cx, HWND hParentWnd )
     , tipBuffer_( TEXT( SMP_NAME ) )
     , pFont_( smp::gdi::CreateUniquePtr<HFONT>( nullptr ) )
 {
-    hTooltipWnd_ = CreateWindowEx(
-        WS_EX_TOPMOST,
-        TOOLTIPS_CLASS,
-        nullptr,
-        WS_POPUP | TTS_ALWAYSTIP | TTS_NOPREFIX,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        CW_USEDEFAULT,
-        hParentWnd_,
-        nullptr,
-        core_api::get_my_instance(),
-        nullptr );
-    qwr::error::CheckWinApi( hTooltipWnd_, "CreateWindowEx" );
-
-    qwr::final_action autoHwnd( [hTooltipWnd = hTooltipWnd_] {
-        if ( IsWindow( hTooltipWnd ) )
+    qwr::final_action autoHwnd( [&] {
+        if ( tooltipManual_.IsWindow() )
         {
-            DestroyWindow( hTooltipWnd );
+            if ( pToolinfoManual_ )
+            {
+                tooltipManual_.DelTool( pToolinfoManual_.get() );
+            }
+            tooltipManual_.DestroyWindow();
         }
     } );
 
+    tooltipManual_.Create( hParentWnd_ );
+    qwr::error::CheckWinApi( tooltipManual_, "tooltip::Create" );
+
     // Original position
-    SetWindowPos( hTooltipWnd_, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+    tooltipManual_.SetWindowPos( HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
 
-    toolInfo_ = std::make_unique<TOOLINFO>();
     // Set up tooltip information.
-    memset( toolInfo_.get(), 0, sizeof( TOOLINFO ) );
+    // note: we need to have text here, otherwise tooltip will glitch out
+    pToolinfoManual_ = std::make_unique<CToolInfo>( TTF_IDISHWND | TTF_SUBCLASS, hParentWnd_, (UINT_PTR)hParentWnd_, nullptr, const_cast<wchar_t*>( tipBuffer_.c_str() ) );
 
-    toolInfo_->cbSize = sizeof( TOOLINFO );
-    toolInfo_->uFlags = TTF_IDISHWND | TTF_SUBCLASS | TTF_TRANSPARENT;
-    toolInfo_->hinst = core_api::get_my_instance();
-    toolInfo_->hwnd = hParentWnd;
-    toolInfo_->uId = (UINT_PTR)hParentWnd;
-    toolInfo_->lpszText = const_cast<wchar_t*>( tipBuffer_.c_str() ); // we need to have text here, otherwise tooltip will glitch out
+    auto bRet = tooltipManual_.AddTool( pToolinfoManual_.get() );
+    qwr::error::CheckWinApi( bRet, "tooltip::AddTool" );
 
-    bool bRet = SendMessage( hTooltipWnd_, TTM_ADDTOOL, 0, (LPARAM)toolInfo_.get() );
-    qwr::error::CheckWinApi( bRet, "SendMessage(TTM_ADDTOOL)" );
-    SendMessage( hTooltipWnd_, TTM_ACTIVATE, FALSE, 0 );
+    tooltipManual_.Activate( FALSE );
 
     autoHwnd.cancel();
 }
@@ -141,36 +127,39 @@ size_t JsFbTooltip::GetInternalSize( HWND /*hParentWnd*/ )
 
 void JsFbTooltip::PrepareForGc()
 {
-    if ( hTooltipWnd_ && IsWindow( hTooltipWnd_ ) )
+    if ( tooltipManual_.IsWindow() )
     {
         Deactivate();
-        DestroyWindow( hTooltipWnd_ );
-        hTooltipWnd_ = nullptr;
+        if ( pToolinfoManual_ )
+        {
+            tooltipManual_.DelTool( pToolinfoManual_.get() );
+        }
+        tooltipManual_.DestroyWindow();
     }
 }
 
 void JsFbTooltip::Activate()
 {
-    SendMessage( hTooltipWnd_, TTM_ACTIVATE, TRUE, 0 );
+    tooltipManual_.Activate( TRUE );
 }
 
 void JsFbTooltip::Deactivate()
 {
-    SendMessage( hTooltipWnd_, TTM_ACTIVATE, FALSE, 0 );
+    tooltipManual_.Activate( FALSE );
 }
 
 uint32_t JsFbTooltip::GetDelayTime( uint32_t type )
 {
     qwr::QwrException::ExpectTrue( type >= TTDT_AUTOMATIC && type <= TTDT_INITIAL, "Invalid delay type: {}", type );
 
-    return SendMessage( hTooltipWnd_, TTM_GETDELAYTIME, type, 0 );
+    return tooltipManual_.GetDelayTime( type );
 }
 
 void JsFbTooltip::SetDelayTime( uint32_t type, int32_t time )
 {
     qwr::QwrException::ExpectTrue( type >= TTDT_AUTOMATIC && type <= TTDT_INITIAL, "Invalid delay type: {}", type );
 
-    SendMessage( hTooltipWnd_, TTM_SETDELAYTIME, type, static_cast<LPARAM>( static_cast<int>( MAKELONG( time, 0 ) ) ) );
+    tooltipManual_.SetDelayTime( type, time );
 }
 
 void JsFbTooltip::SetFont( const std::wstring& name, uint32_t pxSize, uint32_t style )
@@ -199,7 +188,7 @@ void JsFbTooltip::SetFont( const std::wstring& name, uint32_t pxSize, uint32_t s
             DEFAULT_PITCH | FF_DONTCARE,
             fontName_.c_str() ) );
         qwr::error::CheckWinApi( !!pFont_, "CreateFont" );
-        SendMessage( hTooltipWnd_, WM_SETFONT, (WPARAM)pFont_.get(), MAKELPARAM( FALSE, 0 ) );
+        tooltipManual_.SetFont( pFont_.get(), FALSE );
     }
 }
 
@@ -220,14 +209,14 @@ void JsFbTooltip::SetFontWithOpt( size_t optArgCount, const std::wstring& name, 
 
 void JsFbTooltip::SetMaxWidth( uint32_t width )
 {
-    SendMessage( hTooltipWnd_, TTM_SETMAXTIPWIDTH, 0, width );
+    tooltipManual_.SetMaxTipWidth( width );
 }
 
 void JsFbTooltip::TrackPosition( int x, int y )
 {
     POINT pt{ x, y };
     ClientToScreen( hParentWnd_, &pt );
-    SendMessage( hTooltipWnd_, TTM_TRACKPOSITION, 0, MAKELONG( pt.x, pt.y ) );
+    tooltipManual_.TrackPosition( pt.x, pt.y );
 }
 
 std::wstring JsFbTooltip::get_Text()
@@ -238,22 +227,22 @@ std::wstring JsFbTooltip::get_Text()
 void JsFbTooltip::put_Text( const std::wstring& text )
 {
     tipBuffer_ = text;
-    toolInfo_->lpszText = tipBuffer_.data();
-    SendMessage( hTooltipWnd_, TTM_UPDATETIPTEXT, 0, (LPARAM)toolInfo_.get() );
+    pToolinfoManual_->lpszText = tipBuffer_.data();
+    tooltipManual_.SetToolInfo( pToolinfoManual_.get() );
 }
 
 void JsFbTooltip::put_TrackActivate( bool activate )
 {
     if ( activate )
     {
-        toolInfo_->uFlags |= TTF_TRACK | TTF_ABSOLUTE;
+        pToolinfoManual_->uFlags |= TTF_TRACK | TTF_ABSOLUTE;
     }
     else
     {
-        toolInfo_->uFlags &= ~( TTF_TRACK | TTF_ABSOLUTE );
+        pToolinfoManual_->uFlags &= ~( TTF_TRACK | TTF_ABSOLUTE );
     }
 
-    SendMessage( hTooltipWnd_, TTM_TRACKACTIVATE, static_cast<WPARAM>( activate ), (LPARAM)toolInfo_.get() );
+    tooltipManual_.TrackActivate( pToolinfoManual_.get(), activate );
 }
 
 } // namespace mozjs

@@ -58,16 +58,16 @@ private:
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
 
-    HWND hTooltipWnd_ = nullptr;
     HWND hParentWnd_ = nullptr;
 
+    smp::gdi::unique_gdi_ptr<HFONT> pFont_;
+    std::wstring tipBuffer_;
     std::wstring fontName_;
     uint32_t fontSize_{};
     uint32_t fontStyle_{};
-    std::wstring tipBuffer_;
 
-    smp::gdi::unique_gdi_ptr<HFONT> pFont_;
-    std::unique_ptr<TOOLINFO> toolInfo_;
+    CToolTipCtrl tooltipManual_;
+    std::unique_ptr<CToolInfo> pToolinfoManual_;
 };
 
 } // namespace mozjs
