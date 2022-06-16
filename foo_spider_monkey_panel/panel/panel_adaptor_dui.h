@@ -46,10 +46,9 @@ private:
     void notify_is_edit_mode_changed( bool enabled );
 
 private:
+    std::unique_ptr<PanelWindow> wndContainer_;
     ui_element_instance_callback::ptr uiCallback_;
     bool isEditMode_;
-    std::unique_ptr<PanelWindow> wndContainer_;
-    config::PanelSettings cachedPanelSettings_;
 };
 
 } // namespace smp::panel

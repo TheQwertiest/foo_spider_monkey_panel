@@ -46,10 +46,8 @@ public:
     uie::container_window_v3_config get_window_config();
 
     void ReloadScript();
-    static config::PanelSettings LoadSettings( stream_reader& reader, t_size size, abort_callback& abort );
-    void InitSettings( const smp::config::PanelSettings& settings, bool reloadPanel = true );
-    void SetSettings( const smp::config::ParsedPanelSettings& settings );
     bool UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel = true );
+    void LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel = true );
     bool SaveSettings( stream_writer& writer, abort_callback& abort ) const;
 
     bool IsPanelIdOverridenByScript() const;

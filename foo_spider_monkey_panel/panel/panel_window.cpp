@@ -122,34 +122,27 @@ void PanelWindow::ReloadScript()
     }
 }
 
-config::PanelSettings PanelWindow::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort )
+void PanelWindow::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel )
 {
-    try
-    {
-        return config::PanelSettings::Load( reader, size, abort );
-    }
-    catch ( const qwr::QwrException& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!\n"
-                                                                     "Error: {}",
-                                                                     e.what() ) );
-        return config::PanelSettings{};
-    }
-}
+    const auto settings = [&] {
+        try
+        {
+            return config::PanelSettings::Load( reader, size, abort );
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!\n"
+                                                                         "Error: {}",
+                                                                         e.what() ) );
+            return config::PanelSettings{};
+        }
+    }();
 
-void PanelWindow::InitSettings( const smp::config::PanelSettings& settings, bool reloadPanel )
-{
     if ( !UpdateSettings( settings, reloadPanel ) )
     {
         qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!" ) );
         UpdateSettings( config::PanelSettings{}, reloadPanel );
     }
-}
-
-void PanelWindow::SetSettings( const smp::config::ParsedPanelSettings& settings )
-{
-    settings_ = settings;
-    ReloadScript();
 }
 
 bool PanelWindow::UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel )

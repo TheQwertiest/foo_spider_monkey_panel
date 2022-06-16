@@ -19,6 +19,7 @@ namespace smp::panel
 {
 
 PanelAdaptorCui::PanelAdaptorCui()
+    : wndContainer_( std::make_unique<PanelWindow>( *this ) )
 {
 }
 
@@ -62,7 +63,6 @@ HFONT PanelAdaptorCui::GetFont( unsigned type, const GUID& guid )
 
 void PanelAdaptorCui::OnSizeLimitChanged( LPARAM lp )
 {
-    assert( wndContainer_ );
     pHost_->on_size_limit_change( wndContainer_->GetHWND(), lp );
 }
 
@@ -74,7 +74,9 @@ LRESULT PanelAdaptorCui::OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
     case WM_KEYDOWN:
     {
         if ( uie::window::g_process_keydown_keyboard_shortcuts( wp ) )
+        {
             return 0;
+        }
         break;
     }
     case WM_CREATE:
@@ -110,7 +112,6 @@ LRESULT PanelAdaptorCui::OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         break;
     }
 
-    assert( wndContainer_ );
     return wndContainer_->OnMessage( hwnd, msg, wp, lp );
 }
 
@@ -127,9 +128,7 @@ HWND PanelAdaptorCui::create_or_transfer_window( HWND parent, const uie::window_
     }
     else
     {
-        pHost_ = host; //store interface to host
-        wndContainer_ = std::make_unique<PanelWindow>( *this );
-        wndContainer_->InitSettings( cachedPanelSettings_, false );
+        pHost_ = host; // store interface to host
         wndContainer_->create( parent, p_position.x, p_position.y, p_position.cx, p_position.cy );
     }
 
@@ -138,7 +137,6 @@ HWND PanelAdaptorCui::create_or_transfer_window( HWND parent, const uie::window_
 
 HWND PanelAdaptorCui::get_wnd() const
 {
-    assert( wndContainer_ );
     return wndContainer_->get_wnd();
 }
 
@@ -170,9 +168,7 @@ unsigned PanelAdaptorCui::get_type() const
 
 void PanelAdaptorCui::destroy_window()
 {
-    assert( wndContainer_ );
     wndContainer_->destroy();
-    wndContainer_.reset();
     pHost_.release();
 }
 
@@ -183,10 +179,7 @@ void PanelAdaptorCui::get_category( pfc::string_base& out ) const
 
 void PanelAdaptorCui::get_config( stream_writer* writer, abort_callback& abort ) const
 {
-    if ( wndContainer_ )
-    {
-        wndContainer_->SaveSettings( *writer, abort );
-    }
+    wndContainer_->SaveSettings( *writer, abort );
 }
 
 void PanelAdaptorCui::get_name( pfc::string_base& out ) const
@@ -200,23 +193,18 @@ void PanelAdaptorCui::on_bool_changed( t_size ) const
 
 void PanelAdaptorCui::on_colour_changed( t_size ) const
 {
-    assert( wndContainer_ );
     EventDispatcher::Get().PutEvent( wndContainer_->GetHWND(), GenerateEvent_JsCallback( EventId::kUiColoursChanged ) );
 }
 
 void PanelAdaptorCui::on_font_changed( t_size ) const
 {
-    assert( wndContainer_ );
+
     EventDispatcher::Get().PutEvent( wndContainer_->GetHWND(), GenerateEvent_JsCallback( EventId::kUiFontChanged ) );
 }
 
 void PanelAdaptorCui::set_config( stream_reader* reader, t_size size, abort_callback& abort )
 {
-    cachedPanelSettings_ = PanelWindow::LoadSettings( *reader, size, abort );
-    if ( wndContainer_ )
-    {
-        wndContainer_->InitSettings( cachedPanelSettings_, false );
-    }
+    wndContainer_->LoadSettings( *reader, size, abort, false );
 }
 
 } // namespace smp::panel

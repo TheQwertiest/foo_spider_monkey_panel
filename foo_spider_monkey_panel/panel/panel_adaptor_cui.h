@@ -49,7 +49,6 @@ protected:
 private:
     std::unique_ptr<PanelWindow> wndContainer_;
     uie::window_host_ptr pHost_;
-    config::PanelSettings cachedPanelSettings_;
 };
 
 } // namespace smp::panel

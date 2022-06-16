@@ -73,7 +73,8 @@ namespace smp::panel
 {
 
 PanelAdaptorDui::PanelAdaptorDui( ui_element_config::ptr cfg, ui_element_instance_callback::ptr callback )
-    : uiCallback_( callback )
+    : wndContainer_( std::make_unique<PanelWindow>( *this ) )
+    , uiCallback_( callback )
     , isEditMode_( callback->is_edit_mode_enabled() )
 {
     set_configuration( cfg );
@@ -81,11 +82,7 @@ PanelAdaptorDui::PanelAdaptorDui( ui_element_config::ptr cfg, ui_element_instanc
 
 PanelAdaptorDui::~PanelAdaptorDui()
 {
-    if ( wndContainer_ )
-    {
-        wndContainer_->destroy();
-        wndContainer_.reset();
-    }
+    wndContainer_->destroy();
 }
 
 GUID PanelAdaptorDui::g_get_guid()
@@ -220,7 +217,6 @@ LRESULT PanelAdaptorDui::OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
         break;
     }
 
-    assert( wndContainer_ );
     return wndContainer_->OnMessage( hwnd, msg, wp, lp );
 }
 
@@ -231,7 +227,6 @@ void PanelAdaptorDui::OnSizeLimitChanged( LPARAM )
 
 HWND PanelAdaptorDui::get_wnd()
 {
-    assert( wndContainer_ );
     return wndContainer_->get_wnd();
 }
 
@@ -248,22 +243,17 @@ bool PanelAdaptorDui::edit_mode_context_menu_test( const POINT&, bool )
 ui_element_config::ptr PanelAdaptorDui::get_configuration()
 {
     ui_element_config_builder builder;
-    if ( wndContainer_ )
-    {
-        wndContainer_->SaveSettings( builder.m_stream, fb2k::noAbort );
-    }
+    wndContainer_->SaveSettings( builder.m_stream, fb2k::noAbort );
     return builder.finish( g_get_guid() );
 }
 
 void PanelAdaptorDui::edit_mode_context_menu_build( const POINT& p_point, bool, HMENU p_menu, unsigned p_id_base )
 {
-    assert( wndContainer_ );
     wndContainer_->GenerateContextMenu( p_menu, p_point.x, p_point.y, p_id_base );
 }
 
 void PanelAdaptorDui::edit_mode_context_menu_command( const POINT&, bool, unsigned p_id, unsigned p_id_base )
 {
-    assert( wndContainer_ );
     wndContainer_->ExecuteContextMenu( p_id, p_id_base );
 }
 
@@ -275,12 +265,10 @@ void PanelAdaptorDui::notify( const GUID& p_what, t_size, const void*, t_size )
     }
     else if ( p_what == ui_element_notify_font_changed )
     {
-        assert( wndContainer_ );
         EventDispatcher::Get().PutEvent( wndContainer_->GetHWND(), GenerateEvent_JsCallback( EventId::kUiFontChanged ) );
     }
     else if ( p_what == ui_element_notify_colors_changed )
     {
-        assert( wndContainer_ );
         EventDispatcher::Get().PutEvent( wndContainer_->GetHWND(), GenerateEvent_JsCallback( EventId::kUiColoursChanged ) );
     }
 }
@@ -289,18 +277,12 @@ void PanelAdaptorDui::set_configuration( ui_element_config::ptr data )
 {
     ui_element_config_parser parser( data );
 
-    cachedPanelSettings_ = PanelWindow::LoadSettings( parser.m_stream, parser.get_remaining(), fb2k::noAbort );
-    if ( wndContainer_ )
-    {
-        // FIX: If window already created, DUI won't destroy it and create it again.
-        wndContainer_->InitSettings( cachedPanelSettings_, !!wndContainer_->GetHWND() );
-    }
+    // FIX: If window already created, DUI won't destroy it and create it again.
+    wndContainer_->LoadSettings( parser.m_stream, parser.get_remaining(), fb2k::noAbort, !!wndContainer_->GetHWND() );
 }
 
 void PanelAdaptorDui::initialize_window( HWND parent )
 {
-    wndContainer_ = std::make_unique<PanelWindow>( *this );
-    wndContainer_->InitSettings( cachedPanelSettings_, false );
     wndContainer_->create( parent );
 }
 
