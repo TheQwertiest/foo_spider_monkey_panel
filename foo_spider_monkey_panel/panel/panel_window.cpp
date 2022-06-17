@@ -673,9 +673,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     {
         if ( settings_.isPseudoTransparent )
         {
-            auto pEvent = std::make_unique<Event_Basic>( EventId::kWndRepaintBackground );
-            pEvent->SetTarget( pTarget_ );
-            ProcessEventManually( *pEvent );
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
         }
         return 1;
     }
@@ -1375,7 +1373,7 @@ void PanelWindow::RepaintBackground( const CRect& updateRc )
 
     // Force Repaint
     wnd_.SetWindowRgn( rgn_child, FALSE );
-    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_UPDATENOW );
+    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
 
     {
         // Background bitmap
