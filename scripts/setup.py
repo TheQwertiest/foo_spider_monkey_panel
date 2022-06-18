@@ -9,9 +9,10 @@ from pathlib import Path
 from typing import Union
 
 import call_wrapper
-import download_submodules
 import configure_scintilla
+import download_submodules
 import patch_submodules
+import prepare_submodule_projects
 import unpack_mozjs
 
 PathLike = Union[str, Path]
@@ -57,6 +58,7 @@ def setup( skip_mozjs,
                 root_dir=root_dir
             )
             call_decorator("Patching submodules")(patch_submodules.patch)()
+        call_decorator("Preparing submodule projects")(prepare_submodule_projects.prepare)()
 
     call_decorator('Version header generation')(
         load_module(scripts_path/'generate_version_header.py').generate_header_custom

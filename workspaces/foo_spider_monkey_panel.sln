@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29020.237
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32602.215
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pfc", "..\submodules\pfc\pfc.vcxproj", "{EBFFFB4E-261D-44D3-B89C-957B31A0BF9C}"
 EndProject
@@ -48,6 +48,14 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\foo_spider_monkey_panel\.clang-format = ..\foo_spider_monkey_panel\.clang-format
 		..\foo_spider_monkey_panel\.clang-tidy = ..\foo_spider_monkey_panel\.clang-tidy
 	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "mozjs", "mozjs", "{EEFC09BE-6049-4311-83EF-62ECB9D2BE1F}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mozjs_debug", "..\mozjs\Debug\mozjs_debug.vcxitems", "{D8B31234-916F-43CD-A29A-1B121BB1D980}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mozjs_release", "..\mozjs\Release\mozjs_release.vcxitems", "{F0DFCA92-260F-4729-92DD-77FCD6C12938}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wtl", "..\submodules\wtl\wtl.vcxitems", "{633A5B67-2FBD-4491-8B51-5F2C72784EAC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -127,9 +135,13 @@ Global
 		{7CA4BBC9-83CA-42BE-84BB-8A98368FABAB} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
 		{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
 		{1B0654F2-3FEC-43B8-8C0A-6206C64BD6B2} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{EEFC09BE-6049-4311-83EF-62ECB9D2BE1F} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{D8B31234-916F-43CD-A29A-1B121BB1D980} = {EEFC09BE-6049-4311-83EF-62ECB9D2BE1F}
+		{F0DFCA92-260F-4729-92DD-77FCD6C12938} = {EEFC09BE-6049-4311-83EF-62ECB9D2BE1F}
+		{633A5B67-2FBD-4491-8B51-5F2C72784EAC} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionNewStyle = 1
 		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
+		SolutionNewStyle = 1
 	EndGlobalSection
 EndGlobal
