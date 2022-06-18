@@ -12,6 +12,8 @@ enum class JsPrototypeId : uint32_t
     ContextMenuManager,
     DropSourceAction,
     Enumerator,
+    Event,
+    EventTarget,
     FbFileInfo,
     FbMetadbHandle,
     FbMetadbHandleList,

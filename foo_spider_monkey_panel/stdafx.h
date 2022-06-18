@@ -10,11 +10,6 @@
 // Fix std min max conflicts
 #define NOMINMAX
 #include <algorithm>
-namespace Gdiplus
-{
-using std::min;
-using std::max;
-};
 
 #include <WinSock2.h>
 #include <Windows.h>

@@ -18,7 +18,7 @@
     <ProjectGuid>{43DF6037-DBE4-4468-9A50-4311495F3C86}</ProjectGuid>
     <RootNamespace>foo_spider_monkey_panel</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.19041.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -34,6 +34,7 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
+  <ImportGroup Label="Shared" />
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)\..\props\submodules\submodules.props" />
@@ -194,6 +195,7 @@
     <ClCompile Include="js_objects\context_menu_manager.cpp" />
     <ClCompile Include="js_objects\drop_source_action.cpp" />
     <ClCompile Include="js_objects\enumerator.cpp" />
+    <ClCompile Include="js_objects\js_event.cpp" />
     <ClCompile Include="js_objects\fb_file_info.cpp" />
     <ClCompile Include="js_objects\fb_metadb_handle.cpp" />
     <ClCompile Include="js_objects\fb_metadb_handle_list.cpp" />
@@ -217,6 +219,7 @@
     <ClCompile Include="js_objects\hacks.cpp" />
     <ClCompile Include="js_objects\internal\fb_properties.cpp" />
     <ClCompile Include="js_objects\internal\global_heap_manager.cpp" />
+    <ClCompile Include="js_objects\js_event_target.cpp" />
     <ClCompile Include="js_objects\main_menu_manager.cpp" />
     <ClCompile Include="js_objects\measure_string_info.cpp" />
     <ClCompile Include="js_objects\menu_object.cpp" />
@@ -344,6 +347,7 @@
     <ClInclude Include="js_objects\active_x_object.h" />
     <ClInclude Include="js_objects\active_x_object_iterator.h" />
     <ClInclude Include="js_objects\enumerator.h" />
+    <ClInclude Include="js_objects\js_event.h" />
     <ClInclude Include="js_objects\fb_metadb_handle_list_iterator.h" />
     <ClInclude Include="js_objects\fb_playlist_recycler.h" />
     <ClInclude Include="js_objects\fb_window.h" />
@@ -351,6 +355,7 @@
     <ClInclude Include="js_objects\internal\fb_properties.h" />
     <ClInclude Include="js_objects\internal\global_heap_manager.h" />
     <ClInclude Include="js_objects\internal\prototype_ids.h" />
+    <ClInclude Include="js_objects\js_event_target.h" />
     <ClInclude Include="js_objects\object_base.h" />
     <ClInclude Include="js_objects\console.h" />
     <ClInclude Include="js_objects\context_menu_manager.h" />
@@ -383,6 +388,7 @@
     <ClInclude Include="js_utils\js_art_helpers.h" />
     <ClInclude Include="js_utils\js_async_task.h" />
     <ClInclude Include="js_utils\js_error_helper.h" />
+    <ClInclude Include="js_utils\js_fwd.h" />
     <ClInclude Include="js_utils\js_heap_helper.h" />
     <ClInclude Include="js_utils\js_hwnd_helpers.h" />
     <ClInclude Include="js_utils\js_image_helpers.h" />

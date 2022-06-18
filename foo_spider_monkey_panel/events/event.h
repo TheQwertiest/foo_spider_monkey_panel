@@ -228,6 +228,7 @@ public:
     void SetTarget( std::shared_ptr<PanelTarget> pTarget );
     [[nodiscard]] EventId GetId() const;
 
+    [[nodiscard]] virtual const qwr::u8string& GetType() const;
     [[nodiscard]] virtual Event_Mouse* AsMouseEvent();
     [[nodiscard]] virtual Event_Drag* AsDragEvent();
 

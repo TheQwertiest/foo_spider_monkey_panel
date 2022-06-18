@@ -5,7 +5,8 @@
 namespace
 {
 
-std::unordered_map<void*, std::unique_ptr<smp::com::StorageObject>> g_objectStorage;
+// using `map` instead of `set`, because making lookup transparent for smart-ptrs requires much more code
+std::unordered_map<smp::com::StorageObject*, std::unique_ptr<smp::com::StorageObject>> g_objectStorage;
 std::vector<std::unique_ptr<smp::com::StorageObject>> g_objectsToDelete;
 
 } // namespace

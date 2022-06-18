@@ -119,12 +119,14 @@ private:
     {
         qwr::u8string author;
         qwr::u8string version;
+
         struct Features
         {
             bool dragAndDrop = false;
             bool grabFocus = true;
         } features;
     };
+
     DefineScriptOptions ParseDefineScriptOptions( JS::HandleValue options );
 
 private:

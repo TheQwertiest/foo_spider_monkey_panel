@@ -21,6 +21,7 @@
 #include <js_objects/gdi_utils.h>
 #include <js_objects/hacks.h>
 #include <js_objects/internal/global_heap_manager.h>
+#include <js_objects/js_event.h>
 #include <js_objects/utils.h>
 #include <js_objects/window.h>
 #include <js_utils/current_script_path_hack.h>
@@ -179,15 +180,14 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( clearTimeout, JsGlobalObject::ClearTimeout )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setInterval, JsGlobalObject::SetInterval, JsGlobalObject::SetIntervalWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
 
-constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
-    {
-        JS_FN( "clearInterval", clearInterval, 1, kDefaultPropsFlags ),
-        JS_FN( "clearTimeout", clearTimeout, 1, kDefaultPropsFlags ),
-        JS_FN( "include", IncludeScript, 1, kDefaultPropsFlags ),
-        JS_FN( "setInterval", setInterval, 2, kDefaultPropsFlags ),
-        JS_FN( "setTimeout", setTimeout, 2, kDefaultPropsFlags ),
-        JS_FS_END,
-    } );
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>( {
+    JS_FN( "clearInterval", clearInterval, 1, kDefaultPropsFlags ),
+    JS_FN( "clearTimeout", clearTimeout, 1, kDefaultPropsFlags ),
+    JS_FN( "include", IncludeScript, 1, kDefaultPropsFlags ),
+    JS_FN( "setInterval", setInterval, 2, kDefaultPropsFlags ),
+    JS_FN( "setTimeout", setTimeout, 2, kDefaultPropsFlags ),
+    JS_FS_END,
+} );
 
 } // namespace
 
@@ -236,7 +236,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" );
         CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentContainer.GetParentPanel() );
         //#ifdef _DEBUG
-        //CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" );
+        // CreateAndInstallObject<JsHacks>( cx, jsObj, "hacks" );
         //#endif
 
         if ( !JS_DefineFunctions( cx, jsObj, jsFunctions.data() ) )
@@ -259,6 +259,10 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         CreateAndInstallPrototype<JsFbMetadbHandleList>( cx, JsPrototypeId::FbMetadbHandleList );
         CreateAndInstallPrototype<JsFbProfiler>( cx, JsPrototypeId::FbProfiler );
         CreateAndInstallPrototype<JsFbTitleFormat>( cx, JsPrototypeId::FbTitleFormat );
+#ifdef SMP_V2
+        CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::Event );
+        CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::EventTarget );
+#endif
 
         auto pJsWindow = GetNativeObjectProperty<JsWindow>( cx, jsObj, "window" );
         assert( pJsWindow );

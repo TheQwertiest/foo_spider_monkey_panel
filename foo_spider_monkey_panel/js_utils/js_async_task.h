@@ -1,7 +1,7 @@
 #pragma once
 
-#include <js_objects/internal/global_heap_manager.h>
 #include <js_objects/global_object.h>
+#include <js_objects/internal/global_heap_manager.h>
 
 #include <array>
 
@@ -15,16 +15,17 @@ public:
     JsAsyncTask() = default;
     ~JsAsyncTask() override = default;
 
-    virtual bool InvokeJs() = 0;
-    virtual bool IsCanceled() const = 0;
+    [[nodiscard]] virtual bool InvokeJs() = 0;
+    [[nodiscard]] virtual bool IsCanceled() const = 0;
 };
 
+// clang-format off
 template <typename... Args>
+requires( std::is_same_v<Args, JS::HandleValue> && ... )
 class JsAsyncTaskImpl
+    // clang-format on
     : public JsAsyncTask
 {
-    static_assert( ( std::is_same_v<Args, JS::HandleValue> && ... ) );
-
 public:
     /// throws JsException
     JsAsyncTaskImpl( JSContext* cx, Args... args )

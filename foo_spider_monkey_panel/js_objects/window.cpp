@@ -143,34 +143,33 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigure, JsWindow::ShowConfigure )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowConfigureV2, JsWindow::ShowConfigureV2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( ShowProperties, JsWindow::ShowProperties )
 
-constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
-    {
-        JS_FN( "ClearInterval", ClearInterval, 1, kDefaultPropsFlags ),
-        JS_FN( "ClearTimeout", ClearTimeout, 1, kDefaultPropsFlags ),
-        JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, kDefaultPropsFlags ),
-        JS_FN( "CreateThemeManager", CreateThemeManager, 1, kDefaultPropsFlags ),
-        JS_FN( "CreateTooltip", CreateTooltip, 0, kDefaultPropsFlags ),
-        JS_FN( "DefinePanel", DefinePanel, 1, kDefaultPropsFlags ),
-        JS_FN( "DefineScript", DefineScript, 1, kDefaultPropsFlags ),
-        JS_FN( "EditScript", EditScript, 0, kDefaultPropsFlags ),
-        JS_FN( "GetColourCUI", GetColourCUI, 1, kDefaultPropsFlags ),
-        JS_FN( "GetColourDUI", GetColourDUI, 1, kDefaultPropsFlags ),
-        JS_FN( "GetFontCUI", GetFontCUI, 1, kDefaultPropsFlags ),
-        JS_FN( "GetFontDUI", GetFontDUI, 1, kDefaultPropsFlags ),
-        JS_FN( "GetProperty", GetProperty, 1, kDefaultPropsFlags ),
-        JS_FN( "NotifyOthers", NotifyOthers, 2, kDefaultPropsFlags ),
-        JS_FN( "Reload", Reload, 0, kDefaultPropsFlags ),
-        JS_FN( "Repaint", Repaint, 0, kDefaultPropsFlags ),
-        JS_FN( "RepaintRect", RepaintRect, 4, kDefaultPropsFlags ),
-        JS_FN( "SetCursor", SetCursor, 1, kDefaultPropsFlags ),
-        JS_FN( "SetInterval", SetInterval, 2, kDefaultPropsFlags ),
-        JS_FN( "SetProperty", SetProperty, 1, kDefaultPropsFlags ),
-        JS_FN( "SetTimeout", SetTimeout, 2, kDefaultPropsFlags ),
-        JS_FN( "ShowConfigure", ShowConfigure, 0, kDefaultPropsFlags ),
-        JS_FN( "ShowConfigureV2", ShowConfigureV2, 0, kDefaultPropsFlags ),
-        JS_FN( "ShowProperties", ShowProperties, 0, kDefaultPropsFlags ),
-        JS_FS_END,
-    } );
+constexpr auto jsFunctions = std::to_array<JSFunctionSpec>( {
+    JS_FN( "ClearInterval", ClearInterval, 1, kDefaultPropsFlags ),
+    JS_FN( "ClearTimeout", ClearTimeout, 1, kDefaultPropsFlags ),
+    JS_FN( "CreatePopupMenu", CreatePopupMenu, 0, kDefaultPropsFlags ),
+    JS_FN( "CreateThemeManager", CreateThemeManager, 1, kDefaultPropsFlags ),
+    JS_FN( "CreateTooltip", CreateTooltip, 0, kDefaultPropsFlags ),
+    JS_FN( "DefinePanel", DefinePanel, 1, kDefaultPropsFlags ),
+    JS_FN( "DefineScript", DefineScript, 1, kDefaultPropsFlags ),
+    JS_FN( "EditScript", EditScript, 0, kDefaultPropsFlags ),
+    JS_FN( "GetColourCUI", GetColourCUI, 1, kDefaultPropsFlags ),
+    JS_FN( "GetColourDUI", GetColourDUI, 1, kDefaultPropsFlags ),
+    JS_FN( "GetFontCUI", GetFontCUI, 1, kDefaultPropsFlags ),
+    JS_FN( "GetFontDUI", GetFontDUI, 1, kDefaultPropsFlags ),
+    JS_FN( "GetProperty", GetProperty, 1, kDefaultPropsFlags ),
+    JS_FN( "NotifyOthers", NotifyOthers, 2, kDefaultPropsFlags ),
+    JS_FN( "Reload", Reload, 0, kDefaultPropsFlags ),
+    JS_FN( "Repaint", Repaint, 0, kDefaultPropsFlags ),
+    JS_FN( "RepaintRect", RepaintRect, 4, kDefaultPropsFlags ),
+    JS_FN( "SetCursor", SetCursor, 1, kDefaultPropsFlags ),
+    JS_FN( "SetInterval", SetInterval, 2, kDefaultPropsFlags ),
+    JS_FN( "SetProperty", SetProperty, 1, kDefaultPropsFlags ),
+    JS_FN( "SetTimeout", SetTimeout, 2, kDefaultPropsFlags ),
+    JS_FN( "ShowConfigure", ShowConfigure, 0, kDefaultPropsFlags ),
+    JS_FN( "ShowConfigureV2", ShowConfigureV2, 0, kDefaultPropsFlags ),
+    JS_FN( "ShowProperties", ShowProperties, 0, kDefaultPropsFlags ),
+    JS_FS_END,
+} );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_DlgCode, JsWindow::get_DlgCode )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, JsWindow::get_Height )
