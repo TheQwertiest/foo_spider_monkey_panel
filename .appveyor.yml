@@ -82,12 +82,12 @@ configuration:
 
 # Build settings, not to be confused with "before_build" and "after_build".
 # "project" is relative to the original build directory and not influenced by directory changes in "before_build".
-build:
-  parallel: true                  # enable MSBuild parallel builds
-  project: workspaces\foo_spider_monkey_panel.sln      # path to Visual Studio solution or project
-
-  # MSBuild verbosity level
-  verbosity: normal
+# build:
+#   parallel: true                  # enable MSBuild parallel builds
+#   project: workspaces\foo_spider_monkey_panel.sln      # path to Visual Studio solution or project
+# 
+#   # MSBuild verbosity level
+#   verbosity: normal
 
 # scripts to run before build
 before_build:
@@ -95,6 +95,7 @@ before_build:
 
 # to run your custom scripts instead of automatic MSBuild
 build_script:
+  - msbuild "C:\projects\foo-spider-monkey-panel\workspaces\foo_spider_monkey_panel.sln" /m /verbosity:normal /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
 
 # scripts to run after build (working directory and environment changes are persisted from the previous steps)
 after_build:
