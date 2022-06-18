@@ -1,0 +1,26 @@
+diff --git a/node_modules/tui-jsdoc-template/static/styles/tui-doc.css b/node_modules/tui-jsdoc-template/static/styles/tui-doc.css
+index aec9ed9..5171a0c 100644
+--- a/node_modules/tui-jsdoc-template/static/styles/tui-doc.css
++++ b/node_modules/tui-jsdoc-template/static/styles/tui-doc.css
+@@ -221,9 +221,9 @@ ul, ol, li {list-style:none; padding-left:0; margin-left:0;}
+ .main section article table td.type,
+ .main section article table td.attributes,
+ .main section article table td.default {
+-    max-width: 100px;
++    max-width: 150px;
+     min-width: 80px;
+-    word-break: break-all;
++    word-break: break-word;
+ }
+ .main section article table td.type,
+ .main section article table td.attributes {
+@@ -483,3 +483,8 @@ span.arrow {
+     font-size: 8pt;
+     padding-right: 5px;
+ }
++span.signature-attributes {
++    vertical-align: super;
++    font-weight: normal;
++}
++ 
+\ No newline at end of file

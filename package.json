@@ -1,6 +1,10 @@
 {
   "devDependencies": {
     "jsdoc": "latest",
-    "tui-jsdoc-template": "latest"
+    "patch-package": "latest",
+    "tui-jsdoc-template": "^1.2.2"
+  },
+  "scripts": {
+    "postinstall": "patch-package --patch-dir scripts/node_patches"
   }
 }
