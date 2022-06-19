@@ -227,12 +227,15 @@ const JSClass JsWindow::JsClass = jsClass;
 const JSFunctionSpec* JsWindow::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsWindow::JsProperties = jsProperties.data();
 
+const JsPrototypeId JsWindow::ParentPrototypeId = JsPrototypeId::EventTarget;
+
 JsWindow::~JsWindow()
 {
 }
 
 JsWindow::JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties )
-    : pJsCtx_( cx )
+    : JsEventTargetWrapper( cx )
+    , pJsCtx_( cx )
     , parentPanel_( parentPanel )
     , fbProperties_( std::move( fbProperties ) )
 {

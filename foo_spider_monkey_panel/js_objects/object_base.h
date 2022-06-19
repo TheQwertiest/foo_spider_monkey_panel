@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_engine/js_realm_inner.h>
+#include <js_objects/object_traits.h>
 #include <js_utils/js_prototype_helpers.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
@@ -28,26 +29,26 @@ namespace mozjs
     // Indicates that object is created from JS prototype.
     // If true, object must also define `HasGlobalProto` and `PrototypeId`.
     static constexpr bool HasProto;
-
-    // Indicates that object is wrapped in proxy.
-    // If true, object must also define `JsProxy`.
-    static constexpr bool HasProxy;
-
-    // Indicates that object needs to perform actions on create JS object to finalize it's construction.
-    // If true, object must also define `PostCreate`.
-    static constexpr bool HasPostCreate;
 */
 
 /*
     Traits that object might need to define (see above):
 
     // Indicates that object has a global JS constructor.
-    // If true, object must also define `JsConstructor` and `HasStaticFunctions`.
+    // If true, object must also define `JsConstructor`.
     static constexpr bool HasGlobalProto;
+*/
 
-    // Indicates that object contains static methods.
-    // If true, object must also define `JsStaticFunctions`.
-    static constexpr bool HasStaticFunctions;
+/*
+    Optional traits:
+
+    // Indicates that object needs to perform actions on create JS object to finalize it's construction.
+    // If true, object must also define `PostCreate`.
+    static constexpr bool HasPostCreate;
+
+    // Indicates that object is wrapped in proxy.
+    // If true, object must also define `JsProxy`.
+    static constexpr bool HasProxy;
 */
 
 /*
@@ -56,9 +57,17 @@ namespace mozjs
     // Object's JS class
     // Note: it MUST contain `FinalizeJsObject` from this class!
     const JSClass JsClass;
+*/
+
+/*
+    Optional properties:
 
     // List of object's JS methods.
     const JSFunctionSpec* JsFunctions;
+
+    // List of object's static JS methods.
+    // Requires HasGlobalProto to be true
+    const JSFunctionSpec* JsStaticFunctions;
 
     // List of object's JS properties
     const JSPropertySpec* JsProperties;
@@ -75,9 +84,6 @@ namespace mozjs
 
     // Reference to the object's JS proxy
     const js::BaseProxyHandler& JsProxy;
-
-    // List of object's static JS methods.
-    const JSFunctionSpec* JsStaticFunctions;
 */
 
 /*
@@ -123,10 +129,20 @@ public:
             throw smp::JsException();
         }
 
-        if ( !JS_DefineFunctions( cx, jsObject, T::JsFunctions )
-             || !JS_DefineProperties( cx, jsObject, T::JsProperties ) )
+        if constexpr ( traits::HasJsFunctions<T> )
         {
-            throw smp::JsException();
+            if ( !JS_DefineFunctions( cx, jsObject, T::JsFunctions ) )
+            {
+                throw smp::JsException();
+            }
+        }
+
+        if constexpr ( traits::HasJsProperties<T> )
+        {
+            if ( !JS_DefineProperties( cx, jsObject, T::JsProperties ) )
+            {
+                throw smp::JsException();
+            }
         }
 
         return jsObject;
@@ -135,7 +151,7 @@ public:
     [[nodiscard]] static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
     {
         const JSFunctionSpec* staticFns = [] {
-            if constexpr ( T::HasStaticFunctions )
+            if constexpr ( traits::HasJsStaticFunctions<T> )
             {
                 return T::JsStaticFunctions;
             }
@@ -274,12 +290,12 @@ private:
 
         JS_SetPrivate( jsBaseObject, premadeNative.release() );
 
-        if constexpr ( T::HasPostCreate )
+        if constexpr ( traits::HasPostCreate<T> )
         {
             T::PostCreate( cx, jsBaseObject );
         }
 
-        if constexpr ( T::HasProxy )
+        if constexpr ( traits::HasProxy<T> )
         {
             JS::RootedValue jsBaseValue( cx, JS::ObjectValue( *jsBaseObject ) );
             JS::RootedObject jsProxyObject( cx, js::NewProxyObject( cx, &T::JsProxy, jsBaseValue, jsProto ) );

@@ -2518,7 +2518,7 @@ function FbMetadbHandleList(arg) {
      * @readonly
      *
      * @example
-     * plman.GetPlaylistItems(plman.ActivePlaylist);
+    *  let handle_list = plman.GetPlaylistItems(plman.ActivePlaylist);
      * console.log(handle_list.Count);
      */
     this.Count = undefined; // (uint) (read)

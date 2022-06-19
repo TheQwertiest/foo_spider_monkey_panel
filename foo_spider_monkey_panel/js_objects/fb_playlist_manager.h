@@ -22,8 +22,6 @@ class JsFbPlaylistManager
 {
 public:
     static constexpr bool HasProto = false;
-    static constexpr bool HasProxy = false;
-    static constexpr bool HasPostCreate = false;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;

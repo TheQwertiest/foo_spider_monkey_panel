@@ -1,5 +1,6 @@
 #pragma once
 
+#include <js_objects/js_event_target_wrapper.h>
 #include <js_objects/object_base.h>
 
 #include <optional>
@@ -21,15 +22,15 @@ class JsFbTooltip;
 
 class JsWindow
     : public JsObjectBase<JsWindow>
+    , public JsEventTargetWrapper
 {
 public:
     static constexpr bool HasProto = false;
-    static constexpr bool HasProxy = false;
-    static constexpr bool HasPostCreate = false;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId ParentPrototypeId;
 
 public:
     // @remark No need to cleanup JS here, since it must be performed manually beforehand anyway

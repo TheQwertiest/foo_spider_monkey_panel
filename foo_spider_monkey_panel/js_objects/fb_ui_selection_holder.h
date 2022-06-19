@@ -19,8 +19,6 @@ class JsFbUiSelectionHolder
 public:
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = false;
-    static constexpr bool HasProxy = false;
-    static constexpr bool HasPostCreate = false;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
@@ -36,7 +34,7 @@ public:
 public:
     void SetPlaylistSelectionTracking();
     void SetPlaylistTracking();
-    void SetSelection( JsFbMetadbHandleList* handles, uint8_t type = 0);
+    void SetSelection( JsFbMetadbHandleList* handles, uint8_t type = 0 );
     void SetSelectionWithOpt( size_t optArgCount, JsFbMetadbHandleList* handles, uint8_t type );
 
 private:

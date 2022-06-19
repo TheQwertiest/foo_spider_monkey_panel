@@ -22,7 +22,6 @@ class JsActiveXObject
 public:
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
-    static constexpr bool HasStaticFunctions = true;
     static constexpr bool HasProxy = true;
     static constexpr bool HasPostCreate = true;
 

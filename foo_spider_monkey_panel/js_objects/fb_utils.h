@@ -21,8 +21,6 @@ class JsFbUtils
 {
 public:
     static constexpr bool HasProto = false;
-    static constexpr bool HasProxy = false;
-    static constexpr bool HasPostCreate = false;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
@@ -130,6 +128,7 @@ private:
         bool showText = true;
         Gdiplus::Bitmap* pCustomImage = nullptr;
     };
+
     DoDragDropOptions ParseDoDragDropOptions( JS::HandleValue options );
 
 private:

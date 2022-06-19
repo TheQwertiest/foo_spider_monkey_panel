@@ -19,8 +19,6 @@ class JsGlobalObject
 {
 public:
     static constexpr bool HasProto = false;
-    static constexpr bool HasProxy = false;
-    static constexpr bool HasPostCreate = false;
 
     static const JSClass& JsClass;
 
@@ -58,6 +56,7 @@ private:
     {
         bool alwaysEvaluate = false;
     };
+
     IncludeOptions ParseIncludeOptions( JS::HandleValue options );
 
     template <typename T>

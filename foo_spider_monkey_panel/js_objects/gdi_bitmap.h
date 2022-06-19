@@ -25,9 +25,6 @@ class JsGdiBitmap
 public:
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
-    static constexpr bool HasStaticFunctions = false;
-    static constexpr bool HasProxy = false;
-    static constexpr bool HasPostCreate = false;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
@@ -47,7 +44,7 @@ public:
 public: // ctor
     static JSObject* Constructor( JSContext* cx, JsGdiBitmap* other );
 
-public: //methods
+public: // methods
     JSObject* ApplyAlpha( uint8_t alpha );
     void ApplyMask( JsGdiBitmap* mask );
     JSObject* Clone( float x, float y, float w, float h );

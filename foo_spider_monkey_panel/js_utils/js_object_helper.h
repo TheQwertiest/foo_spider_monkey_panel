@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_objects/object_traits.h>
+
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js\Proxy.h>
 #include <js\Wrapper.h>
@@ -42,7 +44,7 @@ T* GetInnerInstancePrivate( JSContext* cx, JS::HandleObject jsObject )
         jsUnwrappedObject = js::UncheckedUnwrap( jsObject );
     }
 
-    if constexpr ( T::HasProxy )
+    if constexpr ( traits::HasProxy<T> )
     {
         if ( js::IsProxy( jsUnwrappedObject ) && js::GetProxyHandler( jsUnwrappedObject )->family() == GetSmpProxyFamily() )
         {
