@@ -8,8 +8,6 @@
 #include <utils/image_helpers.h>
 #include <utils/thread_pool_instance.h>
 
-#include <Shlwapi.h>
-
 #include <qwr/abort_callback.h>
 #include <qwr/string_helpers.h>
 

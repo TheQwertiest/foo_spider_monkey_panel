@@ -127,25 +127,27 @@ void EditTextExternal( HWND hParent, qwr::u8string& text, const std::filesystem:
     }();
     const qwr::final_action autoRemove( [&fsTmpFilePath] {
         try
-            {
+        {
             fs::remove( fsTmpFilePath );
-            }
-            catch ( const fs::filesystem_error& )
-            {
-            } } );
+        }
+        catch ( const fs::filesystem_error& )
+        {
+        }
+    } );
 
     // use .tmp.js for proper file association
     const auto fsJsTmpFilePath = fs::path( fsTmpFilePath ).concat( L".js" );
 
     qwr::file::WriteFile( fsJsTmpFilePath, text );
-    const qwr::final_action autoRemove2( [&fsJsTmpFilePath] { 
+    const qwr::final_action autoRemove2( [&fsJsTmpFilePath] {
         try
-            {
+        {
             fs::remove( fsJsTmpFilePath );
-            }
-            catch ( const fs::filesystem_error& )
-            {
-            } } );
+        }
+        catch ( const fs::filesystem_error& )
+        {
+        }
+    } );
 
     if ( !EditTextFileExternal( hParent, fsJsTmpFilePath, pathToEditor, true, isPanelScript ) )
     {

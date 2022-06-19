@@ -52,6 +52,7 @@ public:
 #pragma warning( pop )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
         COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
+        COMMAND_RANGE_CODE_HANDLER_EX( ID_EDIT_WITH_EXTERNAL_IDX_START, ID_EDIT_WITH_EXTERNAL_IDX_START + 100, BN_CLICKED, OnEditScriptWith )
         CHAIN_MSG_MAP( CDialogResize<CConfigTabScriptSource> )
     END_MSG_MAP()
 
@@ -62,6 +63,7 @@ public:
             , displayedName( std::move( displayedName ) )
         {
         }
+
         std::wstring path;
         std::wstring displayedName;
     };

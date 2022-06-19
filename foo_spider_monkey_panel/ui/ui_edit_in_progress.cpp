@@ -84,6 +84,11 @@ LRESULT CEditInProgress::OnInitDialog( HWND, LPARAM )
 
 LRESULT CEditInProgress::OnEditorFocusCmd( WORD, WORD, HWND )
 {
+    if ( !::IsWindow( hEditorWnd_ ) )
+    {
+        return 0;
+    }
+
     // We can just call ShowWindow & SetForegroundWindow to bring hwnd to front.
     // But that would also take maximized window out of maximized state.
     // Using GetWindowPlacement preserves maximized state
@@ -154,8 +159,10 @@ LRESULT CEditInProgress::OnCloseCmd( WORD, WORD wID, HWND )
     }
     else
     { // requested by user
-        assert( hEditorWnd_ );
-        ::SendMessage( hEditorWnd_, WM_CLOSE, 0, 0 );
+        if ( ::IsWindow( hEditorWnd_ ) )
+        {
+            ::SendMessage( hEditorWnd_, WM_CLOSE, 0, 0 );
+        }
     }
 
     return 0;
@@ -185,6 +192,12 @@ void CEditInProgress::EditorHandler()
             std::scoped_lock sl{ mutex_ };
             hEditorProcess_ = ShExecInfo.hProcess;
             hEditorWnd_ = GetMainWndFromProcId( GetProcessId( ShExecInfo.hProcess ) );
+            if ( !hEditorWnd_ )
+            {
+                // some apps don't have easily accessible window handle
+                CWindow{ GetDlgItem( IDC_EDIT_IN_PROGRESS_FOCUS ) }.EnableWindow( false );
+                CWindow{ GetDlgItem( IDCANCEL ) }.EnableWindow( false );
+            }
             hasEditorLaunched_ = true;
         }
 

@@ -430,6 +430,9 @@
     <ClCompile Include="js_objects\js_event_target.cpp">
       <Filter>js_objects</Filter>
     </ClCompile>
+    <ClCompile Include="utils\app_info.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -930,6 +933,9 @@
     </ClInclude>
     <ClInclude Include="js_utils\js_fwd.h">
       <Filter>js_utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\app_info.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

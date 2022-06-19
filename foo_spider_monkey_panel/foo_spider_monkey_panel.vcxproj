@@ -270,6 +270,7 @@
     <ClCompile Include="ui\ui_package_manager.cpp" />
     <ClCompile Include="ui\ui_editor_config.cpp" />
     <ClCompile Include="ui\ui_slow_script.cpp" />
+    <ClCompile Include="utils\app_info.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\art_loading_options.cpp" />
     <ClCompile Include="utils\edit_text.cpp" />
@@ -437,6 +438,7 @@
     <ClInclude Include="ui\ui_package_manager.h" />
     <ClInclude Include="ui\ui_editor_config.h" />
     <ClInclude Include="ui\ui_slow_script.h" />
+    <ClInclude Include="utils\app_info.h" />
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\art_loading_options.h" />
     <ClInclude Include="utils\colour_helpers.h" />

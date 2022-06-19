@@ -1,7 +1,5 @@
 #pragma once
 
-#include <shlwapi.h>
-
 #include <cassert>
 #include <map>
 #include <memory>

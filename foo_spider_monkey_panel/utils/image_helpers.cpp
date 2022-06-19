@@ -8,7 +8,6 @@
 #include <utils/guid_helpers.h>
 #include <utils/thread_pool_instance.h>
 
-#include <Shlwapi.h>
 #include <wincodec.h>
 
 #include <qwr/final_action.h>
