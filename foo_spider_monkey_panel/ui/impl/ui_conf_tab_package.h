@@ -5,6 +5,7 @@
 #include <panel/user_message.h>
 #include <resources/resource.h>
 #include <ui/impl/ui_itab.h>
+#include <ui/impl/ui_menu_edit_with.h>
 
 #include <qwr/ui_ddx.h>
 
@@ -63,15 +64,14 @@ public:
         COMMAND_HANDLER_EX( IDC_BUTTON_RENAME_FILE, BN_CLICKED, OnRenameFile )
         COMMAND_HANDLER_EX( IDC_BUTTON_OPEN_FOLDER, BN_CLICKED, OnOpenContainingFolder )
         COMMAND_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BN_CLICKED, OnEditScript )
-        COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
-        COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
-        COMMAND_RANGE_CODE_HANDLER_EX( ID_EDIT_WITH_EXTERNAL_IDX_START, ID_EDIT_WITH_EXTERNAL_IDX_START + 100, BN_CLICKED, OnEditScriptWith )
 #pragma warning( push )
 #pragma warning( disable : 26454 ) // Arithmetic overflow
         NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
 #pragma warning( pop )
+        COMMAND_HANDLER_EX( ID_EDIT_WITH_MENU, BN_CLICKED, OnEditScriptMenuClick )
         MESSAGE_HANDLER_EX( com::FileDropTarget::GetOnDropMsg(), OnDropFiles )
         CHAIN_MSG_MAP( CDialogResize<CConfigTabPackage> )
+        CHAIN_MSG_MAP( CMenuEditWith )
     END_MSG_MAP()
 
 public:
@@ -100,8 +100,8 @@ private:
     void OnOpenContainingFolder( UINT uNotifyCode, int nID, CWindow wndCtl );
 
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
-    void OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl );
     LONG OnEditScriptDropDown( LPNMHDR pnmh );
+    void OnEditScriptMenuClick( UINT uNotifyCode, int nID, CWindow wndCtl );
 
     LRESULT OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lParam );
     LRESULT OnDropFiles( UINT uMsg, WPARAM wParam, LPARAM lParam );

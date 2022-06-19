@@ -4,6 +4,7 @@
 #include <panel/user_message.h>
 #include <resources/resource.h>
 #include <ui/impl/ui_itab.h>
+#include <ui/impl/ui_menu_edit_with.h>
 
 #include <qwr/ui_ddx.h>
 
@@ -50,10 +51,9 @@ public:
 #pragma warning( disable : 26454 ) // Arithmetic overflow
         NOTIFY_HANDLER_EX( IDC_BUTTON_EDIT_SCRIPT, BCN_DROPDOWN, OnEditScriptDropDown )
 #pragma warning( pop )
-        COMMAND_HANDLER_EX( ID_EDIT_WITH_EXTERNAL, BN_CLICKED, OnEditScriptWith )
-        COMMAND_HANDLER_EX( ID_EDIT_WITH_INTERNAL, BN_CLICKED, OnEditScriptWith )
-        COMMAND_RANGE_CODE_HANDLER_EX( ID_EDIT_WITH_EXTERNAL_IDX_START, ID_EDIT_WITH_EXTERNAL_IDX_START + 100, BN_CLICKED, OnEditScriptWith )
+        COMMAND_HANDLER_EX( ID_EDIT_WITH_MENU, BN_CLICKED, OnEditScriptDropDownClick )
         CHAIN_MSG_MAP( CDialogResize<CConfigTabScriptSource> )
+        CHAIN_MSG_MAP( CMenuEditWith )
     END_MSG_MAP()
 
     struct SampleComboBoxElem
@@ -94,7 +94,7 @@ private:
 
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     LONG OnEditScriptDropDown( LPNMHDR pnmh ) const;
-    void OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl );
+    void OnEditScriptDropDownClick( UINT uNotifyCode, int nID, CWindow wndCtl );
 
     LRESULT OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lParam );
 

@@ -433,6 +433,9 @@
     <ClCompile Include="utils\app_info.cpp">
       <Filter>utils</Filter>
     </ClCompile>
+    <ClCompile Include="ui\impl\ui_menu_edit_with.cpp">
+      <Filter>ui\impl</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="js_engine\js_engine.h">
@@ -936,6 +939,9 @@
     </ClInclude>
     <ClInclude Include="utils\app_info.h">
       <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="ui\impl\ui_menu_edit_with.h">
+      <Filter>ui\impl</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

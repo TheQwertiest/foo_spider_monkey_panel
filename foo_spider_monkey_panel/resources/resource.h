@@ -106,6 +106,7 @@
 #define ID_EDIT_WITH_INTERNAL              40028
 #define ID_EDIT_WITH_EXTERNAL              40029
 #define ID_OPTIONS_PROPERTIES              40030
+#define ID_EDIT_WITH_MENU                  40031
 #define ID_EDIT_WITH_EXTERNAL_IDX_START    50000
 
 // Next default values for new objects

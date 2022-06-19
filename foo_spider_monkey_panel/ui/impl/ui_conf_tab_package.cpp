@@ -4,12 +4,10 @@
 
 #include <config/package_utils.h>
 #include <fb2k/config.h>
+#include <ui/impl/ui_menu_edit_with.h>
 #include <ui/ui_conf.h>
 #include <ui/ui_input_box.h>
-#include <utils/app_info.h>
 #include <utils/edit_text.h>
-#include <utils/gdi_helpers.h>
-#include <utils/logging.h>
 #include <utils/path_helpers.h>
 
 #include <qwr/error_popup.h>
@@ -19,13 +17,6 @@
 #include <qwr/winapi_error_helpers.h>
 
 namespace fs = std::filesystem;
-
-namespace
-{
-
-std::vector<smp::AppInfo> g_CachedEditors;
-
-}
 
 namespace
 {
@@ -369,68 +360,8 @@ void CConfigTabPackage::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl 
     }
 }
 
-void CConfigTabPackage::OnEditScriptWith( UINT uNotifyCode, int nID, CWindow wndCtl )
-{ // TODO: extract common code (see tab_script)
-    namespace fs = std::filesystem;
-
-    switch ( nID )
-    {
-    case ID_EDIT_WITH_EXTERNAL:
-    {
-        try
-        {
-            qwr::file::FileDialogOptions fdOpts{};
-            fdOpts.filterSpec.assign( { { L"Executable files", L"*.exe" } } );
-            fdOpts.defaultExtension = L"exe";
-
-            const auto editorPathOpt = qwr::file::FileDialog( L"Choose text editor", false, fdOpts );
-            if ( editorPathOpt )
-            {
-                const fs::path editorPath = *editorPathOpt;
-                qwr::QwrException::ExpectTrue( fs::exists( editorPath ), "Invalid path" );
-
-                smp::config::default_editor = editorPath.u8string();
-            }
-        }
-        catch ( const fs::filesystem_error& e )
-        {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
-        }
-        catch ( const qwr::QwrException& e )
-        {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
-        }
-        break;
-    }
-    case ID_EDIT_WITH_INTERNAL:
-    {
-        smp::config::default_editor = "";
-        break;
-    }
-    default:
-    {
-        if ( nID < ID_EDIT_WITH_EXTERNAL_IDX_START )
-        {
-            assert( false );
-            break;
-        }
-
-        const size_t idx = nID - ID_EDIT_WITH_EXTERNAL_IDX_START;
-        assert( idx < g_CachedEditors.size() );
-
-        const auto& editor = g_CachedEditors[idx];
-        smp::config::default_editor = editor.appPath.u8string();
-
-        break;
-    }
-    }
-
-    OnEditScript( uNotifyCode, nID, wndCtl );
-}
-
 LONG CConfigTabPackage::OnEditScriptDropDown( LPNMHDR pnmh )
 {
-    // TODO: extract this to a common control?
     auto const dropDown = reinterpret_cast<NMBCDROPDOWN*>( pnmh );
 
     POINT pt{ dropDown->rcButton.left, dropDown->rcButton.bottom };
@@ -438,65 +369,21 @@ LONG CConfigTabPackage::OnEditScriptDropDown( LPNMHDR pnmh )
     CWindow button = dropDown->hdr.hwndFrom;
     button.ClientToScreen( &pt );
 
-    CMenu menu;
+    CMenuEditWith menu;
     if ( !menu.CreatePopupMenu() )
     {
         return 0;
     }
 
-    if ( g_CachedEditors.empty() )
-    {
-        try
-        {
-            g_CachedEditors = GetAppsAssociatedWithExtension( L".js" );
-        }
-        catch ( const qwr::QwrException& e )
-        {
-            smp::utils::LogError( e.what() );
-        }
-    }
-
-    std::vector<CBitmap> bmps( 1000, nullptr ); // preallocate to avoid dtors
-    if ( !g_CachedEditors.empty() )
-    {
-        CClientDC clientDc{ nullptr };
-        CDC memDc{ CreateCompatibleDC( clientDc ) };
-        auto idx = ID_EDIT_WITH_EXTERNAL_IDX_START;
-        for ( const auto& editor: g_CachedEditors )
-        {
-            menu.AppendMenu( MF_BYPOSITION, idx, editor.appName.c_str() );
-
-            // TODO: fix icon transparency
-            auto icon = GetAppIcon( editor.appPath );
-            if ( icon )
-            {
-                const auto iconW = GetSystemMetrics( SM_CXMENUCHECK );
-                const auto iconH = GetSystemMetrics( SM_CYMENUCHECK );
-
-                CBitmap memBmp{ CreateCompatibleBitmap( clientDc, iconW, iconH ) };
-                gdi::ObjectSelector autoBmp( memDc, memBmp.m_hBitmap );
-                CBrush brush{ CreateSolidBrush( GetSysColor( COLOR_MENU ) ) };
-
-                RECT rc{ 0, 0, iconW, iconH };
-                memDc.FillRect( &rc, brush );
-                memDc.DrawIconEx( rc.left, rc.top, icon, rc.right, rc.bottom, 0, nullptr, DI_NORMAL );
-
-                HBITMAP hBmp = memBmp.Detach();
-                bmps.emplace_back( hBmp );
-
-                menu.SetMenuItemBitmaps( idx, MF_BYCOMMAND, hBmp, hBmp );
-            }
-
-            ++idx;
-        }
-        menu.AppendMenu( MF_SEPARATOR );
-    }
-    menu.AppendMenu( MF_BYPOSITION, ID_EDIT_WITH_INTERNAL, L"Internal editor" );
-    menu.AppendMenu( MF_SEPARATOR );
-    menu.AppendMenu( MF_BYPOSITION, ID_EDIT_WITH_EXTERNAL, L"Edit with..." );
+    menu.InitMenu();
     menu.TrackPopupMenu( TPM_LEFTALIGN | TPM_TOPALIGN, pt.x, pt.y, m_hWnd, nullptr );
 
     return 0;
+}
+
+void CConfigTabPackage::OnEditScriptMenuClick( UINT uNotifyCode, int nID, CWindow wndCtl )
+{
+    OnEditScript( uNotifyCode, nID, wndCtl );
 }
 
 LRESULT CConfigTabPackage::OnScriptSaved( UINT uMsg, WPARAM wParam, LPARAM lParam )
