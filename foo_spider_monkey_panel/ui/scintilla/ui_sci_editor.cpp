@@ -12,6 +12,7 @@
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
 #include <qwr/string_helpers.h>
+#include <qwr/type_traits.h>
 
 #include <charconv>
 #include <optional>
@@ -215,10 +216,10 @@ ScintillaStyle ParseStyle( qwr::u8string_view p_definition )
 }
 
 template <typename T>
-qwr::u8string JoinWithSpace( const T& cont )
-{
-    static_assert( std::is_same_v<typename T::value_type, qwr::u8string> || std::is_same_v<typename T::value_type, qwr::u8string_view> || std::is_same_v<typename T::value_type, const char*> );
 
+requires qwr::is_any_same_v<typename T::value_type, qwr::u8string, qwr::u8string_view, const char*>
+    qwr::u8string JoinWithSpace( const T& cont )
+{
     qwr::u8string words_str;
     words_str.reserve( cont.size() * 6 );
     for ( const auto& word: cont )

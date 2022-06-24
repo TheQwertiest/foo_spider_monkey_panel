@@ -12,11 +12,11 @@ namespace smp
 {
 
 template <typename T>
+requires std::is_trivial_v<T>
+
 class RelativeFilepathTrie
 {
 private:
-    static_assert( std::is_trivial_v<T> );
-
     struct StrLogicalComparator
     {
         bool operator()( const std::wstring_view& a, const std::wstring_view& b ) const
