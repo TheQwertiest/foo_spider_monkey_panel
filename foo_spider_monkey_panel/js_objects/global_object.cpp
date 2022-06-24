@@ -111,12 +111,14 @@ auto FindSuitableFileForInclude( const fs::path& path, const std::span<const fs:
 
             if ( config::advanced::debug_log_extended_include_error )
             {
-                smp::utils::LogDebug( fmt::format( fmt::runtime(
-                                                       "`include()` failed:\n"
-                                                       "  file `{}` coud not be found using the following search paths:\n"
-                                                       "    {}\n" ),
-                                                   fmt::join( searchPaths | ranges::views::transform( []( const auto& path ) { return fmt::format( "    `{}`", path.u8string() ); } ),
-                                                              "\n  " ) ) );
+                smp::utils::LogDebug( fmt::format(
+                    "`include()` failed:\n"
+                    "  file `{}` could not be found using the following search paths:\n"
+                    "    {}\n",
+                    path.u8string(),
+                    fmt::join( searchPaths
+                                   | ranges::views::transform( []( const auto& path ) { return fmt::format( "    `{}`", path.u8string() ); } ),
+                               "\n  " ) ) );
             }
             ::ThrowInvalidPathError( path );
         }
