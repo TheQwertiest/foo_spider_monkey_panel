@@ -7,7 +7,7 @@ SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js\Wrapper.h>
 SMP_MJS_SUPPRESS_WARNINGS_POP
 
-struct JSFreeOp;
+class JSFreeOp;
 struct JSContext;
 class JSObject;
 

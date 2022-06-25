@@ -5,7 +5,7 @@
 
 #include <optional>
 
-struct JSFreeOp;
+class JSFreeOp;
 struct JSContext;
 class JSObject;
 

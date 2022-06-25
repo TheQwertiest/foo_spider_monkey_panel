@@ -2,6 +2,10 @@
 
 #include "window.h"
 
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Array.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
+
 #include <config/package_utils.h>
 #include <events/event_basic.h>
 #include <events/event_dispatcher.h>
@@ -52,14 +56,14 @@ bool TimeoutJsTask::InvokeJsImpl( JSContext* cx, JS::HandleObject jsGlobal, JS::
     assert( jsArrayObject );
 
     bool is;
-    if ( !JS_IsArrayObject( cx, jsArrayObject, &is ) )
+    if ( !JS::IsArrayObject( cx, jsArrayObject, &is ) )
     {
         throw smp::JsException();
     }
     assert( is );
 
     uint32_t arraySize;
-    if ( !JS_GetArrayLength( cx, jsArrayObject, &arraySize ) )
+    if ( !JS::GetArrayLength( cx, jsArrayObject, &arraySize ) )
     {
         throw smp::JsException();
     }
@@ -260,7 +264,7 @@ size_t JsWindow::GetInternalSize( const smp::panel::PanelWindow& )
 
 void JsWindow::Trace( JSTracer* trc, JSObject* obj )
 {
-    auto x = static_cast<JsWindow*>( JS_GetPrivate( obj ) );
+    auto x = static_cast<JsWindow*>( JS::GetPrivate( obj ) );
     if ( x && x->fbProperties_ )
     {
         x->fbProperties_->Trace( trc );
@@ -350,7 +354,7 @@ JSObject* JsWindow::CreateTooltip( const std::wstring& name, uint32_t pxSize, ui
     if ( !jsTooltip_.initialized() )
     {
         jsTooltip_.init( pJsCtx_, JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND() ) );
-        pNativeTooltip_ = static_cast<JsFbTooltip*>( JS_GetPrivate( jsTooltip_ ) );
+        pNativeTooltip_ = static_cast<JsFbTooltip*>( JS::GetPrivate( jsTooltip_ ) );
     }
 
     assert( pNativeTooltip_ );
@@ -685,7 +689,7 @@ uint32_t JsWindow::SetInterval( JS::HandleValue func, uint32_t delay, JS::Handle
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
     JS::RootedValue jsFuncValue( pJsCtx_, JS::ObjectValue( *JS_GetFunctionObject( jsFunction ) ) );
 
-    JS::RootedObject jsArrayObject( pJsCtx_, JS_NewArrayObject( pJsCtx_, funcArgs ) );
+    JS::RootedObject jsArrayObject( pJsCtx_, JS::NewArrayObject( pJsCtx_, funcArgs ) );
     smp::JsException::ExpectTrue( jsArrayObject );
     JS::RootedValue jsArrayValue( pJsCtx_, JS::ObjectValue( *jsArrayObject ) );
 
@@ -741,7 +745,7 @@ uint32_t JsWindow::SetTimeout( JS::HandleValue func, uint32_t delay, JS::HandleV
     JS::RootedFunction jsFunction( pJsCtx_, JS_ValueToFunction( pJsCtx_, func ) );
     JS::RootedValue jsFuncValue( pJsCtx_, JS::ObjectValue( *JS_GetFunctionObject( jsFunction ) ) );
 
-    JS::RootedObject jsArrayObject( pJsCtx_, JS_NewArrayObject( pJsCtx_, funcArgs ) );
+    JS::RootedObject jsArrayObject( pJsCtx_, JS::NewArrayObject( pJsCtx_, funcArgs ) );
     smp::JsException::ExpectTrue( jsArrayObject );
     JS::RootedValue jsArrayValue( pJsCtx_, JS::ObjectValue( *jsArrayObject ) );
 
