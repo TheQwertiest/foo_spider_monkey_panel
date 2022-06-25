@@ -68,6 +68,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsync, JsUtils::GetAlbumArtAsy
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2, JsUtils::GetAlbumArtAsyncV2WithOpt, 4 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbedded, JsUtils::GetAlbumArtEmbeddedWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetAlbumArtV2, JsUtils::GetAlbumArtV2, JsUtils::GetAlbumArtV2WithOpt, 2 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( GetClipboardText, JsUtils::GetClipboardText );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetFileSize, JsUtils::GetFileSize );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPackageInfo, JsUtils::GetPackageInfo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( GetPackagePath, JsUtils::GetPackagePath );
@@ -82,6 +83,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( MapString, JsUtils::MapString );
 MJS_DEFINE_JS_FN_FROM_NATIVE( PathWildcardMatch, JsUtils::PathWildcardMatch );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ReadINI, JsUtils::ReadINI, JsUtils::ReadINIWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ReadTextFile, JsUtils::ReadTextFile, JsUtils::ReadTextFileWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( SetClipboardText, JsUtils::SetClipboardText );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ShowHtmlDialog, JsUtils::ShowHtmlDialog, JsUtils::ShowHtmlDialogWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( SplitFilePath, JsUtils::SplitFilePath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( WriteINI, JsUtils::WriteINI );
@@ -102,6 +104,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "GetAlbumArtAsyncV2", GetAlbumArtAsyncV2, 2, kDefaultPropsFlags ),
         JS_FN( "GetAlbumArtEmbedded", GetAlbumArtEmbedded, 1, kDefaultPropsFlags ),
         JS_FN( "GetAlbumArtV2", GetAlbumArtV2, 1, kDefaultPropsFlags ),
+        JS_FN( "GetClipboardText", GetClipboardText, 0, kDefaultPropsFlags ),
         JS_FN( "GetFileSize", GetFileSize, 1, kDefaultPropsFlags ),
         JS_FN( "GetPackageInfo", GetPackageInfo, 1, kDefaultPropsFlags ),
         JS_FN( "GetPackagePath", GetPackagePath, 1, kDefaultPropsFlags ),
@@ -116,6 +119,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "PathWildcardMatch", PathWildcardMatch, 2, kDefaultPropsFlags ),
         JS_FN( "ReadINI", ReadINI, 3, kDefaultPropsFlags ),
         JS_FN( "ReadTextFile", ReadTextFile, 1, kDefaultPropsFlags ),
+        JS_FN( "SetClipboardText", SetClipboardText, 1, kDefaultPropsFlags ),
         JS_FN( "ShowHtmlDialog", ShowHtmlDialog, 3, kDefaultPropsFlags ),
         JS_FN( "SplitFilePath", SplitFilePath, 1, kDefaultPropsFlags ),
         JS_FN( "WriteINI", WriteINI, 4, kDefaultPropsFlags ),
@@ -430,6 +434,13 @@ JSObject* JsUtils::GetAlbumArtV2WithOpt( size_t optArgCount, JsFbMetadbHandle* h
     }
 }
 
+qwr::u8string JsUtils::GetClipboardText() const
+{
+    pfc::string8 text;
+    uGetClipboardString( text );
+    return qwr::u8string( text );
+}
+
 uint64_t JsUtils::GetFileSize( const std::wstring& path ) const
 {
     namespace fs = std::filesystem;
@@ -702,6 +713,11 @@ std::wstring JsUtils::ReadTextFileWithOpt( size_t optArgCount, const std::wstrin
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
+}
+
+void JsUtils::SetClipboardText( const qwr::u8string& text )
+{
+    uSetClipboardString( text.c_str() );
 }
 
 JS::Value JsUtils::ShowHtmlDialog( uint32_t hWnd, const std::wstring& htmlCode, JS::HandleValue options )
