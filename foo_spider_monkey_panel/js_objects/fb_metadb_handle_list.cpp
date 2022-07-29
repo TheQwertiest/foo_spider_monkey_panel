@@ -235,9 +235,9 @@ JsFbMetadbHandleList::CreateNative( JSContext* cx, const metadb_handle_list& han
     return std::unique_ptr<JsFbMetadbHandleList>( new JsFbMetadbHandleList( cx, handles ) );
 }
 
-size_t JsFbMetadbHandleList::GetInternalSize( const metadb_handle_list& handles )
+size_t JsFbMetadbHandleList::GetInternalSize()
 {
-    return sizeof( metadb_handle ) * handles.get_size();
+    return sizeof( metadb_handle ) * metadbHandleList_.get_size();
 }
 
 const metadb_handle_list& JsFbMetadbHandleList::GetHandleList() const

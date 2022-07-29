@@ -26,7 +26,7 @@ public:
     ~JsFbPlaylistRecycler() override = default;
 
     static std::unique_ptr<JsFbPlaylistRecycler> CreateNative( JSContext* cx );
-    static size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     JSObject* GetContent( uint32_t index );

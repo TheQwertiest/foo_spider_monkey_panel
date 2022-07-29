@@ -79,7 +79,7 @@ JsFbTitleFormat::CreateNative( JSContext* cx, const qwr::u8string& expr )
     return std::unique_ptr<JsFbTitleFormat>( new JsFbTitleFormat( cx, expr ) );
 }
 
-size_t JsFbTitleFormat::GetInternalSize( const qwr::u8string& /*expr*/ )
+size_t JsFbTitleFormat::GetInternalSize()
 {
     return sizeof( titleformat_object );
 }

@@ -26,7 +26,7 @@ public:
     ~JsGdiUtils() override = default;
 
     static std::unique_ptr<JsGdiUtils> CreateNative( JSContext* cx );
-    static size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     JSObject* CreateImage( uint32_t w, uint32_t h );

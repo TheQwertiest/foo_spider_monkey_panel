@@ -31,7 +31,7 @@ public:
 
     static bool HasThemeData( HWND hwnd, const std::wstring& classId );
     static std::unique_ptr<JsThemeManager> CreateNative( JSContext* cx, HWND hwnd, const std::wstring& classId );
-    static size_t GetInternalSize( HWND hwnd, const std::wstring& classId );
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     void DrawThemeBackground( JsGdiGraphics* gr,

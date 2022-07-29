@@ -103,8 +103,7 @@ namespace mozjs
     // Returns the size of properties of T, that can't be calculated by sizeof(T).
     // E.g. if T has property `std::unique_ptr<BigStruct> bigStruct_`, then
     // `GetInternalSize` must return sizeof( bigStruct_ ).
-    // Note: `args` is the same as in `CreateNative`.
-    static size_t GetInternalSize( Args... args );
+    size_t GetInternalSize();
 */
 
 /*
@@ -196,24 +195,22 @@ public:
         JS::RootedObject jsObject( cx, CreateJsObject_Base( cx, jsProto ) );
         assert( jsObject );
 
-        const size_t nativeObjectSize = sizeof( T ) + T::GetInternalSize( args... ); ///< don't forward: don't want to lose those smart ptrs
-        std::unique_ptr<T> nativeObject = T::CreateNative( cx, std::forward<ArgTypes>( args )... );
-        assert( nativeObject );
+        std::unique_ptr<T> pNativeObject = T::CreateNative( cx, std::forward<ArgTypes>( args )... );
+        assert( pNativeObject );
+        pNativeObject->Self::nativeObjectSize_ = sizeof( T ) + pNativeObject->GetInternalSize();
 
-        nativeObject->Self::nativeObjectSize_ = nativeObjectSize;
-
-        return CreateJsObject_Final( cx, jsProto, jsObject, std::move( nativeObject ) );
+        return CreateJsObject_Final( cx, jsProto, jsObject, std::move( pNativeObject ) );
     }
 
-    [[nodiscard]] static JSObject* CreateJsFromNative( JSContext* cx, std::unique_ptr<T> nativeObject )
+    [[nodiscard]] static JSObject* CreateJsFromNative( JSContext* cx, std::unique_ptr<T> pNativeObject )
     {
         JS::RootedObject jsProto( cx, Self::GetObjectProto( cx ) );
         JS::RootedObject jsObject( cx, CreateJsObject_Base( cx, jsProto ) );
         assert( jsObject );
 
-        nativeObject->Self::nativeObjectSize_ = sizeof( T );
+        pNativeObject->Self::nativeObjectSize_ = sizeof( T ) + pNativeObject->GetInternalSize();
 
-        return CreateJsObject_Final( cx, jsProto, jsObject, std::move( nativeObject ) );
+        return CreateJsObject_Final( cx, jsProto, jsObject, std::move( pNativeObject ) );
     }
 
     static void FinalizeJsObject( JSFreeOp* /*fop*/, JSObject* pSelf )

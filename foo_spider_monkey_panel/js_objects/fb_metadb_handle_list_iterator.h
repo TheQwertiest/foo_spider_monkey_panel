@@ -33,7 +33,7 @@ public:
     ~JsFbMetadbHandleList_Iterator() override;
 
     static std::unique_ptr<JsFbMetadbHandleList_Iterator> CreateNative( JSContext* cx, JsFbMetadbHandleList& handleList );
-    static size_t GetInternalSize( JsFbMetadbHandleList& handleList );
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     JSObject* Next();

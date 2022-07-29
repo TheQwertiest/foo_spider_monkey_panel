@@ -25,7 +25,7 @@ public:
     ~JsFbWindow() override = default;
 
     static std::unique_ptr<JsFbWindow> CreateNative( JSContext* cx );
-    static size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     void SetPseudoCaption( uint32_t x, uint32_t y, uint32_t w, uint32_t h );

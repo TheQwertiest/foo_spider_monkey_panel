@@ -28,7 +28,7 @@ public:
     ~JsDropSourceAction() override = default;
 
     static std::unique_ptr<JsDropSourceAction> CreateNative( JSContext* cx );
-    static size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     smp::panel::DragActionParams& AccessDropActionParams();

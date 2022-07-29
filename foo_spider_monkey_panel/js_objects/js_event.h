@@ -26,7 +26,7 @@ public:
 
 public:
     static std::unique_ptr<JsEvent> CreateNative( JSContext* cx, const qwr::u8string& type, uint64_t timeStamp );
-    static size_t GetInternalSize( const qwr::u8string& type, uint64_t timeStamp );
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     uint64_t get_TimeStamp() const;

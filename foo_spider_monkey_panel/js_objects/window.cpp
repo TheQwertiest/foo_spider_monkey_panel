@@ -261,7 +261,7 @@ JsWindow::CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel )
     return std::unique_ptr<JsWindow>( new JsWindow( cx, parentPanel, std::move( fbProperties ) ) );
 }
 
-size_t JsWindow::GetInternalSize( const smp::panel::PanelWindow& )
+size_t JsWindow::GetInternalSize()
 {
     return sizeof( FbProperties );
 }

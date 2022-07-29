@@ -99,7 +99,7 @@ JsFbMetadbHandle::CreateNative( JSContext* cx, const metadb_handle_ptr& handle )
     return std::unique_ptr<JsFbMetadbHandle>( new JsFbMetadbHandle( cx, handle ) );
 }
 
-size_t JsFbMetadbHandle::GetInternalSize( const metadb_handle_ptr& /*handle*/ )
+size_t JsFbMetadbHandle::GetInternalSize()
 {
     return sizeof( metadb_handle );
 }

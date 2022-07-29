@@ -47,7 +47,7 @@ public:
     ~JsFbMetadbHandleList() override = default;
 
     static std::unique_ptr<JsFbMetadbHandleList> CreateNative( JSContext* cx, const metadb_handle_list& handles );
-    [[nodiscard]] static size_t GetInternalSize( const metadb_handle_list& handles );
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     [[nodiscard]] const metadb_handle_list& GetHandleList() const;

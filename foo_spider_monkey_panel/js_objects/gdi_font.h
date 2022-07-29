@@ -35,7 +35,7 @@ public:
     ~JsGdiFont() override;
 
     static std::unique_ptr<JsGdiFont> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> gdiFont, HFONT hFont, bool isManaged );
-    [[nodiscard]] static size_t GetInternalSize( const std::unique_ptr<Gdiplus::Font>& gdiFont, HFONT hFont, bool isManaged );
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     [[nodiscard]] Gdiplus::Font* GdiFont() const;

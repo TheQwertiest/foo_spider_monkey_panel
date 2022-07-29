@@ -36,7 +36,7 @@ public:
     ~JsGdiBitmap() override = default;
 
     static std::unique_ptr<JsGdiBitmap> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> gdiBitmap );
-    [[nodiscard]] static size_t GetInternalSize( const std::unique_ptr<Gdiplus::Bitmap>& gdiBitmap );
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     [[nodiscard]] Gdiplus::Bitmap* GdiBitmap() const;

@@ -98,9 +98,9 @@ JsGdiFont::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Font> pGdiFont,
     return std::unique_ptr<JsGdiFont>( new JsGdiFont( cx, std::move( pGdiFont ), hFont, isManaged ) );
 }
 
-size_t JsGdiFont::GetInternalSize( const std::unique_ptr<Gdiplus::Font>& /*gdiFont*/, HFONT /*hFont*/, bool isManaged )
+size_t JsGdiFont::GetInternalSize()
 {
-    return sizeof( Gdiplus::Font ) + ( isManaged ? sizeof( LOGFONT ) : 0 );
+    return sizeof( Gdiplus::Font ) + ( isManaged_ ? sizeof( LOGFONT ) : 0 );
 }
 
 Gdiplus::Font* JsGdiFont::GdiFont() const

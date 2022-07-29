@@ -27,7 +27,7 @@ public:
     ~JsMeasureStringInfo() override = default;
 
     static std::unique_ptr<JsMeasureStringInfo> CreateNative( JSContext* cx, float x, float y, float w, float h, uint32_t l, uint32_t c );
-    static size_t GetInternalSize( float x, float y, float w, float h, uint32_t l, uint32_t c );
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     [[nodiscard]] uint32_t get_Chars() const;

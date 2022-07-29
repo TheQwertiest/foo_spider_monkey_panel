@@ -88,7 +88,7 @@ JsFbFileInfo::CreateNative( JSContext* cx, metadb_info_container::ptr containerI
     return std::unique_ptr<JsFbFileInfo>( new JsFbFileInfo( cx, containerInfo ) );
 }
 
-size_t JsFbFileInfo::GetInternalSize( const metadb_info_container::ptr& /*containerInfo*/ )
+size_t JsFbFileInfo::GetInternalSize()
 {
     return sizeof( file_info_impl );
 }

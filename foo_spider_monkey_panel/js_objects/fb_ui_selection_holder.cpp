@@ -74,7 +74,7 @@ JsFbUiSelectionHolder::CreateNative( JSContext* cx, const ui_selection_holder::p
     return std::unique_ptr<JsFbUiSelectionHolder>( new JsFbUiSelectionHolder( cx, holder ) );
 }
 
-size_t JsFbUiSelectionHolder::GetInternalSize( const ui_selection_holder::ptr& /*holder*/ )
+size_t JsFbUiSelectionHolder::GetInternalSize()
 {
     return 0;
 }

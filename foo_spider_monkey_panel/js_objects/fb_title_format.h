@@ -32,7 +32,7 @@ public:
     ~JsFbTitleFormat() override = default;
 
     static std::unique_ptr<JsFbTitleFormat> CreateNative( JSContext* cx, const qwr::u8string& expr );
-    static size_t GetInternalSize( const qwr::u8string& expr );
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     titleformat_object::ptr GetTitleFormat();

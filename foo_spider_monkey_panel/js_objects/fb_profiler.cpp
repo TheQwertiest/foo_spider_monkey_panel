@@ -77,9 +77,9 @@ JsFbProfiler::CreateNative( JSContext* cx, const qwr::u8string& name )
     return std::unique_ptr<JsFbProfiler>( new JsFbProfiler( cx, name ) );
 }
 
-size_t JsFbProfiler::GetInternalSize( const qwr::u8string& name )
+size_t JsFbProfiler::GetInternalSize()
 {
-    return name.length();
+    return name_.length();
 }
 
 JSObject* JsFbProfiler::Constructor( JSContext* cx, const qwr::u8string& name )

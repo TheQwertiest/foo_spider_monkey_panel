@@ -31,7 +31,7 @@ public:
     ~JsFbTooltip() override = default;
 
     static std::unique_ptr<JsFbTooltip> CreateNative( JSContext* cx, HWND hParentWnd );
-    static size_t GetInternalSize( HWND hParentWnd );
+    [[nodiscard]] size_t GetInternalSize();
 
     void PrepareForGc();
 

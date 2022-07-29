@@ -35,7 +35,7 @@ public:
     ~JsGdiGraphics() override = default;
 
     static std::unique_ptr<JsGdiGraphics> CreateNative( JSContext* cx );
-    [[nodiscard]] static size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     [[nodiscard]] Gdiplus::Graphics* GetGraphicsObject() const;

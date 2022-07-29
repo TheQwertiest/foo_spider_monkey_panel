@@ -34,7 +34,7 @@ public:
 
 protected:
     JsEventTarget( JSContext* cx );
-    static size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize();
 
 private:
     static std::unique_ptr<JsEventTarget> CreateNative( JSContext* cx );

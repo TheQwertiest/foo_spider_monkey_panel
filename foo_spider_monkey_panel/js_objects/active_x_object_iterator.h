@@ -33,7 +33,7 @@ public:
     ~JsActiveXObject_Iterator() override;
 
     static std::unique_ptr<JsActiveXObject_Iterator> CreateNative( JSContext* cx, JsActiveXObject& activeXObject );
-    static size_t GetInternalSize( JsActiveXObject& activeXObject );
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     JSObject* Next();

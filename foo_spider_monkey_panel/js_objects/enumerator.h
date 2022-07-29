@@ -33,7 +33,7 @@ public:
     ~JsEnumerator() override = default;
 
     static std::unique_ptr<JsEnumerator> CreateNative( JSContext* cx, IUnknown* pUnknown );
-    static size_t GetInternalSize( IUnknown* pUnknown );
+    [[nodiscard]] size_t GetInternalSize();
 
 public: // ctor
     static JSObject* Constructor( JSContext* cx, JsActiveXObject* pActiveXObject );

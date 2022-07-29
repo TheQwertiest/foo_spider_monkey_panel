@@ -99,7 +99,7 @@ JsThemeManager::CreateNative( JSContext* cx, HWND hwnd, const std::wstring& clas
     return std::unique_ptr<JsThemeManager>( new JsThemeManager( cx, hTheme ) );
 }
 
-size_t JsThemeManager::GetInternalSize( HWND /* hwnd */, const std::wstring& /* classId */ )
+size_t JsThemeManager::GetInternalSize()
 {
     return 0;
 }

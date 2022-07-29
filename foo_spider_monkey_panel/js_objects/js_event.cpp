@@ -80,9 +80,9 @@ JsEvent::CreateNative( JSContext* cx, const qwr::u8string& type, uint64_t timeSt
     return std::unique_ptr<JsEvent>( new JsEvent( cx, type, timeStamp ) );
 }
 
-size_t JsEvent::GetInternalSize( const qwr::u8string& type, uint64_t timeStamp )
+size_t JsEvent::GetInternalSize()
 {
-    return type.size();
+    return type_.size();
 }
 
 uint64_t JsEvent::get_TimeStamp() const

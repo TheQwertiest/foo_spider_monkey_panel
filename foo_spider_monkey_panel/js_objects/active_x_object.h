@@ -44,7 +44,7 @@ public:
     JsActiveXObject& operator=( const JsActiveXObject& ) = delete;
 
     static std::unique_ptr<JsActiveXObject> CreateNative( JSContext* cx, const std::wstring& name );
-    static size_t GetInternalSize( const std::wstring& name );
+    [[nodiscard]] size_t GetInternalSize();
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
 public:

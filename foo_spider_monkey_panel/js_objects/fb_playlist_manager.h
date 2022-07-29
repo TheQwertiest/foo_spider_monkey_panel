@@ -31,7 +31,7 @@ public:
     ~JsFbPlaylistManager() override;
 
     static std::unique_ptr<JsFbPlaylistManager> CreateNative( JSContext* cx );
-    static size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize();
 
     void PrepareForGc();
 

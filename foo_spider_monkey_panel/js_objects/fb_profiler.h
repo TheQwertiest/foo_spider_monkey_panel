@@ -29,7 +29,7 @@ public:
     ~JsFbProfiler() override = default;
 
     static std::unique_ptr<JsFbProfiler> CreateNative( JSContext* cx, const qwr::u8string& name );
-    static size_t GetInternalSize( const qwr::u8string& name );
+    [[nodiscard]] size_t GetInternalSize();
 
 public: // ctor
     static JSObject* Constructor( JSContext* cx, const qwr::u8string& name = "" );

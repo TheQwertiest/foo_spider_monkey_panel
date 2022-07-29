@@ -30,7 +30,7 @@ public:
     ~JsFbUtils() override = default;
 
     static std::unique_ptr<JsFbUtils> CreateNative( JSContext* cx );
-    static size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     JSObject* AcquireUiSelectionHolder();

@@ -28,7 +28,7 @@ public:
 
 private:
     static std::unique_ptr<JsUtils> CreateNative( JSContext* cx );
-    static size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize();
 
 public:
     bool CheckComponent( const qwr::u8string& name, bool is_dll = true ) const;

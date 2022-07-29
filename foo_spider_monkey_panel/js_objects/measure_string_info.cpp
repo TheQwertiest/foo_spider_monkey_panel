@@ -81,7 +81,7 @@ JsMeasureStringInfo::CreateNative( JSContext* cx, float x, float y, float w, flo
     return std::unique_ptr<JsMeasureStringInfo>( new JsMeasureStringInfo( cx, x, y, w, h, lines, characters ) );
 }
 
-size_t JsMeasureStringInfo::GetInternalSize( float /*x*/, float /*y*/, float /*w*/, float /*h*/, uint32_t /*l*/, uint32_t /*c*/ )
+size_t JsMeasureStringInfo::GetInternalSize()
 {
     return 0;
 }

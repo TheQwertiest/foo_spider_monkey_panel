@@ -132,7 +132,7 @@ private:
     JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties );
 
     static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel );
-    static size_t GetInternalSize( const smp::panel::PanelWindow& parentPanel );
+    [[nodiscard]] size_t GetInternalSize();
 
     DefineScriptOptions ParseDefineScriptOptions( JS::HandleValue options );
 
