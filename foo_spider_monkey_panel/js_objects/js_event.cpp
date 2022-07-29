@@ -40,12 +40,12 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_TimeStamp, JsEvent::get_TimeStamp );
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_Type, JsEvent::get_Type );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_timeStamp, JsEvent::get_TimeStamp );
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_type, JsEvent::get_Type );
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>( {
-    JS_PSG( "type", get_Type, kDefaultPropsFlags ),
-    JS_PSG( "timeStamp", get_TimeStamp, kDefaultPropsFlags ),
+    JS_PSG( "type", get_type, kDefaultPropsFlags ),
+    JS_PSG( "timeStamp", get_timeStamp, kDefaultPropsFlags ),
     JS_PS_END,
 } );
 

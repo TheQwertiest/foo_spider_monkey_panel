@@ -417,7 +417,7 @@ JSObject* JsGdiBitmap::GetGraphics()
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
 
-    auto* pNativeObject = GetInnerInstancePrivate<JsGdiGraphics>( pJsCtx_, jsObject );
+    auto* pNativeObject = JsGdiGraphics::ExtractNative( pJsCtx_, jsObject );
     qwr::QwrException::ExpectTrue( pNativeObject, "Internal error: failed to get JsGdiGraphics object" );
 
     pNativeObject->SetGraphicsObject( g.release() );

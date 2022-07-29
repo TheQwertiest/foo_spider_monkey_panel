@@ -3,6 +3,7 @@
 #include "js_event_target.h"
 
 #include <js_engine/js_to_native_invoker.h>
+#include <utils/logging.h>
 
 #include <chrono>
 
@@ -33,14 +34,14 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( AddEventListener, JsEventTarget::AddEventListener );
-MJS_DEFINE_JS_FN_FROM_NATIVE( RemoveEventListener, JsEventTarget::RemoveEventListener );
-MJS_DEFINE_JS_FN_FROM_NATIVE( DispatchEvent, JsEventTarget::DispatchEvent );
+MJS_DEFINE_JS_FN_FROM_NATIVE( addEventListener, JsEventTarget::AddEventListener );
+MJS_DEFINE_JS_FN_FROM_NATIVE( removeEventListener, JsEventTarget::RemoveEventListener );
+MJS_DEFINE_JS_FN_FROM_NATIVE( dispatchEvent, JsEventTarget::DispatchEvent );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>( {
-    JS_FN( "addEventListener", AddEventListener, 2, kDefaultPropsFlags ),
-    JS_FN( "removeEventListener", RemoveEventListener, 2, kDefaultPropsFlags ),
-    JS_FN( "dispatchEvent", DispatchEvent, 1, kDefaultPropsFlags ),
+    JS_FN( "addEventListener", addEventListener, 2, kDefaultPropsFlags ),
+    JS_FN( "removeEventListener", removeEventListener, 2, kDefaultPropsFlags ),
+    JS_FN( "dispatchEvent", dispatchEvent, 1, kDefaultPropsFlags ),
     JS_FS_END,
 } );
 
@@ -82,16 +83,27 @@ size_t JsEventTarget::GetInternalSize()
     return 0;
 }
 
+void JsEventTarget::Trace( JSTracer* trc )
+{
+}
+
+void JsEventTarget::PrepareForGc()
+{
+}
+
 void JsEventTarget::AddEventListener( const qwr::u8string& type, JS::HandleValue listener )
 {
+    test_ = type;
 }
 
 void JsEventTarget::RemoveEventListener( const qwr::u8string& type, JS::HandleValue listener )
 {
+    test_.clear();
 }
 
 void JsEventTarget::DispatchEvent( JS::HandleValue event )
 {
+    smp::utils::LogError( test_ );
 }
 
 } // namespace mozjs

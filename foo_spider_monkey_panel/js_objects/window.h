@@ -1,6 +1,6 @@
 #pragma once
 
-#include <js_objects/js_event_target_wrapper.h>
+#include <js_objects/js_event_target.h>
 #include <js_objects/object_base.h>
 
 #include <optional>
@@ -22,11 +22,18 @@ class JsFbTooltip;
 
 class JsWindow
     : public JsObjectBase<JsWindow>
-    , public JsEventTargetWrapper
+#ifdef SMP_V2
+    , private JsEventTarget
+#endif
 {
+    friend class JsObjectBase<JsWindow>;
+
 public:
     static constexpr bool HasProto = false;
-
+#ifdef SMP_V2
+    static constexpr bool HasParentProto = true;
+    using ParentJsType = JsEventTarget;
+#endif
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
@@ -36,10 +43,6 @@ public:
     // @remark No need to cleanup JS here, since it must be performed manually beforehand anyway
     ~JsWindow() override;
 
-    static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel );
-    static size_t GetInternalSize( const smp::panel::PanelWindow& parentPanel );
-
-public:
     static void Trace( JSTracer* trc, JSObject* obj );
     void PrepareForGc();
     [[nodiscard]] HWND GetHwnd() const;
@@ -114,8 +117,6 @@ public: // props
     void put_MinWidth( uint32_t width );
 
 private:
-    JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties );
-
     struct DefineScriptOptions
     {
         qwr::u8string author;
@@ -127,6 +128,11 @@ private:
             bool grabFocus = true;
         } features;
     };
+
+    JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties );
+
+    static std::unique_ptr<JsWindow> CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel );
+    static size_t GetInternalSize( const smp::panel::PanelWindow& parentPanel );
 
     DefineScriptOptions ParseDefineScriptOptions( JS::HandleValue options );
 

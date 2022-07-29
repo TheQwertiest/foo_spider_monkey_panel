@@ -17,6 +17,8 @@ class JsFbMetadbHandle;
 class JsUtils
     : public JsObjectBase<JsUtils>
 {
+    friend class JsObjectBase<JsUtils>;
+
 public:
     static constexpr bool HasProto = false;
 
@@ -24,7 +26,7 @@ public:
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
 
-public:
+private:
     static std::unique_ptr<JsUtils> CreateNative( JSContext* cx );
     static size_t GetInternalSize();
 

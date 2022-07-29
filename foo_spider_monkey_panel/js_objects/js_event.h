@@ -1,10 +1,7 @@
 #pragma once
 
 #include <js_objects/object_base.h>
-
-class JSObject;
-struct JSContext;
-struct JSClass;
+#include <js_utils/js_fwd.h>
 
 namespace mozjs
 {

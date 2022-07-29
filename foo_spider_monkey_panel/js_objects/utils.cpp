@@ -30,6 +30,8 @@
 
 using namespace smp;
 
+namespace fs = std::filesystem;
+
 namespace
 {
 
@@ -242,7 +244,6 @@ uint32_t JsUtils::ColourPicker( uint32_t hWnd, uint32_t default_colour )
 
 uint32_t JsUtils::DetectCharset( const std::wstring& path ) const
 {
-    namespace fs = std::filesystem;
     const auto cleanedPath = fs::path( path ).lexically_normal();
 
     return static_cast<uint32_t>( qwr::file::DetectFileCharset( cleanedPath ) );
@@ -266,7 +267,6 @@ void JsUtils::EditTextFile( const std::wstring& path )
 
 bool JsUtils::FileExists( const std::wstring& path ) const
 {
-    namespace fs = std::filesystem;
     try
     {
         return fs::exists( path );
@@ -443,7 +443,6 @@ qwr::u8string JsUtils::GetClipboardText() const
 
 uint64_t JsUtils::GetFileSize( const std::wstring& path ) const
 {
-    namespace fs = std::filesystem;
     try
     {
         qwr::QwrException::ExpectTrue( fs::exists( path ), L"Path does not point to a file: {}", path );
@@ -591,7 +590,6 @@ qwr::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const
 
 bool JsUtils::IsDirectory( const std::wstring& path ) const
 {
-    namespace fs = std::filesystem;
     try
     {
         return fs::is_directory( path );
@@ -604,7 +602,6 @@ bool JsUtils::IsDirectory( const std::wstring& path ) const
 
 bool JsUtils::IsFile( const std::wstring& path ) const
 {
-    namespace fs = std::filesystem;
     try
     {
         return fs::is_regular_file( path );

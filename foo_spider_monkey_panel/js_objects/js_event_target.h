@@ -1,7 +1,6 @@
 #pragma once
 
 #include <js_objects/object_base.h>
-#include <js_utils/js_fwd.h>
 
 namespace mozjs
 {
@@ -9,9 +8,12 @@ namespace mozjs
 class JsEventTarget
     : public JsObjectBase<JsEventTarget>
 {
+    friend class JsObjectBase<JsEventTarget>;
+
 public:
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
+    static constexpr bool IsExtendable = true;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
@@ -20,24 +22,26 @@ public:
     static const JSNative JsConstructor;
 
 public:
-    ~JsEventTarget() override = default;
+    void Trace( JSTracer* trc );
+    void PrepareForGc();
 
+public:
     static JSObject* Constructor( JSContext* cx );
 
-public:
-    static std::unique_ptr<JsEventTarget> CreateNative( JSContext* cx );
-    static size_t GetInternalSize();
-
-public:
     void AddEventListener( const qwr::u8string& type, JS::HandleValue listener );
     void RemoveEventListener( const qwr::u8string& type, JS::HandleValue listener );
     void DispatchEvent( JS::HandleValue event );
 
-private:
+protected:
     JsEventTarget( JSContext* cx );
+    static size_t GetInternalSize();
+
+private:
+    static std::unique_ptr<JsEventTarget> CreateNative( JSContext* cx );
 
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
+    std::string test_;
 };
 
 } // namespace mozjs

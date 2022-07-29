@@ -4,7 +4,7 @@
 
 #include <qwr/string_helpers.h>
 
-namespace mozjs
+namespace mozjs::utils
 {
 
 /// @brief Create a prototype for the specified object
@@ -46,23 +46,7 @@ void CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
 }
 
 /// @brief Get the prototype for the specified object from the current global object.
-template <typename JsObjectType>
-JSObject* GetPrototype( JSContext* cx, JsPrototypeId protoId )
-{
-    JS::RootedObject globalObject( cx, JS::CurrentGlobalOrNull( cx ) );
-    assert( globalObject );
-
-    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
-    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS::GetClass( globalObject ) ) );
-
-    JS::Value protoVal = JS::GetReservedSlot( globalObject, slotIdx );
-    qwr::QwrException::ExpectTrue( protoVal.isObject(),
-                                   "Internal error: Slot {}({}) does not contain a prototype",
-                                   static_cast<uint32_t>( protoId ),
-                                   slotIdx );
-
-    return &protoVal.toObject();
-}
+JSObject* GetPrototype( JSContext* cx, JsPrototypeId protoId );
 
 /// @brief Get the prototype for the specified object from the current global object.
 ///        And create the prototype, if it's missing.
@@ -91,4 +75,4 @@ JSObject* GetOrCreatePrototype( JSContext* cx, JsPrototypeId protoId )
     return &protoVal.toObject();
 }
 
-} // namespace mozjs
+} // namespace mozjs::utils

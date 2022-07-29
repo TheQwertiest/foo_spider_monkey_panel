@@ -600,7 +600,7 @@ bool JsFbUtils::IsLibraryEnabled()
 
 bool JsFbUtils::IsMainMenuCommandChecked( const qwr::u8string& command )
 {
-    const auto status = utils::GetMainmenuCommandStatusByName( command );
+    const auto status = smp::utils::GetMainmenuCommandStatusByName( command );
     return ( mainmenu_commands::flag_checked & status
              || mainmenu_commands::flag_radiochecked & status );
 }
@@ -678,7 +678,7 @@ bool JsFbUtils::RunContextCommand( const qwr::u8string& command, uint32_t flags 
     metadb_handle_list dummy_list;
     try
     {
-        utils::ExecuteContextCommandByName( command, dummy_list, flags );
+        smp::utils::ExecuteContextCommandByName( command, dummy_list, flags );
         return true;
     }
     catch ( const qwr::QwrException& )
@@ -706,8 +706,8 @@ bool JsFbUtils::RunContextCommandWithMetadb( const qwr::u8string& command, JS::H
 
     JS::RootedObject jsObject( pJsCtx_, &handle.toObject() );
 
-    auto* jsHandle = GetInnerInstancePrivate<JsFbMetadbHandle>( pJsCtx_, jsObject );
-    auto* jsHandleList = GetInnerInstancePrivate<JsFbMetadbHandleList>( pJsCtx_, jsObject );
+    auto* jsHandle = JsFbMetadbHandle::ExtractNative( pJsCtx_, jsObject );
+    auto* jsHandleList = JsFbMetadbHandleList::ExtractNative( pJsCtx_, jsObject );
     qwr::QwrException::ExpectTrue( jsHandle || jsHandleList, "handle argument is invalid" );
 
     metadb_handle_list handle_list;
@@ -722,7 +722,7 @@ bool JsFbUtils::RunContextCommandWithMetadb( const qwr::u8string& command, JS::H
 
     try
     {
-        utils::ExecuteContextCommandByName( command, handle_list, flags );
+        smp::utils::ExecuteContextCommandByName( command, handle_list, flags );
         return true;
     }
     catch ( const qwr::QwrException& )
@@ -748,7 +748,7 @@ bool JsFbUtils::RunMainMenuCommand( const qwr::u8string& command )
 {
     try
     {
-        utils::ExecuteMainmenuCommandByName( command );
+        smp::utils::ExecuteMainmenuCommandByName( command );
         return true;
     }
     catch ( qwr::QwrException& )

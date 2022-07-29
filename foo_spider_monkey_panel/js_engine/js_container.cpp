@@ -86,7 +86,7 @@ bool JsContainer::Initialize()
 
     pNativeGlobal_ = static_cast<JsGlobalObject*>( JS::GetPrivate( jsGlobal_ ) );
     assert( pNativeGlobal_ );
-    pNativeGraphics_ = static_cast<JsGdiGraphics*>( JS::GetPrivate( jsGraphics_ ) );
+    pNativeGraphics_ = JsGdiGraphics::ExtractNativeUnchecked( jsGraphics_ );
     assert( pNativeGraphics_ );
 
     jsStatus_ = JsStatus::Working;
@@ -364,7 +364,7 @@ bool JsContainer::CreateDropActionIfNeeded()
         return false;
     }
 
-    pNativeDropAction_ = static_cast<JsDropSourceAction*>( JS::GetPrivate( jsDropAction_ ) );
+    pNativeDropAction_ = JsDropSourceAction::ExtractNativeUnchecked( jsDropAction_ );
 
     return true;
 }

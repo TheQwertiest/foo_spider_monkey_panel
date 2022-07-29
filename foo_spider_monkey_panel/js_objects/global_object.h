@@ -63,13 +63,13 @@ private:
     static T* GetNativeObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
     {
         JS::RootedValue jsPropertyValue( cx );
-        if ( JS_GetProperty( cx, self, propName.data(), &jsPropertyValue ) && jsPropertyValue.isObject() )
+        if ( !JS_GetProperty( cx, self, propName.data(), &jsPropertyValue ) || !jsPropertyValue.isObject() )
         {
-            JS::RootedObject jsProperty( cx, &jsPropertyValue.toObject() );
-            return static_cast<T*>( JS_GetInstancePrivate( cx, jsProperty, &T::JsClass, nullptr ) );
+            return nullptr;
         }
 
-        return nullptr;
+        JS::RootedObject jsProperty( cx, &jsPropertyValue.toObject() );
+        return JsObjectBase<T>::ExtractNative( cx, jsProperty );
     }
 
     template <typename T>

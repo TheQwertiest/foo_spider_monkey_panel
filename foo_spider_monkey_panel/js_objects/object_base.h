@@ -2,21 +2,19 @@
 
 #include <js_engine/js_realm_inner.h>
 #include <js_objects/object_traits.h>
+#include <js_utils/js_fwd.h>
+#include <js_utils/js_object_helper.h>
 #include <js_utils/js_prototype_helpers.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Wrapper.h>
 #include <js/proxy.h>
 SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <memory>
 
-class JSObject;
-struct JSContext;
-struct JSClass;
-
 namespace js
 {
-
 class ProxyOptions;
 }
 
@@ -26,7 +24,7 @@ namespace mozjs
 /*
     Every object must define the following traits:
 
-    // Indicates that object is created from JS prototype.
+    // Indicates that object's methods and properties are inherited from it's own JS prototype.
     // If true, object must also define `HasGlobalProto` and `PrototypeId`.
     static constexpr bool HasProto;
 */
@@ -49,6 +47,11 @@ namespace mozjs
     // Indicates that object is wrapped in proxy.
     // If true, object must also define `JsProxy`.
     static constexpr bool HasProxy;
+
+    // TODO
+    static constexpr bool HasBaseProto;
+    static constexpr bool IsExtendable;
+    using ParentJsType;
 */
 
 /*
@@ -78,6 +81,9 @@ namespace mozjs
 
     // Unique id for the object's JS prototype
     const JsPrototypeId PrototypeId;
+
+    // TODO
+    const JsPrototypeId ParentPrototypeId;
 
     // Pointer to the object's JS constructor
     const JSNative JsConstructor;
@@ -113,6 +119,8 @@ namespace mozjs
 template <typename T>
 class JsObjectBase
 {
+    using Self = JsObjectBase<T>;
+
 public:
     JsObjectBase() = default;
     JsObjectBase( const JsObjectBase& ) = delete;
@@ -122,8 +130,9 @@ public:
 public:
     [[nodiscard]] static JSObject* CreateProto( JSContext* cx )
     {
+        JS::RootedObject pParentJsProto( cx, Self::GetParentProto( cx ) );
         JS::RootedObject jsObject( cx,
-                                   JS_NewPlainObject( cx ) );
+                                   JS_NewObjectWithGivenProto( cx, nullptr, pParentJsProto ) );
         if ( !jsObject )
         {
             throw smp::JsException();
@@ -161,9 +170,11 @@ public:
             }
         }();
 
+        JS::RootedObject pParentJsProto( cx, Self::GetParentProto( cx ) );
+
         auto pJsProto = JS_InitClass( cx,
                                       parentObject,
-                                      nullptr,
+                                      pParentJsProto,
                                       &T::JsClass,
                                       T::JsConstructor,
                                       0,
@@ -181,13 +192,7 @@ public:
     template <typename... ArgTypes>
     [[nodiscard]] static JSObject* CreateJs( JSContext* cx, ArgTypes&&... args )
     {
-        JS::RootedObject jsProto( cx );
-        if constexpr ( T::HasProto )
-        {
-            jsProto = GetProto( cx );
-            assert( jsProto );
-        }
-
+        JS::RootedObject jsProto( cx, Self::GetObjectProto( cx ) );
         JS::RootedObject jsObject( cx, CreateJsObject_Base( cx, jsProto ) );
         assert( jsObject );
 
@@ -195,37 +200,31 @@ public:
         std::unique_ptr<T> nativeObject = T::CreateNative( cx, std::forward<ArgTypes>( args )... );
         assert( nativeObject );
 
-        nativeObject->nativeObjectSize_ = nativeObjectSize;
+        nativeObject->Self::nativeObjectSize_ = nativeObjectSize;
 
         return CreateJsObject_Final( cx, jsProto, jsObject, std::move( nativeObject ) );
     }
 
     [[nodiscard]] static JSObject* CreateJsFromNative( JSContext* cx, std::unique_ptr<T> nativeObject )
     {
-        JS::RootedObject jsProto( cx );
-        if constexpr ( T::HasProto )
-        {
-            jsProto = GetProto( cx );
-            assert( jsProto );
-        }
-
+        JS::RootedObject jsProto( cx, Self::GetObjectProto( cx ) );
         JS::RootedObject jsObject( cx, CreateJsObject_Base( cx, jsProto ) );
         assert( jsObject );
 
-        nativeObject->nativeObjectSize_ = sizeof( T );
+        nativeObject->Self::nativeObjectSize_ = sizeof( T );
 
         return CreateJsObject_Final( cx, jsProto, jsObject, std::move( nativeObject ) );
     }
 
     static void FinalizeJsObject( JSFreeOp* /*fop*/, JSObject* pSelf )
     {
-        auto pNative = static_cast<T*>( JS::GetPrivate( pSelf ) );
+        auto pNative = Self::ExtractNativeUnchecked( pSelf );
         if ( pNative )
         {
             auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetNonCCWObjectRealm( pSelf ) ) );
             if ( pJsRealm )
             {
-                pJsRealm->OnHeapDeallocate( pNative->nativeObjectSize_ );
+                pJsRealm->OnHeapDeallocate( pNative->Self::nativeObjectSize_ );
             }
 
             delete pNative;
@@ -233,42 +232,138 @@ public:
         }
     }
 
-private:
-    [[nodiscard]] static JSObject* GetProto( JSContext* cx ) requires T::HasProto
+    [[nodiscard]] static T* ExtractNative( JSContext* cx, JS::HandleObject jsObject )
     {
-        JS::RootedObject jsProto( cx );
-        if constexpr ( T::HasGlobalProto )
+        if ( auto pNative = ExtractNativeExact( cx, jsObject ); pNative )
         {
-            jsProto = GetPrototype<T>( cx, T::PrototypeId );
+            return pNative;
         }
-        else
-        {
-            jsProto = GetOrCreatePrototype<T>( cx, T::PrototypeId );
-        }
-        assert( jsProto );
-        return jsProto;
+
+        return Self::ExtractNativeFuzzy( cx, jsObject );
     }
 
-    [[nodiscard]] static JSObject* CreateJsObject_Base( JSContext* cx, [[maybe_unused]] JS::HandleObject jsProto )
+    [[nodiscard]] static T* ExtractNative( JSContext* cx, JS::HandleValue jsValue )
     {
-        JS::RootedObject jsObject( cx );
-        if constexpr ( T::HasProto )
+        if ( !jsValue.isObject() )
         {
-            assert( jsProto );
-            jsObject.set( JS_NewObjectWithGivenProto( cx, &T::JsClass, jsProto ) );
-            if ( !jsObject )
+            return nullptr;
+        }
+
+        JS::RootedObject jsObject( cx, &jsValue.toObject() );
+        return Self::ExtractNative( cx, jsObject );
+    }
+
+    /// @brief Direct cast from private, does not unwrap value nor checks if JS object actually holds the desired type.
+    ///        Should not be used directly with values received from JS code (use ExtractNative() instead).
+    [[nodiscard]] static T* ExtractNativeUnchecked( JSObject* jsObject )
+    {
+        return Self::ExtractNativeFromVoid( JS::GetPrivate( jsObject ) );
+    }
+
+private:
+    [[nodiscard]] static T* ExtractNativeExact( JSContext* cx, JS::HandleObject jsObject )
+    {
+        JS::RootedObject jsUnwrappedObject( cx, jsObject );
+        if ( js::IsWrapper( jsObject ) )
+        {
+            jsUnwrappedObject = js::UncheckedUnwrap( jsObject );
+        }
+
+        if constexpr ( traits::HasProxy<T> )
+        {
+            if ( js::IsProxy( jsUnwrappedObject ) && js::GetProxyHandler( jsUnwrappedObject )->family() == GetSmpProxyFamily() )
             {
-                throw smp::JsException();
+                jsUnwrappedObject = js::GetProxyTargetObject( jsUnwrappedObject );
             }
         }
-        else
+
+        auto pVoid = JS_GetInstancePrivate( cx, jsUnwrappedObject, &T::JsClass, nullptr );
+        return Self::ExtractNativeFromVoid( pVoid );
+    }
+
+    [[nodiscard]] static T* ExtractNativeFuzzy( JSContext* cx, JS::HandleObject jsObject )
+    {
+        if constexpr ( mozjs::traits::HasParentProto<T> || mozjs::traits::IsExtendable<T> )
         {
-            jsObject.set( JS_NewObject( cx, &T::JsClass ) );
-            if ( !jsObject )
+            JS::RootedValue jsValue( cx );
+            jsValue.setObject( *jsObject );
+
+            JS::RootedObject jsPrototype( cx, utils::GetPrototype( cx, T::PrototypeId ) );
+            JS::RootedObject jsConstructor( cx, JS_GetConstructor( cx, jsPrototype ) );
+            bool isInstance = false;
+            if ( !jsConstructor
+                 || !JS_HasInstance( cx, jsConstructor, jsValue, &isInstance ) )
             {
                 throw smp::JsException();
             }
 
+            if ( !isInstance )
+            {
+                return nullptr;
+            }
+
+            return Self::ExtractNativeUnchecked( jsObject );
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    [[nodiscard]] static T* ExtractNativeFromVoid( void* pVoid )
+    {
+        if constexpr ( mozjs::traits::HasParentProto<T> )
+        {
+            // TODO: add a proper check instead of naive static_cast
+            return static_cast<T*>( static_cast<T::ParentJsType*>( pVoid ) );
+        }
+        else
+        {
+            return static_cast<T*>( pVoid );
+        }
+    }
+
+    [[nodiscard]] static JSObject* GetObjectProto( JSContext* cx )
+    {
+        if constexpr ( T::HasProto )
+        {
+            JSObject* jsProto = nullptr;
+            if constexpr ( T::HasGlobalProto )
+            {
+                jsProto = utils::GetPrototype( cx, T::PrototypeId );
+            }
+            else
+            {
+                jsProto = utils::GetOrCreatePrototype<T>( cx, T::PrototypeId );
+            }
+            assert( jsProto );
+            return jsProto;
+        }
+        else
+        {
+            return Self::GetParentProto( cx );
+        }
+    }
+
+    [[nodiscard]] static JSObject* GetParentProto( JSContext* cx )
+    {
+        if constexpr ( traits::HasParentProto<T> )
+        {
+            auto jsProto = utils::GetPrototype( cx, T::ParentPrototypeId );
+            assert( jsProto );
+            return jsProto;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+
+    [[nodiscard]] static JSObject* CreateJsObject_Base( JSContext* cx, JS::HandleObject jsProto )
+    {
+        JS::RootedObject jsObject( cx, JS_NewObjectWithGivenProto( cx, &T::JsClass, jsProto ) );
+        if constexpr ( !T::HasProto )
+        {
             if ( !JS_DefineFunctions( cx, jsObject, T::JsFunctions )
                  || !JS_DefineProperties( cx, jsObject, T::JsProperties ) )
             {
@@ -286,9 +381,16 @@ private:
     {
         auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetContextRealm( cx ) ) );
         assert( pJsRealm );
-        pJsRealm->OnHeapAllocate( premadeNative->nativeObjectSize_ );
+        pJsRealm->OnHeapAllocate( premadeNative->Self::nativeObjectSize_ );
 
-        JS::SetPrivate( jsBaseObject, premadeNative.release() );
+        if constexpr ( traits::HasParentProto<T> )
+        {
+            JS::SetPrivate( jsBaseObject, static_cast<T::ParentJsType*>( premadeNative.release() ) );
+        }
+        else
+        {
+            JS::SetPrivate( jsBaseObject, premadeNative.release() );
+        }
 
         if constexpr ( traits::HasPostCreate<T> )
         {

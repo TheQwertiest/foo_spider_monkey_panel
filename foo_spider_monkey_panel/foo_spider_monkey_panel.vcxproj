@@ -220,7 +220,6 @@
     <ClCompile Include="js_objects\internal\fb_properties.cpp" />
     <ClCompile Include="js_objects\internal\global_heap_manager.cpp" />
     <ClCompile Include="js_objects\js_event_target.cpp" />
-    <ClCompile Include="js_objects\js_event_target_wrapper.cpp" />
     <ClCompile Include="js_objects\main_menu_manager.cpp" />
     <ClCompile Include="js_objects\measure_string_info.cpp" />
     <ClCompile Include="js_objects\menu_object.cpp" />
@@ -234,6 +233,7 @@
     <ClCompile Include="js_utils\js_hwnd_helpers.cpp" />
     <ClCompile Include="js_utils\js_image_helpers.cpp" />
     <ClCompile Include="js_utils\js_object_helper.cpp" />
+    <ClCompile Include="js_utils\js_prototype_helpers.cpp" />
     <ClCompile Include="js_utils\serialized_value.cpp" />
     <ClCompile Include="panel\edit_script.cpp" />
     <ClCompile Include="panel\panel_window.cpp" />
@@ -359,7 +359,6 @@
     <ClInclude Include="js_objects\internal\global_heap_manager.h" />
     <ClInclude Include="js_objects\internal\prototype_ids.h" />
     <ClInclude Include="js_objects\js_event_target.h" />
-    <ClInclude Include="js_objects\js_event_target_wrapper.h" />
     <ClInclude Include="js_objects\object_base.h" />
     <ClInclude Include="js_objects\console.h" />
     <ClInclude Include="js_objects\context_menu_manager.h" />

@@ -151,7 +151,7 @@ bool FbMetadbHandleListProxyHandler::get( JSContext* cx, JS::HandleObject proxy,
     if ( id.isInt() )
     {
         JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-        auto pNativeTarget = static_cast<JsFbMetadbHandleList*>( JS::GetPrivate( target ) );
+        auto pNativeTarget = JsFbMetadbHandleList::ExtractNativeUnchecked( target );
         assert( pNativeTarget );
 
         const auto index = static_cast<uint32_t>( id.toInt() );
@@ -177,7 +177,7 @@ bool FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy,
     if ( id.isInt() )
     {
         JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-        auto pNativeTarget = static_cast<JsFbMetadbHandleList*>( JS::GetPrivate( target ) );
+        auto pNativeTarget = JsFbMetadbHandleList::ExtractNativeUnchecked( target );
         assert( pNativeTarget );
 
         const auto index = static_cast<uint32_t>( id.toInt() );
@@ -252,7 +252,7 @@ JSObject* JsFbMetadbHandleList::Constructor( JSContext* cx, JS::HandleValue jsVa
         return JsFbMetadbHandleList::CreateJs( cx, metadb_handle_list() );
     }
 
-    if ( auto pNativeHandle = GetInnerInstancePrivate<JsFbMetadbHandle>( cx, jsValue );
+    if ( auto pNativeHandle = JsFbMetadbHandle::ExtractNative( cx, jsValue );
          pNativeHandle )
     {
         metadb_handle_list handleList;
@@ -260,7 +260,7 @@ JSObject* JsFbMetadbHandleList::Constructor( JSContext* cx, JS::HandleValue jsVa
         return JsFbMetadbHandleList::CreateJs( cx, handleList );
     }
 
-    if ( auto pNativeHandleList = GetInnerInstancePrivate<JsFbMetadbHandleList>( cx, jsValue );
+    if ( auto pNativeHandleList = JsFbMetadbHandleList::ExtractNative( cx, jsValue );
          pNativeHandleList )
     {
         return JsFbMetadbHandleList::CreateJs( cx, pNativeHandleList->GetHandleList() );

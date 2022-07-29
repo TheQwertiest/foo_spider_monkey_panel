@@ -4,6 +4,10 @@
 
 #include <qwr/type_traits.h>
 
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Array.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
+
 #include <optional>
 
 namespace mozjs::convert::to_native
@@ -31,7 +35,7 @@ inline constexpr bool IsJsSimpleConvertableV = IsJsSimpleConvertableImplV<std::r
 template <typename T>
 T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 {
-    auto pNative = mozjs::GetInnerInstancePrivate<std::remove_pointer_t<T>>( cx, jsObject );
+    auto pNative = std::remove_pointer_t<T>::ExtractNative( cx, jsObject );
     qwr::QwrException::ExpectTrue( pNative, "Object is not of valid type" );
 
     return pNative;

@@ -436,8 +436,8 @@
     <ClCompile Include="ui\impl\ui_menu_edit_with.cpp">
       <Filter>ui\impl</Filter>
     </ClCompile>
-    <ClCompile Include="js_objects\js_event_target_wrapper.cpp">
-      <Filter>js_objects</Filter>
+    <ClCompile Include="js_utils\js_prototype_helpers.cpp">
+      <Filter>js_utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -945,9 +945,6 @@
     </ClInclude>
     <ClInclude Include="ui\impl\ui_menu_edit_with.h">
       <Filter>ui\impl</Filter>
-    </ClInclude>
-    <ClInclude Include="js_objects\js_event_target_wrapper.h">
-      <Filter>js_objects</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

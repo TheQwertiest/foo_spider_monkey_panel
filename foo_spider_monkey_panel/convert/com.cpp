@@ -109,7 +109,7 @@ protected:
         JS::RootedValue vFunc( pJsCtx_, heapMgr.Get( funcId_ ) );
         JS::RootedFunction rFunc( pJsCtx_, JS_ValueToFunction( pJsCtx_, vFunc ) );
         auto args = std::to_array( { &arg1, &arg2, &arg3, &arg4, &arg5, &arg6, &arg7 } );
-        JS::RootedValueArray<args.size()> wrappedArgs(pJsCtx_);
+        JS::RootedValueArray<args.size()> wrappedArgs( pJsCtx_ );
 
         try
         {
@@ -402,7 +402,7 @@ void JsToVariant( JSContext* cx, JS::HandleValue rval, VARIANTARG& arg )
     {
         JS::RootedObject j0( cx, &rval.toObject() );
 
-        auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, j0 );
+        auto pNative = JsActiveXObject::ExtractNative( cx, j0 );
         if ( pNative )
         {
             JsActiveXObject* x = pNative;

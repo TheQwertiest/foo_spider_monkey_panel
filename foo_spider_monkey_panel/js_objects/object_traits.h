@@ -10,6 +10,12 @@ template <typename T>
 concept HasProxy = T::HasProxy || false;
 
 template <typename T>
+concept HasParentProto = T::HasParentProto || false;
+
+template <typename T>
+concept IsExtendable = T::IsExtendable || false;
+
+template <typename T>
 concept HasJsFunctionsMember = requires( T t )
 {
     {

@@ -232,6 +232,12 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         }
 
         DefineConsole( cx, jsObj );
+
+#ifdef SMP_V2
+        CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::Event );
+        CreateAndInstallPrototype<JsEventTarget>( cx, JsPrototypeId::EventTarget );
+#endif
+
         CreateAndInstallObject<JsGdiUtils>( cx, jsObj, "gdi" );
         CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" );
         CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" );
@@ -254,17 +260,13 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         }
 #endif
 
-        CreateAndInstallPrototype<JsActiveXObject>( cx, JsPrototypeId::ActiveX );
-        CreateAndInstallPrototype<JsGdiBitmap>( cx, JsPrototypeId::GdiBitmap );
-        CreateAndInstallPrototype<JsGdiFont>( cx, JsPrototypeId::GdiFont );
-        CreateAndInstallPrototype<JsEnumerator>( cx, JsPrototypeId::Enumerator );
-        CreateAndInstallPrototype<JsFbMetadbHandleList>( cx, JsPrototypeId::FbMetadbHandleList );
-        CreateAndInstallPrototype<JsFbProfiler>( cx, JsPrototypeId::FbProfiler );
-        CreateAndInstallPrototype<JsFbTitleFormat>( cx, JsPrototypeId::FbTitleFormat );
-#ifdef SMP_V2
-        CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::Event );
-        CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::EventTarget );
-#endif
+        utils::CreateAndInstallPrototype<JsActiveXObject>( cx, JsPrototypeId::ActiveX );
+        utils::CreateAndInstallPrototype<JsGdiBitmap>( cx, JsPrototypeId::GdiBitmap );
+        utils::CreateAndInstallPrototype<JsGdiFont>( cx, JsPrototypeId::GdiFont );
+        utils::CreateAndInstallPrototype<JsEnumerator>( cx, JsPrototypeId::Enumerator );
+        utils::CreateAndInstallPrototype<JsFbMetadbHandleList>( cx, JsPrototypeId::FbMetadbHandleList );
+        utils::CreateAndInstallPrototype<JsFbProfiler>( cx, JsPrototypeId::FbProfiler );
+        utils::CreateAndInstallPrototype<JsFbTitleFormat>( cx, JsPrototypeId::FbTitleFormat );
 
         auto pJsWindow = GetNativeObjectProperty<JsWindow>( cx, jsObj, "window" );
         assert( pJsWindow );

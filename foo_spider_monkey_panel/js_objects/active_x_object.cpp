@@ -35,7 +35,7 @@ using namespace mozjs;
 
 void RefreshValue( JSContext* cx, JS::HandleValue valToCheck )
 {
-    auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, valToCheck );
+    auto pNative = JsActiveXObject::ExtractNative( cx, valToCheck );
     if ( !pNative )
     {
         return;
@@ -74,7 +74,7 @@ public:
 const ActiveXObjectProxyHandler ActiveXObjectProxyHandler::singleton;
 
 /*
-bool 
+bool
 ActiveXObjectProxyHandler::has( JSContext* cx, JS::HandleObject proxy, JS::HandleId id, bool* bp ) const
 {
     if ( !id.isString() )
@@ -98,7 +98,7 @@ ActiveXObjectProxyHandler::has( JSContext* cx, JS::HandleObject proxy, JS::Handl
         }
         return false;
     }
-    
+
     *bp = pNativeTarget->Has( *retVal );
     return true;
 }
@@ -123,7 +123,7 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
         if ( isEnumSymbol )
         {
             JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-            auto pNativeTarget = static_cast<JsActiveXObject*>( JS::GetPrivate( target ) );
+            auto pNativeTarget = JsActiveXObject::ExtractNativeUnchecked( target );
             assert( pNativeTarget );
 
             if ( pNativeTarget->HasIterator() )
@@ -136,7 +136,7 @@ bool ActiveXObjectProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::
         else if ( isString || isInt )
         {
             JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-            auto pNativeTarget = static_cast<JsActiveXObject*>( JS::GetPrivate( target ) );
+            auto pNativeTarget = JsActiveXObject::ExtractNativeUnchecked( target );
             assert( pNativeTarget );
 
             std::wstring propName;
@@ -188,7 +188,7 @@ bool ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
         }
 
         JS::RootedObject target( cx, js::GetProxyTargetObject( proxy ) );
-        auto pNativeTarget = static_cast<JsActiveXObject*>( JS::GetPrivate( target ) );
+        auto pNativeTarget = JsActiveXObject::ExtractNativeUnchecked( target );
         assert( pNativeTarget );
 
         JS::RootedString jsString( cx, id.toString() );
@@ -211,6 +211,7 @@ bool ActiveXObjectProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::
 
     return js::ForwardingProxyHandler::set( cx, proxy, id, v, receiver, result );
 }
+
 /*
 bool ActiveXObjectProxyHandler::ownPropertyKeys( JSContext* cx, JS::HandleObject proxy, JS::AutoIdVector& props ) const
 {
@@ -229,9 +230,9 @@ bool ActiveXObjectProxyHandler::ownPropertyKeys( JSContext* cx, JS::HandleObject
         if ( !JS_CharsToId( cx, jsString, &jsId ) || !props.append( jsId ) )
         {// report in JS_CharsToId
             return false;
-        }        
+        }
     }
-    
+
     return true;
 }
 */
@@ -281,7 +282,7 @@ bool ActiveX_Run_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
-    auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, args.thisv() );
+    auto pNative = JsActiveXObject::ExtractNative( cx, args.thisv() );
     qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     JS::RootedString jsString( cx, JS_GetFunctionId( JS_ValueToFunction( cx, args.calleev() ) ) );
@@ -295,7 +296,7 @@ bool ActiveX_Get_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
-    auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, args.thisv() );
+    auto pNative = JsActiveXObject::ExtractNative( cx, args.thisv() );
     qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     pNative->Get( args );
@@ -306,7 +307,7 @@ bool ActiveX_Set_Impl( JSContext* cx, unsigned argc, JS::Value* vp )
 {
     JS::CallArgs args = JS::CallArgsFromVp( argc, vp );
 
-    auto pNative = GetInnerInstancePrivate<JsActiveXObject>( cx, args.thisv() );
+    auto pNative = JsActiveXObject::ExtractNative( cx, args.thisv() );
     qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
 
     pNative->Set( args );
@@ -428,8 +429,8 @@ JsActiveXObject::JsActiveXObject( JSContext* cx, CLSID& clsid )
     }
 
     hresult = pStorage_->pUnknown->QueryInterface( IID_IDispatch, reinterpret_cast<void**>( &pStorage_->pDispatch ) );
-    //maybe I don't know what to do with it, but it might get passed to
-    //another COM function
+    // maybe I don't know what to do with it, but it might get passed to
+    // another COM function
     if ( FAILED( hresult ) )
     {
         pStorage_->pDispatch = nullptr;
@@ -731,7 +732,7 @@ void JsActiveXObject::Set( const std::wstring& propName, JS::HandleValue v )
     WORD flag = DISPATCH_PROPERTYPUT;
     if ( ( arg.vt == VT_DISPATCH || arg.vt == VT_UNKNOWN )
          && members_.contains( propName ) && members_[propName]->isPutRef )
-    { //must be passed by name
+    { // must be passed by name
         flag = DISPATCH_PROPERTYPUTREF;
     }
 
@@ -786,7 +787,7 @@ void JsActiveXObject::Set( const JS::CallArgs& callArgs )
     WORD flag = DISPATCH_PROPERTYPUT;
     if ( ( args[argc - 1].vt == VT_DISPATCH || args[argc - 1].vt == VT_UNKNOWN )
          && members_.contains( propName ) && members_[propName]->isPutRef )
-    { //must be passed by name
+    { // must be passed by name
         flag = DISPATCH_PROPERTYPUTREF;
     }
 
@@ -802,7 +803,7 @@ void JsActiveXObject::Set( const JS::CallArgs& callArgs )
 
     for ( auto i: ranges::views::indices( callArgs.length() - 1 ) )
     {
-        RefreshValue( pJsCtx_, callArgs[1 + i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
+        RefreshValue( pJsCtx_, callArgs[1 + i] ); // in case any empty ActiveXObject objects were filled in by Invoke()
     }
 
     if ( FAILED( hresult ) )
@@ -848,7 +849,7 @@ void JsActiveXObject::Invoke( const std::wstring& funcName, const JS::CallArgs& 
 
     for ( auto i: ranges::views::indices( callArgs.length() ) )
     {
-        RefreshValue( pJsCtx_, callArgs[i] ); //in case any empty ActiveXObject objects were filled in by Invoke()
+        RefreshValue( pJsCtx_, callArgs[i] ); // in case any empty ActiveXObject objects were filled in by Invoke()
     }
 
     if ( FAILED( hresult ) )

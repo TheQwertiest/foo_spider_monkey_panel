@@ -109,7 +109,7 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    JsWindow::FinalizeJsObject,
+    JsObjectBase<JsWindow>::FinalizeJsObject,
     nullptr,
     nullptr,
     nullptr,
@@ -238,8 +238,12 @@ JsWindow::~JsWindow()
 }
 
 JsWindow::JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties )
-    : JsEventTargetWrapper( cx )
-    , pJsCtx_( cx )
+    :
+#ifdef SMP_V2
+    JsEventTarget( cx )
+    ,
+#endif
+    pJsCtx_( cx )
     , parentPanel_( parentPanel )
     , fbProperties_( std::move( fbProperties ) )
 {
@@ -264,7 +268,7 @@ size_t JsWindow::GetInternalSize( const smp::panel::PanelWindow& )
 
 void JsWindow::Trace( JSTracer* trc, JSObject* obj )
 {
-    auto x = static_cast<JsWindow*>( JS::GetPrivate( obj ) );
+    auto x = JsObjectBase<JsWindow>::ExtractNativeUnchecked( obj );
     if ( x && x->fbProperties_ )
     {
         x->fbProperties_->Trace( trc );
@@ -354,7 +358,7 @@ JSObject* JsWindow::CreateTooltip( const std::wstring& name, uint32_t pxSize, ui
     if ( !jsTooltip_.initialized() )
     {
         jsTooltip_.init( pJsCtx_, JsFbTooltip::CreateJs( pJsCtx_, parentPanel_.GetHWND() ) );
-        pNativeTooltip_ = static_cast<JsFbTooltip*>( JS::GetPrivate( jsTooltip_ ) );
+        pNativeTooltip_ = JsFbTooltip::ExtractNativeUnchecked( jsTooltip_ );
     }
 
     assert( pNativeTooltip_ );

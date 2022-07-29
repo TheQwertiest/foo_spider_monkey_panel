@@ -36,7 +36,7 @@ BaseClass* InvokeNativeCallback_GetThisObject( JSContext* cx, JS::HandleValue js
     if ( jsThis.isObject() )
     {
         JS::RootedObject jsObject( cx, &jsThis.toObject() );
-        return GetInnerInstancePrivate<BaseClass>( cx, jsObject );
+        return JsObjectBase<BaseClass>::ExtractNative( cx, jsObject );
     }
 
     if constexpr ( std::is_same_v<BaseClass, JsGlobalObject> )
