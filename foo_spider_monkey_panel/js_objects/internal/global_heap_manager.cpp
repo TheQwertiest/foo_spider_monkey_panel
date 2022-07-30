@@ -2,9 +2,7 @@
 
 #include "global_heap_manager.h"
 
-SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/TracingAPI.h>
-SMP_MJS_SUPPRESS_WARNINGS_POP
 
 namespace mozjs
 {

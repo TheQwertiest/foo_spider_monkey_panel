@@ -13,13 +13,10 @@
 #include <js_utils/scope_helper.h>
 #include <panel/panel_window.h>
 
-#include <qwr/final_action.h>
-
-SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/CompilationAndEvaluation.h>
 #include <js/SourceText.h>
 #include <js/Wrapper.h>
-SMP_MJS_SUPPRESS_WARNINGS_POP
+#include <qwr/final_action.h>
 
 using namespace smp;
 

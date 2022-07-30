@@ -23,7 +23,7 @@ namespace mozjs
 {
 
 class JsContainer;
-class JsInternalGlobal;
+class JsScriptCache;
 
 class JsEngine final
 {
@@ -47,7 +47,7 @@ public: // methods accessed by JsContainer
 public: // methods accessed by js objects
     [[nodiscard]] JsGc& GetGcEngine();
     [[nodiscard]] const JsGc& GetGcEngine() const;
-    [[nodiscard]] JsInternalGlobal& GetInternalGlobal();
+    [[nodiscard]] JsScriptCache& GetScriptCache();
 
 public: // methods accessed by other internals
     void OnHeartbeat();
@@ -92,7 +92,7 @@ private:
     bool areJobsInProgress_ = false;
     uint32_t jobsStartTime_ = 0;
 
-    std::unique_ptr<JsInternalGlobal> internalGlobal_;
+    std::unique_ptr<JsScriptCache> pScriptCache_;
 };
 
 } // namespace mozjs

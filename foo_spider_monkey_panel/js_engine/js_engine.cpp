@@ -6,8 +6,8 @@
 #include <fb2k/advanced_config.h>
 #include <js_engine/heartbeat_window.h>
 #include <js_engine/js_container.h>
-#include <js_engine/js_internal_global.h>
 #include <js_engine/js_realm_inner.h>
+#include <js_engine/js_script_cache.h>
 #include <js_objects/global_object.h>
 #include <js_utils/js_error_helper.h>
 #include <panel/modal_blocking_scope.h>
@@ -190,10 +190,10 @@ const JsGc& JsEngine::GetGcEngine() const
     return jsGc_;
 }
 
-JsInternalGlobal& JsEngine::GetInternalGlobal()
+JsScriptCache& JsEngine::GetScriptCache()
 {
-    assert( internalGlobal_ );
-    return *internalGlobal_;
+    assert( pScriptCache_ );
+    return *pScriptCache_;
 }
 
 void JsEngine::OnHeartbeat()
@@ -256,8 +256,7 @@ bool JsEngine::Initialize()
 
         rejectedPromises_.init( cx, JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>( js::SystemAllocPolicy() ) );
 
-        internalGlobal_ = JsInternalGlobal::Create( cx );
-        assert( internalGlobal_ );
+        pScriptCache_ = std::make_unique<JsScriptCache>();
 
         StartHeartbeatThread();
         jsMonitor_.Start( cx );
@@ -289,7 +288,7 @@ void JsEngine::Finalize()
         StopHeartbeatThread();
         jsGc_.Finalize();
 
-        internalGlobal_.reset();
+        pScriptCache_.reset();
         rejectedPromises_.reset();
 
         JS_DestroyContext( pJsCtx_ );

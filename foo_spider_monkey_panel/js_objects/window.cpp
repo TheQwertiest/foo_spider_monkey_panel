@@ -2,10 +2,6 @@
 
 #include "window.h"
 
-SMP_MJS_SUPPRESS_WARNINGS_PUSH
-#include <js/Array.h>
-SMP_MJS_SUPPRESS_WARNINGS_POP
-
 #include <config/package_utils.h>
 #include <events/event_basic.h>
 #include <events/event_dispatcher.h>
@@ -25,6 +21,7 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 #include <timeout/timeout_manager.h>
 #include <utils/gdi_helpers.h>
 
+#include <js/Array.h>
 #include <qwr/winapi_error_helpers.h>
 
 using namespace smp;

@@ -2,9 +2,7 @@
 
 #include "native_to_js_invoker.h"
 
-SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Conversions.h>
-SMP_MJS_SUPPRESS_WARNINGS_POP
 
 namespace mozjs::internal
 {

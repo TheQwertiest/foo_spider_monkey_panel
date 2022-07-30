@@ -2,11 +2,8 @@
 
 #include <js_utils/js_object_helper.h>
 
-#include <qwr/type_traits.h>
-
-SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Array.h>
-SMP_MJS_SUPPRESS_WARNINGS_POP
+#include <qwr/type_traits.h>
 
 #include <optional>
 

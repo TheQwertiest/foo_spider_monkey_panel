@@ -8,7 +8,6 @@
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Wrapper.h>
-#include <js/proxy.h>
 SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <memory>

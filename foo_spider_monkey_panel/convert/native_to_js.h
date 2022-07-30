@@ -1,9 +1,6 @@
 #pragma once
 
-SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Array.h>
-SMP_MJS_SUPPRESS_WARNINGS_POP
-
 #include <qwr/type_traits.h>
 
 namespace mozjs::convert::to_js

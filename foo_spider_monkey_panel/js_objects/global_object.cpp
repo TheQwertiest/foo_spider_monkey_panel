@@ -5,8 +5,8 @@
 #include <config/package_utils.h>
 #include <js_engine/js_container.h>
 #include <js_engine/js_engine.h>
-#include <js_engine/js_internal_global.h>
 #include <js_engine/js_realm_inner.h>
+#include <js_engine/js_script_cache.h>
 #include <js_engine/js_to_native_invoker.h>
 #include <js_objects/active_x_object.h>
 #include <js_objects/console.h>
@@ -31,13 +31,10 @@
 #include <panel/panel_window.h>
 #include <utils/logging.h>
 
+#include <js/CompilationAndEvaluation.h>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
 #include <qwr/final_action.h>
-
-SMP_MJS_SUPPRESS_WARNINGS_PUSH
-#include <js/CompilationAndEvaluation.h>
-SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <filesystem>
 
@@ -358,7 +355,7 @@ void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue o
 
     includedFiles_.emplace( u8Path );
 
-    JS::RootedScript jsScript( pJsCtx_, JsEngine::GetInstance().GetInternalGlobal().GetCachedScript( fsPath ) );
+    JS::RootedScript jsScript( pJsCtx_, JsEngine::GetInstance().GetScriptCache().GetCachedScript( pJsCtx_, fsPath ) );
     assert( jsScript );
 
     JS::RootedValue dummyRval( pJsCtx_ );

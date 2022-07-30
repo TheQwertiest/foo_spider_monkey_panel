@@ -10,16 +10,12 @@
 #include <js_utils/js_error_helper.h>
 #include <js_utils/js_object_helper.h>
 #include <utils/art_helpers.h>
+#include <utils/relative_filepath_trie.h>
 #include <utils/text_helpers.h>
 
+#include <js/Conversions.h>
 #include <qwr/abort_callback.h>
 #include <qwr/string_helpers.h>
-
-SMP_MJS_SUPPRESS_WARNINGS_PUSH
-#include <js/Conversions.h>
-SMP_MJS_SUPPRESS_WARNINGS_POP
-
-#include <utils/relative_filepath_trie.h>
 
 using namespace smp;
 
