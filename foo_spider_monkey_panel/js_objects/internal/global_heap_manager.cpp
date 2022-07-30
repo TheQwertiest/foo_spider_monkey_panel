@@ -93,11 +93,11 @@ void GlobalHeapManager::Trace( JSTracer* trc )
 
     for ( auto& [id, heapElement]: heapElements_ )
     {
-        JS::TraceEdge( trc, heapElement.get(), "CustomHeap_Global" );
+        JS::TraceEdge( trc, heapElement.get(), "CustomHeap: Global(in-use elements)" );
     }
     for ( auto& heapElement: unusedHeapElements_ )
     {
-        JS::TraceEdge( trc, heapElement.get(), "CustomHeap_Global" );
+        JS::TraceEdge( trc, heapElement.get(), "CustomHeap: Global(unused elements)" );
     }
 }
 

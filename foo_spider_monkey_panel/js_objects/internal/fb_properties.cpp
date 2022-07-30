@@ -32,7 +32,7 @@ void FbProperties::Trace( JSTracer* trc )
 {
     for ( auto& [name, heapElem]: properties_ )
     {
-        JS::TraceEdge( trc, &heapElem->value, "CustomHeap_Properties" );
+        JS::TraceEdge( trc, &heapElem->value, "CustomHeap: Properties" );
     }
 }
 

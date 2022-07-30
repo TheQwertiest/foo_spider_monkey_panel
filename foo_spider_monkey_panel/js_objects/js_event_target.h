@@ -2,6 +2,9 @@
 
 #include <js_objects/object_base.h>
 
+#include <unordered_map>
+#include <vector>
+
 namespace mozjs
 {
 
@@ -39,9 +42,22 @@ protected:
 private:
     static std::unique_ptr<JsEventTarget> CreateNative( JSContext* cx );
 
+    void InvokeListener( JS::HandleObject currentGlobal, JS::HandleObject listener, JS::HandleValue event );
+
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
-    std::string test_;
+
+    struct HeapElement
+    {
+        HeapElement( JSObject* jsObject )
+            : jsObject( jsObject )
+        {
+        }
+
+        JS::Heap<JSObject*> jsObject;
+    };
+
+    std::unordered_map<std::string, std::vector<std::unique_ptr<HeapElement>>> typeToListeners_;
 };
 
 } // namespace mozjs

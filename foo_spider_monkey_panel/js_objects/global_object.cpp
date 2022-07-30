@@ -234,8 +234,8 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         DefineConsole( cx, jsObj );
 
 #ifdef SMP_V2
-        CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::Event );
-        CreateAndInstallPrototype<JsEventTarget>( cx, JsPrototypeId::EventTarget );
+        utils::CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::Event );
+        utils::CreateAndInstallPrototype<JsEventTarget>( cx, JsPrototypeId::EventTarget );
 #endif
 
         CreateAndInstallObject<JsGdiUtils>( cx, jsObj, "gdi" );

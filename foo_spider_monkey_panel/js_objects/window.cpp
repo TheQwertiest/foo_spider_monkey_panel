@@ -272,11 +272,18 @@ void JsWindow::Trace( JSTracer* trc, JSObject* obj )
     if ( x && x->fbProperties_ )
     {
         x->fbProperties_->Trace( trc );
+#ifdef SMP_V2
+        x->JsEventTarget::Trace( trc );
+#endif
     }
 }
 
 void JsWindow::PrepareForGc()
 {
+#ifdef SMP_V2
+    JsEventTarget::PrepareForGc();
+#endif
+
     if ( fbProperties_ )
     {
         fbProperties_->PrepareForGc();
