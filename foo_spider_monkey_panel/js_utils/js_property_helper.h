@@ -9,7 +9,7 @@ class JSFreeOp;
 struct JSContext;
 class JSObject;
 
-namespace mozjs
+namespace mozjs::utils
 {
 
 template <typename T>
@@ -69,4 +69,4 @@ void SetProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& p
     }
 };
 
-} // namespace mozjs
+} // namespace mozjs::utils

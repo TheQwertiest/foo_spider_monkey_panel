@@ -981,13 +981,21 @@ JsFbUtils::DoDragDropOptions JsFbUtils::ParseDoDragDropOptions( JS::HandleValue 
         qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
-        parsedoptions.useTheming = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "use_theming" ).value_or( true );
-        parsedoptions.useAlbumArt = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "use_album_art" ).value_or( true );
-        parsedoptions.showText = GetOptionalProperty<bool>( pJsCtx_, jsOptions, "show_text" ).value_or( true );
-        auto jsImage = GetOptionalProperty<JsGdiBitmap*>( pJsCtx_, jsOptions, "custom_image" ).value_or( nullptr );
-        if ( jsImage )
+        if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "use_theming" ) )
         {
-            parsedoptions.pCustomImage = jsImage->GdiBitmap();
+            parsedoptions.useTheming = *propOpt;
+        }
+        if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "use_album_art" ) )
+        {
+            parsedoptions.useAlbumArt = *propOpt;
+        }
+        if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "show_text" ) )
+        {
+            parsedoptions.showText = *propOpt;
+        }
+        if ( auto pJsImageOpt = utils::GetOptionalProperty<JsGdiBitmap*>( pJsCtx_, jsOptions, "custom_image" ) )
+        {
+            parsedoptions.pCustomImage = ( *pJsImageOpt )->GdiBitmap();
         }
     }
 

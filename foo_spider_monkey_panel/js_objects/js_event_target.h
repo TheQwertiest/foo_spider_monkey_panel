@@ -33,7 +33,7 @@ public:
 
     void AddEventListener( const qwr::u8string& type, JS::HandleValue listener );
     void RemoveEventListener( const qwr::u8string& type, JS::HandleValue listener );
-    void DispatchEvent( JS::HandleValue event );
+    void DispatchEvent( JS::HandleObject self, JS::HandleValue event );
 
 protected:
     JsEventTarget( JSContext* cx );
@@ -54,10 +54,13 @@ private:
         {
         }
 
+        bool isRemoved = false;
         JS::Heap<JSObject*> jsObject;
     };
 
-    std::unordered_map<std::string, std::vector<std::unique_ptr<HeapElement>>> typeToListeners_;
+    std::unordered_map<std::string, std::vector<std::shared_ptr<HeapElement>>> typeToListeners_;
+
+    static int64_t dispatchNestedCounter_;
 };
 
 } // namespace mozjs

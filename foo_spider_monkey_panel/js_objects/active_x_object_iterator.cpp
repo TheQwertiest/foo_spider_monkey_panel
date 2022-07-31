@@ -108,8 +108,8 @@ JSObject* JsActiveXObject_Iterator::Next()
 
         JS::RootedValue jsValue( pJsCtx_ );
         convert::com::VariantToJs( pJsCtx_, curElem_, &jsValue );
-        AddProperty( pJsCtx_, jsObject, "value", static_cast<JS::HandleValue>( jsValue ) );
-        AddProperty( pJsCtx_, jsObject, "done", isAtEnd_ );
+        utils::AddProperty( pJsCtx_, jsObject, "value", static_cast<JS::HandleValue>( jsValue ) );
+        utils::AddProperty( pJsCtx_, jsObject, "done", isAtEnd_ );
 
         jsNextId_ = heapHelper_.Store( jsObject );
 
@@ -122,8 +122,8 @@ JSObject* JsActiveXObject_Iterator::Next()
 
         JS::RootedValue jsValue( pJsCtx_ );
         convert::com::VariantToJs( pJsCtx_, curElem_, &jsValue );
-        SetProperty( pJsCtx_, jsNext, "value", static_cast<JS::HandleValue>( jsValue ) );
-        SetProperty( pJsCtx_, jsNext, "done", isAtEnd_ );
+        utils::SetProperty( pJsCtx_, jsNext, "value", static_cast<JS::HandleValue>( jsValue ) );
+        utils::SetProperty( pJsCtx_, jsNext, "done", isAtEnd_ );
 
         return jsNext;
     }

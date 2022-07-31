@@ -869,9 +869,9 @@ JSObject* JsWindow::get_JsMemoryStats()
     JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
 
     JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
-    AddProperty( pJsCtx_, jsObject, "MemoryUsage", JsGc::GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal ) );
-    AddProperty( pJsCtx_, jsObject, "TotalMemoryUsage", JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage() );
-    AddProperty( pJsCtx_, jsObject, "TotalMemoryLimit", JsGc::GetMaxHeap() );
+    utils::AddProperty( pJsCtx_, jsObject, "MemoryUsage", JsGc::GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal ) );
+    utils::AddProperty( pJsCtx_, jsObject, "TotalMemoryUsage", JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage() );
+    utils::AddProperty( pJsCtx_, jsObject, "TotalMemoryLimit", JsGc::GetMaxHeap() );
 
     return jsObject;
 }
@@ -958,18 +958,18 @@ JSObject* JsWindow::get_ScriptInfo()
 
     JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
 
-    AddProperty( pJsCtx_, jsObject, "Name", settings.scriptName );
+    utils::AddProperty( pJsCtx_, jsObject, "Name", settings.scriptName );
     if ( !settings.scriptAuthor.empty() )
     {
-        AddProperty( pJsCtx_, jsObject, "Author", settings.scriptAuthor );
+        utils::AddProperty( pJsCtx_, jsObject, "Author", settings.scriptAuthor );
     }
     if ( !settings.scriptVersion.empty() )
     {
-        AddProperty( pJsCtx_, jsObject, "Version", settings.scriptVersion );
+        utils::AddProperty( pJsCtx_, jsObject, "Version", settings.scriptVersion );
     }
     if ( settings.packageId )
     {
-        AddProperty( pJsCtx_, jsObject, "PackageId", *settings.packageId );
+        utils::AddProperty( pJsCtx_, jsObject, "PackageId", *settings.packageId );
     }
 
     return jsObject;
@@ -1062,8 +1062,14 @@ JsWindow::DefineScriptOptions JsWindow::ParseDefineScriptOptions( JS::HandleValu
         qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
-        parsedOptions.author = GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "author" ).value_or( "" );
-        parsedOptions.version = GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "version" ).value_or( "" );
+        if ( const auto propOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "author" ) )
+        {
+            parsedOptions.author = *propOpt;
+        }
+        if ( const auto propOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "version" ) )
+        {
+            parsedOptions.version = *propOpt;
+        }
 
         bool hasProperty;
         if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )
@@ -1082,8 +1088,14 @@ JsWindow::DefineScriptOptions JsWindow::ParseDefineScriptOptions( JS::HandleValu
             qwr::QwrException::ExpectTrue( jsFeaturesValue.isObject(), "`features` is not an object" );
 
             JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
-            parsedOptions.features.dragAndDrop = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "drag_n_drop" ).value_or( false );
-            parsedOptions.features.grabFocus = GetOptionalProperty<bool>( pJsCtx_, jsFeatures, "grab_focus" ).value_or( true );
+            if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "drag_n_drop" ) )
+            {
+                parsedOptions.features.dragAndDrop = *propOpt;
+            }
+            if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "grab_focus" ) )
+            {
+                parsedOptions.features.grabFocus = *propOpt;
+            }
         }
     }
 

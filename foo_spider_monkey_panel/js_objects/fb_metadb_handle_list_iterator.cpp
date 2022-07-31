@@ -100,8 +100,8 @@ JSObject* JsFbMetadbHandleList_Iterator::Next()
         {
             jsValueObject = handleList_.get_Item( curPosition_ );
         }
-        AddProperty( pJsCtx_, jsObject, "value", static_cast<JS::HandleObject>( jsValueObject ) );
-        AddProperty( pJsCtx_, jsObject, "done", isAtEnd );
+        utils::AddProperty( pJsCtx_, jsObject, "value", static_cast<JS::HandleObject>( jsValueObject ) );
+        utils::AddProperty( pJsCtx_, jsObject, "done", isAtEnd );
 
         jsNextId_ = heapHelper_.Store( jsObject );
 
@@ -117,8 +117,8 @@ JSObject* JsFbMetadbHandleList_Iterator::Next()
         {
             jsValueObject = handleList_.get_Item( curPosition_ );
         }
-        SetProperty( pJsCtx_, jsNext, "value", static_cast<JS::HandleObject>( jsValueObject ) );
-        SetProperty( pJsCtx_, jsNext, "done", isAtEnd );
+        utils::SetProperty( pJsCtx_, jsNext, "value", static_cast<JS::HandleObject>( jsValueObject ) );
+        utils::SetProperty( pJsCtx_, jsNext, "done", isAtEnd );
 
         return jsNext;
     }

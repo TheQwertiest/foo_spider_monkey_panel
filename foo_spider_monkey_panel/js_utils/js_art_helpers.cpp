@@ -146,8 +146,8 @@ bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject, JS::HandleVa
             throw JsException();
         }
 
-        AddProperty( cx, jsResult, "image", JS::HandleValue{ jsBitmapValue } );
-        AddProperty( cx, jsResult, "path", path_ );
+        utils::AddProperty( cx, jsResult, "image", JS::HandleValue{ jsBitmapValue } );
+        utils::AddProperty( cx, jsResult, "path", path_ );
 
         JS::RootedValue jsResultValue( cx, JS::ObjectValue( *jsResult ) );
         (void)JS::ResolvePromise( cx, jsPromise, jsResultValue );

@@ -510,15 +510,15 @@ void CDialogHtml::ParseOptions( JS::HandleValue options )
 
     JS::RootedObject jsObject( pJsCtx_, &options.toObject() );
 
-    width_ = GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "width" );
-    height_ = GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "height" );
-    x_ = GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "x" );
-    y_ = GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "y" );
-    isCentered_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "center" ).value_or( true );
-    isContextMenuEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "context_menu" ).value_or( false );
-    isFormSelectionEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "selection" ).value_or( false );
-    isResizable_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "resizable" ).value_or( false );
-    isScrollEnabled_ = GetOptionalProperty<bool>( pJsCtx_, jsObject, "scroll" ).value_or( false );
+    width_ = utils::GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "width" );
+    height_ = utils::GetOptionalProperty<uint32_t>( pJsCtx_, jsObject, "height" );
+    x_ = utils::GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "x" );
+    y_ = utils::GetOptionalProperty<int32_t>( pJsCtx_, jsObject, "y" );
+    isCentered_ = utils::GetOptionalProperty<bool>( pJsCtx_, jsObject, "center" ).value_or( true );
+    isContextMenuEnabled_ = utils::GetOptionalProperty<bool>( pJsCtx_, jsObject, "context_menu" ).value_or( false );
+    isFormSelectionEnabled_ = utils::GetOptionalProperty<bool>( pJsCtx_, jsObject, "selection" ).value_or( false );
+    isResizable_ = utils::GetOptionalProperty<bool>( pJsCtx_, jsObject, "resizable" ).value_or( false );
+    isScrollEnabled_ = utils::GetOptionalProperty<bool>( pJsCtx_, jsObject, "scroll" ).value_or( false );
 
     bool hasProperty;
     if ( !JS_HasProperty( pJsCtx_, jsObject, "data", &hasProperty ) )

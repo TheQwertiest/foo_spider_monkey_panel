@@ -3,7 +3,10 @@
 #include "js_event_target.h"
 
 #include <js_engine/js_to_native_invoker.h>
+#include <js_objects/js_event.h>
 #include <utils/logging.h>
+
+#include <qwr/final_action.h>
 
 #include <chrono>
 
@@ -36,7 +39,23 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( addEventListener, JsEventTarget::AddEventListener );
 MJS_DEFINE_JS_FN_FROM_NATIVE( removeEventListener, JsEventTarget::RemoveEventListener );
-MJS_DEFINE_JS_FN_FROM_NATIVE( dispatchEvent, JsEventTarget::DispatchEvent );
+
+bool dispatchEvent( JSContext* cx, unsigned argc, JS::Value* vp )
+{
+    // handling manually, because we need `this`
+    const auto wrappedFunc = []( JSContext* cx, unsigned argc, JS::Value* vp ) {
+        JS::CallArgs jsArgs = JS::CallArgsFromVp( argc, vp );
+        qwr::QwrException::ExpectTrue( jsArgs.length() == 1, "Invalid number of arguments" );
+
+        auto pNative = JsEventTarget::ExtractNative( cx, jsArgs.thisv() );
+        qwr::QwrException::ExpectTrue( pNative, "`this` is not an object of valid type" );
+
+        JS::RootedObject jsSelf( cx, &jsArgs.thisv().toObject() );
+        pNative->DispatchEvent( jsSelf, jsArgs[0] );
+    };
+
+    return mozjs::error::Execute_JsSafe( cx, "dispatchEvent", wrappedFunc, argc, vp );
+}
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>( {
     JS_FN( "addEventListener", addEventListener, 2, kDefaultPropsFlags ),
@@ -61,6 +80,8 @@ const JSFunctionSpec* JsEventTarget::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsEventTarget::JsProperties = jsProperties.data();
 const JsPrototypeId JsEventTarget::PrototypeId = JsPrototypeId::EventTarget;
 const JSNative JsEventTarget::JsConstructor = ::JsEventTarget_Constructor;
+
+int64_t JsEventTarget::dispatchNestedCounter_ = 0;
 
 JsEventTarget::JsEventTarget( JSContext* cx )
     : pJsCtx_( cx )
@@ -111,10 +132,16 @@ void JsEventTarget::AddEventListener( const qwr::u8string& type, JS::HandleValue
     {
         if ( listenerElement->jsObject.get() == listenerObject.get() )
         {
+            listenerElement->isRemoved = false;
             return;
         }
     }
-    listeners.emplace_back( std::make_unique<HeapElement>( listenerObject ) );
+    listeners.emplace_back( std::make_shared<HeapElement>( listenerObject ) );
+
+    if ( !dispatchNestedCounter_ )
+    {
+        ranges::actions::remove_if( typeToListeners_.at( type ), [&listenerObject]( const auto& listenerElement ) { return listenerElement->isRemoved; } );
+    }
 }
 
 void JsEventTarget::RemoveEventListener( const qwr::u8string& type, JS::HandleValue listener )
@@ -129,12 +156,24 @@ void JsEventTarget::RemoveEventListener( const qwr::u8string& type, JS::HandleVa
         return;
     }
 
-    ranges::actions::remove_if( typeToListeners_.at( type ), [&listenerObject]( const auto& listenerElement ) { return listenerElement->jsObject.get() == listenerObject.get(); } );
+    for ( const auto& listenerElement: typeToListeners_.at( type ) )
+    {
+        if ( listenerElement->jsObject.get() == listenerObject.get() )
+        {
+            listenerElement->isRemoved = true;
+            break;
+        }
+    }
 }
 
-void JsEventTarget::DispatchEvent( JS::HandleValue event )
+void JsEventTarget::DispatchEvent( JS::HandleObject self, JS::HandleValue event )
 {
-    const auto type = convert::to_native::ToValue<std::string>( pJsCtx_, event );
+    const auto pNativeEvent = convert::to_native::ToValue<JsEvent*>( pJsCtx_, event );
+    qwr::QwrException::ExpectTrue( !pNativeEvent->HasTarget(),
+                                   "An attempt was made to use an object that is not, or is no longer, usable" );
+
+    const auto& type = pNativeEvent->get_Type();
+
     if ( !typeToListeners_.contains( type ) )
     {
         return;
@@ -143,10 +182,30 @@ void JsEventTarget::DispatchEvent( JS::HandleValue event )
     JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
     assert( jsGlobal );
 
-    for ( const auto& listenerElement: typeToListeners_.at( type ) )
+    pNativeEvent->SetCurrentTarget( self );
+    ++dispatchNestedCounter_;
+    const qwr::final_action autoTarget( [&] {
+        pNativeEvent->SetCurrentTarget( nullptr );
+        pNativeEvent->ResetPropagationStatus();
+        --dispatchNestedCounter_;
+    } );
+
+    // make a copy, since listeners might be added or removed during event dispatch
+    const auto listenersCopy = typeToListeners_.at( type );
+    for ( const auto& listenerElement: listenersCopy )
     {
+        if ( listenerElement->isRemoved )
+        {
+            continue;
+        }
+
         JS::RootedObject jsObject( pJsCtx_, listenerElement->jsObject );
         InvokeListener( jsGlobal, jsObject, event );
+
+        if ( pNativeEvent->IsPropagationStopped() )
+        {
+            break;
+        }
     }
 }
 

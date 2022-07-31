@@ -26,7 +26,7 @@ qwr::u8string GetStackTraceString( JSContext* cx, JS::HandleObject exn )
         JS::RootedObject stackObj( cx, JS::ExceptionStackOrNull( exn ) );
         if ( !stackObj )
         { // quack?
-            return GetOptionalProperty<qwr::u8string>( cx, exn, "stack" ).value_or( "" );
+            return utils::GetOptionalProperty<qwr::u8string>( cx, exn, "stack" ).value_or( "" );
         }
 
         JS::RootedString stackStr( cx );
