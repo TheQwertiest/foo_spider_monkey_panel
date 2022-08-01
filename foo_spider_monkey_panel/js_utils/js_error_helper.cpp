@@ -258,21 +258,13 @@ qwr::u8string JsErrorToText( JSContext* cx )
     else if ( excn.isObject() )
     {
         JS::RootedObject excnObject( cx, &excn.toObject() );
-        JS::RootedObject excnStackObject( cx, JS::ExceptionStackOrNull( excnObject ) );
-        if ( !excnStackObject )
+
+        JSErrorReport* pReport = JS_ErrorFromException( cx, excnObject );
+        if ( !pReport )
         { // Sometimes happens with custom JS errors
             return errorText;
         }
 
-        JS::ExceptionStack excnStack( cx, excn, excnStackObject );
-
-        JS::ErrorReportBuilder reportBuilder( cx );
-        if ( !reportBuilder.init( cx, excnStack, JS::ErrorReportBuilder::SniffingBehavior::WithSideEffects ) )
-        { // Sometimes happens with custom JS errors
-            return errorText;
-        }
-
-        JSErrorReport* pReport = reportBuilder.report();
         assert( !pReport->isWarning() );
 
         errorText = pReport->message().c_str();
