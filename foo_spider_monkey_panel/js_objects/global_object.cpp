@@ -280,6 +280,11 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
     return jsObj;
 }
 
+JsGlobalObject* JsGlobalObject::ExtractNative( JSContext* cx, JS::HandleObject jsObject )
+{
+    return static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsObject, &mozjs::JsGlobalObject::JsClass, nullptr ) );
+}
+
 void JsGlobalObject::Fail( const qwr::u8string& errorText )
 {
     parentContainer_.Fail( errorText );
@@ -293,17 +298,33 @@ GlobalHeapManager& JsGlobalObject::GetHeapManager() const
 
 void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
 {
-    auto nativeGlobal = static_cast<JsGlobalObject*>( JS_GetInstancePrivate( cx, self, &JsGlobalObject::JsClass, nullptr ) );
-    assert( nativeGlobal );
+    auto pNativeGlobal = JsGlobalObject::ExtractNative( cx, self );
+    assert( pNativeGlobal );
+
+    pNativeGlobal->resolvedModules_.clear();
 
     CleanupObjectProperty<JsWindow>( cx, self, "window" );
     CleanupObjectProperty<JsFbPlaylistManager>( cx, self, "plman" );
 
-    if ( nativeGlobal->heapManager_ )
+    if ( pNativeGlobal->heapManager_ )
     {
-        nativeGlobal->heapManager_->PrepareForGc();
-        nativeGlobal->heapManager_.reset();
+        pNativeGlobal->heapManager_->PrepareForGc();
+        pNativeGlobal->heapManager_.reset();
     }
+}
+
+JSObject* JsGlobalObject::GetResolvedModule( const qwr::u8string& moduleName )
+{
+    if ( resolvedModules_.contains( moduleName ) )
+    {
+        return resolvedModules_.at( moduleName )->jsObject.get();
+    }
+
+    std::string path;
+    const auto compiledModule = JsEngine::GetInstance().GetScriptCache().GetCachedModule( pJsCtx_, std::filesystem::u8path( moduleName ) );
+    resolvedModules_.try_emplace( moduleName, std::make_unique<HeapElement>( compiledModule ) );
+
+    return compiledModule;
 }
 
 HWND JsGlobalObject::GetPanelHwnd() const
@@ -359,7 +380,7 @@ void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue o
     assert( jsScript );
 
     JS::RootedValue dummyRval( pJsCtx_ );
-    if ( !JS::CloneAndExecuteScript( pJsCtx_, jsScript, &dummyRval ) )
+    if ( !JS_ExecuteScript( pJsCtx_, jsScript, &dummyRval ) )
     {
         throw JsException();
     }
@@ -417,10 +438,19 @@ JsGlobalObject::IncludeOptions JsGlobalObject::ParseIncludeOptions( JS::HandleVa
 
 void JsGlobalObject::Trace( JSTracer* trc, JSObject* obj )
 {
-    auto x = static_cast<JsGlobalObject*>( JS::GetPrivate( obj ) );
-    if ( x && x->heapManager_ )
+    auto pNative = static_cast<JsGlobalObject*>( JS::GetPrivate( obj ) );
+    if ( !pNative )
     {
-        x->heapManager_->Trace( trc );
+        return;
+    }
+
+    if ( pNative->heapManager_ )
+    {
+        pNative->heapManager_->Trace( trc );
+    }
+    for ( const auto& [key, pValue]: pNative->resolvedModules_ )
+    {
+        JS::TraceEdge( trc, &pValue->jsObject, "CustomHeap: resolved modules" );
     }
 }
 

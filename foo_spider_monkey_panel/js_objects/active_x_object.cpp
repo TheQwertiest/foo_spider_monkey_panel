@@ -484,7 +484,7 @@ size_t JsActiveXObject::GetInternalSize()
 
 void JsActiveXObject::PostCreate( JSContext* cx, JS::HandleObject self )
 {
-    auto pNative = static_cast<JsActiveXObject*>( JS_GetInstancePrivate( cx, self, &JsActiveXObject::JsClass, nullptr ) );
+    auto pNative = JsActiveXObject::ExtractNativeUnchecked( self );
     assert( pNative );
     return pNative->SetupMembers( self );
 }

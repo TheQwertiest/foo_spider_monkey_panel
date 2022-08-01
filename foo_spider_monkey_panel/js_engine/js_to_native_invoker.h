@@ -44,7 +44,7 @@ BaseClass* InvokeNativeCallback_GetThisObject( JSContext* cx, JS::HandleValue js
         if ( jsThis.isUndefined() )
         { // global has undefined `this`
             JS::RootedObject jsObject( cx, JS::CurrentGlobalOrNull( cx ) );
-            return static_cast<BaseClass*>( JS_GetInstancePrivate( cx, jsObject, &BaseClass::JsClass, nullptr ) );
+            return JsGlobalObject::ExtractNative( cx, jsObject );
         }
     }
 

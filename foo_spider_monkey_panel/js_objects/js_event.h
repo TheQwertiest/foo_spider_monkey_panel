@@ -1,7 +1,8 @@
 #pragma once
 
 #include <js_objects/object_base.h>
-#include <js_utils/js_fwd.h>
+
+#include <js/TypeDecls.h>
 
 namespace mozjs
 {

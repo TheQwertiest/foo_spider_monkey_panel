@@ -14,7 +14,7 @@ HWND GetPanelHwndForCurrentGlobal( JSContext* cx )
     JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
     assert( jsGlobal );
 
-    const auto pNativeGlobal = static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr ) );
+    const auto pNativeGlobal = JsGlobalObject::ExtractNative( cx, jsGlobal );
     assert( pNativeGlobal );
 
     return pNativeGlobal->GetPanelHwnd();

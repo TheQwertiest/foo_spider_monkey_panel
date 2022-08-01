@@ -16,7 +16,14 @@
 #include <timeout/timer_interface.h>
 #include <utils/make_unique_ptr.h>
 
+//
+#include <js/CompilationAndEvaluation.h>
+#include <js/Modules.h>
+#include <js/SourceText.h>
+//
+
 #include <js/Initialization.h>
+#include <js/Modules.h>
 #include <qwr/error_popup.h>
 #include <qwr/string_helpers.h>
 #include <qwr/thread_helpers.h>
@@ -231,6 +238,8 @@ bool JsEngine::Initialize()
 
         JSContext* cx = autoJsCtx.get();
 
+        JS_SetContextPrivate( cx, this );
+
         JS_SetNativeStackQuota( cx, kMaxStackLimit );
 
         if ( !JS_AddInterruptCallback( cx, InterruptHandler ) )
@@ -244,6 +253,8 @@ bool JsEngine::Initialize()
         }
 
         JS::SetPromiseRejectionTrackerCallback( cx, RejectedPromiseHandler, this );
+
+        JS::SetModuleResolveHook( JS_GetRuntime( cx ), ModuleResolver );
 
         // TODO: JS::SetWarningReporter( pJsCtx_ )
 
@@ -346,9 +357,9 @@ bool JsEngine::OnInterrupt()
     return jsMonitor_.OnInterrupt();
 }
 
-void JsEngine::RejectedPromiseHandler( JSContext*, bool mutedErrors, JS::HandleObject promise, JS::PromiseRejectionHandlingState state, void* data )
+void JsEngine::RejectedPromiseHandler( JSContext* /*cx*/, bool mutedErrors, JS::HandleObject promise, JS::PromiseRejectionHandlingState state, void* data )
 {
-    JsEngine& self = *reinterpret_cast<JsEngine*>( data );
+    auto& self = *reinterpret_cast<JsEngine*>( data );
 
     if ( JS::PromiseRejectionHandlingState::Handled == state )
     {
@@ -367,6 +378,31 @@ void JsEngine::RejectedPromiseHandler( JSContext*, bool mutedErrors, JS::HandleO
     else
     {
         self.rejectedPromises_.get().append( promise );
+    }
+}
+
+JSObject* JsEngine::ModuleResolver( JSContext* cx, JS::HandleValue /*modulePrivate*/, JS::HandleObject moduleRequest )
+{
+    auto& self = *reinterpret_cast<JsEngine*>( JS_GetContextPrivate( cx ) );
+
+    try
+    {
+        JS::RootedString specifierString( cx, JS::GetModuleRequestSpecifier( cx, moduleRequest ) );
+        assert( specifierString );
+        const auto moduleName = convert::to_native::ToValue<qwr::u8string>( cx, specifierString );
+
+        JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
+        assert( jsGlobal );
+
+        const auto pNativeGlobal = JsGlobalObject::ExtractNative( cx, jsGlobal );
+        assert( pNativeGlobal );
+
+        return pNativeGlobal->GetResolvedModule( moduleName );
+    }
+    catch ( ... )
+    {
+        mozjs::error::ExceptionToJsError( cx );
+        return nullptr;
     }
 }
 

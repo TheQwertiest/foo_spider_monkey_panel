@@ -27,6 +27,7 @@ public:
     ~JsGlobalObject() = default;
 
     static JSObject* CreateNative( JSContext* cx, JsContainer& parentContainer );
+    static JsGlobalObject* ExtractNative( JSContext* cx, JS::HandleObject jsObject );
 
 public:
     void Fail( const qwr::u8string& errorText );
@@ -34,6 +35,8 @@ public:
     [[nodiscard]] GlobalHeapManager& GetHeapManager() const;
 
     static void PrepareForGc( JSContext* cx, JS::HandleObject self );
+
+    JSObject* GetResolvedModule( const qwr::u8string& moduleName );
 
 public: // methods
     /// @remark HWND might be null, if called before fb2k initialization is completed
@@ -93,6 +96,18 @@ private:
     std::unordered_set<std::string> includedFiles_;
 
     std::unique_ptr<GlobalHeapManager> heapManager_;
+
+    struct HeapElement
+    {
+        HeapElement( JSObject* jsObject )
+            : jsObject( jsObject )
+        {
+        }
+
+        JS::Heap<JSObject*> jsObject;
+    };
+
+    std::unordered_map<std::string, std::unique_ptr<HeapElement>> resolvedModules_;
 };
 
 } // namespace mozjs
