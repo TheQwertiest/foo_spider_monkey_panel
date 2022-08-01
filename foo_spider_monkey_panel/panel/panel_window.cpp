@@ -12,7 +12,6 @@
 #include <events/event_js_callback.h>
 #include <events/event_mouse.h>
 #include <fb2k/mainmenu_dynamic.h>
-#include <js_engine/js_container.h>
 #include <panel/drag_action_params.h>
 #include <panel/edit_script.h>
 #include <panel/modal_blocking_scope.h>
@@ -25,6 +24,7 @@
 
 #include <component_paths.h>
 
+#include <js/engine/js_container.h>
 #include <qwr/error_popup.h>
 #include <qwr/fb2k_paths.h>
 #include <qwr/final_action.h>

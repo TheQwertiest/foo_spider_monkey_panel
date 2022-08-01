@@ -2,7 +2,8 @@
 
 #include <events/event.h>
 #include <events/event_js_executor.h>
-#include <js_utils/js_heap_helper.h>
+
+#include <js/utils/js_heap_helper.h>
 
 namespace smp
 {
