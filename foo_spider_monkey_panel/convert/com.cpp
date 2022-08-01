@@ -6,14 +6,14 @@
 #include <com_objects/com_tools.h>
 #include <com_objects/dispatch_ptr.h>
 #include <convert/js_to_native.h>
-#include <js_objects/active_x_object.h>
-#include <js_objects/global_object.h>
-#include <js_objects/internal/global_heap_manager.h>
-#include <js_utils/js_error_helper.h>
-#include <js_utils/js_object_helper.h>
 #include <panel/user_message.h>
 
 #include <js/Date.h>
+#include <js/objects/core/global_heap_manager.h>
+#include <js/objects/core/global_object.h>
+#include <js/objects/dom/active_x_object.h>
+#include <js/utils/js_error_helper.h>
+#include <js/utils/js_object_helper.h>
 #include <qwr/error_popup.h>
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>

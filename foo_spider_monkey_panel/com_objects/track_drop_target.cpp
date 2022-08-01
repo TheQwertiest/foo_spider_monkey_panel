@@ -5,11 +5,12 @@
 #include <com_objects/internal/drag_utils.h>
 #include <events/event_dispatcher.h>
 #include <events/event_drag.h>
-#include <js_engine/js_container.h>
-#include <js_objects/drop_source_action.h>
-#include <js_objects/global_object.h>
 #include <panel/panel_window.h>
 #include <utils/location_processor.h>
+
+#include <js/engine/js_container.h>
+#include <js/objects/core/global_object.h>
+#include <js/objects/dom/drop_source_action.h>
 
 namespace
 {
