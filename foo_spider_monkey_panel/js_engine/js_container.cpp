@@ -14,6 +14,7 @@
 #include <panel/panel_window.h>
 
 #include <js/CompilationAndEvaluation.h>
+#include <js/Modules.h>
 #include <js/SourceText.h>
 #include <js/Wrapper.h>
 #include <qwr/final_action.h>
@@ -183,8 +184,16 @@ bool JsContainer::ExecuteScript( const qwr::u8string& scriptCode )
         OnJsActionStart();
         qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
+        JS::RootedObject jsModule( pJsCtx_, JS::CompileModule( pJsCtx_, opts, source ) );
+        JsException::ExpectTrue( jsModule );
+
+        if ( !JS::ModuleInstantiate( pJsCtx_, jsModule ) )
+        {
+            throw JsException();
+        }
+
         JS::RootedValue dummyRval( pJsCtx_ );
-        if ( !JS::Evaluate( pJsCtx_, opts, source, &dummyRval ) )
+        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &dummyRval ) )
         {
             throw JsException();
         }

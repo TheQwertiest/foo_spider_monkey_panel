@@ -39,7 +39,7 @@ protected:
         JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
         assert( jsGlobal );
 
-        pNativeGlobal_ = static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsGlobal, &mozjs::JsGlobalObject::JsClass, nullptr ) );
+        pNativeGlobal_ = JsGlobalObject::ExtractNative( cx, jsGlobal );
         assert( pNativeGlobal_ );
 
         auto& heapMgr = pNativeGlobal_->GetHeapManager();

@@ -3,6 +3,7 @@
 #include <js_engine/js_gc.h>
 #include <js_engine/js_monitor.h>
 
+#include <js/TypeDecls.h>
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Promise.h>
 SMP_MJS_SUPPRESS_WARNINGS_POP
@@ -10,8 +11,6 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 #include <functional>
 #include <map>
 #include <mutex>
-
-struct JSContext;
 
 namespace smp
 {
@@ -69,6 +68,8 @@ private:
     static void RejectedPromiseHandler( JSContext* cx, bool mutedErrors, JS::HandleObject promise,
                                         JS::PromiseRejectionHandlingState state,
                                         void* data );
+    static JSObject* ModuleResolver( JSContext* cx, JS::HandleValue modulePrivate,
+                                     JS::HandleObject moduleRequest );
 
     void ReportOomError();
 

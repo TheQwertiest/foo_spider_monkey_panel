@@ -2,9 +2,10 @@
 
 #include <js_engine/js_realm_inner.h>
 #include <js_objects/object_traits.h>
-#include <js_utils/js_fwd.h>
 #include <js_utils/js_object_helper.h>
 #include <js_utils/js_prototype_helpers.h>
+
+#include <js/TypeDecls.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Wrapper.h>

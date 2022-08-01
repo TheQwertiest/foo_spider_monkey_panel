@@ -32,7 +32,7 @@ JSScript* JsScriptCache::GetCachedScript( JSContext* pJsCtx, const std::filesyst
     JS::CompileOptions opts( pJsCtx );
     opts.setFileAndLine( pathId.c_str(), 1 );
 
-    auto pStencil = GetCachedStencil( pJsCtx, absolutePath, pathId, opts );
+    auto pStencil = GetCachedStencil( pJsCtx, absolutePath, pathId, opts, false );
     assert( pStencil );
 
     JS::RootedScript jsScript( pJsCtx, JS::InstantiateGlobalStencil( pJsCtx, opts, pStencil ) );
@@ -41,7 +41,28 @@ JSScript* JsScriptCache::GetCachedScript( JSContext* pJsCtx, const std::filesyst
     return jsScript;
 }
 
-RefPtr<JS::Stencil> JsScriptCache::GetCachedStencil( JSContext* pJsCtx, const std::filesystem::path& absolutePath, const std::string& hackedPathId, const JS::CompileOptions& compileOpts )
+JSObject* JsScriptCache::GetCachedModule( JSContext* pJsCtx, const std::filesystem::path& absolutePath )
+{
+    assert( JS::GetCurrentRealmOrNull( pJsCtx ) );
+    assert( absolutePath.is_absolute() );
+
+    // use ids instead of filepaths to work around https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/1
+    // and https://bugzilla.mozilla.org/show_bug.cgi?id=1492090
+    const auto pathId = hack::CacheUtf8Path( absolutePath );
+
+    JS::CompileOptions opts( pJsCtx );
+    opts.setFileAndLine( pathId.c_str(), 1 );
+
+    auto pStencil = GetCachedStencil( pJsCtx, absolutePath, pathId, opts, true );
+    assert( pStencil );
+
+    JS::RootedObject jsObject( pJsCtx, JS::InstantiateModuleStencil( pJsCtx, opts, pStencil ) );
+    JsException::ExpectTrue( jsObject );
+
+    return jsObject;
+}
+
+RefPtr<JS::Stencil> JsScriptCache::GetCachedStencil( JSContext* pJsCtx, const std::filesystem::path& absolutePath, const std::string& hackedPathId, const JS::CompileOptions& compileOpts, bool isModule )
 {
     const auto cleanPath = absolutePath.lexically_normal();
     const auto lastWriteTime = [&absolutePath, &cleanPath] {
@@ -58,12 +79,13 @@ RefPtr<JS::Stencil> JsScriptCache::GetCachedStencil( JSContext* pJsCtx, const st
         }
     }();
 
-    if ( auto it = scriptCache_.find( cleanPath.u8string() );
-         scriptCache_.cend() != it )
+    auto& stencilCache = ( isModule ? moduleCache_ : scriptCache_ );
+    if ( auto it = stencilCache.find( cleanPath.u8string() );
+         stencilCache.cend() != it )
     {
         if ( it->second.writeTime == lastWriteTime )
         {
-            return it->second.scriptStencil;
+            return it->second.stencil;
         }
     }
 
@@ -75,11 +97,12 @@ RefPtr<JS::Stencil> JsScriptCache::GetCachedStencil( JSContext* pJsCtx, const st
         throw JsException();
     }
 
-    RefPtr<JS::Stencil> scriptStencil =
-        JS::CompileGlobalScriptToStencil( pJsCtx, compileOpts, source );
-    JsException::ExpectTrue( scriptStencil );
+    RefPtr<JS::Stencil> stencil = ( isModule
+                                        ? JS::CompileModuleScriptToStencil( pJsCtx, compileOpts, source )
+                                        : JS::CompileGlobalScriptToStencil( pJsCtx, compileOpts, source ) );
+    JsException::ExpectTrue( stencil );
 
-    return scriptCache_.insert_or_assign( cleanPath.u8string(), CachedScriptStencil{ scriptStencil, lastWriteTime } ).first->second.scriptStencil;
+    return stencilCache.insert_or_assign( cleanPath.u8string(), CachedStencil{ stencil, lastWriteTime } ).first->second.stencil;
 }
 
 } // namespace mozjs

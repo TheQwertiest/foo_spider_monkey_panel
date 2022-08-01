@@ -937,9 +937,6 @@
     <ClInclude Include="js_objects\js_event_target.h">
       <Filter>js_objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_utils\js_fwd.h">
-      <Filter>js_utils</Filter>
-    </ClInclude>
     <ClInclude Include="utils\app_info.h">
       <Filter>utils</Filter>
     </ClInclude>
