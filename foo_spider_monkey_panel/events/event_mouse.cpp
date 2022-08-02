@@ -2,9 +2,8 @@
 
 #include "event_mouse.h"
 
+#include <js_backend/engine/js_container.h>
 #include <panel/panel_window.h>
-
-#include <js/engine/js_container.h>
 
 namespace smp
 {

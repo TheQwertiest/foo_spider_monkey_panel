@@ -1,7 +1,8 @@
 #pragma once
 
+#include <js_backend/utils/js_object_helper.h>
+
 #include <js/Array.h>
-#include <js/utils/js_object_helper.h>
 #include <qwr/type_traits.h>
 
 #include <optional>

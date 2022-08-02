@@ -5,9 +5,9 @@
 #include <com_objects/dispatch_ptr.h>
 #include <convert/com.h>
 #include <convert/js_to_native.h>
+#include <js_backend/utils/js_error_helper.h>
+#include <js_backend/utils/js_property_helper.h>
 
-#include <js/utils/js_error_helper.h>
-#include <js/utils/js_property_helper.h>
 #include <qwr/fb2k_paths.h>
 #include <qwr/final_action.h>
 #include <qwr/hook_handler.h>

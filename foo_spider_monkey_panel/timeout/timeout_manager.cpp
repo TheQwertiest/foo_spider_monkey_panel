@@ -5,11 +5,11 @@
 #include "timeout_manager.h"
 
 #include <events/event_js_executor.h>
+#include <js_backend/engine/js_container.h>
+#include <js_backend/utils/js_async_task.h>
 #include <panel/panel_window.h>
 #include <timeout/timeout_executor.h>
 
-#include <js/engine/js_container.h>
-#include <js/utils/js_async_task.h>
 #include <qwr/final_action.h>
 
 using namespace smp;
