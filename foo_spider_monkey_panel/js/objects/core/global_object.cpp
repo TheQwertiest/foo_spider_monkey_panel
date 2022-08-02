@@ -6,7 +6,11 @@
 #include <panel/panel_window.h>
 #include <utils/logging.h>
 
+#include <component_paths.h>
+
 #include <js/CompilationAndEvaluation.h>
+#include <js/Modules.h>
+#include <js/SourceText.h>
 #include <js/engine/js_container.h>
 #include <js/engine/js_engine.h>
 #include <js/engine/js_realm_inner.h>
@@ -34,6 +38,7 @@
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
 #include <qwr/final_action.h>
+#include <qwr/string_helpers.h>
 
 #include <filesystem>
 
@@ -43,88 +48,26 @@ using namespace smp;
 namespace
 {
 
-/// @throw qwr::QwrException
-[[noreturn]] void ThrowInvalidPathError( const fs::path& invalidPath )
+template <typename T>
+static T* GetNativeObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
 {
-    throw qwr::QwrException( "Path does not point to a valid file: {}", invalidPath.u8string() );
+    JS::RootedValue jsPropertyValue( cx );
+    if ( !JS_GetProperty( cx, self, propName.data(), &jsPropertyValue ) || !jsPropertyValue.isObject() )
+    {
+        return nullptr;
+    }
+
+    JS::RootedObject jsProperty( cx, &jsPropertyValue.toObject() );
+    return JsObjectBase<T>::ExtractNative( cx, jsProperty );
 }
 
-/// @throw qwr::QwrException
-auto FindSuitableFileForInclude( const fs::path& path, const std::span<const fs::path>& searchPaths )
+template <typename T>
+static void CleanupObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
 {
-    try
+    auto pNative = GetNativeObjectProperty<T>( cx, self, propName );
+    if ( pNative )
     {
-        const auto verifyRegularFile = [&]( const auto& pathToVerify ) {
-            if ( fs::is_regular_file( pathToVerify ) )
-            {
-                return;
-            }
-
-            if ( config::advanced::debug_log_extended_include_error )
-            {
-                smp::utils::LogDebug( fmt::format(
-                    "`include()` failed:\n "
-                    "  `{}` is not a regular file\n",
-                    pathToVerify.u8string() ) );
-            }
-            ::ThrowInvalidPathError( pathToVerify );
-        };
-        const auto verifyFileExists = [&]( const auto& pathToVerify ) {
-            if ( fs::exists( pathToVerify ) )
-            {
-                return;
-            }
-
-            if ( config::advanced::debug_log_extended_include_error )
-            {
-                smp::utils::LogDebug( fmt::format(
-                    "`include()` failed:\n "
-                    "  `{}` does not exist\n",
-                    pathToVerify.u8string() ) );
-            }
-            ::ThrowInvalidPathError( pathToVerify );
-        };
-
-        if ( path.is_absolute() )
-        {
-            verifyFileExists( path );
-            verifyRegularFile( path );
-
-            return path.lexically_normal();
-        }
-        else
-        {
-            assert( !searchPaths.empty() );
-            for ( const auto& searchPath: searchPaths )
-            {
-                const auto curPath = searchPath / path;
-                if ( fs::exists( curPath ) )
-                {
-                    verifyRegularFile( curPath );
-                    return curPath.lexically_normal();
-                }
-            }
-
-            if ( config::advanced::debug_log_extended_include_error )
-            {
-                smp::utils::LogDebug( fmt::format(
-                    "`include()` failed:\n"
-                    "  file `{}` could not be found using the following search paths:\n"
-                    "    {}\n",
-                    path.u8string(),
-                    fmt::join( searchPaths
-                                   | ranges::views::transform( []( const auto& path ) { return fmt::format( "    `{}`", path.u8string() ); } ),
-                               "\n  " ) ) );
-            }
-            ::ThrowInvalidPathError( path );
-        }
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        throw qwr::QwrException( "Failed to open file `{}`:\n"
-                                 "  {}",
-                                 path.u8string(),
-                                 qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+        pNative->PrepareForGc();
     }
 }
 
@@ -198,6 +141,7 @@ JsGlobalObject::JsGlobalObject( JSContext* cx, JsContainer& parentContainer, JsW
     : pJsCtx_( cx )
     , parentContainer_( parentContainer )
     , pJsWindow_( pJsWindow )
+    , scriptLoader_( cx )
 {
 }
 
@@ -297,7 +241,7 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
     auto pNativeGlobal = JsGlobalObject::ExtractNative( cx, self );
     assert( pNativeGlobal );
 
-    pNativeGlobal->resolvedModules_.clear();
+    pNativeGlobal->scriptLoader_.PrepareForGc();
 
     CleanupObjectProperty<JsWindow>( cx, self, "window" );
     CleanupObjectProperty<JsFbPlaylistManager>( cx, self, "plman" );
@@ -309,18 +253,9 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
     }
 }
 
-JSObject* JsGlobalObject::GetResolvedModule( const qwr::u8string& moduleName )
+ScriptLoader& JsGlobalObject::GetScriptLoader()
 {
-    if ( resolvedModules_.contains( moduleName ) )
-    {
-        return resolvedModules_.at( moduleName )->jsObject.get();
-    }
-
-    std::string path;
-    const auto compiledModule = JsEngine::GetInstance().GetScriptCache().GetCachedModule( pJsCtx_, std::filesystem::u8path( moduleName ) );
-    resolvedModules_.try_emplace( moduleName, std::make_unique<HeapElement>( compiledModule ) );
-
-    return compiledModule;
+    return scriptLoader_;
 }
 
 HWND JsGlobalObject::GetPanelHwnd() const
@@ -343,43 +278,8 @@ void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
 
 void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue options )
 {
-    const auto allSearchPaths = [&] {
-        std::vector<fs::path> paths;
-        if ( const auto currentPathOpt = hack::GetCurrentScriptPath( pJsCtx_ );
-             currentPathOpt )
-        {
-            paths.emplace_back( currentPathOpt->parent_path() );
-        }
-        if ( const auto& setting = parentContainer_.GetParentPanel().GetSettings();
-             setting.packageId )
-        {
-            paths.emplace_back( config::GetPackageScriptsDir( setting ) );
-        }
-        paths.emplace_back( qwr::path::Component() );
-
-        return paths;
-    }();
-
-    const auto fsPath = ::FindSuitableFileForInclude( fs::u8path( path ), allSearchPaths );
-
     const auto parsedOptions = ParseIncludeOptions( options );
-
-    const auto u8Path = fsPath.u8string();
-    if ( !parsedOptions.alwaysEvaluate && includedFiles_.contains( u8Path ) )
-    {
-        return;
-    }
-
-    includedFiles_.emplace( u8Path );
-
-    JS::RootedScript jsScript( pJsCtx_, JsEngine::GetInstance().GetScriptCache().GetCachedScript( pJsCtx_, fsPath ) );
-    assert( jsScript );
-
-    JS::RootedValue dummyRval( pJsCtx_ );
-    if ( !JS_ExecuteScript( pJsCtx_, jsScript, &dummyRval ) )
-    {
-        throw JsException();
-    }
+    scriptLoader_.IncludeScript( path, parentContainer_.GetParentPanel().GetSettings(), parsedOptions.alwaysEvaluate );
 }
 
 void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const qwr::u8string& path, JS::HandleValue options )
@@ -444,10 +344,8 @@ void JsGlobalObject::Trace( JSTracer* trc, JSObject* obj )
     {
         pNative->heapManager_->Trace( trc );
     }
-    for ( const auto& [key, pValue]: pNative->resolvedModules_ )
-    {
-        JS::TraceEdge( trc, &pValue->jsObject, "CustomHeap: resolved modules" );
-    }
+
+    pNative->scriptLoader_.Trace( trc );
 }
 
 } // namespace mozjs

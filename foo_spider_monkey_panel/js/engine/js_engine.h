@@ -69,6 +69,8 @@ private:
                                         void* data );
     static JSObject* ModuleResolver( JSContext* cx, JS::HandleValue modulePrivate,
                                      JS::HandleObject moduleRequest );
+    static bool ModuleMetaGenerator( JSContext* cx, JS::HandleValue modulePrivate,
+                                     JS::HandleObject moduleRequest );
 
     void ReportOomError();
 

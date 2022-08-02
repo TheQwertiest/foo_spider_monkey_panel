@@ -96,6 +96,12 @@ void ToValue( JSContext* cx, const pfc::string8_fast& inValue, JS::MutableHandle
 }
 
 template <>
+void ToValue( JSContext* cx, const qwr::u8string_view& inValue, JS::MutableHandleValue wrappedValue )
+{
+    ToValue<std::wstring_view>( cx, qwr::unicode::ToWide( inValue ), wrappedValue );
+}
+
+template <>
 void ToValue( JSContext* cx, const qwr::u8string& inValue, JS::MutableHandleValue wrappedValue )
 {
     ToValue<std::wstring_view>( cx, qwr::unicode::ToWide( inValue ), wrappedValue );

@@ -488,7 +488,7 @@ void CScriptEditorCtrl::ReadAPI()
         return;
     }
 
-    const auto files = qwr::string::Split<char>( *propvalRet, ';' );
+    const auto files = qwr::string::Split( *propvalRet, ';' );
     qwr::u8string content;
     for ( const auto& file: files )
     {

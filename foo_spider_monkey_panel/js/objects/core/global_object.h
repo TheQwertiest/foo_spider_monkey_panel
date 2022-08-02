@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js/objects/core/script_loader.h>
+
 #include <optional>
 #include <unordered_set>
 
@@ -36,12 +38,12 @@ public:
 
     static void PrepareForGc( JSContext* cx, JS::HandleObject self );
 
-    JSObject* GetResolvedModule( const qwr::u8string& moduleName );
+    ScriptLoader& GetScriptLoader();
 
-public: // methods
     /// @remark HWND might be null, if called before fb2k initialization is completed
     [[nodiscard]] HWND GetPanelHwnd() const;
 
+public:
     void ClearInterval( uint32_t intervalId );
     void ClearTimeout( uint32_t timeoutId );
 
@@ -62,29 +64,6 @@ private:
 
     IncludeOptions ParseIncludeOptions( JS::HandleValue options );
 
-    template <typename T>
-    static T* GetNativeObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
-    {
-        JS::RootedValue jsPropertyValue( cx );
-        if ( !JS_GetProperty( cx, self, propName.data(), &jsPropertyValue ) || !jsPropertyValue.isObject() )
-        {
-            return nullptr;
-        }
-
-        JS::RootedObject jsProperty( cx, &jsPropertyValue.toObject() );
-        return JsObjectBase<T>::ExtractNative( cx, jsProperty );
-    }
-
-    template <typename T>
-    static void CleanupObjectProperty( JSContext* cx, JS::HandleObject self, const std::string& propName )
-    {
-        auto pNative = GetNativeObjectProperty<T>( cx, self, propName );
-        if ( pNative )
-        {
-            pNative->PrepareForGc();
-        }
-    }
-
     static void Trace( JSTracer* trc, JSObject* obj );
 
 private:
@@ -93,21 +72,9 @@ private:
 
     JsWindow* pJsWindow_ = nullptr;
 
-    std::unordered_set<std::string> includedFiles_;
-
     std::unique_ptr<GlobalHeapManager> heapManager_;
 
-    struct HeapElement
-    {
-        HeapElement( JSObject* jsObject )
-            : jsObject( jsObject )
-        {
-        }
-
-        JS::Heap<JSObject*> jsObject;
-    };
-
-    std::unordered_map<std::string, std::unique_ptr<HeapElement>> resolvedModules_;
+    ScriptLoader scriptLoader_;
 };
 
 } // namespace mozjs

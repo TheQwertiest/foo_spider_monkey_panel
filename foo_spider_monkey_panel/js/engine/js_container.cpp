@@ -4,10 +4,9 @@
 
 #include <panel/panel_window.h>
 
-#include <js/CompilationAndEvaluation.h>
-#include <js/Modules.h>
-#include <js/SourceText.h>
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Wrapper.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
 #include <js/engine/js_engine.h>
 #include <js/engine/js_gc.h>
 #include <js/engine/js_realm_inner.h>
@@ -159,7 +158,7 @@ JsContainer::JsStatus JsContainer::GetStatus() const
     return jsStatus_;
 }
 
-bool JsContainer::ExecuteScript( const qwr::u8string& scriptCode )
+bool JsContainer::ExecuteScript( const qwr::u8string& scriptCode, bool isModule )
 {
     assert( pJsCtx_ );
     assert( jsGlobal_.initialized() );
@@ -172,31 +171,12 @@ bool JsContainer::ExecuteScript( const qwr::u8string& scriptCode )
     JSAutoRealm ac( pJsCtx_, jsGlobal_ );
     try
     {
-        JS::SourceText<mozilla::Utf8Unit> source;
-        if ( !source.init( pJsCtx_, scriptCode.c_str(), scriptCode.length(), JS::SourceOwnership::Borrowed ) )
-        {
-            throw JsException();
-        }
-
-        JS::CompileOptions opts( pJsCtx_ );
-        opts.setFileAndLine( "<main>", 1 );
-
         OnJsActionStart();
         qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
-        JS::RootedObject jsModule( pJsCtx_, JS::CompileModule( pJsCtx_, opts, source ) );
-        JsException::ExpectTrue( jsModule );
+        assert( pNativeGlobal_ );
+        pNativeGlobal_->GetScriptLoader().ExecuteTopLevelScript( scriptCode, isModule );
 
-        if ( !JS::ModuleInstantiate( pJsCtx_, jsModule ) )
-        {
-            throw JsException();
-        }
-
-        JS::RootedValue dummyRval( pJsCtx_ );
-        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &dummyRval ) )
-        {
-            throw JsException();
-        }
         return true;
     }
     catch ( ... )
@@ -207,7 +187,7 @@ bool JsContainer::ExecuteScript( const qwr::u8string& scriptCode )
     }
 }
 
-bool JsContainer::ExecuteScriptFile( const std::filesystem::path& scriptPath )
+bool JsContainer::ExecuteScriptFile( const std::filesystem::path& scriptPath, bool isModule )
 {
     assert( pJsCtx_ );
     assert( jsGlobal_.initialized() );
@@ -224,7 +204,7 @@ bool JsContainer::ExecuteScriptFile( const std::filesystem::path& scriptPath )
         qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
         assert( pNativeGlobal_ );
-        pNativeGlobal_->IncludeScript( scriptPath.u8string() );
+        pNativeGlobal_->GetScriptLoader().ExecuteTopLevelScriptFile( scriptPath, isModule );
         return true;
     }
     catch ( ... )
