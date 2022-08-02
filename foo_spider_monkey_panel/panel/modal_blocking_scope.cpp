@@ -2,7 +2,7 @@
 
 #include "modal_blocking_scope.h"
 
-#include <js/engine/js_engine.h>
+#include <js_backend/engine/js_engine.h>
 
 namespace
 {

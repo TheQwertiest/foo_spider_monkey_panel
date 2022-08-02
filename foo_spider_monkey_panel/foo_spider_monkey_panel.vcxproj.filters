@@ -277,164 +277,164 @@
     <ClCompile Include="ui\impl\ui_menu_edit_with.cpp">
       <Filter>ui\impl</Filter>
     </ClCompile>
-    <ClCompile Include="js\engine\js_engine.cpp">
-      <Filter>js\engine</Filter>
+    <ClCompile Include="js_backend\engine\js_engine.cpp">
+      <Filter>js_backend\engine</Filter>
     </ClCompile>
-    <ClCompile Include="js\engine\js_gc.cpp">
-      <Filter>js\engine</Filter>
+    <ClCompile Include="js_backend\engine\js_gc.cpp">
+      <Filter>js_backend\engine</Filter>
     </ClCompile>
-    <ClCompile Include="js\engine\js_monitor.cpp">
-      <Filter>js\engine</Filter>
+    <ClCompile Include="js_backend\engine\js_monitor.cpp">
+      <Filter>js_backend\engine</Filter>
     </ClCompile>
-    <ClCompile Include="js\engine\js_realm_inner.cpp">
-      <Filter>js\engine</Filter>
+    <ClCompile Include="js_backend\engine\js_realm_inner.cpp">
+      <Filter>js_backend\engine</Filter>
     </ClCompile>
-    <ClCompile Include="js\engine\js_script_cache.cpp">
-      <Filter>js\engine</Filter>
+    <ClCompile Include="js_backend\engine\js_script_cache.cpp">
+      <Filter>js_backend\engine</Filter>
     </ClCompile>
-    <ClCompile Include="js\engine\native_to_js_invoker.cpp">
-      <Filter>js\engine</Filter>
+    <ClCompile Include="js_backend\engine\native_to_js_invoker.cpp">
+      <Filter>js_backend\engine</Filter>
     </ClCompile>
-    <ClCompile Include="js\engine\heartbeat_window.cpp">
-      <Filter>js\engine</Filter>
+    <ClCompile Include="js_backend\engine\heartbeat_window.cpp">
+      <Filter>js_backend\engine</Filter>
     </ClCompile>
-    <ClCompile Include="js\engine\js_container.cpp">
-      <Filter>js\engine</Filter>
+    <ClCompile Include="js_backend\engine\js_container.cpp">
+      <Filter>js_backend\engine</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\window.cpp">
-      <Filter>js\objects</Filter>
+    <ClCompile Include="js_backend\objects\window.cpp">
+      <Filter>js_backend\objects</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\utils.cpp">
-      <Filter>js\objects</Filter>
+    <ClCompile Include="js_backend\objects\utils.cpp">
+      <Filter>js_backend\objects</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_metadb_handle_list.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle_list.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_metadb_handle_list_iterator.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle_list_iterator.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_playback_queue_item.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_playback_queue_item.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_playing_item_location.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_playing_item_location.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_playlist_manager.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_playlist_manager.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_playlist_recycler.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_playlist_recycler.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_profiler.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_profiler.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_properties.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_properties.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_title_format.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_title_format.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_tooltip.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_tooltip.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_ui_selection_holder.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_ui_selection_holder.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_utils.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_utils.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_window.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_window.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_file_info.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_file_info.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\fb2k\fb_metadb_handle.cpp">
-      <Filter>js\objects\fb2k</Filter>
+    <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\gdi\gdi_graphics.cpp">
-      <Filter>js\objects\gdi</Filter>
+    <ClCompile Include="js_backend\objects\gdi\gdi_graphics.cpp">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\gdi\gdi_raw_bitmap.cpp">
-      <Filter>js\objects\gdi</Filter>
+    <ClCompile Include="js_backend\objects\gdi\gdi_raw_bitmap.cpp">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\gdi\gdi_utils.cpp">
-      <Filter>js\objects\gdi</Filter>
+    <ClCompile Include="js_backend\objects\gdi\gdi_utils.cpp">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\gdi\measure_string_info.cpp">
-      <Filter>js\objects\gdi</Filter>
+    <ClCompile Include="js_backend\objects\gdi\measure_string_info.cpp">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\gdi\theme_manager.cpp">
-      <Filter>js\objects\gdi</Filter>
+    <ClCompile Include="js_backend\objects\gdi\theme_manager.cpp">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\gdi\gdi_bitmap.cpp">
-      <Filter>js\objects\gdi</Filter>
+    <ClCompile Include="js_backend\objects\gdi\gdi_bitmap.cpp">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\gdi\gdi_font.cpp">
-      <Filter>js\objects\gdi</Filter>
+    <ClCompile Include="js_backend\objects\gdi\gdi_font.cpp">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\active_x_object.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\active_x_object.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\active_x_object_iterator.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\active_x_object_iterator.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\console.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\console.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\context_menu_manager.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\context_menu_manager.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\drop_source_action.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\drop_source_action.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\enumerator.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\enumerator.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\js_event.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\js_event.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\js_event_target.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\js_event_target.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\main_menu_manager.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\main_menu_manager.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\dom\menu_object.cpp">
-      <Filter>js\objects\dom</Filter>
+    <ClCompile Include="js_backend\objects\dom\menu_object.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\core\global_object.cpp">
-      <Filter>js\objects\core</Filter>
+    <ClCompile Include="js_backend\objects\core\global_object.cpp">
+      <Filter>js_backend\objects\core</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\core\global_heap_manager.cpp">
-      <Filter>js\objects\core</Filter>
+    <ClCompile Include="js_backend\objects\core\global_heap_manager.cpp">
+      <Filter>js_backend\objects\core</Filter>
     </ClCompile>
-    <ClCompile Include="js\utils\js_art_helpers.cpp">
-      <Filter>js\utils</Filter>
+    <ClCompile Include="js_backend\utils\js_art_helpers.cpp">
+      <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js\utils\js_error_helper.cpp">
-      <Filter>js\utils</Filter>
+    <ClCompile Include="js_backend\utils\js_error_helper.cpp">
+      <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js\utils\js_hwnd_helpers.cpp">
-      <Filter>js\utils</Filter>
+    <ClCompile Include="js_backend\utils\js_hwnd_helpers.cpp">
+      <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js\utils\js_image_helpers.cpp">
-      <Filter>js\utils</Filter>
+    <ClCompile Include="js_backend\utils\js_image_helpers.cpp">
+      <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js\utils\js_object_helper.cpp">
-      <Filter>js\utils</Filter>
+    <ClCompile Include="js_backend\utils\js_object_helper.cpp">
+      <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js\utils\js_prototype_helpers.cpp">
-      <Filter>js\utils</Filter>
+    <ClCompile Include="js_backend\utils\js_prototype_helpers.cpp">
+      <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js\utils\serialized_value.cpp">
-      <Filter>js\utils</Filter>
+    <ClCompile Include="js_backend\utils\serialized_value.cpp">
+      <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js\utils\cached_utf8_paths_hack.cpp">
-      <Filter>js\utils</Filter>
+    <ClCompile Include="js_backend\utils\cached_utf8_paths_hack.cpp">
+      <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js\objects\core\script_loader.cpp">
-      <Filter>js\objects\core</Filter>
+    <ClCompile Include="js_backend\objects\core\script_loader.cpp">
+      <Filter>js_backend\objects\core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -757,188 +757,188 @@
     <ClInclude Include="ui\impl\ui_menu_edit_with.h">
       <Filter>ui\impl</Filter>
     </ClInclude>
-    <ClInclude Include="js\engine\js_container.h">
-      <Filter>js\engine</Filter>
+    <ClInclude Include="js_backend\engine\js_container.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js\engine\js_engine.h">
-      <Filter>js\engine</Filter>
+    <ClInclude Include="js_backend\engine\js_engine.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js\engine\js_gc.h">
-      <Filter>js\engine</Filter>
+    <ClInclude Include="js_backend\engine\js_gc.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js\engine\js_monitor.h">
-      <Filter>js\engine</Filter>
+    <ClInclude Include="js_backend\engine\js_monitor.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js\engine\js_realm_inner.h">
-      <Filter>js\engine</Filter>
+    <ClInclude Include="js_backend\engine\js_realm_inner.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js\engine\js_script_cache.h">
-      <Filter>js\engine</Filter>
+    <ClInclude Include="js_backend\engine\js_script_cache.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js\engine\js_to_native_invoker.h">
-      <Filter>js\engine</Filter>
+    <ClInclude Include="js_backend\engine\js_to_native_invoker.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js\engine\native_to_js_invoker.h">
-      <Filter>js\engine</Filter>
+    <ClInclude Include="js_backend\engine\native_to_js_invoker.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js\engine\heartbeat_window.h">
-      <Filter>js\engine</Filter>
+    <ClInclude Include="js_backend\engine\heartbeat_window.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\utils.h">
-      <Filter>js\objects</Filter>
+    <ClInclude Include="js_backend\objects\utils.h">
+      <Filter>js_backend\objects</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\window.h">
-      <Filter>js\objects</Filter>
+    <ClInclude Include="js_backend\objects\window.h">
+      <Filter>js_backend\objects</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_metadb_handle_list.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle_list.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_metadb_handle_list_iterator.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle_list_iterator.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_playback_queue_item.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_playback_queue_item.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_playing_item_location.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_playing_item_location.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_playlist_manager.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_playlist_manager.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_playlist_recycler.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_playlist_recycler.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_profiler.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_profiler.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_properties.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_properties.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_title_format.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_title_format.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_tooltip.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_tooltip.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_ui_selection_holder.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_ui_selection_holder.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_utils.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_utils.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_window.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_window.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_file_info.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_file_info.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\fb2k\fb_metadb_handle.h">
-      <Filter>js\objects\fb2k</Filter>
+    <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle.h">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\gdi\gdi_graphics.h">
-      <Filter>js\objects\gdi</Filter>
+    <ClInclude Include="js_backend\objects\gdi\gdi_graphics.h">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\gdi\gdi_raw_bitmap.h">
-      <Filter>js\objects\gdi</Filter>
+    <ClInclude Include="js_backend\objects\gdi\gdi_raw_bitmap.h">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\gdi\gdi_utils.h">
-      <Filter>js\objects\gdi</Filter>
+    <ClInclude Include="js_backend\objects\gdi\gdi_utils.h">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\gdi\measure_string_info.h">
-      <Filter>js\objects\gdi</Filter>
+    <ClInclude Include="js_backend\objects\gdi\measure_string_info.h">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\gdi\theme_manager.h">
-      <Filter>js\objects\gdi</Filter>
+    <ClInclude Include="js_backend\objects\gdi\theme_manager.h">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\gdi\gdi_bitmap.h">
-      <Filter>js\objects\gdi</Filter>
+    <ClInclude Include="js_backend\objects\gdi\gdi_bitmap.h">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\gdi\gdi_font.h">
-      <Filter>js\objects\gdi</Filter>
+    <ClInclude Include="js_backend\objects\gdi\gdi_font.h">
+      <Filter>js_backend\objects\gdi</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\active_x_object.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\active_x_object.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\active_x_object_iterator.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\active_x_object_iterator.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\console.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\console.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\context_menu_manager.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\context_menu_manager.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\drop_source_action.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\drop_source_action.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\enumerator.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\enumerator.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\js_event.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\js_event.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\js_event_target.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\js_event_target.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\main_menu_manager.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\main_menu_manager.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\dom\menu_object.h">
-      <Filter>js\objects\dom</Filter>
+    <ClInclude Include="js_backend\objects\dom\menu_object.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\core\global_heap_manager.h">
-      <Filter>js\objects\core</Filter>
+    <ClInclude Include="js_backend\objects\core\global_heap_manager.h">
+      <Filter>js_backend\objects\core</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\core\global_object.h">
-      <Filter>js\objects\core</Filter>
+    <ClInclude Include="js_backend\objects\core\global_object.h">
+      <Filter>js_backend\objects\core</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\core\object_base.h">
-      <Filter>js\objects\core</Filter>
+    <ClInclude Include="js_backend\objects\core\object_base.h">
+      <Filter>js_backend\objects\core</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\core\object_traits.h">
-      <Filter>js\objects\core</Filter>
+    <ClInclude Include="js_backend\objects\core\object_traits.h">
+      <Filter>js_backend\objects\core</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\core\prototype_ids.h">
-      <Filter>js\objects\core</Filter>
+    <ClInclude Include="js_backend\objects\core\prototype_ids.h">
+      <Filter>js_backend\objects\core</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\js_art_helpers.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\js_art_helpers.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\js_async_task.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\js_async_task.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\js_error_helper.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\js_error_helper.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\js_heap_helper.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\js_heap_helper.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\js_hwnd_helpers.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\js_hwnd_helpers.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\js_image_helpers.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\js_image_helpers.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\js_object_helper.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\js_object_helper.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\js_property_helper.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\js_property_helper.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\js_prototype_helpers.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\js_prototype_helpers.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\scope_helper.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\scope_helper.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\serialized_value.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\serialized_value.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\utils\cached_utf8_paths_hack.h">
-      <Filter>js\utils</Filter>
+    <ClInclude Include="js_backend\utils\cached_utf8_paths_hack.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js\objects\core\script_loader.h">
-      <Filter>js\objects\core</Filter>
+    <ClInclude Include="js_backend\objects\core\script_loader.h">
+      <Filter>js_backend\objects\core</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1005,28 +1005,28 @@
     <Filter Include="timeout">
       <UniqueIdentifier>{19b3e8c9-9302-44fe-8178-88312a4df487}</UniqueIdentifier>
     </Filter>
-    <Filter Include="js">
+    <Filter Include="js_backend">
       <UniqueIdentifier>{53f996b5-8616-4ed7-9fd2-d9b7fdced9bb}</UniqueIdentifier>
     </Filter>
-    <Filter Include="js\engine">
+    <Filter Include="js_backend\engine">
       <UniqueIdentifier>{f815cf51-ee1c-4fa8-81a6-31ffee2e27d3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="js\objects">
+    <Filter Include="js_backend\objects">
       <UniqueIdentifier>{3b982882-441a-470e-95bd-8ff919531507}</UniqueIdentifier>
     </Filter>
-    <Filter Include="js\utils">
+    <Filter Include="js_backend\utils">
       <UniqueIdentifier>{70b76aff-b008-45e2-8f67-86113bdd1e92}</UniqueIdentifier>
     </Filter>
-    <Filter Include="js\objects\fb2k">
+    <Filter Include="js_backend\objects\fb2k">
       <UniqueIdentifier>{9857c80d-d4ea-48fe-b10c-13dd933666a5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="js\objects\gdi">
+    <Filter Include="js_backend\objects\gdi">
       <UniqueIdentifier>{f3f9ccc1-ab29-431a-bdf5-af1923fb11f5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="js\objects\dom">
+    <Filter Include="js_backend\objects\dom">
       <UniqueIdentifier>{536a3fc6-37ef-49e0-96a5-0fd25ecfaa05}</UniqueIdentifier>
     </Filter>
-    <Filter Include="js\objects\core">
+    <Filter Include="js_backend\objects\core">
       <UniqueIdentifier>{737fd6f9-740f-4fb8-a68b-27aef4cf33b8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
