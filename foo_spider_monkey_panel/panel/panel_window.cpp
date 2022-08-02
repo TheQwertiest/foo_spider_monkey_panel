@@ -1450,7 +1450,7 @@ bool PanelWindow::LoadScript( bool isFirstLoad )
 
         modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
         assert( settings_.scriptPath );
-        if ( !pJsContainer_->ExecuteScriptFile( *settings_.scriptPath, true ) )
+        if ( !pJsContainer_->ExecuteScriptFile( *settings_.scriptPath, false ) )
         { // error reporting handled inside
             return false;
         }

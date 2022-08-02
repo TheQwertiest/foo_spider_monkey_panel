@@ -18,7 +18,7 @@ namespace mozjs::hack
 
 std::string CacheUtf8Path( const std::filesystem::path& path )
 {
-    const auto u8path = path.u8string();
+    const auto u8path = path.lexically_normal().u8string();
     const auto hash = smp::CalculateMd5( { reinterpret_cast<const uint8_t*>( u8path.c_str() ), u8path.length() } );
     g_cachedPaths.try_emplace( hash, path );
     return hash;

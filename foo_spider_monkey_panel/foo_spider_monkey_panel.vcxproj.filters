@@ -433,9 +433,6 @@
     <ClCompile Include="js\utils\cached_utf8_paths_hack.cpp">
       <Filter>js\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js\utils\current_script_path_hack.cpp">
-      <Filter>js\utils</Filter>
-    </ClCompile>
     <ClCompile Include="js\objects\core\script_loader.cpp">
       <Filter>js\objects\core</Filter>
     </ClCompile>
@@ -938,9 +935,6 @@
       <Filter>js\utils</Filter>
     </ClInclude>
     <ClInclude Include="js\utils\cached_utf8_paths_hack.h">
-      <Filter>js\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="js\utils\current_script_path_hack.h">
       <Filter>js\utils</Filter>
     </ClInclude>
     <ClInclude Include="js\objects\core\script_loader.h">

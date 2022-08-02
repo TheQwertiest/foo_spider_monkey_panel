@@ -31,7 +31,6 @@
 #include <js/objects/gdi/gdi_utils.h>
 #include <js/objects/utils.h>
 #include <js/objects/window.h>
-#include <js/utils/current_script_path_hack.h>
 #include <js/utils/js_error_helper.h>
 #include <js/utils/js_object_helper.h>
 #include <js/utils/js_property_helper.h>
