@@ -9,6 +9,9 @@ std::filesystem::path JsDocsIndex();
 
 std::filesystem::path ScriptSamples();
 
+std::filesystem::path Modules_Sample();
+std::filesystem::path Modules_Profile();
+
 std::filesystem::path Packages_Sample();
 std::filesystem::path Packages_Profile();
 std::filesystem::path Packages_Foobar2000();

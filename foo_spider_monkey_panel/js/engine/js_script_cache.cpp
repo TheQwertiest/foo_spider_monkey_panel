@@ -2,6 +2,9 @@
 
 #include "js_script_cache.h"
 
+#include <convert/native_to_js.h>
+
+#include <js/Modules.h>
 #include <js/experimental/JSStencil.h>
 #include <js/utils/cached_utf8_paths_hack.h>
 #include <qwr/file_helpers.h>
@@ -57,6 +60,13 @@ JSObject* JsScriptCache::GetCachedModule( JSContext* pJsCtx, const std::filesyst
 
     JS::RootedObject jsObject( pJsCtx, JS::InstantiateModuleStencil( pJsCtx, opts, pStencil ) );
     JsException::ExpectTrue( jsObject );
+
+    std::wstring urlPath = L"file://" + absolutePath.wstring();
+    std::replace( urlPath.begin(), urlPath.end(), '\\', '/' );
+
+    JS::RootedValue jsScriptPath( pJsCtx );
+    convert::to_js::ToValue( pJsCtx, urlPath, &jsScriptPath );
+    JS::SetModulePrivate( jsObject, jsScriptPath );
 
     return jsObject;
 }

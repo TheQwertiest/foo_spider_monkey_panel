@@ -10,21 +10,14 @@
 #include <timeout/timer_interface.h>
 #include <utils/make_unique_ptr.h>
 
+#include <js/Initialization.h>
+#include <js/Modules.h>
 #include <js/engine/heartbeat_window.h>
 #include <js/engine/js_container.h>
 #include <js/engine/js_realm_inner.h>
 #include <js/engine/js_script_cache.h>
 #include <js/objects/core/global_object.h>
 #include <js/utils/js_error_helper.h>
-
-//
-#include <js/CompilationAndEvaluation.h>
-#include <js/Modules.h>
-#include <js/SourceText.h>
-//
-
-#include <js/Initialization.h>
-#include <js/Modules.h>
 #include <qwr/error_popup.h>
 #include <qwr/string_helpers.h>
 #include <qwr/thread_helpers.h>
@@ -256,6 +249,7 @@ bool JsEngine::Initialize()
         JS::SetPromiseRejectionTrackerCallback( cx, RejectedPromiseHandler, this );
 
         JS::SetModuleResolveHook( JS_GetRuntime( cx ), ModuleResolver );
+        JS::SetModuleMetadataHook( JS_GetRuntime( cx ), ModuleMetaGenerator );
 
         // TODO: JS::SetWarningReporter( pJsCtx_ )
 
@@ -382,10 +376,8 @@ void JsEngine::RejectedPromiseHandler( JSContext* /*cx*/, bool mutedErrors, JS::
     }
 }
 
-JSObject* JsEngine::ModuleResolver( JSContext* cx, JS::HandleValue /*modulePrivate*/, JS::HandleObject moduleRequest )
+JSObject* JsEngine::ModuleResolver( JSContext* cx, JS::HandleValue modulePrivate, JS::HandleObject moduleRequest )
 {
-    auto& self = *reinterpret_cast<JsEngine*>( JS_GetContextPrivate( cx ) );
-
     try
     {
         JS::RootedString specifierString( cx, JS::GetModuleRequestSpecifier( cx, moduleRequest ) );
@@ -398,12 +390,26 @@ JSObject* JsEngine::ModuleResolver( JSContext* cx, JS::HandleValue /*modulePriva
         const auto pNativeGlobal = JsGlobalObject::ExtractNative( cx, jsGlobal );
         assert( pNativeGlobal );
 
-        return pNativeGlobal->GetResolvedModule( moduleName );
+        return pNativeGlobal->GetScriptLoader().GetResolvedModule( moduleName, modulePrivate );
     }
     catch ( ... )
     {
         mozjs::error::ExceptionToJsError( cx );
         return nullptr;
+    }
+}
+
+bool JsEngine::ModuleMetaGenerator( JSContext* cx, JS::HandleValue modulePrivate, JS::HandleObject metaObject )
+{
+    try
+    {
+        ScriptLoader::PopulateImportMeta( cx, modulePrivate, metaObject );
+        return true;
+    }
+    catch ( ... )
+    {
+        mozjs::error::ExceptionToJsError( cx );
+        return false;
     }
 }
 

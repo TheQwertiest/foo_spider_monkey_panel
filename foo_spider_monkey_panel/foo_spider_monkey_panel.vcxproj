@@ -191,6 +191,7 @@
     <ClCompile Include="js\engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js\objects\core\global_heap_manager.cpp" />
     <ClCompile Include="js\objects\core\global_object.cpp" />
+    <ClCompile Include="js\objects\core\script_loader.cpp" />
     <ClCompile Include="js\objects\dom\active_x_object.cpp" />
     <ClCompile Include="js\objects\dom\active_x_object_iterator.cpp" />
     <ClCompile Include="js\objects\dom\console.cpp" />
@@ -351,6 +352,7 @@
     <ClInclude Include="js\objects\core\object_base.h" />
     <ClInclude Include="js\objects\core\object_traits.h" />
     <ClInclude Include="js\objects\core\prototype_ids.h" />
+    <ClInclude Include="js\objects\core\script_loader.h" />
     <ClInclude Include="js\objects\dom\active_x_object.h" />
     <ClInclude Include="js\objects\dom\active_x_object_iterator.h" />
     <ClInclude Include="js\objects\dom\console.h" />

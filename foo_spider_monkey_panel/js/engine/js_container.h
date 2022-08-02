@@ -53,8 +53,8 @@ public:
 
     [[nodiscard]] JsStatus GetStatus() const;
 
-    [[nodiscard]] bool ExecuteScript( const qwr::u8string& scriptCode );
-    [[nodiscard]] bool ExecuteScriptFile( const std::filesystem::path& scriptPath );
+    [[nodiscard]] bool ExecuteScript( const qwr::u8string& scriptCode, bool isModule );
+    [[nodiscard]] bool ExecuteScriptFile( const std::filesystem::path& scriptPath, bool isModule );
 
     static void RunJobs();
 

@@ -17,6 +17,16 @@ std::filesystem::path ScriptSamples()
     return qwr::path::Component() / "samples";
 }
 
+std::filesystem::path Modules_Sample()
+{
+    return ScriptSamples() / "modules";
+}
+
+std::filesystem::path Modules_Profile()
+{
+    return qwr::path::Profile() / SMP_UNDERSCORE_NAME / "modules";
+}
+
 std::filesystem::path Packages_Sample()
 {
     return ScriptSamples() / "packages";
