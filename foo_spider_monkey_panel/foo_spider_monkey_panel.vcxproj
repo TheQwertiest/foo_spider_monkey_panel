@@ -227,7 +227,6 @@
     <ClCompile Include="js\objects\utils.cpp" />
     <ClCompile Include="js\objects\window.cpp" />
     <ClCompile Include="js\utils\cached_utf8_paths_hack.cpp" />
-    <ClCompile Include="js\utils\current_script_path_hack.cpp" />
     <ClCompile Include="js\utils\js_art_helpers.cpp" />
     <ClCompile Include="js\utils\js_error_helper.cpp" />
     <ClCompile Include="js\utils\js_hwnd_helpers.cpp" />
@@ -388,7 +387,6 @@
     <ClInclude Include="js\objects\utils.h" />
     <ClInclude Include="js\objects\window.h" />
     <ClInclude Include="js\utils\cached_utf8_paths_hack.h" />
-    <ClInclude Include="js\utils\current_script_path_hack.h" />
     <ClInclude Include="js\utils\js_art_helpers.h" />
     <ClInclude Include="js\utils\js_async_task.h" />
     <ClInclude Include="js\utils\js_error_helper.h" />

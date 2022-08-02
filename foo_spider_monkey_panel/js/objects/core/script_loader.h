@@ -42,6 +42,10 @@ public:
     void IncludeScript( const qwr::u8string& path, const smp::config::ParsedPanelSettings& panelSettings, bool alwaysEvaluate = false );
 
 private:
+    JSObject* GetCompiledModule( const std::filesystem::path& scriptPath );
+    JSScript* GetCompiledScript( const std::filesystem::path& scriptPath );
+
+private:
     JSContext* pJsCtx_ = nullptr;
 
     bool isModule_ = false;

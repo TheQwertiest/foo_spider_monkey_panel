@@ -29,14 +29,7 @@ public:
 
     /// @throw qwr::QwrException
     /// @throw smp::JsException
-    [[nodiscard]] JSScript* GetCachedScript( JSContext* pJsCtx, const std::filesystem::path& absolutePath );
-
-    /// @throw qwr::QwrException
-    /// @throw smp::JsException
-    [[nodiscard]] JSObject* GetCachedModule( JSContext* pJsCtx, const std::filesystem::path& absolutePath );
-
-private:
-    [[nodiscard]] RefPtr<JS::Stencil> GetCachedStencil( JSContext* pJsCtx, const std::filesystem::path& absolutePath, const std::string& hackedPathId, const JS::CompileOptions& compileOpts, bool isModule );
+    [[nodiscard]] RefPtr<JS::Stencil> GetCachedStencil( JSContext* pJsCtx, const std::filesystem::path& absolutePath, const JS::CompileOptions& compileOpts, bool isModule );
 
 private:
     struct CachedStencil
