@@ -2,7 +2,8 @@
 
 #include "utils.h"
 
-#include <config/package_utils.h>
+#include <config/smp_package/package.h>
+#include <config/smp_package/package_manager.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
@@ -456,33 +457,33 @@ uint64_t JsUtils::GetFileSize( const std::wstring& path ) const
 
 JSObject* JsUtils::GetPackageInfo( const qwr::u8string& packageId ) const
 {
-    const auto packagePathOpt = config::FindPackage( packageId );
-    if ( !packagePathOpt )
+    const auto packageJsonOpt = config::SmpPackageManager{}.GetPackage( packageId );
+    if ( !packageJsonOpt )
     {
         return nullptr;
     }
 
-    const auto settings = config::GetPackageSettingsFromPath( *packagePathOpt );
+    const auto package = config::SmpPackage::FromFile( *packageJsonOpt );
 
     JS::RootedObject jsDirs( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
-    utils::AddProperty( pJsCtx_, jsDirs, "Root", config::GetPackagePath( settings ).wstring() );
-    utils::AddProperty( pJsCtx_, jsDirs, "Assets", config::GetPackageAssetsDir( settings ).wstring() );
-    utils::AddProperty( pJsCtx_, jsDirs, "Scripts", config::GetPackageScriptsDir( settings ).wstring() );
-    utils::AddProperty( pJsCtx_, jsDirs, "Storage", config::GetPackageStorageDir( settings ).wstring() );
+    utils::AddProperty( pJsCtx_, jsDirs, "Root", package.packageDir.wstring() );
+    utils::AddProperty( pJsCtx_, jsDirs, "Assets", package.GetAssetsDir().wstring() );
+    utils::AddProperty( pJsCtx_, jsDirs, "Scripts", package.GetScriptsDir().wstring() );
+    utils::AddProperty( pJsCtx_, jsDirs, "Storage", package.GetStorageDir().wstring() );
 
     JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
     utils::AddProperty( pJsCtx_, jsObject, "Directories", static_cast<JS::HandleObject>( jsDirs ) );
-    utils::AddProperty( pJsCtx_, jsObject, "Version", settings.scriptVersion );
+    utils::AddProperty( pJsCtx_, jsObject, "Version", package.version );
 
     return jsObject;
 }
 
 qwr::u8string JsUtils::GetPackagePath( const qwr::u8string& packageId ) const
 {
-    const auto packagePathOpt = config::FindPackage( packageId );
-    qwr::QwrException::ExpectTrue( packagePathOpt.has_value(), "Unknown package: {}", packageId );
+    const auto packageJsonOpt = config::SmpPackageManager{}.GetPackage( packageId );
+    qwr::QwrException::ExpectTrue( packageJsonOpt.has_value(), "Package not found: {}", packageId );
 
-    return packagePathOpt->u8string();
+    return packageJsonOpt->parent_path().u8string();
 }
 
 uint32_t JsUtils::GetSysColour( uint32_t index ) const

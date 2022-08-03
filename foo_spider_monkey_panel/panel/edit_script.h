@@ -5,7 +5,7 @@
 namespace smp::config
 {
 
-struct ParsedPanelSettings;
+class ResolvedPanelScriptSettings;
 
 }
 
@@ -13,9 +13,12 @@ namespace smp::panel
 {
 
 /// @throw qwr::QwrException
-void EditScript( HWND hParent, config::ParsedPanelSettings& settings );
+void EditScript( HWND hParent, qwr::u8string& script );
 
 /// @throw qwr::QwrException
-void EditPackageScript( HWND hParent, const std::filesystem::path& script, const config::ParsedPanelSettings& settings );
+void EditScriptFile( HWND hParent, const config::ResolvedPanelScriptSettings& settings );
+
+/// @throw qwr::QwrException
+void EditPackageScript( HWND hParent, const std::filesystem::path& script );
 
 } // namespace smp::panel

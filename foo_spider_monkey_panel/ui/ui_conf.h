@@ -1,6 +1,6 @@
 #pragma once
 
-#include <config/parsed_panel_config.h>
+#include <config/panel_config.h>
 #include <resources/resource.h>
 #include <ui/impl/ui_itab.h>
 
@@ -75,7 +75,7 @@ public:
     void OnWholeScriptChange();
     bool HasChanged();
 
-    void Apply( bool savePackageData = true );
+    void Apply();
     void Revert();
 
     void SwitchTab( CDialogConf::Tab tabId );
@@ -110,15 +110,14 @@ private:
     size_t GetTabIdx( CDialogConf::Tab tabId ) const;
     void SetActiveTabIdx( CDialogConf::Tab tabId );
 
+    bool MaybeInitializeSmpPackageTab();
+
 private:
     bool suppressDdxFromUi_ = true;
 
     panel::PanelWindow* pParent_ = nullptr;
-    config::ParsedPanelSettings oldSettings_;
-    config::ParsedPanelSettings localSettings_;
-
-    config::PanelProperties oldProperties_;
-    config::PanelProperties localProperties_;
+    config::PanelConfig oldConfig_;
+    config::PanelConfig localConfig_;
 
     bool hasChanged_ = false;
     bool isCleanSlate_ = false;

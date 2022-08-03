@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "js_event.h"
+#include "event.h"
 
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/utils/js_error_helper.h>

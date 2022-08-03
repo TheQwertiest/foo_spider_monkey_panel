@@ -60,10 +60,10 @@ smp::config::EdgeStyle GetEdgeEnumFromId( int edgeStyleId )
 namespace smp::ui
 {
 
-CConfigTabAppearance::CConfigTabAppearance( CDialogConf& parent, config::ParsedPanelSettings& settings )
+CConfigTabAppearance::CConfigTabAppearance( CDialogConf& parent, config::PanelConfig& config )
     : parent_( parent )
-    , edgeStyle_( settings.edgeStyle )
-    , isPseudoTransparent_( settings.isPseudoTransparent )
+    , edgeStyle_( config.panelSettings.edgeStyle )
+    , isPseudoTransparent_( config.panelSettings.isPseudoTransparent )
     , ddx_( {
           qwr::ui::CreateUiDdx<qwr::ui::UiDdx_CheckBox>( isPseudoTransparent_, IDC_CHECK_PSEUDOTRANSPARENT ),
           qwr::ui::CreateUiDdx<qwr::ui::UiDdx_RadioRange>( edgeStyleId_,

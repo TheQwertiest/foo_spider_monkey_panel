@@ -1,6 +1,6 @@
 #pragma once
 
-#include <config/parsed_panel_config.h>
+#include <config/panel_config.h>
 #include <resources/resource.h>
 #include <ui/impl/ui_itab.h>
 
@@ -32,7 +32,7 @@ public:
     END_MSG_MAP()
 
 public:
-    CConfigTabAppearance( CDialogConf& parent, config::ParsedPanelSettings& settings );
+    CConfigTabAppearance( CDialogConf& parent, config::PanelConfig& config );
     ~CConfigTabAppearance() override = default;
 
     // > IUiTab

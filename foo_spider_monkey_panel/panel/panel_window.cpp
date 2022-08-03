@@ -4,8 +4,7 @@
 
 #include <com_objects/track_drop_target.h>
 #include <com_utils/com_destruction_handler.h>
-#include <config/delayed_package_utils.h>
-#include <config/package_utils.h>
+#include <config/smp_package/delayed_package_actions.h>
 #include <events/event_basic.h>
 #include <events/event_dispatcher.h>
 #include <events/event_drag.h>
@@ -71,14 +70,14 @@ PanelWindow::~PanelWindow()
 
 uie::container_window_v3_config PanelWindow::get_window_config()
 {
-    uie::container_window_v3_config config( TEXT( SMP_WINDOW_CLASS_NAME ) );
+    uie::container_window_v3_config windowConfig( TEXT( SMP_WINDOW_CLASS_NAME ) );
 
-    config.use_transparent_background = false;
-    config.extended_window_styles = ConvertEdgeStyleToNativeFlags( settings_.edgeStyle );
-    config.class_styles = CS_DBLCLKS;
-    config.class_cursor = IDC_ARROW;
+    windowConfig.use_transparent_background = false;
+    windowConfig.extended_window_styles = ConvertEdgeStyleToNativeFlags( config_.panelSettings.edgeStyle );
+    windowConfig.class_styles = CS_DBLCLKS;
+    windowConfig.class_cursor = IDC_ARROW;
 
-    return config;
+    return windowConfig;
 }
 
 void PanelWindow::Fail( const qwr::u8string& errorText )
@@ -93,14 +92,24 @@ void PanelWindow::Fail( const qwr::u8string& errorText )
     UnloadScript( true );
 }
 
-const config::ParsedPanelSettings& PanelWindow::GetSettings() const
+const config::PanelConfig& PanelWindow::GetPanelConfig() const
 {
-    return settings_;
+    return config_;
+}
+
+const config::ResolvedPanelScriptSettings& PanelWindow::GetScriptSettings() const
+{
+    return scriptSettings_;
+}
+
+const config::PanelSettings& PanelWindow::GetPanelSettings() const
+{
+    return config_.panelSettings;
 }
 
 config::PanelProperties& PanelWindow::GetPanelProperties()
 {
-    return properties_;
+    return config_.properties;
 }
 
 TimeoutManager& PanelWindow::GetTimeoutManager()
@@ -114,7 +123,7 @@ void PanelWindow::ReloadScript()
     if ( pJsContainer_ )
     { // Panel might be not loaded at all, if settings are changed from Preferences.
         UnloadScript();
-        if ( !ReloadSettings() )
+        if ( !ReloadScriptSettings() )
         {
             return;
         }
@@ -124,40 +133,34 @@ void PanelWindow::ReloadScript()
 
 void PanelWindow::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel )
 {
-    const auto settings = [&] {
+    const auto config = [&] {
         try
         {
-            return config::PanelSettings::Load( reader, size, abort );
+            return config::PanelConfig::Load( reader, size, abort );
         }
         catch ( const qwr::QwrException& e )
         {
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!\n"
                                                                          "Error: {}",
                                                                          e.what() ) );
-            return config::PanelSettings{};
+            return config::PanelConfig{};
         }
     }();
 
-    if ( !UpdateSettings( settings, reloadPanel ) )
+    if ( !UpdateSettings( config, reloadPanel ) )
     {
         qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!" ) );
-        UpdateSettings( config::PanelSettings{}, reloadPanel );
+        UpdateSettings( config::PanelConfig{}, reloadPanel );
     }
 }
 
-bool PanelWindow::UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel )
+bool PanelWindow::UpdateSettings( const smp::config::PanelConfig& config, bool reloadPanel )
 {
-    try
+    config_ = config;
+    if ( !ReloadScriptSettings() )
     {
-        settings_ = config::ParsedPanelSettings::Parse( settings );
-    }
-    catch ( const qwr::QwrException& e )
-    {
-        Fail( e.what() );
         return false;
     }
-
-    properties_ = settings.properties;
 
     if ( reloadPanel )
     {
@@ -170,9 +173,7 @@ bool PanelWindow::SaveSettings( stream_writer& writer, abort_callback& abort ) c
 {
     try
     {
-        auto settings = settings_.GeneratePanelSettings();
-        settings.properties = properties_;
-        settings.Save( writer, abort );
+        config_.Save( writer, abort );
         return true;
     }
     catch ( const qwr::QwrException& e )
@@ -182,11 +183,11 @@ bool PanelWindow::SaveSettings( stream_writer& writer, abort_callback& abort ) c
     }
 }
 
-bool PanelWindow::ReloadSettings()
+bool PanelWindow::ReloadScriptSettings()
 {
     try
     {
-        settings_ = config::ParsedPanelSettings::Reparse( settings_ );
+        scriptSettings_ = config::ResolvedPanelScriptSettings::ResolveSource( config_.scriptSource );
         return true;
     }
     catch ( const qwr::QwrException& e )
@@ -274,7 +275,7 @@ void PanelWindow::ExecuteEvent_Basic( EventId id )
     }
     case EventId::kScriptShowConfigureLegacy:
     {
-        switch ( settings_.GetSourceType() )
+        switch ( scriptSettings_.GetSourceType() )
         {
         case config::ScriptSourceType::InMemory:
         {
@@ -302,7 +303,7 @@ void PanelWindow::ExecuteEvent_Basic( EventId id )
         }
         isPaintInProgress_ = true;
 
-        if ( settings_.isPseudoTransparent && isBgRepaintNeeded_ )
+        if ( config_.panelSettings.isPseudoTransparent && isBgRepaintNeeded_ )
         { // Two pass redraw: paint BG > Repaint() > paint FG
             CRect rc;
             wnd_.GetUpdateRect( &rc, FALSE );
@@ -671,7 +672,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     }
     case WM_ERASEBKGND:
     {
-        if ( settings_.isPseudoTransparent )
+        if ( config_.panelSettings.isPseudoTransparent )
         {
             EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
         }
@@ -731,7 +732,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
             { WM_RBUTTONDOWN, EventId::kMouseRightButtonDown }
         };
 
-        if ( settings_.shouldGrabFocus )
+        if ( scriptSettings_.ShouldGrabFocus() )
         {
             wnd_.SetFocus();
         }
@@ -1027,15 +1028,13 @@ std::optional<LRESULT> PanelWindow::ProcessInternalSyncMessage( InternalSyncMess
 
 void PanelWindow::EditScript()
 {
-    switch ( settings_.GetSourceType() )
+    switch ( scriptSettings_.GetSourceType() )
     {
     case config::ScriptSourceType::InMemory:
-    case config::ScriptSourceType::File:
-    case config::ScriptSourceType::Sample:
     {
         try
         {
-            panel::EditScript( wnd_, settings_ );
+            panel::EditScript( wnd_, std::get<config::RawInMemoryScript>( config_.scriptSource ).script );
         }
         catch ( const qwr::QwrException& e )
         {
@@ -1043,7 +1042,20 @@ void PanelWindow::EditScript()
         }
         break;
     }
-    case config::ScriptSourceType::Package:
+    case config::ScriptSourceType::File:
+    case config::ScriptSourceType::Sample:
+    {
+        try
+        {
+            panel::EditScriptFile( wnd_, scriptSettings_ );
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        }
+        break;
+    }
+    case config::ScriptSourceType::SmpPackage:
     {
         ShowConfigure( wnd_, ui::CDialogConf::Tab::package );
         break;
@@ -1084,12 +1096,14 @@ void PanelWindow::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t id_ba
         menu.AppendMenu( MF_STRING, ++curIdx, L"&Open component folder" );
         menu.AppendMenu( MF_STRING, ++curIdx, L"&Open documentation" );
         menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
-        if ( settings_.GetSourceType() == config::ScriptSourceType::Package )
+        if ( scriptSettings_.GetSourceType() == config::ScriptSourceType::SmpPackage )
         {
+            const auto& package = scriptSettings_.GetSmpPackage();
+
             ++curIdx;
 
-            const auto scriptFiles = config::GetPackageScriptFiles( settings_ );
-            const auto scriptsDir = config::GetPackageScriptsDir( settings_ );
+            const auto scriptFiles = package.GetScriptFiles();
+            const auto scriptsDir = package.GetScriptsDir();
 
             CMenu cSubMenu;
             cSubMenu.CreatePopupMenu();
@@ -1170,12 +1184,14 @@ void PanelWindow::ExecuteContextMenu( uint32_t id, uint32_t id_base )
 
         if ( id - id_base > 100 )
         {
-            assert( settings_.GetSourceType() == config::ScriptSourceType::Package );
+            assert( scriptSettings_.GetSourceType() == config::ScriptSourceType::SmpPackage );
 
-            const auto scriptFiles = config::GetPackageScriptFiles( settings_ );
+            const auto& package = scriptSettings_.GetSmpPackage();
+
+            const auto scriptFiles = package.GetScriptFiles();
             const auto fileIdx = std::min( id - id_base - 100, scriptFiles.size() ) - 1;
 
-            panel::EditPackageScript( wnd_, scriptFiles[fileIdx], settings_ );
+            panel::EditPackageScript( wnd_, scriptFiles[fileIdx] );
             ReloadScript();
         }
     }
@@ -1187,25 +1203,28 @@ void PanelWindow::ExecuteContextMenu( uint32_t id, uint32_t id_base )
 
 qwr::u8string PanelWindow::GetPanelId()
 {
-    return settings_.panelId;
+    return config_.panelSettings.id;
 }
 
 qwr::u8string PanelWindow::GetPanelDescription( bool includeVersionAndAuthor )
 {
-    qwr::u8string ret = fmt::format( "{}", settings_.panelId );
+    qwr::u8string ret = fmt::format( "{}", config_.panelSettings.id );
 
-    if ( !settings_.scriptName.empty() )
+    if ( const auto& scriptName = scriptSettings_.GetScriptName();
+         !scriptName.empty() )
     {
-        ret += fmt::format( ": {}", settings_.scriptName );
+        ret += fmt::format( ": {}", scriptName );
         if ( includeVersionAndAuthor )
         {
-            if ( !settings_.scriptVersion.empty() )
+            if ( const auto& scriptVersion = scriptSettings_.GetScriptVersion();
+                 !scriptVersion.empty() )
             {
-                ret += fmt::format( " v{}", settings_.scriptVersion );
+                ret += fmt::format( " v{}", scriptVersion );
             }
-            if ( !settings_.scriptAuthor.empty() )
+            if ( const auto& scriptAuthor = scriptSettings_.GetScriptAuthor();
+                 !scriptAuthor.empty() )
             {
-                ret += fmt::format( " by {}", settings_.scriptAuthor );
+                ret += fmt::format( " by {}", scriptAuthor );
             }
         }
     }
@@ -1265,35 +1284,41 @@ HFONT PanelWindow::GetFont( unsigned type, const GUID& guid )
 
 void PanelWindow::SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion )
 {
-    assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
+    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
 
-    settings_.scriptName = scriptName;
-    settings_.scriptAuthor = scriptAuthor;
-    settings_.scriptVersion = scriptVersion;
+    auto& scriptRuntimeData = scriptSettings_.GetScriptRuntimeData();
+
+    scriptRuntimeData.name = scriptName;
+    scriptRuntimeData.author = scriptAuthor;
+    scriptRuntimeData.version = scriptVersion;
 }
 
 void PanelWindow::SetSettings_PanelName( const qwr::u8string& panelName )
 {
-    assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
+    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
 
-    settings_.panelId = panelName;
+    config_.panelSettings.id = panelName;
     isPanelIdOverridenByScript_ = true;
 }
 
 void PanelWindow::SetSettings_DragAndDropStatus( bool isEnabled )
 {
-    assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
+    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
 
-    settings_.enableDragDrop = isEnabled;
+    auto& scriptRuntimeData = scriptSettings_.GetScriptRuntimeData();
 
-    SetDragAndDropStatus( settings_.enableDragDrop );
+    scriptRuntimeData.enableDragDrop = isEnabled;
+
+    SetDragAndDropStatus( scriptRuntimeData.enableDragDrop );
 }
 
 void PanelWindow::SetSettings_CaptureFocusStatus( bool isEnabled )
 {
-    assert( settings_.GetSourceType() != config::ScriptSourceType::Package );
+    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
 
-    settings_.shouldGrabFocus = isEnabled;
+    auto& scriptRuntimeData = scriptSettings_.GetScriptRuntimeData();
+
+    scriptRuntimeData.shouldGrabFocus = isEnabled;
 }
 
 void PanelWindow::ResetLastDragParams()
@@ -1386,7 +1411,7 @@ void PanelWindow::RepaintBackground( const CRect& updateRc )
     }
 
     wnd_.SetWindowRgn( nullptr, FALSE );
-    if ( smp::config::EdgeStyle::NoEdge != settings_.edgeStyle )
+    if ( smp::config::EdgeStyle::NoEdge != config_.panelSettings.edgeStyle )
     {
         wnd_.SendMessage( WM_NCPAINT, 1, 0 );
     }
@@ -1402,18 +1427,18 @@ bool PanelWindow::LoadScript( bool isFirstLoad )
 
     try
     {
-        SetDragAndDropStatus( settings_.enableDragDrop );
+        SetDragAndDropStatus( scriptSettings_.ShouldEnableDragDrop() );
     }
     catch ( const qwr::QwrException& e )
     {
         smp::utils::LogWarning( e.what() );
     }
-    DynamicMainMenuManager::Get().RegisterPanel( wnd_, settings_.panelId );
+    DynamicMainMenuManager::Get().RegisterPanel( wnd_, config_.panelSettings.id );
 
     const auto extstyle = [&]() {
         DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
         extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
-        extstyle |= ConvertEdgeStyleToNativeFlags( settings_.edgeStyle );
+        extstyle |= ConvertEdgeStyleToNativeFlags( config_.panelSettings.edgeStyle );
 
         return extstyle;
     }();
@@ -1432,28 +1457,34 @@ bool PanelWindow::LoadScript( bool isFirstLoad )
 
     pTimeoutManager_->SetLoadingStatus( true );
 
-    if ( settings_.script )
+    switch ( scriptSettings_.GetSourceType() )
+    {
+    case config::ScriptSourceType::InMemory:
     {
         modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
-        if ( !pJsContainer_->ExecuteScript( *settings_.script, true ) )
+        if ( !pJsContainer_->ExecuteScript( scriptSettings_.GetScript(), scriptSettings_.IsModuleScript() ) )
         { // error reporting handled inside
             return false;
         }
+        break;
     }
-    else
+    case config::ScriptSourceType::SmpPackage:
+    case config::ScriptSourceType::ModulePackage:
+    case config::ScriptSourceType::Sample:
+    case config::ScriptSourceType::File:
     {
-        if ( settings_.GetSourceType() == config::ScriptSourceType::Package )
+        if ( scriptSettings_.GetSourceType() == config::ScriptSourceType::SmpPackage )
         {
-            assert( settings_.packageId );
-            config::MarkPackageAsInUse( *settings_.packageId );
+            config::MarkPackageAsInUse( scriptSettings_.GetSmpPackage().id );
         }
 
         modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
-        assert( settings_.scriptPath );
-        if ( !pJsContainer_->ExecuteScriptFile( *settings_.scriptPath, false ) )
+        if ( !pJsContainer_->ExecuteScriptFile( scriptSettings_.GetScriptPath(), scriptSettings_.IsModuleScript() ) )
         { // error reporting handled inside
             return false;
         }
+        break;
+    }
     }
 
     pTimeoutManager_->SetLoadingStatus( false );
@@ -1505,7 +1536,7 @@ void PanelWindow::CreateDrawContext()
 
     bmp_.CreateCompatibleBitmap( hDc_, width_, height_ );
 
-    if ( settings_.isPseudoTransparent )
+    if ( config_.panelSettings.isPseudoTransparent )
     {
         bmpBg_.CreateCompatibleBitmap( hDc_, width_, height_ );
     }
@@ -1616,7 +1647,7 @@ void PanelWindow::OnPaint( HDC dc, const CRect& updateRc )
     }
     else
     {
-        if ( settings_.isPseudoTransparent )
+        if ( config_.panelSettings.isPseudoTransparent )
         {
             CDC bgDc{ CreateCompatibleDC( dc ) };
             gdi::ObjectSelector autoBgBmp( bgDc, bmpBg_.m_hBitmap );
@@ -1702,7 +1733,7 @@ void PanelWindow::OnSizeUser( uint32_t w, uint32_t h )
                                      static_cast<uint32_t>( w ),
                                      static_cast<uint32_t>( h ) );
 
-    if ( settings_.isPseudoTransparent )
+    if ( config_.panelSettings.isPseudoTransparent )
     {
         EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kWndRepaintBackground ), EventPriority::kRedraw );
     }

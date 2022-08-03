@@ -1,8 +1,7 @@
 #include <stdafx.h>
 
-#include "delayed_package_utils.h"
+#include "delayed_package_actions.h"
 
-#include <config/package_utils.h>
 #include <resources/resource.h>
 #include <utils/resource_helpers.h>
 
@@ -85,7 +84,7 @@ void ForceRemoveDir( const fs::path& dir )
 /// @throw qwr::QwrException
 void CheckPackageBackups()
 {
-    const auto dir = path::TempFolder_PackageBackups();
+    const auto dir = path::TempFolder_SmpPackageBackups();
     if ( !fs::exists( dir ) || !fs::is_directory( dir ) )
     {
         fs::remove_all( dir );
@@ -119,15 +118,15 @@ void CheckPackageBackups()
 /// @throw qwr::QwrException
 void UpdatePackages()
 {
-    const auto packagesToProcessDir = path::TempFolder_PackagesToInstall();
+    const auto packagesToProcessDir = path::TempFolder_SmpPackagesToInstall();
     if ( !fs::exists( packagesToProcessDir ) || !fs::is_directory( packagesToProcessDir ) )
     {
         fs::remove_all( packagesToProcessDir );
         return;
     }
 
-    const auto packagesDir = path::Packages_Profile();
-    const auto packageBackupsDir = path::TempFolder_PackageBackups();
+    const auto packagesDir = path::SmpPackages_Profile();
+    const auto packageBackupsDir = path::TempFolder_SmpPackageBackups();
 
     for ( const auto& newPackageDir: fs::directory_iterator( packagesToProcessDir ) )
     {
@@ -192,7 +191,7 @@ void UpdatePackages()
             auto j = json::parse( *restorationJsonOpt );
             j["id"] = packageId;
 
-            qwr::file::WriteFile( packageToUpdateDir / config::GetRelativePathToMainFile(), *restorationScriptOpt );
+            qwr::file::WriteFile( packageToUpdateDir / "main.js", *restorationScriptOpt );
             qwr::file::WriteFile( packageToUpdateDir / "package.json", j.dump( 2 ) );
 
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME,
@@ -210,14 +209,14 @@ void UpdatePackages()
 /// @throw std::filesystem::filesystem_error
 void RemovePackages()
 {
-    const auto packagesToProcessDir = path::TempFolder_PackagesToRemove();
+    const auto packagesToProcessDir = path::TempFolder_SmpPackagesToRemove();
     if ( !fs::exists( packagesToProcessDir ) || !fs::is_directory( packagesToProcessDir ) )
     {
         fs::remove_all( packagesToProcessDir );
         return;
     }
 
-    const auto packagesDir = path::Packages_Profile();
+    const auto packagesDir = path::SmpPackages_Profile();
 
     for ( const auto& packageContent: fs::directory_iterator( packagesToProcessDir ) )
     {
@@ -239,7 +238,7 @@ bool IsPackageInUse( const qwr::u8string& packageId )
 {
     try
     {
-        return fs::exists( path::TempFolder_PackagesInUse() / packageId );
+        return fs::exists( path::TempFolder_SmpPackagesInUse() / packageId );
     }
     catch ( const fs::filesystem_error& e )
     {
@@ -251,11 +250,11 @@ PackageDelayStatus GetPackageDelayStatus( const qwr::u8string& packageId )
 {
     try
     {
-        if ( fs::exists( path::TempFolder_PackagesToRemove() / packageId ) )
+        if ( fs::exists( path::TempFolder_SmpPackagesToRemove() / packageId ) )
         {
             return PackageDelayStatus::ToBeRemoved;
         }
-        else if ( const auto packagePath = path::TempFolder_PackagesToInstall() / packageId;
+        else if ( const auto packagePath = path::TempFolder_SmpPackagesToInstall() / packageId;
                   fs::exists( packagePath ) && fs::is_directory( packagePath ) )
         {
             return PackageDelayStatus::ToBeUpdated;
@@ -275,7 +274,7 @@ void ClearPackageDelayStatus( const qwr::u8string& packageId )
 {
     try
     {
-        for ( const auto& path: { path::TempFolder_PackagesToRemove() / packageId, path::TempFolder_PackagesToInstall() / packageId } )
+        for ( const auto& path: { path::TempFolder_SmpPackagesToRemove() / packageId, path::TempFolder_SmpPackagesToInstall() / packageId } )
         {
             fs::remove_all( path );
         }
@@ -291,7 +290,7 @@ void MarkPackageAsToBeRemoved( const qwr::u8string& packageId )
     ClearPackageDelayStatus( packageId );
     try
     {
-        const auto path = path::TempFolder_PackagesToRemove() / packageId;
+        const auto path = path::TempFolder_SmpPackagesToRemove() / packageId;
 
         fs::create_directories( path.parent_path() );
         std::ofstream f( path );
@@ -308,7 +307,7 @@ void MarkPackageAsToBeInstalled( const qwr::u8string& packageId, const std::file
     ClearPackageDelayStatus( packageId );
     try
     {
-        const auto path = path::TempFolder_PackagesToInstall() / packageId;
+        const auto path = path::TempFolder_SmpPackagesToInstall() / packageId;
 
         fs::create_directories( path );
         fs::copy( packageContent, path, fs::copy_options::recursive );
@@ -323,7 +322,7 @@ void MarkPackageAsInUse( const qwr::u8string& packageId )
 {
     try
     {
-        const auto path = path::TempFolder_PackagesInUse() / packageId;
+        const auto path = path::TempFolder_SmpPackagesInUse() / packageId;
 
         fs::create_directories( path.parent_path() );
         std::ofstream f( path );
@@ -339,8 +338,8 @@ void ProcessDelayedPackages()
 {
     try
     {
-        fs::remove_all( path::TempFolder_PackagesInUse() );
-        fs::remove_all( path::TempFolder_PackageUnpack() );
+        fs::remove_all( path::TempFolder_SmpPackagesInUse() );
+        fs::remove_all( path::TempFolder_SmpPackageUnpack() );
         ::RemovePackages();
         ::CheckPackageBackups();
         ::UpdatePackages();

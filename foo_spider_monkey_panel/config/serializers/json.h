@@ -6,10 +6,10 @@ namespace smp::config::json
 {
 
 /// @throw qwr::QwrException
-[[nodiscard]] PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort );
+[[nodiscard]] PanelConfig LoadConfig( stream_reader& reader, abort_callback& abort );
 
 /// @throw qwr::QwrException
-void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSettings& settings );
+void SaveConfig( stream_writer& writer, abort_callback& abort, const PanelConfig& settings );
 
 /// @throw qwr::QwrException
 [[nodiscard]] PanelProperties LoadProperties( stream_reader& reader, abort_callback& abort );

@@ -1,9 +1,9 @@
 #include <stdafx.h>
 
-#include "js_event_target.h"
+#include "event_target.h"
 
 #include <js_backend/engine/js_to_native_invoker.h>
-#include <js_backend/objects/dom/js_event.h>
+#include <js_backend/objects/dom/event.h>
 #include <utils/logging.h>
 
 #include <qwr/final_action.h>

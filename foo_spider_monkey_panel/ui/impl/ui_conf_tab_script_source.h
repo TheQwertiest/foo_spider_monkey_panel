@@ -1,6 +1,6 @@
 #pragma once
 
-#include <config/parsed_panel_config.h>
+#include <config/panel_config.h>
 #include <panel/user_message.h>
 #include <resources/resource.h>
 #include <ui/impl/ui_itab.h>
@@ -69,7 +69,7 @@ public:
     };
 
 public:
-    CConfigTabScriptSource( CDialogConf& parent, config::ParsedPanelSettings& settings );
+    CConfigTabScriptSource( CDialogConf& parent, config::PanelConfig& config );
     ~CConfigTabScriptSource() override = default;
 
     // > IUiTab
@@ -90,7 +90,7 @@ private:
     void OnBrowseFile( UINT uNotifyCode, int nID, CWindow wndCtl );
     std::optional<std::filesystem::path> OnBrowseFileImpl();
     void OnOpenPackageManager( UINT uNotifyCode, int nID, CWindow wndCtl );
-    std::optional<config::ParsedPanelSettings> OnOpenPackageManagerImpl( const qwr::u8string& packageId );
+    std::optional<config::RawSmpPackage> OnOpenPackageManagerImpl( const qwr::u8string& packageId );
 
     void OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl );
     LONG OnEditScriptDropDown( LPNMHDR pnmh ) const;
@@ -112,7 +112,7 @@ private:
     bool suppressUiDdx_ = true;
 
     CDialogConf& parent_;
-    config::ParsedPanelSettings& settings_;
+    config::PanelConfig& config_;
 
     int sourceTypeId_ = 0;
     int sampleIdx_ = 0;

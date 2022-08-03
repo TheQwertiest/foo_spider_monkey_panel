@@ -1,12 +1,17 @@
 #pragma once
 
-#include <config/parsed_panel_config.h>
-
 #include <js/TypeDecls.h>
 
 #include <filesystem>
 #include <unordered_map>
 #include <unordered_set>
+
+namespace smp::config
+{
+
+class ResolvedPanelScriptSettings;
+
+}
 
 namespace mozjs
 {
@@ -39,7 +44,7 @@ public:
 
     /// @throw qwr::QwrException
     /// @throw smp::JsException
-    void IncludeScript( const qwr::u8string& path, const smp::config::ParsedPanelSettings& panelSettings, bool alwaysEvaluate = false );
+    void IncludeScript( const qwr::u8string& path, const smp::config::ResolvedPanelScriptSettings& scriptSettings, bool alwaysEvaluate = false );
 
 private:
     JSObject* GetCompiledModule( const std::filesystem::path& scriptPath );

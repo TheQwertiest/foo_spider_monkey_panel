@@ -3,7 +3,7 @@
 #include <filesystem>
 #include <vector>
 
-// This is needed to support `GetCurrentScriptPath` hack and as a workaround for
+// This is a workaround for
 // https://github.com/TheQwertiest/foo_spider_monkey_panel/issues/1
 
 namespace mozjs::hack

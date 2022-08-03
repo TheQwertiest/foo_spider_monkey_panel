@@ -19,7 +19,7 @@ void CheckMZip( mz_bool mzBool, const mz_zip_archive& mzZip, std::string_view fu
     if ( !mzBool )
     {
         const auto introMessage = fmt::format( fmt::runtime( introMessageFmt ), std::forward<Args>( introMessageFmtArgs )... );
-        throw qwr::QwrException( "{}{} failed with error {:#x}: {}", introMessage, functionName, mzZip.m_last_error, mz_zip_get_error_string( mzZip.m_last_error ) );
+        throw qwr::QwrException( "{}{} failed with error {:#x}: {}", introMessage, functionName, static_cast<int>( mzZip.m_last_error ), mz_zip_get_error_string( mzZip.m_last_error ) );
     }
 }
 
@@ -79,6 +79,7 @@ void ZipPacker::AddFile( const fs::path& srcFile, const qwr::u8string& destFileN
     auto zRet = mz_zip_writer_add_file( pZip_.get(), destFileName.c_str(), srcFile.u8string().c_str(), "", 0, MZ_BEST_COMPRESSION );
     CheckMZip( zRet, *pZip_, "mz_zip_writer_init_file", "Failed to add file to archive: `{}`\n  ", srcFile.filename().u8string() );
 }
+
 void ZipPacker::AddFolder( const fs::path& srcFolder, const qwr::u8string& destFolderName )
 {
     try

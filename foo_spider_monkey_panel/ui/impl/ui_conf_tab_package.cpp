@@ -2,7 +2,8 @@
 
 #include "ui_conf_tab_package.h"
 
-#include <config/package_utils.h>
+#include <config/resolved_panel_script_settings.h>
+#include <config/smp_package/package_manager.h>
 #include <fb2k/config.h>
 #include <ui/impl/ui_menu_edit_with.h>
 #include <ui/ui_conf.h>
@@ -46,21 +47,15 @@ std::vector<fs::path> GetAllFilesFromPath( const fs::path& path )
 namespace smp::ui
 {
 
-CConfigTabPackage::CConfigTabPackage( CDialogConf& parent, config::ParsedPanelSettings& settings )
+CConfigTabPackage::CConfigTabPackage( CDialogConf& parent, config::PanelConfig& config )
     : parent_( parent )
-    , settings_( settings )
-    , scriptName_( settings.scriptName )
-    , scriptVersion_( settings.scriptVersion )
-    , scriptAuthor_( settings.scriptAuthor )
-    , scriptDescription_( settings.scriptDescription )
-    , shouldGrabFocus_( settings.shouldGrabFocus )
-    , enableDragDrop_( settings.enableDragDrop )
-    , ddx_( { qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( scriptName_, IDC_EDIT_PACKAGE_NAME ),
-              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( scriptVersion_, IDC_EDIT_PACKAGE_VERSION ),
-              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( scriptAuthor_, IDC_EDIT_PACKAGE_AUTHOR ),
-              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( scriptDescription_, IDC_EDIT_PACKAGE_DESCRIPTION ),
-              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_CheckBox>( shouldGrabFocus_, IDC_CHECK_SHOULD_GRAB_FOCUS ),
-              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_CheckBox>( enableDragDrop_, IDC_CHECK_ENABLE_DRAG_N_DROP ),
+    , config_( config )
+    , ddx_( { qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( localPackage_.name, IDC_EDIT_PACKAGE_NAME ),
+              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( localPackage_.version, IDC_EDIT_PACKAGE_VERSION ),
+              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( localPackage_.author, IDC_EDIT_PACKAGE_AUTHOR ),
+              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( localPackage_.description, IDC_EDIT_PACKAGE_DESCRIPTION ),
+              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_CheckBox>( localPackage_.shouldGrabFocus, IDC_CHECK_SHOULD_GRAB_FOCUS ),
+              qwr::ui::CreateUiDdx<qwr::ui::UiDdx_CheckBox>( localPackage_.enableDragDrop, IDC_CHECK_ENABLE_DRAG_N_DROP ),
               qwr::ui::CreateUiDdx<qwr::ui::UiDdx_ListBox>( focusedFileIdx_, IDC_LIST_PACKAGE_FILES ) } )
 {
     InitializeLocalData();
@@ -83,23 +78,65 @@ const wchar_t* CConfigTabPackage::Name() const
 
 bool CConfigTabPackage::HasChanged()
 {
-    return false;
+    return ( oldPackage_.id == localPackage_.id
+             && ( oldPackage_.name != localPackage_.name
+                  || oldPackage_.author != localPackage_.author
+                  || oldPackage_.version != localPackage_.version
+                  || oldPackage_.description != localPackage_.description
+                  || oldPackage_.enableDragDrop != localPackage_.enableDragDrop
+                  || oldPackage_.shouldGrabFocus != localPackage_.shouldGrabFocus ) );
 }
 
 void CConfigTabPackage::Apply()
 {
+    if ( !HasChanged() )
+    {
+        return;
+    }
+    localPackage_.ToFile( localPackage_.packageDir / "package.json" );
+    oldPackage_ = localPackage_;
 }
 
 void CConfigTabPackage::Revert()
 {
+    localPackage_ = oldPackage_;
+
+    if ( !this->m_hWnd )
+    {
+        return;
+    }
+
+    for ( auto& pDdx: ddx_ )
+    {
+        pDdx->WriteToUi();
+    }
 }
 
 void CConfigTabPackage::Refresh()
 {
-    if ( settings_.GetSourceType() == config::ScriptSourceType::Package
-         && packagePath_ != config::GetPackagePath( settings_ ) )
+}
+
+bool CConfigTabPackage::TryResolvePackage()
+{
+    try
     {
+        oldPackage_ = config::ResolvedPanelScriptSettings::ResolveSource( config_.scriptSource ).GetSmpPackage();
+        if ( localPackage_.id != oldPackage_.id )
+        {
+            localPackage_ = oldPackage_;
+        }
         InitializeLocalData();
+        return true;
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+        return false;
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        return false;
     }
 }
 
@@ -165,7 +202,7 @@ void CConfigTabPackage::OnNewScript( UINT uNotifyCode, int nID, CWindow wndCtl )
 
     try
     {
-        const auto scriptsDir = config::GetPackageScriptsDir( settings_ );
+        const auto scriptsDir = localPackage_.GetScriptsDir();
 
         const auto newFilenameOpt = [&]() -> std::optional<fs::path> {
             while ( true )
@@ -306,7 +343,7 @@ void CConfigTabPackage::OnOpenContainingFolder( UINT uNotifyCode, int nID, CWind
     {
         const auto hInstance = ShellExecute( nullptr,
                                              L"explore",
-                                             packagePath_.wstring().c_str(),
+                                             localPackage_.packageDir.wstring().c_str(),
                                              ( arg.empty() ? nullptr : arg.c_str() ),
                                              nullptr,
                                              SW_SHOWNORMAL );
@@ -329,22 +366,6 @@ void CConfigTabPackage::OnEditScript( UINT uNotifyCode, int nID, CWindow wndCtl 
 {
     try
     {
-        if ( isSample_ )
-        {
-            const int iRet = qwr::ui::MessageBoxCentered(
-                *this,
-                L"Are you sure?\n\n"
-                L"You are trying to edit a sample script.\n"
-                L"Any changes performed to the script will be applied to every panel that are using this sample.\n"
-                L"These changes will also be lost when updating the component.",
-                L"Editing script",
-                MB_YESNO );
-            if ( iRet != IDYES )
-            {
-                return;
-            }
-        }
-
         const auto filePath = files_[focusedFileIdx_];
         qwr::QwrException::ExpectTrue( fs::exists( filePath ), "Script is missing: {}", filePath.u8string() );
 
@@ -433,10 +454,7 @@ void CConfigTabPackage::UpdateUiButtons()
 
 void CConfigTabPackage::InitializeLocalData()
 {
-    packagePath_ = config::GetPackagePath( settings_ );
-    isSample_ = settings_.isSample;
-    mainScriptPath_ = *settings_.scriptPath;
-    focusedFile_ = mainScriptPath_;
+    focusedFile_ = localPackage_.entryFile;
 }
 
 void CConfigTabPackage::InitializeFilesListBox()
@@ -463,11 +481,11 @@ void CConfigTabPackage::InitializeFilesListBox()
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
         }
 
-        files_ = config::GetPackageFiles( settings_ );
+        files_ = localPackage_.GetAllFiles();
         if ( const auto it = ranges::find( files_, focusedFile_ );
              it == files_.cend() )
         { // in case file was deleted
-            focusedFile_ = mainScriptPath_;
+            focusedFile_ = localPackage_.entryFile;
         }
 
         UpdateListBoxFromData();
@@ -490,7 +508,7 @@ void CConfigTabPackage::SortFiles()
     } );
 
     // move assets to the end
-    const auto scriptDir = ( packagePath_ / "scripts" ).wstring();
+    const auto scriptDir = localPackage_.GetScriptsDir().wstring();
     const auto it = std::find_if( files_.cbegin() + 1, files_.cend(), [&scriptDir]( const fs::path& a ) {
         return ( a.wstring().find( scriptDir ) == 0 );
     } );
@@ -521,7 +539,7 @@ void CConfigTabPackage::UpdateListBoxFromData()
         filesListBox_.ResetContent();
         for ( const auto& file: files_ )
         {
-            filesListBox_.AddString( fs::relative( file, packagePath_ ).c_str() );
+            filesListBox_.AddString( fs::relative( file, localPackage_.packageDir ).c_str() );
         }
     }
     catch ( const fs::filesystem_error& e )
@@ -537,11 +555,11 @@ void CConfigTabPackage::AddFile( const std::filesystem::path& path )
         const auto newPath = [&] {
             if ( path.extension() == ".js" )
             {
-                return packagePath_ / "scripts" / path.filename();
+                return localPackage_.GetScriptsDir() / path.filename();
             }
             else
             {
-                return packagePath_ / "assets" / path.filename();
+                return localPackage_.GetAssetsDir() / path.filename();
             }
         }();
 

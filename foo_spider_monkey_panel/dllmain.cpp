@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include <config/delayed_package_utils.h>
+#include <config/smp_package/delayed_package_actions.h>
 #include <events/event_dispatcher.h>
 #include <js_backend/engine/js_engine.h>
 #include <utils/thread_pool_instance.h>

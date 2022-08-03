@@ -2,7 +2,6 @@
 
 #include "global_object.h"
 
-#include <config/package_utils.h>
 #include <js_backend/engine/js_container.h>
 #include <js_backend/engine/js_engine.h>
 #include <js_backend/engine/js_realm_inner.h>
@@ -12,7 +11,7 @@
 #include <js_backend/objects/dom/active_x_object.h>
 #include <js_backend/objects/dom/console.h>
 #include <js_backend/objects/dom/enumerator.h>
-#include <js_backend/objects/dom/js_event.h>
+#include <js_backend/objects/dom/event.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/objects/fb2k/fb_playlist_manager.h>
 #include <js_backend/objects/fb2k/fb_profiler.h>
@@ -278,7 +277,7 @@ void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
 void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue options )
 {
     const auto parsedOptions = ParseIncludeOptions( options );
-    scriptLoader_.IncludeScript( path, parentContainer_.GetParentPanel().GetSettings(), parsedOptions.alwaysEvaluate );
+    scriptLoader_.IncludeScript( path, parentContainer_.GetParentPanel().GetScriptSettings(), parsedOptions.alwaysEvaluate );
 }
 
 void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const qwr::u8string& path, JS::HandleValue options )

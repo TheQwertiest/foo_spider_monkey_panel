@@ -1,6 +1,8 @@
 #include <stdafx.h>
 
-#include "panel_config_json.h"
+#include "json.h"
+
+#include <component_paths.h>
 
 #include <qwr/fb2k_paths.h>
 #include <qwr/string_helpers.h>
@@ -10,6 +12,7 @@
 #include <filesystem>
 
 using namespace smp;
+namespace fs = std::filesystem;
 
 namespace
 {
@@ -19,7 +22,8 @@ enum class ScriptType : uint8_t
     SimpleInMemory = 1,
     SimpleSample = 2,
     SimpleFile = 3,
-    Package = 4
+    SmpPackage = 4,
+    ModulePackage = 5
 };
 
 enum class LocationType : uint8_t
@@ -141,14 +145,12 @@ config::PanelProperties DeserializePropertiesFromObject( const nlohmann::json& j
 namespace smp::config::json
 {
 
-PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
+PanelConfig LoadConfig( stream_reader& reader, abort_callback& abort )
 {
-    namespace fs = std::filesystem;
     using json = nlohmann::json;
 
     try
     {
-        PanelSettings panelSettings;
 
         const auto jsonMain = json::parse( qwr::pfc_x::ReadString( reader, abort ) );
         if ( !jsonMain.is_object() )
@@ -162,20 +164,26 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
             throw qwr::QwrException( "Corrupted serialized settings: version/id mismatch" );
         }
 
+        PanelSettings panelSettings;
         if ( jsonMain.find( "panelId" ) != jsonMain.end() )
         {
             jsonMain.at( "panelId" ).get_to( panelSettings.id );
         }
-
         panelSettings.isPseudoTransparent = jsonMain.value( "isPseudoTransparent", false );
+        panelSettings.edgeStyle = static_cast<EdgeStyle>( jsonMain.value( "edgeStyle", static_cast<uint8_t>( EdgeStyle::Default ) ) );
 
+        RawScriptSourceVariant sourceVariant;
         const auto scriptType = jsonMain.at( "scriptType" ).get<ScriptType>();
         const auto jsonPayload = jsonMain.at( "payload" );
         switch ( scriptType )
         {
         case ScriptType::SimpleInMemory:
         {
-            panelSettings.payload = PanelSettings_InMemory{ jsonPayload.at( "script" ).get<std::string>() };
+            RawInMemoryScript source;
+            source.script = jsonPayload.at( "script" );
+            source.isModule = jsonPayload.value( "isModuleScript", false );
+
+            sourceVariant = std::move( source );
             break;
         }
         case ScriptType::SimpleFile:
@@ -205,19 +213,38 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
                 }
             }();
 
-            panelSettings.payload = PanelSettings_File{ fullPath.u8string() };
+            RawScriptFile source;
+            source.scriptPath = fullPath;
+            source.isModule = jsonPayload.value( "isModuleScript", false );
+
+            sourceVariant = std::move( source );
             break;
         }
         case ScriptType::SimpleSample:
         {
-            panelSettings.payload = PanelSettings_Sample{ jsonPayload.at( "sampleName" ).get<std::string>() };
+            RawSampleFile source;
+            source.name = jsonPayload.at( "sampleName" );
+            source.isModule = jsonPayload.value( "isModuleScript", false );
+
+            sourceVariant = std::move( source );
             break;
         }
-        case ScriptType::Package:
+        case ScriptType::SmpPackage:
         {
-            panelSettings.payload = PanelSettings_Package{ jsonPayload.at( "id" ).get<std::string>(),
-                                                           jsonPayload.at( "name" ).get<std::string>(),
-                                                           jsonPayload.at( "author" ).get<std::string>() };
+            RawSmpPackage source;
+            source.id = jsonPayload.at( "id" );
+            source.name = jsonPayload.at( "name" );
+            source.author = jsonPayload.at( "author" );
+
+            sourceVariant = std::move( source );
+            break;
+        }
+        case ScriptType::ModulePackage:
+        {
+            RawModulePackage source;
+            source.name = jsonPayload.at( "name" );
+
+            sourceVariant = std::move( source );
             break;
         }
         default:
@@ -226,11 +253,13 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
         }
         }
 
-        panelSettings.properties = DeserializePropertiesFromObject( jsonMain.at( "properties" ) );
-        panelSettings.edgeStyle = static_cast<EdgeStyle>( jsonMain.value( "edgeStyle", static_cast<uint8_t>( EdgeStyle::Default ) ) );
-        panelSettings.isPseudoTransparent = jsonMain.value( "isPseudoTransparent", false );
+        auto properties = DeserializePropertiesFromObject( jsonMain.at( "properties" ) );
 
-        return panelSettings;
+        PanelConfig panelConfig;
+        panelConfig.panelSettings = std::move( panelSettings );
+        panelConfig.properties = std::move( properties );
+        panelConfig.scriptSource = std::move( sourceVariant );
+        return panelConfig;
     }
     catch ( const json::exception& e )
     {
@@ -246,9 +275,8 @@ PanelSettings LoadSettings( stream_reader& reader, abort_callback& abort )
     }
 }
 
-void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSettings& settings )
+void SaveConfig( stream_writer& writer, abort_callback& abort, const PanelConfig& config )
 {
-    namespace fs = std::filesystem;
     using json = nlohmann::json;
 
     try
@@ -256,21 +284,22 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
         auto jsonMain = json::object();
         jsonMain.push_back( { "id", kSettingsJsonConfigId } );
         jsonMain.push_back( { "version", kSettingsJsonConfigVersion } );
-        jsonMain.push_back( { "panelId", settings.id } );
+        jsonMain.push_back( { "panelId", config.panelSettings.id } );
 
+        bool isModule = false;
         json jsonPayload = json::object();
         const auto scriptType = std::visit(
             qwr::Visitor{
-                [&jsonPayload]( const smp::config::PanelSettings_InMemory& data ) {
-                    jsonPayload.push_back( { "script", data.script } );
+                [&]( const RawInMemoryScript& arg ) {
+                    jsonPayload.push_back( { "script", arg.script } );
+                    jsonPayload.push_back( { "isModuleScript", arg.isModule } );
                     return ScriptType::SimpleInMemory;
                 },
-                [&jsonPayload]( const smp::config::PanelSettings_File& data ) {
-                    const auto [path, locationType] = [&path = data.path] {
+                [&]( const RawScriptFile& arg ) {
+                    const auto [path, locationType] = [&path = arg.scriptPath] {
                         try
                         {
-                            auto fsPath = fs::u8path( path ).lexically_normal();
-
+                            const auto fsPath = path.lexically_normal();
                             const auto isSubpath = []( const auto& path, const auto& base ) {
                                 return ( path.wstring().find( base.lexically_normal().wstring() ) == 0 );
                             };
@@ -298,26 +327,33 @@ void SaveSettings( stream_writer& writer, abort_callback& abort, const PanelSett
 
                     jsonPayload.push_back( { "path", path } );
                     jsonPayload.push_back( { "locationType", locationType } );
+                    jsonPayload.push_back( { "isModuleScript", arg.isModule } );
                     return ScriptType::SimpleFile;
                 },
-                [&jsonPayload]( const smp::config::PanelSettings_Sample& data ) {
-                    jsonPayload.push_back( { "sampleName", data.sampleName } );
+                [&]( const RawSampleFile& arg ) {
+                    jsonPayload.push_back( { "sampleName", arg.name } );
+                    jsonPayload.push_back( { "isModuleScript", arg.isModule } );
                     return ScriptType::SimpleSample;
                 },
-                [&jsonPayload]( const smp::config::PanelSettings_Package& data ) {
-                    jsonPayload.push_back( { "id", data.id } );
-                    jsonPayload.push_back( { "name", data.name } );
-                    jsonPayload.push_back( { "author", data.author } );
-                    jsonPayload.push_back( { "version", data.version } );
-                    return ScriptType::Package;
+                [&]( const RawSmpPackage& arg ) {
+                    jsonPayload.push_back( { "id", arg.id } );
+                    jsonPayload.push_back( { "name", arg.name } );
+                    jsonPayload.push_back( { "author", arg.author } );
+                    return ScriptType::SmpPackage;
+                },
+                [&]( const RawModulePackage& arg ) {
+                    jsonPayload.push_back( { "name", arg.name } );
+                    return ScriptType::ModulePackage;
                 } },
-            settings.payload );
+            config.scriptSource );
 
         jsonMain.push_back( { "scriptType", static_cast<uint8_t>( scriptType ) } );
         jsonMain.push_back( { "payload", jsonPayload } );
-        jsonMain.push_back( { "properties", SerializePropertiesToObject( settings.properties ) } );
-        jsonMain.push_back( { "edgeStyle", static_cast<uint8_t>( settings.edgeStyle ) } );
-        jsonMain.push_back( { "isPseudoTransparent", settings.isPseudoTransparent } );
+
+        jsonMain.push_back( { "properties", SerializePropertiesToObject( config.properties ) } );
+
+        jsonMain.push_back( { "edgeStyle", static_cast<uint8_t>( config.panelSettings.edgeStyle ) } );
+        jsonMain.push_back( { "isPseudoTransparent", config.panelSettings.isPseudoTransparent } );
 
         qwr::pfc_x::WriteString( writer, jsonMain.dump( 2 ), abort );
     }

@@ -2,6 +2,8 @@
 
 #include "ui_conf_tab_script_source.h"
 
+#include <config/default_script.h>
+#include <config/resolved_panel_script_settings.h>
 #include <fb2k/config.h>
 #include <panel/edit_script.h>
 #include <ui/ui_conf.h>
@@ -19,6 +21,8 @@
 #include <qwr/winapi_error_helpers.h>
 
 #include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace
 {
@@ -56,14 +60,6 @@ std::vector<CConfigTabScriptSource::SampleComboBoxElem> GetSampleFileData()
     }
 }
 
-void UpdateOnSrcChange( config::ParsedPanelSettings& settings, const config::ParsedPanelSettings& newSettings )
-{
-    // panel id is persistent across src changes
-    const auto oldPanelId = settings.panelId;
-    settings = newSettings;
-    settings.panelId = oldPanelId;
-}
-
 } // namespace
 
 namespace smp::ui
@@ -71,9 +67,9 @@ namespace smp::ui
 
 std::vector<CConfigTabScriptSource::SampleComboBoxElem> CConfigTabScriptSource::sampleData_;
 
-CConfigTabScriptSource::CConfigTabScriptSource( CDialogConf& parent, config::ParsedPanelSettings& settings )
+CConfigTabScriptSource::CConfigTabScriptSource( CDialogConf& parent, config::PanelConfig& config )
     : parent_( parent )
-    , settings_( settings )
+    , config_( config )
     , ddx_( {
           qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( path_, IDC_TEXTEDIT_SRC_PATH ),
           qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( packageName_, IDC_TEXTEDIT_SRC_PACKAGE ),
@@ -170,26 +166,26 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT /*uNotifyCode*/, int nID, C
         ( *it )->ReadFromUi();
     }
 
-    const auto newPayloadOpt = [&]() -> std::optional<config::PanelSettings::ScriptVariant> {
+    const auto newScriptSourceOpt = [&]() -> std::optional<config::RawScriptSourceVariant> {
         switch ( sourceTypeId_ )
         {
         case IDC_RADIO_SRC_SAMPLE:
         {
             return ( sampleData_.empty()
-                         ? config::PanelSettings_Sample{}
-                         : config::PanelSettings_Sample{ qwr::unicode::ToU8( sampleData_[sampleIdx_].displayedName ) } );
+                         ? config::RawSampleFile{}
+                         : config::RawSampleFile{ qwr::unicode::ToU8( sampleData_[sampleIdx_].displayedName ) } );
         }
         case IDC_RADIO_SRC_MEMORY:
         {
-            return config::PanelSettings_InMemory{};
+            return config::RawInMemoryScript{ config::GetDefaultScript() };
         }
         case IDC_RADIO_SRC_FILE:
         {
-            const auto parsedSettingsOpt = OnBrowseFileImpl();
-            if ( parsedSettingsOpt )
+            const auto scriptFileOpt = OnBrowseFileImpl();
+            if ( scriptFileOpt )
             {
-                path_ = parsedSettingsOpt->u8string();
-                return config::PanelSettings_File{ path_ };
+                path_ = scriptFileOpt->u8string();
+                return config::RawScriptFile{ path_ };
             }
             else
             {
@@ -198,11 +194,12 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT /*uNotifyCode*/, int nID, C
         }
         case IDC_RADIO_SRC_PACKAGE:
         {
-            const auto parsedSettingsOpt = OnOpenPackageManagerImpl( settings_.packageId.value_or( "" ) );
-            if ( parsedSettingsOpt )
+            const auto packageId = ( config::GetSourceType( config_.scriptSource ) == config::ScriptSourceType::SmpPackage ? std::get<config::RawSmpPackage>( config_.scriptSource ).id : "" );
+            const auto rawPackageOpt = OnOpenPackageManagerImpl( packageId );
+            if ( rawPackageOpt )
             {
-                packageName_ = parsedSettingsOpt->scriptName;
-                return parsedSettingsOpt->GeneratePanelSettings().payload;
+                packageName_ = rawPackageOpt->name;
+                return rawPackageOpt;
             }
             else
             {
@@ -217,14 +214,11 @@ void CConfigTabScriptSource::OnScriptSrcChange( UINT /*uNotifyCode*/, int nID, C
         }
     }();
 
-    if ( newPayloadOpt )
+    if ( newScriptSourceOpt )
     {
-        config::PanelSettings newSettings;
-        newSettings.payload = *newPayloadOpt;
+        config_.scriptSource = *newScriptSourceOpt;
         try
         {
-            UpdateOnSrcChange( settings_, config::ParsedPanelSettings::Parse( newSettings ) );
-
             DoButtonsDdxToUi();
             DoFullDdxToUi();
             parent_.OnWholeScriptChange();
@@ -269,11 +263,7 @@ void CConfigTabScriptSource::OnBrowseFile( UINT /*uNotifyCode*/, int /*nID*/, CW
     }
 
     path_ = pathOpt->u8string();
-
-    config::PanelSettings newSettings;
-    newSettings.payload = config::PanelSettings_File{ path_ };
-
-    UpdateOnSrcChange( settings_, config::ParsedPanelSettings::Parse( newSettings ) );
+    config_.scriptSource = config::RawScriptFile{ path_ };
 
     DoFullDdxToUi();
     DoButtonsDdxToUi();
@@ -302,15 +292,16 @@ std::optional<std::filesystem::path> CConfigTabScriptSource::OnBrowseFileImpl()
 
 void CConfigTabScriptSource::OnOpenPackageManager( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
-    assert( settings_.packageId );
+    assert( config::GetSourceType( config_.scriptSource ) == config::ScriptSourceType::SmpPackage );
+    const auto& rawPackage = std::get<config::RawSmpPackage>( config_.scriptSource );
 
-    const auto parsedSettingsOpt = OnOpenPackageManagerImpl( *settings_.packageId );
-    if ( !parsedSettingsOpt )
+    const auto newRawPackageOpt = OnOpenPackageManagerImpl( rawPackage.id );
+    if ( !newRawPackageOpt )
     {
         return;
     }
 
-    const auto isDifferentPackage = ( parsedSettingsOpt->packageId != settings_.packageId );
+    const auto isDifferentPackage = ( newRawPackageOpt->id != rawPackage.id );
 
     if ( !parent_.IsCleanSlate()
          && isDifferentPackage
@@ -319,8 +310,8 @@ void CConfigTabScriptSource::OnOpenPackageManager( UINT /*uNotifyCode*/, int /*n
         return;
     }
 
-    packageName_ = parsedSettingsOpt->scriptName;
-    UpdateOnSrcChange( settings_, *parsedSettingsOpt );
+    packageName_ = newRawPackageOpt->name;
+    config_.scriptSource = *newRawPackageOpt;
 
     DoFullDdxToUi();
     DoButtonsDdxToUi();
@@ -331,7 +322,7 @@ void CConfigTabScriptSource::OnOpenPackageManager( UINT /*uNotifyCode*/, int /*n
     }
 }
 
-std::optional<config::ParsedPanelSettings>
+std::optional<config::RawSmpPackage>
 CConfigTabScriptSource::OnOpenPackageManagerImpl( const qwr::u8string& packageId )
 {
     CDialogPackageManager pkgMgr( packageId );
@@ -342,20 +333,36 @@ CConfigTabScriptSource::OnOpenPackageManagerImpl( const qwr::u8string& packageId
 
 void CConfigTabScriptSource::OnEditScript( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
-    if ( settings_.GetSourceType() == config::ScriptSourceType::Package )
+    try
     {
-        parent_.SwitchTab( CDialogConf::Tab::package );
+        switch ( config::GetSourceType( config_.scriptSource ) )
+        {
+        case config::ScriptSourceType::InMemory:
+        {
+            panel::EditScript( *this, std::get<config::RawInMemoryScript>( config_.scriptSource ).script );
+            break;
+        }
+        case config::ScriptSourceType::File:
+        case config::ScriptSourceType::Sample:
+        {
+            panel::EditScriptFile( *this, config::ResolvedPanelScriptSettings::ResolveSource( config_.scriptSource ) );
+            break;
+        }
+        case config::ScriptSourceType::SmpPackage:
+        {
+            parent_.SwitchTab( CDialogConf::Tab::package );
+            break;
+        }
+        default:
+        {
+            assert( false );
+            break;
+        }
+        }
     }
-    else
+    catch ( const qwr::QwrException& e )
     {
-        try
-        {
-            panel::EditScript( *this, settings_ );
-        }
-        catch ( const qwr::QwrException& e )
-        {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
-        }
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
     }
 }
 
@@ -395,25 +402,23 @@ LRESULT CConfigTabScriptSource::OnScriptSaved( UINT /*uMsg*/, WPARAM /*wParam*/,
 
 void CConfigTabScriptSource::InitializeLocalOptions()
 {
-    namespace fs = std::filesystem;
+    const auto sourceType = config::GetSourceType( config_.scriptSource );
 
-    path_ = ( settings_.scriptPath && settings_.GetSourceType() == config::ScriptSourceType::File
-                  ? settings_.scriptPath->u8string()
+    path_ = ( sourceType == config::ScriptSourceType::File
+                  ? std::get<config::RawScriptFile>( config_.scriptSource ).scriptPath.u8string()
                   : qwr::u8string{} );
 
-    packageName_ = ( settings_.GetSourceType() == config::ScriptSourceType::Package
-                         ? settings_.scriptName
+    packageName_ = ( sourceType == config::ScriptSourceType::SmpPackage
+                         ? std::get<config::RawSmpPackage>( config_.scriptSource ).name
                          : qwr::u8string{} );
 
     sampleIdx_ = [&] {
-        if ( settings_.GetSourceType() != config::ScriptSourceType::Sample )
+        if ( sourceType != config::ScriptSourceType::Sample )
         {
             return 0;
         }
 
-        assert( settings_.scriptPath );
-
-        const auto sampleName = fs::relative( *settings_.scriptPath, path::ScriptSamples() ).wstring();
+        const auto sampleName = qwr::unicode::ToWide( std::get<config::RawSampleFile>( config_.scriptSource ).name );
         if ( sampleName.empty() )
         {
             return 0;
@@ -426,7 +431,7 @@ void CConfigTabScriptSource::InitializeLocalOptions()
         if ( it == sampleData_.cend() )
         {
             qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't find sample `{}`. Your settings will be reset.", qwr::unicode::ToU8( sampleName ) ) );
-            UpdateOnSrcChange( settings_, smp::config::ParsedPanelSettings::GetDefault() );
+            config_.scriptSource = config::RawSampleFile{ config::GetDefaultScript() };
             return 0;
         }
 
@@ -441,9 +446,9 @@ void CConfigTabScriptSource::InitializeLocalOptions()
 void CConfigTabScriptSource::InitializeSourceType()
 {
     sourceTypeId_ = [&] {
-        switch ( settings_.GetSourceType() )
+        switch ( config::GetSourceType( config_.scriptSource ) )
         {
-        case config::ScriptSourceType::Package:
+        case config::ScriptSourceType::SmpPackage:
             return IDC_RADIO_SRC_PACKAGE;
         case config::ScriptSourceType::Sample:
             return IDC_RADIO_SRC_SAMPLE;
@@ -592,8 +597,8 @@ bool CConfigTabScriptSource::RequestConfirmationForReset()
     // TODO: fix revert (or move the confirmation to parent window)
     if ( sourceTypeId_ == IDC_RADIO_SRC_MEMORY )
     {
-        assert( settings_.script );
-        if ( settings_.script == config::PanelSettings_InMemory::GetDefaultScript() )
+        assert( config::GetSourceType( config_.scriptSource ) == config::ScriptSourceType::InMemory );
+        if ( std::get<config::RawInMemoryScript>( config_.scriptSource ).script == config::GetDefaultScript() )
         {
             return true;
         }
@@ -649,7 +654,7 @@ bool CConfigTabScriptSource::RequestConfirmationForReset()
 
 bool CConfigTabScriptSource::RequestConfirmationOnPackageChange()
 {
-    assert( settings_.packageId );
+    assert( config::GetSourceType( config_.scriptSource ) == config::ScriptSourceType::SmpPackage );
     assert( sourceTypeId_ == IDC_RADIO_SRC_PACKAGE );
 
     const int iRet = qwr::ui::MessageBoxCentered(

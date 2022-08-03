@@ -1,7 +1,7 @@
 #pragma once
 
 #include <js_backend/objects/core/object_base.h>
-#include <js_backend/objects/dom/js_event_target.h>
+#include <js_backend/objects/dom/event_target.h>
 
 #include <optional>
 
