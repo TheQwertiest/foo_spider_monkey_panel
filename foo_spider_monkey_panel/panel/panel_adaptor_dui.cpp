@@ -103,7 +103,7 @@ pfc::string8 PanelAdaptorDui::g_get_description()
 ui_element_config::ptr PanelAdaptorDui::g_get_default_configuration()
 {
     ui_element_config_builder builder;
-    config::PanelSettings::SaveDefault( builder.m_stream, fb2k::noAbort );
+    config::PanelConfig::SaveDefault( builder.m_stream, fb2k::noAbort );
     return builder.finish( g_get_guid() );
 }
 

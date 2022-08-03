@@ -2,7 +2,9 @@
 
 #include "script_loader.h"
 
-#include <config/package_utils.h>
+#include <config/module_package/module_specifier.h>
+#include <config/module_package/package.h>
+#include <config/resolved_panel_script_settings.h>
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
 #include <fb2k/advanced_config.h>
@@ -24,6 +26,13 @@
 
 namespace fs = std::filesystem;
 using namespace smp;
+
+namespace
+{
+
+constexpr char kFilePrefix[] = "file://";
+
+}
 
 namespace
 {
@@ -103,17 +112,15 @@ auto FindSuitableFileForImport( const qwr::u8string& rawModuleSpecifier, const f
         }();
         const auto modulePath = fs::u8path( rawModuleSpecifier );
         const auto isRelativePath = ( moduleSpecifier.starts_with( "/" ) || moduleSpecifier.starts_with( "./" ) || moduleSpecifier.starts_with( "../" ) );
-        const auto isAbsolutePath = moduleSpecifier.starts_with( "file://" ) || modulePath.is_absolute();
+        const auto isAbsolutePath = moduleSpecifier.starts_with( kFilePrefix );
         const auto ext = modulePath.extension().u8string();
         if ( isRelativePath || isAbsolutePath )
         { // it's a file
             const auto fullPath = [&] {
                 if ( isAbsolutePath )
                 {
-                    constexpr char filePrefix[] = "file://";
-                    return ( moduleSpecifier.starts_with( filePrefix )
-                                 ? fs::u8path( moduleSpecifier.substr( std::size( filePrefix ) - 1 ) )
-                                 : modulePath );
+
+                    return fs::u8path( moduleSpecifier.substr( std::size( kFilePrefix ) - 1 ) );
                 }
                 else
                 {
@@ -121,20 +128,14 @@ auto FindSuitableFileForImport( const qwr::u8string& rawModuleSpecifier, const f
                 }
             }();
             qwr::QwrException::ExpectTrue( fs::exists( fullPath ) && fs::is_regular_file( fullPath ), "import for '{}' failed: file not found", rawModuleSpecifier );
-
             qwr::QwrException::ExpectTrue( ext == ".js", "import for '{}' failed: relative and absolute imports must point to `.js` file", rawModuleSpecifier );
 
             return fullPath;
         }
         else
         {
-            // it's a module
-            const auto splitSpecifier = qwr::string::Split( moduleSpecifier, '/' );
-            qwr::QwrException::ExpectTrue( splitSpecifier.size() >= 2 && splitSpecifier[0].starts_with( "@" ), "import for '{}' failed: invalid module specifier, must be in @AUTHOR/PACKAGE_NAME format", rawModuleSpecifier );
-
-            const auto packageName = fs::u8path( splitSpecifier[0].substr( 1 ) ) / splitSpecifier[1];
-            const auto pathSuffix = fs::u8path( splitSpecifier.size() == 2 ? "" : qwr::string::Join( std::vector( splitSpecifier.begin() + 2, splitSpecifier.end() ), '\\' ) );
-
+            // it's a bare module specifier
+            const auto [packageName, pathSuffix] = config::ParseBareModuleSpecifier( moduleSpecifier );
             const auto matchedPackagePaths = packageSearchPaths
                                              | ranges::views::transform( [&packageName]( const auto& packagesDir ) {
                                                    return packagesDir / packageName;
@@ -143,23 +144,25 @@ auto FindSuitableFileForImport( const qwr::u8string& rawModuleSpecifier, const f
                                                    return fs::exists( fullPackagePath ) && fs::is_directory( fullPackagePath );
                                                } )
                                              | ranges::to<std::vector>;
-            // TODO: remove u8string after updating fmt
-            qwr::QwrException::ExpectTrue( !matchedPackagePaths.empty(), "import for '{}' failed: package not found", rawModuleSpecifier, packageName.u8string() );
-            qwr::QwrException::ExpectTrue( matchedPackagePaths.size() == 1, "import for '{}' failed: matched multiple packages", rawModuleSpecifier, packageName.u8string() );
+            qwr::QwrException::ExpectTrue( !matchedPackagePaths.empty(), "import for '{}' failed: package not found", rawModuleSpecifier );
+            qwr::QwrException::ExpectTrue( matchedPackagePaths.size() == 1, "import for '{}' failed: matched multiple packages", rawModuleSpecifier );
 
             const auto packagePath = matchedPackagePaths[0];
-            if ( pathSuffix.empty() || ext.empty() )
-            { // it's a module's main
-                const auto fullPath = packagePath / pathSuffix / "index.js";
-                qwr::QwrException::ExpectTrue( fs::exists( fullPath ) && fs::is_regular_file( fullPath ), "import for '{}' failed: could not resolve main file", rawModuleSpecifier );
+            const auto package = config::ModulePackage::FromFile( packagePath / "package.json" );
+            package.ValidatePackagePath();
 
-                return fullPath;
+            const auto fullPath = packagePath / pathSuffix;
+            qwr::QwrException::ExpectTrue( fs::exists( fullPath ), "import for '{}' failed: package not found", rawModuleSpecifier );
+            if ( fs::is_directory( fullPath ) )
+            { // it's a module's main
+                const auto entryFile = package.GetEntryFile();
+                qwr::QwrException::ExpectTrue( fs::exists( entryFile ) && fs::is_regular_file( entryFile ), "import for '{}' failed: could not resolve main file", rawModuleSpecifier );
+
+                return entryFile;
             }
             else
             { // it's a module's file
                 qwr::QwrException::ExpectTrue( ext == ".js", "import for '{}' failed: invalid file extension", rawModuleSpecifier );
-
-                const auto fullPath = packagePath / pathSuffix;
                 qwr::QwrException::ExpectTrue( fs::exists( fullPath ) && fs::is_regular_file( fullPath ), "import for '{}' failed: file not found", rawModuleSpecifier );
 
                 return fullPath;
@@ -236,7 +239,7 @@ JSObject* ScriptLoader::GetResolvedModule( const qwr::u8string& moduleName, JS::
         }
     }();
 
-    const std::vector packageSearchPaths{ smp::path::Modules_Profile(), smp::path::Modules_Sample() };
+    const std::vector packageSearchPaths{ smp::path::ModulePackages_Profile(), smp::path::ModulePackages_Sample() };
     const auto scriptPath = FindSuitableFileForImport( moduleName, curPath, packageSearchPaths );
 
     JS::RootedObject jsModule( pJsCtx_, GetCompiledModule( scriptPath ) );
@@ -323,7 +326,7 @@ void ScriptLoader::ExecuteTopLevelScriptFile( const std::filesystem::path& scrip
     }
 }
 
-void ScriptLoader::IncludeScript( const qwr::u8string& path, const config::ParsedPanelSettings& panelSettings, bool alwaysEvaluate )
+void ScriptLoader::IncludeScript( const qwr::u8string& path, const smp::config::ResolvedPanelScriptSettings& scriptSettings, bool alwaysEvaluate )
 {
     qwr::QwrException::ExpectTrue( !isModule_, "include() can't be used with in modules" );
 
@@ -336,9 +339,9 @@ void ScriptLoader::IncludeScript( const qwr::u8string& path, const config::Parse
         {
             paths.emplace_back( fs::path{ *parentScriptPathOpt }.parent_path() );
         }
-        if ( panelSettings.packageId )
+        if ( scriptSettings.GetSourceType() == config::ScriptSourceType::SmpPackage )
         {
-            paths.emplace_back( config::GetPackageScriptsDir( panelSettings ) );
+            paths.emplace_back( scriptSettings.GetSmpPackage().GetScriptsDir() );
         }
         paths.emplace_back( qwr::path::Component() );
 

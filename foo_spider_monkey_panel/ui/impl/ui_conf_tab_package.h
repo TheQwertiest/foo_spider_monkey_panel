@@ -1,7 +1,8 @@
 #pragma once
 
 #include <com_objects/file_drop_target.h>
-#include <config/parsed_panel_config.h>
+#include <config/panel_config.h>
+#include <config/smp_package/package.h>
 #include <panel/user_message.h>
 #include <resources/resource.h>
 #include <ui/impl/ui_itab.h>
@@ -75,7 +76,7 @@ public:
     END_MSG_MAP()
 
 public:
-    CConfigTabPackage( CDialogConf& parent, config::ParsedPanelSettings& settings );
+    CConfigTabPackage( CDialogConf& parent, config::PanelConfig& config );
     ~CConfigTabPackage() override = default;
 
     // > IUiTab
@@ -87,6 +88,8 @@ public:
     void Revert() override;
     void Refresh() override;
     // < IUiTab
+
+    bool TryResolvePackage();
 
 private:
     BOOL OnInitDialog( HWND hwndFocus, LPARAM lParam );
@@ -121,19 +124,10 @@ private:
     bool suppressDdxFromUi_ = true;
 
     CDialogConf& parent_;
-    config::ParsedPanelSettings& settings_; ///< used only for package data save
+    config::PanelConfig& config_;
 
-    std::filesystem::path packagePath_;
-    bool isSample_;
-    std::filesystem::path mainScriptPath_;
-
-    qwr::u8string& scriptName_;
-    qwr::u8string& scriptVersion_;
-    qwr::u8string& scriptAuthor_;
-    qwr::u8string& scriptDescription_;
-
-    bool& shouldGrabFocus_;
-    bool& enableDragDrop_;
+    config::SmpPackage oldPackage_;
+    config::SmpPackage localPackage_;
 
     std::filesystem::path focusedFile_;
     int focusedFileIdx_ = 0;

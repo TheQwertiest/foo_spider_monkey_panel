@@ -2,7 +2,6 @@
 
 #include "ui_package_manager.h"
 
-#include <config/package_utils.h>
 #include <ui/ui_input_box.h>
 #include <utils/zip_utils.h>
 
@@ -30,16 +29,17 @@ CDialogPackageManager::CDialogPackageManager( const qwr::u8string& currentPackag
 {
 }
 
-std::optional<config::ParsedPanelSettings>
+std::optional<config::RawSmpPackage>
 CDialogPackageManager::GetPackage() const
 {
-    if ( focusedPackageIdx_ < 0 )
+    if ( focusedPackageIdx_ < 0 || !packages_[focusedPackageIdx_].packageOpt )
     {
         return std::nullopt;
     }
     else
     {
-        return packages_[focusedPackageIdx_].parsedSettings;
+        const auto& package = *packages_[focusedPackageIdx_].packageOpt;
+        return config::RawSmpPackage{ package.id, package.name, package.author };
     }
 }
 
@@ -134,11 +134,11 @@ void CDialogPackageManager::OnNewPackage( UINT /*uNotifyCode*/, int /*nID*/, CWi
 
     try
     {
-        const auto newSettings = config::GetNewPackageSettings( curName );
-        config::MaybeSavePackageData( newSettings );
+        const auto newPackage = config::SmpPackage::GenerateNewPackage( curName );
+        newPackage.ToFile( newPackage.packageDir / "package.json" );
 
-        packages_.emplace_back( GeneratePackageData( newSettings ) );
-        focusedPackageId_ = *newSettings.packageId;
+        packages_.emplace_back( GeneratePackageData( newPackage ) );
+        focusedPackageId_ = newPackage.id;
 
         UpdateListBoxFromData();
         DoFullDdxToUi();
@@ -168,8 +168,8 @@ void CDialogPackageManager::OnDeletePackage( UINT /*uNotifyCode*/, int /*nID*/, 
     try
     {
         const auto packageId = packages_[focusedPackageIdx_].id;
-        const auto packagePathOpt = config::FindPackage( packages_[focusedPackageIdx_].id );
-        if ( packagePathOpt )
+        const auto packageJsonOpt = packageManager_.GetPackage( packages_[focusedPackageIdx_].id );
+        if ( packageJsonOpt )
         {
             if ( config::IsPackageInUse( packageId ) )
             {
@@ -196,7 +196,7 @@ void CDialogPackageManager::OnDeletePackage( UINT /*uNotifyCode*/, int /*nID*/, 
                 return;
             }
 
-            fs::remove_all( *packagePathOpt );
+            fs::remove_all( packageJsonOpt->parent_path() );
         }
     }
     catch ( const fs::filesystem_error& e )
@@ -240,7 +240,7 @@ void CDialogPackageManager::OnImportPackage( UINT /*uNotifyCode*/, int /*nID*/, 
 void CDialogPackageManager::OnExportPackage( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     assert( focusedPackageIdx_ >= 0 && static_cast<size_t>( focusedPackageIdx_ ) < packages_.size() );
-    assert( packages_[focusedPackageIdx_].parsedSettings );
+    assert( packages_[focusedPackageIdx_].packageOpt );
 
     const auto& currentPackageData = packages_[focusedPackageIdx_];
 
@@ -272,7 +272,7 @@ void CDialogPackageManager::OnExportPackage( UINT /*uNotifyCode*/, int /*nID*/, 
     try
     {
         ZipPacker zp{ fs::path( *pathOpt ) };
-        zp.AddFolder( config::GetPackagePath( *currentPackageData.parsedSettings ) );
+        zp.AddFolder( currentPackageData.packageOpt->packageDir );
         zp.Finish();
     }
     catch ( const fs::filesystem_error& e )
@@ -288,13 +288,15 @@ void CDialogPackageManager::OnExportPackage( UINT /*uNotifyCode*/, int /*nID*/, 
 void CDialogPackageManager::OnOpenFolder( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     assert( focusedPackageIdx_ >= 0 && static_cast<size_t>( focusedPackageIdx_ ) < packages_.size() );
-    assert( packages_[focusedPackageIdx_].parsedSettings );
 
     try
     {
+        const auto packageDirOpt = packageManager_.GetPackage( packages_[focusedPackageIdx_].id );
+        qwr::QwrException::ExpectTrue( packageDirOpt.has_value(), "Unexpected error: package not found: {}", packages_[focusedPackageIdx_].id );
+
         const auto hInstance = ShellExecute( nullptr,
                                              L"explore",
-                                             config::GetPackagePath( *packages_[focusedPackageIdx_].parsedSettings ).c_str(),
+                                             packageDirOpt->parent_path().c_str(),
                                              nullptr,
                                              nullptr,
                                              SW_SHOWNORMAL );
@@ -382,12 +384,13 @@ void CDialogPackageManager::UpdateUiButtons()
     }
 
     const auto& currentPackageData = packages_[focusedPackageIdx_];
-    const auto isSample = ( currentPackageData.parsedSettings && currentPackageData.parsedSettings->isSample );
-
-    CButton{ GetDlgItem( IDOK ) }.EnableWindow( !!currentPackageData.parsedSettings );
-    CButton{ GetDlgItem( IDC_BUTTON_DELETE_PACKAGE ) }.EnableWindow( currentPackageData.status != config::PackageDelayStatus::ToBeRemoved && !isSample );
-    CButton{ GetDlgItem( IDC_BUTTON_EXPORT_PACKAGE ) }.EnableWindow( !isSample );
-    CButton{ GetDlgItem( IDC_BUTTON_OPEN_FOLDER ) }.EnableWindow( !!currentPackageData.parsedSettings );
+    if ( currentPackageData.packageOpt )
+    {
+        CButton{ GetDlgItem( IDOK ) }.EnableWindow( true );
+        CButton{ GetDlgItem( IDC_BUTTON_DELETE_PACKAGE ) }.EnableWindow( currentPackageData.status != config::PackageDelayStatus::ToBeRemoved );
+        CButton{ GetDlgItem( IDC_BUTTON_EXPORT_PACKAGE ) }.EnableWindow( true );
+        CButton{ GetDlgItem( IDC_BUTTON_OPEN_FOLDER ) }.EnableWindow( true );
+    }
 }
 
 void CDialogPackageManager::LoadPackages()
@@ -396,44 +399,15 @@ void CDialogPackageManager::LoadPackages()
 
     try
     {
-        // TODO: consider extracting this code
-        std::vector<fs::path> packagesDirs{ path::Packages_Profile(),
-                                            path::Packages_Sample() };
-        if ( qwr::path::Profile() != qwr::path::Foobar2000() )
-        { // these paths might be the same when fb2k is in portable mode
-            packagesDirs.emplace_back( path::Packages_Foobar2000() );
-        }
-
-        std::vector<qwr::u8string> packageIds;
-        for ( const auto& packagesDir: packagesDirs )
-        {
-            if ( !fs::exists( packagesDir ) )
-            {
-                continue;
-            }
-
-            for ( const auto& dirIt: fs::directory_iterator( packagesDir ) )
-            {
-                const auto packageJson = dirIt.path() / L"package.json";
-                if ( !fs::exists( packageJson ) || !fs::is_regular_file( packageJson ) )
-                {
-                    continue;
-                }
-
-                packageIds.emplace_back( dirIt.path().filename().u8string() );
-            }
-        }
-
-        std::vector<PackageData> parsedPackages;
-        for ( const auto& packageId: packageIds )
+        std::vector<PackageData> resolvedPackages;
+        packageManager_.Refresh();
+        for ( const auto& [packageId, packageJson]: packageManager_.GetPackages() )
         {
             try
             {
-                const auto packagePathOpt = config::FindPackage( packageId );
-                qwr::QwrException::ExpectTrue( packagePathOpt.has_value(), "Could not find package with id: {}", packageId );
-
-                const auto settings = config::GetPackageSettingsFromPath( *packagePathOpt );
-                parsedPackages.emplace_back( GeneratePackageData( settings ) );
+                const auto package = config::SmpPackage::FromFile( packageJson );
+                package.ValidatePackagePath();
+                resolvedPackages.emplace_back( GeneratePackageData( package ) );
             }
             catch ( const qwr::QwrException& e )
             {
@@ -441,13 +415,13 @@ void CDialogPackageManager::LoadPackages()
                                          packageId,
                                          std::nullopt,
                                          qwr::unicode::ToWide( fmt::format( "Package parsing failed:\r\n{}", e.what() ) ) };
-                parsedPackages.emplace_back( packageData );
+                resolvedPackages.emplace_back( packageData );
             }
 
-            parsedPackages.back().status = config::GetPackageDelayStatus( packageId );
+            resolvedPackages.back().status = config::GetPackageDelayStatus( packageId );
         }
 
-        packages_ = std::move( parsedPackages );
+        packages_ = std::move( resolvedPackages );
     }
     catch ( const fs::filesystem_error& e )
     {
@@ -521,7 +495,7 @@ void CDialogPackageManager::UpdatedUiPackageInfo()
     packageInfoEdit_.GetSelectionCharFormat( savedCharFormat );
     const qwr::final_action autoFormat( [&] { packageInfoEdit_.SetSelectionCharFormat( savedCharFormat ); } );
 
-    if ( !packageData.parsedSettings )
+    if ( !packageData.packageOpt )
     {
         CHARFORMAT newCharFormat = savedCharFormat;
         newCharFormat.dwMask = CFM_COLOR;
@@ -540,7 +514,7 @@ void CDialogPackageManager::UpdatedUiPackageInfo()
             return ( str.empty() ? L"<empty>" : qwr::unicode::ToWide( str ) );
         };
 
-        const auto& parsedSettings = *packageData.parsedSettings;
+        const auto& package = *packageData.packageOpt;
 
         CHARFORMAT newCharFormat = savedCharFormat;
         newCharFormat.dwMask = CFM_UNDERLINE;
@@ -557,25 +531,25 @@ void CDialogPackageManager::UpdatedUiPackageInfo()
             packageInfoEdit_.AppendText( value, FALSE );
         };
 
-        appendText( L"Name", valueOrEmpty( parsedSettings.scriptName ).c_str() );
+        appendText( L"Name", valueOrEmpty( package.name ).c_str() );
         packageInfoEdit_.AppendText( L"\r\n", FALSE );
 
-        appendText( L"Version", valueOrEmpty( parsedSettings.scriptVersion ).c_str() );
+        appendText( L"Version", valueOrEmpty( package.version ).c_str() );
         packageInfoEdit_.AppendText( L"\r\n", FALSE );
 
-        appendText( L"Author", valueOrEmpty( parsedSettings.scriptAuthor ).c_str() );
+        appendText( L"Author", valueOrEmpty( package.author ).c_str() );
         packageInfoEdit_.AppendText( L"\r\n", FALSE );
 
-        appendText( L"Description", ( L"\r\n" + valueOrEmpty( parsedSettings.scriptDescription ) ).c_str() );
+        appendText( L"Description", ( L"\r\n" + valueOrEmpty( package.description ) ).c_str() );
     }
 }
 
-CDialogPackageManager::PackageData CDialogPackageManager::GeneratePackageData( const config::ParsedPanelSettings& parsedSettings )
+CDialogPackageManager::PackageData CDialogPackageManager::GeneratePackageData( const config::SmpPackage& package )
 {
-    const auto displayedName = [&parsedSettings] {
-        return ( parsedSettings.scriptAuthor.empty()
-                     ? parsedSettings.scriptName
-                     : fmt::format( "{} (by {})", parsedSettings.scriptName, parsedSettings.scriptAuthor ) );
+    const auto displayedName = [&package] {
+        return ( package.author.empty()
+                     ? package.name
+                     : fmt::format( "{} (by {})", package.name, package.author ) );
     }();
     const auto valueOrEmpty = []( const qwr::u8string& str ) -> qwr::u8string {
         return ( str.empty() ? "<empty>" : str );
@@ -584,14 +558,14 @@ CDialogPackageManager::PackageData CDialogPackageManager::GeneratePackageData( c
                                                    "Version: {}\r\n"
                                                    "Author: {}\r\n"
                                                    "Description:\r\n{}",
-                                                   valueOrEmpty( parsedSettings.scriptName ),
-                                                   valueOrEmpty( parsedSettings.scriptVersion ),
-                                                   valueOrEmpty( parsedSettings.scriptAuthor ),
-                                                   valueOrEmpty( parsedSettings.scriptDescription ) );
+                                                   valueOrEmpty( package.name ),
+                                                   valueOrEmpty( package.version ),
+                                                   valueOrEmpty( package.author ),
+                                                   valueOrEmpty( package.description ) );
 
     return PackageData{ qwr::unicode::ToWide( displayedName ),
-                        *parsedSettings.packageId,
-                        parsedSettings,
+                        package.id,
+                        package,
                         L"",
                         config::PackageDelayStatus::NotDelayed };
 }
@@ -602,7 +576,7 @@ bool CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
 
     try
     {
-        const auto tmpPath = path::TempFolder_PackageUnpack();
+        const auto tmpPath = path::TempFolder_SmpPackageUnpack();
         fs::remove_all( tmpPath );
         fs::create_directories( tmpPath );
         qwr::final_action autoTmp( [&] {
@@ -617,29 +591,30 @@ bool CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
 
         UnpackZip( path, tmpPath );
 
-        auto newSettings = config::GetPackageSettingsFromPath( tmpPath );
-        const auto& packageId = *newSettings.packageId;
+        // import package
 
-        if ( const auto oldPackagePathOpt = config::FindPackage( packageId );
-             oldPackagePathOpt )
+        const auto newPackage = config::SmpPackage::FromFile( tmpPath / "package.json" );
+
+        if ( const auto oldPackageJsonOpt = packageManager_.GetPackage( newPackage.id );
+             oldPackageJsonOpt )
         {
-            if ( !ConfirmPackageOverwrite( *oldPackagePathOpt, newSettings ) )
+            if ( !ConfirmPackageOverwrite( *oldPackageJsonOpt, newPackage ) )
             {
                 return false;
             }
 
-            if ( config::IsPackageInUse( packageId ) )
+            if ( config::IsPackageInUse( newPackage.id ) )
             {
-                config::MarkPackageAsToBeInstalled( packageId, tmpPath );
+                config::MarkPackageAsToBeInstalled( newPackage.id, tmpPath );
 
                 auto it =
                     ranges::find_if( packages_,
                                      [&]( const auto& elem ) {
-                                         return ( packageId == elem.id );
+                                         return ( newPackage.id == elem.id );
                                      } );
                 if ( it != packages_.cend() )
                 {
-                    focusedPackageId_ = packageId;
+                    focusedPackageId_ = newPackage.id;
                     it->status = config::PackageDelayStatus::ToBeUpdated;
                 }
 
@@ -648,29 +623,31 @@ bool CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
                 return true;
             }
 
-            fs::remove_all( *oldPackagePathOpt );
+            fs::remove_all( oldPackageJsonOpt->parent_path() );
         }
 
-        const auto newPackagePath = path::Packages_Profile() / packageId;
+        const auto newPackagePath = packageManager_.GetPathForNewPackage( newPackage.id );
         fs::create_directories( newPackagePath );
         fs::copy( tmpPath, newPackagePath, fs::copy_options::recursive );
 
-        newSettings.scriptPath = newPackagePath / config::GetRelativePathToMainFile();
+        // add package to UI
+
+        const auto importedPackage = config::SmpPackage::FromFile( packageManager_.GetPackage( newPackage.id ).value() );
 
         auto it =
             ranges::find_if( packages_,
                              [&]( const auto& elem ) {
-                                 return ( packageId == elem.id );
+                                 return ( importedPackage.id == elem.id );
                              } );
         if ( it != packages_.cend() )
         {
-            *it = GeneratePackageData( newSettings );
+            *it = GeneratePackageData( importedPackage );
         }
         else
         {
-            packages_.emplace_back( GeneratePackageData( newSettings ) );
+            packages_.emplace_back( GeneratePackageData( importedPackage ) );
         }
-        focusedPackageId_ = packageId;
+        focusedPackageId_ = importedPackage.id;
 
         UpdateListBoxFromData();
         DoFullDdxToUi();
@@ -687,11 +664,11 @@ bool CDialogPackageManager::ImportPackage( const std::filesystem::path& path )
     return false;
 }
 
-bool CDialogPackageManager::ConfirmPackageOverwrite( const std::filesystem::path& oldPackagePath, const config::ParsedPanelSettings& newSettings )
+bool CDialogPackageManager::ConfirmPackageOverwrite( const std::filesystem::path& oldPackageJson, const config::SmpPackage& newPackage )
 {
     try
     {
-        const auto oldSettings = config::GetPackageSettingsFromPath( oldPackagePath );
+        const auto oldPackage = config::SmpPackage::FromFile( oldPackageJson );
 
         const int iRet = qwr::ui::MessageBoxCentered(
             *this,
@@ -699,8 +676,8 @@ bool CDialogPackageManager::ConfirmPackageOverwrite( const std::filesystem::path
                 fmt::format( "Another version of this package is present:\n"
                              "old: '{}' vs new: '{}'\n\n"
                              "Do you want to update?",
-                             oldSettings.scriptVersion.empty() ? "<none>" : oldSettings.scriptVersion,
-                             newSettings.scriptVersion.empty() ? "<none>" : newSettings.scriptVersion ) )
+                             oldPackage.version.empty() ? "<none>" : oldPackage.version,
+                             newPackage.version.empty() ? "<none>" : newPackage.version ) )
                 .c_str(),
             L"Importing package",
             MB_YESNO );
@@ -709,7 +686,7 @@ bool CDialogPackageManager::ConfirmPackageOverwrite( const std::filesystem::path
             return false;
         }
 
-        if ( oldSettings.scriptName != newSettings.scriptName )
+        if ( oldPackage.name != newPackage.name )
         {
             const int iRet = qwr::ui::MessageBoxCentered(
                 *this,
@@ -717,8 +694,8 @@ bool CDialogPackageManager::ConfirmPackageOverwrite( const std::filesystem::path
                     fmt::format( "Currently installed package has a different name from the new one:\n"
                                  "old: '{}' vs new: '{}'\n\n"
                                  "Do you want to continue?",
-                                 oldSettings.scriptName.empty() ? "<none>" : oldSettings.scriptName,
-                                 newSettings.scriptName.empty() ? "<none>" : newSettings.scriptName ) )
+                                 oldPackage.name.empty() ? "<none>" : oldPackage.name,
+                                 newPackage.name.empty() ? "<none>" : newPackage.name ) )
                     .c_str(),
                 L"Importing package",
                 MB_YESNO | MB_ICONWARNING );

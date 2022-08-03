@@ -17,32 +17,37 @@ std::filesystem::path ScriptSamples()
     return qwr::path::Component() / "samples";
 }
 
-std::filesystem::path Modules_Sample()
+std::filesystem::path ModulePackages_Sample()
 {
     return ScriptSamples() / "modules";
 }
 
-std::filesystem::path Modules_Profile()
+std::filesystem::path ModulePackages_Profile()
 {
     return qwr::path::Profile() / SMP_UNDERSCORE_NAME / "modules";
 }
 
-std::filesystem::path Packages_Sample()
+std::filesystem::path ModulePackages_Foobar2000()
+{
+    return qwr::path::Foobar2000() / SMP_UNDERSCORE_NAME / "modules";
+}
+
+std::filesystem::path SmpPackages_Sample()
 {
     return ScriptSamples() / "packages";
 }
 
-std::filesystem::path Packages_Profile()
+std::filesystem::path SmpPackages_Profile()
 {
     return qwr::path::Profile() / SMP_UNDERSCORE_NAME / "packages";
 }
 
-std::filesystem::path Packages_Foobar2000()
+std::filesystem::path SmpPackages_Foobar2000()
 {
     return qwr::path::Foobar2000() / SMP_UNDERSCORE_NAME / "packages";
 }
 
-std::filesystem::path Packages_Storage()
+std::filesystem::path SmpPackages_Storage()
 {
     return qwr::path::Profile() / SMP_UNDERSCORE_NAME / "package_data";
 }
@@ -52,27 +57,27 @@ std::filesystem::path TempFolder()
     return qwr::path::Profile() / SMP_UNDERSCORE_NAME / "tmp";
 }
 
-std::filesystem::path TempFolder_PackageUnpack()
+std::filesystem::path TempFolder_SmpPackageUnpack()
 {
     return TempFolder() / "unpacked_package";
 }
 
-std::filesystem::path TempFolder_PackageBackups()
+std::filesystem::path TempFolder_SmpPackageBackups()
 {
     return TempFolder() / "package_backups";
 }
 
-std::filesystem::path TempFolder_PackagesToInstall()
+std::filesystem::path TempFolder_SmpPackagesToInstall()
 {
     return TempFolder() / "packages_to_install";
 }
 
-std::filesystem::path TempFolder_PackagesToRemove()
+std::filesystem::path TempFolder_SmpPackagesToRemove()
 {
     return TempFolder() / "packages_to_remove";
 }
 
-std::filesystem::path TempFolder_PackagesInUse()
+std::filesystem::path TempFolder_SmpPackagesInUse()
 {
     return TempFolder() / "packages_in_use";
 }

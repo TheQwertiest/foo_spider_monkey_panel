@@ -1,6 +1,7 @@
 #pragma once
 
-#include <config/parsed_panel_config.h>
+#include <config/panel_config.h>
+#include <config/resolved_panel_script_settings.h>
 #include <events/event.h>
 #include <events/event_js_executor.h>
 #include <panel/drag_action_params.h>
@@ -46,7 +47,7 @@ public:
     uie::container_window_v3_config get_window_config();
 
     void ReloadScript();
-    bool UpdateSettings( const smp::config::PanelSettings& settings, bool reloadPanel = true );
+    bool UpdateSettings( const smp::config::PanelConfig& settings, bool reloadPanel = true );
     void LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel = true );
     bool SaveSettings( stream_writer& writer, abort_callback& abort ) const;
 
@@ -68,7 +69,9 @@ public: // accessors
     [[nodiscard]] POINT& MinSize();
     [[nodiscard]] int GetHeight() const;
     [[nodiscard]] int GetWidth() const;
-    [[nodiscard]] const config::ParsedPanelSettings& GetSettings() const;
+    [[nodiscard]] const config::PanelConfig& GetPanelConfig() const;
+    [[nodiscard]] const config::ResolvedPanelScriptSettings& GetScriptSettings() const;
+    [[nodiscard]] const config::PanelSettings& GetPanelSettings() const;
     [[nodiscard]] config::PanelProperties& GetPanelProperties();
     // TODO: move to a better place
     [[nodiscard]] TimeoutManager& GetTimeoutManager();
@@ -100,7 +103,7 @@ protected:
     void ExecuteContextMenu( uint32_t id, uint32_t id_base );
 
 private:
-    bool ReloadSettings();
+    bool ReloadScriptSettings();
     bool LoadScript( bool isFirstLoad );
     void UnloadScript( bool force = false );
 
@@ -144,8 +147,9 @@ private: // callback handling
 private:
     const PanelType panelType_;
     IPanelAdaptor& impl_;
-    config::ParsedPanelSettings settings_ = config::ParsedPanelSettings::GetDefault();
-    config::PanelProperties properties_;
+
+    config::PanelConfig config_;
+    config::ResolvedPanelScriptSettings scriptSettings_;
 
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
     std::shared_ptr<PanelTarget> pTarget_;

@@ -20,9 +20,9 @@ namespace fs = std::filesystem;
 namespace smp::ui
 {
 
-CConfigTabProperties::CConfigTabProperties( CDialogConf& parent, config::PanelProperties& properties )
+CConfigTabProperties::CConfigTabProperties( CDialogConf& parent, config::PanelConfig& config )
     : parent_( parent )
-    , properties_( properties )
+    , config_( config )
 {
 }
 
@@ -82,7 +82,7 @@ LRESULT CConfigTabProperties::OnPinItemChanged( LPNMHDR pnmh )
 {
     auto pnpi = (LPNMPROPERTYITEM)pnmh;
 
-    const auto hasChanged = [pnpi, &properties = properties_]() {
+    const auto hasChanged = [pnpi, &properties = config_.properties]() {
         auto& propValues = properties.values;
 
         if ( !propValues.contains( pnpi->prop->GetName() ) )
@@ -154,7 +154,7 @@ LRESULT CConfigTabProperties::OnSelChanged( LPNMHDR )
 
 LRESULT CConfigTabProperties::OnClearAllBnClicked( WORD, WORD, HWND )
 {
-    properties_.values.clear();
+    config_.properties.values.clear();
 
     propertyListCtrl_.ResetContent();
 
@@ -171,7 +171,7 @@ LRESULT CConfigTabProperties::OnDelBnClicked( WORD, WORD, HWND )
         HPROPERTY hproperty = propertyListCtrl_.GetProperty( idx );
         std::wstring name = hproperty->GetName();
 
-        properties_.values.erase( name );
+        config_.properties.values.erase( name );
 
         propertyListCtrl_.DeleteItem( hproperty );
     }
@@ -211,15 +211,15 @@ LRESULT CConfigTabProperties::OnImportBnClicked( WORD, WORD, HWND )
         const auto extension = path.extension();
         if ( extension == ".json" )
         {
-            properties_ = PanelProperties::FromJson( qwr::pfc_x::ReadRawString( *io, abort ) );
+            config_.properties = PanelProperties::FromJson( qwr::pfc_x::ReadRawString( *io, abort ) );
         }
         else if ( extension == ".smp" )
         {
-            properties_ = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Binary );
+            config_.properties = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Binary );
         }
         else if ( extension == ".wsp" )
         {
-            properties_ = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Com );
+            config_.properties = PanelProperties::Load( *io, abort, smp::config::SerializationFormat::Com );
         }
         else
         { // let's brute-force it!
@@ -240,7 +240,7 @@ LRESULT CConfigTabProperties::OnImportBnClicked( WORD, WORD, HWND )
                 auto propOpt = tryParse( format );
                 if ( propOpt )
                 {
-                    properties_ = *propOpt;
+                    config_.properties = *propOpt;
                     success = true;
                     break;
                 }
@@ -291,7 +291,7 @@ LRESULT CConfigTabProperties::OnExportBnClicked( WORD, WORD, HWND )
         file_ptr io;
         filesystem::g_open_write_new( io, path.u8string().c_str(), abort );
 
-        qwr::pfc_x::WriteStringRaw( *io, properties_.ToJson(), abort );
+        qwr::pfc_x::WriteStringRaw( *io, config_.properties.ToJson(), abort );
     }
     catch ( const pfc::exception& e )
     {
@@ -315,7 +315,7 @@ void CConfigTabProperties::UpdateUiFromData()
     };
 
     std::map<std::wstring, HPROPERTY, LowerLexCmp> propMap;
-    for ( const auto& [name, pSerializedValue]: properties_.values )
+    for ( const auto& [name, pSerializedValue]: config_.properties.values )
     {
         HPROPERTY hProp = std::visit(
             qwr::Visitor{

@@ -120,18 +120,6 @@
     <ClCompile Include="config\panel_config.cpp">
       <Filter>config</Filter>
     </ClCompile>
-    <ClCompile Include="config\panel_config_binary.cpp">
-      <Filter>config</Filter>
-    </ClCompile>
-    <ClCompile Include="config\panel_config_com.cpp">
-      <Filter>config</Filter>
-    </ClCompile>
-    <ClCompile Include="config\panel_config_json.cpp">
-      <Filter>config</Filter>
-    </ClCompile>
-    <ClCompile Include="config\parsed_panel_config.cpp">
-      <Filter>config</Filter>
-    </ClCompile>
     <ClCompile Include="ui\ui_editor.cpp">
       <Filter>ui</Filter>
     </ClCompile>
@@ -155,9 +143,6 @@
     </ClCompile>
     <ClCompile Include="ui\ui_conf.cpp">
       <Filter>ui</Filter>
-    </ClCompile>
-    <ClCompile Include="config\package_utils.cpp">
-      <Filter>config</Filter>
     </ClCompile>
     <ClCompile Include="ui\ui_package_manager.cpp">
       <Filter>ui</Filter>
@@ -192,9 +177,6 @@
     </ClCompile>
     <ClCompile Include="utils\guid_helpers.cpp">
       <Filter>utils</Filter>
-    </ClCompile>
-    <ClCompile Include="config\delayed_package_utils.cpp">
-      <Filter>config</Filter>
     </ClCompile>
     <ClCompile Include="utils\md5.cpp">
       <Filter>utils</Filter>
@@ -391,10 +373,10 @@
     <ClCompile Include="js_backend\objects\dom\enumerator.cpp">
       <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\js_event.cpp">
+    <ClCompile Include="js_backend\objects\dom\event.cpp">
       <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\js_event_target.cpp">
+    <ClCompile Include="js_backend\objects\dom\event_target.cpp">
       <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\objects\dom\main_menu_manager.cpp">
@@ -435,6 +417,45 @@
     </ClCompile>
     <ClCompile Include="js_backend\objects\core\script_loader.cpp">
       <Filter>js_backend\objects\core</Filter>
+    </ClCompile>
+    <ClCompile Include="config\smp_package\delayed_package_actions.cpp">
+      <Filter>config\smp_package</Filter>
+    </ClCompile>
+    <ClCompile Include="config\module_package\module_specifier.cpp">
+      <Filter>config\module_package</Filter>
+    </ClCompile>
+    <ClCompile Include="config\module_package\package.cpp">
+      <Filter>config\module_package</Filter>
+    </ClCompile>
+    <ClCompile Include="config\module_package\package_manager.cpp">
+      <Filter>config\module_package</Filter>
+    </ClCompile>
+    <ClCompile Include="config\smp_package\package_manager.cpp">
+      <Filter>config\smp_package</Filter>
+    </ClCompile>
+    <ClCompile Include="config\smp_package\package.cpp">
+      <Filter>config\smp_package</Filter>
+    </ClCompile>
+    <ClCompile Include="config\default_script.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\panel_properties.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\serializers\com.cpp">
+      <Filter>config\serializers</Filter>
+    </ClCompile>
+    <ClCompile Include="config\serializers\json.cpp">
+      <Filter>config\serializers</Filter>
+    </ClCompile>
+    <ClCompile Include="config\serializers\binary.cpp">
+      <Filter>config\serializers</Filter>
+    </ClCompile>
+    <ClCompile Include="config\resolved_panel_script_settings.cpp">
+      <Filter>config</Filter>
+    </ClCompile>
+    <ClCompile Include="config\raw_panel_script_source.cpp">
+      <Filter>config</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -573,19 +594,7 @@
       <Filter>fb2k</Filter>
     </ClInclude>
     <ClInclude Include="component_defines.h" />
-    <ClInclude Include="config\panel_config_com.h">
-      <Filter>config</Filter>
-    </ClInclude>
-    <ClInclude Include="config\panel_config_json.h">
-      <Filter>config</Filter>
-    </ClInclude>
-    <ClInclude Include="config\panel_config_binary.h">
-      <Filter>config</Filter>
-    </ClInclude>
     <ClInclude Include="config\panel_config.h">
-      <Filter>config</Filter>
-    </ClInclude>
-    <ClInclude Include="config\parsed_panel_config.h">
       <Filter>config</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_editor.h">
@@ -611,9 +620,6 @@
     </ClInclude>
     <ClInclude Include="ui\ui_conf.h">
       <Filter>ui</Filter>
-    </ClInclude>
-    <ClInclude Include="config\package_utils.h">
-      <Filter>config</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_package_manager.h">
       <Filter>ui</Filter>
@@ -654,9 +660,6 @@
     </ClInclude>
     <ClInclude Include="utils\guid_helpers.h">
       <Filter>utils</Filter>
-    </ClInclude>
-    <ClInclude Include="config\delayed_package_utils.h">
-      <Filter>config</Filter>
     </ClInclude>
     <ClInclude Include="utils\md5.h">
       <Filter>utils</Filter>
@@ -874,10 +877,10 @@
     <ClInclude Include="js_backend\objects\dom\enumerator.h">
       <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\js_event.h">
+    <ClInclude Include="js_backend\objects\dom\event.h">
       <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\js_event_target.h">
+    <ClInclude Include="js_backend\objects\dom\event_target.h">
       <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\main_menu_manager.h">
@@ -939,6 +942,60 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\core\script_loader.h">
       <Filter>js_backend\objects\core</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\json_std_extenders.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="config\smp_package\delayed_package_actions.h">
+      <Filter>config\smp_package</Filter>
+    </ClInclude>
+    <ClInclude Include="config\module_package\module_specifier.h">
+      <Filter>config\module_package</Filter>
+    </ClInclude>
+    <ClInclude Include="config\module_package\package.h">
+      <Filter>config\module_package</Filter>
+    </ClInclude>
+    <ClInclude Include="config\module_package\package_manager.h">
+      <Filter>config\module_package</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_settings.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\smp_package\package_manager.h">
+      <Filter>config\smp_package</Filter>
+    </ClInclude>
+    <ClInclude Include="config\smp_package\package.h">
+      <Filter>config\smp_package</Filter>
+    </ClInclude>
+    <ClInclude Include="config\basic_script_sources.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\default_script.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_properties.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\panel_config_formats.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\serializers\binary.h">
+      <Filter>config\serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="config\serializers\com.h">
+      <Filter>config\serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="config\serializers\json.h">
+      <Filter>config\serializers</Filter>
+    </ClInclude>
+    <ClInclude Include="config\raw_panel_script_source.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\resolved_panel_script_settings.h">
+      <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="config\script_source_types.h">
+      <Filter>config</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1028,6 +1085,15 @@
     </Filter>
     <Filter Include="js_backend\objects\core">
       <UniqueIdentifier>{737fd6f9-740f-4fb8-a68b-27aef4cf33b8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config\smp_package">
+      <UniqueIdentifier>{7289660f-499b-4c88-b021-3327a6e863e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config\module_package">
+      <UniqueIdentifier>{4307d4f3-b5ab-4057-9c38-727b5bb7fd55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="config\serializers">
+      <UniqueIdentifier>{da27ab9e-44b3-4fab-8230-3cb4bfca7235}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

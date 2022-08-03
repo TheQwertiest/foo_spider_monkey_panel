@@ -2,7 +2,6 @@
 
 #include "window.h"
 
-#include <config/package_utils.h>
 #include <events/event_basic.h>
 #include <events/event_dispatcher.h>
 #include <events/event_notify_others.h>
@@ -391,7 +390,7 @@ JSObject* JsWindow::CreateTooltipWithOpt( size_t optArgCount, const std::wstring
 void JsWindow::DefinePanel( const qwr::u8string& name, JS::HandleValue options )
 {
     qwr::QwrException::ExpectTrue(
-        parentPanel_.GetSettings().GetSourceType() != config::ScriptSourceType::Package,
+        parentPanel_.GetScriptSettings().GetSourceType() != config::ScriptSourceType::SmpPackage,
         "`DefinePanel` can't be used to change package script information - use `Configure` instead" );
     qwr::QwrException::ExpectTrue( !isScriptDefined_, "DefinePanel/DefineScript can't be called twice" );
 
@@ -426,7 +425,7 @@ void JsWindow::DefineScript( const qwr::u8string& name, JS::HandleValue options 
     }
 
     qwr::QwrException::ExpectTrue(
-        parentPanel_.GetSettings().GetSourceType() != config::ScriptSourceType::Package,
+        parentPanel_.GetScriptSettings().GetSourceType() != config::ScriptSourceType::SmpPackage,
         "`DefineScript` can't be used to change package script information - use `Configure` instead" );
     qwr::QwrException::ExpectTrue( !isScriptDefined_, "DefineScript can't be called twice" );
 
@@ -846,7 +845,7 @@ bool JsWindow::get_IsTransparent()
         return false;
     }
 
-    return parentPanel_.GetSettings().isPseudoTransparent;
+    return parentPanel_.GetPanelSettings().isPseudoTransparent;
 }
 
 bool JsWindow::get_IsVisible()
@@ -954,22 +953,24 @@ JSObject* JsWindow::get_ScriptInfo()
         return nullptr;
     }
 
-    const auto& settings = parentPanel_.GetSettings();
+    const auto& settings = parentPanel_.GetScriptSettings();
 
     JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
 
-    utils::AddProperty( pJsCtx_, jsObject, "Name", settings.scriptName );
-    if ( !settings.scriptAuthor.empty() )
+    utils::AddProperty( pJsCtx_, jsObject, "Name", settings.GetScriptName() );
+    if ( const auto& scriptAuthor = settings.GetScriptAuthor();
+         !scriptAuthor.empty() )
     {
-        utils::AddProperty( pJsCtx_, jsObject, "Author", settings.scriptAuthor );
+        utils::AddProperty( pJsCtx_, jsObject, "Author", scriptAuthor );
     }
-    if ( !settings.scriptVersion.empty() )
+    if ( const auto& scriptVersion = settings.GetScriptVersion();
+         !scriptVersion.empty() )
     {
-        utils::AddProperty( pJsCtx_, jsObject, "Version", settings.scriptVersion );
+        utils::AddProperty( pJsCtx_, jsObject, "Version", scriptVersion );
     }
-    if ( settings.packageId )
+    if ( settings.GetSourceType() == config::ScriptSourceType::SmpPackage )
     {
-        utils::AddProperty( pJsCtx_, jsObject, "PackageId", *settings.packageId );
+        utils::AddProperty( pJsCtx_, jsObject, "PackageId", settings.GetSmpPackage().id );
     }
 
     return jsObject;

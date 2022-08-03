@@ -1,9 +1,10 @@
 #pragma once
 
 #include <com_objects/file_drop_target.h>
-#include <config/delayed_package_utils.h>
 #include <config/panel_config.h>
-#include <config/parsed_panel_config.h>
+#include <config/smp_package/delayed_package_actions.h>
+#include <config/smp_package/package.h>
+#include <config/smp_package/package_manager.h>
 #include <resources/resource.h>
 
 #include <qwr/ui_ddx.h>
@@ -41,14 +42,14 @@ public:
 
     CDialogPackageManager( const qwr::u8string& currentPackageId );
 
-    [[nodiscard]] std::optional<config::ParsedPanelSettings> GetPackage() const;
+    [[nodiscard]] std::optional<config::RawSmpPackage> GetPackage() const;
 
 private:
     struct PackageData
     {
         std::wstring displayedName;
         qwr::u8string id;
-        std::optional<config::ParsedPanelSettings> parsedSettings;
+        std::optional<config::SmpPackage> packageOpt;
         std::wstring errorText;
         config::PackageDelayStatus status;
     };
@@ -75,17 +76,19 @@ private:
     void UpdateListBoxFromData();
     void UpdatedUiPackageInfo();
 
-    PackageData GeneratePackageData( const config::ParsedPanelSettings& parsedSettings );
+    PackageData GeneratePackageData( const config::SmpPackage& package );
     /// @return true if restart is needed
     bool ImportPackage( const std::filesystem::path& path );
 
-    bool ConfirmPackageOverwrite( const std::filesystem::path& oldPackagePath, const config::ParsedPanelSettings& newSettings );
+    bool ConfirmPackageOverwrite( const std::filesystem::path& oldPackageJson, const config::SmpPackage& newPackage );
     bool ConfirmRebootOnPackageInUse();
 
 private:
     qwr::u8string focusedPackageId_;
     int focusedPackageIdx_ = -1;
     std::array<std::unique_ptr<qwr::ui::IUiDdx>, 1> ddx_;
+
+    config::SmpPackageManager packageManager_;
 
     std::vector<PackageData> packages_;
     CListBox packagesListBox_;

@@ -2,7 +2,6 @@
 
 #include "ui_conf.h"
 
-#include <config/package_utils.h>
 #include <panel/panel_window.h>
 #include <ui/impl/ui_conf_tab_appearance.h>
 #include <ui/impl/ui_conf_tab_package.h>
@@ -20,9 +19,11 @@
 namespace
 {
 
-bool IsCleanSlate( const smp::config::ParsedPanelSettings& settings )
+bool IsCleanSlate( const smp::config::PanelConfig& config )
 {
-    return ( settings.script == smp::config::PanelSettings_InMemory::GetDefaultScript() );
+    const smp::config::PanelConfig defaultConfig;
+    return ( config.scriptSource.index() == defaultConfig.scriptSource.index()
+             && std::get<smp::config::RawInMemoryScript>( config.scriptSource ).script == std::get<smp::config::RawInMemoryScript>( defaultConfig.scriptSource ).script );
 }
 
 } // namespace
@@ -39,9 +40,9 @@ namespace smp::ui
 
 CDialogConf::CDialogConf( smp::panel::PanelWindow* pParent, Tab tabId )
     : pParent_( pParent )
-    , isCleanSlate_( ::IsCleanSlate( pParent->GetSettings() ) )
+    , isCleanSlate_( ::IsCleanSlate( pParent->GetPanelConfig() ) )
     , panelNameDdx_(
-          qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( localSettings_.panelId, IDC_EDIT_PANEL_NAME ) )
+          qwr::ui::CreateUiDdx<qwr::ui::UiDdx_TextEdit>( localConfig_.panelSettings.id, IDC_EDIT_PANEL_NAME ) )
     , startingTabId_( tabId )
 {
     InitializeLocalData();
@@ -59,15 +60,15 @@ void CDialogConf::OnDataChanged()
 
 void CDialogConf::OnWholeScriptChange()
 {
-    const auto tabLayoutChanged = ( oldSettings_.GetSourceType() != localSettings_.GetSourceType()
-                                    && ( oldSettings_.GetSourceType() == config::ScriptSourceType::Package
-                                         || localSettings_.GetSourceType() == config::ScriptSourceType::Package ) );
+    const auto tabLayoutChanged = ( config::GetSourceType( oldConfig_.scriptSource ) != config::GetSourceType( localConfig_.scriptSource )
+                                    && ( config::GetSourceType( oldConfig_.scriptSource ) == config::ScriptSourceType::SmpPackage
+                                         || config::GetSourceType( localConfig_.scriptSource ) == config::ScriptSourceType::SmpPackage ) );
 
     OnDataChangedImpl( true );
 
-    localProperties_.values.clear();
+    localConfig_.properties.values.clear();
     // package data is saved by the caller
-    Apply( false );
+    Apply();
 
     if ( tabLayoutChanged )
     {
@@ -84,15 +85,14 @@ bool CDialogConf::HasChanged()
              || ranges::any_of( tabs_, []( const auto& pTab ) { return pTab->HasChanged(); } ) );
 }
 
-void CDialogConf::Apply( bool savePackageData )
+void CDialogConf::Apply()
 {
     if ( !hasChanged_ )
     {
         return;
     }
 
-    oldSettings_ = localSettings_;
-    oldProperties_ = localProperties_;
+    oldConfig_ = localConfig_;
 
     for ( auto& pTab: tabs_ )
     {
@@ -102,21 +102,7 @@ void CDialogConf::Apply( bool savePackageData )
     OnDataChangedImpl( false );
     DisablePanelNameControls();
 
-    if ( savePackageData )
-    {
-        try
-        {
-            config::MaybeSavePackageData( oldSettings_ );
-        }
-        catch ( const qwr::QwrException& e )
-        {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
-        }
-    }
-
-    auto updatedSettings = oldSettings_.GeneratePanelSettings();
-    updatedSettings.properties = oldProperties_;
-    pParent_->UpdateSettings( updatedSettings );
+    pParent_->UpdateSettings( oldConfig_ );
 
     // setting might've been modified by the script
     InitializeLocalData();
@@ -129,8 +115,7 @@ void CDialogConf::Apply( bool savePackageData )
 
 void CDialogConf::Revert()
 {
-    localSettings_ = oldSettings_;
-    localProperties_ = oldProperties_;
+    localConfig_ = oldConfig_;
 
     for ( auto& pTab: tabs_ )
     {
@@ -143,6 +128,11 @@ void CDialogConf::Revert()
 void CDialogConf::SwitchTab( CDialogConf::Tab tabId )
 {
     SetActiveTabIdx( tabId );
+
+    if ( !MaybeInitializeSmpPackageTab() )
+    {
+        activeTabIdx_ = GetTabIdx( Tab::script );
+    }
     cTabs_.SetCurSel( activeTabIdx_ );
     CreateChildTab();
 }
@@ -278,6 +268,11 @@ void CDialogConf::OnParentNotify( UINT message, UINT /*nChildID*/, LPARAM lParam
 LRESULT CDialogConf::OnSelectionChanged( LPNMHDR /*pNmhdr*/ )
 {
     activeTabIdx_ = cTabs_.GetCurSel();
+    if ( !MaybeInitializeSmpPackageTab() )
+    {
+        activeTabIdx_ = GetTabIdx( Tab::script );
+        cTabs_.SetCurSel( activeTabIdx_ );
+    }
     CreateChildTab();
 
     return 0;
@@ -319,9 +314,9 @@ void CDialogConf::OnStartEditPanelName( UINT /*uNotifyCode*/, int /*nID*/, CWind
 void CDialogConf::OnCommitPanelName( UINT /*uNotifyCode*/, int /*nID*/, CWindow /*wndCtl*/ )
 {
     DisablePanelNameControls();
-    if ( localSettings_.panelId.empty() )
+    if ( localConfig_.panelSettings.id.empty() )
     {
-        localSettings_.panelId = qwr::unicode::ToU8( utils::GuidToStr( utils::GenerateGuid() ) );
+        localConfig_.panelSettings.id = qwr::unicode::ToU8( utils::GuidToStr( utils::GenerateGuid() ) );
 
         suppressDdxFromUi_ = true;
         const auto ddxSuppress = qwr::final_action( [&] { suppressDdxFromUi_ = false; } );
@@ -368,15 +363,13 @@ void CDialogConf::OnDataChangedImpl( bool hasChanged )
 
 void CDialogConf::InitializeLocalData()
 {
-    oldSettings_ = pParent_->GetSettings();
-    localSettings_ = oldSettings_;
-    oldProperties_ = pParent_->GetPanelProperties();
-    localProperties_ = oldProperties_;
+    oldConfig_ = pParent_->GetPanelConfig();
+    localConfig_ = oldConfig_;
 
     constexpr std::string_view kOverridenSuffix = " (overriden by script)";
     if ( pParent_->IsPanelIdOverridenByScript() )
     {
-        localSettings_.panelId += kOverridenSuffix;
+        localConfig_.panelSettings.id += kOverridenSuffix;
 
         if ( m_hWnd )
         {
@@ -386,9 +379,9 @@ void CDialogConf::InitializeLocalData()
     }
     else
     {
-        if ( static_cast<qwr::u8string_view>( localSettings_.panelId ).ends_with( kOverridenSuffix ) )
+        if ( static_cast<qwr::u8string_view>( localConfig_.panelSettings.id ).ends_with( kOverridenSuffix ) )
         {
-            localSettings_.panelId.resize( localSettings_.panelId.size() - kOverridenSuffix.size() );
+            localConfig_.panelSettings.id.resize( localConfig_.panelSettings.id.size() - kOverridenSuffix.size() );
         }
     }
 }
@@ -397,23 +390,23 @@ void CDialogConf::InitializeTabData( smp::ui::CDialogConf::Tab tabId )
 {
     tabs_.clear();
 
-    tabs_.emplace_back( std::make_unique<CConfigTabScriptSource>( *this, localSettings_ ) );
-    if ( localSettings_.GetSourceType() == config::ScriptSourceType::Package )
+    tabs_.emplace_back( std::make_unique<CConfigTabScriptSource>( *this, localConfig_ ) );
+    if ( config::GetSourceType( localConfig_.scriptSource ) == config::ScriptSourceType::SmpPackage )
     {
-        tabs_.emplace_back( std::make_unique<CConfigTabPackage>( *this, localSettings_ ) );
+        tabs_.emplace_back( std::make_unique<CConfigTabPackage>( *this, localConfig_ ) );
     }
-    tabs_.emplace_back( std::make_unique<CConfigTabAppearance>( *this, localSettings_ ) );
-    tabs_.emplace_back( std::make_unique<CConfigTabProperties>( *this, localProperties_ ) );
+    tabs_.emplace_back( std::make_unique<CConfigTabAppearance>( *this, localConfig_ ) );
+    tabs_.emplace_back( std::make_unique<CConfigTabProperties>( *this, localConfig_ ) );
 
     SetActiveTabIdx( tabId );
 }
 
 void CDialogConf::ReinitializeTabData()
 {
-    if ( localSettings_.GetSourceType() == config::ScriptSourceType::Package )
+    if ( config::GetSourceType( localConfig_.scriptSource ) == config::ScriptSourceType::SmpPackage )
     {
         tabs_.insert( tabs_.cbegin() + GetTabIdx( Tab::package ),
-                      std::make_unique<CConfigTabPackage>( *this, localSettings_ ) );
+                      std::make_unique<CConfigTabPackage>( *this, localConfig_ ) );
     }
     else
     {
@@ -438,7 +431,12 @@ void CDialogConf::InitializeTabControls()
         cTabs_.AddItem( pTab->Name() );
     }
 
+    if ( !MaybeInitializeSmpPackageTab() )
+    {
+        activeTabIdx_ = GetTabIdx( Tab::script );
+    }
     cTabs_.SetCurSel( activeTabIdx_ );
+
     CreateChildTab();
 }
 
@@ -516,6 +514,17 @@ size_t CDialogConf::GetTabIdx( CDialogConf::Tab tabId ) const
 void CDialogConf::SetActiveTabIdx( CDialogConf::Tab tabId )
 {
     activeTabIdx_ = GetTabIdx( tabId );
+}
+
+bool CDialogConf::MaybeInitializeSmpPackageTab()
+{
+    const auto packageTabIdx = GetTabIdx( Tab::package );
+    if ( config::GetSourceType( localConfig_.scriptSource ) != config::ScriptSourceType::SmpPackage || activeTabIdx_ != packageTabIdx )
+    {
+        return true;
+    }
+
+    return static_cast<CConfigTabPackage*>( tabs_[packageTabIdx].get() )->TryResolvePackage();
 }
 
 } // namespace smp::ui

@@ -49,7 +49,7 @@ public:
         REFLECT_NOTIFICATIONS()
     END_MSG_MAP()
 
-    CConfigTabProperties( CDialogConf& parent, config::PanelProperties& properties );
+    CConfigTabProperties( CDialogConf& parent, config::PanelConfig& config );
 
     // > IUiTab
     HWND CreateTab( HWND hParent ) override;
@@ -76,7 +76,7 @@ private:
 private:
     CPropertyListCtrl propertyListCtrl_;
     CDialogConf& parent_;
-    config::PanelProperties& properties_;
+    config::PanelConfig& config_;
 };
 
 } // namespace smp::ui
