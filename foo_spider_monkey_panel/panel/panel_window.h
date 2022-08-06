@@ -46,10 +46,9 @@ public:
     // uie::container_window_v3
     uie::container_window_v3_config get_window_config();
 
-    void ReloadScript();
-    bool UpdateSettings( const smp::config::PanelConfig& settings, bool reloadPanel = true );
-    void LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel = true );
-    bool SaveSettings( stream_writer& writer, abort_callback& abort ) const;
+    void UpdateConfig( const smp::config::PanelConfig& settings, bool reloadPanel = true );
+    void LoadConfig( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel = true );
+    bool SaveConfig( stream_writer& writer, abort_callback& abort ) const;
 
     bool IsPanelIdOverridenByScript() const;
 
@@ -61,18 +60,17 @@ public:
     void RepaintBackground( const CRect& updateRc );
 
 public: // accessors
-    [[nodiscard]] qwr::u8string GetPanelId();
+    [[nodiscard]] const config::PanelConfig& GetPanelConfig() const;
+    [[nodiscard]] const config::ResolvedPanelScriptSettings& GetScriptSettings() const;
+    [[nodiscard]] config::PanelProperties& GetPanelProperties();
     [[nodiscard]] qwr::u8string GetPanelDescription( bool includeVersionAndAuthor = true );
+
     [[nodiscard]] HDC GetHDC() const;
     [[nodiscard]] HWND GetHWND() const;
     [[nodiscard]] POINT& MaxSize();
     [[nodiscard]] POINT& MinSize();
     [[nodiscard]] int GetHeight() const;
     [[nodiscard]] int GetWidth() const;
-    [[nodiscard]] const config::PanelConfig& GetPanelConfig() const;
-    [[nodiscard]] const config::ResolvedPanelScriptSettings& GetScriptSettings() const;
-    [[nodiscard]] const config::PanelSettings& GetPanelSettings() const;
-    [[nodiscard]] config::PanelProperties& GetPanelProperties();
     // TODO: move to a better place
     [[nodiscard]] TimeoutManager& GetTimeoutManager();
 
@@ -81,17 +79,24 @@ public: // accessors
     DWORD GetColour( unsigned type, const GUID& guid );
     HFONT GetFont( unsigned type, const GUID& guid );
 
+    // accessors for runtime settings changes from JS
     void SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion );
     void SetSettings_PanelName( const qwr::u8string& panelName );
     /// @throw qwr::QwrException
     void SetSettings_DragAndDropStatus( bool isEnabled );
     void SetSettings_CaptureFocusStatus( bool isEnabled );
 
+    // accessors for TrackDropTarget
     void ResetLastDragParams();
     [[nodiscard]] const std::optional<DragActionParams>& GetLastDragParams() const;
     [[nodiscard]] bool HasInternalDrag() const;
 
-protected:
+public: // event handling
+    void ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task );
+    bool ExecuteEvent_JsCode( mozjs::JsAsyncTask& task );
+    void ExecuteEvent_Basic( EventId id );
+
+private: // internal event handling
     void OnSizeLimitChanged( LPARAM lp );
 
     LRESULT OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp );
@@ -102,22 +107,18 @@ protected:
     void GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t id_base );
     void ExecuteContextMenu( uint32_t id, uint32_t id_base );
 
-private:
-    bool ReloadScriptSettings();
-    bool LoadScript( bool isFirstLoad );
-    void UnloadScript( bool force = false );
-
-    void CreateDrawContext();
-    void DeleteDrawContext();
-
     void SetCaptureMouseState( bool shouldCapture );
     /// @throw qwr::QwrException
     void SetDragAndDropStatus( bool isEnabled );
 
-public: // event handling
-    void ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task );
-    bool ExecuteEvent_JsCode( mozjs::JsAsyncTask& task );
-    void ExecuteEvent_Basic( EventId id );
+private:
+    bool ReloadScriptSettings();
+    void LoadScript( bool isFirstLoad );
+    void UnloadScript( bool force = false );
+    void ReloadScript();
+
+    void CreateDrawContext();
+    void DeleteDrawContext();
 
 private: // callback handling
     void OnProcessingEventStart();

@@ -845,7 +845,7 @@ bool JsWindow::get_IsTransparent()
         return false;
     }
 
-    return parentPanel_.GetPanelSettings().isPseudoTransparent;
+    return parentPanel_.GetPanelConfig().panelSettings.isPseudoTransparent;
 }
 
 bool JsWindow::get_IsVisible()
@@ -932,7 +932,7 @@ qwr::u8string JsWindow::get_Name()
         return qwr::u8string{};
     }
 
-    return parentPanel_.GetPanelId();
+    return parentPanel_.GetPanelConfig().panelSettings.id;
 }
 
 uint64_t JsWindow::get_PanelMemoryUsage()

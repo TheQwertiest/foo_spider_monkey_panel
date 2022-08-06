@@ -102,7 +102,7 @@ void CDialogConf::Apply()
     OnDataChangedImpl( false );
     DisablePanelNameControls();
 
-    pParent_->UpdateSettings( oldConfig_ );
+    pParent_->UpdateConfig( oldConfig_ );
 
     // setting might've been modified by the script
     InitializeLocalData();

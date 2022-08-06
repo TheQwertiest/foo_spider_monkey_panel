@@ -179,7 +179,7 @@ void PanelAdaptorCui::get_category( pfc::string_base& out ) const
 
 void PanelAdaptorCui::get_config( stream_writer* writer, abort_callback& abort ) const
 {
-    wndContainer_->SaveSettings( *writer, abort );
+    wndContainer_->SaveConfig( *writer, abort );
 }
 
 void PanelAdaptorCui::get_name( pfc::string_base& out ) const
@@ -204,7 +204,7 @@ void PanelAdaptorCui::on_font_changed( t_size ) const
 
 void PanelAdaptorCui::set_config( stream_reader* reader, t_size size, abort_callback& abort )
 {
-    wndContainer_->LoadSettings( *reader, size, abort, false );
+    wndContainer_->LoadConfig( *reader, size, abort, false );
 }
 
 } // namespace smp::panel

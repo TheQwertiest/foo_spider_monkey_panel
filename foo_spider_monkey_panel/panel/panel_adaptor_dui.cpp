@@ -243,7 +243,7 @@ bool PanelAdaptorDui::edit_mode_context_menu_test( const POINT&, bool )
 ui_element_config::ptr PanelAdaptorDui::get_configuration()
 {
     ui_element_config_builder builder;
-    wndContainer_->SaveSettings( builder.m_stream, fb2k::noAbort );
+    wndContainer_->SaveConfig( builder.m_stream, fb2k::noAbort );
     return builder.finish( g_get_guid() );
 }
 
@@ -278,7 +278,7 @@ void PanelAdaptorDui::set_configuration( ui_element_config::ptr data )
     ui_element_config_parser parser( data );
 
     // FIX: If window already created, DUI won't destroy it and create it again.
-    wndContainer_->LoadSettings( parser.m_stream, parser.get_remaining(), fb2k::noAbort, !!wndContainer_->GetHWND() );
+    wndContainer_->LoadConfig( parser.m_stream, parser.get_remaining(), fb2k::noAbort, !!wndContainer_->GetHWND() );
 }
 
 void PanelAdaptorDui::initialize_window( HWND parent )

@@ -80,58 +80,16 @@ uie::container_window_v3_config PanelWindow::get_window_config()
     return windowConfig;
 }
 
-void PanelWindow::Fail( const qwr::u8string& errorText )
+void PanelWindow::UpdateConfig( const smp::config::PanelConfig& config, bool reloadPanel )
 {
-    hasFailed_ = true;
-    qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
-
-    if ( wnd_ )
-    {              // can be null during startup
-        Repaint(); ///< repaint to display error message
-    }
-    UnloadScript( true );
-}
-
-const config::PanelConfig& PanelWindow::GetPanelConfig() const
-{
-    return config_;
-}
-
-const config::ResolvedPanelScriptSettings& PanelWindow::GetScriptSettings() const
-{
-    return scriptSettings_;
-}
-
-const config::PanelSettings& PanelWindow::GetPanelSettings() const
-{
-    return config_.panelSettings;
-}
-
-config::PanelProperties& PanelWindow::GetPanelProperties()
-{
-    return config_.properties;
-}
-
-TimeoutManager& PanelWindow::GetTimeoutManager()
-{
-    assert( pTimeoutManager_ );
-    return *pTimeoutManager_;
-}
-
-void PanelWindow::ReloadScript()
-{
-    if ( pJsContainer_ )
-    { // Panel might be not loaded at all, if settings are changed from Preferences.
-        UnloadScript();
-        if ( !ReloadScriptSettings() )
-        {
-            return;
-        }
-        LoadScript( false );
+    config_ = config;
+    if ( reloadPanel )
+    {
+        ReloadScript();
     }
 }
 
-void PanelWindow::LoadSettings( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel )
+void PanelWindow::LoadConfig( stream_reader& reader, t_size size, abort_callback& abort, bool reloadPanel )
 {
     const auto config = [&] {
         try
@@ -147,29 +105,10 @@ void PanelWindow::LoadSettings( stream_reader& reader, t_size size, abort_callba
         }
     }();
 
-    if ( !UpdateSettings( config, reloadPanel ) )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, fmt::format( "Can't load panel settings. Your panel will be completely reset!" ) );
-        UpdateSettings( config::PanelConfig{}, reloadPanel );
-    }
+    UpdateConfig( config, reloadPanel );
 }
 
-bool PanelWindow::UpdateSettings( const smp::config::PanelConfig& config, bool reloadPanel )
-{
-    config_ = config;
-    if ( !ReloadScriptSettings() )
-    {
-        return false;
-    }
-
-    if ( reloadPanel )
-    {
-        ReloadScript();
-    }
-    return true;
-}
-
-bool PanelWindow::SaveSettings( stream_writer& writer, abort_callback& abort ) const
+bool PanelWindow::SaveConfig( stream_writer& writer, abort_callback& abort ) const
 {
     try
     {
@@ -183,75 +122,253 @@ bool PanelWindow::SaveSettings( stream_writer& writer, abort_callback& abort ) c
     }
 }
 
-bool PanelWindow::ReloadScriptSettings()
-{
-    try
-    {
-        scriptSettings_ = config::ResolvedPanelScriptSettings::ResolveSource( config_.scriptSource );
-        return true;
-    }
-    catch ( const qwr::QwrException& e )
-    {
-        Fail( e.what() );
-        return false;
-    }
-}
-
 bool PanelWindow::IsPanelIdOverridenByScript() const
 {
     return isPanelIdOverridenByScript_;
 }
 
-void PanelWindow::OnSizeLimitChanged( LPARAM lp )
+void PanelWindow::Fail( const qwr::u8string& errorText )
 {
-    return impl_.OnSizeLimitChanged( lp );
+    hasFailed_ = true;
+    qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, errorText );
+
+    if ( wnd_ )
+    {              // can be null during startup
+        Repaint(); ///< repaint to display error message
+    }
+    UnloadScript( true );
 }
 
-LRESULT PanelWindow::OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+void PanelWindow::Repaint( bool force )
 {
-    // According to MSDN:
-    ////
-    // If no filter is specified, messages are processed in the following order:
-    // - Sent messages
-    // - Posted messages
-    // - Input (hardware) messages and system internal events
-    // - Sent messages (again)
-    // - WM_PAINT messages
-    // - WM_TIMER messages
-    ////
-    // Since we are constantly processing our own `event` messages, we need to take additional care
-    // so as not to stall WM_PAINT and WM_TIMER messages.
-
-    static uint32_t msgNestedCounter = 0;
-    ++msgNestedCounter;
-    const qwr::final_action autoComObjectDeleter( [&] {
-        // delete only on exit as to avoid delaying processing of the current message due to reentrancy
-        --msgNestedCounter;
-        if ( !msgNestedCounter )
-        {
-            com::DeleteMarkedObjects();
-        }
-    } );
-
-    if ( EventDispatcher::IsRequestEventMessage( msg ) )
-    {
-        EventDispatcher::Get().OnRequestEventMessageReceived( wnd_ );
-        if ( auto retVal = ProcessEvent();
-             retVal.has_value() )
-        {
-            return *retVal;
-        }
+    if ( !force && !hRepaintTimer_ )
+    { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
+        hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
     }
-    else
+    wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
+}
+
+void PanelWindow::RepaintRect( const CRect& rc, bool force )
+{
+    if ( !force && !hRepaintTimer_ )
+    { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
+        hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
+    }
+    wnd_.RedrawWindow( &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
+}
+
+void PanelWindow::RepaintBackground( const CRect& updateRc )
+{
+    CWindow wnd_parent = GetAncestor( wnd_, GA_PARENT );
+
+    if ( !wnd_parent || IsIconic( core_api::get_main_window() ) || !wnd_.IsWindowVisible() )
     {
-        if ( auto retVal = ProcessSyncMessage( MSG{ hwnd, msg, wp, lp } );
-             retVal.has_value() )
-        {
-            return *retVal;
-        }
+        return;
     }
 
-    return DefWindowProc( hwnd, msg, wp, lp );
+    // HACK: for Tab control
+    // Find siblings
+    HWND hwnd = nullptr;
+    while ( ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) ) )
+    {
+        if ( hwnd == wnd_ )
+        {
+            continue;
+        }
+        std::array<wchar_t, 64> buff;
+        GetClassName( hwnd, buff.data(), buff.size() );
+        if ( wcsstr( buff.data(), L"SysTabControl32" ) )
+        {
+            wnd_parent = hwnd;
+            break;
+        }
+    }
+
+    CRect rc_child{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
+    CRgn rgn_child{ ::CreateRectRgnIndirect( &rc_child ) };
+    {
+        CRgn rgn{ ::CreateRectRgnIndirect( &updateRc ) };
+        rgn_child.CombineRgn( rgn, RGN_DIFF );
+    }
+
+    CPoint pt{ 0, 0 };
+    wnd_.ClientToScreen( &pt );
+    wnd_parent.ScreenToClient( &pt );
+
+    CRect rc_parent{ rc_child };
+    wnd_.ClientToScreen( &rc_parent );
+    wnd_parent.ScreenToClient( &rc_parent );
+
+    // Force Repaint
+    wnd_.SetWindowRgn( rgn_child, FALSE );
+    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
+
+    {
+        // Background bitmap
+        CClientDC dc_parent{ wnd_parent };
+        CDC dc_bg{ ::CreateCompatibleDC( dc_parent ) };
+        gdi::ObjectSelector autoBmp( dc_bg, bmpBg_.m_hBitmap );
+
+        // Paint BK
+        dc_bg.BitBlt( rc_child.left, rc_child.top, rc_child.Width(), rc_child.Height(), dc_parent, pt.x, pt.y, SRCCOPY );
+    }
+
+    wnd_.SetWindowRgn( nullptr, FALSE );
+    if ( smp::config::EdgeStyle::NoEdge != config_.panelSettings.edgeStyle )
+    {
+        wnd_.SendMessage( WM_NCPAINT, 1, 0 );
+    }
+}
+
+const config::PanelConfig& PanelWindow::GetPanelConfig() const
+{
+    return config_;
+}
+
+const config::ResolvedPanelScriptSettings& PanelWindow::GetScriptSettings() const
+{
+    return scriptSettings_;
+}
+
+config::PanelProperties& PanelWindow::GetPanelProperties()
+{
+    return config_.properties;
+}
+
+qwr::u8string PanelWindow::GetPanelDescription( bool includeVersionAndAuthor )
+{
+    qwr::u8string ret = fmt::format( "{}", config_.panelSettings.id );
+
+    if ( const auto& scriptName = scriptSettings_.GetScriptName();
+         !scriptName.empty() )
+    {
+        ret += fmt::format( ": {}", scriptName );
+        if ( includeVersionAndAuthor )
+        {
+            if ( const auto& scriptVersion = scriptSettings_.GetScriptVersion();
+                 !scriptVersion.empty() )
+            {
+                ret += fmt::format( " v{}", scriptVersion );
+            }
+            if ( const auto& scriptAuthor = scriptSettings_.GetScriptAuthor();
+                 !scriptAuthor.empty() )
+            {
+                ret += fmt::format( " by {}", scriptAuthor );
+            }
+        }
+    }
+
+    return ret;
+}
+
+HDC PanelWindow::GetHDC() const
+{
+    return hDc_;
+}
+
+HWND PanelWindow::GetHWND() const
+{
+    return wnd_;
+}
+
+POINT& PanelWindow::MaxSize()
+{
+    return maxSize_;
+}
+
+POINT& PanelWindow::MinSize()
+{
+    return minSize_;
+}
+
+int PanelWindow::GetHeight() const
+{
+    return height_;
+}
+
+int PanelWindow::GetWidth() const
+{
+    return width_;
+}
+
+TimeoutManager& PanelWindow::GetTimeoutManager()
+{
+    assert( pTimeoutManager_ );
+    return *pTimeoutManager_;
+}
+
+t_size& PanelWindow::DlgCode()
+{
+    return dlgCode_;
+}
+
+PanelType PanelWindow::GetPanelType() const
+{
+    return panelType_;
+}
+
+DWORD PanelWindow::GetColour( unsigned type, const GUID& guid )
+{
+    return impl_.GetColour( type, guid );
+}
+
+HFONT PanelWindow::GetFont( unsigned type, const GUID& guid )
+{
+    return impl_.GetFont( type, guid );
+}
+
+void PanelWindow::SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion )
+{
+    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
+
+    auto& scriptRuntimeData = scriptSettings_.GetScriptRuntimeData();
+
+    scriptRuntimeData.name = scriptName;
+    scriptRuntimeData.author = scriptAuthor;
+    scriptRuntimeData.version = scriptVersion;
+}
+
+void PanelWindow::SetSettings_PanelName( const qwr::u8string& panelName )
+{
+    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
+
+    config_.panelSettings.id = panelName;
+    isPanelIdOverridenByScript_ = true;
+}
+
+void PanelWindow::SetSettings_DragAndDropStatus( bool isEnabled )
+{
+    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
+
+    auto& scriptRuntimeData = scriptSettings_.GetScriptRuntimeData();
+
+    scriptRuntimeData.enableDragDrop = isEnabled;
+
+    SetDragAndDropStatus( scriptRuntimeData.enableDragDrop );
+}
+
+void PanelWindow::SetSettings_CaptureFocusStatus( bool isEnabled )
+{
+    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
+
+    auto& scriptRuntimeData = scriptSettings_.GetScriptRuntimeData();
+
+    scriptRuntimeData.shouldGrabFocus = isEnabled;
+}
+
+void PanelWindow::ResetLastDragParams()
+{
+    lastDragParams_.reset();
+}
+
+const std::optional<DragActionParams>& PanelWindow::GetLastDragParams() const
+{
+    return lastDragParams_;
+}
+
+bool PanelWindow::HasInternalDrag() const
+{
+    return hasInternalDrag_;
 }
 
 void PanelWindow::ExecuteEvent_Basic( EventId id )
@@ -511,6 +628,436 @@ bool PanelWindow::ExecuteEvent_JsCode( mozjs::JsAsyncTask& jsTask )
     }
 
     return pJsContainer_->InvokeJsAsyncTask( jsTask );
+}
+
+void PanelWindow::OnSizeLimitChanged( LPARAM lp )
+{
+    return impl_.OnSizeLimitChanged( lp );
+}
+
+LRESULT PanelWindow::OnMessage( HWND hwnd, UINT msg, WPARAM wp, LPARAM lp )
+{
+    // According to MSDN:
+    ////
+    // If no filter is specified, messages are processed in the following order:
+    // - Sent messages
+    // - Posted messages
+    // - Input (hardware) messages and system internal events
+    // - Sent messages (again)
+    // - WM_PAINT messages
+    // - WM_TIMER messages
+    ////
+    // Since we are constantly processing our own `event` messages, we need to take additional care
+    // so as not to stall WM_PAINT and WM_TIMER messages.
+
+    static uint32_t msgNestedCounter = 0;
+    ++msgNestedCounter;
+    const qwr::final_action autoComObjectDeleter( [&] {
+        // delete only on exit as to avoid delaying processing of the current message due to reentrancy
+        --msgNestedCounter;
+        if ( !msgNestedCounter )
+        {
+            com::DeleteMarkedObjects();
+        }
+    } );
+
+    if ( EventDispatcher::IsRequestEventMessage( msg ) )
+    {
+        EventDispatcher::Get().OnRequestEventMessageReceived( wnd_ );
+        if ( auto retVal = ProcessEvent();
+             retVal.has_value() )
+        {
+            return *retVal;
+        }
+    }
+    else
+    {
+        if ( auto retVal = ProcessSyncMessage( MSG{ hwnd, msg, wp, lp } );
+             retVal.has_value() )
+        {
+            return *retVal;
+        }
+    }
+
+    return DefWindowProc( hwnd, msg, wp, lp );
+}
+
+void PanelWindow::EditScript()
+{
+    switch ( scriptSettings_.GetSourceType() )
+    {
+    case config::ScriptSourceType::InMemory:
+    {
+        try
+        {
+            panel::EditScript( wnd_, std::get<config::RawInMemoryScript>( config_.scriptSource ).script );
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        }
+        break;
+    }
+    case config::ScriptSourceType::File:
+    case config::ScriptSourceType::Sample:
+    {
+        try
+        {
+            panel::EditScriptFile( wnd_, scriptSettings_ );
+        }
+        catch ( const qwr::QwrException& e )
+        {
+            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+        }
+        break;
+    }
+    case config::ScriptSourceType::SmpPackage:
+    {
+        ShowConfigure( wnd_, ui::CDialogConf::Tab::package );
+        break;
+    }
+    default:
+    {
+        assert( false );
+        break;
+    }
+    }
+}
+
+void PanelWindow::ShowConfigure( HWND parent, ui::CDialogConf::Tab tab )
+{
+    if ( !modal_dialog_scope::can_create() )
+    {
+        return;
+    }
+
+    modal::ModalBlockingScope scope( parent, true );
+
+    ui::CDialogConf dlg( this, tab );
+    (void)dlg.DoModal( parent );
+}
+
+void PanelWindow::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t id_base )
+{
+    namespace fs = std::filesystem;
+
+    try
+    {
+        CMenuHandle menu{ hMenu };
+
+        auto curIdx = id_base;
+
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Reload" );
+        menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Open component folder" );
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Open documentation" );
+        menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
+        if ( scriptSettings_.GetSourceType() == config::ScriptSourceType::SmpPackage )
+        {
+            const auto& package = scriptSettings_.GetSmpPackage();
+
+            ++curIdx;
+
+            const auto scriptFiles = package.GetScriptFiles();
+            const auto scriptsDir = package.GetScriptsDir();
+
+            CMenu cSubMenu;
+            cSubMenu.CreatePopupMenu();
+
+            auto scriptIdx = id_base + 100;
+            for ( const auto& file: scriptFiles )
+            {
+                const auto relativePath = [&] {
+                    if ( file.filename() == "main.js" )
+                    {
+                        return fs::path( "main.js" );
+                    }
+                    else
+                    {
+                        return fs::relative( file, scriptsDir );
+                    }
+                }();
+                cSubMenu.AppendMenu( MF_STRING, ++scriptIdx, relativePath.c_str() );
+            }
+
+            menu.AppendMenu( MF_STRING, cSubMenu, L"&Edit panel script" );
+            cSubMenu.Detach(); ///< AppendMenu takes ownership
+        }
+        else
+        {
+            menu.AppendMenu( MF_STRING, ++curIdx, L"&Edit panel script..." );
+        }
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Panel properties..." );
+        menu.AppendMenu( MF_STRING, ++curIdx, L"&Configure panel..." );
+    }
+    catch ( const fs::filesystem_error& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+    }
+}
+
+void PanelWindow::ExecuteContextMenu( uint32_t id, uint32_t id_base )
+{
+    try
+    {
+        switch ( id - id_base )
+        {
+        case 1:
+        {
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
+            break;
+        }
+        case 2:
+        {
+            ShellExecute( nullptr, L"open", qwr::path::Component().c_str(), nullptr, nullptr, SW_SHOW );
+            break;
+        }
+        case 3:
+        {
+            ShellExecute( nullptr, L"open", path::JsDocsIndex().c_str(), nullptr, nullptr, SW_SHOW );
+            break;
+        }
+        case 4:
+        {
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptEdit ), EventPriority::kControl );
+            break;
+        }
+        case 5:
+        {
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowProperties ), EventPriority::kControl );
+            break;
+        }
+        case 6:
+        {
+            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ), EventPriority::kControl );
+            break;
+        }
+        }
+
+        if ( id - id_base > 100 )
+        {
+            assert( scriptSettings_.GetSourceType() == config::ScriptSourceType::SmpPackage );
+
+            const auto& package = scriptSettings_.GetSmpPackage();
+
+            const auto scriptFiles = package.GetScriptFiles();
+            const auto fileIdx = std::min( id - id_base - 100, scriptFiles.size() ) - 1;
+
+            panel::EditPackageScript( wnd_, scriptFiles[fileIdx] );
+            ReloadScript();
+        }
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
+    }
+}
+
+void PanelWindow::SetCaptureMouseState( bool shouldCapture )
+{
+    if ( shouldCapture )
+    {
+        ::SetCapture( wnd_ );
+    }
+    else
+    {
+        ::ReleaseCapture();
+    }
+    isMouseCaptured_ = shouldCapture;
+}
+
+void PanelWindow::SetDragAndDropStatus( bool isEnabled )
+{
+    isDraggingInside_ = false;
+    hasInternalDrag_ = false;
+    lastDragParams_.reset();
+    if ( isEnabled )
+    {
+        if ( !dropTargetHandler_ )
+        {
+            dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( *this ) );
+
+            HRESULT hr = dropTargetHandler_->RegisterDragDrop();
+            qwr::error::CheckHR( hr, "RegisterDragDrop" );
+        }
+    }
+    else
+    {
+        if ( dropTargetHandler_ )
+        {
+            dropTargetHandler_->RevokeDragDrop();
+            dropTargetHandler_.Release();
+        }
+    }
+}
+
+bool PanelWindow::ReloadScriptSettings()
+{
+    try
+    {
+        scriptSettings_ = config::ResolvedPanelScriptSettings::ResolveSource( config_.scriptSource );
+        return true;
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        Fail( e.what() );
+        return false;
+    }
+}
+
+void PanelWindow::LoadScript( bool isFirstLoad )
+{
+    pfc::hires_timer timer;
+    timer.start();
+
+    hasFailed_ = false;
+    isPanelIdOverridenByScript_ = false;
+
+    try
+    {
+        SetDragAndDropStatus( scriptSettings_.ShouldEnableDragDrop() );
+    }
+    catch ( const qwr::QwrException& e )
+    {
+        smp::utils::LogWarning( e.what() );
+    }
+    DynamicMainMenuManager::Get().RegisterPanel( wnd_, config_.panelSettings.id );
+
+    const auto extstyle = [&]() {
+        DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
+        extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
+        extstyle |= ConvertEdgeStyleToNativeFlags( config_.panelSettings.edgeStyle );
+
+        return extstyle;
+    }();
+
+    wnd_.SetWindowLongPtr( GWL_EXSTYLE, extstyle );
+    wnd_.SetWindowPos( nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
+
+    maxSize_ = { INT_MAX, INT_MAX };
+    minSize_ = { 0, 0 };
+    wnd_.PostMessage( static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_all, 0 );
+
+    if ( !pJsContainer_->Initialize() )
+    { // error reporting handled inside
+        return;
+    }
+
+    pTimeoutManager_->SetLoadingStatus( true );
+
+    switch ( scriptSettings_.GetSourceType() )
+    {
+    case config::ScriptSourceType::InMemory:
+    {
+        modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
+        if ( !pJsContainer_->ExecuteScript( scriptSettings_.GetScript(), scriptSettings_.IsModuleScript() ) )
+        { // error reporting handled inside
+            return;
+        }
+        break;
+    }
+    case config::ScriptSourceType::SmpPackage:
+    case config::ScriptSourceType::ModulePackage:
+    case config::ScriptSourceType::Sample:
+    case config::ScriptSourceType::File:
+    {
+        if ( scriptSettings_.GetSourceType() == config::ScriptSourceType::SmpPackage )
+        {
+            config::MarkPackageAsInUse( scriptSettings_.GetSmpPackage().id );
+        }
+
+        modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
+        if ( !pJsContainer_->ExecuteScriptFile( scriptSettings_.GetScriptPath(), scriptSettings_.IsModuleScript() ) )
+        { // error reporting handled inside
+            return;
+        }
+        break;
+    }
+    }
+
+    pTimeoutManager_->SetLoadingStatus( false );
+
+    FB2K_console_formatter() << fmt::format(
+        SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",
+        GetPanelDescription(),
+        static_cast<uint32_t>( timer.query() * 1000 ) );
+
+    if ( !isFirstLoad )
+    { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
+        auto pEvent = std::make_unique<Event_Basic>( EventId::kWndResize );
+        pEvent->SetTarget( pTarget_ );
+        ProcessEventManually( *pEvent );
+    }
+}
+
+void PanelWindow::UnloadScript( bool force )
+{
+    if ( !pJsContainer_ )
+    { // possible during startup config load
+        return;
+    }
+
+    if ( !force )
+    { // should not go in JS again when forced to unload (e.g. in case of an error)
+        pJsContainer_->InvokeJsCallback( "on_script_unload" );
+    }
+
+    DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
+    pJsContainer_->Finalize();
+    pTimeoutManager_->StopAllTimeouts();
+
+    selectionHolder_.release();
+    try
+    {
+        SetDragAndDropStatus( false );
+    }
+    catch ( const qwr::QwrException& )
+    {
+    }
+}
+
+void PanelWindow::ReloadScript()
+{
+    if ( !pJsContainer_ )
+    { // Panel might be not loaded at all, if settings are changed from Preferences.
+        return;
+    }
+
+    UnloadScript();
+    if ( !ReloadScriptSettings() )
+    {
+        return;
+    }
+    LoadScript( false );
+}
+
+void PanelWindow::CreateDrawContext()
+{
+    DeleteDrawContext();
+
+    bmp_.CreateCompatibleBitmap( hDc_, width_, height_ );
+
+    if ( config_.panelSettings.isPseudoTransparent )
+    {
+        bmpBg_.CreateCompatibleBitmap( hDc_, width_, height_ );
+    }
+}
+
+void PanelWindow::DeleteDrawContext()
+{
+    if ( bmp_ )
+    {
+        bmp_.DeleteObject();
+    }
+
+    if ( bmpBg_ )
+    {
+        bmpBg_.DeleteObject();
+    }
 }
 
 void PanelWindow::OnProcessingEventStart()
@@ -1026,535 +1573,6 @@ std::optional<LRESULT> PanelWindow::ProcessInternalSyncMessage( InternalSyncMess
     }
 }
 
-void PanelWindow::EditScript()
-{
-    switch ( scriptSettings_.GetSourceType() )
-    {
-    case config::ScriptSourceType::InMemory:
-    {
-        try
-        {
-            panel::EditScript( wnd_, std::get<config::RawInMemoryScript>( config_.scriptSource ).script );
-        }
-        catch ( const qwr::QwrException& e )
-        {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
-        }
-        break;
-    }
-    case config::ScriptSourceType::File:
-    case config::ScriptSourceType::Sample:
-    {
-        try
-        {
-            panel::EditScriptFile( wnd_, scriptSettings_ );
-        }
-        catch ( const qwr::QwrException& e )
-        {
-            qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
-        }
-        break;
-    }
-    case config::ScriptSourceType::SmpPackage:
-    {
-        ShowConfigure( wnd_, ui::CDialogConf::Tab::package );
-        break;
-    }
-    default:
-    {
-        assert( false );
-        break;
-    }
-    }
-}
-
-void PanelWindow::ShowConfigure( HWND parent, ui::CDialogConf::Tab tab )
-{
-    if ( !modal_dialog_scope::can_create() )
-    {
-        return;
-    }
-
-    modal::ModalBlockingScope scope( parent, true );
-
-    ui::CDialogConf dlg( this, tab );
-    (void)dlg.DoModal( parent );
-}
-
-void PanelWindow::GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t id_base )
-{
-    namespace fs = std::filesystem;
-
-    try
-    {
-        CMenuHandle menu{ hMenu };
-
-        auto curIdx = id_base;
-
-        menu.AppendMenu( MF_STRING, ++curIdx, L"&Reload" );
-        menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
-        menu.AppendMenu( MF_STRING, ++curIdx, L"&Open component folder" );
-        menu.AppendMenu( MF_STRING, ++curIdx, L"&Open documentation" );
-        menu.AppendMenu( MF_SEPARATOR, UINT_PTR{}, LPCWSTR{} );
-        if ( scriptSettings_.GetSourceType() == config::ScriptSourceType::SmpPackage )
-        {
-            const auto& package = scriptSettings_.GetSmpPackage();
-
-            ++curIdx;
-
-            const auto scriptFiles = package.GetScriptFiles();
-            const auto scriptsDir = package.GetScriptsDir();
-
-            CMenu cSubMenu;
-            cSubMenu.CreatePopupMenu();
-
-            auto scriptIdx = id_base + 100;
-            for ( const auto& file: scriptFiles )
-            {
-                const auto relativePath = [&] {
-                    if ( file.filename() == "main.js" )
-                    {
-                        return fs::path( "main.js" );
-                    }
-                    else
-                    {
-                        return fs::relative( file, scriptsDir );
-                    }
-                }();
-                cSubMenu.AppendMenu( MF_STRING, ++scriptIdx, relativePath.c_str() );
-            }
-
-            menu.AppendMenu( MF_STRING, cSubMenu, L"&Edit panel script" );
-            cSubMenu.Detach(); ///< AppendMenu takes ownership
-        }
-        else
-        {
-            menu.AppendMenu( MF_STRING, ++curIdx, L"&Edit panel script..." );
-        }
-        menu.AppendMenu( MF_STRING, ++curIdx, L"&Panel properties..." );
-        menu.AppendMenu( MF_STRING, ++curIdx, L"&Configure panel..." );
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, qwr::unicode::ToU8_FromAcpToWide( e.what() ) );
-    }
-    catch ( const qwr::QwrException& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
-    }
-}
-
-void PanelWindow::ExecuteContextMenu( uint32_t id, uint32_t id_base )
-{
-    try
-    {
-        switch ( id - id_base )
-        {
-        case 1:
-        {
-            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptReload ), EventPriority::kControl );
-            break;
-        }
-        case 2:
-        {
-            ShellExecute( nullptr, L"open", qwr::path::Component().c_str(), nullptr, nullptr, SW_SHOW );
-            break;
-        }
-        case 3:
-        {
-            ShellExecute( nullptr, L"open", path::JsDocsIndex().c_str(), nullptr, nullptr, SW_SHOW );
-            break;
-        }
-        case 4:
-        {
-            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptEdit ), EventPriority::kControl );
-            break;
-        }
-        case 5:
-        {
-            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowProperties ), EventPriority::kControl );
-            break;
-        }
-        case 6:
-        {
-            EventDispatcher::Get().PutEvent( wnd_, std::make_unique<Event_Basic>( EventId::kScriptShowConfigure ), EventPriority::kControl );
-            break;
-        }
-        }
-
-        if ( id - id_base > 100 )
-        {
-            assert( scriptSettings_.GetSourceType() == config::ScriptSourceType::SmpPackage );
-
-            const auto& package = scriptSettings_.GetSmpPackage();
-
-            const auto scriptFiles = package.GetScriptFiles();
-            const auto fileIdx = std::min( id - id_base - 100, scriptFiles.size() ) - 1;
-
-            panel::EditPackageScript( wnd_, scriptFiles[fileIdx] );
-            ReloadScript();
-        }
-    }
-    catch ( const qwr::QwrException& e )
-    {
-        qwr::ReportErrorWithPopup( SMP_UNDERSCORE_NAME, e.what() );
-    }
-}
-
-qwr::u8string PanelWindow::GetPanelId()
-{
-    return config_.panelSettings.id;
-}
-
-qwr::u8string PanelWindow::GetPanelDescription( bool includeVersionAndAuthor )
-{
-    qwr::u8string ret = fmt::format( "{}", config_.panelSettings.id );
-
-    if ( const auto& scriptName = scriptSettings_.GetScriptName();
-         !scriptName.empty() )
-    {
-        ret += fmt::format( ": {}", scriptName );
-        if ( includeVersionAndAuthor )
-        {
-            if ( const auto& scriptVersion = scriptSettings_.GetScriptVersion();
-                 !scriptVersion.empty() )
-            {
-                ret += fmt::format( " v{}", scriptVersion );
-            }
-            if ( const auto& scriptAuthor = scriptSettings_.GetScriptAuthor();
-                 !scriptAuthor.empty() )
-            {
-                ret += fmt::format( " by {}", scriptAuthor );
-            }
-        }
-    }
-
-    return ret;
-}
-
-HDC PanelWindow::GetHDC() const
-{
-    return hDc_;
-}
-
-HWND PanelWindow::GetHWND() const
-{
-    return wnd_;
-}
-
-POINT& PanelWindow::MaxSize()
-{
-    return maxSize_;
-}
-
-POINT& PanelWindow::MinSize()
-{
-    return minSize_;
-}
-
-int PanelWindow::GetHeight() const
-{
-    return height_;
-}
-
-int PanelWindow::GetWidth() const
-{
-    return width_;
-}
-
-t_size& PanelWindow::DlgCode()
-{
-    return dlgCode_;
-}
-
-PanelType PanelWindow::GetPanelType() const
-{
-    return panelType_;
-}
-
-DWORD PanelWindow::GetColour( unsigned type, const GUID& guid )
-{
-    return impl_.GetColour( type, guid );
-}
-
-HFONT PanelWindow::GetFont( unsigned type, const GUID& guid )
-{
-    return impl_.GetFont( type, guid );
-}
-
-void PanelWindow::SetSettings_ScriptInfo( const qwr::u8string& scriptName, const qwr::u8string& scriptAuthor, const qwr::u8string& scriptVersion )
-{
-    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
-
-    auto& scriptRuntimeData = scriptSettings_.GetScriptRuntimeData();
-
-    scriptRuntimeData.name = scriptName;
-    scriptRuntimeData.author = scriptAuthor;
-    scriptRuntimeData.version = scriptVersion;
-}
-
-void PanelWindow::SetSettings_PanelName( const qwr::u8string& panelName )
-{
-    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
-
-    config_.panelSettings.id = panelName;
-    isPanelIdOverridenByScript_ = true;
-}
-
-void PanelWindow::SetSettings_DragAndDropStatus( bool isEnabled )
-{
-    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
-
-    auto& scriptRuntimeData = scriptSettings_.GetScriptRuntimeData();
-
-    scriptRuntimeData.enableDragDrop = isEnabled;
-
-    SetDragAndDropStatus( scriptRuntimeData.enableDragDrop );
-}
-
-void PanelWindow::SetSettings_CaptureFocusStatus( bool isEnabled )
-{
-    assert( scriptSettings_.GetSourceType() != config::ScriptSourceType::SmpPackage );
-
-    auto& scriptRuntimeData = scriptSettings_.GetScriptRuntimeData();
-
-    scriptRuntimeData.shouldGrabFocus = isEnabled;
-}
-
-void PanelWindow::ResetLastDragParams()
-{
-    lastDragParams_.reset();
-}
-
-const std::optional<DragActionParams>& PanelWindow::GetLastDragParams() const
-{
-    return lastDragParams_;
-}
-
-bool PanelWindow::HasInternalDrag() const
-{
-    return hasInternalDrag_;
-}
-
-void PanelWindow::Repaint( bool force )
-{
-    if ( !force && !hRepaintTimer_ )
-    { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
-        hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
-    }
-    wnd_.RedrawWindow( nullptr, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
-}
-
-void PanelWindow::RepaintRect( const CRect& rc, bool force )
-{
-    if ( !force && !hRepaintTimer_ )
-    { // paint message might be stalled if the message queue is not empty, we circumvent this via WM_TIMER
-        hRepaintTimer_ = SetTimer( wnd_, NULL, USER_TIMER_MINIMUM, nullptr );
-    }
-    wnd_.RedrawWindow( &rc, nullptr, RDW_INVALIDATE | ( force ? RDW_UPDATENOW : 0 ) );
-}
-
-void PanelWindow::RepaintBackground( const CRect& updateRc )
-{
-    CWindow wnd_parent = GetAncestor( wnd_, GA_PARENT );
-
-    if ( !wnd_parent || IsIconic( core_api::get_main_window() ) || !wnd_.IsWindowVisible() )
-    {
-        return;
-    }
-
-    // HACK: for Tab control
-    // Find siblings
-    HWND hwnd = nullptr;
-    while ( ( hwnd = FindWindowEx( wnd_parent, hwnd, nullptr, nullptr ) ) )
-    {
-        if ( hwnd == wnd_ )
-        {
-            continue;
-        }
-        std::array<wchar_t, 64> buff;
-        GetClassName( hwnd, buff.data(), buff.size() );
-        if ( wcsstr( buff.data(), L"SysTabControl32" ) )
-        {
-            wnd_parent = hwnd;
-            break;
-        }
-    }
-
-    CRect rc_child{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
-    CRgn rgn_child{ ::CreateRectRgnIndirect( &rc_child ) };
-    {
-        CRgn rgn{ ::CreateRectRgnIndirect( &updateRc ) };
-        rgn_child.CombineRgn( rgn, RGN_DIFF );
-    }
-
-    CPoint pt{ 0, 0 };
-    wnd_.ClientToScreen( &pt );
-    wnd_parent.ScreenToClient( &pt );
-
-    CRect rc_parent{ rc_child };
-    wnd_.ClientToScreen( &rc_parent );
-    wnd_parent.ScreenToClient( &rc_parent );
-
-    // Force Repaint
-    wnd_.SetWindowRgn( rgn_child, FALSE );
-    wnd_parent.RedrawWindow( &rc_parent, nullptr, RDW_INVALIDATE | RDW_ERASE | RDW_ERASENOW | RDW_UPDATENOW );
-
-    {
-        // Background bitmap
-        CClientDC dc_parent{ wnd_parent };
-        CDC dc_bg{ ::CreateCompatibleDC( dc_parent ) };
-        gdi::ObjectSelector autoBmp( dc_bg, bmpBg_.m_hBitmap );
-
-        // Paint BK
-        dc_bg.BitBlt( rc_child.left, rc_child.top, rc_child.Width(), rc_child.Height(), dc_parent, pt.x, pt.y, SRCCOPY );
-    }
-
-    wnd_.SetWindowRgn( nullptr, FALSE );
-    if ( smp::config::EdgeStyle::NoEdge != config_.panelSettings.edgeStyle )
-    {
-        wnd_.SendMessage( WM_NCPAINT, 1, 0 );
-    }
-}
-
-bool PanelWindow::LoadScript( bool isFirstLoad )
-{
-    pfc::hires_timer timer;
-    timer.start();
-
-    hasFailed_ = false;
-    isPanelIdOverridenByScript_ = false;
-
-    try
-    {
-        SetDragAndDropStatus( scriptSettings_.ShouldEnableDragDrop() );
-    }
-    catch ( const qwr::QwrException& e )
-    {
-        smp::utils::LogWarning( e.what() );
-    }
-    DynamicMainMenuManager::Get().RegisterPanel( wnd_, config_.panelSettings.id );
-
-    const auto extstyle = [&]() {
-        DWORD extstyle = wnd_.GetWindowLongPtr( GWL_EXSTYLE );
-        extstyle &= ~WS_EX_CLIENTEDGE & ~WS_EX_STATICEDGE;
-        extstyle |= ConvertEdgeStyleToNativeFlags( config_.panelSettings.edgeStyle );
-
-        return extstyle;
-    }();
-
-    wnd_.SetWindowLongPtr( GWL_EXSTYLE, extstyle );
-    wnd_.SetWindowPos( nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED );
-
-    maxSize_ = { INT_MAX, INT_MAX };
-    minSize_ = { 0, 0 };
-    wnd_.PostMessage( static_cast<UINT>( MiscMessage::size_limit_changed ), uie::size_limit_all, 0 );
-
-    if ( !pJsContainer_->Initialize() )
-    { // error reporting handled inside
-        return false;
-    }
-
-    pTimeoutManager_->SetLoadingStatus( true );
-
-    switch ( scriptSettings_.GetSourceType() )
-    {
-    case config::ScriptSourceType::InMemory:
-    {
-        modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
-        if ( !pJsContainer_->ExecuteScript( scriptSettings_.GetScript(), scriptSettings_.IsModuleScript() ) )
-        { // error reporting handled inside
-            return false;
-        }
-        break;
-    }
-    case config::ScriptSourceType::SmpPackage:
-    case config::ScriptSourceType::ModulePackage:
-    case config::ScriptSourceType::Sample:
-    case config::ScriptSourceType::File:
-    {
-        if ( scriptSettings_.GetSourceType() == config::ScriptSourceType::SmpPackage )
-        {
-            config::MarkPackageAsInUse( scriptSettings_.GetSmpPackage().id );
-        }
-
-        modal::WhitelistedScope scope; // Initial script execution must always be whitelisted
-        if ( !pJsContainer_->ExecuteScriptFile( scriptSettings_.GetScriptPath(), scriptSettings_.IsModuleScript() ) )
-        { // error reporting handled inside
-            return false;
-        }
-        break;
-    }
-    }
-
-    pTimeoutManager_->SetLoadingStatus( false );
-
-    FB2K_console_formatter() << fmt::format(
-        SMP_NAME_WITH_VERSION " ({}): initialized in {} ms",
-        GetPanelDescription(),
-        static_cast<uint32_t>( timer.query() * 1000 ) );
-
-    if ( !isFirstLoad )
-    { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
-        auto pEvent = std::make_unique<Event_Basic>( EventId::kWndResize );
-        pEvent->SetTarget( pTarget_ );
-        ProcessEventManually( *pEvent );
-    }
-
-    return true;
-}
-
-void PanelWindow::UnloadScript( bool force )
-{
-    if ( !pJsContainer_ )
-    { // possible during startup config load
-        return;
-    }
-
-    if ( !force )
-    { // should not go in JS again when forced to unload (e.g. in case of an error)
-        pJsContainer_->InvokeJsCallback( "on_script_unload" );
-    }
-
-    DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
-    pJsContainer_->Finalize();
-    pTimeoutManager_->StopAllTimeouts();
-
-    selectionHolder_.release();
-    try
-    {
-        SetDragAndDropStatus( false );
-    }
-    catch ( const qwr::QwrException& )
-    {
-    }
-}
-
-void PanelWindow::CreateDrawContext()
-{
-    DeleteDrawContext();
-
-    bmp_.CreateCompatibleBitmap( hDc_, width_, height_ );
-
-    if ( config_.panelSettings.isPseudoTransparent )
-    {
-        bmpBg_.CreateCompatibleBitmap( hDc_, width_, height_ );
-    }
-}
-
-void PanelWindow::DeleteDrawContext()
-{
-    if ( bmp_ )
-    {
-        bmp_.DeleteObject();
-    }
-
-    if ( bmpBg_ )
-    {
-        bmpBg_.DeleteObject();
-    }
-}
-
 void PanelWindow::OnContextMenu( int x, int y )
 {
     if ( modal::IsModalBlocked() )
@@ -1594,6 +1612,10 @@ void PanelWindow::OnCreate( HWND hWnd )
     pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
     pTimeoutManager_ = std::make_unique<TimeoutManager>( pTarget_ );
 
+    if ( !ReloadScriptSettings() )
+    { // this might happen when script source fails to resolve
+        return;
+    }
     LoadScript( true );
 }
 
@@ -1740,44 +1762,6 @@ void PanelWindow::OnSizeUser( uint32_t w, uint32_t h )
     else
     {
         Repaint();
-    }
-}
-
-void PanelWindow::SetCaptureMouseState( bool shouldCapture )
-{
-    if ( shouldCapture )
-    {
-        ::SetCapture( wnd_ );
-    }
-    else
-    {
-        ::ReleaseCapture();
-    }
-    isMouseCaptured_ = shouldCapture;
-}
-
-void PanelWindow::SetDragAndDropStatus( bool isEnabled )
-{
-    isDraggingInside_ = false;
-    hasInternalDrag_ = false;
-    lastDragParams_.reset();
-    if ( isEnabled )
-    {
-        if ( !dropTargetHandler_ )
-        {
-            dropTargetHandler_.Attach( new com::ComPtrImpl<com::TrackDropTarget>( *this ) );
-
-            HRESULT hr = dropTargetHandler_->RegisterDragDrop();
-            qwr::error::CheckHR( hr, "RegisterDragDrop" );
-        }
-    }
-    else
-    {
-        if ( dropTargetHandler_ )
-        {
-            dropTargetHandler_->RevokeDragDrop();
-            dropTargetHandler_.Release();
-        }
     }
 }
 
