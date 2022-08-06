@@ -92,6 +92,7 @@ private:
     void OnCommitPanelName( UINT uNotifyCode, int nID, CWindow wndCtl );
     LRESULT OnHelp( WORD wNotifyCode, WORD wID, HWND hWndCtl );
 
+    bool IsPanelNameControlsEnabled() const;
     void DisablePanelNameControls();
 
     void DoFullDdxToUi();

@@ -92,15 +92,19 @@ void CDialogConf::Apply()
         return;
     }
 
-    oldConfig_ = localConfig_;
+    if ( IsPanelNameControlsEnabled() )
+    {
+        OnCommitPanelName( {}, {}, {} );
+    }
 
     for ( auto& pTab: tabs_ )
     {
         pTab->Apply();
     }
 
+    oldConfig_ = localConfig_;
+
     OnDataChangedImpl( false );
-    DisablePanelNameControls();
 
     pParent_->UpdateConfig( oldConfig_ );
 
@@ -328,6 +332,12 @@ LRESULT CDialogConf::OnHelp( WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*
 {
     ShellExecute( nullptr, L"open", path::JsDocsIndex().c_str(), nullptr, nullptr, SW_SHOW );
     return 0;
+}
+
+bool CDialogConf::IsPanelNameControlsEnabled() const
+{
+    CButton edit{ GetDlgItem( IDC_EDIT_PANEL_NAME ) };
+    return !( edit.GetExStyle() & ES_READONLY );
 }
 
 void CDialogConf::DisablePanelNameControls()
