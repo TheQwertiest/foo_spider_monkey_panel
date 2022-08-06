@@ -119,7 +119,6 @@ auto FindSuitableFileForImport( const qwr::u8string& rawModuleSpecifier, const f
             const auto fullPath = [&] {
                 if ( isAbsolutePath )
                 {
-
                     return fs::u8path( moduleSpecifier.substr( std::size( kFilePrefix ) - 1 ) );
                 }
                 else

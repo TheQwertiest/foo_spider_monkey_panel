@@ -151,7 +151,6 @@ PanelConfig LoadConfig( stream_reader& reader, abort_callback& abort )
 
     try
     {
-
         const auto jsonMain = json::parse( qwr::pfc_x::ReadString( reader, abort ) );
         if ( !jsonMain.is_object() )
         {
