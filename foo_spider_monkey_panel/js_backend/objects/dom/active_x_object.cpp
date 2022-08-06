@@ -969,6 +969,8 @@ void JsActiveXObject::ParseTypeInfo( ITypeInfo* pTypeInfo, MemberMap& members )
             {
                 auto [it, bRet] = members.try_emplace( name.GetBSTR(), std::make_unique<MemberInfo>() );
                 auto pProp = it->second.get();
+#pragma warning( push )
+#pragma warning( disable : 26813 ) // Use 'bitwise and' to check if a flag is set
                 if ( INVOKE_PROPERTYPUT == funcdesc->invkind )
                 {
                     pProp->isPut = true;
@@ -985,6 +987,7 @@ void JsActiveXObject::ParseTypeInfo( ITypeInfo* pTypeInfo, MemberMap& members )
                 {
                     pProp->isInvoke = true;
                 }
+#pragma warning( pop )
             }
         }
         pTypeInfo->ReleaseFuncDesc( funcdesc );

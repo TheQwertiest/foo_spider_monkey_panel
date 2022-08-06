@@ -22,7 +22,7 @@ TimerManager_Native::TimerManager_Native()
 
 void TimerManager_Native::Finalize()
 {
-    DeleteTimerQueueEx( hTimerQueue_, INVALID_HANDLE_VALUE );
+    (void)DeleteTimerQueueEx( hTimerQueue_, INVALID_HANDLE_VALUE );
 }
 
 TimerManager_Native& TimerManager_Native::Get()
