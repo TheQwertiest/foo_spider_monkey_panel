@@ -40,7 +40,7 @@ void PanelConfig::ResetToDefault()
     }();
 
     RawInMemoryScript source;
-    source.isModule = true;
+    source.isModule = false;
     source.script = GetDefaultScript();
     scriptSource = { std::move( source ) };
 }
