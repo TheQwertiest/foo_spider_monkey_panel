@@ -4,7 +4,7 @@
 
 #include "timeout_executor.h"
 
-#include <events/event_dispatcher.h>
+#include <events/dispatcher/event_dispatcher.h>
 #include <fb2k/advanced_config.h>
 #include <panel/panel_window.h>
 #include <timeout/timeout_manager.h>

@@ -3,7 +3,7 @@
 #include "track_drop_target.h"
 
 #include <com_objects/internal/drag_utils.h>
-#include <events/event_dispatcher.h>
+#include <events/dispatcher/event_dispatcher.h>
 #include <events/event_drag.h>
 #include <js_backend/engine/js_container.h>
 #include <js_backend/objects/core/global_object.h>

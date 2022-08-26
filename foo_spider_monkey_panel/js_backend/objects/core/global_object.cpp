@@ -17,6 +17,7 @@
 #include <js_backend/objects/fb2k/fb_profiler.h>
 #include <js_backend/objects/fb2k/fb_title_format.h>
 #include <js_backend/objects/fb2k/fb_utils.h>
+#include <js_backend/objects/fb2k/playback_control.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/objects/gdi/gdi_font.h>
 #include <js_backend/objects/gdi/gdi_utils.h>
@@ -113,16 +114,18 @@ constexpr JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL( IncludeScript, "include", JsGlobalObject::IncludeScript, JsGlobalObject::IncludeScriptWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( internalModuleLoad, JsGlobalObject::InternalLazyLoad )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL( includeScript, "include", JsGlobalObject::IncludeScript, JsGlobalObject::IncludeScriptWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE( clearInterval, JsGlobalObject::ClearInterval )
 MJS_DEFINE_JS_FN_FROM_NATIVE( clearTimeout, JsGlobalObject::ClearTimeout )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setInterval, JsGlobalObject::SetInterval, JsGlobalObject::SetIntervalWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>( {
+    JS_FN( "_internalModuleLoad", internalModuleLoad, 1, kDefaultPropsFlags ),
     JS_FN( "clearInterval", clearInterval, 1, kDefaultPropsFlags ),
     JS_FN( "clearTimeout", clearTimeout, 1, kDefaultPropsFlags ),
-    JS_FN( "include", IncludeScript, 1, kDefaultPropsFlags ),
+    JS_FN( "include", includeScript, 1, kDefaultPropsFlags ),
     JS_FN( "setInterval", setInterval, 2, kDefaultPropsFlags ),
     JS_FN( "setTimeout", setTimeout, 2, kDefaultPropsFlags ),
     JS_FS_END,
@@ -171,10 +174,8 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
 
         DefineConsole( cx, jsObj );
 
-#ifdef SMP_V2
         utils::CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::Event );
         utils::CreateAndInstallPrototype<JsEventTarget>( cx, JsPrototypeId::EventTarget );
-#endif
 
         CreateAndInstallObject<JsGdiUtils>( cx, jsObj, "gdi" );
         CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" );
@@ -249,6 +250,16 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
         pNativeGlobal->heapManager_->PrepareForGc();
         pNativeGlobal->heapManager_.reset();
     }
+
+    {
+        auto& loadedNativeObject = std::get<LoadedNativeObject<PlaybackControl>>( pNativeGlobal->loadedNativeObjects_ );
+        if ( loadedNativeObject.pNative )
+        {
+            loadedNativeObject.pNative->PrepareForGc();
+        }
+    }
+
+    pNativeGlobal->loadedObjects_.clear();
 }
 
 ScriptLoader& JsGlobalObject::GetScriptLoader()
@@ -260,6 +271,52 @@ HWND JsGlobalObject::GetPanelHwnd() const
 {
     assert( pJsWindow_ );
     return pJsWindow_->GetHwnd();
+}
+
+void JsGlobalObject::HandleEvent( smp::EventBase& event )
+{
+    const auto invokeEventHandler = [&, eventId = event.GetId()]( auto& loadedNativeObject ) {
+        using T = std::decay_t<decltype( loadedNativeObject )>::NativeT;
+        if ( T::kHandledEvents.contains( eventId ) && loadedNativeObject.pNative )
+        {
+            JS::RootedObject jsLoadedObject( pJsCtx_, *loadedObjects_.at( loadedNativeObject.moduleId ).get() );
+            loadedNativeObject.pNative->HandleEvent( jsLoadedObject, event );
+        }
+    };
+
+    std::apply( [&]( auto&... args ) { ( invokeEventHandler( args ), ... ); }, loadedNativeObjects_ );
+}
+
+JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
+{
+    qwr::QwrException::ExpectTrue( moduleIdRaw < static_cast<uint8_t>( BuiltinModuleId::kCount ), "Internal error: unknown module id" );
+
+    const BuiltinModuleId moduleId{ moduleIdRaw };
+    if ( !loadedObjects_.contains( moduleId ) )
+    {
+        const auto initializeLoadedObject = [&]<typename T>( auto moduleId ) {
+            auto pNative = T::CreateNative( pJsCtx_ );
+            std::get<LoadedNativeObject<T>>( loadedNativeObjects_ ) = { pNative.get(), moduleId };
+            return JsObjectBase<T>::CreateJsFromNative( pJsCtx_, std::move( pNative ) );
+        };
+
+        JS::RootedObject jsObject( pJsCtx_, [&]() -> JSObject* {
+            switch ( moduleId )
+            {
+            case mozjs::BuiltinModuleId::kFbPlaybackControl:
+            {
+                return initializeLoadedObject.template operator()<PlaybackControl>( moduleId );
+            }
+            default:
+                assert( false );
+                return nullptr;
+            }
+        }() );
+
+        loadedObjects_.try_emplace( moduleId, std::make_unique<JS::Heap<JSObject*>>( jsObject ) );
+    }
+
+    return *loadedObjects_.at( moduleId ).get();
 }
 
 void JsGlobalObject::ClearInterval( uint32_t intervalId )
@@ -341,6 +398,11 @@ void JsGlobalObject::Trace( JSTracer* trc, JSObject* obj )
     if ( pNative->heapManager_ )
     {
         pNative->heapManager_->Trace( trc );
+    }
+
+    for ( const auto& jsLoadedObject: pNative->loadedObjects_ | ranges::views::values )
+    {
+        JS::TraceEdge( trc, jsLoadedObject.get(), "CustomHeap: loaded module objects" );
     }
 
     pNative->scriptLoader_.Trace( trc );

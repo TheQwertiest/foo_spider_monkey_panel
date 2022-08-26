@@ -176,7 +176,8 @@ bool JsContainer::ExecuteScript( const qwr::u8string& scriptCode, bool isModule 
         qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
         assert( pNativeGlobal_ );
-        pNativeGlobal_->GetScriptLoader().ExecuteTopLevelScript( scriptCode, isModule );
+        // TODO: fix
+        pNativeGlobal_->GetScriptLoader().ExecuteTopLevelScript( scriptCode, true );
 
         return true;
     }
@@ -321,6 +322,22 @@ bool JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
     return jsTask.InvokeJs();
+}
+
+void JsContainer::InvokeJsEvent( smp::EventBase& event )
+{
+    if ( !IsReadyForCallback() )
+    {
+        return;
+    }
+
+    auto selfSaver = shared_from_this();
+    JsAutoRealmWithErrorReport autoScope( pJsCtx_, jsGlobal_ );
+
+    OnJsActionStart();
+    qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
+
+    pNativeGlobal_->HandleEvent( event );
 }
 
 void JsContainer::SetJsCtx( JSContext* cx )

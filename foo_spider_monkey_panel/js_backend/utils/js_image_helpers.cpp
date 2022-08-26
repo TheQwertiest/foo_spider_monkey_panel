@@ -3,7 +3,7 @@
 #include "js_art_helpers.h"
 
 #include <convert/native_to_js.h>
-#include <events/event_dispatcher.h>
+#include <events/dispatcher/event_dispatcher.h>
 #include <events/event_js_task.h>
 #include <js_backend/objects/core/global_heap_manager.h>
 #include <js_backend/objects/core/global_object.h>

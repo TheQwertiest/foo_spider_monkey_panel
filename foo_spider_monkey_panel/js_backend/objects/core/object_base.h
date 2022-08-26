@@ -1,7 +1,6 @@
 #pragma once
 
 #include <js_backend/engine/js_realm_inner.h>
-#include <js_backend/objects/core/object_traits.h>
 #include <js_backend/utils/js_object_helper.h>
 #include <js_backend/utils/js_prototype_helpers.h>
 
@@ -51,7 +50,7 @@ namespace mozjs
     // TODO
     static constexpr bool HasBaseProto;
     static constexpr bool IsExtendable;
-    using ParentJsType;
+    using BaseJsType;
 */
 
 /*
@@ -83,6 +82,7 @@ namespace mozjs
     const JsPrototypeId PrototypeId;
 
     // TODO
+    const JsPrototypeId BasePrototypeId;
     const JsPrototypeId ParentPrototypeId;
 
     // Pointer to the object's JS constructor
@@ -121,6 +121,7 @@ class JsObjectBase
     using Self = JsObjectBase<T>;
 
 public:
+    // TODO: add check for `trace` and `PrepareForGc` when inherited
     JsObjectBase() = default;
     JsObjectBase( const JsObjectBase& ) = delete;
     JsObjectBase& operator=( const JsObjectBase& ) = delete;
@@ -137,7 +138,7 @@ public:
             throw smp::JsException();
         }
 
-        if constexpr ( traits::HasJsFunctions<T> )
+        if constexpr ( Self::Trait_HasJsFunctions() )
         {
             if ( !JS_DefineFunctions( cx, jsObject, T::JsFunctions ) )
             {
@@ -145,7 +146,7 @@ public:
             }
         }
 
-        if constexpr ( traits::HasJsProperties<T> )
+        if constexpr ( Self::Trait_HasJsProperties() )
         {
             if ( !JS_DefineProperties( cx, jsObject, T::JsProperties ) )
             {
@@ -159,7 +160,7 @@ public:
     [[nodiscard]] static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
     {
         const JSFunctionSpec* staticFns = [] {
-            if constexpr ( traits::HasJsStaticFunctions<T> )
+            if constexpr ( Self::Trait_HasJsStaticFunctions() )
             {
                 return T::JsStaticFunctions;
             }
@@ -266,7 +267,7 @@ private:
             jsUnwrappedObject = js::UncheckedUnwrap( jsObject );
         }
 
-        if constexpr ( traits::HasProxy<T> )
+        if constexpr ( Self::Trait_HasProxy() )
         {
             if ( js::IsProxy( jsUnwrappedObject ) && js::GetProxyHandler( jsUnwrappedObject )->family() == GetSmpProxyFamily() )
             {
@@ -280,7 +281,7 @@ private:
 
     [[nodiscard]] static T* ExtractNativeFuzzy( JSContext* cx, JS::HandleObject jsObject )
     {
-        if constexpr ( mozjs::traits::HasParentProto<T> || mozjs::traits::IsExtendable<T> )
+        if constexpr ( Self::Trait_IsExtendable() )
         {
             JS::RootedValue jsValue( cx );
             jsValue.setObject( *jsObject );
@@ -309,10 +310,10 @@ private:
 
     [[nodiscard]] static T* ExtractNativeFromVoid( void* pVoid )
     {
-        if constexpr ( mozjs::traits::HasParentProto<T> )
+        if constexpr ( Self::Trait_HasParentProto() )
         {
             // TODO: add a proper check instead of naive static_cast
-            return static_cast<T*>( static_cast<T::ParentJsType*>( pVoid ) );
+            return static_cast<T*>( static_cast<T::BaseJsType*>( pVoid ) );
         }
         else
         {
@@ -344,7 +345,7 @@ private:
 
     [[nodiscard]] static JSObject* GetParentProto( JSContext* cx )
     {
-        if constexpr ( traits::HasParentProto<T> )
+        if constexpr ( Self::Trait_HasParentProto() )
         {
             auto jsProto = utils::GetPrototype( cx, T::ParentPrototypeId );
             assert( jsProto );
@@ -380,21 +381,21 @@ private:
         assert( pJsRealm );
         pJsRealm->OnHeapAllocate( premadeNative->Self::nativeObjectSize_ );
 
-        if constexpr ( traits::HasParentProto<T> )
+        if constexpr ( Self::Trait_HasParentProto() )
         {
-            JS::SetPrivate( jsBaseObject, static_cast<T::ParentJsType*>( premadeNative.release() ) );
+            JS::SetPrivate( jsBaseObject, static_cast<T::BaseJsType*>( premadeNative.release() ) );
         }
         else
         {
             JS::SetPrivate( jsBaseObject, premadeNative.release() );
         }
 
-        if constexpr ( traits::HasPostCreate<T> )
+        if constexpr ( Self::Trait_HasPostCreate() )
         {
             T::PostCreate( cx, jsBaseObject );
         }
 
-        if constexpr ( traits::HasProxy<T> )
+        if constexpr ( Self::Trait_HasProxy() )
         {
             JS::RootedValue jsBaseValue( cx, JS::ObjectValue( *jsBaseObject ) );
             JS::RootedObject jsProxyObject( cx, js::NewProxyObject( cx, &T::JsProxy, jsBaseValue, jsProto ) );
@@ -407,6 +408,106 @@ private:
         else
         {
             return jsBaseObject;
+        }
+    }
+
+private: // traits
+    static constexpr bool Trait_HasPostCreate()
+    {
+        if constexpr ( requires { T::HasPostCreate; } )
+        {
+            return T::HasPostCreate;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    static constexpr bool Trait_HasProxy()
+    {
+        if constexpr ( requires { T::HasProxy; } )
+        {
+            return T::HasProxy;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    static constexpr bool Trait_HasParentProto()
+    {
+        if constexpr ( requires { T::HasParentProto; } )
+        {
+            return T::HasParentProto;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    static constexpr bool Trait_IsExtendable()
+    {
+        if constexpr ( requires { T::IsExtendable; } )
+        {
+            return T::IsExtendable;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    static constexpr bool Trait_HasJsFunctions()
+    {
+        if constexpr ( requires( T t ) {
+                           {
+                               t.JsFunctions
+                               }
+                               -> std::same_as<const JSFunctionSpec*&>;
+                       } )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    static constexpr bool Trait_HasJsStaticFunctions()
+    {
+        if constexpr ( requires( T t ) {
+                           {
+                               t.JsStaticFunctions
+                               }
+                               -> std::same_as<const JSFunctionSpec*&>;
+                       } )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    static constexpr bool Trait_HasJsProperties()
+    {
+        if constexpr ( requires( T t ) {
+                           {
+                               t.JsProperties
+                               }
+                               -> std::same_as<const JSPropertySpec*&>;
+                       } )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
         }
     }
 

@@ -2,7 +2,7 @@
 
 #include "event_dispatcher.h"
 
-#include <events/task_controller.h>
+#include <events/dispatcher/task_controller.h>
 #include <panel/user_message.h>
 
 #include <qwr/final_action.h>

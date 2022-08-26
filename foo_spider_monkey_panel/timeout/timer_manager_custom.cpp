@@ -4,7 +4,7 @@
 
 #include "timer_manager_custom.h"
 
-#include <events/event_dispatcher.h>
+#include <events/dispatcher/event_dispatcher.h>
 #include <events/event_timer.h>
 #include <panel/panel_window.h>
 #include <timeout/timer_custom.h>

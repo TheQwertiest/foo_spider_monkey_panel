@@ -40,5 +40,4 @@
 
 #ifdef _DEBUG
 #    define SMP_ENABLE_CXX_STACKTRACE
-//#    define SMP_V2
 #endif

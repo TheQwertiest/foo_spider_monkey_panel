@@ -1,5 +1,7 @@
 #pragma once
 
+#include <js_backend/objects/core/builtin_modules.h>
+
 #include <js/TypeDecls.h>
 
 #include <filesystem>
@@ -48,6 +50,7 @@ public:
 
 private:
     JSObject* GetCompiledModule( const std::filesystem::path& scriptPath );
+    JSObject* GetCompiledInternalModule( BuiltinModuleId moduleId );
     JSScript* GetCompiledScript( const std::filesystem::path& scriptPath );
 
 private:

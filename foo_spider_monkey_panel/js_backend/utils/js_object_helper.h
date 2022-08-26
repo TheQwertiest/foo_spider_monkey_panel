@@ -1,6 +1,5 @@
 #pragma once
 
-#include <js_backend/objects/core/object_traits.h>
 #include <js_backend/utils/js_prototype_helpers.h>
 
 class JSFreeOp;

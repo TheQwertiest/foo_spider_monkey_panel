@@ -5,8 +5,8 @@
 #include <com_objects/track_drop_target.h>
 #include <com_utils/com_destruction_handler.h>
 #include <config/smp_package/delayed_package_actions.h>
+#include <events/dispatcher/event_dispatcher.h>
 #include <events/event_basic.h>
-#include <events/event_dispatcher.h>
 #include <events/event_drag.h>
 #include <events/event_js_callback.h>
 #include <events/event_mouse.h>

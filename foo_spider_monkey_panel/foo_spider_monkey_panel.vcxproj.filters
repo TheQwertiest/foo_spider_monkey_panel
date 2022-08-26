@@ -199,13 +199,7 @@
     <ClCompile Include="events\event_js_task.cpp">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="events\event_dispatcher.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
     <ClCompile Include="events\event_mouse.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="events\task_controller.cpp">
       <Filter>events</Filter>
     </ClCompile>
     <ClCompile Include="events\event_basic.cpp">
@@ -457,6 +451,30 @@
     <ClCompile Include="config\raw_panel_script_source.cpp">
       <Filter>config</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\playback_control.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\core\builtin_modules.cpp">
+      <Filter>js_backend\objects\core</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\callbacks\playback.cpp">
+      <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="events\js_callback_event.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\playback_stop_event.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="events\playback_stop_event.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="events\dispatcher\task_controller.cpp">
+      <Filter>events\dispatcher</Filter>
+    </ClCompile>
+    <ClCompile Include="events\dispatcher\event_dispatcher.cpp">
+      <Filter>events\dispatcher</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -682,16 +700,10 @@
     <ClInclude Include="events\event_js_task.h">
       <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="events\event_dispatcher.h">
-      <Filter>events</Filter>
-    </ClInclude>
     <ClInclude Include="events\event_mouse.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\event_js_executor.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\task_controller.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\event.h">
@@ -898,9 +910,6 @@
     <ClInclude Include="js_backend\objects\core\object_base.h">
       <Filter>js_backend\objects\core</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\core\object_traits.h">
-      <Filter>js_backend\objects\core</Filter>
-    </ClInclude>
     <ClInclude Include="js_backend\objects\core\prototype_ids.h">
       <Filter>js_backend\objects\core</Filter>
     </ClInclude>
@@ -996,6 +1005,27 @@
     </ClInclude>
     <ClInclude Include="config\script_source_types.h">
       <Filter>config</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\playback_control.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\core\builtin_modules.h">
+      <Filter>js_backend\objects\core</Filter>
+    </ClInclude>
+    <ClInclude Include="events\js_callback_event.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\playback_stop_event.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="events\playback_stop_event.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\dispatcher\task_controller.h">
+      <Filter>events\dispatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="events\dispatcher\event_dispatcher.h">
+      <Filter>events\dispatcher</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1094,6 +1124,12 @@
     </Filter>
     <Filter Include="config\serializers">
       <UniqueIdentifier>{da27ab9e-44b3-4fab-8230-3cb4bfca7235}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="fb2k\callbacks">
+      <UniqueIdentifier>{edff2f01-3971-4525-9ba7-3276f225ba74}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="events\dispatcher">
+      <UniqueIdentifier>{50e469ca-a931-4ca4-9a43-aa29a01bb2dd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -7,13 +7,17 @@
 #include <filesystem>
 #include <optional>
 
-class HostTimerTask;
+namespace smp
+{
+class EventBase;
 
-namespace smp::panel
+namespace panel
 {
 class PanelWindow;
 struct DragActionParams;
-} // namespace smp::panel
+} // namespace panel
+
+} // namespace smp
 
 namespace mozjs
 {
@@ -84,6 +88,8 @@ public:
     void InvokeOnNotify( const std::wstring& name, JS::HandleValue info );
     void InvokeOnPaint( Gdiplus::Graphics& gr );
     bool InvokeJsAsyncTask( JsAsyncTask& jsTask );
+
+    void InvokeJsEvent( smp::EventBase& event );
 
 private:
     void SetJsCtx( JSContext* cx );

@@ -2,7 +2,7 @@
 
 #include "art_helpers.h"
 
-#include <events/event_dispatcher.h>
+#include <events/dispatcher/event_dispatcher.h>
 #include <events/event_js_callback.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>

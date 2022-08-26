@@ -2,8 +2,8 @@
 
 #include "window.h"
 
+#include <events/dispatcher/event_dispatcher.h>
 #include <events/event_basic.h>
-#include <events/event_dispatcher.h>
 #include <events/event_notify_others.h>
 #include <js_backend/engine/js_engine.h>
 #include <js_backend/engine/js_to_native_invoker.h>
@@ -227,6 +227,7 @@ const JSClass JsWindow::JsClass = jsClass;
 const JSFunctionSpec* JsWindow::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsWindow::JsProperties = jsProperties.data();
 
+const JsPrototypeId JsWindow::BasePrototypeId = JsPrototypeId::EventTarget;
 const JsPrototypeId JsWindow::ParentPrototypeId = JsPrototypeId::EventTarget;
 
 JsWindow::~JsWindow()
@@ -234,12 +235,8 @@ JsWindow::~JsWindow()
 }
 
 JsWindow::JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties )
-    :
-#ifdef SMP_V2
-    JsEventTarget( cx )
-    ,
-#endif
-    pJsCtx_( cx )
+    : JsEventTarget( cx )
+    , pJsCtx_( cx )
     , parentPanel_( parentPanel )
     , fbProperties_( std::move( fbProperties ) )
 {
@@ -264,21 +261,22 @@ size_t JsWindow::GetInternalSize()
 
 void JsWindow::Trace( JSTracer* trc, JSObject* obj )
 {
-    auto x = JsObjectBase<JsWindow>::ExtractNativeUnchecked( obj );
-    if ( x && x->fbProperties_ )
+    auto pNative = JsObjectBase<JsWindow>::ExtractNativeUnchecked( obj );
+    if ( !pNative )
     {
-        x->fbProperties_->Trace( trc );
-#ifdef SMP_V2
-        x->JsEventTarget::Trace( trc );
-#endif
+        return;
     }
+
+    if ( pNative->fbProperties_ )
+    {
+        pNative->fbProperties_->Trace( trc );
+    }
+    JsEventTarget::Trace( trc, obj );
 }
 
 void JsWindow::PrepareForGc()
 {
-#ifdef SMP_V2
     JsEventTarget::PrepareForGc();
-#endif
 
     if ( fbProperties_ )
     {

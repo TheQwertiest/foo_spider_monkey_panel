@@ -3,12 +3,19 @@
 #include <js_backend/objects/core/script_loader.h>
 
 #include <optional>
+#include <tuple>
 #include <unordered_set>
 
-namespace smp::panel
+namespace smp
+{
+class EventBase;
+
+namespace panel
 {
 class PanelWindow;
 }
+
+} // namespace smp
 
 namespace mozjs
 {
@@ -16,6 +23,12 @@ namespace mozjs
 class JsContainer;
 class JsWindow;
 class GlobalHeapManager;
+class PlaybackControl;
+
+} // namespace mozjs
+
+namespace mozjs
+{
 
 class JsGlobalObject
 {
@@ -43,7 +56,11 @@ public:
     /// @remark HWND might be null, if called before fb2k initialization is completed
     [[nodiscard]] HWND GetPanelHwnd() const;
 
+    void HandleEvent( smp::EventBase& event );
+
 public:
+    JSObject* InternalLazyLoad( uint8_t moduleIdRaw );
+
     void ClearInterval( uint32_t intervalId );
     void ClearTimeout( uint32_t timeoutId );
 
@@ -75,6 +92,17 @@ private:
     std::unique_ptr<GlobalHeapManager> heapManager_;
 
     ScriptLoader scriptLoader_;
+    std::unordered_map<BuiltinModuleId, std::unique_ptr<JS::Heap<JSObject*>>> loadedObjects_;
+
+    template <typename T>
+    struct LoadedNativeObject
+    {
+        using NativeT = T;
+        NativeT* pNative = nullptr;
+        BuiltinModuleId moduleId = BuiltinModuleId::kCount;
+    };
+
+    std::tuple<LoadedNativeObject<PlaybackControl>> loadedNativeObjects_;
 };
 
 } // namespace mozjs

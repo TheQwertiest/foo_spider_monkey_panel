@@ -13,7 +13,7 @@ class JsEventTarget
 {
     friend class JsObjectBase<JsEventTarget>;
 
-public:
+private:
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
     static constexpr bool IsExtendable = true;
@@ -25,8 +25,12 @@ public:
     static const JSNative JsConstructor;
 
 public:
-    void Trace( JSTracer* trc );
+    ~JsEventTarget() override = default;
+
+    static void Trace( JSTracer* trc, JSObject* obj );
     void PrepareForGc();
+
+    bool HasEventListener( const qwr::u8string& type );
 
 public:
     static JSObject* Constructor( JSContext* cx );

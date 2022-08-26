@@ -22,21 +22,20 @@ class JsFbTooltip;
 
 class JsWindow
     : public JsObjectBase<JsWindow>
-#ifdef SMP_V2
     , private JsEventTarget
-#endif
 {
     friend class JsObjectBase<JsWindow>;
 
 public:
     static constexpr bool HasProto = false;
-#ifdef SMP_V2
     static constexpr bool HasParentProto = true;
-    using ParentJsType = JsEventTarget;
-#endif
+
+    using BaseJsType = JsEventTarget;
+
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
+    static const JsPrototypeId BasePrototypeId;
     static const JsPrototypeId ParentPrototypeId;
 
 public:

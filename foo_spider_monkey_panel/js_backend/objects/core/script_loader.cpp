@@ -221,30 +221,39 @@ void ScriptLoader::PopulateImportMeta( JSContext* cx, JS::HandleValue modulePriv
 
 JSObject* ScriptLoader::GetResolvedModule( const qwr::u8string& moduleName, JS::HandleValue modulePrivate )
 {
-    if ( resolvedModules_.contains( moduleName ) )
+    if ( !resolvedModules_.contains( moduleName ) )
     {
-        return *resolvedModules_.at( moduleName ).get();
-    }
-
-    const auto parentScriptPathOpt = convert::to_native::ToValue<std::optional<std::wstring>>( pJsCtx_, modulePrivate );
-    const auto curPath = [&] {
-        if ( !parentScriptPathOpt || parentScriptPathOpt == L"<main>" )
+        if ( moduleName.starts_with( "smp:" ) )
         {
-            return qwr::path::Component();
+            const auto moduleIdOpt = ResolveBuiltinModule( moduleName );
+            qwr::QwrException::ExpectTrue( moduleIdOpt.has_value(), "import for '{}' failed: package not found", moduleName );
+
+            JS::RootedObject jsModule( pJsCtx_, GetCompiledInternalModule( *moduleIdOpt ) );
+            resolvedModules_.try_emplace( moduleName, std::make_unique<JS::Heap<JSObject*>>( jsModule ) );
         }
         else
         {
-            return fs::path{ parentScriptPathOpt->substr( std::size( L"file://" ) - 1 ) }.parent_path();
+            const auto parentScriptPathOpt = convert::to_native::ToValue<std::optional<std::wstring>>( pJsCtx_, modulePrivate );
+            const auto curPath = [&] {
+                if ( !parentScriptPathOpt || parentScriptPathOpt == L"<main>" )
+                {
+                    return qwr::path::Component();
+                }
+                else
+                {
+                    return fs::path{ parentScriptPathOpt->substr( std::size( L"file://" ) - 1 ) }.parent_path();
+                }
+            }();
+
+            const std::vector packageSearchPaths{ smp::path::ModulePackages_Profile(), smp::path::ModulePackages_Sample() };
+            const auto scriptPath = FindSuitableFileForImport( moduleName, curPath, packageSearchPaths );
+
+            JS::RootedObject jsModule( pJsCtx_, GetCompiledModule( scriptPath ) );
+            resolvedModules_.try_emplace( moduleName, std::make_unique<JS::Heap<JSObject*>>( jsModule ) );
         }
-    }();
+    }
 
-    const std::vector packageSearchPaths{ smp::path::ModulePackages_Profile(), smp::path::ModulePackages_Sample() };
-    const auto scriptPath = FindSuitableFileForImport( moduleName, curPath, packageSearchPaths );
-
-    JS::RootedObject jsModule( pJsCtx_, GetCompiledModule( scriptPath ) );
-    resolvedModules_.try_emplace( moduleName, std::make_unique<JS::Heap<JSObject*>>( jsModule ) );
-
-    return jsModule;
+    return *resolvedModules_.at( moduleName ).get();
 }
 
 void ScriptLoader::ExecuteTopLevelScript( const qwr::u8string& script, bool isModule )
@@ -382,6 +391,40 @@ JSObject* ScriptLoader::GetCompiledModule( const std::filesystem::path& scriptPa
     JS::RootedValue jsScriptPath( pJsCtx_ );
     convert::to_js::ToValue( pJsCtx_, urlPath, &jsScriptPath );
     JS::SetModulePrivate( jsModule, jsScriptPath );
+
+    return jsModule;
+}
+
+JSObject* ScriptLoader::GetCompiledInternalModule( BuiltinModuleId moduleId )
+{
+    const auto script = "export default _internalModuleLoad('" + std::to_string( static_cast<uint8_t>( moduleId ) ) + "');";
+
+    JS::CompileOptions opts( pJsCtx_ );
+    opts.setFileAndLine( "<internal>", 1 );
+
+    JS::SourceText<mozilla::Utf8Unit> source;
+    if ( !source.init( pJsCtx_, script.c_str(), script.length(), JS::SourceOwnership::Borrowed ) )
+    {
+        throw JsException();
+    }
+
+    JS::RootedObject jsModule( pJsCtx_, JS::CompileModule( pJsCtx_, opts, source ) );
+    JsException::ExpectTrue( jsModule );
+
+    JS::RootedValue jsScriptPath( pJsCtx_ );
+    convert::to_js::ToValue( pJsCtx_, qwr::u8string_view{ opts.filename() }, &jsScriptPath );
+    JS::SetModulePrivate( jsModule, jsScriptPath );
+
+    if ( !JS::ModuleInstantiate( pJsCtx_, jsModule ) )
+    {
+        throw JsException();
+    }
+
+    JS::RootedValue dummyRval( pJsCtx_ );
+    if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &dummyRval ) )
+    {
+        throw JsException();
+    }
 
     return jsModule;
 }
