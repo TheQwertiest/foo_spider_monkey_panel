@@ -140,16 +140,17 @@ void PlaybackControl::PostCreate( JSContext* cx, JS::HandleObject self )
 
     // set constants
     {
-        JS::RootedObject jsObject( cx,
-                                   JS_NewPlainObject( cx ) );
+        JS::RootedObject jsObject( cx, JS_NewPlainObject( cx ) );
         JsException::ExpectTrue( jsObject );
 
         static const auto props = std::to_array<JSPropertySpec>(
-            { JS_INT32_PS( "STOP_REASON_USER", 0, kDefaultPropsFlags | JSPROP_READONLY ),
-              JS_INT32_PS( "STOP_REASON_EOF", 1, kDefaultPropsFlags | JSPROP_READONLY ),
-              JS_INT32_PS( "STOP_REASON_STARTING_ANOTHER", 2, kDefaultPropsFlags | JSPROP_READONLY ),
-              JS_INT32_PS( "STOP_REASON_SHUTTING_DOWN", 3, kDefaultPropsFlags | JSPROP_READONLY ),
-              JS_PS_END } );
+            {
+                JS_INT32_PS( "STOP_REASON_USER", 0, kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_INT32_PS( "STOP_REASON_EOF", 1, kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_INT32_PS( "STOP_REASON_STARTING_ANOTHER", 2, kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_INT32_PS( "STOP_REASON_SHUTTING_DOWN", 3, kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_PS_END,
+            } );
         if ( !JS_DefineProperties( cx, jsObject, props.data() ) )
         {
             throw smp::JsException();

@@ -295,6 +295,7 @@
     <ClCompile Include="utils\image_helpers.cpp" />
     <ClCompile Include="utils\js_exception.cpp" />
     <ClCompile Include="utils\kmeans.cpp" />
+    <ClCompile Include="utils\script_resource.cpp" />
     <ClCompile Include="utils\location_processor.cpp" />
     <ClCompile Include="utils\logging.cpp" />
     <ClCompile Include="utils\md5.cpp" />
@@ -482,6 +483,7 @@
     <ClInclude Include="utils\json_std_extenders.h" />
     <ClInclude Include="utils\js_exception.h" />
     <ClInclude Include="utils\kmeans.h" />
+    <ClInclude Include="utils\script_resource.h" />
     <ClInclude Include="utils\location_processor.h" />
     <ClInclude Include="utils\logging.h" />
     <ClInclude Include="utils\make_unique_ptr.h" />
@@ -499,6 +501,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="resources\default_script.js" />
+    <None Include="resources\modules\playback.js" />
     <None Include="resources\recovery_package_json.json" />
     <None Include="resources\foo_spider_monkey_panel.rc2" />
     <None Include="resources\recovery_package_script.js" />

@@ -12,7 +12,9 @@
 #include <js_backend/engine/js_script_cache.h>
 #include <js_backend/utils/cached_utf8_paths_hack.h>
 #include <js_backend/utils/mozjs_backport.h>
+#include <resources/resource.h>
 #include <utils/logging.h>
+#include <utils/script_resource.h>
 
 #include <component_paths.h>
 
@@ -102,6 +104,7 @@ auto FindSuitableFileForInclude( const fs::path& path, const std::span<const fs:
 /// @throw qwr::QwrException
 auto FindSuitableFileForImport( const qwr::u8string& rawModuleSpecifier, const fs::path& curPath, const std::vector<fs::path>& packageSearchPaths )
 {
+    // TODO: implement it properly
     try
     {
         qwr::QwrException::ExpectTrue( !rawModuleSpecifier.empty(), "import for '{}' failed: empty module specifier", rawModuleSpecifier );
@@ -211,6 +214,7 @@ void ScriptLoader::PrepareForGc()
 
 void ScriptLoader::PopulateImportMeta( JSContext* cx, JS::HandleValue modulePrivate, JS::HandleObject metaObject )
 {
+    // TODO: make it a proper url
     const auto parentScriptPathOpt = convert::to_native::ToValue<std::optional<std::wstring>>( cx, modulePrivate );
     const auto isInMemoryScript = !parentScriptPathOpt || parentScriptPathOpt == L"<main>";
 
@@ -416,7 +420,10 @@ JSObject* ScriptLoader::GetCompiledModule( const std::filesystem::path& scriptPa
 
 JSObject* ScriptLoader::GetCompiledInternalModule( BuiltinModuleId moduleId )
 {
-    const auto script = "export default _internalModuleLoad('" + std::to_string( static_cast<uint8_t>( moduleId ) ) + "');";
+    const auto script = fmt::format( "let _internalModule = _internalModuleLoad('{:d}');\n"
+                                     "{}",
+                                     static_cast<uint8_t>( moduleId ),
+                                     smp::utils::LoadScriptResource( IDR_MODULE_PLAYBACK ) );
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setFileAndLine( "<internal>", 1 );

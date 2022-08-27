@@ -599,15 +599,12 @@ END
 // SCRIPT
 //
 
-IDR_DEFAULT_SCRIPT      SCRIPT                  "default_script.js"
-
-IDR_SCINTILLA_INTERFACE_API SCRIPT                  "scintilla_interface.api"
-
-IDR_SCINTILLA_JS_API    SCRIPT                  "scintilla_jscript.api"
-
-IDR_RECOVERY_PACKAGE_SCRIPT SCRIPT                  "recovery_package_script.js"
-
-IDR_RECOVERY_PACKAGE_JSON SCRIPT                  "recovery_package_json.json"
+IDR_DEFAULT_SCRIPT          SCRIPT                "default_script.js"
+IDR_SCINTILLA_INTERFACE_API SCRIPT                "scintilla_interface.api"
+IDR_SCINTILLA_JS_API        SCRIPT                "scintilla_jscript.api"
+IDR_RECOVERY_PACKAGE_SCRIPT SCRIPT                "recovery_package_script.js"
+IDR_RECOVERY_PACKAGE_JSON   SCRIPT                "recovery_package_json.json"
+IDR_MODULE_PLAYBACK         SCRIPT                "modules/playback.js"
 
 
 /////////////////////////////////////////////////////////////////////////////

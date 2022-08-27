@@ -478,6 +478,9 @@
     <ClCompile Include="js_backend\utils\mozjs_backport.cpp">
       <Filter>js_backend\utils</Filter>
     </ClCompile>
+    <ClCompile Include="utils\script_resource.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1033,6 +1036,9 @@
     <ClInclude Include="js_backend\utils\mozjs_backport.h">
       <Filter>js_backend\utils</Filter>
     </ClInclude>
+    <ClInclude Include="utils\script_resource.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1053,6 +1059,9 @@
     </None>
     <None Include="resources\recovery_package_json.json">
       <Filter>resources</Filter>
+    </None>
+    <None Include="resources\modules\playback.js">
+      <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
@@ -1136,6 +1145,9 @@
     </Filter>
     <Filter Include="events\dispatcher">
       <UniqueIdentifier>{50e469ca-a931-4ca4-9a43-aa29a01bb2dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resources\modules">
+      <UniqueIdentifier>{9dc2935c-adc9-425b-8517-5dc0b989cc85}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
