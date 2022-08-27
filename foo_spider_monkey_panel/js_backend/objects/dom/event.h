@@ -12,7 +12,7 @@ class JsEvent
 {
     friend class JsObjectBase<JsEvent>;
 
-public:
+private:
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
     static constexpr bool IsExtendable = true;

@@ -138,38 +138,13 @@ public:
             throw smp::JsException();
         }
 
-        if constexpr ( Self::Trait_HasJsFunctions() )
-        {
-            if ( !JS_DefineFunctions( cx, jsObject, T::JsFunctions ) )
-            {
-                throw smp::JsException();
-            }
-        }
-
-        if constexpr ( Self::Trait_HasJsProperties() )
-        {
-            if ( !JS_DefineProperties( cx, jsObject, T::JsProperties ) )
-            {
-                throw smp::JsException();
-            }
-        }
+        DefinePropertiesAndFunctions( cx, jsObject, Trait_GetJsProperties(), Trait_GetJsFunctions() );
 
         return jsObject;
     }
 
     [[nodiscard]] static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
     {
-        const JSFunctionSpec* staticFns = [] {
-            if constexpr ( Self::Trait_HasJsStaticFunctions() )
-            {
-                return T::JsStaticFunctions;
-            }
-            else
-            {
-                return nullptr;
-            }
-        }();
-
         JS::RootedObject pParentJsProto( cx, Self::GetParentProto( cx ) );
 
         auto pJsProto = JS_InitClass( cx,
@@ -178,10 +153,10 @@ public:
                                       &T::JsClass,
                                       T::JsConstructor,
                                       0,
-                                      T::JsProperties,
-                                      T::JsFunctions,
+                                      Trait_GetJsProperties(),
+                                      Trait_GetJsFunctions(),
                                       nullptr,
-                                      staticFns );
+                                      Trait_GetJsStaticFunctions() );
         if ( !pJsProto )
         {
             throw smp::JsException();
@@ -362,11 +337,7 @@ private:
         JS::RootedObject jsObject( cx, JS_NewObjectWithGivenProto( cx, &T::JsClass, jsProto ) );
         if constexpr ( !T::HasProto )
         {
-            if ( !JS_DefineFunctions( cx, jsObject, T::JsFunctions )
-                 || !JS_DefineProperties( cx, jsObject, T::JsProperties ) )
-            {
-                throw smp::JsException();
-            }
+            DefinePropertiesAndFunctions( cx, jsObject, Trait_GetJsProperties(), Trait_GetJsFunctions() );
         }
 
         return jsObject;
@@ -408,6 +379,22 @@ private:
         else
         {
             return jsBaseObject;
+        }
+    }
+
+private: // non trait related helpers
+    static void DefinePropertiesAndFunctions( JSContext* cx,
+                                              JS::HandleObject jsObject,
+                                              const JSPropertySpec* ps,
+                                              const JSFunctionSpec* fs )
+    {
+        if ( fs && !JS_DefineFunctions( cx, jsObject, fs ) )
+        {
+            throw smp::JsException();
+        }
+        if ( ps && !JS_DefineProperties( cx, jsObject, ps ) )
+        {
+            throw smp::JsException();
         }
     }
 
@@ -460,7 +447,7 @@ private: // traits
         }
     }
 
-    static constexpr bool Trait_HasJsFunctions()
+    static constexpr const JSFunctionSpec* Trait_GetJsFunctions()
     {
         if constexpr ( requires( T t ) {
                            {
@@ -469,15 +456,15 @@ private: // traits
                                -> std::same_as<const JSFunctionSpec*&>;
                        } )
         {
-            return true;
+            return T::JsFunctions;
         }
         else
         {
-            return false;
+            return nullptr;
         }
     }
 
-    static constexpr bool Trait_HasJsStaticFunctions()
+    static constexpr const JSFunctionSpec* Trait_GetJsStaticFunctions()
     {
         if constexpr ( requires( T t ) {
                            {
@@ -486,15 +473,15 @@ private: // traits
                                -> std::same_as<const JSFunctionSpec*&>;
                        } )
         {
-            return true;
+            return T::JsFunctions;
         }
         else
         {
-            return false;
+            return nullptr;
         }
     }
 
-    static constexpr bool Trait_HasJsProperties()
+    static constexpr const JSPropertySpec* Trait_GetJsProperties()
     {
         if constexpr ( requires( T t ) {
                            {
@@ -503,11 +490,11 @@ private: // traits
                                -> std::same_as<const JSPropertySpec*&>;
                        } )
         {
-            return true;
+            return T::JsProperties;
         }
         else
         {
-            return false;
+            return nullptr;
         }
     }
 

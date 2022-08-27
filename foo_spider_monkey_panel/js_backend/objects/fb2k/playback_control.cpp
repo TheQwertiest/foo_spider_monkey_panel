@@ -31,7 +31,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "PlaybackControl",
-    kDefaultClassFlags,
+    kDefaultClassFlags | JSCLASS_HAS_RESERVED_SLOTS( 1 ),
     &jsOps
 };
 
@@ -134,24 +134,31 @@ size_t PlaybackControl::GetInternalSize()
 
 void PlaybackControl::PostCreate( JSContext* cx, JS::HandleObject self )
 {
-    JS::RootedObject jsObject( cx,
-                               JS_NewPlainObject( cx ) );
-    JsException::ExpectTrue( jsObject );
+    // set prototypes
 
-    static const auto props = std::to_array<JSPropertySpec>(
-        { JS_INT32_PS( "STOP_REASON_USER", 0, kDefaultPropsFlags | JSPROP_READONLY ),
-          JS_INT32_PS( "STOP_REASON_EOF", 1, kDefaultPropsFlags | JSPROP_READONLY ),
-          JS_INT32_PS( "STOP_REASON_STARTING_ANOTHER", 2, kDefaultPropsFlags | JSPROP_READONLY ),
-          JS_INT32_PS( "STOP_REASON_SHUTTING_DOWN", 3, kDefaultPropsFlags | JSPROP_READONLY ),
-          JS_PS_END } );
-    if ( !JS_DefineProperties( cx, jsObject, props.data() ) )
-    {
-        throw smp::JsException();
-    }
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::PlaybackStopEvent>>( cx, self, JsPrototypeId::New_PlaybackStopEvent );
 
-    if ( !JS_DefineProperty( cx, self, "constants", jsObject, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY ) )
+    // set constants
     {
-        throw JsException();
+        JS::RootedObject jsObject( cx,
+                                   JS_NewPlainObject( cx ) );
+        JsException::ExpectTrue( jsObject );
+
+        static const auto props = std::to_array<JSPropertySpec>(
+            { JS_INT32_PS( "STOP_REASON_USER", 0, kDefaultPropsFlags | JSPROP_READONLY ),
+              JS_INT32_PS( "STOP_REASON_EOF", 1, kDefaultPropsFlags | JSPROP_READONLY ),
+              JS_INT32_PS( "STOP_REASON_STARTING_ANOTHER", 2, kDefaultPropsFlags | JSPROP_READONLY ),
+              JS_INT32_PS( "STOP_REASON_SHUTTING_DOWN", 3, kDefaultPropsFlags | JSPROP_READONLY ),
+              JS_PS_END } );
+        if ( !JS_DefineProperties( cx, jsObject, props.data() ) )
+        {
+            throw smp::JsException();
+        }
+
+        if ( !JS_DefineProperty( cx, self, "constants", jsObject, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY ) )
+        {
+            throw JsException();
+        }
     }
 }
 
@@ -166,6 +173,7 @@ const std::string& PlaybackControl::EventIdToType( smp::EventId eventId )
         { EventId::kNew_FbPlaybackPause, "pause" },
         { EventId::kNew_FbPlaybackSeek, "seek" },
         { EventId::kNew_FbPlaybackStarting, "starting" },
+        // TODO: exract this somewhere to avoid copy-paste hazard
         { EventId::kNew_FbPlaybackStop, "stop" }, // hardcoded in PlaybackStopEvent as well
         { EventId::kNew_FbPlaybackTime, "timeUpdate" },
         { EventId::kNew_FbPlaybackVolumeChange, "volumeChange" }
