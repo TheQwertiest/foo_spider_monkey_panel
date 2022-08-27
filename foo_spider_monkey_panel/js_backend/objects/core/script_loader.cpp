@@ -11,6 +11,7 @@
 #include <js_backend/engine/js_engine.h>
 #include <js_backend/engine/js_script_cache.h>
 #include <js_backend/utils/cached_utf8_paths_hack.h>
+#include <js_backend/utils/mozjs_backport.h>
 #include <utils/logging.h>
 
 #include <component_paths.h>
@@ -283,10 +284,19 @@ void ScriptLoader::ExecuteTopLevelScript( const qwr::u8string& script, bool isMo
             throw JsException();
         }
 
-        JS::RootedValue dummyRval( pJsCtx_ );
-        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &dummyRval ) )
+        JS::RootedValue rval( pJsCtx_ );
+        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &rval ) )
         {
             throw JsException();
+        }
+
+        if ( rval.isObject() )
+        {
+            JS::RootedObject evaluationPromise( pJsCtx_, &rval.toObject() );
+            if ( !backport::OnModuleEvaluationFailureSync( pJsCtx_, evaluationPromise ) )
+            {
+                throw JsException();
+            }
         }
     }
     else
@@ -314,10 +324,19 @@ void ScriptLoader::ExecuteTopLevelScriptFile( const std::filesystem::path& scrip
             throw JsException();
         }
 
-        JS::RootedValue dummyRval( pJsCtx_ );
-        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &dummyRval ) )
+        JS::RootedValue rval( pJsCtx_ );
+        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &rval ) )
         {
             throw JsException();
+        }
+
+        if ( rval.isObject() )
+        {
+            JS::RootedObject evaluationPromise( pJsCtx_, &rval.toObject() );
+            if ( !backport::OnModuleEvaluationFailureSync( pJsCtx_, evaluationPromise ) )
+            {
+                throw JsException();
+            }
         }
     }
     else

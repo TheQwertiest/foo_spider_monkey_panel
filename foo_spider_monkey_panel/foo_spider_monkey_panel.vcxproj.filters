@@ -475,6 +475,9 @@
     <ClCompile Include="events\dispatcher\event_dispatcher.cpp">
       <Filter>events\dispatcher</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\utils\mozjs_backport.cpp">
+      <Filter>js_backend\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1026,6 +1029,9 @@
     </ClInclude>
     <ClInclude Include="events\dispatcher\event_dispatcher.h">
       <Filter>events\dispatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\utils\mozjs_backport.h">
+      <Filter>js_backend\utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

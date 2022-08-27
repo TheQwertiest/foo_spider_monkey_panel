@@ -246,6 +246,7 @@
     <ClCompile Include="js_backend\utils\js_image_helpers.cpp" />
     <ClCompile Include="js_backend\utils\js_object_helper.cpp" />
     <ClCompile Include="js_backend\utils\js_prototype_helpers.cpp" />
+    <ClCompile Include="js_backend\utils\mozjs_backport.cpp" />
     <ClCompile Include="js_backend\utils\serialized_value.cpp" />
     <ClCompile Include="panel\edit_script.cpp" />
     <ClCompile Include="panel\panel_window.cpp" />
@@ -424,6 +425,7 @@
     <ClInclude Include="js_backend\utils\js_object_helper.h" />
     <ClInclude Include="js_backend\utils\js_property_helper.h" />
     <ClInclude Include="js_backend\utils\js_prototype_helpers.h" />
+    <ClInclude Include="js_backend\utils\mozjs_backport.h" />
     <ClInclude Include="js_backend\utils\scope_helper.h" />
     <ClInclude Include="js_backend\utils\serialized_value.h" />
     <ClInclude Include="panel\drag_action_params.h" />
