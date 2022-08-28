@@ -24,6 +24,7 @@
 #define IDR_RECOVERY_PACKAGE_SCRIPT        129
 #define IDR_RECOVERY_PACKAGE_JSON          130
 #define IDR_MODULE_PLAYBACK                131
+#define IDR_MODULE_SELECTION               132
 #define IDC_EDIT_PANEL_NAME                1000
 #define IDC_EDIT                           1001
 #define IDC_DEL                            1010

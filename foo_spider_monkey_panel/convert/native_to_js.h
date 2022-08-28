@@ -78,6 +78,9 @@ template <>
 void ToValue( JSContext* cx, const std::nullptr_t& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>
+void ToValue( JSContext* cx, const GUID& inValue, JS::MutableHandleValue wrappedValue );
+
+template <>
 void ToValue( JSContext* cx, const metadb_handle_ptr& inValue, JS::MutableHandleValue wrappedValue );
 
 template <>

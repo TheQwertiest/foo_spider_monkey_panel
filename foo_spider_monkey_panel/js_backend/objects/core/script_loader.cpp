@@ -423,7 +423,7 @@ JSObject* ScriptLoader::GetCompiledInternalModule( BuiltinModuleId moduleId )
     const auto script = fmt::format( "let _internalModule = _internalModuleLoad('{:d}');\n"
                                      "{}",
                                      static_cast<uint8_t>( moduleId ),
-                                     smp::utils::LoadScriptResource( IDR_MODULE_PLAYBACK ) );
+                                     smp::utils::LoadScriptResource( GetBuiltinModuleResourceId( moduleId ) ) );
 
     JS::CompileOptions opts( pJsCtx_ );
     opts.setFileAndLine( "<internal>", 1 );

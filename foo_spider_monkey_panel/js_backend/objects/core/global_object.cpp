@@ -18,6 +18,7 @@
 #include <js_backend/objects/fb2k/fb_title_format.h>
 #include <js_backend/objects/fb2k/fb_utils.h>
 #include <js_backend/objects/fb2k/playback_control.h>
+#include <js_backend/objects/fb2k/selection_manager.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/objects/gdi/gdi_font.h>
 #include <js_backend/objects/gdi/gdi_utils.h>
@@ -306,6 +307,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case mozjs::BuiltinModuleId::kFbPlaybackControl:
             {
                 return initializeLoadedObject.template operator()<PlaybackControl>( moduleId );
+            }
+            case mozjs::BuiltinModuleId::kFbSelectionManager:
+            {
+                return initializeLoadedObject.template operator()<SelectionManager>( moduleId );
             }
             default:
                 assert( false );

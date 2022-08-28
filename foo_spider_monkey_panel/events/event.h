@@ -106,6 +106,7 @@ enum class EventId
     kNotifyOthers,
     kTimer,
     // new
+    // playback
     kNew_FbPlaybackDynamicInfo,
     kNew_FbPlaybackDynamicInfoTrack,
     kNew_FbPlaybackEdited,
@@ -117,6 +118,8 @@ enum class EventId
     kNew_FbPlaybackStop,
     kNew_FbPlaybackTime,
     kNew_FbPlaybackVolumeChange,
+    // selection
+    kNew_FbSelectionChange,
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {

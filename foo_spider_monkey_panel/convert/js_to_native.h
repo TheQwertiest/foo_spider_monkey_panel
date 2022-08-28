@@ -24,7 +24,12 @@ namespace mozjs::convert::to_native::internal
 {
 
 template <class T>
-inline constexpr bool IsJsSimpleConvertableImplV = std::disjunction_v<std::is_fundamental<T>, std::is_same<qwr::u8string, T>, std::is_same<std::wstring, T>, std::is_same<pfc::string8_fast, T>>;
+inline constexpr bool IsJsSimpleConvertableImplV = std::disjunction_v<
+    std::is_fundamental<T>,
+    std::is_same<qwr::u8string, T>,
+    std::is_same<std::wstring, T>,
+    std::is_same<pfc::string8_fast, T>,
+    std::is_same<GUID, T>>;
 
 template <class T>
 inline constexpr bool IsJsSimpleConvertableV = IsJsSimpleConvertableImplV<std::remove_cv_t<T>>;
@@ -84,6 +89,9 @@ pfc::string8_fast ToSimpleValue<pfc::string8_fast>( JSContext* cx, const JS::Han
 
 template <>
 std::nullptr_t ToSimpleValue<std::nullptr_t>( JSContext* cx, const JS::HandleValue& jsValue );
+
+template <>
+GUID ToSimpleValue<GUID>( JSContext* cx, const JS::HandleValue& jsValue );
 
 template <typename T>
 std::optional<T> ToOptional( JSContext* cx, const JS::HandleValue& jsValue )

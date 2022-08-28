@@ -184,6 +184,7 @@
     <ClCompile Include="fb2k\acfu_integration.cpp" />
     <ClCompile Include="fb2k\advanced_config.cpp" />
     <ClCompile Include="fb2k\callbacks\playback.cpp" />
+    <ClCompile Include="fb2k\callbacks\init_quit.cpp" />
     <ClCompile Include="fb2k\config.cpp" />
     <ClCompile Include="fb2k\fb2k_callbacks.cpp" />
     <ClCompile Include="fb2k\mainmenu.cpp" />
@@ -230,6 +231,7 @@
     <ClCompile Include="js_backend\objects\fb2k\fb_window.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\playback_control.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\playback_stop_event.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\selection_manager.cpp" />
     <ClCompile Include="js_backend\objects\gdi\gdi_bitmap.cpp" />
     <ClCompile Include="js_backend\objects\gdi\gdi_font.cpp" />
     <ClCompile Include="js_backend\objects\gdi\gdi_graphics.cpp" />
@@ -407,6 +409,7 @@
     <ClInclude Include="js_backend\objects\fb2k\fb_window.h" />
     <ClInclude Include="js_backend\objects\fb2k\playback_control.h" />
     <ClInclude Include="js_backend\objects\fb2k\playback_stop_event.h" />
+    <ClInclude Include="js_backend\objects\fb2k\selection_manager.h" />
     <ClInclude Include="js_backend\objects\gdi\gdi_bitmap.h" />
     <ClInclude Include="js_backend\objects\gdi\gdi_font.h" />
     <ClInclude Include="js_backend\objects\gdi\gdi_graphics.h" />
@@ -502,6 +505,7 @@
     <None Include="packages.config" />
     <None Include="resources\default_script.js" />
     <None Include="resources\modules\playback.js" />
+    <None Include="resources\modules\selection.js" />
     <None Include="resources\recovery_package_json.json" />
     <None Include="resources\foo_spider_monkey_panel.rc2" />
     <None Include="resources\recovery_package_script.js" />

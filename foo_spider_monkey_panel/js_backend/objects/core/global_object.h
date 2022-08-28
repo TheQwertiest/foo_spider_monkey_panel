@@ -24,6 +24,7 @@ class JsContainer;
 class JsWindow;
 class GlobalHeapManager;
 class PlaybackControl;
+class SelectionManager;
 
 } // namespace mozjs
 
@@ -102,7 +103,7 @@ private:
         BuiltinModuleId moduleId = BuiltinModuleId::kCount;
     };
 
-    std::tuple<LoadedNativeObject<PlaybackControl>> loadedNativeObjects_;
+    std::tuple<LoadedNativeObject<PlaybackControl>, LoadedNativeObject<SelectionManager>> loadedNativeObjects_;
 };
 
 } // namespace mozjs
