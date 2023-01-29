@@ -591,26 +591,14 @@ qwr::u8string JsUtils::InputBoxWithOpt( size_t optArgCount, uint32_t hWnd, const
 
 bool JsUtils::IsDirectory( const std::wstring& path ) const
 {
-    try
-    {
-        return fs::is_directory( path );
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        throw qwr::QwrException( e );
-    }
+    std::error_code ec;
+    return fs::is_directory( path, ec );
 }
 
 bool JsUtils::IsFile( const std::wstring& path ) const
 {
-    try
-    {
-        return fs::is_regular_file( path );
-    }
-    catch ( const fs::filesystem_error& e )
-    {
-        throw qwr::QwrException( e );
-    }
+    std::error_code ec;
+    return fs::is_regular_file( path, ec );
 }
 
 bool JsUtils::IsKeyPressed( uint32_t vkey ) const
