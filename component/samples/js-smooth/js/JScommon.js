@@ -953,7 +953,8 @@ function setWallpaperImg() {
 	if (ppt.wallpapermode == 0) {
 		tmp = utils.GetAlbumArtV2(fb.GetNowPlaying(), 0);
 	} else {
-		var arr = utils.Glob(fb.TitleFormat(ppt.wallpaperpath).Eval());
+		const path = fb.TitleFormat(ppt.wallpaperpath).Eval().replace(/^\.?\\/, fb.ProfilePath); // regorxxx 30/03/23: fix relative paths for artwork
+		var arr = utils.Glob(path);
 		if (arr.length) {
 			tmp = gdi.Image(arr[0]);
 		}
