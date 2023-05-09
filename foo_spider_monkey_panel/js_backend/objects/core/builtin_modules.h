@@ -9,6 +9,7 @@ enum class BuiltinModuleId : uint8_t
 {
     kFbPlaybackControl,
     kFbSelectionManager,
+    kWindow,
     kCount
 };
 

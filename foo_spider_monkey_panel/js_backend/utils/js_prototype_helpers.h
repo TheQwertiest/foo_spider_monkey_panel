@@ -7,6 +7,26 @@
 namespace mozjs::utils
 {
 
+// TODO: remove in ESR102
+inline void* GetMaybePtrFromReservedSlot( JSObject* obj, size_t slot )
+{
+    JS::Value v = JS::GetReservedSlot( obj, slot );
+    return v.isUndefined() ? nullptr : v.toPrivate();
+}
+
+// TODO: remove
+inline void* GetInstanceFromReservedSlot( JSContext* cx,
+                                          JS::Handle<JSObject*> obj,
+                                          const JSClass* clasp,
+                                          JS::CallArgs* args )
+{
+    if ( !JS_InstanceOf( cx, obj, clasp, args ) )
+    {
+        return nullptr;
+    }
+    return GetMaybePtrFromReservedSlot( obj, 0 /* first slot is always reserved for private */ );
+}
+
 /// @brief Create a prototype for the specified object
 ///        and store it in the current global object.
 ///        Created prototype is not accessible from JS.
@@ -47,6 +67,8 @@ void CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
 
 /// @brief Create a prototype for the specified object.
 ///        Created prototype is accessible from JS.
+///
+/// @remark This should only be applied to singleton objects
 template <typename JsObjectType>
 void CreateAndInstallPrototype( JSContext* cx, JS::HandleObject jsObject, JsPrototypeId protoId )
 {

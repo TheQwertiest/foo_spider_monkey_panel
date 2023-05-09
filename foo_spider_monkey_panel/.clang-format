@@ -16,6 +16,7 @@ AllowShortLoopsOnASingleLine: 'false'
 AlwaysBreakAfterReturnType: None
 AlwaysBreakTemplateDeclarations: 'true'
 BinPackParameters: 'true'
+BreakAfterAttributes: Leave
 BreakBeforeBinaryOperators: NonAssignment
 BreakBeforeBraces: Custom
 BraceWrapping:
@@ -71,22 +72,22 @@ IncludeCategories:
 IncludeIsMainRegex: '$'
 IndentCaseLabels: 'false'
 IndentPPDirectives: AfterHash
-# clang 15
-# IndentRequires: 'true'
+IndentRequiresClause: 'true'
 IndentWidth: '4'
 IndentWrappedFunctionNames: 'false'
+InsertNewlineAtEOF: 'true'
 LambdaBodyIndentation: Signature
 Language: Cpp
-# clang 13+
-# LambdaBodyIndentation: OuterScope
+LambdaBodyIndentation: OuterScope
+LineEnding: CRLF
 MacroBlockBegin: "^BEGIN_*"
 MacroBlockEnd: "^END_*"
 MaxEmptyLinesToKeep: '1'
 PackConstructorInitializers: Never
 PointerAlignment: Left
 ReflowComments: 'true'
-# clang 15
-# RequiresClausePosition: OwnLine
+RequiresClausePosition: OwnLine
+RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Always
 SortIncludes: 'false'
 SpaceAfterCStyleCast: 'false'

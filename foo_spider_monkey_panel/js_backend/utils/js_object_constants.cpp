@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "js_object_helper.h"
+#include "js_object_constants.h"
 
 namespace mozjs
 {

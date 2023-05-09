@@ -10,7 +10,7 @@
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/utils/js_async_task.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <utils/art_helpers.h>
 #include <utils/gdi_helpers.h>

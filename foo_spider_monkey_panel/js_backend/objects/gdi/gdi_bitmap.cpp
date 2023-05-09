@@ -6,7 +6,7 @@
 #include <js_backend/objects/gdi/gdi_graphics.h>
 #include <js_backend/objects/gdi/gdi_raw_bitmap.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/kmeans.h>
@@ -307,8 +307,8 @@ JS::Value JsGdiBitmap::GetColourScheme( uint32_t count )
     std::vector<std::pair<uint32_t, uint32_t>> sort_vec( color_counters.cbegin(), color_counters.cend() );
     ranges::sort( sort_vec,
                   []( const auto& a, const auto& b ) {
-                      return a.second > b.second;
-                  } );
+        return a.second > b.second;
+    } );
     sort_vec.resize( std::min( count, color_counters.size() ) );
 
     JS::RootedValue jsValue( pJsCtx_ );
@@ -316,7 +316,7 @@ JS::Value JsGdiBitmap::GetColourScheme( uint32_t count )
         pJsCtx_,
         sort_vec,
         []( const auto& vec, auto index ) {
-            return vec[index].first;
+        return vec[index].first;
         },
         &jsValue );
     return jsValue;

@@ -2,13 +2,6 @@
 
 #include <js_backend/objects/dom/event.h>
 
-namespace smp
-{
-
-class PlaybackStopEvent;
-
-}
-
 namespace mozjs
 {
 
@@ -32,20 +25,31 @@ private:
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
 
+protected:
+    struct EventOptions
+    {
+        BaseJsType::EventOptions baseOptions;
+        play_control::t_stop_reason reason = play_control::t_stop_reason::stop_reason_user;
+    };
+
 public:
     ~PlaybackStopEvent() override = default;
 
 public:
-    static JSObject* Constructor( JSContext* cx, int32_t reason );
+    static JSObject* Constructor( JSContext* cx, const qwr::u8string& type, JS::HandleValue options = JS::UndefinedHandleValue );
+    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const qwr::u8string& type, JS::HandleValue options );
 
     uint8_t get_Reason();
 
-private:
-    PlaybackStopEvent( JSContext* cx, play_control::t_stop_reason stopReason );
-
-    static std::unique_ptr<PlaybackStopEvent> CreateNative( JSContext* cx, const smp::PlaybackStopEvent& event );
-    static std::unique_ptr<PlaybackStopEvent> CreateNative( JSContext* cx, play_control::t_stop_reason stopReason );
+protected:
+    PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );
     [[nodiscard]] size_t GetInternalSize();
+
+    static EventOptions ExtractOptions( JSContext* cx, JS::HandleValue options );
+
+private:
+    static std::unique_ptr<PlaybackStopEvent> CreateNative( JSContext* cx, const qwr::u8string& type, play_control::t_stop_reason reason );
+    static std::unique_ptr<PlaybackStopEvent> CreateNative( JSContext* cx, const qwr::u8string& type, const EventOptions& options );
 
 private:
     JSContext* pJsCtx_ = nullptr;

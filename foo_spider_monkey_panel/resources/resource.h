@@ -23,8 +23,9 @@
 #define IDD_DIALOG_PACKAGE_MANAGER         126
 #define IDR_RECOVERY_PACKAGE_SCRIPT        129
 #define IDR_RECOVERY_PACKAGE_JSON          130
-#define IDR_MODULE_PLAYBACK                131
-#define IDR_MODULE_SELECTION               132
+#define IDR_MODULE_FB_PLAYBACK             131
+#define IDR_MODULE_FB_SELECTION            132
+#define IDR_MODULE_WINDOW                  133
 #define IDC_EDIT_PANEL_NAME                1000
 #define IDC_EDIT                           1001
 #define IDC_DEL                            1010
@@ -115,7 +116,7 @@
 //
 #ifdef APSTUDIO_INVOKED
 #    ifndef APSTUDIO_READONLY_SYMBOLS
-#        define _APS_NEXT_RESOURCE_VALUE 131
+#        define _APS_NEXT_RESOURCE_VALUE 134
 #        define _APS_NEXT_COMMAND_VALUE  40031
 #        define _APS_NEXT_CONTROL_VALUE  1129
 #        define _APS_NEXT_SYMED_VALUE    101

@@ -10,7 +10,7 @@
 #include <js_backend/objects/core/global_object.h>
 #include <js_backend/objects/dom/active_x_object.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <panel/user_message.h>
 
 #include <js/Date.h>

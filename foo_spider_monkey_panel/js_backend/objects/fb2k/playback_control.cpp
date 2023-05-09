@@ -31,7 +31,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "PlaybackControl",
-    kDefaultClassFlags | JSCLASS_HAS_RESERVED_SLOTS( 1 ),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -91,7 +91,7 @@ const JSPropertySpec* PlaybackControl::JsProperties = jsProperties.data();
 const JsPrototypeId PlaybackControl::BasePrototypeId = JsPrototypeId::EventTarget;
 const JsPrototypeId PlaybackControl::ParentPrototypeId = JsPrototypeId::EventTarget;
 
-std::unordered_set<EventId> PlaybackControl::kHandledEvents{
+const std::unordered_set<EventId> PlaybackControl::kHandledEvents{
     EventId::kNew_FbPlaybackDynamicInfo,
     EventId::kNew_FbPlaybackDynamicInfoTrack,
     EventId::kNew_FbPlaybackEdited,
@@ -165,7 +165,7 @@ void PlaybackControl::PostCreate( JSContext* cx, JS::HandleObject self )
 
 const std::string& PlaybackControl::EventIdToType( smp::EventId eventId )
 {
-    static std::unordered_map<EventId, std::string> idToType{
+    static const std::unordered_map<EventId, std::string> idToType{
         { EventId::kNew_FbPlaybackDynamicInfo, "trackDynamicInfoChange" },
         { EventId::kNew_FbPlaybackDynamicInfoTrack, "trackStreamInfoChange" },
         { EventId::kNew_FbPlaybackEdited, "trackInfoEdit" },
@@ -174,34 +174,45 @@ const std::string& PlaybackControl::EventIdToType( smp::EventId eventId )
         { EventId::kNew_FbPlaybackPause, "pause" },
         { EventId::kNew_FbPlaybackSeek, "seek" },
         { EventId::kNew_FbPlaybackStarting, "starting" },
-        // TODO: exract this somewhere to avoid copy-paste hazard
-        { EventId::kNew_FbPlaybackStop, "stop" }, // hardcoded in PlaybackStopEvent as well
+        { EventId::kNew_FbPlaybackStop, "stop" },
         { EventId::kNew_FbPlaybackTime, "timeUpdate" },
         { EventId::kNew_FbPlaybackVolumeChange, "volumeChange" }
     };
 
+    assert( idToType.size() == kHandledEvents.size() );
     assert( idToType.contains( eventId ) );
     return idToType.at( eventId );
 }
 
-void PlaybackControl::HandleEvent( JS::HandleObject self, const smp::EventBase& event )
+EventStatus PlaybackControl::HandleEvent( JS::HandleObject self, const smp::EventBase& event )
 {
+    EventStatus status;
+
     const auto& eventType = EventIdToType( event.GetId() );
     if ( !HasEventListener( eventType ) )
     {
-        return;
+        return status;
     }
+    status.isHandled = true;
 
     JS::RootedValue jsEvent( pJsCtx_ );
     if ( event.GetId() == EventId::kNew_FbPlaybackStop )
     {
-        jsEvent.setObjectOrNull( mozjs::JsObjectBase<PlaybackStopEvent>::CreateJs( pJsCtx_, static_cast<const smp::PlaybackStopEvent&>( event ) ) );
+        jsEvent.setObjectOrNull(
+            mozjs::JsObjectBase<PlaybackStopEvent>::CreateJs(
+                pJsCtx_,
+                eventType,
+                static_cast<const smp::PlaybackStopEvent&>( event ).GetReason() ) );
     }
     else
     {
-        jsEvent.setObjectOrNull( mozjs::JsEvent::CreateJs( pJsCtx_, eventType, false ) );
+        jsEvent.setObjectOrNull( mozjs::JsEvent::CreateJs( pJsCtx_, eventType, JsEvent::EventProperties{ .cancelable = false } ) );
     }
     DispatchEvent( self, jsEvent );
+
+    const auto pNativeEvent = convert::to_native::ToValue<JsEvent*>( pJsCtx_, jsEvent );
+    status.isDefaultSuppressed = pNativeEvent->get_DefaultPrevented();
+    return status;
 }
 
 JSObject* PlaybackControl::GetNowPlayingTrack()

@@ -21,6 +21,12 @@ namespace smp
 class TimeoutManager;
 }
 
+namespace smp::panel
+{
+class CallbackData;
+class PanelWindowGraphics;
+} // namespace smp::panel
+
 namespace mozjs
 {
 class JsContainer;
@@ -29,8 +35,6 @@ class JsAsyncTask;
 
 namespace smp::panel
 {
-
-class CallbackData;
 
 class PanelWindow
     : public uie::container_window_v3
@@ -57,7 +61,7 @@ public:
     void Repaint( bool force = false );
     void RepaintRect( const CRect& rc, bool force = false );
     /// @details Calls Repaint inside
-    void RepaintBackground( const CRect& updateRc );
+    void RepaintBackground();
 
 public: // accessors
     [[nodiscard]] const config::PanelConfig& GetPanelConfig() const;
@@ -65,12 +69,11 @@ public: // accessors
     [[nodiscard]] config::PanelProperties& GetPanelProperties();
     [[nodiscard]] qwr::u8string GetPanelDescription( bool includeVersionAndAuthor = true );
 
-    [[nodiscard]] HDC GetHDC() const;
+    [[nodiscard]] PanelWindowGraphics* GetGraphics();
+
     [[nodiscard]] HWND GetHWND() const;
     [[nodiscard]] POINT& MaxSize();
     [[nodiscard]] POINT& MinSize();
-    [[nodiscard]] int GetHeight() const;
-    [[nodiscard]] int GetWidth() const;
     // TODO: move to a better place
     [[nodiscard]] TimeoutManager& GetTimeoutManager();
 
@@ -92,6 +95,8 @@ public: // accessors
     [[nodiscard]] bool HasInternalDrag() const;
 
 public: // event handling
+    void ExecuteEvent( EventBase& event );
+
     void ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task );
     bool ExecuteEvent_JsCode( mozjs::JsAsyncTask& task );
     void ExecuteEvent_Basic( EventId id );
@@ -117,9 +122,6 @@ private:
     void UnloadScript( bool force = false );
     void ReloadScript();
 
-    void CreateDrawContext();
-    void DeleteDrawContext();
-
 private: // callback handling
     void OnProcessingEventStart();
     void OnProcessingEventFinish();
@@ -133,17 +135,10 @@ private: // callback handling
     std::optional<LRESULT> ProcessWindowMessage( const MSG& msg );
     std::optional<LRESULT> ProcessInternalSyncMessage( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
 
-    // Internal callbacks
     void OnContextMenu( int x, int y );
     void OnCreate( HWND hWnd );
     void OnDestroy();
-
-    // JS callbacks
-    void OnPaint( HDC dc, const CRect& updateRc );
-    void OnPaintErrorScreen( HDC memdc );
-    void OnPaintJs( HDC memdc, const CRect& updateRc );
-    void OnSizeDefault( uint32_t w, uint32_t h );
-    void OnSizeUser( uint32_t w, uint32_t h );
+    void OnPaint( EventBase& event );
 
 private:
     const PanelType panelType_;
@@ -157,12 +152,7 @@ private:
     std::unique_ptr<TimeoutManager> pTimeoutManager_;
 
     CWindow wnd_;
-    HDC hDc_ = nullptr;
-
-    uint32_t height_ = 0;     // used externally as well
-    uint32_t width_ = 0;      // used externally as well
-    CBitmap bmp_ = nullptr;   // used only internally
-    CBitmap bmpBg_ = nullptr; // used only internally
+    std::unique_ptr<PanelWindowGraphics> pGraphics_;
 
     bool hasFailed_ = false; // // used only internally
 
@@ -172,10 +162,11 @@ private:
     bool isBgRepaintNeeded_ = false; // used only internally
     bool isPaintInProgress_ = false; // used only internally
 
-    bool isMouseTracked_ = false;              // used only internally
-    bool isMouseCaptured_ = false;             // used only internally
-    bool hasInternalDrag_ = false;             // used only internally
-    bool isDraggingInside_ = false;            // used only internally
+    bool isMouseTracked_ = false;   // used only internally
+    bool isMouseCaptured_ = false;  // used only internally
+    bool hasInternalDrag_ = false;  // used only internally
+    bool isDraggingInside_ = false; // used only internally
+    // TODO: is this needed at all?
     ui_selection_holder::ptr selectionHolder_; // used only internally
 
     CComPtr<smp::com::IDropTargetImpl> dropTargetHandler_; // used only internally
@@ -183,9 +174,13 @@ private:
 
     bool isPanelIdOverridenByScript_ = false; // used only internally
 
-    size_t dlgCode_ = 0;                   // modified only from external
+    size_t dlgCode_ = 0; // modified only from external
+    // TODO: move to graphics class
     POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
     POINT minSize_ = { 0, 0 };             // modified only from external
+
+    std::optional<int32_t> lastMouseX_;
+    std::optional<int32_t> lastMouseY_;
 };
 
 } // namespace smp::panel

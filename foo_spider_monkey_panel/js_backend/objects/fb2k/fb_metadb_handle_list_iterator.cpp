@@ -5,7 +5,7 @@
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_property_helper.h>
 
 #include <qwr/final_action.h>

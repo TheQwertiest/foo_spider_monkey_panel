@@ -57,6 +57,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "mozjs_release", "..\mozjs\R
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wtl", "..\submodules\wtl\wtl.vcxitems", "{633A5B67-2FBD-4491-8B51-5F2C72784EAC}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "local_dependencies", "local_dependencies", "{8E38C20E-A055-448F-9439-5F52B82FEEBB}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "property_list", "..\PropertyList\property_list.vcxitems", "{9D5C8F9B-3C92-40AA-B23E-566828BF5424}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -134,14 +138,24 @@ Global
 		{324E062D-0AF2-42F1-874B-82CE61D9B2FD} = {544844FF-3BCA-4D28-884D-997582B1E2C2}
 		{7CA4BBC9-83CA-42BE-84BB-8A98368FABAB} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
 		{EE3BF4F9-2014-4CFF-96C8-44CFB85E0571} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
-		{1B0654F2-3FEC-43B8-8C0A-6206C64BD6B2} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{1B0654F2-3FEC-43B8-8C0A-6206C64BD6B2} = {8E38C20E-A055-448F-9439-5F52B82FEEBB}
 		{EEFC09BE-6049-4311-83EF-62ECB9D2BE1F} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
 		{D8B31234-916F-43CD-A29A-1B121BB1D980} = {EEFC09BE-6049-4311-83EF-62ECB9D2BE1F}
 		{F0DFCA92-260F-4729-92DD-77FCD6C12938} = {EEFC09BE-6049-4311-83EF-62ECB9D2BE1F}
 		{633A5B67-2FBD-4491-8B51-5F2C72784EAC} = {0C59EEF0-93B0-4DA2-A67D-821327C32C78}
+		{9D5C8F9B-3C92-40AA-B23E-566828BF5424} = {8E38C20E-A055-448F-9439-5F52B82FEEBB}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {04D470B3-3881-4A19-A99F-5E04F5978FB4}
 		SolutionNewStyle = 1
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\mozjs\Debug\mozjs_debug.vcxitems*{43df6037-dbe4-4468-9a50-4311495f3c86}*SharedItemsImports = 4
+		..\PropertyList\property_list.vcxitems*{43df6037-dbe4-4468-9a50-4311495f3c86}*SharedItemsImports = 4
+		..\submodules\wtl\wtl.vcxitems*{43df6037-dbe4-4468-9a50-4311495f3c86}*SharedItemsImports = 4
+		..\submodules\wtl\wtl.vcxitems*{633a5b67-2fbd-4491-8b51-5f2c72784eac}*SharedItemsImports = 9
+		..\PropertyList\property_list.vcxitems*{9d5c8f9b-3c92-40aa-b23e-566828bf5424}*SharedItemsImports = 9
+		..\mozjs\Debug\mozjs_debug.vcxitems*{d8b31234-916f-43cd-a29a-1b121bb1d980}*SharedItemsImports = 9
+		..\mozjs\Release\mozjs_release.vcxitems*{f0dfca92-260f-4729-92dd-77fcd6c12938}*SharedItemsImports = 9
 	EndGlobalSection
 EndGlobal

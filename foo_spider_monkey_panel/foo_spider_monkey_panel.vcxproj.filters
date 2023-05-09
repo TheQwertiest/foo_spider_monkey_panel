@@ -199,9 +199,6 @@
     <ClCompile Include="events\event_js_task.cpp">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="events\event_mouse.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
     <ClCompile Include="events\event_basic.cpp">
       <Filter>events</Filter>
     </ClCompile>
@@ -397,7 +394,7 @@
     <ClCompile Include="js_backend\utils\js_image_helpers.cpp">
       <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\utils\js_object_helper.cpp">
+    <ClCompile Include="js_backend\utils\js_object_constants.cpp">
       <Filter>js_backend\utils</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\utils\js_prototype_helpers.cpp">
@@ -460,9 +457,6 @@
     <ClCompile Include="fb2k\callbacks\playback.cpp">
       <Filter>fb2k\callbacks</Filter>
     </ClCompile>
-    <ClCompile Include="events\js_callback_event.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
     <ClCompile Include="js_backend\objects\fb2k\playback_stop_event.cpp">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
@@ -486,6 +480,27 @@
     </ClCompile>
     <ClCompile Include="fb2k\callbacks\init_quit.cpp">
       <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="events\mouse_event.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\mouse_event.cpp">
+      <Filter>js_backend\objects\dom</Filter>
+    </ClCompile>
+    <ClCompile Include="events\panel_event.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="panel\panel_window_graphics.cpp">
+      <Filter>panel</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\window_new.cpp">
+      <Filter>js_backend\objects\dom</Filter>
+    </ClCompile>
+    <ClCompile Include="events\event_mouse.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\paint_event.cpp">
+      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -710,9 +725,6 @@
       <Filter>com_utils</Filter>
     </ClInclude>
     <ClInclude Include="events\event_js_task.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_mouse.h">
       <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="events\event_js_executor.h">
@@ -943,7 +955,7 @@
     <ClInclude Include="js_backend\utils\js_image_helpers.h">
       <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\utils\js_object_helper.h">
+    <ClInclude Include="js_backend\utils\js_object_constants.h">
       <Filter>js_backend\utils</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\utils\js_property_helper.h">
@@ -1024,9 +1036,6 @@
     <ClInclude Include="js_backend\objects\core\builtin_modules.h">
       <Filter>js_backend\objects\core</Filter>
     </ClInclude>
-    <ClInclude Include="events\js_callback_event.h">
-      <Filter>events</Filter>
-    </ClInclude>
     <ClInclude Include="js_backend\objects\fb2k\playback_stop_event.h">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
@@ -1047,6 +1056,36 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\fb2k\selection_manager.h">
       <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="events\mouse_event.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\mouse_event.h">
+      <Filter>js_backend\objects\dom</Filter>
+    </ClInclude>
+    <ClInclude Include="events\panel_event.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="events\event_mouse.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\utils\js_object_helpers.h">
+      <Filter>js_backend\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\utils\js_event_helpers.h">
+      <Filter>js_backend\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\panel_window_graphics.h">
+      <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\window_new.h">
+      <Filter>js_backend\objects\dom</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\paint_event.h">
+      <Filter>js_backend\objects\dom</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\engine\js_event_status.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1069,10 +1108,13 @@
     <None Include="resources\recovery_package_json.json">
       <Filter>resources</Filter>
     </None>
-    <None Include="resources\modules\playback.js">
+    <None Include="resources\modules\fb_playback.js">
       <Filter>resources\modules</Filter>
     </None>
-    <None Include="resources\modules\selection.js">
+    <None Include="resources\modules\fb_selection.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\window.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>

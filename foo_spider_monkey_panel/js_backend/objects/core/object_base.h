@@ -1,7 +1,7 @@
 #pragma once
 
 #include <js_backend/engine/js_realm_inner.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_prototype_helpers.h>
 
 #include <js/TypeDecls.h>
@@ -201,7 +201,7 @@ public:
             }
 
             delete pNative;
-            JS::SetPrivate( pSelf, nullptr );
+            JS::SetReservedSlot( pSelf, kReservedObjectSlot, JS::UndefinedValue() );
         }
     }
 
@@ -230,7 +230,7 @@ public:
     ///        Should not be used directly with values received from JS code (use ExtractNative() instead).
     [[nodiscard]] static T* ExtractNativeUnchecked( JSObject* jsObject )
     {
-        return Self::ExtractNativeFromVoid( JS::GetPrivate( jsObject ) );
+        return Self::ExtractNativeFromVoid( mozjs::utils::GetMaybePtrFromReservedSlot( jsObject, kReservedObjectSlot ) );
     }
 
 private:
@@ -250,7 +250,7 @@ private:
             }
         }
 
-        auto pVoid = JS_GetInstancePrivate( cx, jsUnwrappedObject, &T::JsClass, nullptr );
+        auto pVoid = mozjs::utils::GetInstanceFromReservedSlot( cx, jsUnwrappedObject, &T::JsClass, nullptr );
         return Self::ExtractNativeFromVoid( pVoid );
     }
 
@@ -288,6 +288,7 @@ private:
         if constexpr ( Self::Trait_HasParentProto() )
         {
             // TODO: add a proper check instead of naive static_cast
+            // e.g. struct{int magic, void* native};
             return static_cast<T*>( static_cast<T::BaseJsType*>( pVoid ) );
         }
         else
@@ -307,7 +308,8 @@ private:
             }
             else
             {
-                jsProto = utils::GetOrCreatePrototype<T>( cx, T::PrototypeId );
+                // TODO: replace Self with T
+                jsProto = utils::GetOrCreatePrototype<Self>( cx, T::PrototypeId );
             }
             assert( jsProto );
             return jsProto;
@@ -354,11 +356,15 @@ private:
 
         if constexpr ( Self::Trait_HasParentProto() )
         {
-            JS::SetPrivate( jsBaseObject, static_cast<T::BaseJsType*>( premadeNative.release() ) );
+            JS::SetReservedSlot( jsBaseObject,
+                                 kReservedObjectSlot,
+                                 JS::PrivateValue( static_cast<T::BaseJsType*>( premadeNative.release() ) ) );
         }
         else
         {
-            JS::SetPrivate( jsBaseObject, premadeNative.release() );
+            JS::SetReservedSlot( jsBaseObject,
+                                 kReservedObjectSlot,
+                                 JS::PrivateValue( premadeNative.release() ) );
         }
 
         if constexpr ( Self::Trait_HasPostCreate() )
@@ -452,8 +458,8 @@ private: // traits
         if constexpr ( requires( T t ) {
                            {
                                t.JsFunctions
-                               }
-                               -> std::same_as<const JSFunctionSpec*&>;
+                           }
+                           -> std::same_as<const JSFunctionSpec*&>;
                        } )
         {
             return T::JsFunctions;
@@ -469,8 +475,8 @@ private: // traits
         if constexpr ( requires( T t ) {
                            {
                                t.JsStaticFunctions
-                               }
-                               -> std::same_as<const JSFunctionSpec*&>;
+                           }
+                           -> std::same_as<const JSFunctionSpec*&>;
                        } )
         {
             return T::JsFunctions;
@@ -486,8 +492,8 @@ private: // traits
         if constexpr ( requires( T t ) {
                            {
                                t.JsProperties
-                               }
-                               -> std::same_as<const JSPropertySpec*&>;
+                           }
+                           -> std::same_as<const JSPropertySpec*&>;
                        } )
         {
             return T::JsProperties;

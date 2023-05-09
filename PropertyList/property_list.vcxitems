@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup Label="Globals">
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ReplaceWildcardsInProjectItems>true</ReplaceWildcardsInProjectItems>
+    <ItemsProjectGuid>{9D5C8F9B-3C92-40AA-B23E-566828BF5424}</ItemsProjectGuid>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectCapability Include="SourceItemsFromImports" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="$(MsbuildThisFileDirectory)include\property_list\PropertyItem.h" />
+    <ClInclude Include="$(MsbuildThisFileDirectory)include\property_list\PropertyItemEditors.h" />
+    <ClInclude Include="$(MsbuildThisFileDirectory)include\property_list\PropertyItemImpl.h" />
+    <ClInclude Include="$(MsbuildThisFileDirectory)include\property_list\PropertyList.h" />
+  </ItemGroup>
+</Project>

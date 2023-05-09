@@ -18,7 +18,7 @@
     <ProjectGuid>{43DF6037-DBE4-4468-9A50-4311495F3C86}</ProjectGuid>
     <RootNamespace>foo_spider_monkey_panel</RootNamespace>
     <Keyword>Win32Proj</Keyword>
-    <WindowsTargetPlatformVersion>10.0.22000.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.20348.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -34,7 +34,12 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
-  <ImportGroup Label="Shared" />
+  <ImportGroup Label="Shared">
+    <Import Project="$(SolutionDir)\..\submodules\wtl\wtl.vcxitems" Label="Shared" />
+    <Import Project="$(SolutionDir)\..\mozjs\Debug\mozjs_debug.vcxitems" Condition="'$(Configuration)'=='Debug'" Label="Shared" />
+    <Import Project="$(SolutionDir)\..\mozjs\Debug\mozjs_release.vcxitems" Condition="'$(Configuration)'=='Release'" Label="Shared" />
+    <Import Project="$(SolutionDir)\..\PropertyList\property_list.vcxitems" Label="Shared" />
+  </ImportGroup>
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(SolutionDir)\..\props\submodules\submodules.props" />
@@ -169,16 +174,17 @@
     <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
+    <ClCompile Include="events\event_mouse.cpp" />
+    <ClCompile Include="events\panel_event.cpp" />
     <ClCompile Include="events\dispatcher\event_dispatcher.cpp" />
     <ClCompile Include="events\dispatcher\task_controller.cpp" />
     <ClCompile Include="events\event.cpp" />
     <ClCompile Include="events\event_drag.cpp" />
-    <ClCompile Include="events\js_callback_event.cpp" />
     <ClCompile Include="events\event_js_task.cpp" />
-    <ClCompile Include="events\event_mouse.cpp" />
     <ClCompile Include="events\event_basic.cpp" />
     <ClCompile Include="events\event_js_executor.cpp" />
     <ClCompile Include="events\event_notify_others.cpp" />
+    <ClCompile Include="events\mouse_event.cpp" />
     <ClCompile Include="events\playback_stop_event.cpp" />
     <ClCompile Include="events\event_timer.cpp" />
     <ClCompile Include="fb2k\acfu_integration.cpp" />
@@ -214,6 +220,9 @@
     <ClCompile Include="js_backend\objects\dom\event_target.cpp" />
     <ClCompile Include="js_backend\objects\dom\main_menu_manager.cpp" />
     <ClCompile Include="js_backend\objects\dom\menu_object.cpp" />
+    <ClCompile Include="js_backend\objects\dom\mouse_event.cpp" />
+    <ClCompile Include="js_backend\objects\dom\paint_event.cpp" />
+    <ClCompile Include="js_backend\objects\dom\window_new.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\fb_file_info.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle_list.cpp" />
@@ -246,7 +255,7 @@
     <ClCompile Include="js_backend\utils\js_error_helper.cpp" />
     <ClCompile Include="js_backend\utils\js_hwnd_helpers.cpp" />
     <ClCompile Include="js_backend\utils\js_image_helpers.cpp" />
-    <ClCompile Include="js_backend\utils\js_object_helper.cpp" />
+    <ClCompile Include="js_backend\utils\js_object_constants.cpp" />
     <ClCompile Include="js_backend\utils\js_prototype_helpers.cpp" />
     <ClCompile Include="js_backend\utils\mozjs_backport.cpp" />
     <ClCompile Include="js_backend\utils\serialized_value.cpp" />
@@ -255,6 +264,7 @@
     <ClCompile Include="panel\panel_adaptor_cui.cpp" />
     <ClCompile Include="panel\panel_adaptor_dui.cpp" />
     <ClCompile Include="panel\modal_blocking_scope.cpp" />
+    <ClCompile Include="panel\panel_window_graphics.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
@@ -348,17 +358,18 @@
     <ClInclude Include="convert\com.h" />
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
+    <ClInclude Include="events\event_mouse.h" />
+    <ClInclude Include="events\panel_event.h" />
     <ClInclude Include="events\dispatcher\event_dispatcher.h" />
     <ClInclude Include="events\dispatcher\task_controller.h" />
     <ClInclude Include="events\event.h" />
     <ClInclude Include="events\event_drag.h" />
     <ClInclude Include="events\event_js_callback.h" />
-    <ClInclude Include="events\js_callback_event.h" />
     <ClInclude Include="events\event_js_task.h" />
-    <ClInclude Include="events\event_mouse.h" />
     <ClInclude Include="events\event_basic.h" />
     <ClInclude Include="events\event_js_executor.h" />
     <ClInclude Include="events\event_notify_others.h" />
+    <ClInclude Include="events\mouse_event.h" />
     <ClInclude Include="events\playback_stop_event.h" />
     <ClInclude Include="events\event_timer.h" />
     <ClInclude Include="fb2k\advanced_config.h" />
@@ -370,6 +381,7 @@
     <ClInclude Include="js_backend\engine\heartbeat_window.h" />
     <ClInclude Include="js_backend\engine\js_container.h" />
     <ClInclude Include="js_backend\engine\js_engine.h" />
+    <ClInclude Include="js_backend\engine\js_event_status.h" />
     <ClInclude Include="js_backend\engine\js_gc.h" />
     <ClInclude Include="js_backend\engine\js_monitor.h" />
     <ClInclude Include="js_backend\engine\js_realm_inner.h" />
@@ -392,6 +404,9 @@
     <ClInclude Include="js_backend\objects\dom\event_target.h" />
     <ClInclude Include="js_backend\objects\dom\main_menu_manager.h" />
     <ClInclude Include="js_backend\objects\dom\menu_object.h" />
+    <ClInclude Include="js_backend\objects\dom\mouse_event.h" />
+    <ClInclude Include="js_backend\objects\dom\paint_event.h" />
+    <ClInclude Include="js_backend\objects\dom\window_new.h" />
     <ClInclude Include="js_backend\objects\fb2k\fb_file_info.h" />
     <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle.h" />
     <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle_list.h" />
@@ -423,10 +438,12 @@
     <ClInclude Include="js_backend\utils\js_art_helpers.h" />
     <ClInclude Include="js_backend\utils\js_async_task.h" />
     <ClInclude Include="js_backend\utils\js_error_helper.h" />
+    <ClInclude Include="js_backend\utils\js_event_helpers.h" />
     <ClInclude Include="js_backend\utils\js_heap_helper.h" />
     <ClInclude Include="js_backend\utils\js_hwnd_helpers.h" />
     <ClInclude Include="js_backend\utils\js_image_helpers.h" />
-    <ClInclude Include="js_backend\utils\js_object_helper.h" />
+    <ClInclude Include="js_backend\utils\js_object_constants.h" />
+    <ClInclude Include="js_backend\utils\js_object_helpers.h" />
     <ClInclude Include="js_backend\utils\js_property_helper.h" />
     <ClInclude Include="js_backend\utils\js_prototype_helpers.h" />
     <ClInclude Include="js_backend\utils\mozjs_backport.h" />
@@ -439,6 +456,7 @@
     <ClInclude Include="panel\panel_adaptor_cui.h" />
     <ClInclude Include="panel\panel_adaptor_dui.h" />
     <ClInclude Include="panel\modal_blocking_scope.h" />
+    <ClInclude Include="panel\panel_window_graphics.h" />
     <ClInclude Include="panel\user_message.h" />
     <ClInclude Include="resources\resource.h" />
     <ClInclude Include="stdafx.h" />
@@ -504,8 +522,9 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="resources\default_script.js" />
-    <None Include="resources\modules\playback.js" />
-    <None Include="resources\modules\selection.js" />
+    <None Include="resources\modules\fb_playback.js" />
+    <None Include="resources\modules\fb_selection.js" />
+    <None Include="resources\modules\window.js" />
     <None Include="resources\recovery_package_json.json" />
     <None Include="resources\foo_spider_monkey_panel.rc2" />
     <None Include="resources\recovery_package_script.js" />

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <events/event.h>
+#include <js_backend/engine/js_event_status.h>
 #include <js_backend/objects/core/object_base.h>
 #include <js_backend/objects/dom/event_target.h>
 
@@ -31,7 +32,7 @@ private:
     static const JsPrototypeId ParentPrototypeId;
 
 public:
-    static std::unordered_set<smp::EventId> kHandledEvents;
+    static const std::unordered_set<smp::EventId> kHandledEvents;
 
 public:
     ~PlaybackControl() override = default;
@@ -41,7 +42,7 @@ public:
     static void Trace( JSTracer* trc, JSObject* obj );
     void PrepareForGc();
 
-    void HandleEvent( JS::HandleObject self, const smp::EventBase& event );
+    EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event );
 
 public:
     JSObject* GetNowPlayingTrack();

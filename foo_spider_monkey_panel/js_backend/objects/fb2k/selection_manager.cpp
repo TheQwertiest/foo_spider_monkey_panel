@@ -47,7 +47,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "SelectionManager",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE, // selection_holder must be finalized in foreground,
+    JSCLASS_HAS_RESERVED_SLOTS( 1 ) | JSCLASS_FOREGROUND_FINALIZE, // selection_holder must be finalized in foreground,
     &jsOps
 };
 
@@ -77,7 +77,7 @@ const JSFunctionSpec* SelectionManager::JsFunctions = jsFunctions.data();
 const JsPrototypeId SelectionManager::BasePrototypeId = JsPrototypeId::EventTarget;
 const JsPrototypeId SelectionManager::ParentPrototypeId = JsPrototypeId::EventTarget;
 
-std::unordered_set<EventId> SelectionManager::kHandledEvents{
+const std::unordered_set<EventId> SelectionManager::kHandledEvents{
     EventId::kNew_FbSelectionChange,
 };
 
@@ -142,25 +142,33 @@ void SelectionManager::PostCreate( JSContext* cx, JS::HandleObject self )
 
 const std::string& SelectionManager::EventIdToType( smp::EventId eventId )
 {
-    static std::unordered_map<EventId, std::string> idToType{
+    static const std::unordered_map<EventId, std::string> idToType{
         { EventId::kNew_FbSelectionChange, "selectionChange" },
     };
 
+    assert( idToType.size() == kHandledEvents.size() );
     assert( idToType.contains( eventId ) );
     return idToType.at( eventId );
 }
 
-void SelectionManager::HandleEvent( JS::HandleObject self, const smp::EventBase& event )
+EventStatus SelectionManager::HandleEvent( JS::HandleObject self, const smp::EventBase& event )
 {
+    EventStatus status;
+
     const auto& eventType = EventIdToType( event.GetId() );
     if ( !HasEventListener( eventType ) )
     {
-        return;
+        return status;
     }
+    status.isHandled = true;
 
     JS::RootedValue jsEvent( pJsCtx_ );
-    jsEvent.setObjectOrNull( mozjs::JsEvent::CreateJs( pJsCtx_, eventType, false ) );
+    jsEvent.setObjectOrNull( mozjs::JsEvent::CreateJs( pJsCtx_, eventType, mozjs::JsEvent::EventProperties{ .cancelable = false } ) );
     DispatchEvent( self, jsEvent );
+
+    const auto pNativeEvent = convert::to_native::ToValue<JsEvent*>( pJsCtx_, jsEvent );
+    status.isDefaultSuppressed = pNativeEvent->get_DefaultPrevented();
+    return status;
 }
 
 JSObject* SelectionManager::GetSelection( uint32_t flags )

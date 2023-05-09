@@ -14,9 +14,10 @@
 #include <js_backend/objects/gdi/theme_manager.h>
 #include <js_backend/utils/js_async_task.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <panel/panel_window.h>
+#include <panel/panel_window_graphics.h>
 #include <timeout/timeout_manager.h>
 #include <utils/gdi_helpers.h>
 
@@ -509,10 +510,11 @@ uint32_t JsWindow::GetColourDUI( uint32_t type )
 
 JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
 {
-    if ( isFinalized_ )
+    if ( isFinalized_ || !parentPanel_.GetGraphics() )
     {
         return nullptr;
     }
+    const auto& graphics = *parentPanel_.GetGraphics();
 
     qwr::QwrException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::CUI, "Can be called only in CUI" );
 
@@ -533,7 +535,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont.get() ) );
+    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( graphics.GetHDC(), hFont.get() ) );
     if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
     { // Not an error: font not found
         return nullptr;
@@ -557,10 +559,11 @@ JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const 
 
 JSObject* JsWindow::GetFontDUI( uint32_t type )
 {
-    if ( isFinalized_ )
+    if ( isFinalized_ || !parentPanel_.GetGraphics() )
     {
         return nullptr;
     }
+    const auto& graphics = *parentPanel_.GetGraphics();
 
     qwr::QwrException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
@@ -570,7 +573,7 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont ) );
+    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( graphics.GetHDC(), hFont ) );
     if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
     { // Not an error: font not found
         return nullptr;
@@ -812,12 +815,13 @@ uint32_t JsWindow::get_DlgCode()
 
 uint32_t JsWindow::get_Height()
 {
-    if ( isFinalized_ )
+    if ( isFinalized_ || !parentPanel_.GetGraphics() )
     {
         return 0;
     }
+    const auto& graphics = *parentPanel_.GetGraphics();
 
-    return parentPanel_.GetHeight();
+    return graphics.GetHeight();
 }
 
 uint32_t JsWindow::get_ID() const
@@ -991,12 +995,13 @@ JSObject* JsWindow::get_Tooltip()
 
 uint32_t JsWindow::get_Width()
 {
-    if ( isFinalized_ )
+    if ( isFinalized_ || !parentPanel_.GetGraphics() )
     {
         return 0;
     }
+    const auto& graphics = *parentPanel_.GetGraphics();
 
-    return parentPanel_.GetWidth();
+    return graphics.GetWidth();
 }
 
 void JsWindow::put_DlgCode( uint32_t code )

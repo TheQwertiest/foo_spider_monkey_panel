@@ -7,6 +7,7 @@
 namespace mozjs
 {
 
+// TODO: rename to Event
 class JsEvent
     : public JsObjectBase<JsEvent>
 {
@@ -22,6 +23,18 @@ private:
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
+
+public:
+    struct EventProperties
+    {
+        bool cancelable = false;
+    };
+
+protected:
+    struct EventOptions
+    {
+        bool cancelable = false;
+    };
 
 public:
     ~JsEvent() override;
@@ -50,11 +63,17 @@ public:
     const qwr::u8string& get_Type() const;
 
 protected:
-    JsEvent( JSContext* cx, const qwr::u8string& type, bool isCancelable );
+    // TODO: add cancelable check for all events
+    // TODO: add event traits
+    JsEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props = {} );
+    JsEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );
     [[nodiscard]] size_t GetInternalSize();
 
+    static EventOptions ExtractOptions( JSContext* cx, JS::HandleValue options );
+
 private:
-    static std::unique_ptr<JsEvent> CreateNative( JSContext* cx, const qwr::u8string& type, bool isCancelable );
+    static std::unique_ptr<JsEvent> CreateNative( JSContext* cx, const qwr::u8string& type, const EventProperties& props );
+    static std::unique_ptr<JsEvent> CreateNative( JSContext* cx, const qwr::u8string& type, const EventOptions& options );
 
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
