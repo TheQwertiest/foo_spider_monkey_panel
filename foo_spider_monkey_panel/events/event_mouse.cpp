@@ -15,7 +15,7 @@ Event_Mouse::Event_Mouse( EventId id, int32_t x, int32_t y, uint32_t mask, uint3
     , mask_( mask )
     , modifiers_( modifiers )
 {
-    assert( kCallbackIdToName.contains( id_ ) );
+    assert( kCallbackIdToName.count( id_ ) );
 }
 
 std::optional<bool> Event_Mouse::JsExecute( mozjs::JsContainer& jsContainer )

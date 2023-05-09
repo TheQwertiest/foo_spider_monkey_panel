@@ -12,6 +12,7 @@
 #include <js_backend/objects/dom/console.h>
 #include <js_backend/objects/dom/enumerator.h>
 #include <js_backend/objects/dom/event.h>
+#include <js_backend/objects/dom/window_new.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/objects/fb2k/fb_playlist_manager.h>
 #include <js_backend/objects/fb2k/fb_profiler.h>
@@ -25,8 +26,10 @@
 #include <js_backend/objects/utils.h>
 #include <js_backend/objects/window.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
+#include <js_backend/utils/js_object_helpers.h>
 #include <js_backend/utils/js_property_helper.h>
+#include <js_backend/utils/js_prototype_helpers.h>
 #include <panel/panel_window.h>
 #include <utils/logging.h>
 
@@ -58,7 +61,7 @@ static T* GetNativeObjectProperty( JSContext* cx, JS::HandleObject self, const s
     }
 
     JS::RootedObject jsProperty( cx, &jsPropertyValue.toObject() );
-    return JsObjectBase<T>::ExtractNative( cx, jsProperty );
+    return mozjs::JsObjectBase<T>::ExtractNative( cx, jsProperty );
 }
 
 template <typename T>
@@ -80,11 +83,11 @@ using namespace mozjs;
 
 void JsFinalizeOpLocal( JSFreeOp* /*fop*/, JSObject* obj )
 {
-    auto x = static_cast<JsGlobalObject*>( JS::GetPrivate( obj ) );
+    auto x = static_cast<JsGlobalObject*>( mozjs::utils::GetMaybePtrFromReservedSlot( obj, kReservedObjectSlot ) );
     if ( x )
     {
         delete x;
-        JS::SetPrivate( obj, nullptr );
+        JS::SetReservedSlot( obj, kReservedObjectSlot, JS::UndefinedValue() );
 
         auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetNonCCWObjectRealm( obj ) ) );
         if ( pJsRealm )
@@ -111,7 +114,7 @@ JSClassOps jsOps = {
 
 constexpr JSClass jsClass = {
     "Global",
-    JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>( JsPrototypeId::ProrototypeCount ) ) | JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>( JsPrototypeId::ProrototypeCount ) ) | JSCLASS_FOREGROUND_FINALIZE,
     &jsOps
 };
 
@@ -212,7 +215,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         pNative->heapManager_ = GlobalHeapManager::Create( cx );
         assert( pNative->heapManager_ );
 
-        JS::SetPrivate( jsObj, pNative.release() );
+        JS::SetReservedSlot( jsObj, kReservedObjectSlot, JS::PrivateValue( pNative.release() ) );
 
         JS_FireOnNewGlobalObject( cx, jsObj );
     }
@@ -222,7 +225,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
 
 JsGlobalObject* JsGlobalObject::ExtractNative( JSContext* cx, JS::HandleObject jsObject )
 {
-    return static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsObject, &mozjs::JsGlobalObject::JsClass, nullptr ) );
+    return static_cast<mozjs::JsGlobalObject*>( mozjs::utils::GetInstanceFromReservedSlot( cx, jsObject, &mozjs::JsGlobalObject::JsClass, nullptr ) );
 }
 
 void JsGlobalObject::Fail( const qwr::u8string& errorText )
@@ -274,18 +277,24 @@ HWND JsGlobalObject::GetPanelHwnd() const
     return pJsWindow_->GetHwnd();
 }
 
-void JsGlobalObject::HandleEvent( smp::EventBase& event )
+EventStatus JsGlobalObject::HandleEvent( smp::EventBase& event )
 {
+    EventStatus status{};
+
     const auto invokeEventHandler = [&, eventId = event.GetId()]( auto& loadedNativeObject ) {
         using T = std::decay_t<decltype( loadedNativeObject )>::NativeT;
         if ( T::kHandledEvents.contains( eventId ) && loadedNativeObject.pNative )
         {
             JS::RootedObject jsLoadedObject( pJsCtx_, *loadedObjects_.at( loadedNativeObject.moduleId ).get() );
-            loadedNativeObject.pNative->HandleEvent( jsLoadedObject, event );
+            auto curStatus = loadedNativeObject.pNative->HandleEvent( jsLoadedObject, event );
+            status.isDefaultSuppressed |= curStatus.isDefaultSuppressed;
+            status.isHandled |= curStatus.isHandled;
         }
     };
 
     std::apply( [&]( auto&... args ) { ( invokeEventHandler( args ), ... ); }, loadedNativeObjects_ );
+
+    return status;
 }
 
 JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
@@ -296,7 +305,16 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
     if ( !loadedObjects_.contains( moduleId ) )
     {
         const auto initializeLoadedObject = [&]<typename T>( auto moduleId ) {
-            auto pNative = T::CreateNative( pJsCtx_ );
+            auto pNative = [&] {
+                if constexpr ( std::is_same_v<T, WindowNew> )
+                {
+                    return T::CreateNative( pJsCtx_, parentContainer_.GetParentPanel() );
+                }
+                else
+                {
+                    return T::CreateNative( pJsCtx_ );
+                }
+            }();
             std::get<LoadedNativeObject<T>>( loadedNativeObjects_ ) = { pNative.get(), moduleId };
             return JsObjectBase<T>::CreateJsFromNative( pJsCtx_, std::move( pNative ) );
         };
@@ -311,6 +329,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case mozjs::BuiltinModuleId::kFbSelectionManager:
             {
                 return initializeLoadedObject.template operator()<SelectionManager>( moduleId );
+            }
+            case mozjs::BuiltinModuleId::kWindow:
+            {
+                return initializeLoadedObject.template operator()<WindowNew>( moduleId );
             }
             default:
                 assert( false );
@@ -394,7 +416,7 @@ JsGlobalObject::IncludeOptions JsGlobalObject::ParseIncludeOptions( JS::HandleVa
 
 void JsGlobalObject::Trace( JSTracer* trc, JSObject* obj )
 {
-    auto pNative = static_cast<JsGlobalObject*>( JS::GetPrivate( obj ) );
+    auto pNative = static_cast<JsGlobalObject*>( mozjs::utils::GetMaybePtrFromReservedSlot( obj, kReservedObjectSlot ) );
     if ( !pNative )
     {
         return;

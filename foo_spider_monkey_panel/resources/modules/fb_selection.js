@@ -1,4 +1,3 @@
-
 let m = _internalModule;
 
 export function getSelection(...args) { return m.getSelection(...args); };

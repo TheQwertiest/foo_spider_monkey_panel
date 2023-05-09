@@ -1,7 +1,7 @@
 #include <stdafx.h>
 
 #include <events/dispatcher/event_dispatcher.h>
-#include <events/js_callback_event.h>
+#include <events/panel_event.h>
 
 using namespace smp;
 
@@ -38,7 +38,7 @@ void InitQuitImpl::on_quit()
 
 void InitQuitImpl::on_selection_changed( metadb_handle_list_cref /*p_selection*/ )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( EventId::kNew_FbSelectionChange ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbSelectionChange ) );
 }
 
 } // namespace

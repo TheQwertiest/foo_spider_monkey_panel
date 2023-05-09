@@ -6,7 +6,7 @@
 #include <js_backend/objects/fb2k/fb_metadb_handle.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 
 #include <qwr/string_helpers.h>
 
@@ -143,9 +143,9 @@ JS::Value JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
         pJsCtx_,
         qwr::pfc_x::Make_Stl_CRef( handles->GetHandleList() ),
         [&titleFormat = titleFormatObject_]( const auto& vec, auto index ) {
-            pfc::string8_fast text;
-            vec[index]->format_title( nullptr, text, titleFormat, nullptr );
-            return text;
+        pfc::string8_fast text;
+        vec[index]->format_title( nullptr, text, titleFormat, nullptr );
+        return text;
         },
         &jsValue );
     return jsValue;

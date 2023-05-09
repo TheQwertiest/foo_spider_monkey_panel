@@ -33,5 +33,4 @@ private:
     const uint32_t mask_;
     const uint32_t modifiers_;
 };
-
 } // namespace smp

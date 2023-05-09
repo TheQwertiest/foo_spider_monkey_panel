@@ -1,6 +1,7 @@
 #include <stdafx.h>
 
 #include <events/dispatcher/event_dispatcher.h>
+#include <events/panel_event.h>
 #include <events/playback_stop_event.h>
 
 using namespace smp;
@@ -36,37 +37,37 @@ unsigned PlayCallbackImpl::get_flags()
 
 void PlayCallbackImpl::on_playback_dynamic_info( const file_info& /*info*/ )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( EventId::kNew_FbPlaybackDynamicInfo ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbPlaybackDynamicInfo ) );
 }
 
 void PlayCallbackImpl::on_playback_dynamic_info_track( const file_info& /*info*/ )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( EventId::kNew_FbPlaybackDynamicInfoTrack ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbPlaybackDynamicInfoTrack ) );
 }
 
 void PlayCallbackImpl::on_playback_edited( metadb_handle_ptr /*track*/ )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( EventId::kNew_FbPlaybackEdited ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbPlaybackEdited ) );
 }
 
 void PlayCallbackImpl::on_playback_new_track( metadb_handle_ptr /*track*/ )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( EventId::kNew_FbPlaybackNewTrack ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbPlaybackNewTrack ) );
 }
 
 void PlayCallbackImpl::on_playback_pause( bool state )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( state ? EventId::kNew_FbPlaybackPause : EventId::kNew_FbPlaybackPlay ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( state ? EventId::kNew_FbPlaybackPause : EventId::kNew_FbPlaybackPlay ) );
 }
 
 void PlayCallbackImpl::on_playback_seek( double /*time*/ )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( EventId::kNew_FbPlaybackSeek ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbPlaybackSeek ) );
 }
 
 void PlayCallbackImpl::on_playback_starting( play_control::t_track_command /*cmd*/, bool /*paused*/ )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( EventId::kNew_FbPlaybackStarting ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbPlaybackStarting ) );
 }
 
 void PlayCallbackImpl::on_playback_stop( play_control::t_stop_reason reason )
@@ -76,12 +77,12 @@ void PlayCallbackImpl::on_playback_stop( play_control::t_stop_reason reason )
 
 void PlayCallbackImpl::on_playback_time( double /*time*/ )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( EventId::kNew_FbPlaybackTime ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbPlaybackTime ) );
 }
 
 void PlayCallbackImpl::on_volume_change( float /*newval*/ )
 {
-    EventDispatcher::Get().PutEventToAll( std::make_unique<JsCallbackEventNew>( EventId::kNew_FbPlaybackVolumeChange ) );
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbPlaybackVolumeChange ) );
 }
 
 } // namespace

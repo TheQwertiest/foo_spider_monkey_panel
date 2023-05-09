@@ -8,7 +8,7 @@
 #include <js_backend/objects/fb2k/fb_metadb_handle_list_iterator.h>
 #include <js_backend/objects/fb2k/fb_title_format.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <utils/art_helpers.h>
 #include <utils/relative_filepath_trie.h>
 #include <utils/text_helpers.h>
@@ -187,7 +187,7 @@ bool FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy,
         JS::RootedObject jsObject( cx, v.toObjectOrNull() );
         JsFbMetadbHandle* pNativeValue =
             jsObject
-                ? static_cast<JsFbMetadbHandle*>( JS_GetInstancePrivate( cx, jsObject, &JsFbMetadbHandle::JsClass, nullptr ) )
+                ? static_cast<JsFbMetadbHandle*>( mozjs::utils::GetInstanceFromReservedSlot( cx, jsObject, &JsFbMetadbHandle::JsClass, nullptr ) )
                 : nullptr;
 
         try
@@ -408,9 +408,9 @@ JS::Value JsFbMetadbHandleList::GetLibraryRelativePaths()
         pJsCtx_,
         qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ),
         [&api]( const auto& vec, auto index ) {
-            pfc::string8_fast path;
-            api->get_relative_path( vec[index], path );
-            return path;
+        pfc::string8_fast path;
+        api->get_relative_path( vec[index], path );
+        return path;
         },
         &jsValue );
 
@@ -630,14 +630,14 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const qwr::u8string& str )
         ranges::views::enumerate( handleList )
         | ranges::views::transform(
             [isArray, &jsonObject]( const auto& zippedElem ) {
-                const auto& [i, handle] = zippedElem;
+        const auto& [i, handle] = zippedElem;
 
-                // TODO: think of a better way of handling unavalaible info,
-                //       currently it uses dummy value instead
-                file_info_impl fileInfo = handle->get_info_ref()->info();
-                ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
-                return fileInfo;
-            } )
+        // TODO: think of a better way of handling unavalaible info,
+        //       currently it uses dummy value instead
+        file_info_impl fileInfo = handle->get_info_ref()->info();
+        ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
+        return fileInfo;
+          } )
         | ranges::to_vector;
 
     metadb_io_v2::get()->update_info_async_simple(

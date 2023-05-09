@@ -82,7 +82,7 @@ bool JsContainer::Initialize()
         return false;
     }
 
-    pNativeGlobal_ = static_cast<JsGlobalObject*>( JS::GetPrivate( jsGlobal_ ) );
+    pNativeGlobal_ = static_cast<JsGlobalObject*>( mozjs::utils::GetMaybePtrFromReservedSlot( jsGlobal_, kReservedObjectSlot ) );
     assert( pNativeGlobal_ );
     pNativeGraphics_ = JsGdiGraphics::ExtractNativeUnchecked( jsGraphics_ );
     assert( pNativeGraphics_ );
@@ -290,24 +290,6 @@ void JsContainer::InvokeOnNotify( const std::wstring& name, JS::HandleValue info
     }
 }
 
-void JsContainer::InvokeOnPaint( Gdiplus::Graphics& gr )
-{
-    if ( !IsReadyForCallback() )
-    {
-        return;
-    }
-
-    auto selfSaver = shared_from_this();
-    pNativeGraphics_->SetGraphicsObject( &gr );
-
-    (void)InvokeJsCallback( "on_paint",
-                            static_cast<JS::HandleObject>( jsGraphics_ ) );
-    if ( pNativeGraphics_ )
-    { // InvokeJsCallback invokes Fail() on error, which resets pNativeGraphics_
-        pNativeGraphics_->SetGraphicsObject( nullptr );
-    }
-}
-
 bool JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
 {
     if ( !IsReadyForCallback() )
@@ -324,11 +306,11 @@ bool JsContainer::InvokeJsAsyncTask( JsAsyncTask& jsTask )
     return jsTask.InvokeJs();
 }
 
-void JsContainer::InvokeJsEvent( smp::EventBase& event )
+EventStatus JsContainer::InvokeJsEvent( smp::EventBase& event )
 {
     if ( !IsReadyForCallback() )
     {
-        return;
+        return EventStatus{};
     }
 
     auto selfSaver = shared_from_this();
@@ -337,7 +319,15 @@ void JsContainer::InvokeJsEvent( smp::EventBase& event )
     OnJsActionStart();
     qwr::final_action autoAction( [&] { OnJsActionEnd(); } );
 
-    pNativeGlobal_->HandleEvent( event );
+    try
+    {
+        return pNativeGlobal_->HandleEvent( event );
+    }
+    catch ( ... )
+    {
+        mozjs::error::ExceptionToJsError( pJsCtx_ );
+        return EventStatus{};
+    }
 }
 
 void JsContainer::SetJsCtx( JSContext* cx )

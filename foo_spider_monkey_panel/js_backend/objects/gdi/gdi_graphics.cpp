@@ -8,7 +8,7 @@
 #include <js_backend/objects/gdi/gdi_raw_bitmap.h>
 #include <js_backend/objects/gdi/measure_string_info.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/text_helpers.h>

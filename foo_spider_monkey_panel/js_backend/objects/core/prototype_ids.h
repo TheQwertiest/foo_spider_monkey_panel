@@ -7,6 +7,7 @@ namespace mozjs
 
 enum class JsPrototypeId : uint32_t
 {
+    Reserved = 0,
     ActiveX,
     ActiveX_Iterator,
     ContextMenuManager,
@@ -34,7 +35,7 @@ enum class JsPrototypeId : uint32_t
     MenuObject,
     ThemeManager,
     New_PlaybackStopEvent,
+    New_PaintEvent,
     ProrototypeCount
 };
-
 }

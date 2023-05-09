@@ -6,7 +6,7 @@
 #include <js_backend/objects/dom/menu_object.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 
 #include <qwr/string_helpers.h>
 

@@ -7,6 +7,7 @@
 #include <js_backend/objects/core/global_object.h>
 #include <js_backend/utils/cached_utf8_paths_hack.h>
 #include <js_backend/utils/js_property_helper.h>
+#include <js_backend/utils/js_prototype_helpers.h>
 
 #include <qwr/final_action.h>
 #include <qwr/string_helpers.h>
@@ -211,7 +212,7 @@ AutoJsReport::~AutoJsReport() noexcept
             return;
         }
 
-        auto globalCtx = static_cast<JsGlobalObject*>( JS::GetPrivate( global ) );
+        auto globalCtx = static_cast<JsGlobalObject*>( mozjs::utils::GetMaybePtrFromReservedSlot( global, kReservedObjectSlot ) );
         if ( !globalCtx )
         {
             assert( 0 );

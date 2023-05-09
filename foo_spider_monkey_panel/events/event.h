@@ -58,24 +58,9 @@ enum class EventId
     kKeyboardKeyDown,
     kKeyboardKeyUp,
     /// mouse
-    //// buttons
-    kMouseLeftButtonDoubleClick,
-    kMouseLeftButtonDown,
-    kMouseLeftButtonUp,
-    kMouseMiddleButtonDoubleClick,
-    kMouseMiddleButtonDown,
-    kMouseMiddleButtonUp,
-    kMouseRightButtonDoubleClick,
-    kMouseRightButtonDown,
-    kMouseRightButtonUp,
     //// wheel
     kMouseHorizontalWheel,
     kMouseVerticalWheel,
-    //// move
-    kMouseLeave,
-    kMouseMove,
-    //// context
-    kMouseContextMenu,
     //// drag-n-drop
     kMouseDragDrop,
     kMouseDragEnter,
@@ -93,9 +78,7 @@ enum class EventId
     kUiColoursChanged,
     kUiFontChanged,
     // window
-    kWndPaint,
     kWndRepaintBackground,
-    kWndResize,
     // script
     kScriptEdit,
     kScriptReload,
@@ -106,6 +89,9 @@ enum class EventId
     kNotifyOthers,
     kTimer,
     // new
+    // window
+    kNew_WndPaint,
+    kNew_WndResize,
     // playback
     kNew_FbPlaybackDynamicInfo,
     kNew_FbPlaybackDynamicInfoTrack,
@@ -120,6 +106,25 @@ enum class EventId
     kNew_FbPlaybackVolumeChange,
     // selection
     kNew_FbSelectionChange,
+    // panel
+    /// mouse
+    //// buttons
+    kNew_MouseLeftButtonDoubleClick,
+    kNew_MouseLeftButtonDown,
+    kNew_MouseLeftButtonUp,
+    kNew_MouseMiddleButtonDoubleClick,
+    kNew_MouseMiddleButtonDown,
+    kNew_MouseMiddleButtonUp,
+    kNew_MouseRightButtonDoubleClick,
+    kNew_MouseRightButtonDown,
+    kNew_MouseRightButtonUp,
+    // TODO: click + dblclick
+    //// move
+    kNew_MouseLeave,
+    kNew_MouseMove,
+    // TODO: mouse enter
+    //// context
+    kNew_MouseContextMenu,
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
@@ -160,29 +165,13 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     /// control
     { EventId::kInputBlur, "focus" },
     { EventId::kInputFocus, "focus" },
-    /// keyboard
     { EventId::kKeyboardChar, "char" },
     { EventId::kKeyboardKeyDown, "key_down" },
     { EventId::kKeyboardKeyUp, "key_up" },
     /// mouse
-    //// buttons
-    { EventId::kMouseLeftButtonDoubleClick, "mouse_lbtn_dblclk" },
-    { EventId::kMouseLeftButtonDown, "mouse_lbtn_down" },
-    { EventId::kMouseLeftButtonUp, "mouse_lbtn_up" },
-    { EventId::kMouseMiddleButtonDoubleClick, "mouse_mbtn_dblclk" },
-    { EventId::kMouseMiddleButtonDown, "mouse_mbtn_down" },
-    { EventId::kMouseMiddleButtonUp, "mouse_mbtn_up" },
-    { EventId::kMouseRightButtonDoubleClick, "mouse_rbtn_dblclk" },
-    { EventId::kMouseRightButtonDown, "mouse_rbtn_down" },
-    { EventId::kMouseRightButtonUp, "mouse_rbtn_up" },
     //// wheel
     { EventId::kMouseHorizontalWheel, "mouse_wheel_h" },
     { EventId::kMouseVerticalWheel, "mouse_wheel" },
-    //// move
-    { EventId::kMouseLeave, "mouse_leave" },
-    { EventId::kMouseMove, "mouse_move" },
-    //// context
-    { EventId::kMouseContextMenu, "UNUSED" },
     //// drag-n-drop
     { EventId::kMouseDragDrop, "UNUSED" },
     { EventId::kMouseDragEnter, "UNUSED" },

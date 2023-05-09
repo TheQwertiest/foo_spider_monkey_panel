@@ -1,5 +1,6 @@
 #pragma once
 
+#include <js_backend/engine/js_event_status.h>
 #include <js_backend/objects/core/script_loader.h>
 
 #include <optional>
@@ -25,6 +26,7 @@ class JsWindow;
 class GlobalHeapManager;
 class PlaybackControl;
 class SelectionManager;
+class WindowNew;
 
 } // namespace mozjs
 
@@ -57,7 +59,7 @@ public:
     /// @remark HWND might be null, if called before fb2k initialization is completed
     [[nodiscard]] HWND GetPanelHwnd() const;
 
-    void HandleEvent( smp::EventBase& event );
+    EventStatus HandleEvent( smp::EventBase& event );
 
 public:
     JSObject* InternalLazyLoad( uint8_t moduleIdRaw );
@@ -103,7 +105,11 @@ private:
         BuiltinModuleId moduleId = BuiltinModuleId::kCount;
     };
 
-    std::tuple<LoadedNativeObject<PlaybackControl>, LoadedNativeObject<SelectionManager>> loadedNativeObjects_;
+    std::tuple<
+        LoadedNativeObject<PlaybackControl>,
+        LoadedNativeObject<SelectionManager>,
+        LoadedNativeObject<WindowNew>>
+        loadedNativeObjects_;
 };
 
 } // namespace mozjs

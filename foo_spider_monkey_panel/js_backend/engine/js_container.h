@@ -1,5 +1,6 @@
 #pragma once
 
+#include <js_backend/engine/js_event_status.h>
 #include <js_backend/engine/native_to_js_invoker.h>
 
 #include <qwr/final_action.h>
@@ -86,10 +87,9 @@ public:
 
     [[nodiscard]] bool InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DragActionParams& actionParams );
     void InvokeOnNotify( const std::wstring& name, JS::HandleValue info );
-    void InvokeOnPaint( Gdiplus::Graphics& gr );
     bool InvokeJsAsyncTask( JsAsyncTask& jsTask );
 
-    void InvokeJsEvent( smp::EventBase& event );
+    EventStatus InvokeJsEvent( smp::EventBase& event );
 
 private:
     void SetJsCtx( JSContext* cx );

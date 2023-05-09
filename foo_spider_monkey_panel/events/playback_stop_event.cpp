@@ -6,7 +6,7 @@ namespace smp
 {
 
 PlaybackStopEvent::PlaybackStopEvent( smp::EventId id, play_control::t_stop_reason reason )
-    : JsCallbackEventNew( id )
+    : PanelEvent( id )
     , reason_( reason )
 {
 }
@@ -16,7 +16,7 @@ std::unique_ptr<smp::EventBase> PlaybackStopEvent::Clone()
     return std::make_unique<PlaybackStopEvent>( id_, reason_ );
 }
 
-play_control::t_stop_reason PlaybackStopEvent::Reason() const
+play_control::t_stop_reason PlaybackStopEvent::GetReason() const
 {
     return reason_;
 }

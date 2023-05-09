@@ -8,7 +8,7 @@
 #include <js_backend/utils/js_error_helper.h>
 #include <js_backend/utils/js_hwnd_helpers.h>
 #include <js_backend/utils/js_image_helpers.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <utils/gdi_error_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
