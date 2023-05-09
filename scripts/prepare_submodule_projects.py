@@ -14,7 +14,7 @@ def prepare():
         ('mozjs_debug.vcxitems', root_dir/'mozjs'/'Debug'),
         ('mozjs_release.vcxitems', root_dir/'mozjs'/'Release'),
         ('scintilla.vcxproj', root_dir/'submodules'/'scintilla'/'win32'),
-        ('lexilla.vcxproj', root_dir/'submodules'/'scintilla'/'lexilla'/'src'),
+        ('lexilla.vcxproj', root_dir/'submodules'/'lexilla'/'src'),
         ('wtl.vcxitems', root_dir/'submodules'/'WTL')
     ]
 

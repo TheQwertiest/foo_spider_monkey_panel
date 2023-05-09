@@ -33,20 +33,23 @@
   <ImportGroup Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Label="UserMacros">
+    <QwrTempDir>$(SolutionDir)..\_result\$(Platform)_$(Configuration)\temp\$(Configuration)\$(ProjectName)\</QwrTempDir>
+    <QwrLibDir>$(SolutionDir)..\_result\$(Platform)_$(Configuration)\lib\</QwrLibDir>
+    <QwrDebugMacro Condition="'$(Configuration)'=='Debug'">DEBUG=1</QwrDebugMacro >
+    <QwrDebugMacro Condition="'$(Configuration)'=='Release'"></QwrDebugMacro>
+  </PropertyGroup>
   <PropertyGroup>
-    <OutDir>$(ProjectDir)..\bin\</OutDir>
-    <NMakeOutput>$(ProjectDir)..\bin\libscintilla.lib</NMakeOutput>
+    <OutDir>$(QwrTempDir)</OutDir>
+    <NMakeOutput>$(QwrLibDir)libscintilla.lib</NMakeOutput>
+    <NMakeBuildCommandLine>nmake $(QwrDebugMacro) QWR_TEMPDIR=$(QwrTempDir) QWR_BINDIR=$(QwrLibDir) -f scintilla.mak</NMakeBuildCommandLine>
+    <NMakeCleanCommandLine>$(NMakeBuildCommandLine) clean</NMakeCleanCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine>nmake DEBUG=1 -f scintilla.mak</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>$(NMakeBuildCommandLine) clean</NMakeCleanCommandLine>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <NMakePreprocessorDefinitions>WIN32;NDEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
-    <NMakeBuildCommandLine>nmake -f scintilla.mak</NMakeBuildCommandLine>
-    <NMakeCleanCommandLine>$(NMakeBuildCommandLine) clean</NMakeCleanCommandLine>
   </PropertyGroup>
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>

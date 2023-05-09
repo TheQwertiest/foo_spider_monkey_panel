@@ -12,7 +12,7 @@
 	url = https://github.com/TheQwertiest/smp_2003.git
 [submodule "submodules/scintilla"]
 	path = submodules/scintilla
-	url = https://github.com/theqwertiest/scintilla.git
+	url = https://github.com/theqwertiest/scintilla_hg.git
 [submodule "submodules/pfc"]
 	path = submodules/pfc
 	url = https://github.com/TheQwertiest/pfc.git
@@ -39,3 +39,6 @@
 [submodule "submodules/fb2k_utils"]
 	path = submodules/fb2k_utils
 	url = https://github.com/TheQwertiest/fb2k_utils.git
+[submodule "submodules/lexilla"]
+	path = submodules/lexilla
+	url = https://github.com/ScintillaOrg/lexilla.git

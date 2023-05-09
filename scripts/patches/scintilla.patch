@@ -1,62 +1,33 @@
-﻿diff a/submodules/scintilla b/submodules/scintilla
-index 2a7a839c..44bf53b2 100644
---- a/submodules/scintilla/lexilla/src/lexilla.mak
-+++ b/submodules/scintilla/lexilla/src/lexilla.mak
-@@ -37,8 +37,12 @@ CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 $(CRTFLAGS)
- CXXDEBUG=-Od -MTd -DDEBUG
- CXXNDEBUG=-O1 -MT -DNDEBUG -GL
- NAME=-Fo
--LDFLAGS=-OPT:REF -LTCG -IGNORE:4197 -DEBUG $(SUBSYSTEM)
-+LDFLAGS=-OPT:REF -IGNORE:4197 -DEBUG $(SUBSYSTEM)
- LDDEBUG=
-+LDRELEASE=-LTCG
-+LIBFLAGS=
-+LIBDEBUG=
-+LIBRELEASE=/LTCG
- LIBS=
- NOLOGO=-nologo
- 
-@@ -51,9 +55,12 @@ LDFLAGS=$(LDFLAGS) $(NOLOGO)
- !IFDEF DEBUG
- CXXFLAGS=$(CXXFLAGS) $(CXXDEBUG)
- LDFLAGS=$(LDDEBUG) $(LDFLAGS)
-+LIBFLAGS=$(LIBDEBUG) $(LIBFLAGS)
- !ELSE
- CXXFLAGS=$(CXXFLAGS) $(CXXNDEBUG)
--!ENDIF
-+LDFLAGS=$(LDRELEASE) $(LDFLAGS)
-+LIBFLAGS=$(LIBRELEASE) $(LIBFLAGS)
-+!ENDIF
- 
- INCLUDEDIRS=-I../../include -I../../src -I../../lexlib
- CXXFLAGS=$(CXXFLAGS) $(INCLUDEDIRS)
-@@ -98,7 +105,7 @@ $(LEXILLA): $(LEXILLA_OBJS)
- 	$(LD) $(LDFLAGS) -DEF:Lexilla.def -DLL -OUT:$@ $** $(LIBS)
- 
- $(LIBLEXILLA): $(LEXILLA_OBJS)
--	LIB -OUT:$@ $**
-+	LIB $(LIBFLAGS) -OUT:$@ $**
- 
- # Define how to build all the objects and what they depend on
- 
-index 4a652f42..d51c77af 100644
+﻿diff --git a/submodules/scintilla/win32/scintilla.mak b/submodules/scintilla/win32/scintilla.mak
+index 7e510aea..fc1b64df 100644
 --- a/submodules/scintilla/win32/scintilla.mak
 +++ b/submodules/scintilla/win32/scintilla.mak
-@@ -38,8 +38,12 @@ CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 $(CRTFLAGS)
+@@ -10,8 +10,8 @@
+ 
+ .SUFFIXES: .cxx
+ 
+-DIR_O=.
+-DIR_BIN=..\bin
++DIR_O=$(QWR_TEMPDIR)
++DIR_BIN=$(QWR_BINDIR)
+ 
+ COMPONENT=$(DIR_BIN)\Scintilla.dll
+ LIBSCI=$(DIR_BIN)\libscintilla.lib
+@@ -40,8 +40,12 @@ CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 $(CRTFLAGS)
  CXXDEBUG=-Od -MTd -DDEBUG
- CXXNDEBUG=-O1 -MT -DNDEBUG -GL
+ CXXNDEBUG=-O2 -MT -DNDEBUG -GL
  NAME=-Fo
--LDFLAGS=-OPT:REF -LTCG -IGNORE:4197 -DEBUG $(SUBSYSTEM)
-+LDFLAGS=-OPT:REF -IGNORE:4197 -DEBUG $(SUBSYSTEM)
+-LDFLAGS=-OPT:REF -LTCG -IGNORE:4197 -DEBUG $(SUBSYSTEM) $(CETCOMPAT)
++LDFLAGS=-OPT:REF -IGNORE:4197 -DEBUG $(SUBSYSTEM) $(CETCOMPAT)
  LDDEBUG=
 +LDRELEASE=-LTCG
 +LIBFLAGS=
 +LIBDEBUG=
 +LIBRELEASE=/LTCG
- LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.lib OLEAUT32.lib MSIMG32.lib
+ LIBS=KERNEL32.lib USER32.lib GDI32.lib IMM32.lib OLE32.lib OLEAUT32.lib
  NOLOGO=-nologo
  
-@@ -56,8 +60,11 @@ CXXFLAGS=$(CXXFLAGS) -DNO_CXX11_REGEX
+@@ -58,14 +62,17 @@ CXXFLAGS=$(CXXFLAGS) -DNO_CXX11_REGEX
  !IFDEF DEBUG
  CXXFLAGS=$(CXXFLAGS) $(CXXDEBUG)
  LDFLAGS=$(LDDEBUG) $(LDFLAGS)
@@ -67,8 +38,29 @@ index 4a652f42..d51c77af 100644
 +LIBFLAGS=$(LIBRELEASE) $(LIBFLAGS)
  !ENDIF
  
- INCLUDES=-I../include -I../src -I../lexlib
-@@ -163,7 +170,7 @@ $(LEXCOMPONENT): $(LEXCOMPONENT_OBJS) $(DIR_O)\ScintRes.res
+ INCLUDES=-I../include -I../src
+ CXXFLAGS=$(CXXFLAGS) $(INCLUDES)
+ 
+-all:	$(COMPONENT) $(LIBSCI)
++all: $(DIR_O) $(DIR_BIN) $(COMPONENT) $(LIBSCI)
+ 
+ clean:
+ 	-del /q $(DIR_O)\*.obj $(DIR_O)\*.pdb $(DIR_O)\*.asm $(COMPONENT) \
+@@ -75,6 +82,13 @@ clean:
+ depend:
+ 	pyw DepGen.py
+ 
++
++$(DIR_O):
++    -@ if NOT EXIST $(DIR_O) mkdir $(DIR_O)
++
++$(DIR_BIN):
++    -@ if NOT EXIST $(DIR_BIN) mkdir $(DIR_BIN)
++
+ # Required for base Scintilla
+ SRC_OBJS=\
+ 	$(DIR_O)\AutoComplete.obj \
+@@ -126,7 +140,7 @@ $(COMPONENT): $(COMPONENT_OBJS) $(SHARED_OBJS) $(DIR_O)\ScintRes.res
  	$(LD) $(LDFLAGS) -DEF:Scintilla.def -DLL -OUT:$@ $** $(LIBS)
  
  $(LIBSCI): $(COMPONENT_OBJS)
