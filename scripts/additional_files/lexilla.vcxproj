@@ -35,8 +35,8 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <OutDir>$(ProjectDir)..\..\bin\</OutDir>
-    <NMakeOutput>$(ProjectDir)..\..\bin\liblexilla.lib</NMakeOutput>
+    <OutDir>$(ProjectDir)..\bin\</OutDir>
+    <NMakeOutput>$(ProjectDir)..\bin\liblexilla.lib</NMakeOutput>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <NMakePreprocessorDefinitions>WIN32;_DEBUG;$(NMakePreprocessorDefinitions)</NMakePreprocessorDefinitions>
@@ -51,15 +51,13 @@
   <ItemDefinitionGroup>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\lexers\*.cxx" />
-    <ClCompile Include="..\..\lexlib\*.cxx" />
-    <ClCompile Include="..\..\src\*.cxx" />
+    <ClCompile Include="..\lexers\*.cxx" />
+    <ClCompile Include="..\lexlib\*.cxx" />
     <ClCompile Include="*.cxx" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\include\*.h" />
-    <ClInclude Include="..\..\src\*.h" />
-    <ClInclude Include="..\..\lexlib\*.h" />
+    <ClInclude Include="..\include\*.h" />
+    <ClInclude Include="..\lexlib\*.h" />
     <ClInclude Include="*.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

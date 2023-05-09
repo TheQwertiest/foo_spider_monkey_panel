@@ -50,8 +50,9 @@
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\fmt.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\foobar2000_sdk.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\json.props" />
-    <Import Project="$(QwrFb2kUtilsPropsDir)submodules\range.props" />
+    <Import Project="$(QwrFb2kUtilsPropsDir)submodules\lexilla.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\pfc.props" />
+    <Import Project="$(QwrFb2kUtilsPropsDir)submodules\range.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\scintilla.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\timsort.props" />
     <Import Project="$(QwrFb2kUtilsPropsDir)submodules\wtl.props" />
@@ -134,13 +135,13 @@
     <ProjectReference Include="..\submodules\foobar2000\SDK\foobar2000_SDK.vcxproj">
       <Project>{e8091321-d79d-4575-86ef-064ea1a4a20d}</Project>
     </ProjectReference>
+    <ProjectReference Include="..\submodules\lexilla\src\Lexilla.vcxproj">
+      <Project>{7ca4bbc9-83ca-42be-84bb-8a98368fabab}</Project>
+    </ProjectReference>
     <ProjectReference Include="..\submodules\pfc\pfc.vcxproj">
       <Project>{ebfffb4e-261d-44d3-b89c-957b31a0bf9c}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\submodules\scintilla\lexilla\src\lexilla.vcxproj">
-      <Project>{7ca4bbc9-83ca-42be-84bb-8a98368fabab}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\submodules\scintilla\win32\scintilla.vcxproj">
+    <ProjectReference Include="..\submodules\scintilla\win32\Scintilla.vcxproj">
       <Project>{10b2a7ef-9089-4352-ba26-7e9aef50987d}</Project>
     </ProjectReference>
   </ItemGroup>

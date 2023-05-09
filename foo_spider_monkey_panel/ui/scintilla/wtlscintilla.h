@@ -1823,12 +1823,6 @@ public:
         return ::SendMessage( this->m_hWnd, SCI_GETLEXER, 0, 0L );
     }
 
-    void SetLexer( int nLexer )
-    {
-        ATLASSERT( ::IsWindow( this->m_hWnd ) );
-        ::SendMessage( this->m_hWnd, SCI_SETLEXER, nLexer, 0L );
-    }
-
     void SetILexer( Scintilla::ILexer5* pLexer )
     {
         ATLASSERT( ::IsWindow( this->m_hWnd ) );

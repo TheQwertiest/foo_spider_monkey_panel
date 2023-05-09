@@ -1,0 +1,39 @@
+﻿diff --git a/submodules/lexilla/src/lexilla.mak b/submodules/lexilla/src/lexilla.mak
+index b04551a0..8109b685 100644
+--- a/submodules/lexilla/src/lexilla.mak
++++ b/submodules/lexilla/src/lexilla.mak
+@@ -40,8 +40,12 @@ CXXFLAGS=-Zi -TP -MP -W4 -EHsc -std:c++17 $(CRTFLAGS)
+ CXXDEBUG=-Od -MTd -DDEBUG
+ CXXNDEBUG=-O2 -MT -DNDEBUG -GL
+ NAME=-Fo
+-LDFLAGS=-OPT:REF -LTCG -IGNORE:4197 -DEBUG $(SUBSYSTEM) $(CETCOMPAT)
++LDFLAGS=-OPT:REF -IGNORE:4197 -DEBUG $(SUBSYSTEM) $(CETCOMPAT)
+ LDDEBUG=
++LDRELEASE=-LTCG
++LIBFLAGS=
++LIBDEBUG=
++LIBRELEASE=/LTCG
+ LIBS=
+ NOLOGO=-nologo
+ 
+@@ -54,8 +58,11 @@ LDFLAGS=$(LDFLAGS) $(NOLOGO)
+ !IFDEF DEBUG
+ CXXFLAGS=$(CXXFLAGS) $(CXXDEBUG)
+ LDFLAGS=$(LDDEBUG) $(LDFLAGS)
++LIBFLAGS=$(LIBDEBUG) $(LIBFLAGS)
+ !ELSE
+ CXXFLAGS=$(CXXFLAGS) $(CXXNDEBUG)
++LDFLAGS=$(LDRELEASE) $(LDFLAGS)
++LIBFLAGS=$(LIBRELEASE) $(LIBFLAGS)
+ !ENDIF
+ 
+ SCINTILLA_INCLUDE = ../../scintilla/include
+@@ -224,7 +114,7 @@ $(LEXILLA): $(LEXILLA_OBJS) LexillaVersion.res
+ 	$(LD) $(LDFLAGS) -DEF:Lexilla.def -DLL -OUT:$@ $** $(LIBS)
+ 
+ $(LIBLEXILLA): $(LEXILLA_OBJS)
+-	LIB -OUT:$@ $**
++	LIB $(LIBFLAGS) -OUT:$@ $**
+ 
+ # Define how to build all the objects and what they depend on
+ 

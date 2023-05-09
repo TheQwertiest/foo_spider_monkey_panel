@@ -9,6 +9,7 @@
 #include <utils/logging.h>
 #include <utils/resource_helpers.h>
 
+#include <qwr/algorithm.h>
 #include <qwr/fb2k_paths.h>
 #include <qwr/file_helpers.h>
 #include <qwr/string_helpers.h>
@@ -217,8 +218,8 @@ ScintillaStyle ParseStyle( qwr::u8string_view p_definition )
 
 template <typename T>
 
-requires qwr::is_any_same_v<typename T::value_type, qwr::u8string, qwr::u8string_view, const char*>
-    qwr::u8string JoinWithSpace( const T& cont )
+    requires qwr::is_any_same_v<typename T::value_type, qwr::u8string, qwr::u8string_view, const char*>
+qwr::u8string JoinWithSpace( const T& cont )
 {
     qwr::u8string words_str;
     words_str.reserve( cont.size() * 6 );
@@ -577,9 +578,15 @@ void CScriptEditorCtrl::SetJScript()
 
 void CScriptEditorCtrl::ReloadScintillaSettings()
 {
-    for ( const auto& prop: config::sci::props.val() )
-    {
-        SetProperty( prop.key.c_str(), prop.val.c_str() );
+    // save all properties
+    const auto& cfgProps = config::sci::props.val();
+    nameToPropValue_ = cfgProps | ranges::views::transform( []( const auto& elem ) {
+                           return std::make_pair( elem.key, elem.val );
+                       } )
+                       | ranges::to<decltype( nameToPropValue_ )>();
+    for ( const auto& [key, value]: nameToPropValue_ )
+    { // processes only built-in properties
+        SetProperty( key.c_str(), value.c_str() );
     }
 
     auto getIntFromProp = [&]( const std::string& propName ) -> std::optional<int> {
@@ -1241,11 +1248,6 @@ void CScriptEditorCtrl::Init()
     // Auto complete
     AutoCSetIgnoreCase( true );
 
-    // Set embedded properties
-    SetProperty( "dir.base", ( qwr::path::Foobar2000() / "" ).u8string().c_str() );
-    SetProperty( "dir.component", ( qwr::path::Component() / "" ).u8string().c_str() );
-    SetProperty( "dir.profile", ( qwr::path::Profile() / "" ).u8string().c_str() );
-
     // Load properties
     ReloadScintillaSettings();
 }
@@ -1448,20 +1450,21 @@ void CScriptEditorCtrl::SetIndentation( int line, int indent )
     SetSel( crange.cpMin, crange.cpMax );
 }
 
-std::optional<qwr::u8string> CScriptEditorCtrl::GetPropertyExpanded_Opt( const char* key )
+std::optional<qwr::u8string> CScriptEditorCtrl::GetPropertyExpanded_Opt( std::string_view key )
 {
-    int len = GetPropertyExpanded( key, nullptr );
-    if ( !len )
-    {
-        return std::nullopt;
+    if ( int len = GetPropertyExpanded( key.data(), nullptr ) )
+    { // search built-in properties first
+        qwr::u8string propval;
+        propval.resize( len + 1 );
+        GetPropertyExpanded( key.data(), propval.data() );
+        propval.resize( strlen( propval.c_str() ) );
+
+        return propval;
     }
-
-    qwr::u8string propval;
-    propval.resize( len + 1 );
-    GetPropertyExpanded( key, propval.data() );
-    propval.resize( strlen( propval.c_str() ) );
-
-    return propval;
+    else
+    { // and custom afterwards
+        return qwr::FindAsOptional( nameToPropValue_, key );
+    }
 }
 
 } // namespace smp::ui::sci

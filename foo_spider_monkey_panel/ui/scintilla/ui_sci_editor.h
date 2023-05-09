@@ -8,14 +8,11 @@
 #include <ui/scintilla/ui_sci_goto.h>
 #include <ui/scintilla/wtlscintilla.h>
 
+#include <qwr/unordered_map.h>
+
 #include <optional>
 #include <set>
 #include <span>
-
-namespace smp::config::sci
-{
-struct ScintillaProp;
-}
 
 namespace smp::ui::sci
 {
@@ -80,6 +77,7 @@ private:
             , style( style )
         {
         }
+
         qwr::u8string value;
         int style;
     };
@@ -108,7 +106,7 @@ private:
     std::optional<std::vector<qwr::u8string_view>> GetNearestWords( qwr::u8string_view wordPart, std::optional<char> separator = std::nullopt );
     std::optional<qwr::u8string_view> GetFullDefinitionForWord( qwr::u8string_view word );
     void SetIndentation( int line, int indent );
-    std::optional<qwr::u8string> GetPropertyExpanded_Opt( const char* key );
+    std::optional<qwr::u8string> GetPropertyExpanded_Opt( std::string_view key );
 
 private:
     int m_nBraceCount = 0;
@@ -121,6 +119,7 @@ private:
     qwr::u8string m_szFunctionDefinition;
 
     std::set<qwr::u8string, KeyWordComparator> m_apis;
+    qwr::UnorderedStrMap<qwr::u8string, qwr::u8string> nameToPropValue_;
 };
 
 } // namespace smp::ui::sci
