@@ -47,7 +47,7 @@ def setup( skip_mozjs,
     scripts_path = root_dir/'submodules'/'fb2k_utils'/'scripts'
 
     if (not skip_submodules_download):
-        call_decorator('Downloading submodules')(download_submodules.download)()
+        call_decorator('Downloading submodules')(download_submodules.download)(root_dir)
         call_decorator("Configuring Scintilla")(configure_scintilla.configure)()
         if (not skip_mozjs):
             call_decorator("MozJs unpacking")(unpack_mozjs.unpack)()
