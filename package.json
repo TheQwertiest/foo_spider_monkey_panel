@@ -6,5 +6,8 @@
   },
   "scripts": {
     "postinstall": "patch-package --patch-dir scripts/node_patches"
+  },
+  "dependencies": {
+    "taffydb": "^2.7.3"
   }
 }
