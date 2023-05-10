@@ -134,11 +134,8 @@ size_t PlaybackControl::GetInternalSize()
 
 void PlaybackControl::PostCreate( JSContext* cx, JS::HandleObject self )
 {
-    // set prototypes
-
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::PlaybackStopEvent>>( cx, self, JsPrototypeId::New_PlaybackStopEvent );
 
-    // set constants
     {
         JS::RootedObject jsObject( cx, JS_NewPlainObject( cx ) );
         JsException::ExpectTrue( jsObject );

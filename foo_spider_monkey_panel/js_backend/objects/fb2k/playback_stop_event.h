@@ -39,7 +39,7 @@ public:
     static JSObject* Constructor( JSContext* cx, const qwr::u8string& type, JS::HandleValue options = JS::UndefinedHandleValue );
     static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const qwr::u8string& type, JS::HandleValue options );
 
-    uint8_t get_Reason();
+    uint8_t get_Reason() const;
 
 protected:
     PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );

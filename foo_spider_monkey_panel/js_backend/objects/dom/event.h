@@ -65,7 +65,7 @@ public:
 protected:
     // TODO: add cancelable check for all events
     // TODO: add event traits
-    JsEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props = {} );
+    JsEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props );
     JsEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );
     [[nodiscard]] size_t GetInternalSize();
 

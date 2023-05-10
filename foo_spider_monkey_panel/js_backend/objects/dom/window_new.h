@@ -31,6 +31,7 @@ class WindowNew
 private:
     static constexpr bool HasProto = false;
     static constexpr bool HasParentProto = true;
+    static constexpr bool HasPostCreate = true;
 
     using BaseJsType = JsEventTarget;
 
@@ -67,16 +68,23 @@ protected:
     WindowNew( JSContext* cx, smp::panel::PanelWindow& parentPanel );
 
     [[nodiscard]] size_t GetInternalSize();
+    static void PostCreate( JSContext* cx, JS::HandleObject self );
 
 private:
     const std::string& EventIdToType( smp::EventId eventId );
+
     void HandlePaintEvent( JS::HandleObject self );
+
+    void HandleEventPre( const smp::EventBase& event );
+    JSObject* GenerateEvent( const smp::EventBase& event, const qwr::u8string& eventType );
 
 private:
     JSContext* pJsCtx_ = nullptr;
     smp::panel::PanelWindow& parentPanel_;
 
     bool isFinalized_ = false; ///< if true, then parentPanel_ might be already inaccessible
+
+    bool isFocused_ = false;
 };
 
 } // namespace mozjs

@@ -412,9 +412,7 @@ void PanelWindow::ExecuteEvent( EventBase& event )
                                                  EventId::kNew_MouseContextMenu,
                                                  MouseEventNew::MouseKeyFlag::kSecondary,
                                                  mouseEvent.GetX(),
-                                                 mouseEvent.GetY(),
-                                                 mouseEvent.GetPrevX(),
-                                                 mouseEvent.GetPrevY() ),
+                                                 mouseEvent.GetY() ),
                                              EventPriority::kInput );
         }
 
@@ -467,6 +465,14 @@ void PanelWindow::ExecuteEvent( EventBase& event )
 
         break;
     }
+    case EventId::kNew_InputFocus:
+    {
+        selectionHolder_ = ui_selection_manager::get()->acquire();
+        // Note: selection holder is released in WM_KILLFOCUS processing
+
+        execJsEvent();
+        break;
+    }
     default:
     {
         execJsEvent();
@@ -487,107 +493,99 @@ void PanelWindow::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
         }
     };
 
-    switch ( id )
-    {
-        /*
-    case EventId::kMouseDragEnter:
-    {
-        const auto pDragEvent = task.AsDragEvent();
-        assert( pDragEvent );
+    /*
+switch ( id )
+{
+case EventId::kMouseDragEnter:
+{
+    const auto pDragEvent = task.AsDragEvent();
+    assert( pDragEvent );
 
-        lastDragParams_.reset();
+    lastDragParams_.reset();
 
-        if ( pJsContainer_ )
+    if ( pJsContainer_ )
+    {
+        auto dragParams = pDragEvent->GetDragParams();
+        const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_enter",
+                                                             { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                             pDragEvent->GetMask(),
+                                                             dragParams );
+        if ( bRet )
         {
-            auto dragParams = pDragEvent->GetDragParams();
-            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_enter",
-                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
-                                                                 pDragEvent->GetMask(),
-                                                                 dragParams );
-            if ( bRet )
-            {
-                lastDragParams_ = dragParams;
-            }
+            lastDragParams_ = dragParams;
         }
-
-        pDragEvent->DisposeStoredData();
-
-        break;
     }
-    case EventId::kMouseDragLeave:
+
+    pDragEvent->DisposeStoredData();
+
+    break;
+}
+case EventId::kMouseDragLeave:
+{
+    const auto pDragEvent = task.AsDragEvent();
+    assert( pDragEvent );
+
+    lastDragParams_.reset();
+    pDragEvent->DisposeStoredData();
+
+    if ( pJsContainer_ )
     {
-        const auto pDragEvent = task.AsDragEvent();
-        assert( pDragEvent );
+        pJsContainer_->InvokeJsCallback( "on_drag_leave" );
+    }
 
-        lastDragParams_.reset();
-        pDragEvent->DisposeStoredData();
+    break;
+}
+case EventId::kMouseDragOver:
+{
+    const auto pDragEvent = task.AsDragEvent();
+    assert( pDragEvent );
 
-        if ( pJsContainer_ )
+    if ( pJsContainer_ )
+    {
+        auto dragParams = pDragEvent->GetDragParams();
+        const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_over",
+                                                             { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                             pDragEvent->GetMask(),
+                                                             dragParams );
+        if ( bRet )
         {
-            pJsContainer_->InvokeJsCallback( "on_drag_leave" );
+            lastDragParams_ = dragParams;
         }
-
-        break;
     }
-    case EventId::kMouseDragOver:
-    {
-        const auto pDragEvent = task.AsDragEvent();
-        assert( pDragEvent );
 
-        if ( pJsContainer_ )
+    pDragEvent->DisposeStoredData();
+
+    break;
+}
+case EventId::kMouseDragDrop:
+{
+    const auto pDragEvent = task.AsDragEvent();
+    assert( pDragEvent );
+
+    if ( pJsContainer_ )
+    {
+        auto dragParams = pDragEvent->GetDragParams();
+        const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_drop",
+                                                             { pDragEvent->GetX(), pDragEvent->GetY() },
+                                                             pDragEvent->GetMask(),
+                                                             dragParams );
+        if ( bRet )
         {
-            auto dragParams = pDragEvent->GetDragParams();
-            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_over",
-                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
-                                                                 pDragEvent->GetMask(),
-                                                                 dragParams );
-            if ( bRet )
-            {
-                lastDragParams_ = dragParams;
-            }
+            smp::com::TrackDropTarget::ProcessDropEvent( pDragEvent->GetStoredData(), dragParams );
         }
-
-        pDragEvent->DisposeStoredData();
-
-        break;
     }
-    case EventId::kMouseDragDrop:
-    {
-        const auto pDragEvent = task.AsDragEvent();
-        assert( pDragEvent );
 
-        if ( pJsContainer_ )
-        {
-            auto dragParams = pDragEvent->GetDragParams();
-            const auto bRet = pJsContainer_->InvokeOnDragAction( "on_drag_drop",
-                                                                 { pDragEvent->GetX(), pDragEvent->GetY() },
-                                                                 pDragEvent->GetMask(),
-                                                                 dragParams );
-            if ( bRet )
-            {
-                smp::com::TrackDropTarget::ProcessDropEvent( pDragEvent->GetStoredData(), dragParams );
-            }
-        }
+    lastDragParams_.reset();
+    pDragEvent->DisposeStoredData();
 
-        lastDragParams_.reset();
-        pDragEvent->DisposeStoredData();
-
-        break;
-    }
-    */
-    case EventId::kInputFocus:
-    {
-        selectionHolder_ = ui_selection_manager::get()->acquire();
-        // Note: selection holder is released in WM_KILLFOCUS processing
-
-        execJs( task );
-        break;
-    }
-    default:
-    {
-        execJs( task );
-    }
-    }
+    break;
+}
+default:
+{
+    execJs( task );
+}
+}
+*/
 }
 
 bool PanelWindow::ExecuteEvent_JsCode( mozjs::JsAsyncTask& jsTask )
@@ -886,8 +884,6 @@ void PanelWindow::LoadScript( bool isFirstLoad )
 
     hasFailed_ = false;
     isPanelIdOverridenByScript_ = false;
-    lastMouseX_.reset();
-    lastMouseY_.reset();
 
     try
     {
@@ -1164,9 +1160,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
         return std::make_unique<MouseEventNew>( eventId,
                                                 mouseKey,
                                                 x,
-                                                y,
-                                                lastMouseX_.value_or( x ),
-                                                lastMouseY_.value_or( y ) );
+                                                y );
     };
     // TODO: test rbutton lbutton swap
     // TODO: extract to a better place
@@ -1301,22 +1295,34 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     }
     case WM_CONTEXTMENU:
     {
-        // WM_CONTEXTMENU receives screen coordinates
-        POINT p{ GET_X_LPARAM( msg.wParam ), GET_Y_LPARAM( msg.lParam ) };
-        ScreenToClient( wnd_, &p );
+        const auto point = [&]() -> POINT {
+            if ( msg.lParam == -1 )
+            { // happens if invoked via keyboard
+                if ( !pGraphics_ )
+                {
+                    return {};
+                }
+                return { (LONG)pGraphics_->GetWidth() * 2 / 3, (LONG)pGraphics_->GetHeight() * 2 / 3 };
+            }
+            else
+            {
+                // WM_CONTEXTMENU receives screen coordinates
+                POINT p{ GET_X_LPARAM( msg.lParam ), GET_Y_LPARAM( msg.lParam ) };
+                wnd_.ScreenToClient( &p );
+                return p;
+            }
+        }();
 
         const auto [eventId, mouseKey] = kMsgToEventId.at( msg.message );
-        const auto x = static_cast<int32_t>( p.x );
-        const auto y = static_cast<int32_t>( p.y );
+        const auto x = static_cast<int32_t>( point.x );
+        const auto y = static_cast<int32_t>( point.y );
 
         EventDispatcher::Get().PutEvent( wnd_,
                                          std::make_unique<MouseEventNew>(
                                              eventId,
                                              mouseKey,
                                              x,
-                                             y,
-                                             lastMouseX_.value_or( x ),
-                                             lastMouseY_.value_or( y ) ),
+                                             y ),
                                          EventPriority::kInput );
 
         return 1;
@@ -1343,13 +1349,8 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
                                              eventId,
                                              mouseKey,
                                              x,
-                                             y,
-                                             lastMouseX_.value_or( x ),
-                                             lastMouseY_.value_or( y ) ),
+                                             y ),
                                          EventPriority::kInput );
-
-        lastMouseX_ = x;
-        lastMouseY_ = y;
 
         return std::nullopt;
     }
@@ -1360,18 +1361,18 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
         // Restore default cursor
         SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
 
+        POINT mousePos{};
+        ::GetCursorPos( &mousePos );
+        wnd_.ScreenToClient( &mousePos );
+
         const auto [eventId, mouseKey] = kMsgToEventId.at( msg.message );
 
         EventDispatcher::Get().PutEvent( wnd_,
                                          std::make_unique<MouseEventNew>(
                                              eventId,
                                              mouseKey,
-                                             // paranoia check: nullopt should not happen,
-                                             // since there must be a WM_MOUSEMOVE event before WM_MOUSELEAVE
-                                             lastMouseX_.value_or( 0 ),
-                                             lastMouseY_.value_or( 0 ),
-                                             lastMouseX_.value_or( 0 ),
-                                             lastMouseY_.value_or( 0 ) ),
+                                             mousePos.x,
+                                             mousePos.y ),
                                          EventPriority::kInput );
 
         return std::nullopt;
@@ -1435,7 +1436,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     {
         // Note: selection holder is acquired during event processing
         EventDispatcher::Get().PutEvent( wnd_,
-                                         GenerateEvent_JsCallback( EventId::kInputFocus ),
+                                         std::make_unique<PanelEvent>( EventId::kNew_InputFocus ),
                                          EventPriority::kInput );
         return std::nullopt;
     }
@@ -1443,7 +1444,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     {
         selectionHolder_.release();
         EventDispatcher::Get().PutEvent( wnd_,
-                                         GenerateEvent_JsCallback( EventId::kInputBlur ),
+                                         std::make_unique<PanelEvent>( EventId::kNew_InputBlur ),
                                          EventPriority::kInput );
         return std::nullopt;
     }

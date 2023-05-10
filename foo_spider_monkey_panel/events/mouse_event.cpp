@@ -8,14 +8,10 @@ namespace smp
 MouseEventNew::MouseEventNew( EventId id,
                               MouseKeyFlag button,
                               int32_t x,
-                              int32_t y,
-                              int32_t prevX,
-                              int32_t prevY )
+                              int32_t y )
     : PanelEvent( id )
     , x_( x )
     , y_( y )
-    , prevX_( prevX )
-    , prevY_( prevY )
     , button_( button )
     , buttons_( CalculateButtons() )
     , modifiers_( CalculateModifiers() )
@@ -30,16 +26,6 @@ int32_t MouseEventNew::GetX() const
 int32_t MouseEventNew::GetY() const
 {
     return y_;
-}
-
-int32_t MouseEventNew::GetPrevX() const
-{
-    return prevX_;
-}
-
-int32_t MouseEventNew::GetPrevY() const
-{
-    return prevY_;
 }
 
 MouseEventNew::MouseKeyFlag MouseEventNew::GetButton() const

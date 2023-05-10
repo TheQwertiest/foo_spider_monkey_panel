@@ -36,6 +36,7 @@ enum class JsPrototypeId : uint32_t
     ThemeManager,
     New_PlaybackStopEvent,
     New_PaintEvent,
+    New_MouseEvent,
     ProrototypeCount
 };
 }

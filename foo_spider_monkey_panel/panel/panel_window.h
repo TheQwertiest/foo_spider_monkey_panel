@@ -178,9 +178,6 @@ private:
     // TODO: move to graphics class
     POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
     POINT minSize_ = { 0, 0 };             // modified only from external
-
-    std::optional<int32_t> lastMouseX_;
-    std::optional<int32_t> lastMouseY_;
 };
 
 } // namespace smp::panel

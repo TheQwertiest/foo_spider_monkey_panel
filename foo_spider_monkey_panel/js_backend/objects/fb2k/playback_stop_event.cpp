@@ -99,32 +99,34 @@ JSObject* PlaybackStopEvent::ConstructorWithOpt( JSContext* cx, size_t optArgCou
     }
 }
 
-uint8_t PlaybackStopEvent::get_Reason()
+uint8_t PlaybackStopEvent::get_Reason() const
 {
     return stopReason_;
 }
 
 PlaybackStopEvent::EventOptions PlaybackStopEvent::ExtractOptions( JSContext* cx, JS::HandleValue options )
 {
-    EventOptions parsedOptions{};
-    if ( !options.isNullOrUndefined() )
+    EventOptions parsedOptions;
+    if ( options.isNullOrUndefined() )
     {
-        qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
-        JS::RootedObject jsOptions( cx, &options.toObject() );
+        return parsedOptions;
+    }
 
-        parsedOptions.baseOptions = BaseJsType::ExtractOptions( cx, options );
+    qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
+    JS::RootedObject jsOptions( cx, &options.toObject() );
 
-        if ( const auto propOpt =
-                 utils::GetOptionalProperty<int32_t>(
-                     cx, jsOptions, "reason" ) )
-        {
-            const auto reasonRaw = *propOpt;
-            qwr::QwrException::ExpectTrue( reasonRaw >= playback_control::stop_reason_user && reasonRaw <= playback_control::stop_reason_shutting_down,
-                                           "Unknown stop reason: {}",
-                                           reasonRaw );
+    parsedOptions.baseOptions = BaseJsType::ExtractOptions( cx, options );
 
-            parsedOptions.reason = static_cast<play_control::t_stop_reason>( reasonRaw );
-        }
+    if ( const auto propOpt =
+             utils::GetOptionalProperty<int32_t>(
+                 cx, jsOptions, "reason" ) )
+    {
+        const auto reasonRaw = *propOpt;
+        qwr::QwrException::ExpectTrue( reasonRaw >= playback_control::stop_reason_user && reasonRaw <= playback_control::stop_reason_shutting_down,
+                                       "Unknown stop reason: {}",
+                                       reasonRaw );
+
+        parsedOptions.reason = static_cast<play_control::t_stop_reason>( reasonRaw );
     }
 
     return parsedOptions;

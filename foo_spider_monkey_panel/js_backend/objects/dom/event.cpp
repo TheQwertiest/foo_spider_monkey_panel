@@ -230,17 +230,16 @@ size_t JsEvent::GetInternalSize()
 
 JsEvent::EventOptions JsEvent::ExtractOptions( JSContext* cx, JS::HandleValue options )
 {
-    EventOptions parsedOptions{};
-    if ( !options.isNullOrUndefined() )
+    EventOptions parsedOptions;
+    if ( options.isNullOrUndefined() )
     {
-        qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
-        JS::RootedObject jsOptions( cx, &options.toObject() );
-
-        if ( const auto propOpt = utils::GetOptionalProperty<bool>( cx, jsOptions, "cancelable" ) )
-        {
-            parsedOptions.cancelable = *propOpt;
-        }
+        return parsedOptions;
     }
+
+    qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
+    JS::RootedObject jsOptions( cx, &options.toObject() );
+
+    utils::OptionalPropertyTo( cx, jsOptions, "cancelable", parsedOptions.cancelable );
 
     return parsedOptions;
 }

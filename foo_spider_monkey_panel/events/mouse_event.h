@@ -36,14 +36,10 @@ public:
     MouseEventNew( EventId id,
                    MouseKeyFlag button,
                    int32_t x,
-                   int32_t y,
-                   int32_t prevX,
-                   int32_t prevY );
+                   int32_t y );
 
     [[nodiscard]] int32_t GetX() const;
     [[nodiscard]] int32_t GetY() const;
-    [[nodiscard]] int32_t GetPrevX() const;
-    [[nodiscard]] int32_t GetPrevY() const;
 
     [[nodiscard]] MouseKeyFlag GetButton() const;
     [[nodiscard]] MouseKeyFlag GetButtons() const;
@@ -56,8 +52,6 @@ private:
 private:
     const int32_t x_;
     const int32_t y_;
-    const int32_t prevX_;
-    const int32_t prevY_;
     MouseKeyFlag button_;
     MouseKeyFlag buttons_;
     ModifierKeyFlag modifiers_;

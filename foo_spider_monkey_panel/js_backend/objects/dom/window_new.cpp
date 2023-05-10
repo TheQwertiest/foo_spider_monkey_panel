@@ -2,8 +2,10 @@
 
 #include "window_new.h"
 
+#include <events/mouse_event.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
+#include <js_backend/objects/dom/mouse_event.h>
 #include <js_backend/objects/dom/paint_event.h>
 #include <panel/panel_window.h>
 #include <panel/panel_window_graphics.h>
@@ -69,6 +71,20 @@ const JsPrototypeId WindowNew::ParentPrototypeId = JsPrototypeId::EventTarget;
 const std::unordered_set<EventId> WindowNew::kHandledEvents{
     EventId::kNew_WndPaint,
     EventId::kNew_WndResize,
+    EventId::kNew_InputBlur,
+    EventId::kNew_InputFocus,
+    EventId::kNew_MouseLeftButtonDown,
+    EventId::kNew_MouseLeftButtonUp,
+    EventId::kNew_MouseLeftButtonDoubleClick,
+    EventId::kNew_MouseRightButtonDown,
+    EventId::kNew_MouseRightButtonUp,
+    EventId::kNew_MouseRightButtonDoubleClick,
+    EventId::kNew_MouseMiddleButtonDown,
+    EventId::kNew_MouseMiddleButtonUp,
+    EventId::kNew_MouseMiddleButtonDoubleClick,
+    EventId::kNew_MouseMove,
+    EventId::kNew_MouseContextMenu,
+    EventId::kNew_MouseLeave,
 };
 
 WindowNew::WindowNew( JSContext* cx, smp::panel::PanelWindow& parentPanel )
@@ -76,6 +92,8 @@ WindowNew::WindowNew( JSContext* cx, smp::panel::PanelWindow& parentPanel )
     , pJsCtx_( cx )
     , parentPanel_( parentPanel )
 {
+    // paranoia check: there should be no need to do this
+    isFocused_ = ( ::GetFocus() == parentPanel_.GetHWND() );
 }
 
 std::unique_ptr<WindowNew>
@@ -87,6 +105,11 @@ WindowNew::CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel )
 size_t WindowNew::GetInternalSize()
 {
     return 0;
+}
+
+void WindowNew::PostCreate( JSContext* cx, JS::HandleObject self )
+{
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::MouseEvent>>( cx, self, JsPrototypeId::New_MouseEvent );
 }
 
 void WindowNew::Trace( JSTracer* trc, JSObject* obj )
@@ -112,9 +135,22 @@ const std::string& WindowNew::EventIdToType( smp::EventId eventId )
     static const std::unordered_map<EventId, std::string> idToType{
         { EventId::kNew_WndPaint, "paint" },
         { EventId::kNew_WndResize, "resize" },
+        { EventId::kNew_InputBlur, "blur" },
+        { EventId::kNew_InputFocus, "focus" },
+        { EventId::kNew_MouseLeftButtonDown, "mousedown" },
+        { EventId::kNew_MouseLeftButtonUp, "mouseup" },
+        { EventId::kNew_MouseLeftButtonDoubleClick, "dblclicknative" },
+        { EventId::kNew_MouseRightButtonDown, "mousedown" },
+        { EventId::kNew_MouseRightButtonUp, "mouseup" },
+        { EventId::kNew_MouseRightButtonDoubleClick, "dblclicknative" },
+        { EventId::kNew_MouseMiddleButtonDown, "mousedown" },
+        { EventId::kNew_MouseMiddleButtonUp, "mouseup" },
+        { EventId::kNew_MouseMiddleButtonDoubleClick, "dblclicknative" },
+        { EventId::kNew_MouseMove, "mousemove" },
+        { EventId::kNew_MouseContextMenu, "contextmenu" },
+        { EventId::kNew_MouseLeave, "mouseleave" }
     };
 
-    assert( idToType.size() == kHandledEvents.size() );
     assert( idToType.contains( eventId ) );
     return idToType.at( eventId );
 }
@@ -140,9 +176,11 @@ EventStatus WindowNew::HandleEvent( JS::HandleObject self, const smp::EventBase&
         return status;
     }
 
-    JS::RootedValue jsEvent( pJsCtx_ );
-    jsEvent.setObjectOrNull( mozjs::JsEvent::CreateJs( pJsCtx_, eventType, JsEvent::EventProperties{ .cancelable = false } ) );
-    DispatchEvent( self, jsEvent );
+    HandleEventPre( event );
+
+    JS::RootedObject jsEvent( pJsCtx_, GenerateEvent( event, eventType ) );
+    JS::RootedValue jsEventValue( pJsCtx_, JS::ObjectValue( *jsEvent ) );
+    DispatchEvent( self, jsEventValue );
 
     const auto pNativeEvent = convert::to_native::ToValue<JsEvent*>( pJsCtx_, jsEvent );
     status.isDefaultSuppressed = pNativeEvent->get_DefaultPrevented();
@@ -225,6 +263,140 @@ uint32_t WindowNew::get_Width()
     }
 
     return pGraphics->GetWidth();
+}
+
+void WindowNew::HandleEventPre( const smp::EventBase& event )
+{
+    switch ( event.GetId() )
+    {
+    case EventId::kNew_InputBlur:
+    {
+        isFocused_ = false;
+        break;
+    }
+    case EventId::kNew_InputFocus:
+    {
+        isFocused_ = true;
+        break;
+    }
+    case EventId::kNew_MouseMove:
+    {
+        break;
+    }
+    default:
+        break;
+    }
+}
+
+JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8string& eventType )
+{
+    JS::RootedObject jsEvent( pJsCtx_ );
+
+    switch ( const auto event_id = event.GetId();
+             event.GetId() )
+    {
+    case EventId::kNew_MouseLeftButtonDown:
+    case EventId::kNew_MouseLeftButtonUp:
+    case EventId::kNew_MouseLeftButtonDoubleClick:
+    case EventId::kNew_MouseRightButtonDown:
+    case EventId::kNew_MouseRightButtonUp:
+    case EventId::kNew_MouseRightButtonDoubleClick:
+    case EventId::kNew_MouseMiddleButtonDown:
+    case EventId::kNew_MouseMiddleButtonUp:
+    case EventId::kNew_MouseMiddleButtonDoubleClick:
+    case EventId::kNew_MouseMove:
+    case EventId::kNew_MouseContextMenu:
+    case EventId::kNew_MouseLeave:
+    {
+        const auto& mouseEvent = static_cast<const smp::MouseEventNew&>( event );
+
+        const auto x = static_cast<double>( mouseEvent.GetX() );
+        const auto y = static_cast<double>( mouseEvent.GetY() );
+        const auto button = mouseEvent.GetButton();
+        const auto buttons = mouseEvent.GetButtons();
+        const auto modifiers = mouseEvent.GetModifiers();
+
+        POINT screenPos{ mouseEvent.GetX(), mouseEvent.GetY() };
+        ClientToScreen( parentPanel_.GetHWND(), &screenPos );
+
+        using enum smp::MouseEventNew::ModifierKeyFlag;
+        using enum smp::MouseEventNew::MouseKeyFlag;
+
+        mozjs::MouseEvent::EventProperties props{
+            .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
+            .altKey = !!qwr::to_underlying( modifiers & kAlt ),
+            .ctrlKey = !!qwr::to_underlying( modifiers & kCtrl ),
+            .metaKey = !!qwr::to_underlying( modifiers & kWin ),
+            .shiftKey = !!qwr::to_underlying( modifiers & kShift ),
+            .button = [&] {
+            // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
+            switch ( button )
+            {
+            case kNoButtons:
+            case kPrimary:
+                return 0;
+            case kSecondary:
+                return 1;
+            case kAuxiliary:
+                return 2;
+            case k4:
+                return 3;
+            case k5:
+                return 4;
+            default:
+                throw qwr::QwrException( "Internal error: unexpected button value: {}", qwr::to_underlying(button) );
+            } }(),
+            .buttons = [&] {
+                // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
+                int32_t buttons_raw = 0;
+
+                if ( qwr::to_underlying( buttons & kPrimary ) )
+                {
+                    buttons_raw |= 1;
+                }
+                if ( qwr::to_underlying( buttons & kSecondary ) )
+                {
+                    buttons_raw |= 2;
+                }
+                if ( qwr::to_underlying( buttons & kAuxiliary ) )
+                {
+                    buttons_raw |= 4;
+                }
+                if ( qwr::to_underlying( buttons & k4 ) )
+                {
+                    buttons_raw |= 8;
+                }
+                if ( qwr::to_underlying( buttons & k5 ) )
+                {
+                    buttons_raw |= 16;
+                } 
+
+            return buttons_raw; }(),
+            .screenX = static_cast<double>( screenPos.x ),
+            .screenY = static_cast<double>( screenPos.y ),
+            .x = x,
+            .y = y,
+        };
+
+        jsEvent = mozjs::JsObjectBase<mozjs::MouseEvent>::CreateJs( pJsCtx_, eventType, props );
+        break;
+    }
+    case EventId::kNew_InputBlur:
+    {
+        isFocused_ = false;
+        [[fallthrough]];
+    }
+    case EventId::kNew_InputFocus:
+    {
+        isFocused_ = true;
+        [[fallthrough]];
+    }
+    default:
+        jsEvent = mozjs::JsEvent::CreateJs( pJsCtx_, eventType, JsEvent::EventProperties{ .cancelable = false } );
+        break;
+    }
+
+    return jsEvent;
 }
 
 void WindowNew::HandlePaintEvent( JS::HandleObject self )

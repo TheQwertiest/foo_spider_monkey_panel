@@ -1066,14 +1066,8 @@ JsWindow::DefineScriptOptions JsWindow::ParseDefineScriptOptions( JS::HandleValu
         qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
-        if ( const auto propOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "author" ) )
-        {
-            parsedOptions.author = *propOpt;
-        }
-        if ( const auto propOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "version" ) )
-        {
-            parsedOptions.version = *propOpt;
-        }
+        utils::OptionalPropertyTo( pJsCtx_, jsOptions, "author", parsedOptions.author );
+        utils::OptionalPropertyTo( pJsCtx_, jsOptions, "version", parsedOptions.version );
 
         bool hasProperty;
         if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )
@@ -1092,14 +1086,8 @@ JsWindow::DefineScriptOptions JsWindow::ParseDefineScriptOptions( JS::HandleValu
             qwr::QwrException::ExpectTrue( jsFeaturesValue.isObject(), "`features` is not an object" );
 
             JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
-            if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "drag_n_drop" ) )
-            {
-                parsedOptions.features.dragAndDrop = *propOpt;
-            }
-            if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "grab_focus" ) )
-            {
-                parsedOptions.features.grabFocus = *propOpt;
-            }
+            utils::OptionalPropertyTo( pJsCtx_, jsOptions, "drag_n_drop", parsedOptions.features.dragAndDrop );
+            utils::OptionalPropertyTo( pJsCtx_, jsOptions, "grab_focus", parsedOptions.features.grabFocus );
         }
     }
 

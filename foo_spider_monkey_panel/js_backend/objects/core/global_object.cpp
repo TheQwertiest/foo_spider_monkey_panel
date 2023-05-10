@@ -405,10 +405,7 @@ JsGlobalObject::IncludeOptions JsGlobalObject::ParseIncludeOptions( JS::HandleVa
         qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
-        if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "always_evaluate" ) )
-        {
-            parsedOptions.alwaysEvaluate = *propOpt;
-        }
+        utils::OptionalPropertyTo( pJsCtx_, jsOptions, "always_evaluate", parsedOptions.alwaysEvaluate );
     }
 
     return parsedOptions;
