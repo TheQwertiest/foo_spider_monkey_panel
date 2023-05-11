@@ -75,7 +75,6 @@ private:
 
     void HandlePaintEvent( JS::HandleObject self );
 
-    void HandleEventPre( const smp::EventBase& event );
     JSObject* GenerateEvent( const smp::EventBase& event, const qwr::u8string& eventType );
 
 private:
@@ -83,8 +82,6 @@ private:
     smp::panel::PanelWindow& parentPanel_;
 
     bool isFinalized_ = false; ///< if true, then parentPanel_ might be already inaccessible
-
-    bool isFocused_ = false;
 };
 
 } // namespace mozjs

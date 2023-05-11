@@ -37,6 +37,7 @@ public:
 
     void AddEventListener( const qwr::u8string& type, JS::HandleValue listener );
     void RemoveEventListener( const qwr::u8string& type, JS::HandleValue listener );
+    // TODO: add on{EVENT_TYPE} proxy
     void DispatchEvent( JS::HandleObject self, JS::HandleValue event );
 
 protected:

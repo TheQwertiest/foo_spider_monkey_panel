@@ -178,6 +178,9 @@ private:
     // TODO: move to graphics class
     POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
     POINT minSize_ = { 0, 0 };             // modified only from external
+
+    // TODO: extract somewhere
+    uint8_t lastMouseDownCount_ = 0;
 };
 
 } // namespace smp::panel

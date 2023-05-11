@@ -109,17 +109,14 @@ enum class EventId
     // panel
     /// mouse
     //// buttons
-    kNew_MouseLeftButtonDoubleClick,
-    kNew_MouseLeftButtonDown,
-    kNew_MouseLeftButtonUp,
-    kNew_MouseMiddleButtonDoubleClick,
-    kNew_MouseMiddleButtonDown,
-    kNew_MouseMiddleButtonUp,
-    kNew_MouseRightButtonDoubleClick,
-    kNew_MouseRightButtonDown,
-    kNew_MouseRightButtonUp,
-    // TODO: click + dblclick
+    kNew_MouseButtonClick,
+    kNew_MouseButtonAuxClick,
+    kNew_MouseButtonDoubleClick,
+    kNew_MouseButtonDoubleClickNative,
+    kNew_MouseButtonDown,
+    kNew_MouseButtonUp,
     //// move
+    kNew_MouseEnter,
     kNew_MouseLeave,
     kNew_MouseMove,
     // TODO: mouse enter
