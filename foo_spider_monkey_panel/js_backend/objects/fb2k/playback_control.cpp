@@ -80,16 +80,16 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
         JS_PS_END,
     } );
 
+MJS_VERIFY_OBJECT( mozjs::PlaybackControl );
+
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass PlaybackControl::JsClass = jsClass;
-const JSFunctionSpec* PlaybackControl::JsFunctions = jsFunctions.data();
-const JSPropertySpec* PlaybackControl::JsProperties = jsProperties.data();
-const JsPrototypeId PlaybackControl::BasePrototypeId = JsPrototypeId::EventTarget;
-const JsPrototypeId PlaybackControl::ParentPrototypeId = JsPrototypeId::EventTarget;
+const JSClass JsObjectTraits<PlaybackControl>::JsClass = jsClass;
+const JSFunctionSpec* JsObjectTraits<PlaybackControl>::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsObjectTraits<PlaybackControl>::JsProperties = jsProperties.data();
 
 const std::unordered_set<EventId> PlaybackControl::kHandledEvents{
     EventId::kNew_FbPlaybackDynamicInfo,

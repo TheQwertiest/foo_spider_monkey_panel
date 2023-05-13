@@ -8,9 +8,9 @@ namespace smp
 class PanelEvent : public EventBase
 {
 public:
-    PanelEvent( EventId id );
+    [[nodiscard]] PanelEvent( EventId id );
 
-    std::unique_ptr<EventBase> Clone() override;
+    [[nodiscard]] std::unique_ptr<EventBase> Clone() override;
 
     void Run() final;
 };

@@ -8,12 +8,11 @@
 namespace mozjs
 {
 
-class JsEventTarget
-    : public JsObjectBase<JsEventTarget>
-{
-    friend class JsObjectBase<JsEventTarget>;
+class JsEventTarget;
 
-private:
+template <>
+struct JsObjectTraits<JsEventTarget>
+{
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
     static constexpr bool IsExtendable = true;
@@ -23,6 +22,13 @@ private:
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
+};
+
+// TODO: rename to EventTarget
+class JsEventTarget
+    : public JsObjectBase<JsEventTarget>
+{
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( JsEventTarget );
 
 public:
     ~JsEventTarget() override = default;

@@ -1,19 +1,18 @@
 #pragma once
 
 #include <js_backend/objects/core/object_base.h>
+#include <js_backend/objects/core/object_traits.h>
 
 #include <js/TypeDecls.h>
 
 namespace mozjs
 {
 
-// TODO: rename to Event
-class JsEvent
-    : public JsObjectBase<JsEvent>
-{
-    friend class JsObjectBase<JsEvent>;
+class JsEvent;
 
-private:
+template <>
+struct JsObjectTraits<JsEvent>
+{
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
     static constexpr bool IsExtendable = true;
@@ -23,6 +22,13 @@ private:
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
+};
+
+// TODO: rename to Event
+class JsEvent
+    : public JsObjectBase<JsEvent>
+{
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( JsEvent );
 
 public:
     struct EventProperties
@@ -34,6 +40,8 @@ protected:
     struct EventOptions
     {
         bool cancelable = false;
+
+        EventProperties ToDefaultProps() const;
     };
 
 public:

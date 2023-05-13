@@ -12,24 +12,27 @@
 namespace mozjs
 {
 
-class PlaybackControl
-    : public JsObjectBase<PlaybackControl>
-    , private JsEventTarget
-{
-    friend class JsObjectBase<PlaybackControl>;
+class PlaybackControl;
 
-private:
+template <>
+struct JsObjectTraits<PlaybackControl>
+{
+    using ParentJsType = JsEventTarget;
+
     static constexpr bool HasProto = false;
     static constexpr bool HasParentProto = true;
     static constexpr bool HasPostCreate = true;
 
-    using BaseJsType = JsEventTarget;
-
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
-    static const JsPrototypeId BasePrototypeId;
-    static const JsPrototypeId ParentPrototypeId;
+};
+
+class PlaybackControl
+    : public JsObjectBase<PlaybackControl>
+    , private JsEventTarget
+{
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( PlaybackControl );
 
 public:
     static const std::unordered_set<smp::EventId> kHandledEvents;
@@ -67,12 +70,12 @@ public:
     void put_Volume( float value );
 
 private:
-    PlaybackControl( JSContext* cx );
+    [[nodiscard]] PlaybackControl( JSContext* cx );
 
     [[nodiscard]] size_t GetInternalSize();
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
-    const std::string& EventIdToType( smp::EventId eventId );
+    [[nodiscard]] const std::string& EventIdToType( smp::EventId eventId );
 
 private:
     JSContext* pJsCtx_ = nullptr;

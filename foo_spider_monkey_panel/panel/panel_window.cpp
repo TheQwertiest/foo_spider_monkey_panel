@@ -10,8 +10,10 @@
 #include <events/event_drag.h>
 #include <events/event_js_callback.h>
 #include <events/mouse_event.h>
+#include <events/wheel_event.h>
 #include <fb2k/mainmenu_dynamic.h>
 #include <js_backend/engine/js_container.h>
+#include <os/system_settings.h>
 #include <panel/drag_action_params.h>
 #include <panel/edit_script.h>
 #include <panel/modal_blocking_scope.h>
@@ -374,6 +376,8 @@ void PanelWindow::ExecuteEvent_Basic( EventId id )
 
 void PanelWindow::ExecuteEvent( EventBase& event )
 {
+    // TODO: extract message to event conversion code somewhere
+
     const auto execJsEvent = [&] {
         if ( !pJsContainer_ )
         {
@@ -389,8 +393,8 @@ void PanelWindow::ExecuteEvent( EventBase& event )
     {
     case EventId::kNew_MouseButtonUp:
     {
-        const auto& mouseEvent = static_cast<MouseEventNew&>( event );
-        if ( mouseEvent.GetButton() != MouseEventNew::MouseKeyFlag::kSecondary )
+        const auto& mouseEvent = static_cast<MouseEvent&>( event );
+        if ( mouseEvent.GetButton() != MouseEvent::MouseKeyFlag::kSecondary )
         {
             execJsEvent();
             break;
@@ -401,7 +405,7 @@ void PanelWindow::ExecuteEvent( EventBase& event )
             const auto modifiers = mouseEvent.GetModifiers();
             const auto isBypassedViaModifiers =
                 !!qwr::to_underlying( modifiers
-                                      & ( MouseEventNew::ModifierKeyFlag::kShift | MouseEventNew::ModifierKeyFlag::kWin ) );
+                                      & ( MouseEvent::ModifierKeyFlag::kShift | MouseEvent::ModifierKeyFlag::kWin ) );
             if ( !isBypassedViaModifiers )
             {
                 return true;
@@ -413,9 +417,9 @@ void PanelWindow::ExecuteEvent( EventBase& event )
         if ( useDefaultContextMenu )
         {
             EventDispatcher::Get().PutEvent( wnd_,
-                                             std::make_unique<MouseEventNew>(
+                                             std::make_unique<MouseEvent>(
                                                  EventId::kNew_MouseContextMenu,
-                                                 MouseEventNew::MouseKeyFlag::kSecondary,
+                                                 MouseEvent::MouseKeyFlag::kSecondary,
                                                  mouseEvent.GetX(),
                                                  mouseEvent.GetY() ),
                                              EventPriority::kInput );
@@ -425,7 +429,7 @@ void PanelWindow::ExecuteEvent( EventBase& event )
     }
     case EventId::kNew_MouseContextMenu:
     {
-        const auto& mouseEvent = static_cast<MouseEventNew&>( event );
+        const auto& mouseEvent = static_cast<MouseEvent&>( event );
 
         OnContextMenu( mouseEvent.GetX(), mouseEvent.GetY() );
 
@@ -478,30 +482,8 @@ void PanelWindow::ExecuteEvent( EventBase& event )
         execJsEvent();
         break;
     }
-    default:
-    {
-        execJsEvent();
-    }
-    }
-}
-
-void PanelWindow::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
-{
-    const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
-        if ( !pJsContainer_ )
-        {
-            return false;
-        }
-        else
-        {
-            return jsTask.JsExecute( *pJsContainer_ );
-        }
-    };
-
     /*
-switch ( id )
-{
-case EventId::kMouseDragEnter:
+    case EventId::kMouseDragEnter:
 {
     const auto pDragEvent = task.AsDragEvent();
     assert( pDragEvent );
@@ -585,12 +567,26 @@ case EventId::kMouseDragDrop:
 
     break;
 }
-default:
-{
-    execJs( task );
-}
-}
 */
+    default:
+    {
+        execJsEvent();
+    }
+    }
+}
+
+void PanelWindow::ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task )
+{
+    const auto execJs = [&]( auto& jsTask ) -> std::optional<bool> {
+        if ( !pJsContainer_ )
+        {
+            return false;
+        }
+        else
+        {
+            return jsTask.JsExecute( *pJsContainer_ );
+        }
+    };
 }
 
 bool PanelWindow::ExecuteEvent_JsCode( mozjs::JsAsyncTask& jsTask )
@@ -1161,27 +1157,29 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
         const auto x = static_cast<int32_t>( GET_X_LPARAM( msg.lParam ) );
         const auto y = static_cast<int32_t>( GET_Y_LPARAM( msg.lParam ) );
 
-        return std::make_unique<MouseEventNew>( eventId,
-                                                mouseKey,
-                                                x,
-                                                y );
+        return std::make_unique<MouseEvent>( eventId,
+                                             mouseKey,
+                                             x,
+                                             y );
     };
     // TODO: test rbutton lbutton swap
     // TODO: extract to a better place
     // TODO: implement 4th and 5th message handling: https://searchfox.org/mozilla-central/source/widget/windows/nsWindow.cpp#6058
-    static const std::unordered_map<int, MouseEventNew::MouseKeyFlag> kMsgToMouseKey{
-        { WM_LBUTTONDOWN, MouseEventNew::MouseKeyFlag::kPrimary },
-        { WM_LBUTTONUP, MouseEventNew::MouseKeyFlag::kPrimary },
-        { WM_LBUTTONDBLCLK, MouseEventNew::MouseKeyFlag::kPrimary },
-        { WM_MBUTTONDOWN, MouseEventNew::MouseKeyFlag::kAuxiliary },
-        { WM_MBUTTONUP, MouseEventNew::MouseKeyFlag::kAuxiliary },
-        { WM_MBUTTONDBLCLK, MouseEventNew::MouseKeyFlag::kAuxiliary },
-        { WM_RBUTTONDOWN, MouseEventNew::MouseKeyFlag::kSecondary },
-        { WM_RBUTTONUP, MouseEventNew::MouseKeyFlag::kSecondary },
-        { WM_RBUTTONDBLCLK, MouseEventNew::MouseKeyFlag::kSecondary },
-        { WM_CONTEXTMENU, MouseEventNew::MouseKeyFlag::kSecondary },
-        { WM_MOUSEMOVE, MouseEventNew::MouseKeyFlag::kNoButtons },
-        { WM_MOUSELEAVE, MouseEventNew::MouseKeyFlag::kNoButtons },
+    static const std::unordered_map<int, MouseEvent::MouseKeyFlag> kMsgToMouseKey{
+        { WM_LBUTTONDOWN, MouseEvent::MouseKeyFlag::kPrimary },
+        { WM_LBUTTONUP, MouseEvent::MouseKeyFlag::kPrimary },
+        { WM_LBUTTONDBLCLK, MouseEvent::MouseKeyFlag::kPrimary },
+        { WM_MBUTTONDOWN, MouseEvent::MouseKeyFlag::kAuxiliary },
+        { WM_MBUTTONUP, MouseEvent::MouseKeyFlag::kAuxiliary },
+        { WM_MBUTTONDBLCLK, MouseEvent::MouseKeyFlag::kAuxiliary },
+        { WM_RBUTTONDOWN, MouseEvent::MouseKeyFlag::kSecondary },
+        { WM_RBUTTONUP, MouseEvent::MouseKeyFlag::kSecondary },
+        { WM_RBUTTONDBLCLK, MouseEvent::MouseKeyFlag::kSecondary },
+        { WM_CONTEXTMENU, MouseEvent::MouseKeyFlag::kSecondary },
+        { WM_MOUSEMOVE, MouseEvent::MouseKeyFlag::kNoButtons },
+        { WM_MOUSELEAVE, MouseEvent::MouseKeyFlag::kNoButtons },
+        { WM_MOUSEWHEEL, MouseEvent::MouseKeyFlag::kNoButtons },
+        { WM_MOUSEHWHEEL, MouseEvent::MouseKeyFlag::kNoButtons }
     };
 
     switch ( msg.message )
@@ -1282,7 +1280,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
                                          EventPriority::kInput );
         if ( lastMouseDownCount_ >= 1 )
         {
-            if ( mouseKey == MouseEventNew::MouseKeyFlag::kPrimary )
+            if ( mouseKey == MouseEvent::MouseKeyFlag::kPrimary )
             {
                 // https://w3c.github.io/uievents/#event-type-click
                 EventDispatcher::Get().PutEvent( wnd_,
@@ -1297,7 +1295,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
                                                  EventPriority::kInput );
             }
         }
-        if ( lastMouseDownCount_ >= 2 && mouseKey == MouseEventNew::MouseKeyFlag::kPrimary )
+        if ( lastMouseDownCount_ >= 2 && mouseKey == MouseEvent::MouseKeyFlag::kPrimary )
         { // https://w3c.github.io/uievents/#event-type-dblclick
             EventDispatcher::Get().PutEvent( wnd_,
                                              generateMouseEvent( EventId::kNew_MouseButtonDoubleClick, mouseKey ),
@@ -1325,7 +1323,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
                                              kMsgToMouseKey.at( msg.message ) ),
                                          EventPriority::kInput );
 
-        if ( mouseKey == MouseEventNew::MouseKeyFlag::kPrimary )
+        if ( mouseKey == MouseEvent::MouseKeyFlag::kPrimary )
         { // https://w3c.github.io/uievents/#event-type-dblclick
             lastMouseDownCount_ = 2;
             EventDispatcher::Get().PutEvent( wnd_,
@@ -1359,7 +1357,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
         const auto y = static_cast<int32_t>( point.y );
 
         EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<MouseEventNew>(
+                                         std::make_unique<MouseEvent>(
                                              EventId::kNew_MouseContextMenu,
                                              kMsgToMouseKey.at( msg.message ),
                                              x,
@@ -1405,7 +1403,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
         wnd_.ScreenToClient( &mousePos );
 
         EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<MouseEventNew>(
+                                         std::make_unique<MouseEvent>(
                                              EventId::kNew_MouseLeave,
                                              kMsgToMouseKey.at( msg.message ),
                                              mousePos.x,
@@ -1414,29 +1412,41 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
 
         return std::nullopt;
     }
-    /*
+
     case WM_MOUSEWHEEL:
-    {
-        // TODO: https://searchfox.org/mozilla-central/source/widget/windows/WinMouseScrollHandler.cpp#857
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<MouseEventNew>(
-                                             EventId::kMouseVerticalWheel,
-                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( msg.wParam ) > 0 ? 1 : -1 ),
-                                             static_cast<int32_t>( GET_WHEEL_DELTA_WPARAM( msg.wParam ) ),
-                                             static_cast<int32_t>( WHEEL_DELTA ) ),
-                                         EventPriority::kInput );
-        return std::nullopt;
-    }
     case WM_MOUSEHWHEEL:
     {
+        const auto& systemSettings = os::SystemSettings::Instance();
+
+        // WM_WM_MOUSE*WHEEL receives screen coordinates
+        POINT p{ GET_X_LPARAM( msg.lParam ), GET_Y_LPARAM( msg.lParam ) };
+        wnd_.ScreenToClient( &p );
+
+        const auto isVertical = ( msg.message == WM_MOUSEWHEEL );
+        const auto dir = ( isVertical
+                               ? WheelEvent::WheelDirection::kVertical
+                               : WheelEvent::WheelDirection::kHorizontal );
+        const auto delta = GET_WHEEL_DELTA_WPARAM( msg.wParam );
+        const auto mode = ( systemSettings.IsPageScroll( isVertical )
+                                ? WheelEvent::WheelMode::kPage
+                                : WheelEvent::WheelMode::kLine );
+
         EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<MouseEventNew>(
-                                             EventId::kMouseHorizontalWheel,
-                                             static_cast<int8_t>( GET_WHEEL_DELTA_WPARAM( msg.wParam ) > 0 ? 1 : -1 ) ),
+                                         std::make_unique<WheelEvent>(
+                                             EventId::kNew_MouseWheel,
+                                             kMsgToMouseKey.at( msg.message ),
+                                             p.x,
+                                             p.y,
+                                             delta,
+                                             dir,
+                                             mode ),
                                          EventPriority::kInput );
-        return std::nullopt;
+        return 0;
     }
-    */
+    case WM_VSCROLL:
+    case WM_HSCROLL:
+        // TODO: uimpl
+        return std::nullopt;
     case WM_SETCURSOR:
     {
         return 1;

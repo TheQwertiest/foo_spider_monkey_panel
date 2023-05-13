@@ -7,7 +7,7 @@
 namespace smp
 {
 
-class MouseEventNew
+class MouseEvent
     : public PanelEvent
 {
 public:
@@ -33,10 +33,10 @@ public:
     friend QWR_ENABLE_BIT_OPS( MouseKeyFlag );
 
 public:
-    MouseEventNew( EventId id,
-                   MouseKeyFlag button,
-                   int32_t x,
-                   int32_t y );
+    [[nodiscard]] MouseEvent( EventId id,
+                              MouseKeyFlag button,
+                              int32_t x,
+                              int32_t y );
 
     [[nodiscard]] int32_t GetX() const;
     [[nodiscard]] int32_t GetY() const;

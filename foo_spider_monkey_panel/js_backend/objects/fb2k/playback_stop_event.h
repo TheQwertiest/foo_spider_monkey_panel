@@ -5,30 +5,36 @@
 namespace mozjs
 {
 
-class PlaybackStopEvent
-    : public JsObjectBase<PlaybackStopEvent>
-    , private JsEvent
-{
-    friend class JsObjectBase<PlaybackStopEvent>;
+class PlaybackStopEvent;
 
-private:
+template <>
+struct JsObjectTraits<PlaybackStopEvent>
+{
+    using ParentJsType = JsEvent;
+
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
     static constexpr bool HasParentProto = true;
-
-    using BaseJsType = JsEvent;
+    static constexpr bool IsExtendable = true;
 
     static const JSClass JsClass;
     static const JSPropertySpec* JsProperties;
-    static const JsPrototypeId BasePrototypeId;
-    static const JsPrototypeId ParentPrototypeId;
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
+};
+
+class PlaybackStopEvent
+    : public JsObjectBase<PlaybackStopEvent>
+    , protected JsEvent
+{
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( PlaybackStopEvent );
+
+    using ParentJsType = JsEvent;
 
 protected:
     struct EventOptions
     {
-        BaseJsType::EventOptions baseOptions;
+        ParentJsType::EventOptions baseOptions;
         play_control::t_stop_reason reason = play_control::t_stop_reason::stop_reason_user;
     };
 
@@ -42,10 +48,10 @@ public:
     uint8_t get_Reason() const;
 
 protected:
-    PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );
+    [[nodiscard]] PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );
     [[nodiscard]] size_t GetInternalSize();
 
-    static EventOptions ExtractOptions( JSContext* cx, JS::HandleValue options );
+    [[nodiscard]] static EventOptions ExtractOptions( JSContext* cx, JS::HandleValue options );
 
 private:
     static std::unique_ptr<PlaybackStopEvent> CreateNative( JSContext* cx, const qwr::u8string& type, play_control::t_stop_reason reason );

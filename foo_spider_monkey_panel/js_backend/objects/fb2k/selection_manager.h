@@ -14,23 +14,26 @@ namespace mozjs
 
 class JsFbMetadbHandleList;
 
-class SelectionManager
-    : public JsObjectBase<SelectionManager>
-    , private JsEventTarget
-{
-    friend class JsObjectBase<SelectionManager>;
+class SelectionManager;
 
-private:
+template <>
+struct JsObjectTraits<SelectionManager>
+{
+    using ParentJsType = JsEventTarget;
+
     static constexpr bool HasProto = false;
     static constexpr bool HasParentProto = true;
     static constexpr bool HasPostCreate = true;
 
-    using BaseJsType = JsEventTarget;
-
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
-    static const JsPrototypeId BasePrototypeId;
-    static const JsPrototypeId ParentPrototypeId;
+};
+
+class SelectionManager
+    : public JsObjectBase<SelectionManager>
+    , private JsEventTarget
+{
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( SelectionManager );
 
 public:
     static const std::unordered_set<smp::EventId> kHandledEvents;
@@ -56,12 +59,12 @@ public:
     void SetSelectionWithOpt( size_t optArgCount, JsFbMetadbHandleList* handles, const GUID& type );
 
 private:
-    SelectionManager( JSContext* cx );
+    [[nodiscard]] SelectionManager( JSContext* cx );
 
     [[nodiscard]] size_t GetInternalSize();
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
-    const std::string& EventIdToType( smp::EventId eventId );
+    [[nodiscard]] const std::string& EventIdToType( smp::EventId eventId );
 
 private:
     JSContext* pJsCtx_ = nullptr;

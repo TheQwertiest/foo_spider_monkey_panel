@@ -40,17 +40,17 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( PlaybackStopEvent_Constructor, PlaybackStopEvent::Constructor )
 
+MJS_VERIFY_OBJECT( mozjs::PlaybackStopEvent );
+
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass PlaybackStopEvent::JsClass = jsClass;
-const JSPropertySpec* PlaybackStopEvent::JsProperties = jsProperties.data();
-const JsPrototypeId PlaybackStopEvent::BasePrototypeId = JsPrototypeId::Event;
-const JsPrototypeId PlaybackStopEvent::ParentPrototypeId = JsPrototypeId::Event;
-const JsPrototypeId PlaybackStopEvent::PrototypeId = JsPrototypeId::New_PlaybackStopEvent;
-const JSNative PlaybackStopEvent::JsConstructor = ::PlaybackStopEvent_Constructor;
+const JSClass JsObjectTraits<PlaybackStopEvent>::JsClass = jsClass;
+const JSPropertySpec* JsObjectTraits<PlaybackStopEvent>::JsProperties = jsProperties.data();
+const JsPrototypeId JsObjectTraits<PlaybackStopEvent>::PrototypeId = JsPrototypeId::New_PlaybackStopEvent;
+const JSNative JsObjectTraits<PlaybackStopEvent>::JsConstructor = ::PlaybackStopEvent_Constructor;
 
 PlaybackStopEvent::PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options )
     : JsEvent( cx, type, options.baseOptions )
@@ -62,6 +62,7 @@ PlaybackStopEvent::PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, 
 std::unique_ptr<PlaybackStopEvent>
 PlaybackStopEvent::CreateNative( JSContext* cx, const qwr::u8string& type, play_control::t_stop_reason reason )
 {
+    // TODO: replace with options.ToDefaultProps()?
     EventOptions options{
         .baseOptions{ .cancelable = false },
         .reason = reason
@@ -115,7 +116,7 @@ PlaybackStopEvent::EventOptions PlaybackStopEvent::ExtractOptions( JSContext* cx
     qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
     JS::RootedObject jsOptions( cx, &options.toObject() );
 
-    parsedOptions.baseOptions = BaseJsType::ExtractOptions( cx, options );
+    parsedOptions.baseOptions = ParentJsType::ExtractOptions( cx, options );
 
     if ( const auto propOpt =
              utils::GetOptionalProperty<int32_t>(

@@ -1,40 +1,42 @@
 #pragma once
 
+#include <js_backend/objects/core/object_traits.h>
 #include <js_backend/objects/dom/event.h>
-
-namespace smp
-{
-class MouseEventNew;
-}
 
 namespace mozjs
 {
 
-class MouseEvent
-    : public JsObjectBase<MouseEvent>
-    , private JsEvent
-{
-    friend class JsObjectBase<MouseEvent>;
+class MouseEvent;
 
-private:
+template <>
+struct JsObjectTraits<MouseEvent>
+{
+    using ParentJsType = JsEvent;
+
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
     static constexpr bool HasParentProto = true;
-
-    using BaseJsType = JsEvent;
+    static constexpr bool IsExtendable = true;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
-    static const JsPrototypeId BasePrototypeId;
-    static const JsPrototypeId ParentPrototypeId;
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
+};
+
+class MouseEvent
+    : public JsObjectBase<MouseEvent>
+    , protected JsEvent
+{
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( MouseEvent );
+
+    using ParentJsType = JsEvent;
 
 public:
     struct EventProperties
     {
-        BaseJsType::EventProperties baseProps;
+        ParentJsType::EventProperties baseProps;
         bool altKey = false;
         bool ctrlKey = false;
         bool metaKey = false;
@@ -50,7 +52,7 @@ public:
 protected:
     struct EventOptions
     {
-        BaseJsType::EventOptions baseOptions;
+        ParentJsType::EventOptions baseOptions;
         bool altKey = false;
         bool ctrlKey = false;
         bool shiftKey = false;
@@ -62,6 +64,8 @@ protected:
         double clientX = 0;
         double clientY = 0;
         // TODO: think about adding relatedTarget field
+
+        EventProperties ToDefaultProps() const;
     };
 
 public:
@@ -76,10 +80,6 @@ public:
     uint32_t get_Buttons() const;
     bool get_CtrlKey() const;
     bool get_MetaKey() const;
-    double get_MovementX() const;
-    double get_MovementY() const;
-    double get_OffsetX() const;
-    double get_OffsetY() const;
     JSObject* get_RelatedTarget() const;
     double get_ScreenX() const;
     double get_ScreenY() const;
@@ -88,11 +88,11 @@ public:
     double get_Y() const;
 
 protected:
-    MouseEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props );
-    MouseEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );
+    [[nodiscard]] MouseEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props );
+    [[nodiscard]] MouseEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );
     [[nodiscard]] size_t GetInternalSize();
 
-    static EventOptions ExtractOptions( JSContext* cx, JS::HandleValue options );
+    [[nodiscard]] static EventOptions ExtractOptions( JSContext* cx, JS::HandleValue options );
 
 private:
     static std::unique_ptr<MouseEvent> CreateNative( JSContext* cx, const qwr::u8string& type, const EventProperties& props );

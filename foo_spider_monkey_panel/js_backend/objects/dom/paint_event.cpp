@@ -39,16 +39,16 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
         JS_PS_END,
     } );
 
+MJS_VERIFY_OBJECT( mozjs::PaintEvent );
+
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass PaintEvent::JsClass = jsClass;
-const JSPropertySpec* PaintEvent::JsProperties = jsProperties.data();
-const JsPrototypeId PaintEvent::BasePrototypeId = JsPrototypeId::Event;
-const JsPrototypeId PaintEvent::ParentPrototypeId = JsPrototypeId::Event;
-const JsPrototypeId PaintEvent::PrototypeId = JsPrototypeId::New_PaintEvent;
+const JSClass JsObjectTraits<PaintEvent>::JsClass = jsClass;
+const JSPropertySpec* JsObjectTraits<PaintEvent>::JsProperties = jsProperties.data();
+const JsPrototypeId JsObjectTraits<PaintEvent>::PrototypeId = JsPrototypeId::New_PaintEvent;
 
 PaintEvent::PaintEvent( JSContext* cx, Gdiplus::Graphics& graphics )
     : JsEvent( cx, "paint", JsEvent::EventProperties{ .cancelable = false } )

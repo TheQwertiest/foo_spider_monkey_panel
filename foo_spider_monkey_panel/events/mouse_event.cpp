@@ -5,10 +5,10 @@
 namespace smp
 {
 
-MouseEventNew::MouseEventNew( EventId id,
-                              MouseKeyFlag button,
-                              int32_t x,
-                              int32_t y )
+MouseEvent::MouseEvent( EventId id,
+                        MouseKeyFlag button,
+                        int32_t x,
+                        int32_t y )
     : PanelEvent( id )
     , x_( x )
     , y_( y )
@@ -18,32 +18,32 @@ MouseEventNew::MouseEventNew( EventId id,
 {
 }
 
-int32_t MouseEventNew::GetX() const
+int32_t MouseEvent::GetX() const
 {
     return x_;
 }
 
-int32_t MouseEventNew::GetY() const
+int32_t MouseEvent::GetY() const
 {
     return y_;
 }
 
-MouseEventNew::MouseKeyFlag MouseEventNew::GetButton() const
+MouseEvent::MouseKeyFlag MouseEvent::GetButton() const
 {
     return button_;
 }
 
-MouseEventNew::MouseKeyFlag MouseEventNew::GetButtons() const
+MouseEvent::MouseKeyFlag MouseEvent::GetButtons() const
 {
     return buttons_;
 }
 
-MouseEventNew::ModifierKeyFlag MouseEventNew::GetModifiers() const
+MouseEvent::ModifierKeyFlag MouseEvent::GetModifiers() const
 {
     return modifiers_;
 }
 
-MouseEventNew::MouseKeyFlag MouseEventNew::CalculateButtons()
+MouseEvent::MouseKeyFlag MouseEvent::CalculateButtons()
 {
     auto buttons = MouseKeyFlag::kNoButtons;
 
@@ -71,7 +71,7 @@ MouseEventNew::MouseKeyFlag MouseEventNew::CalculateButtons()
     return buttons;
 }
 
-MouseEventNew::ModifierKeyFlag MouseEventNew::CalculateModifiers()
+MouseEvent::ModifierKeyFlag MouseEvent::CalculateModifiers()
 {
     auto modifiers = ModifierKeyFlag::kNoModifiers;
 

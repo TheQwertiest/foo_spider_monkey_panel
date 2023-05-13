@@ -76,16 +76,18 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>( {
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( JsEvent_Constructor, JsEvent::Constructor, JsEvent::ConstructorWithOpt, 1 )
 
+MJS_VERIFY_OBJECT( mozjs::JsEvent );
+
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass JsEvent::JsClass = jsClass;
-const JSFunctionSpec* JsEvent::JsFunctions = jsFunctions.data();
-const JSPropertySpec* JsEvent::JsProperties = jsProperties.data();
-const JsPrototypeId JsEvent::PrototypeId = JsPrototypeId::Event;
-const JSNative JsEvent::JsConstructor = ::JsEvent_Constructor;
+const JSClass JsObjectTraits<JsEvent>::JsClass = jsClass;
+const JSFunctionSpec* JsObjectTraits<JsEvent>::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsObjectTraits<JsEvent>::JsProperties = jsProperties.data();
+const JsPrototypeId JsObjectTraits<JsEvent>::PrototypeId = JsPrototypeId::Event;
+const JSNative JsObjectTraits<JsEvent>::JsConstructor = ::JsEvent_Constructor;
 
 JsEvent::JsEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props )
     : pJsCtx_( cx )
@@ -98,7 +100,7 @@ JsEvent::JsEvent( JSContext* cx, const qwr::u8string& type, const EventPropertie
 }
 
 JsEvent::JsEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options )
-    : JsEvent( cx, type, EventProperties{ .cancelable = options.cancelable } )
+    : JsEvent( cx, type, options.ToDefaultProps() )
 {
 }
 
@@ -254,6 +256,11 @@ std::unique_ptr<mozjs::JsEvent>
 JsEvent::CreateNative( JSContext* cx, const qwr::u8string& type, const EventOptions& options )
 {
     return std::unique_ptr<JsEvent>( new JsEvent( cx, type, options ) );
+}
+
+JsEvent::EventProperties JsEvent::EventOptions::ToDefaultProps() const
+{
+    return { .cancelable = cancelable };
 }
 
 } // namespace mozjs

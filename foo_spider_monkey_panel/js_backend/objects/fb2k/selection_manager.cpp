@@ -67,15 +67,15 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
+MJS_VERIFY_OBJECT( mozjs::SelectionManager );
+
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass SelectionManager::JsClass = jsClass;
-const JSFunctionSpec* SelectionManager::JsFunctions = jsFunctions.data();
-const JsPrototypeId SelectionManager::BasePrototypeId = JsPrototypeId::EventTarget;
-const JsPrototypeId SelectionManager::ParentPrototypeId = JsPrototypeId::EventTarget;
+const JSClass JsObjectTraits<SelectionManager>::JsClass = jsClass;
+const JSFunctionSpec* JsObjectTraits<SelectionManager>::JsFunctions = jsFunctions.data();
 
 const std::unordered_set<EventId> SelectionManager::kHandledEvents{
     EventId::kNew_FbSelectionChange,

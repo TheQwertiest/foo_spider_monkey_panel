@@ -22,24 +22,27 @@ class JsGdiGraphics;
 namespace mozjs
 {
 
-class WindowNew
-    : public JsObjectBase<WindowNew>
-    , private JsEventTarget
-{
-    friend class JsObjectBase<WindowNew>;
+class WindowNew;
 
-private:
+template <>
+struct JsObjectTraits<WindowNew>
+{
+    using ParentJsType = JsEventTarget;
+
     static constexpr bool HasProto = false;
     static constexpr bool HasParentProto = true;
     static constexpr bool HasPostCreate = true;
 
-    using BaseJsType = JsEventTarget;
-
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
-    static const JsPrototypeId BasePrototypeId;
-    static const JsPrototypeId ParentPrototypeId;
+};
+
+class WindowNew
+    : public JsObjectBase<WindowNew>
+    , private JsEventTarget
+{
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( WindowNew );
 
 public:
     static const std::unordered_set<smp::EventId> kHandledEvents;
@@ -65,17 +68,17 @@ public:
     uint32_t get_Width();
 
 protected:
-    WindowNew( JSContext* cx, smp::panel::PanelWindow& parentPanel );
+    [[nodiscard]] WindowNew( JSContext* cx, smp::panel::PanelWindow& parentPanel );
 
     [[nodiscard]] size_t GetInternalSize();
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
 private:
-    const std::string& EventIdToType( smp::EventId eventId );
+    [[nodiscard]] const std::string& EventIdToType( smp::EventId eventId );
 
     void HandlePaintEvent( JS::HandleObject self );
 
-    JSObject* GenerateEvent( const smp::EventBase& event, const qwr::u8string& eventType );
+    [[nodiscard]] JSObject* GenerateEvent( const smp::EventBase& event, const qwr::u8string& eventType );
 
 private:
     JSContext* pJsCtx_ = nullptr;

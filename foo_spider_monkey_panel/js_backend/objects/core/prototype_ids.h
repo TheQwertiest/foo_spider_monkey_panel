@@ -37,6 +37,7 @@ enum class JsPrototypeId : uint32_t
     New_PlaybackStopEvent,
     New_PaintEvent,
     New_MouseEvent,
+    New_WheelEvent,
     ProrototypeCount
 };
 }

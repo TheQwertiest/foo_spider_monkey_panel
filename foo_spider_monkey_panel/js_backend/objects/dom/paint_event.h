@@ -5,24 +5,27 @@
 namespace mozjs
 {
 
-class PaintEvent
-    : public JsObjectBase<PaintEvent>
-    , private JsEvent
-{
-    friend class JsObjectBase<PaintEvent>;
+class PaintEvent;
 
-private:
+template <>
+struct JsObjectTraits<PaintEvent>
+{
+    using ParentJsType = JsEvent;
+
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = false;
     static constexpr bool HasParentProto = true;
 
-    using BaseJsType = JsEvent;
-
     static const JSClass JsClass;
     static const JSPropertySpec* JsProperties;
-    static const JsPrototypeId BasePrototypeId;
-    static const JsPrototypeId ParentPrototypeId;
     static const JsPrototypeId PrototypeId;
+};
+
+class PaintEvent
+    : public JsObjectBase<PaintEvent>
+    , protected JsEvent
+{
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( PaintEvent );
 
 public:
     ~PaintEvent() override = default;
@@ -33,7 +36,7 @@ public:
     JSObject* get_Graphics();
 
 protected:
-    PaintEvent( JSContext* cx, Gdiplus::Graphics& graphics );
+    [[nodiscard]] PaintEvent( JSContext* cx, Gdiplus::Graphics& graphics );
     [[nodiscard]] size_t GetInternalSize();
 
 private:

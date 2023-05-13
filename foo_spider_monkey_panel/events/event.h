@@ -55,9 +55,6 @@ enum class EventId
     kKeyboardKeyDown,
     kKeyboardKeyUp,
     /// mouse
-    //// wheel
-    kMouseHorizontalWheel,
-    kMouseVerticalWheel,
     //// drag-n-drop
     kMouseDragDrop,
     kMouseDragEnter,
@@ -122,6 +119,8 @@ enum class EventId
     // TODO: mouse enter
     //// context
     kNew_MouseContextMenu,
+    //// wheel
+    kNew_MouseWheel,
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
@@ -164,9 +163,6 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kKeyboardKeyDown, "key_down" },
     { EventId::kKeyboardKeyUp, "key_up" },
     /// mouse
-    //// wheel
-    { EventId::kMouseHorizontalWheel, "mouse_wheel_h" },
-    { EventId::kMouseVerticalWheel, "mouse_wheel" },
     //// drag-n-drop
     { EventId::kMouseDragDrop, "UNUSED" },
     { EventId::kMouseDragEnter, "UNUSED" },
@@ -204,7 +200,7 @@ public:
 class PanelTarget final
 {
 public:
-    PanelTarget( panel::PanelWindow& panel );
+    [[nodiscard]] PanelTarget( panel::PanelWindow& panel );
 
     [[nodiscard]] HWND GetHwnd();
 
@@ -219,7 +215,7 @@ private:
 class EventBase : public Runnable
 {
 public:
-    EventBase( EventId id );
+    [[nodiscard]] EventBase( EventId id );
     virtual ~EventBase() = default;
 
     [[nodiscard]] virtual std::unique_ptr<EventBase> Clone();

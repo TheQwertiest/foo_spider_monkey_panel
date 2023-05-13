@@ -502,6 +502,15 @@
     <ClCompile Include="js_backend\objects\dom\paint_event.cpp">
       <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
+    <ClCompile Include="events\wheel_event.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="os\system_settings.cpp">
+      <Filter>os</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\wheel_event.cpp">
+      <Filter>js_backend\objects\dom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1087,6 +1096,21 @@
     <ClInclude Include="js_backend\engine\js_event_status.h">
       <Filter>js_backend\engine</Filter>
     </ClInclude>
+    <ClInclude Include="events\wheel_event.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="os\system_settings.h">
+      <Filter>os</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\wheel_event.h">
+      <Filter>js_backend\objects\dom</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\core\object_traits_handler.h">
+      <Filter>js_backend\objects\core</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\core\object_traits.h">
+      <Filter>js_backend\objects\core</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1202,6 +1226,9 @@
     </Filter>
     <Filter Include="resources\modules">
       <UniqueIdentifier>{9dc2935c-adc9-425b-8517-5dc0b989cc85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="os">
+      <UniqueIdentifier>{4d3e4e0c-60bf-47ce-9cf4-b4637644990c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

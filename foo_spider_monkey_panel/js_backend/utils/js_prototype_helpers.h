@@ -46,6 +46,7 @@ void CreateAndSavePrototype( JSContext* cx, JsPrototypeId protoId )
     JS_SetReservedSlot( globalObject, slotIdx, protoVal );
 }
 
+// TODO: divine protoId from type
 /// @brief Create a prototype for the specified object
 ///        and store it in the current global object.
 ///        Created prototype is accessible from JS.
@@ -72,6 +73,7 @@ void CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
 template <typename JsObjectType>
 void CreateAndInstallPrototype( JSContext* cx, JS::HandleObject jsObject, JsPrototypeId protoId )
 {
+    // TODO: why global slot? maybe move to corresponding objects instead?
     JS::RootedObject globalObject( cx, JS::CurrentGlobalOrNull( cx ) );
     assert( globalObject );
 

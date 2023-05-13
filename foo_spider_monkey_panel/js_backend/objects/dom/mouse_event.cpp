@@ -71,20 +71,20 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
         JS_PS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( PlaybackStopEvent_Constructor, MouseEvent::Constructor )
+MJS_DEFINE_JS_FN_FROM_NATIVE( MouseEvent_Constructor, MouseEvent::Constructor )
+
+MJS_VERIFY_OBJECT( mozjs::MouseEvent );
 
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass MouseEvent::JsClass = jsClass;
-const JSFunctionSpec* MouseEvent::JsFunctions = jsFunctions.data();
-const JSPropertySpec* MouseEvent::JsProperties = jsProperties.data();
-const JsPrototypeId MouseEvent::BasePrototypeId = JsPrototypeId::Event;
-const JsPrototypeId MouseEvent::ParentPrototypeId = JsPrototypeId::Event;
-const JsPrototypeId MouseEvent::PrototypeId = JsPrototypeId::New_MouseEvent;
-const JSNative MouseEvent::JsConstructor = ::PlaybackStopEvent_Constructor;
+const JSClass JsObjectTraits<MouseEvent>::JsClass = jsClass;
+const JSFunctionSpec* JsObjectTraits<MouseEvent>::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsObjectTraits<MouseEvent>::JsProperties = jsProperties.data();
+const JsPrototypeId JsObjectTraits<MouseEvent>::PrototypeId = JsPrototypeId::New_MouseEvent;
+const JSNative JsObjectTraits<MouseEvent>::JsConstructor = ::MouseEvent_Constructor;
 
 MouseEvent::MouseEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props )
     : JsEvent( cx, type, props.baseProps )
@@ -96,18 +96,7 @@ MouseEvent::MouseEvent( JSContext* cx, const qwr::u8string& type, const EventPro
 MouseEvent::MouseEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options )
     : MouseEvent( cx,
                   type,
-                  EventProperties{
-                      .baseProps = { .cancelable = options.baseOptions.cancelable },
-                      .altKey = options.altKey,
-                      .ctrlKey = options.ctrlKey,
-                      .metaKey = options.metaKey,
-                      .shiftKey = options.shiftKey,
-                      .button = options.button,
-                      .buttons = options.buttons,
-                      .screenX = options.screenX,
-                      .screenY = options.screenY,
-                      .x = options.clientX,
-                      .y = options.clientY } )
+                  options.ToDefaultProps() )
 {
 }
 
@@ -213,7 +202,7 @@ MouseEvent::EventOptions MouseEvent::ExtractOptions( JSContext* cx, JS::HandleVa
     qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
     JS::RootedObject jsOptions( cx, &options.toObject() );
 
-    parsedOptions.baseOptions = BaseJsType::ExtractOptions( cx, options );
+    parsedOptions.baseOptions = ParentJsType::ExtractOptions( cx, options );
 
     utils::OptionalPropertyTo( cx, jsOptions, "altKey", parsedOptions.altKey );
     utils::OptionalPropertyTo( cx, jsOptions, "ctrlKey", parsedOptions.ctrlKey );
@@ -227,6 +216,23 @@ MouseEvent::EventOptions MouseEvent::ExtractOptions( JSContext* cx, JS::HandleVa
     utils::OptionalPropertyTo( cx, jsOptions, "clientY", parsedOptions.clientY );
 
     return parsedOptions;
+}
+
+MouseEvent::EventProperties MouseEvent::EventOptions::ToDefaultProps() const
+{
+    return {
+        .baseProps = baseOptions.ToDefaultProps(),
+        .altKey = altKey,
+        .ctrlKey = ctrlKey,
+        .metaKey = metaKey,
+        .shiftKey = shiftKey,
+        .button = button,
+        .buttons = buttons,
+        .screenX = screenX,
+        .screenY = screenY,
+        .x = clientX,
+        .y = clientY
+    };
 }
 
 } // namespace mozjs

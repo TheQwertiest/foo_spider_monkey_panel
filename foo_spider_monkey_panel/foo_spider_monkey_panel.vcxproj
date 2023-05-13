@@ -176,6 +176,7 @@
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
     <ClCompile Include="events\event_mouse.cpp" />
+    <ClCompile Include="events\wheel_event.cpp" />
     <ClCompile Include="events\panel_event.cpp" />
     <ClCompile Include="events\dispatcher\event_dispatcher.cpp" />
     <ClCompile Include="events\dispatcher\task_controller.cpp" />
@@ -222,6 +223,7 @@
     <ClCompile Include="js_backend\objects\dom\main_menu_manager.cpp" />
     <ClCompile Include="js_backend\objects\dom\menu_object.cpp" />
     <ClCompile Include="js_backend\objects\dom\mouse_event.cpp" />
+    <ClCompile Include="js_backend\objects\dom\wheel_event.cpp" />
     <ClCompile Include="js_backend\objects\dom\paint_event.cpp" />
     <ClCompile Include="js_backend\objects\dom\window_new.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\fb_file_info.cpp" />
@@ -260,6 +262,7 @@
     <ClCompile Include="js_backend\utils\js_prototype_helpers.cpp" />
     <ClCompile Include="js_backend\utils\mozjs_backport.cpp" />
     <ClCompile Include="js_backend\utils\serialized_value.cpp" />
+    <ClCompile Include="os\system_settings.cpp" />
     <ClCompile Include="panel\edit_script.cpp" />
     <ClCompile Include="panel\panel_window.cpp" />
     <ClCompile Include="panel\panel_adaptor_cui.cpp" />
@@ -360,6 +363,7 @@
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="events\event_mouse.h" />
+    <ClInclude Include="events\wheel_event.h" />
     <ClInclude Include="events\panel_event.h" />
     <ClInclude Include="events\dispatcher\event_dispatcher.h" />
     <ClInclude Include="events\dispatcher\task_controller.h" />
@@ -393,6 +397,8 @@
     <ClInclude Include="js_backend\objects\core\global_heap_manager.h" />
     <ClInclude Include="js_backend\objects\core\global_object.h" />
     <ClInclude Include="js_backend\objects\core\object_base.h" />
+    <ClInclude Include="js_backend\objects\core\object_traits.h" />
+    <ClInclude Include="js_backend\objects\core\object_traits_handler.h" />
     <ClInclude Include="js_backend\objects\core\prototype_ids.h" />
     <ClInclude Include="js_backend\objects\core\script_loader.h" />
     <ClInclude Include="js_backend\objects\dom\active_x_object.h" />
@@ -406,6 +412,7 @@
     <ClInclude Include="js_backend\objects\dom\main_menu_manager.h" />
     <ClInclude Include="js_backend\objects\dom\menu_object.h" />
     <ClInclude Include="js_backend\objects\dom\mouse_event.h" />
+    <ClInclude Include="js_backend\objects\dom\wheel_event.h" />
     <ClInclude Include="js_backend\objects\dom\paint_event.h" />
     <ClInclude Include="js_backend\objects\dom\window_new.h" />
     <ClInclude Include="js_backend\objects\fb2k\fb_file_info.h" />
@@ -450,6 +457,7 @@
     <ClInclude Include="js_backend\utils\mozjs_backport.h" />
     <ClInclude Include="js_backend\utils\scope_helper.h" />
     <ClInclude Include="js_backend\utils\serialized_value.h" />
+    <ClInclude Include="os\system_settings.h" />
     <ClInclude Include="panel\drag_action_params.h" />
     <ClInclude Include="panel\edit_script.h" />
     <ClInclude Include="panel\panel_window.h" />

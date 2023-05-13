@@ -228,16 +228,12 @@ const JSClass JsWindow::JsClass = jsClass;
 const JSFunctionSpec* JsWindow::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsWindow::JsProperties = jsProperties.data();
 
-const JsPrototypeId JsWindow::BasePrototypeId = JsPrototypeId::EventTarget;
-const JsPrototypeId JsWindow::ParentPrototypeId = JsPrototypeId::EventTarget;
-
 JsWindow::~JsWindow()
 {
 }
 
 JsWindow::JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties )
-    : JsEventTarget( cx )
-    , pJsCtx_( cx )
+    : pJsCtx_( cx )
     , parentPanel_( parentPanel )
     , fbProperties_( std::move( fbProperties ) )
 {
@@ -272,13 +268,10 @@ void JsWindow::Trace( JSTracer* trc, JSObject* obj )
     {
         pNative->fbProperties_->Trace( trc );
     }
-    JsEventTarget::Trace( trc, obj );
 }
 
 void JsWindow::PrepareForGc()
 {
-    JsEventTarget::PrepareForGc();
-
     if ( fbProperties_ )
     {
         fbProperties_->PrepareForGc();

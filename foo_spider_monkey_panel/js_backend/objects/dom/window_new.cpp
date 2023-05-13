@@ -3,14 +3,94 @@
 #include "window_new.h"
 
 #include <events/mouse_event.h>
+#include <events/wheel_event.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
 #include <js_backend/objects/dom/mouse_event.h>
 #include <js_backend/objects/dom/paint_event.h>
+#include <js_backend/objects/dom/wheel_event.h>
 #include <panel/panel_window.h>
 #include <panel/panel_window_graphics.h>
 
 using namespace smp;
+
+namespace
+{
+
+mozjs::MouseEvent::EventProperties GenerateMouseEventProps( const smp::MouseEvent& mouseEvent, HWND parentHwnd )
+{
+    const auto x = static_cast<double>( mouseEvent.GetX() );
+    const auto y = static_cast<double>( mouseEvent.GetY() );
+    const auto button = mouseEvent.GetButton();
+    const auto buttons = mouseEvent.GetButtons();
+    const auto modifiers = mouseEvent.GetModifiers();
+
+    POINT screenPos{ mouseEvent.GetX(), mouseEvent.GetY() };
+    ClientToScreen( parentHwnd, &screenPos );
+
+    using enum smp::MouseEvent::ModifierKeyFlag;
+    using enum smp::MouseEvent::MouseKeyFlag;
+
+    mozjs::MouseEvent::EventProperties props{
+        .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
+        .altKey = !!qwr::to_underlying( modifiers & kAlt ),
+        .ctrlKey = !!qwr::to_underlying( modifiers & kCtrl ),
+        .metaKey = !!qwr::to_underlying( modifiers & kWin ),
+        .shiftKey = !!qwr::to_underlying( modifiers & kShift ),
+        .button = [&] {
+            // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
+            switch ( button )
+            {
+            case kNoButtons:
+            case kPrimary:
+                return 0;
+            case kSecondary:
+                return 1;
+            case kAuxiliary:
+                return 2;
+            case k4:
+                return 3;
+            case k5:
+                return 4;
+            default:
+                throw qwr::QwrException( "Internal error: unexpected button value: {}", qwr::to_underlying(button) );
+            } }(),
+        .buttons = [&] {
+                // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
+                int32_t buttons_raw = 0;
+
+                if ( qwr::to_underlying( buttons & kPrimary ) )
+                {
+                    buttons_raw |= 1;
+                }
+                if ( qwr::to_underlying( buttons & kSecondary ) )
+                {
+                    buttons_raw |= 2;
+                }
+                if ( qwr::to_underlying( buttons & kAuxiliary ) )
+                {
+                    buttons_raw |= 4;
+                }
+                if ( qwr::to_underlying( buttons & k4 ) )
+                {
+                    buttons_raw |= 8;
+                }
+                if ( qwr::to_underlying( buttons & k5 ) )
+                {
+                    buttons_raw |= 16;
+                } 
+
+            return buttons_raw; }(),
+        .screenX = static_cast<double>( screenPos.x ),
+        .screenY = static_cast<double>( screenPos.y ),
+        .x = x,
+        .y = y,
+    };
+
+    return props;
+}
+
+} // namespace
 
 namespace
 {
@@ -57,16 +137,16 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
         JS_PS_END,
     } );
 
+MJS_VERIFY_OBJECT( mozjs::WindowNew );
+
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass WindowNew::JsClass = jsClass;
-const JSFunctionSpec* WindowNew::JsFunctions = jsFunctions.data();
-const JSPropertySpec* WindowNew::JsProperties = jsProperties.data();
-const JsPrototypeId WindowNew::BasePrototypeId = JsPrototypeId::EventTarget;
-const JsPrototypeId WindowNew::ParentPrototypeId = JsPrototypeId::EventTarget;
+const JSClass JsObjectTraits<WindowNew>::JsClass = jsClass;
+const JSFunctionSpec* JsObjectTraits<WindowNew>::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsObjectTraits<WindowNew>::JsProperties = jsProperties.data();
 
 const std::unordered_set<EventId> WindowNew::kHandledEvents{
     EventId::kNew_InputBlur,
@@ -81,6 +161,7 @@ const std::unordered_set<EventId> WindowNew::kHandledEvents{
     EventId::kNew_MouseEnter,
     EventId::kNew_MouseLeave,
     EventId::kNew_MouseMove,
+    EventId::kNew_MouseWheel,
     EventId::kNew_WndPaint,
     EventId::kNew_WndResize
 };
@@ -106,6 +187,7 @@ size_t WindowNew::GetInternalSize()
 void WindowNew::PostCreate( JSContext* cx, JS::HandleObject self )
 {
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::MouseEvent>>( cx, self, JsPrototypeId::New_MouseEvent );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::WheelEvent>>( cx, self, JsPrototypeId::New_WheelEvent );
 }
 
 void WindowNew::Trace( JSTracer* trc, JSObject* obj )
@@ -141,6 +223,7 @@ const std::string& WindowNew::EventIdToType( smp::EventId eventId )
         { EventId::kNew_MouseEnter, "mouseenter" },
         { EventId::kNew_MouseLeave, "mouseleave" },
         { EventId::kNew_MouseMove, "mousemove" },
+        { EventId::kNew_MouseWheel, "wheel" },
         { EventId::kNew_WndPaint, "paint" },
         { EventId::kNew_WndResize, "resize" }
     };
@@ -261,8 +344,7 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
 {
     JS::RootedObject jsEvent( pJsCtx_ );
 
-    switch ( const auto event_id = event.GetId();
-             event.GetId() )
+    switch ( event.GetId() )
     {
     case EventId::kNew_MouseButtonAuxClick:
     case EventId::kNew_MouseButtonClick:
@@ -275,77 +357,44 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
     case EventId::kNew_MouseLeave:
     case EventId::kNew_MouseMove:
     {
-        const auto& mouseEvent = static_cast<const smp::MouseEventNew&>( event );
+        const auto& mouseEvent = static_cast<const smp::MouseEvent&>( event );
+        jsEvent = mozjs::JsObjectBase<mozjs::MouseEvent>::CreateJs(
+            pJsCtx_,
+            eventType,
+            GenerateMouseEventProps( mouseEvent, parentPanel_.GetHWND() ) );
+        break;
+    }
+    case EventId::kNew_MouseWheel:
+    {
+        const auto& wheelEvent = static_cast<const smp::WheelEvent&>( event );
 
-        const auto x = static_cast<double>( mouseEvent.GetX() );
-        const auto y = static_cast<double>( mouseEvent.GetY() );
-        const auto button = mouseEvent.GetButton();
-        const auto buttons = mouseEvent.GetButtons();
-        const auto modifiers = mouseEvent.GetModifiers();
+        using enum smp::WheelEvent::WheelDirection;
+        using enum smp::WheelEvent::WheelMode;
 
-        POINT screenPos{ mouseEvent.GetX(), mouseEvent.GetY() };
-        ClientToScreen( parentPanel_.GetHWND(), &screenPos );
+        const auto isVerticalDirection = ( wheelEvent.GetDirection() == kVertical );
 
-        using enum smp::MouseEventNew::ModifierKeyFlag;
-        using enum smp::MouseEventNew::MouseKeyFlag;
-
-        mozjs::MouseEvent::EventProperties props{
-            .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
-            .altKey = !!qwr::to_underlying( modifiers & kAlt ),
-            .ctrlKey = !!qwr::to_underlying( modifiers & kCtrl ),
-            .metaKey = !!qwr::to_underlying( modifiers & kWin ),
-            .shiftKey = !!qwr::to_underlying( modifiers & kShift ),
-            .button = [&] {
-            // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button
-            switch ( button )
-            {
-            case kNoButtons:
-            case kPrimary:
-                return 0;
-            case kSecondary:
-                return 1;
-            case kAuxiliary:
-                return 2;
-            case k4:
-                return 3;
-            case k5:
-                return 4;
-            default:
-                throw qwr::QwrException( "Internal error: unexpected button value: {}", qwr::to_underlying(button) );
-            } }(),
-            .buttons = [&] {
-                // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
-                int32_t buttons_raw = 0;
-
-                if ( qwr::to_underlying( buttons & kPrimary ) )
+        mozjs::WheelEvent::EventProperties props{
+            .baseProps = GenerateMouseEventProps( wheelEvent, parentPanel_.GetHWND() ),
+            .deltaX = static_cast<double>( isVerticalDirection ? 0 : wheelEvent.GetDelta() ),
+            .deltaY = static_cast<double>( isVerticalDirection ? wheelEvent.GetDelta() : 0 ),
+            .deltaZ = 0,
+            .deltaMode = [&] {
+                // https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent
+                switch ( wheelEvent.GetMode() )
                 {
-                    buttons_raw |= 1;
+                case kPixel:
+                    return 0;
+                case kLine:
+                    return 1;
+                case kPage:
+                    return 2;
+                default:
+                    throw qwr::QwrException( "Internal error: unexpected deltaMode value: {}", qwr::to_underlying( wheelEvent.GetMode() ) );
                 }
-                if ( qwr::to_underlying( buttons & kSecondary ) )
-                {
-                    buttons_raw |= 2;
-                }
-                if ( qwr::to_underlying( buttons & kAuxiliary ) )
-                {
-                    buttons_raw |= 4;
-                }
-                if ( qwr::to_underlying( buttons & k4 ) )
-                {
-                    buttons_raw |= 8;
-                }
-                if ( qwr::to_underlying( buttons & k5 ) )
-                {
-                    buttons_raw |= 16;
-                } 
-
-            return buttons_raw; }(),
-            .screenX = static_cast<double>( screenPos.x ),
-            .screenY = static_cast<double>( screenPos.y ),
-            .x = x,
-            .y = y,
+            }(),
         };
 
-        jsEvent = mozjs::JsObjectBase<mozjs::MouseEvent>::CreateJs( pJsCtx_, eventType, props );
+        jsEvent = mozjs::JsObjectBase<mozjs::WheelEvent>::CreateJs( pJsCtx_, eventType, props );
         break;
     }
     default:

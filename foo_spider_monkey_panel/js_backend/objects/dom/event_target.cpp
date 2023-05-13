@@ -70,16 +70,18 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>( {
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( JsEventTarget_Constructor, JsEventTarget::Constructor );
 
+MJS_VERIFY_OBJECT( mozjs::JsEventTarget );
+
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass JsEventTarget::JsClass = jsClass;
-const JSFunctionSpec* JsEventTarget::JsFunctions = jsFunctions.data();
-const JSPropertySpec* JsEventTarget::JsProperties = jsProperties.data();
-const JsPrototypeId JsEventTarget::PrototypeId = JsPrototypeId::EventTarget;
-const JSNative JsEventTarget::JsConstructor = ::JsEventTarget_Constructor;
+const JSClass JsObjectTraits<JsEventTarget>::JsClass = jsClass;
+const JSFunctionSpec* JsObjectTraits<JsEventTarget>::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsObjectTraits<JsEventTarget>::JsProperties = jsProperties.data();
+const JsPrototypeId JsObjectTraits<JsEventTarget>::PrototypeId = JsPrototypeId::EventTarget;
+const JSNative JsObjectTraits<JsEventTarget>::JsConstructor = ::JsEventTarget_Constructor;
 
 int64_t JsEventTarget::dispatchNestedCounter_ = 0;
 
