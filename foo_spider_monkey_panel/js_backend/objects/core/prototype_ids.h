@@ -34,10 +34,12 @@ enum class JsPrototypeId : uint32_t
     MeasureStringInfo,
     MenuObject,
     ThemeManager,
+    //////
     New_PlaybackStopEvent,
     New_PaintEvent,
     New_MouseEvent,
     New_WheelEvent,
+    New_KeyboardEvent,
     ProrototypeCount
 };
 }

@@ -50,10 +50,6 @@ enum class EventId
     kFbSelectionChanged,
     kFbVolumeChange,
     // input
-    /// keyboard
-    kKeyboardChar,
-    kKeyboardKeyDown,
-    kKeyboardKeyUp,
     /// mouse
     //// drag-n-drop
     kMouseDragDrop,
@@ -104,6 +100,9 @@ enum class EventId
     // selection
     kNew_FbSelectionChange,
     // panel
+    /// keyboard
+    kNew_KeyboardKeyDown,
+    kNew_KeyboardKeyUp,
     /// mouse
     //// buttons
     kNew_MouseButtonClick,
@@ -158,10 +157,6 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kFbSelectionChanged, "selection_changed" },
     { EventId::kFbVolumeChange, "volume_change" },
     // input
-    /// control
-    { EventId::kKeyboardChar, "char" },
-    { EventId::kKeyboardKeyDown, "key_down" },
-    { EventId::kKeyboardKeyUp, "key_up" },
     /// mouse
     //// drag-n-drop
     { EventId::kMouseDragDrop, "UNUSED" },

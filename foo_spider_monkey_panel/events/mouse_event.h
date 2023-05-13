@@ -11,7 +11,7 @@ class MouseEvent
     : public PanelEvent
 {
 public:
-    enum class ModifierKeyFlag
+    enum class ModifierFlag
     {
         kNoModifiers = 0,
         kAlt = 1,
@@ -19,9 +19,9 @@ public:
         kShift = 1 << 2,
         kWin = 1 << 3
     };
-    friend QWR_ENABLE_BIT_OPS( ModifierKeyFlag );
+    friend QWR_ENABLE_BIT_OPS( ModifierFlag );
 
-    enum class MouseKeyFlag
+    enum class KeyFlag
     {
         kNoButtons = 0,
         kPrimary = 1 << 1,
@@ -30,31 +30,31 @@ public:
         k4 = 1 << 4,
         k5 = 1 << 5
     };
-    friend QWR_ENABLE_BIT_OPS( MouseKeyFlag );
+    friend QWR_ENABLE_BIT_OPS( KeyFlag );
 
 public:
     [[nodiscard]] MouseEvent( EventId id,
-                              MouseKeyFlag button,
+                              KeyFlag button,
                               int32_t x,
                               int32_t y );
 
     [[nodiscard]] int32_t GetX() const;
     [[nodiscard]] int32_t GetY() const;
 
-    [[nodiscard]] MouseKeyFlag GetButton() const;
-    [[nodiscard]] MouseKeyFlag GetButtons() const;
-    [[nodiscard]] ModifierKeyFlag GetModifiers() const;
+    [[nodiscard]] KeyFlag GetButton() const;
+    [[nodiscard]] KeyFlag GetButtons() const;
+    [[nodiscard]] ModifierFlag GetModifiers() const;
 
 private:
-    static MouseKeyFlag CalculateButtons();
-    static ModifierKeyFlag CalculateModifiers();
+    static KeyFlag CalculateButtons();
+    static ModifierFlag CalculateModifiers();
 
 private:
     const int32_t x_;
     const int32_t y_;
-    MouseKeyFlag button_;
-    MouseKeyFlag buttons_;
-    ModifierKeyFlag modifiers_;
+    KeyFlag button_;
+    KeyFlag buttons_;
+    ModifierFlag modifiers_;
 };
 
 } // namespace smp

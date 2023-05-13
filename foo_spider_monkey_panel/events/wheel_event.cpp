@@ -6,7 +6,7 @@ namespace smp
 {
 
 WheelEvent::WheelEvent( EventId id,
-                        MouseKeyFlag button,
+                        KeyFlag button,
                         int32_t x,
                         int32_t y,
                         int32_t delta,

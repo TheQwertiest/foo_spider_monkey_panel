@@ -9,6 +9,7 @@
 #include <events/event_basic.h>
 #include <events/event_drag.h>
 #include <events/event_js_callback.h>
+#include <events/keyboard_event.h>
 #include <events/mouse_event.h>
 #include <events/wheel_event.h>
 #include <fb2k/mainmenu_dynamic.h>
@@ -394,7 +395,7 @@ void PanelWindow::ExecuteEvent( EventBase& event )
     case EventId::kNew_MouseButtonUp:
     {
         const auto& mouseEvent = static_cast<MouseEvent&>( event );
-        if ( mouseEvent.GetButton() != MouseEvent::MouseKeyFlag::kSecondary )
+        if ( mouseEvent.GetButton() != MouseEvent::KeyFlag::kSecondary )
         {
             execJsEvent();
             break;
@@ -405,7 +406,7 @@ void PanelWindow::ExecuteEvent( EventBase& event )
             const auto modifiers = mouseEvent.GetModifiers();
             const auto isBypassedViaModifiers =
                 !!qwr::to_underlying( modifiers
-                                      & ( MouseEvent::ModifierKeyFlag::kShift | MouseEvent::ModifierKeyFlag::kWin ) );
+                                      & ( MouseEvent::ModifierFlag::kShift | MouseEvent::ModifierFlag::kWin ) );
             if ( !isBypassedViaModifiers )
             {
                 return true;
@@ -419,7 +420,7 @@ void PanelWindow::ExecuteEvent( EventBase& event )
             EventDispatcher::Get().PutEvent( wnd_,
                                              std::make_unique<MouseEvent>(
                                                  EventId::kNew_MouseContextMenu,
-                                                 MouseEvent::MouseKeyFlag::kSecondary,
+                                                 MouseEvent::KeyFlag::kSecondary,
                                                  mouseEvent.GetX(),
                                                  mouseEvent.GetY() ),
                                              EventPriority::kInput );
@@ -1165,21 +1166,21 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     // TODO: test rbutton lbutton swap
     // TODO: extract to a better place
     // TODO: implement 4th and 5th message handling: https://searchfox.org/mozilla-central/source/widget/windows/nsWindow.cpp#6058
-    static const std::unordered_map<int, MouseEvent::MouseKeyFlag> kMsgToMouseKey{
-        { WM_LBUTTONDOWN, MouseEvent::MouseKeyFlag::kPrimary },
-        { WM_LBUTTONUP, MouseEvent::MouseKeyFlag::kPrimary },
-        { WM_LBUTTONDBLCLK, MouseEvent::MouseKeyFlag::kPrimary },
-        { WM_MBUTTONDOWN, MouseEvent::MouseKeyFlag::kAuxiliary },
-        { WM_MBUTTONUP, MouseEvent::MouseKeyFlag::kAuxiliary },
-        { WM_MBUTTONDBLCLK, MouseEvent::MouseKeyFlag::kAuxiliary },
-        { WM_RBUTTONDOWN, MouseEvent::MouseKeyFlag::kSecondary },
-        { WM_RBUTTONUP, MouseEvent::MouseKeyFlag::kSecondary },
-        { WM_RBUTTONDBLCLK, MouseEvent::MouseKeyFlag::kSecondary },
-        { WM_CONTEXTMENU, MouseEvent::MouseKeyFlag::kSecondary },
-        { WM_MOUSEMOVE, MouseEvent::MouseKeyFlag::kNoButtons },
-        { WM_MOUSELEAVE, MouseEvent::MouseKeyFlag::kNoButtons },
-        { WM_MOUSEWHEEL, MouseEvent::MouseKeyFlag::kNoButtons },
-        { WM_MOUSEHWHEEL, MouseEvent::MouseKeyFlag::kNoButtons }
+    static const std::unordered_map<int, MouseEvent::KeyFlag> kMsgToMouseKey{
+        { WM_LBUTTONDOWN, MouseEvent::KeyFlag::kPrimary },
+        { WM_LBUTTONUP, MouseEvent::KeyFlag::kPrimary },
+        { WM_LBUTTONDBLCLK, MouseEvent::KeyFlag::kPrimary },
+        { WM_MBUTTONDOWN, MouseEvent::KeyFlag::kAuxiliary },
+        { WM_MBUTTONUP, MouseEvent::KeyFlag::kAuxiliary },
+        { WM_MBUTTONDBLCLK, MouseEvent::KeyFlag::kAuxiliary },
+        { WM_RBUTTONDOWN, MouseEvent::KeyFlag::kSecondary },
+        { WM_RBUTTONUP, MouseEvent::KeyFlag::kSecondary },
+        { WM_RBUTTONDBLCLK, MouseEvent::KeyFlag::kSecondary },
+        { WM_CONTEXTMENU, MouseEvent::KeyFlag::kSecondary },
+        { WM_MOUSEMOVE, MouseEvent::KeyFlag::kNoButtons },
+        { WM_MOUSELEAVE, MouseEvent::KeyFlag::kNoButtons },
+        { WM_MOUSEWHEEL, MouseEvent::KeyFlag::kNoButtons },
+        { WM_MOUSEHWHEEL, MouseEvent::KeyFlag::kNoButtons }
     };
 
     switch ( msg.message )
@@ -1280,7 +1281,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
                                          EventPriority::kInput );
         if ( lastMouseDownCount_ >= 1 )
         {
-            if ( mouseKey == MouseEvent::MouseKeyFlag::kPrimary )
+            if ( mouseKey == MouseEvent::KeyFlag::kPrimary )
             {
                 // https://w3c.github.io/uievents/#event-type-click
                 EventDispatcher::Get().PutEvent( wnd_,
@@ -1295,7 +1296,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
                                                  EventPriority::kInput );
             }
         }
-        if ( lastMouseDownCount_ >= 2 && mouseKey == MouseEvent::MouseKeyFlag::kPrimary )
+        if ( lastMouseDownCount_ >= 2 && mouseKey == MouseEvent::KeyFlag::kPrimary )
         { // https://w3c.github.io/uievents/#event-type-dblclick
             EventDispatcher::Get().PutEvent( wnd_,
                                              generateMouseEvent( EventId::kNew_MouseButtonDoubleClick, mouseKey ),
@@ -1323,7 +1324,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
                                              kMsgToMouseKey.at( msg.message ) ),
                                          EventPriority::kInput );
 
-        if ( mouseKey == MouseEvent::MouseKeyFlag::kPrimary )
+        if ( mouseKey == MouseEvent::KeyFlag::kPrimary )
         { // https://w3c.github.io/uievents/#event-type-dblclick
             lastMouseDownCount_ = 2;
             EventDispatcher::Get().PutEvent( wnd_,
@@ -1451,31 +1452,69 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     {
         return 1;
     }
+    // WM_SYSKEYDOWN handles special keys (e.g. ALT)
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
     {
+        qwr::u8string key{ "system" };
+
+        MSG peekMsg;
+        bool hasMessage = PeekMessage( &peekMsg, wnd_, WM_CHAR, WM_CHAR, PM_NOREMOVE | PM_NOYIELD );
+        if ( hasMessage )
+        {
+            MSG newMsg;
+            hasMessage = PeekMessage( &newMsg, peekMsg.hwnd, peekMsg.message, peekMsg.message, PM_REMOVE | PM_NOYIELD );
+            key = ( hasMessage ? qwr::unicode::ToU8( std::wstring( 1, static_cast<wchar_t>( peekMsg.wParam ) ) ) : "system" );
+        }
+        const auto virtualCode = static_cast<uint32_t>( msg.wParam );
+
         EventDispatcher::Get().PutEvent( wnd_,
-                                         GenerateEvent_JsCallback(
-                                             EventId::kKeyboardKeyDown,
-                                             static_cast<uint32_t>( msg.wParam ) ),
+                                         std::make_unique<KeyboardEvent>(
+                                             EventId::kNew_KeyboardKeyDown,
+                                             key,
+                                             virtualCode ),
                                          EventPriority::kInput );
         return 0;
     }
-    case WM_KEYUP:
-    {
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         GenerateEvent_JsCallback(
-                                             EventId::kKeyboardKeyUp,
-                                             static_cast<uint32_t>( msg.wParam ) ),
-                                         EventPriority::kInput );
-        return 0;
-    }
+    // TODO: handle UNICHAR and DEADCHAR
     case WM_CHAR:
     {
+        const auto key = qwr::unicode::ToU8( std::wstring( 1, static_cast<wchar_t>( msg.wParam ) ) );
+
+        const auto scanCode = ( ( msg.lParam >> 16 ) & 0xFF );
+        const auto isExtendedScanCode = !!( msg.lParam & 0x1000000 );
+        const auto virtualCode = ::MapVirtualKeyEx( isExtendedScanCode ? ( 0xE000 | scanCode ) : scanCode, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout( 0 ) );
+
+        const auto wasKeyPressed = !!( msg.lParam & ( 1 << 30 ) );
         EventDispatcher::Get().PutEvent( wnd_,
-                                         GenerateEvent_JsCallback(
-                                             EventId::kKeyboardChar,
-                                             static_cast<uint32_t>( msg.wParam ) ),
+                                         std::make_unique<KeyboardEvent>(
+                                             EventId::kNew_KeyboardKeyDown,
+                                             key,
+                                             virtualCode ),
+                                         EventPriority::kInput );
+
+        return 0;
+    }
+    // WM_SYSKEYUP handles special keys (e.g. ALT)
+    case WM_SYSKEYUP:
+    case WM_KEYUP:
+    {
+        const auto virtualCode = static_cast<uint32_t>( msg.wParam );
+
+        const auto scanCode = ( ( msg.lParam >> 16 ) & 0xFF );
+        const auto isExtendedScanCode = !!( msg.lParam & 0x1000000 );
+
+        BYTE keyboardState[256] = { 0 };
+        wchar_t charBuffer[1] = { 0 };
+        int iRet =
+            ::ToUnicodeEx( virtualCode, scanCode, keyboardState, charBuffer, std::size( charBuffer ), 0, ::GetKeyboardLayout( 0 ) );
+        const auto key = ( iRet == 1 ? qwr::unicode::ToU8( std::wstring( 1, charBuffer[0] ) ) : "system" );
+
+        EventDispatcher::Get().PutEvent( wnd_,
+                                         std::make_unique<KeyboardEvent>(
+                                             EventId::kNew_KeyboardKeyUp,
+                                             key,
+                                             virtualCode ),
                                          EventPriority::kInput );
         return 0;
     }

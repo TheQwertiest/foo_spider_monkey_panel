@@ -176,6 +176,7 @@
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
     <ClCompile Include="events\event_mouse.cpp" />
+    <ClCompile Include="events\keyboard_event.cpp" />
     <ClCompile Include="events\wheel_event.cpp" />
     <ClCompile Include="events\panel_event.cpp" />
     <ClCompile Include="events\dispatcher\event_dispatcher.cpp" />
@@ -220,6 +221,7 @@
     <ClCompile Include="js_backend\objects\dom\enumerator.cpp" />
     <ClCompile Include="js_backend\objects\dom\event.cpp" />
     <ClCompile Include="js_backend\objects\dom\event_target.cpp" />
+    <ClCompile Include="js_backend\objects\dom\keyboard_event.cpp" />
     <ClCompile Include="js_backend\objects\dom\main_menu_manager.cpp" />
     <ClCompile Include="js_backend\objects\dom\menu_object.cpp" />
     <ClCompile Include="js_backend\objects\dom\mouse_event.cpp" />
@@ -363,6 +365,7 @@
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="events\event_mouse.h" />
+    <ClInclude Include="events\keyboard_event.h" />
     <ClInclude Include="events\wheel_event.h" />
     <ClInclude Include="events\panel_event.h" />
     <ClInclude Include="events\dispatcher\event_dispatcher.h" />
@@ -409,6 +412,7 @@
     <ClInclude Include="js_backend\objects\dom\enumerator.h" />
     <ClInclude Include="js_backend\objects\dom\event.h" />
     <ClInclude Include="js_backend\objects\dom\event_target.h" />
+    <ClInclude Include="js_backend\objects\dom\keyboard_event.h" />
     <ClInclude Include="js_backend\objects\dom\main_menu_manager.h" />
     <ClInclude Include="js_backend\objects\dom\menu_object.h" />
     <ClInclude Include="js_backend\objects\dom\mouse_event.h" />

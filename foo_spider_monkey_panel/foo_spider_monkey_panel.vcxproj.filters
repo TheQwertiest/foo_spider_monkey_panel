@@ -511,6 +511,12 @@
     <ClCompile Include="js_backend\objects\dom\wheel_event.cpp">
       <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
+    <ClCompile Include="events\keyboard_event.cpp">
+      <Filter>events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\keyboard_event.cpp">
+      <Filter>js_backend\objects\dom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1110,6 +1116,12 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\core\object_traits.h">
       <Filter>js_backend\objects\core</Filter>
+    </ClInclude>
+    <ClInclude Include="events\keyboard_event.h">
+      <Filter>events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\keyboard_event.h">
+      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

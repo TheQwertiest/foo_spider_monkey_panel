@@ -2,10 +2,12 @@
 
 #include "window_new.h"
 
+#include <events/keyboard_event.h>
 #include <events/mouse_event.h>
 #include <events/wheel_event.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
+#include <js_backend/objects/dom/keyboard_event.h>
 #include <js_backend/objects/dom/mouse_event.h>
 #include <js_backend/objects/dom/paint_event.h>
 #include <js_backend/objects/dom/wheel_event.h>
@@ -28,8 +30,8 @@ mozjs::MouseEvent::EventProperties GenerateMouseEventProps( const smp::MouseEven
     POINT screenPos{ mouseEvent.GetX(), mouseEvent.GetY() };
     ClientToScreen( parentHwnd, &screenPos );
 
-    using enum smp::MouseEvent::ModifierKeyFlag;
-    using enum smp::MouseEvent::MouseKeyFlag;
+    using enum smp::MouseEvent::ModifierFlag;
+    using enum smp::MouseEvent::KeyFlag;
 
     mozjs::MouseEvent::EventProperties props{
         .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
@@ -152,6 +154,8 @@ const PostJsCreateFn JsObjectTraits<WindowNew>::PostCreate = WindowNew::PostCrea
 const std::unordered_set<EventId> WindowNew::kHandledEvents{
     EventId::kNew_InputBlur,
     EventId::kNew_InputFocus,
+    EventId::kNew_KeyboardKeyDown,
+    EventId::kNew_KeyboardKeyUp,
     EventId::kNew_MouseButtonAuxClick,
     EventId::kNew_MouseButtonClick,
     EventId::kNew_MouseButtonDoubleClick,
@@ -189,6 +193,7 @@ void WindowNew::PostCreate( JSContext* cx, JS::HandleObject self )
 {
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::MouseEvent>>( cx, self, JsPrototypeId::New_MouseEvent );
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::WheelEvent>>( cx, self, JsPrototypeId::New_WheelEvent );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::KeyboardEvent>>( cx, self, JsPrototypeId::New_KeyboardEvent );
 }
 
 void WindowNew::Trace( JSTracer* trc, JSObject* obj )
@@ -214,6 +219,8 @@ const std::string& WindowNew::EventIdToType( smp::EventId eventId )
     static const std::unordered_map<EventId, std::string> idToType{
         { EventId::kNew_InputBlur, "blur" },
         { EventId::kNew_InputFocus, "focus" },
+        { EventId::kNew_KeyboardKeyDown, "keydown" },
+        { EventId::kNew_KeyboardKeyUp, "keyup" },
         { EventId::kNew_MouseButtonAuxClick, "auxclick" },
         { EventId::kNew_MouseButtonClick, "click" },
         { EventId::kNew_MouseButtonDoubleClick, "dblclick" },
@@ -347,6 +354,20 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
 
     switch ( event.GetId() )
     {
+    case EventId::kNew_KeyboardKeyDown:
+    case EventId::kNew_KeyboardKeyUp:
+    {
+        const auto& keyboardEvent = static_cast<const smp::KeyboardEvent&>( event );
+
+        mozjs::KeyboardEvent::EventProperties props{
+            .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
+            // TODO: map properly
+            .key = keyboardEvent.GetKey(),
+            .code = std::to_string( keyboardEvent.GetCode() )
+        };
+        jsEvent = mozjs::JsObjectBase<mozjs::KeyboardEvent>::CreateJs( pJsCtx_, eventType, props );
+        break;
+    }
     case EventId::kNew_MouseButtonAuxClick:
     case EventId::kNew_MouseButtonClick:
     case EventId::kNew_MouseButtonDoubleClick:
