@@ -36,6 +36,7 @@ struct JsObjectTraits<WindowNew>
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
+    static const PostJsCreateFn PostCreate;
 };
 
 class WindowNew
@@ -51,6 +52,8 @@ public:
     ~WindowNew() override = default;
 
     static std::unique_ptr<WindowNew> CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel );
+    [[nodiscard]] size_t GetInternalSize();
+    static void PostCreate( JSContext* cx, JS::HandleObject self );
 
     static void Trace( JSTracer* trc, JSObject* obj );
     void PrepareForGc();
@@ -69,9 +72,6 @@ public:
 
 protected:
     [[nodiscard]] WindowNew( JSContext* cx, smp::panel::PanelWindow& parentPanel );
-
-    [[nodiscard]] size_t GetInternalSize();
-    static void PostCreate( JSContext* cx, JS::HandleObject self );
 
 private:
     [[nodiscard]] const std::string& EventIdToType( smp::EventId eventId );

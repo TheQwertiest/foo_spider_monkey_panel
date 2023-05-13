@@ -27,6 +27,7 @@ struct JsObjectTraits<SelectionManager>
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
+    static const PostJsCreateFn PostCreate;
 };
 
 class SelectionManager
@@ -42,6 +43,8 @@ public:
     ~SelectionManager() override = default;
 
     static std::unique_ptr<SelectionManager> CreateNative( JSContext* cx );
+    [[nodiscard]] size_t GetInternalSize();
+    static void PostCreate( JSContext* cx, JS::HandleObject self );
 
     static void Trace( JSTracer* trc, JSObject* obj );
     void PrepareForGc();
@@ -60,9 +63,6 @@ public:
 
 private:
     [[nodiscard]] SelectionManager( JSContext* cx );
-
-    [[nodiscard]] size_t GetInternalSize();
-    static void PostCreate( JSContext* cx, JS::HandleObject self );
 
     [[nodiscard]] const std::string& EventIdToType( smp::EventId eventId );
 

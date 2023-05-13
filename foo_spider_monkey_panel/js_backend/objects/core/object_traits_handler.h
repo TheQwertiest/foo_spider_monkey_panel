@@ -124,7 +124,7 @@ public:
             static_assert(
                 requires( JSContext* cx, JS::HandleObject self ) {
                     {
-                        ObjectT::PostCreate( cx, self )
+                        TraitsT::PostCreate( cx, self )
                     }
                     -> std::same_as<void>;
                 }, "Object must define a `post create` method if it has the corresponding trait enabled" );

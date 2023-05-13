@@ -32,10 +32,12 @@ static std::unique_ptr<T> CreateNative( JSContext* cx, Args... args );
 /*
 // Object *must* define a method that returns it's internal size.
 //
+// Uses same args as CreateNative
+//
 // Returns the size of properties of T, that can't be calculated by sizeof(T).
 // E.g. if T has property `std::unique_ptr<BigStruct> bigStruct_`, then
 // `GetInternalSize` must return sizeof( bigStruct_ ).
-size_t GetInternalSize();
+size_t GetInternalSize(Args... args);
 */
 
 // TODO: cleanup docs
@@ -301,7 +303,7 @@ private:
 
         if constexpr ( TraitsHandlerT::Trait_HasPostCreate() )
         {
-            T::PostCreate( cx, jsBaseObject );
+            TraitsT::PostCreate( cx, jsBaseObject );
         }
 
         if constexpr ( TraitsHandlerT::Trait_HasProxy() )

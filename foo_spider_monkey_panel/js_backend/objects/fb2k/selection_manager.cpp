@@ -14,14 +14,21 @@ using namespace smp;
 namespace
 {
 
-const std::unordered_set<GUID, smp::utils::GuidHasher> kKnownSelectionTypes{
-    contextmenu_item::caller_undefined,
-    contextmenu_item::caller_active_playlist_selection,
-    contextmenu_item::caller_active_playlist,
-    contextmenu_item::caller_playlist_manager,
-    contextmenu_item::caller_now_playing,
-    contextmenu_item::caller_keyboard_shortcut_list,
-    contextmenu_item::caller_media_library_viewer,
+const std::unordered_map<GUID, std::string, smp::utils::GuidHasher> kKnownSelectionTypes{
+    { contextmenu_item::caller_undefined,
+      qwr::unicode::ToU8( smp::utils::GuidToStr( contextmenu_item::caller_undefined, true ) ) },
+    { contextmenu_item::caller_active_playlist_selection,
+      qwr::unicode::ToU8( smp::utils::GuidToStr( contextmenu_item::caller_active_playlist_selection, true ) ) },
+    { contextmenu_item::caller_active_playlist,
+      qwr::unicode::ToU8( smp::utils::GuidToStr( contextmenu_item::caller_active_playlist, true ) ) },
+    { contextmenu_item::caller_playlist_manager,
+      qwr::unicode::ToU8( smp::utils::GuidToStr( contextmenu_item::caller_playlist_manager, true ) ) },
+    { contextmenu_item::caller_now_playing,
+      qwr::unicode::ToU8( smp::utils::GuidToStr( contextmenu_item::caller_now_playing, true ) ) },
+    { contextmenu_item::caller_keyboard_shortcut_list,
+      qwr::unicode::ToU8( smp::utils::GuidToStr( contextmenu_item::caller_keyboard_shortcut_list, true ) ) },
+    { contextmenu_item::caller_media_library_viewer,
+      qwr::unicode::ToU8( smp::utils::GuidToStr( contextmenu_item::caller_media_library_viewer, true ) ) }
 };
 
 }
@@ -76,6 +83,7 @@ namespace mozjs
 
 const JSClass JsObjectTraits<SelectionManager>::JsClass = jsClass;
 const JSFunctionSpec* JsObjectTraits<SelectionManager>::JsFunctions = jsFunctions.data();
+const PostJsCreateFn JsObjectTraits<SelectionManager>::PostCreate = SelectionManager::PostCreate;
 
 const std::unordered_set<EventId> SelectionManager::kHandledEvents{
     EventId::kNew_FbSelectionChange,
@@ -93,16 +101,6 @@ SelectionManager::CreateNative( JSContext* cx )
     return std::unique_ptr<SelectionManager>( new SelectionManager( cx ) );
 }
 
-void SelectionManager::Trace( JSTracer* trc, JSObject* obj )
-{
-    JsEventTarget::Trace( trc, obj );
-}
-
-void SelectionManager::PrepareForGc()
-{
-    JsEventTarget::PrepareForGc();
-}
-
 size_t SelectionManager::GetInternalSize()
 {
     return 0;
@@ -117,15 +115,33 @@ void SelectionManager::PostCreate( JSContext* cx, JS::HandleObject self )
 
         static const auto props = std::to_array<JSPropertySpec>(
             {
-                JS_INT32_PS( "SELECTION_FLAG_DEFAULT", 0, kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_INT32_PS( "SELECTION_FLAG_NO_NOW_PLAYING", ui_selection_manager_v2::flag_no_now_playing, kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_STRING_PS( "SELECTION_TYPE_UNDEFINED", "00000000-0000-0000-0000-000000000000", kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_STRING_PS( "SELECTION_TYPE_ACTIVE_PLAYLIST_SELECTION", "47502BA1-816D-4A3E-ADE5-A7A9860A67DB", kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_STRING_PS( "SELECTION_TYPE_ACTIVE_PLAYLIST", "B3CC1030-EF26-45CF-A84A-7FC169BC9FFB", kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_STRING_PS( "SELECTION_TYPE_KEYBOARD_SHORTCUT_LIST", "FABEE3E9-8901-4DF4-A2D7-B9898D86C39B", kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_STRING_PS( "SELECTION_TYPE_MEDIA_LIBRARY_VIEWER", "FDA07C56-05D0-4B84-9FBD-A8BE556D474D", kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_STRING_PS( "SELECTION_TYPE_NOW_PLAYING", "994C0D0E-319E-45F3-92FC-518616E73ADC", kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_STRING_PS( "SELECTION_TYPE_PLAYLIST_MANAGER", "5FDCD5E8-6EB2-4454-9EDA-527522893BED", kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_INT32_PS( "SELECTION_FLAG_DEFAULT",
+                             0,
+                             kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_INT32_PS( "SELECTION_FLAG_NO_NOW_PLAYING",
+                             ui_selection_manager_v2::flag_no_now_playing,
+                             kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_STRING_PS( "SELECTION_TYPE_UNDEFINED",
+                              kKnownSelectionTypes.at( contextmenu_item::caller_undefined ).c_str(),
+                              kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_STRING_PS( "SELECTION_TYPE_ACTIVE_PLAYLIST_SELECTION",
+                              kKnownSelectionTypes.at( contextmenu_item::caller_active_playlist_selection ).c_str(),
+                              kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_STRING_PS( "SELECTION_TYPE_ACTIVE_PLAYLIST",
+                              kKnownSelectionTypes.at( contextmenu_item::caller_active_playlist ).c_str(),
+                              kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_STRING_PS( "SELECTION_TYPE_KEYBOARD_SHORTCUT_LIST",
+                              kKnownSelectionTypes.at( contextmenu_item::caller_keyboard_shortcut_list ).c_str(),
+                              kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_STRING_PS( "SELECTION_TYPE_MEDIA_LIBRARY_VIEWER",
+                              kKnownSelectionTypes.at( contextmenu_item::caller_media_library_viewer ).c_str(),
+                              kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_STRING_PS( "SELECTION_TYPE_NOW_PLAYING",
+                              kKnownSelectionTypes.at( contextmenu_item::caller_now_playing ).c_str(),
+                              kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_STRING_PS( "SELECTION_TYPE_PLAYLIST_MANAGER",
+                              kKnownSelectionTypes.at( contextmenu_item::caller_playlist_manager ).c_str(),
+                              kDefaultPropsFlags | JSPROP_READONLY ),
                 JS_PS_END,
             } );
         if ( !JS_DefineProperties( cx, jsObject, props.data() ) )
@@ -138,6 +154,16 @@ void SelectionManager::PostCreate( JSContext* cx, JS::HandleObject self )
             throw JsException();
         }
     }
+}
+
+void SelectionManager::Trace( JSTracer* trc, JSObject* obj )
+{
+    JsEventTarget::Trace( trc, obj );
+}
+
+void SelectionManager::PrepareForGc()
+{
+    JsEventTarget::PrepareForGc();
 }
 
 const std::string& SelectionManager::EventIdToType( smp::EventId eventId )

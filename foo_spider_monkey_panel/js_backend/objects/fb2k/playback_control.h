@@ -26,6 +26,7 @@ struct JsObjectTraits<PlaybackControl>
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
+    static const PostJsCreateFn PostCreate;
 };
 
 class PlaybackControl
@@ -41,6 +42,8 @@ public:
     ~PlaybackControl() override = default;
 
     static std::unique_ptr<PlaybackControl> CreateNative( JSContext* cx );
+    [[nodiscard]] size_t GetInternalSize();
+    static void PostCreate( JSContext* cx, JS::HandleObject self );
 
     static void Trace( JSTracer* trc, JSObject* obj );
     void PrepareForGc();
@@ -71,9 +74,6 @@ public:
 
 private:
     [[nodiscard]] PlaybackControl( JSContext* cx );
-
-    [[nodiscard]] size_t GetInternalSize();
-    static void PostCreate( JSContext* cx, JS::HandleObject self );
 
     [[nodiscard]] const std::string& EventIdToType( smp::EventId eventId );
 

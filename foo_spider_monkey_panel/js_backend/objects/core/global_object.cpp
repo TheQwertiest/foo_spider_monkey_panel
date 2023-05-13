@@ -249,21 +249,23 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
     CleanupObjectProperty<JsWindow>( cx, self, "window" );
     CleanupObjectProperty<JsFbPlaylistManager>( cx, self, "plman" );
 
+    {
+        const auto prepareForGcHandler = []( auto& loadedNativeObject ) {
+            if ( loadedNativeObject.pNative )
+            {
+                loadedNativeObject.pNative->PrepareForGc();
+            }
+        };
+        std::apply( [&]( auto&... args ) { ( prepareForGcHandler( args ), ... ); }, pNativeGlobal->loadedNativeObjects_ );
+    }
+
+    pNativeGlobal->loadedObjects_.clear();
+
     if ( pNativeGlobal->heapManager_ )
     {
         pNativeGlobal->heapManager_->PrepareForGc();
         pNativeGlobal->heapManager_.reset();
     }
-
-    {
-        auto& loadedNativeObject = std::get<LoadedNativeObject<PlaybackControl>>( pNativeGlobal->loadedNativeObjects_ );
-        if ( loadedNativeObject.pNative )
-        {
-            loadedNativeObject.pNative->PrepareForGc();
-        }
-    }
-
-    pNativeGlobal->loadedObjects_.clear();
 }
 
 ScriptLoader& JsGlobalObject::GetScriptLoader()

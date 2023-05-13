@@ -147,6 +147,7 @@ namespace mozjs
 const JSClass JsObjectTraits<WindowNew>::JsClass = jsClass;
 const JSFunctionSpec* JsObjectTraits<WindowNew>::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsObjectTraits<WindowNew>::JsProperties = jsProperties.data();
+const PostJsCreateFn JsObjectTraits<WindowNew>::PostCreate = WindowNew::PostCreate;
 
 const std::unordered_set<EventId> WindowNew::kHandledEvents{
     EventId::kNew_InputBlur,

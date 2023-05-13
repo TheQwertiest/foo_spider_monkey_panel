@@ -90,6 +90,7 @@ namespace mozjs
 const JSClass JsObjectTraits<PlaybackControl>::JsClass = jsClass;
 const JSFunctionSpec* JsObjectTraits<PlaybackControl>::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsObjectTraits<PlaybackControl>::JsProperties = jsProperties.data();
+const PostJsCreateFn JsObjectTraits<PlaybackControl>::PostCreate = PlaybackControl::PostCreate;
 
 const std::unordered_set<EventId> PlaybackControl::kHandledEvents{
     EventId::kNew_FbPlaybackDynamicInfo,
@@ -117,16 +118,6 @@ PlaybackControl::CreateNative( JSContext* cx )
     return std::unique_ptr<PlaybackControl>( new PlaybackControl( cx ) );
 }
 
-void PlaybackControl::Trace( JSTracer* trc, JSObject* obj )
-{
-    JsEventTarget::Trace( trc, obj );
-}
-
-void PlaybackControl::PrepareForGc()
-{
-    JsEventTarget::PrepareForGc();
-}
-
 size_t PlaybackControl::GetInternalSize()
 {
     return 0;
@@ -142,10 +133,10 @@ void PlaybackControl::PostCreate( JSContext* cx, JS::HandleObject self )
 
         static const auto props = std::to_array<JSPropertySpec>(
             {
-                JS_INT32_PS( "STOP_REASON_USER", 0, kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_INT32_PS( "STOP_REASON_EOF", 1, kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_INT32_PS( "STOP_REASON_STARTING_ANOTHER", 2, kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_INT32_PS( "STOP_REASON_SHUTTING_DOWN", 3, kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_INT32_PS( "STOP_REASON_USER", playback_control::stop_reason_user, kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_INT32_PS( "STOP_REASON_EOF", playback_control::stop_reason_eof, kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_INT32_PS( "STOP_REASON_STARTING_ANOTHER", playback_control::stop_reason_starting_another, kDefaultPropsFlags | JSPROP_READONLY ),
+                JS_INT32_PS( "STOP_REASON_SHUTTING_DOWN", playback_control::stop_reason_shutting_down, kDefaultPropsFlags | JSPROP_READONLY ),
                 JS_PS_END,
             } );
         if ( !JS_DefineProperties( cx, jsObject, props.data() ) )
@@ -158,6 +149,16 @@ void PlaybackControl::PostCreate( JSContext* cx, JS::HandleObject self )
             throw JsException();
         }
     }
+}
+
+void PlaybackControl::Trace( JSTracer* trc, JSObject* obj )
+{
+    JsEventTarget::Trace( trc, obj );
+}
+
+void PlaybackControl::PrepareForGc()
+{
+    JsEventTarget::PrepareForGc();
 }
 
 const std::string& PlaybackControl::EventIdToType( smp::EventId eventId )

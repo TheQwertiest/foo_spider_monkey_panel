@@ -5,6 +5,8 @@
 namespace mozjs
 {
 
+using PostJsCreateFn = void ( * )( JSContext* cx, JS::HandleObject self );
+
 template <typename T>
 struct JsObjectTraits
 {
@@ -81,20 +83,20 @@ struct JsObjectTraits
     const JSNative JsConstructor;
     */
 
+    // TODO: rename to PostJsCreate after migration
+    /*
+    // Pointer to method, that will be called on created JS object before it's returned.
+    // Called only when `HasPostCreate` == true.
+    // Called before JS object is wrapped in proxy (if `HasProxy` == true).
+    //
+    // Throw smp::JsException or qwr::QwrException on error.
+    const PostJsCreateFn PostCreate;
+    */
+
     /*
     // Reference to the object's JS proxy
     const js::BaseProxyHandler& JsProxy;
     */
 };
-
-// Methods required by T of Traits<T>
-
-/*
-// Finalizes the JS object that contains T.
-// Needs to be defined only if `HasPostCreate` == true
-// Called before JS object is wrapped in proxy (if `HasProxy` == true).
-// Throw smp::JsException or qwr::QwrException on error.
-static void PostCreate( JSContext* cx, JS::HandleObject self );
-*/
 
 } // namespace mozjs
