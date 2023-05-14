@@ -21,7 +21,7 @@ using namespace smp;
 namespace
 {
 
-mozjs::MouseEvent::EventProperties GenerateMouseEventProps( const smp::MouseEvent& mouseEvent, HWND parentHwnd )
+auto GenerateMouseEventProps( const smp::MouseEvent& mouseEvent, HWND parentHwnd )
 {
     const auto x = static_cast<double>( mouseEvent.GetX() );
     const auto y = static_cast<double>( mouseEvent.GetY() );
@@ -89,6 +89,84 @@ mozjs::MouseEvent::EventProperties GenerateMouseEventProps( const smp::MouseEven
         .screenY = static_cast<double>( screenPos.y ),
         .x = x,
         .y = y,
+    };
+
+    return props;
+}
+
+auto GenerateWheelEventProps( const smp::WheelEvent& wheelEvent, HWND parentHwnd )
+{
+    using enum smp::WheelEvent::WheelDirection;
+    using enum smp::WheelEvent::WheelMode;
+
+    const auto isVerticalDirection = ( wheelEvent.GetDirection() == kVertical );
+
+    mozjs::WheelEvent::EventProperties props{
+        .baseProps = GenerateMouseEventProps( wheelEvent, parentHwnd ),
+        .deltaX = static_cast<double>( isVerticalDirection ? 0 : wheelEvent.GetDelta() ),
+        .deltaY = static_cast<double>( isVerticalDirection ? wheelEvent.GetDelta() : 0 ),
+        .deltaZ = 0,
+        .deltaMode = [&] {
+            // https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent
+            switch ( wheelEvent.GetMode() )
+            {
+            case kPixel:
+                return 0;
+            case kLine:
+                return 1;
+            case kPage:
+                return 2;
+            default:
+                throw qwr::QwrException( "Internal error: unexpected deltaMode value: {}", qwr::to_underlying( wheelEvent.GetMode() ) );
+            }
+        }(),
+    };
+
+    return props;
+}
+
+auto GenerateKeyboardEventProps( const smp::KeyboardEvent& keyboardEvent )
+{
+    const auto key = [&] {
+        const auto chars = keyboardEvent.GetChars();
+        if ( !chars.empty() )
+        {
+            return chars;
+        }
+        return smp::dom::GetDomKey( keyboardEvent.GetVirtualCode() ).value_or( L"Unidentified" );
+    }();
+    const auto code = smp::dom::GetDomCode( keyboardEvent.GetFullScanCode(), keyboardEvent.GetVirtualCode() ).value_or( "Unidentified" );
+
+    const auto modifiers = keyboardEvent.GetModifiers();
+
+    using enum smp::KeyboardEvent::ModifierFlag;
+    mozjs::KeyboardEvent::EventProperties props{
+        .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
+        .altKey = !!qwr::to_underlying( modifiers & kAlt ),
+        .ctrlKey = !!qwr::to_underlying( modifiers & kCtrl ),
+        .metaKey = !!qwr::to_underlying( modifiers & kWin ),
+        .shiftKey = !!qwr::to_underlying( modifiers & kShift ),
+        .code = code,
+        .key = key,
+        .location = [&]() -> uint32_t {
+            using enum smp::KeyboardEvent::KeyLocation;
+            // https://w3c.github.io/uievents/#dom-keyboardevent-location
+            const auto location = keyboardEvent.GetKeyLocation();
+            switch ( location )
+            {
+            case kStandard:
+                return 0;
+            case kLeft:
+                return 1;
+            case kRight:
+                return 2;
+            case kNumpad:
+                return 3;
+            default:
+                throw qwr::QwrException( "Internal error: unexpected location value: {}", qwr::to_underlying( location ) );
+            }
+        }(),
+        .repeat = keyboardEvent.IsRepeating()
     };
 
     return props;
@@ -360,23 +438,10 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
     case EventId::kNew_KeyboardKeyUp:
     {
         const auto& keyboardEvent = static_cast<const smp::KeyboardEvent&>( event );
-
-        const auto key = [&] {
-            const auto chars = keyboardEvent.GetChars();
-            if ( !chars.empty() )
-            {
-                return chars;
-            }
-            return smp::dom::GetDomKey( keyboardEvent.GetVirtualCode() ).value_or( L"Unidentified" );
-        }();
-        const auto code = smp::dom::GetDomCode( keyboardEvent.GetFullScanCode(), keyboardEvent.GetVirtualCode() ).value_or( "Unidentified" );
-
-        mozjs::KeyboardEvent::EventProperties props{
-            .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
-            .key = key,
-            .code = code
-        };
-        jsEvent = mozjs::JsObjectBase<mozjs::KeyboardEvent>::CreateJs( pJsCtx_, eventType, props );
+        jsEvent = mozjs::JsObjectBase<mozjs::KeyboardEvent>::CreateJs(
+            pJsCtx_,
+            eventType,
+            GenerateKeyboardEventProps( keyboardEvent ) );
         break;
     }
     case EventId::kNew_MouseButtonAuxClick:
@@ -400,34 +465,10 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
     case EventId::kNew_MouseWheel:
     {
         const auto& wheelEvent = static_cast<const smp::WheelEvent&>( event );
-
-        using enum smp::WheelEvent::WheelDirection;
-        using enum smp::WheelEvent::WheelMode;
-
-        const auto isVerticalDirection = ( wheelEvent.GetDirection() == kVertical );
-
-        mozjs::WheelEvent::EventProperties props{
-            .baseProps = GenerateMouseEventProps( wheelEvent, parentPanel_.GetHWND() ),
-            .deltaX = static_cast<double>( isVerticalDirection ? 0 : wheelEvent.GetDelta() ),
-            .deltaY = static_cast<double>( isVerticalDirection ? wheelEvent.GetDelta() : 0 ),
-            .deltaZ = 0,
-            .deltaMode = [&] {
-                // https://developer.mozilla.org/en-US/docs/Web/API/WheelEvent
-                switch ( wheelEvent.GetMode() )
-                {
-                case kPixel:
-                    return 0;
-                case kLine:
-                    return 1;
-                case kPage:
-                    return 2;
-                default:
-                    throw qwr::QwrException( "Internal error: unexpected deltaMode value: {}", qwr::to_underlying( wheelEvent.GetMode() ) );
-                }
-            }(),
-        };
-
-        jsEvent = mozjs::JsObjectBase<mozjs::WheelEvent>::CreateJs( pJsCtx_, eventType, props );
+        jsEvent = mozjs::JsObjectBase<mozjs::WheelEvent>::CreateJs(
+            pJsCtx_,
+            eventType,
+            GenerateWheelEventProps( wheelEvent, parentPanel_.GetHWND() ) );
         break;
     }
     default:

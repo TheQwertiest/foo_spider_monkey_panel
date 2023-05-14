@@ -69,6 +69,11 @@ std::optional<std::wstring> GetCharsFromCodes( uint32_t virtualCode, uint32_t sc
     return std::wstring{ charBuffer.data(), charBuffer.size() };
 }
 
+auto WasKeyPressed( const MSG& msg )
+{
+    return !!( msg.lParam & ( 1 << 30 ) );
+}
+
 } // namespace
 
 namespace smp::panel
@@ -92,7 +97,8 @@ std::optional<LRESULT> KeyboardMessageHandler::HandleMessage( const MSG& msg )
     case WM_KEYUP:
     {
         const auto [scanCode, isExtendedScanCode] = GetScanCodeFromMessage( msg );
-        const auto virtualCode = GetVirtualCodeFromMessage( msg );
+        const auto virtualCode = GetVirtualCodeFromScanCode( scanCode, isExtendedScanCode )
+                                     .value_or( GetVirtualCodeFromMessage( msg ) );
 
         std::optional<std::wstring> charsOpt;
         MSG peekMsg;
@@ -113,16 +119,16 @@ std::optional<LRESULT> KeyboardMessageHandler::HandleMessage( const MSG& msg )
             charsOpt = GetCharsFromCodes( virtualCode, scanCode );
         }
 
-        const auto eventId = ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN
-                                   ? EventId::kNew_KeyboardKeyDown
-                                   : EventId::kNew_KeyboardKeyUp );
+        const auto isDownMessage = ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN );
+        const auto eventId = ( isDownMessage ? EventId::kNew_KeyboardKeyDown : EventId::kNew_KeyboardKeyUp );
         EventDispatcher::Get().PutEvent( wnd,
                                          std::make_unique<KeyboardEvent>(
                                              eventId,
                                              charsOpt.value_or( L"" ),
                                              virtualCode,
                                              scanCode,
-                                             isExtendedScanCode ),
+                                             isExtendedScanCode,
+                                             ( isDownMessage ? WasKeyPressed( msg ) : false ) ),
                                          EventPriority::kInput );
         return 0;
     }
@@ -138,14 +144,14 @@ std::optional<LRESULT> KeyboardMessageHandler::HandleMessage( const MSG& msg )
             return 0;
         }
 
-        // const auto wasKeyPressed = !!( msg.lParam & ( 1 << 30 ) );
         EventDispatcher::Get().PutEvent( wnd,
                                          std::make_unique<KeyboardEvent>(
                                              EventId::kNew_KeyboardKeyDown,
                                              *charsOpt,
                                              virtualCodeOpt.value_or( 0 ),
                                              scanCode,
-                                             isExtendedScanCode ),
+                                             isExtendedScanCode,
+                                             WasKeyPressed( msg ) ),
                                          EventPriority::kInput );
 
         return 0;

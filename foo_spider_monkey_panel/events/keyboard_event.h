@@ -34,7 +34,8 @@ public:
                                  const std::wstring& chars,
                                  uint32_t virtualCode,
                                  uint32_t scanCode,
-                                 bool isExtendedScanCode );
+                                 bool isExtendedScanCode,
+                                 bool isRepeating );
 
     // TODO: save all other data
     [[nodiscard]] const std::wstring& GetChars() const;
@@ -42,12 +43,21 @@ public:
     [[nodiscard]] uint32_t GetScanCode() const;
     [[nodiscard]] bool IsExtendedScanCode() const;
     [[nodiscard]] uint32_t GetFullScanCode() const;
+    [[nodiscard]] ModifierFlag GetModifiers() const;
+    [[nodiscard]] bool IsRepeating() const;
+    [[nodiscard]] KeyLocation GetKeyLocation() const;
+
+private:
+    static ModifierFlag CalculateModifiers();
 
 private:
     const std::wstring chars_;
     const uint32_t virtualCode_ = 0;
     const uint32_t scanCode_ = 0;
     const bool isExtendedScanCode_ = false;
+    const bool isRepeating_ = false;
+
+    ModifierFlag modifiers_;
 };
 
 } // namespace smp

@@ -41,13 +41,27 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_AltKey, mozjs::KeyboardEvent::get_AltKey )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Code, mozjs::KeyboardEvent::get_Code )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_CtrlKey, mozjs::KeyboardEvent::get_CtrlKey )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_IsComposing, mozjs::KeyboardEvent::get_IsComposing )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Key, mozjs::KeyboardEvent::get_Key )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_MetaKey, mozjs::KeyboardEvent::get_MetaKey )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Location, mozjs::KeyboardEvent::get_Location )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Repeat, mozjs::KeyboardEvent::get_Repeat )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_ShiftKey, mozjs::KeyboardEvent::get_ShiftKey )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
+        JS_PSG( "altKey", Get_AltKey, kDefaultPropsFlags ),
         JS_PSG( "code", Get_Code, kDefaultPropsFlags ),
+        JS_PSG( "ctrlKey", Get_CtrlKey, kDefaultPropsFlags ),
+        JS_PSG( "isComposing", Get_IsComposing, kDefaultPropsFlags ),
         JS_PSG( "key", Get_Key, kDefaultPropsFlags ),
+        JS_PSG( "metaKey", Get_MetaKey, kDefaultPropsFlags ),
+        JS_PSG( "location", Get_Location, kDefaultPropsFlags ),
+        JS_PSG( "repeat", Get_Repeat, kDefaultPropsFlags ),
+        JS_PSG( "shiftKey", Get_ShiftKey, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
@@ -115,14 +129,49 @@ JSObject* KeyboardEvent::ConstructorWithOpt( JSContext* cx, size_t optArgCount, 
     }
 }
 
+bool KeyboardEvent::get_AltKey() const
+{
+    return props_.altKey;
+}
+
 const qwr::u8string& KeyboardEvent::get_Code() const
 {
     return props_.code;
 }
 
+bool KeyboardEvent::get_CtrlKey() const
+{
+    return props_.ctrlKey;
+}
+
+bool KeyboardEvent::get_IsComposing() const
+{
+    return false;
+}
+
 const std::wstring& KeyboardEvent::get_Key() const
 {
     return props_.key;
+}
+
+bool KeyboardEvent::get_MetaKey() const
+{
+    return props_.metaKey;
+}
+
+uint32_t KeyboardEvent::get_Location() const
+{
+    return props_.location;
+}
+
+bool KeyboardEvent::get_Repeat() const
+{
+    return props_.repeat;
+}
+
+bool KeyboardEvent::get_ShiftKey() const
+{
+    return props_.shiftKey;
 }
 
 KeyboardEvent::EventOptions KeyboardEvent::ExtractOptions( JSContext* cx, JS::HandleValue options )
@@ -139,8 +188,14 @@ KeyboardEvent::EventOptions KeyboardEvent::ExtractOptions( JSContext* cx, JS::Ha
 
     parsedOptions.baseOptions = ParentJsType::ExtractOptions( cx, options );
 
-    utils::OptionalPropertyTo( cx, jsOptions, "key", parsedOptions.key );
+    utils::OptionalPropertyTo( cx, jsOptions, "altKey", parsedOptions.altKey );
+    utils::OptionalPropertyTo( cx, jsOptions, "ctrlKey", parsedOptions.ctrlKey );
+    utils::OptionalPropertyTo( cx, jsOptions, "shiftKey", parsedOptions.shiftKey );
+    utils::OptionalPropertyTo( cx, jsOptions, "metaKey", parsedOptions.metaKey );
     utils::OptionalPropertyTo( cx, jsOptions, "code", parsedOptions.code );
+    utils::OptionalPropertyTo( cx, jsOptions, "key", parsedOptions.key );
+    utils::OptionalPropertyTo( cx, jsOptions, "location", parsedOptions.location );
+    utils::OptionalPropertyTo( cx, jsOptions, "repeat", parsedOptions.repeat );
 
     return parsedOptions;
 }
@@ -149,8 +204,14 @@ KeyboardEvent::EventProperties KeyboardEvent::EventOptions::ToDefaultProps() con
 {
     return {
         .baseProps = baseOptions.ToDefaultProps(),
-        .key = key,
+        .altKey = altKey,
+        .ctrlKey = ctrlKey,
+        .metaKey = metaKey,
+        .shiftKey = shiftKey,
         .code = code,
+        .key = key,
+        .location = location,
+        .repeat = repeat,
     };
 }
 

@@ -37,18 +37,28 @@ public:
     struct EventProperties
     {
         ParentJsType::EventProperties baseProps;
-        std::wstring key;
+        bool altKey = false;
+        bool ctrlKey = false;
+        bool metaKey = false;
+        bool shiftKey = false;
         qwr::u8string code;
-        // TODO: impl
+        std::wstring key;
+        uint32_t location;
+        bool repeat;
     };
 
 protected:
     struct EventOptions
     {
         ParentJsType::EventOptions baseOptions;
-        std::wstring key;
+        bool altKey = false;
+        bool ctrlKey = false;
+        bool metaKey = false;
+        bool shiftKey = false;
         qwr::u8string code;
-        // TODO: impl
+        std::wstring key;
+        uint32_t location;
+        bool repeat;
 
         EventProperties ToDefaultProps() const;
     };
@@ -60,9 +70,15 @@ public:
     static JSObject* Constructor( JSContext* cx, const qwr::u8string& type, JS::HandleValue options = JS::UndefinedHandleValue );
     static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const qwr::u8string& type, JS::HandleValue options );
 
-    // TODO: impl other
+    bool get_AltKey() const;
     const qwr::u8string& get_Code() const;
+    bool get_CtrlKey() const;
+    bool get_IsComposing() const;
     const std::wstring& get_Key() const;
+    bool get_MetaKey() const;
+    uint32_t get_Location() const;
+    bool get_Repeat() const;
+    bool get_ShiftKey() const;
 
 protected:
     [[nodiscard]] KeyboardEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props );
