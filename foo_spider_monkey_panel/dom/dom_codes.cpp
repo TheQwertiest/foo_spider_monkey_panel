@@ -356,16 +356,15 @@ const std::unordered_map<uint32_t, qwr::u8string> kVirtualCodeToValue{
 namespace smp::dom
 {
 
-qwr::u8string GetDomCode( uint32_t scanCode, uint32_t virtualCode )
+std::optional<qwr::u8string> GetDomCode( uint32_t scanCode, uint32_t virtualCode )
 {
-    auto pValue = qwr::FindAsPointer( kScanCodeToValue, scanCode );
-    if ( pValue )
+    auto valueOpt = qwr::FindAsOptional( kScanCodeToValue, scanCode );
+    if ( valueOpt )
     {
-        return *pValue;
+        return valueOpt;
     }
 
-    pValue = qwr::FindAsPointer( kVirtualCodeToValue, virtualCode );
-    return ( pValue ? *pValue : "Unidentified" );
+    return qwr::FindAsOptional( kVirtualCodeToValue, virtualCode );
 }
 
 } // namespace smp::dom

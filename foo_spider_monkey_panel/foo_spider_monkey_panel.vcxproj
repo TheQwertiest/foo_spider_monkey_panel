@@ -176,6 +176,7 @@
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
     <ClCompile Include="dom\dom_codes.cpp" />
+    <ClCompile Include="dom\dom_keys.cpp" />
     <ClCompile Include="events\event_mouse.cpp" />
     <ClCompile Include="events\keyboard_event.cpp" />
     <ClCompile Include="events\wheel_event.cpp" />
@@ -368,6 +369,7 @@
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="dom\dom_codes.h" />
+    <ClInclude Include="dom\dom_keys.h" />
     <ClInclude Include="events\event_mouse.h" />
     <ClInclude Include="events\keyboard_event.h" />
     <ClInclude Include="events\wheel_event.h" />

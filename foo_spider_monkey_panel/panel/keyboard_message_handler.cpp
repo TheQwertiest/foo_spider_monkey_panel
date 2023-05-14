@@ -48,12 +48,10 @@ std::optional<std::wstring> GetCharsFromMessage( const MSG& msg )
 
 std::optional<std::wstring> GetCharsFromCodes( uint32_t virtualCode, uint32_t scanCode )
 {
+    // TODO: consider caching keyboard layout to avoid ToUnicodeEx calls
     std::array<BYTE, 256> keyboardState{};
-    if ( !GetKeyboardState( keyboardState.data() ) )
-    {
-        assert( false );
-        keyboardState.fill( 0 );
-    }
+    keyboardState[VK_SHIFT] = static_cast<BYTE>( ::GetKeyState( VK_SHIFT ) );
+    keyboardState[VK_CAPITAL] = static_cast<BYTE>( ::GetKeyState( VK_CAPITAL ) );
 
     std::array<wchar_t, 1> charBuffer{};
     int iRet = ::ToUnicodeEx( virtualCode,
@@ -63,7 +61,7 @@ std::optional<std::wstring> GetCharsFromCodes( uint32_t virtualCode, uint32_t sc
                               charBuffer.size(),
                               0,
                               ::GetKeyboardLayout( 0 ) );
-    if ( !iRet )
+    if ( !iRet || std::iswcntrl( static_cast<wint_t>( charBuffer[0] ) ) )
     {
         return std::nullopt;
     }
@@ -121,7 +119,7 @@ std::optional<LRESULT> KeyboardMessageHandler::HandleMessage( const MSG& msg )
         EventDispatcher::Get().PutEvent( wnd,
                                          std::make_unique<KeyboardEvent>(
                                              eventId,
-                                             charsOpt.value_or( L"System" ),
+                                             charsOpt.value_or( L"" ),
                                              virtualCode,
                                              scanCode,
                                              isExtendedScanCode ),

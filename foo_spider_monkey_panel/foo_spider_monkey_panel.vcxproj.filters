@@ -526,6 +526,9 @@
     <ClCompile Include="dom\dom_codes.cpp">
       <Filter>dom</Filter>
     </ClCompile>
+    <ClCompile Include="dom\dom_keys.cpp">
+      <Filter>dom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1142,6 +1145,9 @@
       <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="dom\dom_codes.h">
+      <Filter>dom</Filter>
+    </ClInclude>
+    <ClInclude Include="dom\dom_keys.h">
       <Filter>dom</Filter>
     </ClInclude>
   </ItemGroup>
