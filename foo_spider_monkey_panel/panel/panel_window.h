@@ -5,11 +5,10 @@
 #include <events/event.h>
 #include <events/event_js_executor.h>
 #include <panel/drag_action_params.h>
-#include <panel/keyboard_message_handler.h>
-#include <panel/mouse_message_handler.h>
 #include <panel/panel_adaptor_iface.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>
+#include <utils/not_null.h>
 
 #include <queue>
 
@@ -27,6 +26,8 @@ namespace smp::panel
 {
 class CallbackData;
 class PanelWindowGraphics;
+class MouseMessageHandler;
+class KeyboardMessageHandler;
 } // namespace smp::panel
 
 namespace mozjs
@@ -146,8 +147,8 @@ private:
     const PanelType panelType_;
     IPanelAdaptor& impl_;
 
-    MouseMessageHandler mouseMessageHandler_;
-    KeyboardMessageHandler keyboardMessageHandler_;
+    smp::not_null<std::unique_ptr<MouseMessageHandler>> pMouseMessageHandler_;
+    smp::not_null<std::unique_ptr<KeyboardMessageHandler>> pKeyboardMessageHandler_;
 
     config::PanelConfig config_;
     config::ResolvedPanelScriptSettings scriptSettings_;

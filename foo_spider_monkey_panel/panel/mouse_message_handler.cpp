@@ -225,10 +225,17 @@ std::optional<LRESULT> MouseMessageHandler::HandleMessage( const MSG& msg )
     }
     case WM_MOUSELEAVE:
     {
+        // TODO: suppress somehow MOUSELEAVE/MOUSEENTER on context menu exit
+
         isMouseTracked_ = false;
 
         // Restore default cursor
         SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
+
+        if ( isInContextMenu_ )
+        { // suppress MOUSELEAVE on context menu display
+            return std::nullopt;
+        }
 
         POINT mousePos{};
         ::GetCursorPos( &mousePos );
@@ -285,6 +292,16 @@ void MouseMessageHandler::SetCaptureMouseState( bool shouldCapture )
         ::ReleaseCapture();
     }
     isMouseCaptured_ = shouldCapture;
+}
+
+void MouseMessageHandler::OnContextMenuStart()
+{
+    isInContextMenu_ = true;
+}
+
+void MouseMessageHandler::OnContextMenuEnd()
+{
+    isInContextMenu_ = false;
 }
 
 } // namespace smp::panel

@@ -4,6 +4,7 @@ CPropertyList: other
 DispatchPtr: BSD
 foobar2000 SDK: other
 fmt: other
+GSL: MIT
 JScript Panel: Unlicense
 JSON for Modern C++: MIT
 KMeans: MIT

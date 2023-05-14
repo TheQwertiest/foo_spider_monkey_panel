@@ -1135,6 +1135,9 @@
     <ClInclude Include="panel\keyboard_message_handler.h">
       <Filter>panel</Filter>
     </ClInclude>
+    <ClInclude Include="utils\not_null.h">
+      <Filter>utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

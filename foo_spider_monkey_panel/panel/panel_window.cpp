@@ -17,7 +17,9 @@
 #include <os/system_settings.h>
 #include <panel/drag_action_params.h>
 #include <panel/edit_script.h>
+#include <panel/keyboard_message_handler.h>
 #include <panel/modal_blocking_scope.h>
+#include <panel/mouse_message_handler.h>
 #include <panel/panel_window_graphics.h>
 #include <timeout/timeout_manager.h>
 #include <ui/ui_conf.h>
@@ -65,8 +67,8 @@ PanelWindow::PanelWindow( IPanelAdaptor& impl )
         [this]( auto&&... args ) { return impl_.OnMessage( std::forward<decltype( args )>( args )... ); } )
     , panelType_( impl.GetPanelType() )
     , impl_( impl )
-    , mouseMessageHandler_( *this )
-    , keyboardMessageHandler_( *this )
+    , pMouseMessageHandler_( std::make_unique<MouseMessageHandler>( *this ) )
+    , pKeyboardMessageHandler_( std::make_unique<KeyboardMessageHandler>( *this ) )
 {
 }
 
@@ -1223,7 +1225,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     case WM_HSCROLL:
     case WM_SETCURSOR:
     {
-        return mouseMessageHandler_.HandleMessage( msg );
+        return pMouseMessageHandler_->HandleMessage( msg );
     }
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
@@ -1232,12 +1234,12 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     case WM_KEYUP:
     case WM_INPUTLANGCHANGE:
     {
-        return keyboardMessageHandler_.HandleMessage( msg );
+        return pKeyboardMessageHandler_->HandleMessage( msg );
     }
     case WM_SETFOCUS:
     {
         // Note: selection holder is acquired during event processing
-        mouseMessageHandler_.OnFocusMessage();
+        pMouseMessageHandler_->OnFocusMessage();
         EventDispatcher::Get().PutEvent( wnd_,
                                          std::make_unique<PanelEvent>( EventId::kNew_InputFocus ),
                                          EventPriority::kInput );
@@ -1246,7 +1248,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     case WM_KILLFOCUS:
     {
         selectionHolder_.release();
-        mouseMessageHandler_.OnFocusMessage();
+        pMouseMessageHandler_->OnFocusMessage();
         EventDispatcher::Get().PutEvent( wnd_,
                                          std::make_unique<PanelEvent>( EventId::kNew_InputBlur ),
                                          EventPriority::kInput );
@@ -1293,7 +1295,7 @@ std::optional<LRESULT> PanelWindow::ProcessInternalSyncMessage( InternalSyncMess
     {
         if ( isMouseCaptured_ )
         {
-            mouseMessageHandler_.SetCaptureMouseState( false );
+            pMouseMessageHandler_->SetCaptureMouseState( false );
         }
 
         return 0;
@@ -1321,7 +1323,7 @@ std::optional<LRESULT> PanelWindow::ProcessInternalSyncMessage( InternalSyncMess
         }
         if ( isMouseCaptured_ )
         {
-            mouseMessageHandler_.SetCaptureMouseState( false );
+            pMouseMessageHandler_->SetCaptureMouseState( false );
         }
 
         hasInternalDrag_ = false;
@@ -1342,6 +1344,8 @@ void PanelWindow::OnContextMenu( int x, int y )
         return;
     }
 
+    pMouseMessageHandler_->OnContextMenuStart();
+
     modal::MessageBlockingScope scope;
 
     POINT p{ x, y };
@@ -1354,6 +1358,8 @@ void PanelWindow::OnContextMenu( int x, int y )
     // yup, WinAPI at it's best: BOOL is used as an integer index here
     const uint32_t ret = menu.TrackPopupMenu( TPM_RIGHTBUTTON | TPM_NONOTIFY | TPM_RETURNCMD, p.x, p.y, wnd_, nullptr );
     ExecuteContextMenu( ret, base_id );
+
+    pMouseMessageHandler_->OnContextMenuEnd();
 }
 
 void PanelWindow::OnCreate( HWND hWnd )

@@ -521,6 +521,7 @@
     <ClInclude Include="utils\json_std_extenders.h" />
     <ClInclude Include="utils\js_exception.h" />
     <ClInclude Include="utils\kmeans.h" />
+    <ClInclude Include="utils\not_null.h" />
     <ClInclude Include="utils\script_resource.h" />
     <ClInclude Include="utils\location_processor.h" />
     <ClInclude Include="utils\logging.h" />
