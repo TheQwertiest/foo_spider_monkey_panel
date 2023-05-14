@@ -517,6 +517,12 @@
     <ClCompile Include="js_backend\objects\dom\keyboard_event.cpp">
       <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
+    <ClCompile Include="panel\mouse_message_handler.cpp">
+      <Filter>panel</Filter>
+    </ClCompile>
+    <ClCompile Include="panel\keyboard_message_handler.cpp">
+      <Filter>panel</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1122,6 +1128,12 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\keyboard_event.h">
       <Filter>js_backend\objects\dom</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\mouse_message_handler.h">
+      <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\keyboard_message_handler.h">
+      <Filter>panel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

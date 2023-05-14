@@ -63,8 +63,10 @@ PanelWindow::PanelWindow( IPanelAdaptor& impl )
     : uie::container_window_v3(
         get_window_config(),
         [this]( auto&&... args ) { return impl_.OnMessage( std::forward<decltype( args )>( args )... ); } )
-    , impl_( impl )
     , panelType_( impl.GetPanelType() )
+    , impl_( impl )
+    , mouseMessageHandler_( *this )
+    , keyboardMessageHandler_( *this )
 {
 }
 
@@ -378,6 +380,7 @@ void PanelWindow::ExecuteEvent_Basic( EventId id )
 void PanelWindow::ExecuteEvent( EventBase& event )
 {
     // TODO: extract message to event conversion code somewhere
+    // TODO: check all isDefaultSuppressed behaviours
 
     const auto execJsEvent = [&] {
         if ( !pJsContainer_ )
@@ -394,6 +397,7 @@ void PanelWindow::ExecuteEvent( EventBase& event )
     {
     case EventId::kNew_MouseButtonUp:
     {
+        // TODO: think about moving to mouse msg handler
         const auto& mouseEvent = static_cast<MouseEvent&>( event );
         if ( mouseEvent.GetButton() != MouseEvent::KeyFlag::kSecondary )
         {
@@ -401,21 +405,15 @@ void PanelWindow::ExecuteEvent( EventBase& event )
             break;
         }
 
-        // Bypass the user code.
-        const auto useDefaultContextMenu = [&] {
-            const auto modifiers = mouseEvent.GetModifiers();
-            const auto isBypassedViaModifiers =
-                !!qwr::to_underlying( modifiers
-                                      & ( MouseEvent::ModifierFlag::kShift | MouseEvent::ModifierFlag::kWin ) );
-            if ( !isBypassedViaModifiers )
-            {
-                return true;
-            }
+        const auto isBypassedViaModifiers =
+            !!qwr::to_underlying( mouseEvent.GetModifiers() & MouseEvent::ModifierFlag::kShift );
+        if ( isBypassedViaModifiers )
+        { // intentional: bypass should not trigger contextmenu event
+            OnContextMenu( mouseEvent.GetX(), mouseEvent.GetY() );
+            break;
+        }
 
-            return !execJsEvent().isDefaultSuppressed;
-        }();
-
-        if ( useDefaultContextMenu )
+        if ( !execJsEvent().isDefaultSuppressed )
         {
             EventDispatcher::Get().PutEvent( wnd_,
                                              std::make_unique<MouseEvent>(
@@ -432,7 +430,10 @@ void PanelWindow::ExecuteEvent( EventBase& event )
     {
         const auto& mouseEvent = static_cast<MouseEvent&>( event );
 
-        OnContextMenu( mouseEvent.GetX(), mouseEvent.GetY() );
+        if ( !execJsEvent().isDefaultSuppressed )
+        {
+            OnContextMenu( mouseEvent.GetX(), mouseEvent.GetY() );
+        }
 
         break;
     }
@@ -827,19 +828,6 @@ void PanelWindow::ExecuteContextMenu( uint32_t id, uint32_t id_base )
     }
 }
 
-void PanelWindow::SetCaptureMouseState( bool shouldCapture )
-{
-    if ( shouldCapture )
-    {
-        ::SetCapture( wnd_ );
-    }
-    else
-    {
-        ::ReleaseCapture();
-    }
-    isMouseCaptured_ = shouldCapture;
-}
-
 void PanelWindow::SetDragAndDropStatus( bool isEnabled )
 {
     isDraggingInside_ = false;
@@ -1154,35 +1142,6 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
         return std::nullopt;
     }
 
-    const auto generateMouseEvent = [&]( auto eventId, const auto& mouseKey ) {
-        const auto x = static_cast<int32_t>( GET_X_LPARAM( msg.lParam ) );
-        const auto y = static_cast<int32_t>( GET_Y_LPARAM( msg.lParam ) );
-
-        return std::make_unique<MouseEvent>( eventId,
-                                             mouseKey,
-                                             x,
-                                             y );
-    };
-    // TODO: test rbutton lbutton swap
-    // TODO: extract to a better place
-    // TODO: implement 4th and 5th message handling: https://searchfox.org/mozilla-central/source/widget/windows/nsWindow.cpp#6058
-    static const std::unordered_map<int, MouseEvent::KeyFlag> kMsgToMouseKey{
-        { WM_LBUTTONDOWN, MouseEvent::KeyFlag::kPrimary },
-        { WM_LBUTTONUP, MouseEvent::KeyFlag::kPrimary },
-        { WM_LBUTTONDBLCLK, MouseEvent::KeyFlag::kPrimary },
-        { WM_MBUTTONDOWN, MouseEvent::KeyFlag::kAuxiliary },
-        { WM_MBUTTONUP, MouseEvent::KeyFlag::kAuxiliary },
-        { WM_MBUTTONDBLCLK, MouseEvent::KeyFlag::kAuxiliary },
-        { WM_RBUTTONDOWN, MouseEvent::KeyFlag::kSecondary },
-        { WM_RBUTTONUP, MouseEvent::KeyFlag::kSecondary },
-        { WM_RBUTTONDBLCLK, MouseEvent::KeyFlag::kSecondary },
-        { WM_CONTEXTMENU, MouseEvent::KeyFlag::kSecondary },
-        { WM_MOUSEMOVE, MouseEvent::KeyFlag::kNoButtons },
-        { WM_MOUSELEAVE, MouseEvent::KeyFlag::kNoButtons },
-        { WM_MOUSEWHEEL, MouseEvent::KeyFlag::kNoButtons },
-        { WM_MOUSEHWHEEL, MouseEvent::KeyFlag::kNoButtons }
-    };
-
     switch ( msg.message )
     {
     case WM_DISPLAYCHANGE:
@@ -1249,279 +1208,36 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     case WM_LBUTTONDOWN:
     case WM_MBUTTONDOWN:
     case WM_RBUTTONDOWN:
-    {
-        if ( scriptSettings_.ShouldGrabFocus() )
-        {
-            wnd_.SetFocus();
-        }
-
-        SetCaptureMouseState( true );
-
-        lastMouseDownCount_ = 1;
-
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         generateMouseEvent(
-                                             EventId::kNew_MouseButtonDown,
-                                             kMsgToMouseKey.at( msg.message ) ),
-                                         EventPriority::kInput );
-        return std::nullopt;
-    }
     case WM_LBUTTONUP:
     case WM_MBUTTONUP:
     case WM_RBUTTONUP:
-    {
-        if ( isMouseCaptured_ )
-        {
-            SetCaptureMouseState( false );
-        }
-
-        const auto mouseKey = kMsgToMouseKey.at( msg.message );
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         generateMouseEvent( EventId::kNew_MouseButtonUp, mouseKey ),
-                                         EventPriority::kInput );
-        if ( lastMouseDownCount_ >= 1 )
-        {
-            if ( mouseKey == MouseEvent::KeyFlag::kPrimary )
-            {
-                // https://w3c.github.io/uievents/#event-type-click
-                EventDispatcher::Get().PutEvent( wnd_,
-                                                 generateMouseEvent( EventId::kNew_MouseButtonClick, mouseKey ),
-                                                 EventPriority::kInput );
-            }
-            else
-            {
-                // https://w3c.github.io/uievents/#event-type-auxclick
-                EventDispatcher::Get().PutEvent( wnd_,
-                                                 generateMouseEvent( EventId::kNew_MouseButtonAuxClick, mouseKey ),
-                                                 EventPriority::kInput );
-            }
-        }
-        if ( lastMouseDownCount_ >= 2 && mouseKey == MouseEvent::KeyFlag::kPrimary )
-        { // https://w3c.github.io/uievents/#event-type-dblclick
-            EventDispatcher::Get().PutEvent( wnd_,
-                                             generateMouseEvent( EventId::kNew_MouseButtonDoubleClick, mouseKey ),
-                                             EventPriority::kInput );
-        }
-
-        if ( msg.message == WM_RBUTTONUP )
-        {
-            return 0;
-        }
-        else
-        {
-            return std::nullopt;
-        }
-    }
     case WM_LBUTTONDBLCLK:
     case WM_MBUTTONDBLCLK:
     case WM_RBUTTONDBLCLK:
-    {
-        const auto mouseKey = kMsgToMouseKey.at( msg.message );
-
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         generateMouseEvent(
-                                             EventId::kNew_MouseButtonDown,
-                                             kMsgToMouseKey.at( msg.message ) ),
-                                         EventPriority::kInput );
-
-        if ( mouseKey == MouseEvent::KeyFlag::kPrimary )
-        { // https://w3c.github.io/uievents/#event-type-dblclick
-            lastMouseDownCount_ = 2;
-            EventDispatcher::Get().PutEvent( wnd_,
-                                             generateMouseEvent( EventId::kNew_MouseButtonDoubleClickNative, mouseKey ),
-                                             EventPriority::kInput );
-        }
-
-        return std::nullopt;
-    }
     case WM_CONTEXTMENU:
-    {
-        const auto point = [&]() -> POINT {
-            if ( msg.lParam == -1 )
-            { // happens if invoked via keyboard
-                if ( !pGraphics_ )
-                {
-                    return {};
-                }
-                return { (LONG)pGraphics_->GetWidth() * 2 / 3, (LONG)pGraphics_->GetHeight() * 2 / 3 };
-            }
-            else
-            {
-                // WM_CONTEXTMENU receives screen coordinates
-                POINT p{ GET_X_LPARAM( msg.lParam ), GET_Y_LPARAM( msg.lParam ) };
-                wnd_.ScreenToClient( &p );
-                return p;
-            }
-        }();
-
-        const auto x = static_cast<int32_t>( point.x );
-        const auto y = static_cast<int32_t>( point.y );
-
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<MouseEvent>(
-                                             EventId::kNew_MouseContextMenu,
-                                             kMsgToMouseKey.at( msg.message ),
-                                             x,
-                                             y ),
-                                         EventPriority::kInput );
-
-        return 1;
-    }
     case WM_MOUSEMOVE:
-    {
-        const auto mouseKey = kMsgToMouseKey.at( msg.message );
-
-        if ( !isMouseTracked_ )
-        {
-            isMouseTracked_ = true;
-
-            TRACKMOUSEEVENT tme{ sizeof( TRACKMOUSEEVENT ), TME_LEAVE, wnd_, HOVER_DEFAULT };
-            TrackMouseEvent( &tme );
-
-            // Restore default cursor
-            SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
-
-            EventDispatcher::Get().PutEvent( wnd_,
-                                             generateMouseEvent( EventId::kNew_MouseEnter, mouseKey ),
-                                             EventPriority::kInput );
-        }
-
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         generateMouseEvent( EventId::kNew_MouseMove, mouseKey ),
-                                         EventPriority::kInput );
-
-        return std::nullopt;
-    }
     case WM_MOUSELEAVE:
-    {
-        isMouseTracked_ = false;
-
-        // Restore default cursor
-        SetCursor( LoadCursor( nullptr, IDC_ARROW ) );
-
-        POINT mousePos{};
-        ::GetCursorPos( &mousePos );
-        wnd_.ScreenToClient( &mousePos );
-
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<MouseEvent>(
-                                             EventId::kNew_MouseLeave,
-                                             kMsgToMouseKey.at( msg.message ),
-                                             mousePos.x,
-                                             mousePos.y ),
-                                         EventPriority::kInput );
-
-        return std::nullopt;
-    }
-
     case WM_MOUSEWHEEL:
     case WM_MOUSEHWHEEL:
-    {
-        const auto& systemSettings = os::SystemSettings::Instance();
-
-        // WM_WM_MOUSE*WHEEL receives screen coordinates
-        POINT p{ GET_X_LPARAM( msg.lParam ), GET_Y_LPARAM( msg.lParam ) };
-        wnd_.ScreenToClient( &p );
-
-        const auto isVertical = ( msg.message == WM_MOUSEWHEEL );
-        const auto dir = ( isVertical
-                               ? WheelEvent::WheelDirection::kVertical
-                               : WheelEvent::WheelDirection::kHorizontal );
-        const auto delta = GET_WHEEL_DELTA_WPARAM( msg.wParam );
-        const auto mode = ( systemSettings.IsPageScroll( isVertical )
-                                ? WheelEvent::WheelMode::kPage
-                                : WheelEvent::WheelMode::kLine );
-
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<WheelEvent>(
-                                             EventId::kNew_MouseWheel,
-                                             kMsgToMouseKey.at( msg.message ),
-                                             p.x,
-                                             p.y,
-                                             delta,
-                                             dir,
-                                             mode ),
-                                         EventPriority::kInput );
-        return 0;
-    }
     case WM_VSCROLL:
     case WM_HSCROLL:
-        // TODO: uimpl
-        return std::nullopt;
     case WM_SETCURSOR:
     {
-        return 1;
+        return mouseMessageHandler_.HandleMessage( msg );
     }
-    // WM_SYSKEYDOWN handles special keys (e.g. ALT)
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
-    {
-        qwr::u8string key{ "system" };
-
-        MSG peekMsg;
-        bool hasMessage = PeekMessage( &peekMsg, wnd_, WM_CHAR, WM_CHAR, PM_NOREMOVE | PM_NOYIELD );
-        if ( hasMessage )
-        {
-            MSG newMsg;
-            hasMessage = PeekMessage( &newMsg, peekMsg.hwnd, peekMsg.message, peekMsg.message, PM_REMOVE | PM_NOYIELD );
-            key = ( hasMessage ? qwr::unicode::ToU8( std::wstring( 1, static_cast<wchar_t>( peekMsg.wParam ) ) ) : "system" );
-        }
-        const auto virtualCode = static_cast<uint32_t>( msg.wParam );
-
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<KeyboardEvent>(
-                                             EventId::kNew_KeyboardKeyDown,
-                                             key,
-                                             virtualCode ),
-                                         EventPriority::kInput );
-        return 0;
-    }
-    // TODO: handle UNICHAR and DEADCHAR
     case WM_CHAR:
-    {
-        const auto key = qwr::unicode::ToU8( std::wstring( 1, static_cast<wchar_t>( msg.wParam ) ) );
-
-        const auto scanCode = ( ( msg.lParam >> 16 ) & 0xFF );
-        const auto isExtendedScanCode = !!( msg.lParam & 0x1000000 );
-        const auto virtualCode = ::MapVirtualKeyEx( isExtendedScanCode ? ( 0xE000 | scanCode ) : scanCode, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout( 0 ) );
-
-        const auto wasKeyPressed = !!( msg.lParam & ( 1 << 30 ) );
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<KeyboardEvent>(
-                                             EventId::kNew_KeyboardKeyDown,
-                                             key,
-                                             virtualCode ),
-                                         EventPriority::kInput );
-
-        return 0;
-    }
-    // WM_SYSKEYUP handles special keys (e.g. ALT)
     case WM_SYSKEYUP:
     case WM_KEYUP:
+    case WM_INPUTLANGCHANGE:
     {
-        const auto virtualCode = static_cast<uint32_t>( msg.wParam );
-
-        const auto scanCode = ( ( msg.lParam >> 16 ) & 0xFF );
-        const auto isExtendedScanCode = !!( msg.lParam & 0x1000000 );
-
-        BYTE keyboardState[256] = { 0 };
-        wchar_t charBuffer[1] = { 0 };
-        int iRet =
-            ::ToUnicodeEx( virtualCode, scanCode, keyboardState, charBuffer, std::size( charBuffer ), 0, ::GetKeyboardLayout( 0 ) );
-        const auto key = ( iRet == 1 ? qwr::unicode::ToU8( std::wstring( 1, charBuffer[0] ) ) : "system" );
-
-        EventDispatcher::Get().PutEvent( wnd_,
-                                         std::make_unique<KeyboardEvent>(
-                                             EventId::kNew_KeyboardKeyUp,
-                                             key,
-                                             virtualCode ),
-                                         EventPriority::kInput );
-        return 0;
+        return keyboardMessageHandler_.HandleMessage( msg );
     }
     case WM_SETFOCUS:
     {
         // Note: selection holder is acquired during event processing
-        lastMouseDownCount_ = 0;
+        mouseMessageHandler_.OnFocusMessage();
         EventDispatcher::Get().PutEvent( wnd_,
                                          std::make_unique<PanelEvent>( EventId::kNew_InputFocus ),
                                          EventPriority::kInput );
@@ -1530,7 +1246,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     case WM_KILLFOCUS:
     {
         selectionHolder_.release();
-        lastMouseDownCount_ = 0;
+        mouseMessageHandler_.OnFocusMessage();
         EventDispatcher::Get().PutEvent( wnd_,
                                          std::make_unique<PanelEvent>( EventId::kNew_InputBlur ),
                                          EventPriority::kInput );
@@ -1577,7 +1293,7 @@ std::optional<LRESULT> PanelWindow::ProcessInternalSyncMessage( InternalSyncMess
     {
         if ( isMouseCaptured_ )
         {
-            SetCaptureMouseState( false );
+            mouseMessageHandler_.SetCaptureMouseState( false );
         }
 
         return 0;
@@ -1605,7 +1321,7 @@ std::optional<LRESULT> PanelWindow::ProcessInternalSyncMessage( InternalSyncMess
         }
         if ( isMouseCaptured_ )
         {
-            SetCaptureMouseState( false );
+            mouseMessageHandler_.SetCaptureMouseState( false );
         }
 
         hasInternalDrag_ = false;
@@ -1718,7 +1434,8 @@ void PanelWindow::OnPaint( EventBase& event )
     {
         const auto status = pJsContainer_->InvokeJsEvent( event );
         if ( isInErrorState() )
-        { // happens if there was an error in handler
+        { // TODO: do we actually need this?
+            // happens if there was an error in handler
             pGraphics_->PaintErrorSplash();
         }
         else if ( !status.isHandled )

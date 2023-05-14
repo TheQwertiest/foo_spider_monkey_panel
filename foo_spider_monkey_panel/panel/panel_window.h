@@ -5,6 +5,8 @@
 #include <events/event.h>
 #include <events/event_js_executor.h>
 #include <panel/drag_action_params.h>
+#include <panel/keyboard_message_handler.h>
+#include <panel/mouse_message_handler.h>
 #include <panel/panel_adaptor_iface.h>
 #include <panel/user_message.h>
 #include <ui/ui_conf.h>
@@ -112,7 +114,7 @@ private: // internal event handling
     void GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t id_base );
     void ExecuteContextMenu( uint32_t id, uint32_t id_base );
 
-    void SetCaptureMouseState( bool shouldCapture );
+private:
     /// @throw qwr::QwrException
     void SetDragAndDropStatus( bool isEnabled );
 
@@ -143,6 +145,9 @@ private: // callback handling
 private:
     const PanelType panelType_;
     IPanelAdaptor& impl_;
+
+    MouseMessageHandler mouseMessageHandler_;
+    KeyboardMessageHandler keyboardMessageHandler_;
 
     config::PanelConfig config_;
     config::ResolvedPanelScriptSettings scriptSettings_;
@@ -178,9 +183,6 @@ private:
     // TODO: move to graphics class
     POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
     POINT minSize_ = { 0, 0 };             // modified only from external
-
-    // TODO: extract somewhere
-    uint8_t lastMouseDownCount_ = 0;
 };
 
 } // namespace smp::panel

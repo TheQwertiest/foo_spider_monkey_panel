@@ -266,6 +266,8 @@
     <ClCompile Include="js_backend\utils\serialized_value.cpp" />
     <ClCompile Include="os\system_settings.cpp" />
     <ClCompile Include="panel\edit_script.cpp" />
+    <ClCompile Include="panel\keyboard_message_handler.cpp" />
+    <ClCompile Include="panel\mouse_message_handler.cpp" />
     <ClCompile Include="panel\panel_window.cpp" />
     <ClCompile Include="panel\panel_adaptor_cui.cpp" />
     <ClCompile Include="panel\panel_adaptor_dui.cpp" />
@@ -464,6 +466,8 @@
     <ClInclude Include="os\system_settings.h" />
     <ClInclude Include="panel\drag_action_params.h" />
     <ClInclude Include="panel\edit_script.h" />
+    <ClInclude Include="panel\keyboard_message_handler.h" />
+    <ClInclude Include="panel\mouse_message_handler.h" />
     <ClInclude Include="panel\panel_window.h" />
     <ClInclude Include="panel\panel_adaptor_iface.h" />
     <ClInclude Include="panel\panel_adaptor_cui.h" />
