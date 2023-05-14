@@ -31,17 +31,23 @@ public:
 
 public:
     [[nodiscard]] KeyboardEvent( EventId id,
-                                 const qwr::u8string& key,
-                                 uint32_t code );
+                                 const std::wstring& chars,
+                                 uint32_t virtualCode,
+                                 uint32_t scanCode,
+                                 bool isExtendedScanCode );
 
     // TODO: save all other data
-    const qwr::u8string& GetKey() const;
-
-    uint32_t GetCode() const;
+    [[nodiscard]] const std::wstring& GetChars() const;
+    [[nodiscard]] uint32_t GetVirtualCode() const;
+    [[nodiscard]] uint32_t GetScanCode() const;
+    [[nodiscard]] bool IsExtendedScanCode() const;
+    [[nodiscard]] uint32_t GetFullScanCode() const;
 
 private:
-    const qwr::u8string key_;
-    uint32_t code_;
+    const std::wstring chars_;
+    const uint32_t virtualCode_ = 0;
+    const uint32_t scanCode_ = 0;
+    const bool isExtendedScanCode_ = false;
 };
 
 } // namespace smp

@@ -6,22 +6,41 @@ namespace smp
 {
 
 KeyboardEvent::KeyboardEvent( EventId id,
-                              const qwr::u8string& key,
-                              uint32_t code )
+                              const std::wstring& chars,
+                              uint32_t virtualCode,
+                              uint32_t scanCode,
+                              bool isExtendedScanCode )
     : PanelEvent( id )
-    , key_( key )
-    , code_( code )
+    , chars_( chars )
+    , virtualCode_( virtualCode )
+    , scanCode_( scanCode )
+    , isExtendedScanCode_( isExtendedScanCode )
 {
 }
 
-const qwr::u8string& KeyboardEvent::GetKey() const
+const std::wstring& KeyboardEvent::GetChars() const
 {
-    return key_;
+    return chars_;
 }
 
-uint32_t KeyboardEvent::GetCode() const
+uint32_t KeyboardEvent::GetVirtualCode() const
 {
-    return code_;
+    return virtualCode_;
+}
+
+uint32_t KeyboardEvent::GetScanCode() const
+{
+    return scanCode_;
+}
+
+bool KeyboardEvent::IsExtendedScanCode() const
+{
+    return isExtendedScanCode_;
+}
+
+uint32_t KeyboardEvent::GetFullScanCode() const
+{
+    return ( isExtendedScanCode_ ? scanCode_ | 0xE000 : scanCode_ );
 }
 
 } // namespace smp

@@ -1232,7 +1232,6 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
     case WM_CHAR:
     case WM_SYSKEYUP:
     case WM_KEYUP:
-    case WM_INPUTLANGCHANGE:
     {
         return pKeyboardMessageHandler_->HandleMessage( msg );
     }

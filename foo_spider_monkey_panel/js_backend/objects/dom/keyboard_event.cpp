@@ -120,7 +120,7 @@ const qwr::u8string& KeyboardEvent::get_Code() const
     return props_.code;
 }
 
-const qwr::u8string& KeyboardEvent::get_Key() const
+const std::wstring& KeyboardEvent::get_Key() const
 {
     return props_.key;
 }

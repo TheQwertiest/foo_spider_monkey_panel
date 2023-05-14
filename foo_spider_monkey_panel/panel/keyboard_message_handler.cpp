@@ -6,6 +6,73 @@
 #include <events/keyboard_event.h>
 #include <panel/panel_window.h>
 
+#include <cwctype>
+
+namespace
+{
+
+auto GetScanCodeFromMessage( const MSG& msg )
+{
+    const uint32_t scanCode = ( ( msg.lParam >> 16 ) & 0xFF );
+    const bool isExtendedScanCode = !!( msg.lParam & 0x1000000 );
+    return std::make_tuple( scanCode, isExtendedScanCode );
+}
+
+auto GetVirtualCodeFromMessage( const MSG& msg )
+{
+    assert( msg.message != WM_CHAR );
+    return static_cast<uint32_t>( msg.wParam );
+}
+
+std::optional<uint32_t> GetVirtualCodeFromScanCode( uint32_t scanCode, bool isExtendedScanCode )
+{
+    const auto iRet = ::MapVirtualKeyEx( isExtendedScanCode ? ( 0xE000 | scanCode ) : scanCode, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout( 0 ) );
+    if ( !iRet )
+    {
+        return std::nullopt;
+    }
+
+    return static_cast<uint32_t>( iRet );
+}
+
+std::optional<std::wstring> GetCharsFromMessage( const MSG& msg )
+{
+    assert( msg.message == WM_CHAR );
+    if ( std::iswcntrl( static_cast<wint_t>( msg.wParam ) ) )
+    {
+        return std::nullopt;
+    }
+
+    return std::wstring( 1, static_cast<wchar_t>( msg.wParam ) );
+}
+
+std::optional<std::wstring> GetCharsFromCodes( uint32_t virtualCode, uint32_t scanCode )
+{
+    std::array<BYTE, 256> keyboardState{};
+    if ( !GetKeyboardState( keyboardState.data() ) )
+    {
+        assert( false );
+        keyboardState.fill( 0 );
+    }
+
+    std::array<wchar_t, 1> charBuffer{};
+    int iRet = ::ToUnicodeEx( virtualCode,
+                              scanCode,
+                              keyboardState.data(),
+                              charBuffer.data(),
+                              charBuffer.size(),
+                              0,
+                              ::GetKeyboardLayout( 0 ) );
+    if ( !iRet )
+    {
+        return std::nullopt;
+    }
+
+    return std::wstring{ charBuffer.data(), charBuffer.size() };
+}
+
+} // namespace
+
 namespace smp::panel
 {
 
@@ -20,73 +87,71 @@ std::optional<LRESULT> KeyboardMessageHandler::HandleMessage( const MSG& msg )
 
     switch ( msg.message )
     {
-    // WM_SYSKEYDOWN handles special keys (e.g. ALT)
+    // WM_SYSKEY* handles special keys (e.g. ALT)
     case WM_SYSKEYDOWN:
     case WM_KEYDOWN:
+    case WM_SYSKEYUP:
+    case WM_KEYUP:
     {
-        qwr::u8string key{ "system" };
+        const auto [scanCode, isExtendedScanCode] = GetScanCodeFromMessage( msg );
+        const auto virtualCode = GetVirtualCodeFromMessage( msg );
 
+        std::optional<std::wstring> charsOpt;
         MSG peekMsg;
+        // needed for *KEYDOWN in case a displayable character is entered,
+        // needed for *KEYUP in case character was entered via ALT+NUMPAD
         bool hasMessage = PeekMessage( &peekMsg, wnd, WM_CHAR, WM_CHAR, PM_NOREMOVE | PM_NOYIELD );
         if ( hasMessage )
         {
             MSG newMsg;
             hasMessage = PeekMessage( &newMsg, peekMsg.hwnd, peekMsg.message, peekMsg.message, PM_REMOVE | PM_NOYIELD );
-            key = ( hasMessage ? qwr::unicode::ToU8( std::wstring( 1, static_cast<wchar_t>( peekMsg.wParam ) ) ) : "system" );
+            if ( hasMessage )
+            {
+                charsOpt = GetCharsFromMessage( newMsg );
+            }
         }
-        const auto virtualCode = static_cast<uint32_t>( msg.wParam );
+        if ( !charsOpt )
+        {
+            charsOpt = GetCharsFromCodes( virtualCode, scanCode );
+        }
 
+        const auto eventId = ( msg.message == WM_KEYDOWN || msg.message == WM_SYSKEYDOWN
+                                   ? EventId::kNew_KeyboardKeyDown
+                                   : EventId::kNew_KeyboardKeyUp );
         EventDispatcher::Get().PutEvent( wnd,
                                          std::make_unique<KeyboardEvent>(
-                                             EventId::kNew_KeyboardKeyDown,
-                                             key,
-                                             virtualCode ),
+                                             eventId,
+                                             charsOpt.value_or( L"System" ),
+                                             virtualCode,
+                                             scanCode,
+                                             isExtendedScanCode ),
                                          EventPriority::kInput );
         return 0;
     }
     // TODO: handle UNICHAR and DEADCHAR (if it's actually needed)
     case WM_CHAR:
     {
-        const auto key = qwr::unicode::ToU8( std::wstring( 1, static_cast<wchar_t>( msg.wParam ) ) );
+        const auto [scanCode, isExtendedScanCode] = GetScanCodeFromMessage( msg );
+        const auto virtualCodeOpt = GetVirtualCodeFromScanCode( scanCode, isExtendedScanCode );
 
-        const auto scanCode = ( ( msg.lParam >> 16 ) & 0xFF );
-        const auto isExtendedScanCode = !!( msg.lParam & 0x1000000 );
-        const auto virtualCode = ::MapVirtualKeyEx( isExtendedScanCode ? ( 0xE000 | scanCode ) : scanCode, MAPVK_VSC_TO_VK_EX, ::GetKeyboardLayout( 0 ) );
+        const auto charsOpt = GetCharsFromMessage( msg );
+        if ( !charsOpt )
+        {
+            return 0;
+        }
 
-        const auto wasKeyPressed = !!( msg.lParam & ( 1 << 30 ) );
+        // const auto wasKeyPressed = !!( msg.lParam & ( 1 << 30 ) );
         EventDispatcher::Get().PutEvent( wnd,
                                          std::make_unique<KeyboardEvent>(
                                              EventId::kNew_KeyboardKeyDown,
-                                             key,
-                                             virtualCode ),
+                                             *charsOpt,
+                                             virtualCodeOpt.value_or( 0 ),
+                                             scanCode,
+                                             isExtendedScanCode ),
                                          EventPriority::kInput );
 
         return 0;
     }
-    // WM_SYSKEYUP handles special keys (e.g. ALT)
-    case WM_SYSKEYUP:
-    case WM_KEYUP:
-    {
-        const auto virtualCode = static_cast<uint32_t>( msg.wParam );
-
-        const auto scanCode = ( ( msg.lParam >> 16 ) & 0xFF );
-        const auto isExtendedScanCode = !!( msg.lParam & 0x1000000 );
-
-        BYTE keyboardState[256] = { 0 };
-        wchar_t charBuffer[1] = { 0 };
-        int iRet =
-            ::ToUnicodeEx( virtualCode, scanCode, keyboardState, charBuffer, std::size( charBuffer ), 0, ::GetKeyboardLayout( 0 ) );
-        const auto key = ( iRet == 1 ? qwr::unicode::ToU8( std::wstring( 1, charBuffer[0] ) ) : "system" );
-
-        EventDispatcher::Get().PutEvent( wnd,
-                                         std::make_unique<KeyboardEvent>(
-                                             EventId::kNew_KeyboardKeyUp,
-                                             key,
-                                             virtualCode ),
-                                         EventPriority::kInput );
-        return 0;
-    }
-    case WM_INPUTLANGCHANGE: // TODO:
     default:
     {
         assert( false );

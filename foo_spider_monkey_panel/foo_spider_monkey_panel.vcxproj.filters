@@ -523,6 +523,9 @@
     <ClCompile Include="panel\keyboard_message_handler.cpp">
       <Filter>panel</Filter>
     </ClCompile>
+    <ClCompile Include="dom\dom_codes.cpp">
+      <Filter>dom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1138,6 +1141,9 @@
     <ClInclude Include="utils\not_null.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="dom\dom_codes.h">
+      <Filter>dom</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1256,6 +1262,9 @@
     </Filter>
     <Filter Include="os">
       <UniqueIdentifier>{4d3e4e0c-60bf-47ce-9cf4-b4637644990c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="dom">
+      <UniqueIdentifier>{5805739c-42a9-4242-ba28-74d5abb40b3c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

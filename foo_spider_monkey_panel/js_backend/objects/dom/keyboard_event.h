@@ -37,7 +37,7 @@ public:
     struct EventProperties
     {
         ParentJsType::EventProperties baseProps;
-        qwr::u8string key;
+        std::wstring key;
         qwr::u8string code;
         // TODO: impl
     };
@@ -46,7 +46,7 @@ protected:
     struct EventOptions
     {
         ParentJsType::EventOptions baseOptions;
-        qwr::u8string key;
+        std::wstring key;
         qwr::u8string code;
         // TODO: impl
 
@@ -60,9 +60,9 @@ public:
     static JSObject* Constructor( JSContext* cx, const qwr::u8string& type, JS::HandleValue options = JS::UndefinedHandleValue );
     static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const qwr::u8string& type, JS::HandleValue options );
 
-    // TODO: impl
+    // TODO: impl other
     const qwr::u8string& get_Code() const;
-    const qwr::u8string& get_Key() const;
+    const std::wstring& get_Key() const;
 
 protected:
     [[nodiscard]] KeyboardEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props );

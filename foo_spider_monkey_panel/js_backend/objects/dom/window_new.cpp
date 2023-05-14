@@ -2,6 +2,7 @@
 
 #include "window_new.h"
 
+#include <dom/dom_codes.h>
 #include <events/keyboard_event.h>
 #include <events/mouse_event.h>
 #include <events/wheel_event.h>
@@ -362,8 +363,8 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
         mozjs::KeyboardEvent::EventProperties props{
             .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
             // TODO: map properly
-            .key = keyboardEvent.GetKey(),
-            .code = std::to_string( keyboardEvent.GetCode() )
+            .key = keyboardEvent.GetChars(),
+            .code = smp::dom::GetDomCode( keyboardEvent.GetFullScanCode(), keyboardEvent.GetVirtualCode() )
         };
         jsEvent = mozjs::JsObjectBase<mozjs::KeyboardEvent>::CreateJs( pJsCtx_, eventType, props );
         break;
