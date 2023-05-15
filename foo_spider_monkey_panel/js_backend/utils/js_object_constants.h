@@ -5,9 +5,15 @@ struct JSContext;
 namespace mozjs
 {
 
-inline constexpr uint32_t kDefaultClassFlags = JSCLASS_HAS_RESERVED_SLOTS( 1 ) | JSCLASS_BACKGROUND_FINALIZE;
-inline constexpr uint8_t kDefaultPropsFlags = JSPROP_ENUMERATE | JSPROP_PERMANENT;
+constexpr size_t DefaultClassFlags( size_t additionalSlotCount )
+{
+    // one slot is always reserved for native object
+    return JSCLASS_HAS_RESERVED_SLOTS( 1 + additionalSlotCount ) | JSCLASS_BACKGROUND_FINALIZE;
+}
+
 inline constexpr size_t kReservedObjectSlot = 0;
+inline constexpr uint32_t kDefaultClassFlags = DefaultClassFlags( 0 );
+inline constexpr uint8_t kDefaultPropsFlags = JSPROP_ENUMERATE | JSPROP_PERMANENT;
 
 /// @details Used to define write-only property with JS_PSGS
 bool DummyGetter( JSContext* cx, unsigned argc, JS::Value* vp );

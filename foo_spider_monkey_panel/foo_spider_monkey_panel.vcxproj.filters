@@ -484,23 +484,14 @@
     <ClCompile Include="events\mouse_event.cpp">
       <Filter>events</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\mouse_event.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
     <ClCompile Include="events\panel_event.cpp">
       <Filter>events</Filter>
     </ClCompile>
     <ClCompile Include="panel\panel_window_graphics.cpp">
       <Filter>panel</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\window_new.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
     <ClCompile Include="events\event_mouse.cpp">
       <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\paint_event.cpp">
-      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
     <ClCompile Include="events\wheel_event.cpp">
       <Filter>events</Filter>
@@ -508,14 +499,8 @@
     <ClCompile Include="os\system_settings.cpp">
       <Filter>os</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\wheel_event.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
     <ClCompile Include="events\keyboard_event.cpp">
       <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\keyboard_event.cpp">
-      <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
     <ClCompile Include="panel\mouse_message_handler.cpp">
       <Filter>panel</Filter>
@@ -528,6 +513,30 @@
     </ClCompile>
     <ClCompile Include="dom\dom_keys.cpp">
       <Filter>dom</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\window\paint_event.cpp">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\window\wheel_event.cpp">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\window\window_new.cpp">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\window\keyboard_event.cpp">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\window\mouse_event.cpp">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\canvas\canvas.cpp">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.cpp">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\canvas\window_canvas.cpp">
+      <Filter>js_backend\objects\dom\canvas</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1087,9 +1096,6 @@
     <ClInclude Include="events\mouse_event.h">
       <Filter>events</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\mouse_event.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
     <ClInclude Include="events\panel_event.h">
       <Filter>events</Filter>
     </ClInclude>
@@ -1105,12 +1111,6 @@
     <ClInclude Include="panel\panel_window_graphics.h">
       <Filter>panel</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\window_new.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\paint_event.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
     <ClInclude Include="js_backend\engine\js_event_status.h">
       <Filter>js_backend\engine</Filter>
     </ClInclude>
@@ -1120,9 +1120,6 @@
     <ClInclude Include="os\system_settings.h">
       <Filter>os</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\wheel_event.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
     <ClInclude Include="js_backend\objects\core\object_traits_handler.h">
       <Filter>js_backend\objects\core</Filter>
     </ClInclude>
@@ -1131,9 +1128,6 @@
     </ClInclude>
     <ClInclude Include="events\keyboard_event.h">
       <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\keyboard_event.h">
-      <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
     <ClInclude Include="panel\mouse_message_handler.h">
       <Filter>panel</Filter>
@@ -1149,6 +1143,30 @@
     </ClInclude>
     <ClInclude Include="dom\dom_keys.h">
       <Filter>dom</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\window\mouse_event.h">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\window\paint_event.h">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\window\wheel_event.h">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\window\window_new.h">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\window\keyboard_event.h">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\canvas.h">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.h">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\window_canvas.h">
+      <Filter>js_backend\objects\dom\canvas</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1271,6 +1289,12 @@
     </Filter>
     <Filter Include="dom">
       <UniqueIdentifier>{5805739c-42a9-4242-ba28-74d5abb40b3c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_backend\objects\dom\window">
+      <UniqueIdentifier>{018902bc-d614-408e-82bf-a1916cf86da7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_backend\objects\dom\canvas">
+      <UniqueIdentifier>{84652264-0e3a-4bff-96e4-dc1e7fa061b6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

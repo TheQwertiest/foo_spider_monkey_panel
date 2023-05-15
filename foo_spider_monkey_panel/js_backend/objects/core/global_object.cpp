@@ -12,7 +12,7 @@
 #include <js_backend/objects/dom/console.h>
 #include <js_backend/objects/dom/enumerator.h>
 #include <js_backend/objects/dom/event.h>
-#include <js_backend/objects/dom/window_new.h>
+#include <js_backend/objects/dom/window/window_new.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/objects/fb2k/fb_playlist_manager.h>
 #include <js_backend/objects/fb2k/fb_profiler.h>

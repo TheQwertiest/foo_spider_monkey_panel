@@ -1,6 +1,6 @@
 #pragma once
 
-#include <js_backend/objects/dom/mouse_event.h>
+#include <js_backend/objects/dom/window/mouse_event.h>
 
 namespace mozjs
 {

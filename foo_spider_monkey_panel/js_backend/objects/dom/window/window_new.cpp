@@ -9,10 +9,10 @@
 #include <events/wheel_event.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
-#include <js_backend/objects/dom/keyboard_event.h>
-#include <js_backend/objects/dom/mouse_event.h>
-#include <js_backend/objects/dom/paint_event.h>
-#include <js_backend/objects/dom/wheel_event.h>
+#include <js_backend/objects/dom/window/keyboard_event.h>
+#include <js_backend/objects/dom/window/mouse_event.h>
+#include <js_backend/objects/dom/window/paint_event.h>
+#include <js_backend/objects/dom/window/wheel_event.h>
 #include <panel/panel_window.h>
 #include <panel/panel_window_graphics.h>
 
@@ -494,7 +494,9 @@ void WindowNew::HandlePaintEvent( JS::HandleObject self )
             JS::RootedObject jsEvent( pJsCtx_,
                                       mozjs::JsObjectBase<PaintEvent>::CreateJs(
                                           pJsCtx_,
-                                          gr ) );
+                                          gr,
+                                          pGraphics->GetWidth(),
+                                          pGraphics->GetHeight() ) );
             auto pNativeEvent = mozjs::JsObjectBase<PaintEvent>::ExtractNativeUnchecked( jsEvent );
             assert( pNativeEvent );
 

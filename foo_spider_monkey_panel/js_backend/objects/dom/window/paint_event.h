@@ -33,19 +33,21 @@ public:
     void ResetGraphics();
 
 public:
-    JSObject* get_Graphics();
+    JSObject* get_Canvas();
 
 protected:
-    [[nodiscard]] PaintEvent( JSContext* cx, Gdiplus::Graphics& graphics );
+    [[nodiscard]] PaintEvent( JSContext* cx, Gdiplus::Graphics& graphics, uint32_t width, uint32_t height );
     [[nodiscard]] size_t GetInternalSize();
 
 private:
-    static std::unique_ptr<PaintEvent> CreateNative( JSContext* cx, Gdiplus::Graphics& graphics );
+    static std::unique_ptr<PaintEvent> CreateNative( JSContext* cx, Gdiplus::Graphics& graphics, uint32_t width, uint32_t height );
 
 private:
     JSContext* pJsCtx_ = nullptr;
 
     Gdiplus::Graphics* pGraphics_ = nullptr;
+    uint32_t width_ = 0;
+    uint32_t height_ = 0;
 };
 
 } // namespace mozjs

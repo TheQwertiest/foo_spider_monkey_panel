@@ -5,6 +5,7 @@
 namespace mozjs
 {
 
+// TODO: think on naming
 using PostJsCreateFn = void ( * )( JSContext* cx, JS::HandleObject self );
 
 template <typename T>
