@@ -538,6 +538,9 @@
     <ClCompile Include="js_backend\objects\dom\canvas\window_canvas.cpp">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClCompile>
+    <ClCompile Include="dom\css_colours.cpp">
+      <Filter>dom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1167,6 +1170,9 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\canvas\window_canvas.h">
       <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="dom\css_colours.h">
+      <Filter>dom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

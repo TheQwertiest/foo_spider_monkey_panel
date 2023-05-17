@@ -7,7 +7,9 @@
 
 namespace Gdiplus
 {
+class Brush;
 class Graphics;
+class Pen;
 } // namespace Gdiplus
 
 namespace mozjs
@@ -41,7 +43,41 @@ public:
     void Reinitialize( Gdiplus::Graphics& graphics );
 
 public:
-    //
+    void FillRect( double x, double y, double width, double height );
+    void StrokeRect( double x, double y, double width, double height );
+
+    /*
+    DrawRect > strokeRect
+    FillSolidRect > fillRect
+
+    DrawRoundRect > strokeRect + lineCap
+    FillRoundRect > fillRect + lineCap
+
+    CalcTextHeight
+    CalcTextWidth
+    DrawEllipse
+    DrawImage
+    DrawLine
+    DrawPolygon
+    DrawString
+    EstimateLineWrap
+    FillEllipse
+    FillGradRect
+    FillPolygon
+    GdiAlphaBlend
+    GdiDrawBitmap
+    GdiDrawText
+    MeasureString
+    SetInterpolationMode
+    SetSmoothingMode
+    SetTextRenderingHint
+    */
+
+    // TODO: add support for other types
+    qwr::u8string get_FillStyle() const;
+    qwr::u8string get_StrokeStyle() const;
+    void put_FillStyle( const qwr::u8string& color );
+    void put_StrokeStyle( const qwr::u8string& color );
 
 private:
     [[nodiscard]] CanvasRenderingContext2d( JSContext* cx, Gdiplus::Graphics& graphics );
@@ -50,6 +86,8 @@ private:
     JSContext* pJsCtx_ = nullptr;
 
     smp::not_null<Gdiplus::Graphics*> pGraphics_;
+    std::unique_ptr<Gdiplus::SolidBrush> pFillBrush_;
+    std::unique_ptr<Gdiplus::Pen> pStrokePen_;
 };
 
 } // namespace mozjs
