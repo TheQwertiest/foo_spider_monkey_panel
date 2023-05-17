@@ -1174,6 +1174,9 @@
     <ClInclude Include="dom\css_colours.h">
       <Filter>dom</Filter>
     </ClInclude>
+    <ClInclude Include="dom\double_helpers.h">
+      <Filter>dom</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

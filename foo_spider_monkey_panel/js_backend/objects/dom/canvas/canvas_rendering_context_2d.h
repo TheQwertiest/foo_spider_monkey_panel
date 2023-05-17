@@ -75,8 +75,12 @@ public:
 
     // TODO: add support for other types
     qwr::u8string get_FillStyle() const;
+    qwr::u8string get_LineJoin() const;
+    double get_LineWidth() const;
     qwr::u8string get_StrokeStyle() const;
     void put_FillStyle( const qwr::u8string& color );
+    void put_LineJoin( const qwr::u8string& lineJoin );
+    void put_LineWidth( double lineWidth );
     void put_StrokeStyle( const qwr::u8string& color );
 
 private:

@@ -375,6 +375,7 @@
     <ClInclude Include="dom\css_colours.h" />
     <ClInclude Include="dom\dom_codes.h" />
     <ClInclude Include="dom\dom_keys.h" />
+    <ClInclude Include="dom\double_helpers.h" />
     <ClInclude Include="events\event_mouse.h" />
     <ClInclude Include="events\keyboard_event.h" />
     <ClInclude Include="events\wheel_event.h" />

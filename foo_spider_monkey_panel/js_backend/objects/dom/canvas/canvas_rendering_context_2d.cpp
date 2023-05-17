@@ -3,8 +3,11 @@
 #include "canvas_rendering_context_2d.h"
 
 #include <dom/css_colours.h>
+#include <dom/double_helpers.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <utils/gdi_error_helpers.h>
+
+#include <cmath>
 
 using namespace smp;
 
@@ -45,12 +48,18 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_FillStyle, mozjs::CanvasRenderingContext2d::get_FillStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_StrokeStyle, mozjs::CanvasRenderingContext2d::get_StrokeStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineJoin, mozjs::CanvasRenderingContext2d::get_LineJoin )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineWidth, mozjs::CanvasRenderingContext2d::get_LineWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_FillStyle, mozjs::CanvasRenderingContext2d::put_FillStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_StrokeStyle, mozjs::CanvasRenderingContext2d::put_StrokeStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineJoin, mozjs::CanvasRenderingContext2d::put_LineJoin )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineWidth, mozjs::CanvasRenderingContext2d::put_LineWidth )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSGS( "fillStyle", Get_FillStyle, Put_FillStyle, kDefaultPropsFlags ),
+        JS_PSGS( "lineJoin", Get_LineJoin, Put_LineJoin, kDefaultPropsFlags ),
+        JS_PSGS( "lineWidth", Get_LineWidth, Put_LineWidth, kDefaultPropsFlags ),
         JS_PSGS( "strokeStyle", Get_StrokeStyle, Put_StrokeStyle, kDefaultPropsFlags ),
         JS_PS_END,
     } );
@@ -99,6 +108,13 @@ void CanvasRenderingContext2d::Reinitialize( Gdiplus::Graphics& graphics )
 
 void CanvasRenderingContext2d::FillRect( double x, double y, double width, double height )
 {
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y )
+         || !smp::dom::IsValidDouble( width ) || !smp::dom::IsValidDouble( height )
+         || !width || !height )
+    {
+        return;
+    }
+
     assert( pGraphics_ );
 
     if ( width < 0 )
@@ -118,6 +134,12 @@ void CanvasRenderingContext2d::FillRect( double x, double y, double width, doubl
 
 void CanvasRenderingContext2d::StrokeRect( double x, double y, double width, double height )
 {
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y )
+         || !smp::dom::IsValidDouble( width ) || !smp::dom::IsValidDouble( height ) )
+    {
+        return;
+    }
+
     assert( pGraphics_ );
 
     if ( width < 0 )
@@ -144,6 +166,29 @@ qwr::u8string CanvasRenderingContext2d::get_FillStyle() const
     return smp::dom::ToCssColour( color );
 }
 
+qwr::u8string CanvasRenderingContext2d::get_LineJoin() const
+{
+    switch ( pStrokePen_->GetLineJoin() )
+    {
+    case Gdiplus::LineJoinMiter:
+        return "miter";
+    case Gdiplus::LineJoinBevel:
+        return "bevel";
+    case Gdiplus::LineJoinRound:
+        return "round";
+    default:
+    {
+        assert( false );
+        return "miter";
+    }
+    }
+}
+
+double CanvasRenderingContext2d::get_LineWidth() const
+{
+    return pStrokePen_->GetWidth();
+}
+
 qwr::u8string CanvasRenderingContext2d::get_StrokeStyle() const
 {
     Gdiplus::Color color{};
@@ -163,6 +208,43 @@ void CanvasRenderingContext2d::put_FillStyle( const qwr::u8string& color )
 
     auto gdiRet = pFillBrush_->SetColor( *gdiColourOpt );
     qwr::error::CheckGdi( gdiRet, "SetColor" );
+}
+
+void CanvasRenderingContext2d::put_LineJoin( const qwr::u8string& lineJoin )
+{
+    const auto gdiLineJoinOpt = [&]() -> std::optional<Gdiplus::LineJoin> {
+        if ( lineJoin == "bevel" )
+        {
+            return Gdiplus::LineJoin::LineJoinBevel;
+        }
+        if ( lineJoin == "round" )
+        {
+            return Gdiplus::LineJoin::LineJoinRound;
+        }
+        if ( lineJoin == "miter" )
+        {
+            return Gdiplus::LineJoin::LineJoinMiter;
+        }
+        return std::nullopt;
+    }();
+    if ( !gdiLineJoinOpt )
+    {
+        return;
+    }
+
+    auto gdiRet = pStrokePen_->SetLineJoin( *gdiLineJoinOpt );
+    qwr::error::CheckGdi( gdiRet, "SetLineJoin" );
+}
+
+void CanvasRenderingContext2d::put_LineWidth( double lineWidth )
+{
+    if ( !smp::dom::IsValidDouble( lineWidth ) || lineWidth <= 0 )
+    {
+        return;
+    }
+
+    auto gdiRet = pStrokePen_->SetWidth( static_cast<Gdiplus::REAL>( lineWidth ) );
+    qwr::error::CheckGdi( gdiRet, "SetWidth" );
 }
 
 void CanvasRenderingContext2d::put_StrokeStyle( const qwr::u8string& color )

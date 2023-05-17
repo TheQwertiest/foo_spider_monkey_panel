@@ -355,7 +355,7 @@ std::string ToCssColour( const Gdiplus::Color& colour )
                                 static_cast<uint8_t>( colour.GetR() ),
                                 static_cast<uint8_t>( colour.GetG() ),
                                 static_cast<uint8_t>( colour.GetB() ) )
-                 : fmt::format( "rgb({}, {}, {}, {:.3g})",
+                 : fmt::format( "rgb({}, {}, {}, {:.2g})",
                                 static_cast<uint8_t>( colour.GetR() ),
                                 static_cast<uint8_t>( colour.GetG() ),
                                 static_cast<uint8_t>( colour.GetB() ),
