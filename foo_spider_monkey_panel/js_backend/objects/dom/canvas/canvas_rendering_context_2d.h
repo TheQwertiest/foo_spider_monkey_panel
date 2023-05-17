@@ -47,40 +47,42 @@ public:
     void StrokeRect( double x, double y, double width, double height );
 
     /*
-    DrawRect > strokeRect
-    FillSolidRect > fillRect
-
-    DrawRoundRect > strokeRect + lineCap
-    FillRoundRect > fillRect + lineCap
-
-    CalcTextHeight
-    CalcTextWidth
     DrawEllipse
-    DrawImage
+    FillEllipse
     DrawLine
     DrawPolygon
-    DrawString
-    EstimateLineWrap
-    FillEllipse
-    FillGradRect
     FillPolygon
     GdiAlphaBlend
+
+    FillGradRect
+
     GdiDrawBitmap
+    DrawImage
+
+    DrawString
     GdiDrawText
+
+    EstimateLineWrap
+    CalcTextHeight
+    CalcTextWidth
     MeasureString
+
     SetInterpolationMode
     SetSmoothingMode
     SetTextRenderingHint
     */
 
-    // TODO: add support for other types
     qwr::u8string get_FillStyle() const;
+    double get_GlobalAlpha() const;
     qwr::u8string get_LineJoin() const;
     double get_LineWidth() const;
     qwr::u8string get_StrokeStyle() const;
+
     void put_FillStyle( const qwr::u8string& color );
+    void put_GlobalAlpha( double alpha );
     void put_LineJoin( const qwr::u8string& lineJoin );
     void put_LineWidth( double lineWidth );
+    // TODO: add support for other style types
     void put_StrokeStyle( const qwr::u8string& color );
 
 private:
@@ -92,6 +94,10 @@ private:
     smp::not_null<Gdiplus::Graphics*> pGraphics_;
     std::unique_ptr<Gdiplus::SolidBrush> pFillBrush_;
     std::unique_ptr<Gdiplus::Pen> pStrokePen_;
+
+    double globalAlpha_ = 1.0;
+    uint32_t originalFillColour_ = 0;
+    uint32_t originalStrokeColour_ = 0;
 };
 
 } // namespace mozjs

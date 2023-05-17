@@ -14,6 +14,17 @@ using namespace smp;
 namespace
 {
 
+auto ApplyAlpha( uint32_t colour, double alpha )
+{
+    const auto newAlpha = static_cast<uint8_t>( std::round( ( ( colour & 0xFF000000 ) >> ( 8 * 3 ) ) * alpha ) );
+    return ( ( colour & 0xFFFFFF ) | ( newAlpha << ( 8 * 3 ) ) );
+}
+
+} // namespace
+
+namespace
+{
+
 using namespace mozjs;
 
 JSClassOps jsOps = {
@@ -47,10 +58,12 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_FillStyle, mozjs::CanvasRenderingContext2d::get_FillStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_GlobalAlpha, mozjs::CanvasRenderingContext2d::get_GlobalAlpha )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_StrokeStyle, mozjs::CanvasRenderingContext2d::get_StrokeStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineJoin, mozjs::CanvasRenderingContext2d::get_LineJoin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineWidth, mozjs::CanvasRenderingContext2d::get_LineWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_FillStyle, mozjs::CanvasRenderingContext2d::put_FillStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Put_GlobalAlpha, mozjs::CanvasRenderingContext2d::put_GlobalAlpha )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_StrokeStyle, mozjs::CanvasRenderingContext2d::put_StrokeStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineJoin, mozjs::CanvasRenderingContext2d::put_LineJoin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineWidth, mozjs::CanvasRenderingContext2d::put_LineWidth )
@@ -58,6 +71,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineWidth, mozjs::CanvasRenderingContext2d::pu
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSGS( "fillStyle", Get_FillStyle, Put_FillStyle, kDefaultPropsFlags ),
+        JS_PSGS( "globalAlpha", Get_GlobalAlpha, Put_GlobalAlpha, kDefaultPropsFlags ),
         JS_PSGS( "lineJoin", Get_LineJoin, Put_LineJoin, kDefaultPropsFlags ),
         JS_PSGS( "lineWidth", Get_LineWidth, Put_LineWidth, kDefaultPropsFlags ),
         JS_PSGS( "strokeStyle", Get_StrokeStyle, Put_StrokeStyle, kDefaultPropsFlags ),
@@ -159,11 +173,12 @@ void CanvasRenderingContext2d::StrokeRect( double x, double y, double width, dou
 
 qwr::u8string CanvasRenderingContext2d::get_FillStyle() const
 {
-    Gdiplus::Color color{};
-    auto gdiRet = pFillBrush_->GetColor( &color );
-    qwr::error::CheckGdi( gdiRet, "GetColor" );
+    return smp::dom::ToCssColour( originalFillColour_ );
+}
 
-    return smp::dom::ToCssColour( color );
+double CanvasRenderingContext2d::get_GlobalAlpha() const
+{
+    return globalAlpha_;
 }
 
 qwr::u8string CanvasRenderingContext2d::get_LineJoin() const
@@ -191,11 +206,7 @@ double CanvasRenderingContext2d::get_LineWidth() const
 
 qwr::u8string CanvasRenderingContext2d::get_StrokeStyle() const
 {
-    Gdiplus::Color color{};
-    auto gdiRet = pStrokePen_->GetColor( &color );
-    qwr::error::CheckGdi( gdiRet, "GetColor" );
-
-    return smp::dom::ToCssColour( color );
+    return smp::dom::ToCssColour( originalStrokeColour_ );
 }
 
 void CanvasRenderingContext2d::put_FillStyle( const qwr::u8string& color )
@@ -206,7 +217,25 @@ void CanvasRenderingContext2d::put_FillStyle( const qwr::u8string& color )
         return;
     }
 
-    auto gdiRet = pFillBrush_->SetColor( *gdiColourOpt );
+    originalFillColour_ = gdiColourOpt->GetValue();
+
+    auto gdiRet = pFillBrush_->SetColor( ApplyAlpha( originalFillColour_, globalAlpha_ ) );
+    qwr::error::CheckGdi( gdiRet, "SetColor" );
+}
+
+void CanvasRenderingContext2d::put_GlobalAlpha( double alpha )
+{
+    if ( !smp::dom::IsValidDouble( alpha ) || alpha < 0 || alpha > 1 || globalAlpha_ == alpha )
+    {
+        return;
+    }
+
+    globalAlpha_ = alpha;
+
+    auto gdiRet = pFillBrush_->SetColor( ApplyAlpha( originalFillColour_, globalAlpha_ ) );
+    qwr::error::CheckGdi( gdiRet, "SetColor" );
+
+    gdiRet = pStrokePen_->SetColor( ApplyAlpha( originalStrokeColour_, globalAlpha_ ) );
     qwr::error::CheckGdi( gdiRet, "SetColor" );
 }
 
@@ -255,7 +284,9 @@ void CanvasRenderingContext2d::put_StrokeStyle( const qwr::u8string& color )
         return;
     }
 
-    auto gdiRet = pStrokePen_->SetColor( *gdiColourOpt );
+    originalStrokeColour_ = gdiColourOpt->GetValue();
+
+    auto gdiRet = pStrokePen_->SetColor( ApplyAlpha( originalStrokeColour_, globalAlpha_ ) );
     qwr::error::CheckGdi( gdiRet, "SetColor" );
 }
 
