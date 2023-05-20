@@ -6,7 +6,19 @@
 #include <js_backend/objects/dom/canvas/canvas_rendering_context_2d.h>
 #include <utils/gdi_error_helpers.h>
 
+#include <qwr/utility.h>
+
 using namespace smp;
+
+namespace
+{
+
+enum class ReservedSlots
+{
+    kRenderingContext = mozjs::kReservedObjectSlot + 1
+};
+
+}
 
 namespace
 {
@@ -29,11 +41,11 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "Canvas",
-    kDefaultClassFlags,
+    DefaultClassFlags( 1 ),
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetContext, Canvas::GetContext, Canvas::GetContextWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_AND_SELF( GetContext, Canvas::GetContext, Canvas::GetContextWithOpt, 1 );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
@@ -70,14 +82,12 @@ const JSNative JsObjectTraits<Canvas>::JsConstructor = ::Canvas_Constructor;
 
 Canvas::Canvas( JSContext* cx, int32_t width, int32_t height )
     : pJsCtx_( cx )
-    , heapHelper_( cx )
 {
     ReinitializeCanvas( width, height );
 }
 
 Canvas::~Canvas()
 {
-    heapHelper_.Finalize();
 }
 
 std::unique_ptr<Canvas>
@@ -86,7 +96,7 @@ Canvas::CreateNative( JSContext* cx, int32_t width, int32_t height )
     return std::unique_ptr<Canvas>( new Canvas( cx, width, height ) );
 }
 
-size_t Canvas::GetInternalSize()
+size_t Canvas::GetInternalSize() const
 {
     return sizeof( Gdiplus::Bitmap ) + pBitmap_->GetWidth() * pBitmap_->GetHeight() * Gdiplus::GetPixelFormatSize( pBitmap_->GetPixelFormat() ) / 8;
 }
@@ -96,35 +106,40 @@ JSObject* Canvas::Constructor( JSContext* cx, int32_t width, int32_t height )
     return JsObjectBase<Canvas>::CreateJs( cx, width, height );
 }
 
-JSObject* Canvas::GetContext( const std::wstring& contextType, JS::HandleValue attributes )
+JSObject* Canvas::GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes )
 {
     qwr::QwrException::ExpectTrue( contextType == L"2d", L"Unsupported contextType value: {}", contextType );
 
     // TODO: handle attributes
     // TODO: do smth to handle the case when Canvas is destroyed before render context
 
+    JS::RootedValue jsRenderingContextValue(
+        pJsCtx_,
+        JS::GetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kRenderingContext ) ) );
     JS::RootedObject jsRenderingContext( pJsCtx_ );
-    if ( !jsRenderingContextHeapIdOpt_ )
+    if ( jsRenderingContextValue.isUndefined() )
     {
-        jsRenderingContext = JsObjectBase<CanvasRenderingContext2d>::CreateJs( pJsCtx_, *pGraphics_ );
-        jsRenderingContextHeapIdOpt_ = heapHelper_.Store( jsRenderingContext );
+        jsRenderingContext = JsObjectBase<CanvasRenderingContext2D_Qwr>::CreateJs( pJsCtx_, *pGraphics_ );
+        JS_SetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kRenderingContext ), JS::ObjectValue( *jsRenderingContext ) );
+
+        pNativeRenderingContext_ = JsObjectBase<CanvasRenderingContext2D_Qwr>::ExtractNative( pJsCtx_, jsRenderingContext );
     }
     else
     {
-        jsRenderingContext.set( &heapHelper_.Get( *jsRenderingContextHeapIdOpt_ ).toObject() );
+        jsRenderingContext.set( &jsRenderingContextValue.toObject() );
     }
 
     return jsRenderingContext;
 }
 
-JSObject* Canvas::GetContextWithOpt( size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes )
+JSObject* Canvas::GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes )
 {
     switch ( optArgCount )
     {
     case 0:
-        return GetContext( contextType, attributes );
+        return GetContext( jsSelf, contextType, attributes );
     case 1:
-        return GetContext( contextType );
+        return GetContext( jsSelf, contextType );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -170,7 +185,6 @@ void Canvas::ReinitializeCanvas( int32_t width, int32_t height )
     pBitmap_ = std::move( pBitmap );
     pGraphics_ = std::move( pGraphics );
 
-    assert( !!pNativeRenderingContext_ == !!jsRenderingContextHeapIdOpt_ );
     if ( pNativeRenderingContext_ )
     {
         pNativeRenderingContext_->Reinitialize( *pGraphics_ );

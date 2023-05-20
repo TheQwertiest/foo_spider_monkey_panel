@@ -119,7 +119,7 @@ constexpr JSClass jsClass = {
 };
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( internalModuleLoad, JsGlobalObject::InternalLazyLoad )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL( includeScript, "include", JsGlobalObject::IncludeScript, JsGlobalObject::IncludeScriptWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_FULL( includeScript, "include", JsGlobalObject::IncludeScript, JsGlobalObject::IncludeScriptWithOpt, 1, false )
 MJS_DEFINE_JS_FN_FROM_NATIVE( clearInterval, JsGlobalObject::ClearInterval )
 MJS_DEFINE_JS_FN_FROM_NATIVE( clearTimeout, JsGlobalObject::ClearTimeout )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setInterval, JsGlobalObject::SetInterval, JsGlobalObject::SetIntervalWithOpt, 1 )

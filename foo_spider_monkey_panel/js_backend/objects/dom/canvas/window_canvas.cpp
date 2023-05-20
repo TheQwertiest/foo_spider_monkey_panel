@@ -6,7 +6,19 @@
 #include <js_backend/objects/dom/canvas/canvas_rendering_context_2d.h>
 #include <utils/gdi_error_helpers.h>
 
+#include <qwr/utility.h>
+
 using namespace smp;
+
+namespace
+{
+
+enum class ReservedSlots
+{
+    kRenderingContext = mozjs::kReservedObjectSlot + 1
+};
+
+}
 
 namespace
 {
@@ -29,11 +41,11 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "WindowCanvas",
-    kDefaultClassFlags,
+    DefaultClassFlags( 1 ),
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( GetContext, WindowCanvas::GetContext, WindowCanvas::GetContextWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_AND_SELF( GetContext, WindowCanvas::GetContext, WindowCanvas::GetContextWithOpt, 1 );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
@@ -65,7 +77,6 @@ const JsPrototypeId JsObjectTraits<WindowCanvas>::PrototypeId = JsPrototypeId::N
 
 WindowCanvas::WindowCanvas( JSContext* cx, Gdiplus::Graphics& graphics, uint32_t width, uint32_t height )
     : pJsCtx_( cx )
-    , heapHelper_( cx )
     , pGraphics_( &graphics )
     , width_( width )
     , height_( height )
@@ -74,7 +85,6 @@ WindowCanvas::WindowCanvas( JSContext* cx, Gdiplus::Graphics& graphics, uint32_t
 
 WindowCanvas::~WindowCanvas()
 {
-    heapHelper_.Finalize();
 }
 
 std::unique_ptr<WindowCanvas>
@@ -83,39 +93,44 @@ WindowCanvas::CreateNative( JSContext* cx, Gdiplus::Graphics& graphics, uint32_t
     return std::unique_ptr<WindowCanvas>( new WindowCanvas( cx, graphics, width, height ) );
 }
 
-size_t WindowCanvas::GetInternalSize()
+size_t WindowCanvas::GetInternalSize() const
 {
     return 0;
 }
 
-JSObject* WindowCanvas::GetContext( const std::wstring& contextType, JS::HandleValue attributes )
+JSObject* WindowCanvas::GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes )
 {
     qwr::QwrException::ExpectTrue( contextType == L"2d", L"Unsupported contextType value: {}", contextType );
 
     // TODO: handle attributes
 
+    JS::RootedValue jsRenderingContextValue(
+        pJsCtx_,
+        JS::GetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kRenderingContext ) ) );
     JS::RootedObject jsRenderingContext( pJsCtx_ );
-    if ( !jsRenderingContextHeapIdOpt_ )
+    if ( jsRenderingContextValue.isUndefined() )
     {
-        jsRenderingContext = JsObjectBase<CanvasRenderingContext2d>::CreateJs( pJsCtx_, *pGraphics_ );
-        jsRenderingContextHeapIdOpt_ = heapHelper_.Store( jsRenderingContext );
+        jsRenderingContext = JsObjectBase<CanvasRenderingContext2D_Qwr>::CreateJs( pJsCtx_, *pGraphics_ );
+        JS_SetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kRenderingContext ), JS::ObjectValue( *jsRenderingContext ) );
+
+        pNativeRenderingContext_ = JsObjectBase<CanvasRenderingContext2D_Qwr>::ExtractNative( pJsCtx_, jsRenderingContext );
     }
     else
     {
-        jsRenderingContext.set( &heapHelper_.Get( *jsRenderingContextHeapIdOpt_ ).toObject() );
+        jsRenderingContext.set( &jsRenderingContextValue.toObject() );
     }
 
     return jsRenderingContext;
 }
 
-JSObject* WindowCanvas::GetContextWithOpt( size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes )
+JSObject* WindowCanvas::GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes )
 {
     switch ( optArgCount )
     {
     case 0:
-        return GetContext( contextType, attributes );
+        return GetContext( jsSelf, contextType, attributes );
     case 1:
-        return GetContext( contextType );
+        return GetContext( jsSelf, contextType );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }

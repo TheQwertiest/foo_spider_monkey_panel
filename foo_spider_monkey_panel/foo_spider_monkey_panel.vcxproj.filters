@@ -541,6 +541,12 @@
     <ClCompile Include="dom\css_colours.cpp">
       <Filter>dom</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\canvas\canvas_gradient.cpp">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\canvas\utils\gradient_clamp.cpp">
+      <Filter>js_backend\objects\dom\canvas\utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1177,6 +1183,12 @@
     <ClInclude Include="dom\double_helpers.h">
       <Filter>dom</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\canvas_gradient.h">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\utils\gradient_clamp.h">
+      <Filter>js_backend\objects\dom\canvas\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1304,6 +1316,9 @@
     </Filter>
     <Filter Include="js_backend\objects\dom\canvas">
       <UniqueIdentifier>{84652264-0e3a-4bff-96e4-dc1e7fa061b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_backend\objects\dom\canvas\utils">
+      <UniqueIdentifier>{2a064993-04d4-4ff2-beb1-982d26ed6d24}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

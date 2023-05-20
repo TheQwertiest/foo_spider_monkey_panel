@@ -5,7 +5,7 @@
 namespace smp::dom
 {
 
-bool IsValidDouble( double value )
+inline bool IsValidDouble( double value )
 {
     return ( !std::isinf( value ) && !std::isnan( value ) );
 }

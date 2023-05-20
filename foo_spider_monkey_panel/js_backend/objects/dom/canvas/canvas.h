@@ -1,7 +1,6 @@
 #pragma once
 
 #include <js_backend/objects/core/object_base.h>
-#include <js_backend/utils/js_heap_helper.h>
 
 #include <js/TypeDecls.h>
 
@@ -15,7 +14,7 @@ namespace mozjs
 {
 
 class Canvas;
-class CanvasRenderingContext2d;
+class CanvasRenderingContext2D_Qwr;
 
 template <>
 struct JsObjectTraits<Canvas>
@@ -37,13 +36,13 @@ public:
     ~Canvas() override;
 
     [[nodiscard]] static std::unique_ptr<Canvas> CreateNative( JSContext* cx, int32_t width, int32_t height );
-    [[nodiscard]] size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize() const;
 
 public:
     static JSObject* Constructor( JSContext* cx, int32_t width, int32_t height );
 
-    JSObject* GetContext( const std::wstring& contextType, JS::HandleValue attributes = JS::UndefinedHandleValue );
-    JSObject* GetContextWithOpt( size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes );
+    JSObject* GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes = JS::UndefinedHandleValue );
+    JSObject* GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes );
 
     int32_t get_Height() const;
     int32_t get_Width() const;
@@ -57,13 +56,11 @@ private:
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    HeapHelper heapHelper_;
 
     std::unique_ptr<Gdiplus::Bitmap> pBitmap_;
     std::unique_ptr<Gdiplus::Graphics> pGraphics_;
 
-    std::optional<size_t> jsRenderingContextHeapIdOpt_;
-    CanvasRenderingContext2d* pNativeRenderingContext_ = nullptr;
+    CanvasRenderingContext2D_Qwr* pNativeRenderingContext_ = nullptr;
 };
 
 } // namespace mozjs
