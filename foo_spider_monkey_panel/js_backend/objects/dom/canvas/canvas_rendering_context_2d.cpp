@@ -12,6 +12,7 @@
 #include <qwr/utility.h>
 
 #include <cmath>
+#include <numbers>
 
 using namespace smp;
 
@@ -28,6 +29,21 @@ enum class ReservedSlots
 
 namespace
 {
+
+inline bool IsEpsilonEqual( float a, float b )
+{
+    return std::abs( a - b ) <= 1e-5;
+}
+
+inline bool IsEpsilonLess( float a, float b )
+{
+    return !IsEpsilonEqual( a, b ) && a < b;
+}
+
+inline bool IsEpsilonGreater( float a, float b )
+{
+    return !IsEpsilonEqual( a, b ) && a > b;
+}
 
 auto ApplyAlpha( uint32_t colour, double alpha )
 {
@@ -116,14 +132,26 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( BeginPath, CanvasRenderingContext2D_Qwr::BeginPath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreateLinearGradient, CanvasRenderingContext2D_Qwr::CreateLinearGradient );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Ellipse, CanvasRenderingContext2D_Qwr::Ellipse, CanvasRenderingContext2D_Qwr::EllipseWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Fill, CanvasRenderingContext2D_Qwr::Fill );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FillRect, CanvasRenderingContext2D_Qwr::FillRect );
+MJS_DEFINE_JS_FN_FROM_NATIVE( LineTo, CanvasRenderingContext2D_Qwr::LineTo );
+MJS_DEFINE_JS_FN_FROM_NATIVE( MoveTo, CanvasRenderingContext2D_Qwr::MoveTo );
+MJS_DEFINE_JS_FN_FROM_NATIVE( Stroke, CanvasRenderingContext2D_Qwr::Stroke );
 MJS_DEFINE_JS_FN_FROM_NATIVE( StrokeRect, CanvasRenderingContext2D_Qwr::StrokeRect );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
+        JS_FN( "beginPath", BeginPath, 0, kDefaultPropsFlags ),
         JS_FN( "createLinearGradient", CreateLinearGradient, 4, kDefaultPropsFlags ),
+        JS_FN( "ellipse", Ellipse, 7, kDefaultPropsFlags ),
+        JS_FN( "fill", Fill, 0, kDefaultPropsFlags ),
         JS_FN( "fillRect", FillRect, 4, kDefaultPropsFlags ),
+        JS_FN( "lineTo", LineTo, 2, kDefaultPropsFlags ),
+        JS_FN( "moveTo", MoveTo, 2, kDefaultPropsFlags ),
+        JS_FN( "stroke", Stroke, 0, kDefaultPropsFlags ),
         JS_FN( "strokeRect", StrokeRect, 4, kDefaultPropsFlags ),
         JS_FS_END,
     } );
@@ -169,9 +197,11 @@ CanvasRenderingContext2D_Qwr::CanvasRenderingContext2D_Qwr( JSContext* cx, Gdipl
     , pGraphics_( &graphics )
     , pFillBrush_( std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{} ) )
     , pStrokePen_( std::make_unique<Gdiplus::Pen>( Gdiplus ::Color{} ) )
+    , pGraphicsPath_( std::make_unique<Gdiplus::GraphicsPath>() )
 {
     qwr::error::CheckGdiPlusObject( pFillBrush_ );
     qwr::error::CheckGdiPlusObject( pStrokePen_ );
+    qwr::error::CheckGdiPlusObject( pGraphicsPath_ );
 }
 
 CanvasRenderingContext2D_Qwr::~CanvasRenderingContext2D_Qwr()
@@ -194,6 +224,14 @@ void CanvasRenderingContext2D_Qwr::Reinitialize( Gdiplus::Graphics& graphics )
     pGraphics_ = &graphics;
 }
 
+void CanvasRenderingContext2D_Qwr::BeginPath()
+{
+    auto gdiRet = pGraphicsPath_->Reset();
+    qwr::error::CheckGdi( gdiRet, "Reset" );
+
+    lastPathPosOpt_.reset();
+}
+
 JSObject* CanvasRenderingContext2D_Qwr::CreateLinearGradient( double x0, double y0, double x1, double y1 )
 {
     qwr::QwrException::ExpectTrue( smp::dom::IsValidDouble( x0 ) && smp::dom::IsValidDouble( y0 )
@@ -201,6 +239,137 @@ JSObject* CanvasRenderingContext2D_Qwr::CreateLinearGradient( double x0, double 
                                    "Coordinate is not a finite floating-point value" );
 
     return JsObjectBase<CanvasGradient_Qwr>::CreateJs( pJsCtx_, x0, y0, x1, y1 );
+}
+
+void CanvasRenderingContext2D_Qwr::Ellipse( double x, double y, double radiusX, double radiusY,
+                                            double rotation, double startAngle, double endAngle, bool counterclockwise )
+{
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y )
+         || !smp::dom::IsValidDouble( radiusX ) || !smp::dom::IsValidDouble( radiusY )
+         || !smp::dom::IsValidDouble( rotation )
+         || !smp::dom::IsValidDouble( startAngle ) || !smp::dom::IsValidDouble( endAngle ) )
+    {
+        return;
+    }
+
+    qwr::QwrException::ExpectTrue( radiusX > 0 && radiusY > 0, "Negative radius" );
+
+    const auto convertRadiansToDegrees = []( double radians ) {
+        auto degrees = ( radians * 180 / std::numbers::pi );
+        return static_cast<float>( degrees );
+    };
+
+    Gdiplus::PointF centerPoint{ static_cast<float>( x ), static_cast<float>( y ) };
+    const Gdiplus::RectF rect{
+        static_cast<float>( x - radiusX ),
+        static_cast<float>( y - radiusY ),
+        static_cast<float>( 2 * radiusX ),
+        static_cast<float>( 2 * radiusY )
+    };
+
+    const auto startAngleInDegrees = convertRadiansToDegrees( startAngle );
+    const auto endAngleInDegrees = convertRadiansToDegrees( endAngle );
+    const auto sweepAngleInDegrees = [&] {
+        // TODO: simplify
+        if ( !counterclockwise )
+        {
+            auto sweepAngleRaw = endAngleInDegrees - startAngleInDegrees;
+            if ( sweepAngleRaw > 360 )
+            { // yup, according to the spec, going backwards and exceeding 360 degrees is different
+                // from doing so when going backwards...
+                // https://html.spec.whatwg.org/multipage/canvas.html#dom-context-2d-ellipse
+                sweepAngleRaw = 360;
+            }
+            else if ( IsEpsilonLess( sweepAngleRaw, 0 ) )
+            {
+                sweepAngleRaw = std::fmodf( sweepAngleRaw, 360 );
+                sweepAngleRaw += 360;
+            }
+            return sweepAngleRaw;
+        }
+        else
+        {
+            auto sweepAngleRaw = startAngleInDegrees - endAngleInDegrees;
+            if ( sweepAngleRaw > 360 )
+            {
+                sweepAngleRaw = 360;
+            }
+            else if ( IsEpsilonLess( sweepAngleRaw, 0 ) )
+            {
+                sweepAngleRaw = std::fmodf( sweepAngleRaw, 360 );
+                sweepAngleRaw += 360;
+            }
+            return -sweepAngleRaw;
+        }
+    }();
+
+    auto pTmpGraphicsPath = std::make_unique<Gdiplus::GraphicsPath>();
+    qwr::error::CheckGdiPlusObject( pTmpGraphicsPath );
+
+    // TODO: AddArc fails when startAngleInDegrees == sweepAngleInDegrees,
+    // canvas API does not (and it sets last point at the corresponding angle)
+    auto gdiRet = pTmpGraphicsPath->AddArc( rect, startAngleInDegrees, sweepAngleInDegrees );
+    qwr::error::CheckGdi( gdiRet, "AddArc" );
+
+    if ( rotation )
+    {
+        Gdiplus::Matrix matrix;
+        gdiRet = matrix.RotateAt( convertRadiansToDegrees( rotation ), centerPoint );
+        qwr::error::CheckGdi( gdiRet, "RotateAt" );
+
+        gdiRet = pTmpGraphicsPath->Transform( &matrix );
+        qwr::error::CheckGdi( gdiRet, "Transform" );
+    }
+
+    gdiRet = pGraphicsPath_->AddPath( pTmpGraphicsPath.get(), true );
+    qwr::error::CheckGdi( gdiRet, "AddPath" );
+
+    Gdiplus::PointF lastPoint;
+    gdiRet = pGraphicsPath_->GetLastPoint( &lastPoint );
+    qwr::error::CheckGdi( gdiRet, "GetLastPoint" );
+
+    lastPathPosOpt_ = lastPoint;
+}
+
+void CanvasRenderingContext2D_Qwr::EllipseWithOpt( size_t optArgCount, double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterclockwise )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return Ellipse( x, y, radiusX, radiusY, rotation, startAngle, endAngle, counterclockwise );
+    case 1:
+        return Ellipse( x, y, radiusX, radiusY, rotation, startAngle, endAngle );
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
+}
+
+void CanvasRenderingContext2D_Qwr::Fill()
+{
+    if ( !lastPathPosOpt_ )
+    {
+        return;
+    }
+
+    const auto pGradientBrush = [&]() -> std::unique_ptr<Gdiplus::Brush> {
+        if ( !pFillGradient_ )
+        {
+            return nullptr;
+        }
+
+        Gdiplus::RectF bounds;
+        auto gdiRet = pGraphicsPath_->GetBounds( &bounds, nullptr, nullptr );
+        qwr::error::CheckGdi( gdiRet, "GetBounds" );
+
+        return GenerateLinearGradientBrush( pFillGradient_->GetGradientData(), RectToPoints( bounds ), globalAlpha_ );
+    }();
+    if ( pFillGradient_ && !pGradientBrush )
+    { // means that gradient data is empty
+        return;
+    }
+
+    auto gdiRet = pGraphics_->FillPath( ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ), pGraphicsPath_.get() );
+    qwr::error::CheckGdi( gdiRet, "FillPath" );
 }
 
 void CanvasRenderingContext2D_Qwr::FillRect( double x, double y, double w, double h )
@@ -211,8 +380,6 @@ void CanvasRenderingContext2D_Qwr::FillRect( double x, double y, double w, doubl
     {
         return;
     }
-
-    assert( pGraphics_ );
 
     if ( w < 0 )
     {
@@ -248,6 +415,68 @@ void CanvasRenderingContext2D_Qwr::FillRect( double x, double y, double w, doubl
     qwr::error::CheckGdi( gdiRet, "FillRectangle" );
 }
 
+void CanvasRenderingContext2D_Qwr::LineTo( double x, double y )
+{
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
+    {
+        return;
+    }
+
+    Gdiplus::PointF pointTo{ static_cast<float>( x ), static_cast<float>( y ) };
+    if ( !lastPathPosOpt_ )
+    {
+        lastPathPosOpt_.emplace( pointTo );
+    }
+
+    auto gdiRet = pGraphicsPath_->AddLine( *lastPathPosOpt_, pointTo );
+    qwr::error::CheckGdi( gdiRet, "AddLine" );
+
+    Gdiplus::PointF lastPoint;
+    gdiRet = pGraphicsPath_->GetLastPoint( &lastPoint );
+    qwr::error::CheckGdi( gdiRet, "GetLastPoint" );
+
+    lastPathPosOpt_ = pointTo;
+}
+
+void CanvasRenderingContext2D_Qwr::MoveTo( double x, double y )
+{
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
+    {
+        return;
+    }
+
+    BeginPath();
+    lastPathPosOpt_.emplace( static_cast<float>( x ), static_cast<float>( y ) );
+}
+
+void CanvasRenderingContext2D_Qwr::Stroke()
+{
+    if ( !lastPathPosOpt_ )
+    {
+        return;
+    }
+
+    const auto pGradientPen = [&]() -> std::unique_ptr<Gdiplus::Pen> {
+        if ( !pStrokeGradient_ )
+        {
+            return nullptr;
+        }
+
+        Gdiplus::RectF bounds;
+        auto gdiRet = pGraphicsPath_->GetBounds( &bounds, nullptr, nullptr );
+        qwr::error::CheckGdi( gdiRet, "GetBounds" );
+
+        return GenerateGradientStrokePen( RectToPoints( bounds ) );
+    }();
+    if ( pFillGradient_ && !pGradientPen )
+    { // means that gradient data is empty
+        return;
+    }
+
+    auto gdiRet = pGraphics_->DrawPath( ( pGradientPen ? pGradientPen.get() : pStrokePen_.get() ), pGraphicsPath_.get() );
+    qwr::error::CheckGdi( gdiRet, "DrawPath" );
+}
+
 void CanvasRenderingContext2D_Qwr::StrokeRect( double x, double y, double w, double h )
 {
     if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y )
@@ -255,8 +484,6 @@ void CanvasRenderingContext2D_Qwr::StrokeRect( double x, double y, double w, dou
     {
         return;
     }
-
-    assert( pGraphics_ );
 
     if ( w < 0 )
     {
@@ -282,21 +509,9 @@ void CanvasRenderingContext2D_Qwr::StrokeRect( double x, double y, double w, dou
             return nullptr;
         }
 
-        const auto pBrush = GenerateLinearGradientBrush( pStrokeGradient_->GetGradientData(), RectToPoints( rect ), globalAlpha_ );
-        if ( !pBrush )
-        {
-            return nullptr;
-        }
-
-        std::unique_ptr<Gdiplus::Pen> pPen( pStrokePen_->Clone() );
-        qwr::error::CheckGdiPlusObject( pPen );
-
-        auto gdiRet = pPen->SetBrush( pBrush.get() );
-        qwr::error::CheckGdi( gdiRet, "SetLineJoin" );
-
-        return pPen;
+        return GenerateGradientStrokePen( RectToPoints( rect ) );
     }();
-    if ( pFillGradient_ && !pGradientPen )
+    if ( pStrokeGradient_ && !pGradientPen )
     { // means that gradient data is empty
         return;
     }
@@ -532,6 +747,29 @@ void CanvasRenderingContext2D_Qwr::put_StrokeStyle( JS::HandleObject jsSelf, JS:
         {
         }
     }
+}
+
+std::unique_ptr<Gdiplus::Pen>
+CanvasRenderingContext2D_Qwr::GenerateGradientStrokePen( const std::vector<Gdiplus::PointF>& drawArea )
+{
+    if ( !pStrokeGradient_ )
+    {
+        return nullptr;
+    }
+
+    const auto pBrush = GenerateLinearGradientBrush( pStrokeGradient_->GetGradientData(), drawArea, globalAlpha_ );
+    if ( !pBrush )
+    {
+        return nullptr;
+    }
+
+    std::unique_ptr<Gdiplus::Pen> pPen( pStrokePen_->Clone() );
+    qwr::error::CheckGdiPlusObject( pPen );
+
+    auto gdiRet = pPen->SetBrush( pBrush.get() );
+    qwr::error::CheckGdi( gdiRet, "SetLineJoin" );
+
+    return pPen;
 }
 
 } // namespace mozjs

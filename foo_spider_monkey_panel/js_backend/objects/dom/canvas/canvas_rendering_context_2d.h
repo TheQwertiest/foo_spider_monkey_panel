@@ -5,10 +5,13 @@
 
 #include <js/TypeDecls.h>
 
+#include <optional>
+
 namespace Gdiplus
 {
 class Brush;
 class Graphics;
+class GraphicsPath;
 class Pen;
 } // namespace Gdiplus
 
@@ -43,20 +46,19 @@ public:
     void Reinitialize( Gdiplus::Graphics& graphics );
 
 public:
+    void BeginPath();
     JSObject* CreateLinearGradient( double x0, double y0, double x1, double y1 );
+    void Ellipse( double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterclockwise = false );
+    void EllipseWithOpt( size_t optArgCount, double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterclockwise );
+    void Fill();
     void FillRect( double x, double y, double w, double h );
+    void LineTo( double x, double y );
+    void MoveTo( double x, double y );
+    void Stroke();
     void StrokeRect( double x, double y, double w, double h );
 
     /*
-    DrawEllipse
-    FillEllipse
-    DrawLine
-    DrawPolygon
-    FillPolygon
     GdiAlphaBlend
-
-    FillGradRect
-
     GdiDrawBitmap
     DrawImage
 
@@ -80,17 +82,17 @@ public:
     double get_LineWidth() const;
     JS::Value get_StrokeStyle( JS::HandleObject jsSelf ) const;
 
-    // TODO: add support for other modes
     void put_GlobalCompositeOperation( const qwr::u8string& mode );
     void put_FillStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue );
     void put_GlobalAlpha( double alpha );
     void put_LineJoin( const qwr::u8string& lineJoin );
     void put_LineWidth( double lineWidth );
-    // TODO: add support for other style types
     void put_StrokeStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue );
 
 private:
     [[nodiscard]] CanvasRenderingContext2D_Qwr( JSContext* cx, Gdiplus::Graphics& graphics );
+
+    std::unique_ptr<Gdiplus::Pen> GenerateGradientStrokePen( const std::vector<Gdiplus::PointF>& drawArea );
 
 private:
     JSContext* pJsCtx_ = nullptr;
@@ -101,10 +103,15 @@ private:
     std::unique_ptr<Gdiplus::Pen> pStrokePen_;
 
     double globalAlpha_ = 1.0;
+
     uint32_t originalFillColour_ = 0;
     uint32_t originalStrokeColour_ = 0;
+
     CanvasGradient_Qwr* pFillGradient_ = nullptr;
     CanvasGradient_Qwr* pStrokeGradient_ = nullptr;
+
+    std::unique_ptr<Gdiplus::GraphicsPath> pGraphicsPath_;
+    std::optional<Gdiplus::PointF> lastPathPosOpt_;
 };
 
 } // namespace mozjs
