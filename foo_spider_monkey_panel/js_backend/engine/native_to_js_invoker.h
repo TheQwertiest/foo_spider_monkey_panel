@@ -7,6 +7,7 @@
 
 #include <optional>
 
+// TODO: move to convert/ instead?
 namespace mozjs::internal
 {
 

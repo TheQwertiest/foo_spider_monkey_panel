@@ -1,5 +1,6 @@
 #pragma once
 
+#include <dom/font_description.h>
 #include <js_backend/objects/core/object_base.h>
 #include <utils/not_null.h>
 
@@ -63,7 +64,7 @@ public:
     GdiDrawBitmap
     DrawImage
 
-    Font: fontName, pxSize, style
+    text-decorations: underline, strike
     Draw: SetAlignment, SetLineAlignment, SetTrimming, SetFormatFlags
     DrawString
     GdiDrawText
@@ -80,16 +81,18 @@ public:
 
     qwr::u8string get_GlobalCompositeOperation() const;
     JS::Value get_FillStyle( JS::HandleObject jsSelf ) const;
+    qwr::u8string get_Font();
     double get_GlobalAlpha() const;
     qwr::u8string get_LineJoin() const;
     double get_LineWidth() const;
     JS::Value get_StrokeStyle( JS::HandleObject jsSelf ) const;
 
-    void put_GlobalCompositeOperation( const qwr::u8string& mode );
+    void put_GlobalCompositeOperation( const qwr::u8string& value );
     void put_FillStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue );
-    void put_GlobalAlpha( double alpha );
-    void put_LineJoin( const qwr::u8string& lineJoin );
-    void put_LineWidth( double lineWidth );
+    void put_Font( const qwr::u8string& value );
+    void put_GlobalAlpha( double value );
+    void put_LineJoin( const qwr::u8string& value );
+    void put_LineWidth( double value );
     void put_StrokeStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue );
 
 private:
@@ -115,6 +118,8 @@ private:
 
     std::unique_ptr<Gdiplus::GraphicsPath> pGraphicsPath_;
     std::optional<Gdiplus::PointF> lastPathPosOpt_;
+
+    smp::dom::FontDescription fontDescription_;
 };
 
 } // namespace mozjs

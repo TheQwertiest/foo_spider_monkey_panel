@@ -176,6 +176,7 @@
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
     <ClCompile Include="dom\css_colours.cpp" />
+    <ClCompile Include="dom\css_fonts.cpp" />
     <ClCompile Include="dom\dom_codes.cpp" />
     <ClCompile Include="dom\dom_keys.cpp" />
     <ClCompile Include="events\event_mouse.cpp" />
@@ -332,6 +333,7 @@
     <ClCompile Include="utils\resource_helpers.cpp" />
     <ClCompile Include="utils\stackblur.cpp" />
     <ClCompile Include="utils\stacktrace.cpp" />
+    <ClCompile Include="utils\string_utils.cpp" />
     <ClCompile Include="utils\text_helpers.cpp" />
     <ClCompile Include="utils\thread_pool_instance.cpp" />
     <ClCompile Include="utils\zip_utils.cpp" />
@@ -375,9 +377,11 @@
     <ClInclude Include="convert\js_to_native.h" />
     <ClInclude Include="convert\native_to_js.h" />
     <ClInclude Include="dom\css_colours.h" />
+    <ClInclude Include="dom\css_fonts.h" />
     <ClInclude Include="dom\dom_codes.h" />
     <ClInclude Include="dom\dom_keys.h" />
     <ClInclude Include="dom\double_helpers.h" />
+    <ClInclude Include="dom\font_description.h" />
     <ClInclude Include="events\event_mouse.h" />
     <ClInclude Include="events\keyboard_event.h" />
     <ClInclude Include="events\wheel_event.h" />
@@ -550,6 +554,7 @@
     <ClInclude Include="utils\resource_helpers.h" />
     <ClInclude Include="utils\stackblur.h" />
     <ClInclude Include="utils\stacktrace.h" />
+    <ClInclude Include="utils\string_utils.h" />
     <ClInclude Include="utils\text_helpers.h" />
     <ClInclude Include="utils\thread_pool_instance.h" />
     <ClInclude Include="utils\zip_utils.h" />

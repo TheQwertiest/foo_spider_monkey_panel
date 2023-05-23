@@ -3,6 +3,7 @@
 #include "canvas_rendering_context_2d.h"
 
 #include <dom/css_colours.h>
+#include <dom/css_fonts.h>
 #include <dom/double_helpers.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/canvas/canvas_gradient.h>
@@ -157,12 +158,14 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Get_FillStyle, mozjs::CanvasRenderingContext2D_Qwr::get_FillStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Font, mozjs::CanvasRenderingContext2D_Qwr::get_Font )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_GlobalAlpha, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalAlpha )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_GlobalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Get_StrokeStyle, mozjs::CanvasRenderingContext2D_Qwr::get_StrokeStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineJoin, mozjs::CanvasRenderingContext2D_Qwr::get_LineJoin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineWidth, mozjs::CanvasRenderingContext2D_Qwr::get_LineWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Put_FillStyle, mozjs::CanvasRenderingContext2D_Qwr::put_FillStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Put_Font, mozjs::CanvasRenderingContext2D_Qwr::put_Font )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_GlobalAlpha, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalAlpha )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_GlobalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Put_StrokeStyle, mozjs::CanvasRenderingContext2D_Qwr::put_StrokeStyle )
@@ -172,6 +175,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineWidth, mozjs::CanvasRenderingContext2D_Qwr
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSGS( "fillStyle", Get_FillStyle, Put_FillStyle, kDefaultPropsFlags ),
+        JS_PSGS( "font", Get_Font, Put_Font, kDefaultPropsFlags ),
         JS_PSGS( "globalAlpha", Get_GlobalAlpha, Put_GlobalAlpha, kDefaultPropsFlags ),
         JS_PSGS( "globalCompositeOperation", Get_GlobalCompositeOperation, Put_GlobalCompositeOperation, kDefaultPropsFlags ),
         JS_PSGS( "lineJoin", Get_LineJoin, Put_LineJoin, kDefaultPropsFlags ),
@@ -554,6 +558,11 @@ JS::Value CanvasRenderingContext2D_Qwr::get_FillStyle( JS::HandleObject jsSelf )
     }
 }
 
+qwr::u8string CanvasRenderingContext2D_Qwr::get_Font()
+{
+    return fontDescription_.cssFont;
+}
+
 double CanvasRenderingContext2D_Qwr::get_GlobalAlpha() const
 {
     return globalAlpha_;
@@ -657,6 +666,17 @@ void CanvasRenderingContext2D_Qwr::put_FillStyle( JS::HandleObject jsSelf, JS::H
         {
         }
     }
+}
+
+void CanvasRenderingContext2D_Qwr::put_Font( const qwr::u8string& value )
+{
+    auto fontDescriptionOpt = smp::dom::FromCssFont( value );
+    if ( !fontDescriptionOpt )
+    {
+        return;
+    }
+
+    fontDescription_ = *fontDescriptionOpt;
 }
 
 void CanvasRenderingContext2D_Qwr::put_GlobalAlpha( double value )
