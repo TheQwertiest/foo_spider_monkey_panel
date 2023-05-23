@@ -28,6 +28,7 @@ struct JsObjectTraits<WindowCanvas>
     static const JsPrototypeId PrototypeId;
 };
 
+// TODO: remove, replace with getCanvasContext in window
 class WindowCanvas
     : public JsObjectBase<WindowCanvas>
 {

@@ -50,6 +50,7 @@ public:
     JSObject* CreateLinearGradient( double x0, double y0, double x1, double y1 );
     void Ellipse( double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterclockwise = false );
     void EllipseWithOpt( size_t optArgCount, double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterclockwise );
+    // TODO: Implement additional args (forgot to)
     void Fill();
     void FillRect( double x, double y, double w, double h );
     void LineTo( double x, double y );
@@ -62,6 +63,8 @@ public:
     GdiDrawBitmap
     DrawImage
 
+    Font: fontName, pxSize, style
+    Draw: SetAlignment, SetLineAlignment, SetTrimming, SetFormatFlags
     DrawString
     GdiDrawText
 

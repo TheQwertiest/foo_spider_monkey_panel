@@ -181,6 +181,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         utils::CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::Event );
         utils::CreateAndInstallPrototype<JsEventTarget>( cx, JsPrototypeId::EventTarget );
 
+        // TODO: remove
         CreateAndInstallObject<JsGdiUtils>( cx, jsObj, "gdi" );
         CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" );
         CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" );
@@ -336,6 +337,7 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             {
                 return initializeLoadedObject.template operator()<WindowNew>( moduleId );
             }
+            // TODO: add event module
             default:
                 assert( false );
                 return nullptr;
