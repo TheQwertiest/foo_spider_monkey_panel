@@ -36,11 +36,11 @@ enum class FontWeight : uint32_t
 struct FontDescription
 {
     // TODO: replace 'Arial' with sans-serif
-    std::string cssFont = "10px 'Arial'";
+    std::wstring cssFont = L"10px 'Arial'";
 
     // TODO: add fallback support
     // TODO: support generic family (use WhatFont or browser sources to determine which font)
-    std::string family = "Arial";
+    std::wstring family = L"Arial";
     double size = 10;
     FontSizeUnit sizeUnit = FontSizeUnit::px;
     FontStyle style = FontStyle::regular;

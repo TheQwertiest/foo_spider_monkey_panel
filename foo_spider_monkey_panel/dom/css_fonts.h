@@ -7,6 +7,6 @@
 namespace smp::dom
 {
 
-std::optional<FontDescription> FromCssFont( const std::string& cssFont );
+std::optional<FontDescription> FromCssFont( const std::wstring& cssFont );
 
 } // namespace smp::dom

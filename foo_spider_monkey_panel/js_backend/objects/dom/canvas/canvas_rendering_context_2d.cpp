@@ -26,7 +26,15 @@ enum class ReservedSlots
     kStrokeGradientSlot
 };
 
-}
+struct GdiPlusFontData
+{
+    std::unique_ptr<const Gdiplus::Font> pFont;
+    std::unique_ptr<const Gdiplus::FontFamily> pFontFamily;
+    float ascentHeight;
+    float lineHeight;
+};
+
+} // namespace
 
 namespace
 {
@@ -106,6 +114,81 @@ GenerateLinearGradientBrush( const mozjs::CanvasGradient_Qwr::GradientData& grad
     return pBrush;
 }
 
+/// @brief Replaces all new lines and tabs with spaces
+auto PrepareText( const std::wstring& text )
+{
+    auto cleanText = text;
+    for ( auto& ch: cleanText )
+    {
+        if ( ch == L'\t' || ch == L'\r' || ch == L'\n' )
+        {
+            ch = L' ';
+        }
+    }
+    return cleanText;
+}
+
+/// @throw qwr::QwrException
+const GdiPlusFontData& FetchGdiPlusFont( const smp::dom::FontDescription& fontDescription )
+{
+    // TODO: make cache size configurable?
+    // TODO: move to a separate file?
+    static std::unordered_map<std::wstring, GdiPlusFontData> cssStrToFontData;
+    if ( cssStrToFontData.contains( fontDescription.cssFont ) )
+    {
+        return cssStrToFontData.at( fontDescription.cssFont );
+    }
+
+    auto pFamily = std::make_unique<Gdiplus::FontFamily>( fontDescription.family.c_str() );
+    qwr::error::CheckGdiPlusObject( pFamily );
+
+    auto pFont = std::make_unique<Gdiplus::Font>(
+        pFamily.get(),
+        static_cast<float>( fontDescription.size ),
+        [&] {
+            const auto isBold = ( fontDescription.weight == qwr::to_underlying( smp::dom::FontWeight::bold ) );
+            switch ( fontDescription.style )
+            {
+            case smp::dom::FontStyle::regular:
+                return ( isBold ? Gdiplus::FontStyleBold : Gdiplus::FontStyleRegular );
+            case smp::dom::FontStyle::italic:
+                return ( isBold ? Gdiplus::FontStyleBoldItalic : Gdiplus::FontStyleItalic );
+            default:
+            {
+                assert( false );
+                return Gdiplus::FontStyleRegular;
+            }
+            }
+        }(),
+        [&] {
+            switch ( fontDescription.sizeUnit )
+            {
+            case smp::dom::FontSizeUnit::px:
+                return Gdiplus::UnitPixel;
+            default:
+            {
+                assert( false );
+                return Gdiplus::UnitPixel;
+            }
+            }
+        }() );
+    qwr::error::CheckGdiPlusObject( pFont );
+
+    // TODO: handle dpi and units here
+    const auto fontStyle = pFont->GetStyle();
+    const auto lineHeight = fontDescription.size * pFamily->GetLineSpacing( fontStyle ) / pFamily->GetEmHeight( fontStyle );
+    const auto ascentHeight = fontDescription.size * pFamily->GetCellAscent( fontStyle ) / pFamily->GetEmHeight( fontStyle );
+
+    const auto [it, isEmplaced] = cssStrToFontData.try_emplace(
+        fontDescription.cssFont,
+        GdiPlusFontData{
+            std::move( pFont ),
+            std::move( pFamily ),
+            static_cast<float>( static_cast<int>( ascentHeight + 0.5 ) ),
+            static_cast<float>( lineHeight ) } );
+    return it->second;
+}
+
 } // namespace
 
 namespace
@@ -138,10 +221,12 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( CreateLinearGradient, CanvasRenderingContext2D_Qwr
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Ellipse, CanvasRenderingContext2D_Qwr::Ellipse, CanvasRenderingContext2D_Qwr::EllipseWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( Fill, CanvasRenderingContext2D_Qwr::Fill );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FillRect, CanvasRenderingContext2D_Qwr::FillRect );
+MJS_DEFINE_JS_FN_FROM_NATIVE( FillText, CanvasRenderingContext2D_Qwr::FillText );
 MJS_DEFINE_JS_FN_FROM_NATIVE( LineTo, CanvasRenderingContext2D_Qwr::LineTo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MoveTo, CanvasRenderingContext2D_Qwr::MoveTo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( Stroke, CanvasRenderingContext2D_Qwr::Stroke );
 MJS_DEFINE_JS_FN_FROM_NATIVE( StrokeRect, CanvasRenderingContext2D_Qwr::StrokeRect );
+MJS_DEFINE_JS_FN_FROM_NATIVE( StrokeText, CanvasRenderingContext2D_Qwr::StrokeText );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
@@ -150,10 +235,12 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "ellipse", Ellipse, 7, kDefaultPropsFlags ),
         JS_FN( "fill", Fill, 0, kDefaultPropsFlags ),
         JS_FN( "fillRect", FillRect, 4, kDefaultPropsFlags ),
+        JS_FN( "fillText", FillText, 3, kDefaultPropsFlags ),
         JS_FN( "lineTo", LineTo, 2, kDefaultPropsFlags ),
         JS_FN( "moveTo", MoveTo, 2, kDefaultPropsFlags ),
         JS_FN( "stroke", Stroke, 0, kDefaultPropsFlags ),
         JS_FN( "strokeRect", StrokeRect, 4, kDefaultPropsFlags ),
+        JS_FN( "strokeText", StrokeText, 3, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -164,6 +251,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Get_GlobalCompositeOperation, mozjs::CanvasRenderi
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Get_StrokeStyle, mozjs::CanvasRenderingContext2D_Qwr::get_StrokeStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineJoin, mozjs::CanvasRenderingContext2D_Qwr::get_LineJoin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineWidth, mozjs::CanvasRenderingContext2D_Qwr::get_LineWidth )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_TextAlign, mozjs::CanvasRenderingContext2D_Qwr::get_TextAlign )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Get_TextBaseline, mozjs::CanvasRenderingContext2D_Qwr::get_TextBaseline )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Put_FillStyle, mozjs::CanvasRenderingContext2D_Qwr::put_FillStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_Font, mozjs::CanvasRenderingContext2D_Qwr::put_Font )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_GlobalAlpha, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalAlpha )
@@ -171,6 +260,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( Put_GlobalCompositeOperation, mozjs::CanvasRenderi
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Put_StrokeStyle, mozjs::CanvasRenderingContext2D_Qwr::put_StrokeStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineJoin, mozjs::CanvasRenderingContext2D_Qwr::put_LineJoin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineWidth, mozjs::CanvasRenderingContext2D_Qwr::put_LineWidth )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Put_TextAlign, mozjs::CanvasRenderingContext2D_Qwr::put_TextAlign )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Put_TextBaseline, mozjs::CanvasRenderingContext2D_Qwr::put_TextBaseline )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
@@ -181,6 +272,8 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
         JS_PSGS( "lineJoin", Get_LineJoin, Put_LineJoin, kDefaultPropsFlags ),
         JS_PSGS( "lineWidth", Get_LineWidth, Put_LineWidth, kDefaultPropsFlags ),
         JS_PSGS( "strokeStyle", Get_StrokeStyle, Put_StrokeStyle, kDefaultPropsFlags ),
+        JS_PSGS( "textAlign", Get_TextAlign, Put_TextAlign, kDefaultPropsFlags ),
+        JS_PSGS( "textBaseline", Get_TextBaseline, Put_TextBaseline, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
@@ -202,10 +295,12 @@ CanvasRenderingContext2D_Qwr::CanvasRenderingContext2D_Qwr( JSContext* cx, Gdipl
     , pFillBrush_( std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{} ) )
     , pStrokePen_( std::make_unique<Gdiplus::Pen>( Gdiplus ::Color{} ) )
     , pGraphicsPath_( std::make_unique<Gdiplus::GraphicsPath>() )
+    , genericTypographicFormat_( Gdiplus::StringFormat::GenericTypographic() )
 {
     qwr::error::CheckGdiPlusObject( pFillBrush_ );
     qwr::error::CheckGdiPlusObject( pStrokePen_ );
     qwr::error::CheckGdiPlusObject( pGraphicsPath_ );
+    qwr::error::CheckGdi( genericTypographicFormat_.GetLastStatus(), "GenericTypographic" );
 }
 
 CanvasRenderingContext2D_Qwr::~CanvasRenderingContext2D_Qwr()
@@ -419,6 +514,44 @@ void CanvasRenderingContext2D_Qwr::FillRect( double x, double y, double w, doubl
     qwr::error::CheckGdi( gdiRet, "FillRectangle" );
 }
 
+void CanvasRenderingContext2D_Qwr::FillText( const std::wstring& text, double x, double y )
+{
+    // TODO: implement DrawText for non complex cases
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
+    {
+        return;
+    }
+
+    auto cleanText = PrepareText( text );
+    const auto drawPoint = GenerateTextOriginPoint( text, x, y );
+    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_ );
+
+    const auto pGradientBrush = [&]() -> std::unique_ptr<Gdiplus::Brush> {
+        if ( !pFillGradient_ )
+        {
+            return nullptr;
+        }
+
+        Gdiplus::RectF bounds;
+        auto gdiRet = pGraphics_->MeasureString( cleanText.c_str(),
+                                                 cleanText.size(),
+                                                 gdiPlusFontData.pFont.get(),
+                                                 drawPoint,
+                                                 &genericTypographicFormat_,
+                                                 &bounds );
+        qwr::error::CheckGdi( gdiRet, "MeasureString" );
+
+        return GenerateLinearGradientBrush( pFillGradient_->GetGradientData(), RectToPoints( bounds ), globalAlpha_ );
+    }();
+    if ( pFillGradient_ && !pGradientBrush )
+    { // means that gradient data is empty
+        return;
+    }
+
+    auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), drawPoint, &genericTypographicFormat_, ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
+    qwr::error::CheckGdi( gdiRet, "DrawString" );
+}
+
 void CanvasRenderingContext2D_Qwr::LineTo( double x, double y )
 {
     if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
@@ -524,6 +657,51 @@ void CanvasRenderingContext2D_Qwr::StrokeRect( double x, double y, double w, dou
     qwr::error::CheckGdi( gdiRet, "DrawRectangle" );
 }
 
+void CanvasRenderingContext2D_Qwr::StrokeText( const std::wstring& text, double x, double y )
+{
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
+    {
+        return;
+    }
+
+    auto cleanText = PrepareText( text );
+
+    auto pGraphicsPath = std::make_unique<Gdiplus::GraphicsPath>();
+    qwr::error::CheckGdiPlusObject( pGraphicsPath );
+
+    const auto drawPoint = GenerateTextOriginPoint( text, x, y );
+    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_ );
+
+    auto gdiRet = pGraphicsPath->AddString( cleanText.c_str(),
+                                            cleanText.size(),
+                                            gdiPlusFontData.pFontFamily.get(),
+                                            gdiPlusFontData.pFont->GetStyle(),
+                                            gdiPlusFontData.pFont->GetSize(),
+                                            drawPoint,
+                                            &genericTypographicFormat_ );
+    qwr::error::CheckGdi( gdiRet, "AddString" );
+
+    const auto pGradientPen = [&]() -> std::unique_ptr<Gdiplus::Pen> {
+        if ( !pStrokeGradient_ )
+        {
+            return nullptr;
+        }
+
+        Gdiplus::RectF bounds;
+        auto gdiRet = pGraphicsPath->GetBounds( &bounds, nullptr, nullptr );
+        qwr::error::CheckGdi( gdiRet, "GetBounds" );
+
+        return GenerateGradientStrokePen( RectToPoints( bounds ) );
+    }();
+    if ( pStrokeGradient_ && !pGradientPen )
+    { // means that gradient data is empty
+        return;
+    }
+
+    gdiRet = pGraphics_->DrawPath( ( pGradientPen ? pGradientPen.get() : pStrokePen_.get() ), pGraphicsPath.get() );
+    qwr::error::CheckGdi( gdiRet, "DrawPath" );
+}
+
 qwr::u8string CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation() const
 {
     switch ( pGraphics_->GetCompositingMode() )
@@ -558,7 +736,7 @@ JS::Value CanvasRenderingContext2D_Qwr::get_FillStyle( JS::HandleObject jsSelf )
     }
 }
 
-qwr::u8string CanvasRenderingContext2D_Qwr::get_Font()
+std::wstring CanvasRenderingContext2D_Qwr::get_Font()
 {
     return fontDescription_.cssFont;
 }
@@ -608,6 +786,48 @@ JS::Value CanvasRenderingContext2D_Qwr::get_StrokeStyle( JS::HandleObject jsSelf
         JS::RootedValue jsValue( pJsCtx_ );
         mozjs::convert::to_js::ToValue( pJsCtx_, smp::dom::ToCssColour( originalStrokeColour_ ), &jsValue );
         return jsValue;
+    }
+}
+
+qwr::u8string CanvasRenderingContext2D_Qwr::get_TextAlign() const
+{
+    switch ( textAlign_ )
+    {
+    case TextAlign::start:
+        return "start";
+    case TextAlign::end:
+        return "end";
+    case TextAlign::left:
+        return "left";
+    case TextAlign::center:
+        return "center";
+    case TextAlign::right:
+        return "right";
+    default:
+    {
+        assert( false );
+        return "start";
+    }
+    }
+}
+
+qwr::u8string CanvasRenderingContext2D_Qwr::get_TextBaseline() const
+{
+    switch ( textBaseline_ )
+    {
+    case TextBaseline::top:
+        return "top";
+    case TextBaseline::middle:
+        return "middle";
+    case TextBaseline::bottom:
+        return "bottom";
+    case TextBaseline::alphabetic:
+        return "alphabetic";
+    default:
+    {
+        assert( false );
+        return "alphabetic";
+    }
     }
 }
 
@@ -668,7 +888,7 @@ void CanvasRenderingContext2D_Qwr::put_FillStyle( JS::HandleObject jsSelf, JS::H
     }
 }
 
-void CanvasRenderingContext2D_Qwr::put_Font( const qwr::u8string& value )
+void CanvasRenderingContext2D_Qwr::put_Font( const std::wstring& value )
 {
     auto fontDescriptionOpt = smp::dom::FromCssFont( value );
     if ( !fontDescriptionOpt )
@@ -769,6 +989,50 @@ void CanvasRenderingContext2D_Qwr::put_StrokeStyle( JS::HandleObject jsSelf, JS:
     }
 }
 
+void CanvasRenderingContext2D_Qwr::put_TextAlign( const qwr::u8string& value )
+{
+    if ( value == "start" )
+    {
+        textAlign_ = TextAlign::start;
+    }
+    else if ( value == "end" )
+    {
+        textAlign_ = TextAlign::end;
+    }
+    else if ( value == "left" )
+    {
+        textAlign_ = TextAlign::left;
+    }
+    else if ( value == "right" )
+    {
+        textAlign_ = TextAlign::right;
+    }
+    else if ( value == "center" )
+    {
+        textAlign_ = TextAlign::center;
+    }
+}
+
+void CanvasRenderingContext2D_Qwr::put_TextBaseline( const qwr::u8string& value )
+{
+    if ( value == "top" )
+    {
+        textBaseline_ = TextBaseline::top;
+    }
+    else if ( value == "middle" )
+    {
+        textBaseline_ = TextBaseline::middle;
+    }
+    else if ( value == "bottom" )
+    {
+        textBaseline_ = TextBaseline::bottom;
+    }
+    else if ( value == "alphabetic" )
+    {
+        textBaseline_ = TextBaseline::alphabetic;
+    }
+}
+
 std::unique_ptr<Gdiplus::Pen>
 CanvasRenderingContext2D_Qwr::GenerateGradientStrokePen( const std::vector<Gdiplus::PointF>& drawArea )
 {
@@ -790,6 +1054,52 @@ CanvasRenderingContext2D_Qwr::GenerateGradientStrokePen( const std::vector<Gdipl
     qwr::error::CheckGdi( gdiRet, "SetLineJoin" );
 
     return pPen;
+}
+
+Gdiplus::PointF CanvasRenderingContext2D_Qwr::GenerateTextOriginPoint( const std::wstring& text, double x, double y )
+{
+    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_ );
+
+    Gdiplus::PointF drawPoint{ static_cast<float>( x ), static_cast<float>( y ) };
+    if ( textBaseline_ == TextBaseline::alphabetic )
+    {
+        drawPoint.Y -= gdiPlusFontData.ascentHeight;
+    }
+    else
+    { // this is the only way I've found that makes it look the same as in browsers...
+        drawPoint.Y -= gdiPlusFontData.lineHeight / 2;
+        if ( textBaseline_ == TextBaseline::top )
+        {
+            drawPoint.Y -= static_cast<float>( fontDescription_.size / 2 );
+        }
+        else if ( textBaseline_ == TextBaseline::bottom )
+        {
+            drawPoint.Y += static_cast<float>( fontDescription_.size / 2 );
+        }
+    }
+
+    if ( textAlign_ != TextAlign::left && textAlign_ != TextAlign::start )
+    {
+        Gdiplus::RectF bounds;
+        auto gdiRet = pGraphics_->MeasureString( text.c_str(),
+                                                 text.size(),
+                                                 gdiPlusFontData.pFont.get(),
+                                                 drawPoint,
+                                                 &genericTypographicFormat_,
+                                                 &bounds );
+        qwr::error::CheckGdi( gdiRet, "MeasureString" );
+
+        if ( textAlign_ == TextAlign::right || textAlign_ == TextAlign::end )
+        {
+            drawPoint.X -= bounds.Width;
+        }
+        else if ( textAlign_ == TextAlign::center )
+        {
+            drawPoint.X -= bounds.Width / 2;
+        }
+    }
+
+    return drawPoint;
 }
 
 } // namespace mozjs

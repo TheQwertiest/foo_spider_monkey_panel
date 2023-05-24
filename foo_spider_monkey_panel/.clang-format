@@ -78,7 +78,6 @@ IndentWrappedFunctionNames: 'false'
 InsertNewlineAtEOF: 'true'
 LambdaBodyIndentation: Signature
 Language: Cpp
-LambdaBodyIndentation: OuterScope
 LineEnding: CRLF
 MacroBlockBegin: "^BEGIN_*"
 MacroBlockEnd: "^END_*"

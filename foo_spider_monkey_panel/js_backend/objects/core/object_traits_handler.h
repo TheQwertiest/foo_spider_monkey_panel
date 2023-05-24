@@ -51,19 +51,18 @@ public:
                 }
                 -> std::same_as<const JSClass&>;
             }, "Object must always define it's JS class" );
-
-        // TODO: report this bug to MS
+        // TODO: fails, since objects might have multiple CreateNative methods
         /*
         static_assert(
             requires {
-                ObjectT::CreateNative;
+                &ObjectT::CreateNative;
             }, "Object must define a factory method for itself" );
-
+            */
         static_assert(
             requires {
-                ObjectT::GetInternalSize;
+                &ObjectT::GetInternalSize;
             }, "Object must define a method that returns it's internal size" );
-            */
+
         if constexpr ( requires { TraitsT::JsFunctions; } )
         {
             static_assert( Trait_IsValidTypeJsFunctions(), "Invalid type of JsFunctions field" );

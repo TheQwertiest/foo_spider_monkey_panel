@@ -11,9 +11,11 @@
 namespace Gdiplus
 {
 class Brush;
+class Font;
 class Graphics;
 class GraphicsPath;
 class Pen;
+class StringFormat;
 } // namespace Gdiplus
 
 namespace mozjs
@@ -37,6 +39,23 @@ struct JsObjectTraits<CanvasRenderingContext2D_Qwr>
 class CanvasRenderingContext2D_Qwr
     : public JsObjectBase<CanvasRenderingContext2D_Qwr>
 {
+    enum class TextAlign
+    {
+        start,
+        end,
+        left,
+        center,
+        right,
+    };
+
+    enum class TextBaseline
+    {
+        top,
+        middle,
+        bottom,
+        alphabetic,
+    };
+
 public:
     ~CanvasRenderingContext2D_Qwr() override;
 
@@ -54,19 +73,23 @@ public:
     // TODO: Implement additional args (forgot to)
     void Fill();
     void FillRect( double x, double y, double w, double h );
+    void FillText( const std::wstring& text, double x, double y );
     void LineTo( double x, double y );
     void MoveTo( double x, double y );
     void Stroke();
     void StrokeRect( double x, double y, double w, double h );
+    void StrokeText( const std::wstring& text, double x, double y );
 
     /*
     GdiAlphaBlend
     GdiDrawBitmap
     DrawImage
 
-    text-decorations: underline, strike
+    FillTextEx:
+    - text-decorations: underline, strike
+    - overflow
+    - whitespace
     Draw: SetAlignment, SetLineAlignment, SetTrimming, SetFormatFlags
-    DrawString
     GdiDrawText
 
     EstimateLineWrap
@@ -81,32 +104,38 @@ public:
 
     qwr::u8string get_GlobalCompositeOperation() const;
     JS::Value get_FillStyle( JS::HandleObject jsSelf ) const;
-    qwr::u8string get_Font();
+    std::wstring get_Font();
     double get_GlobalAlpha() const;
     qwr::u8string get_LineJoin() const;
     double get_LineWidth() const;
     JS::Value get_StrokeStyle( JS::HandleObject jsSelf ) const;
+    qwr::u8string get_TextAlign() const;
+    qwr::u8string get_TextBaseline() const;
 
     void put_GlobalCompositeOperation( const qwr::u8string& value );
     void put_FillStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue );
-    void put_Font( const qwr::u8string& value );
+    void put_Font( const std::wstring& value );
     void put_GlobalAlpha( double value );
     void put_LineJoin( const qwr::u8string& value );
     void put_LineWidth( double value );
     void put_StrokeStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue );
+    void put_TextAlign( const qwr::u8string& value );
+    void put_TextBaseline( const qwr::u8string& value );
 
 private:
     [[nodiscard]] CanvasRenderingContext2D_Qwr( JSContext* cx, Gdiplus::Graphics& graphics );
 
     std::unique_ptr<Gdiplus::Pen> GenerateGradientStrokePen( const std::vector<Gdiplus::PointF>& drawArea );
+    Gdiplus::PointF GenerateTextOriginPoint( const std::wstring& text, double x, double y );
 
 private:
     JSContext* pJsCtx_ = nullptr;
 
     smp::not_null<Gdiplus::Graphics*> pGraphics_;
-
     std::unique_ptr<Gdiplus::SolidBrush> pFillBrush_;
     std::unique_ptr<Gdiplus::Pen> pStrokePen_;
+    std::unique_ptr<Gdiplus::GraphicsPath> pGraphicsPath_;
+    const Gdiplus::StringFormat genericTypographicFormat_;
 
     double globalAlpha_ = 1.0;
 
@@ -116,10 +145,11 @@ private:
     CanvasGradient_Qwr* pFillGradient_ = nullptr;
     CanvasGradient_Qwr* pStrokeGradient_ = nullptr;
 
-    std::unique_ptr<Gdiplus::GraphicsPath> pGraphicsPath_;
     std::optional<Gdiplus::PointF> lastPathPosOpt_;
 
     smp::dom::FontDescription fontDescription_;
+    TextAlign textAlign_ = TextAlign::start;
+    TextBaseline textBaseline_ = TextBaseline::alphabetic;
 };
 
 } // namespace mozjs

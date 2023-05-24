@@ -547,6 +547,12 @@
     <ClCompile Include="js_backend\objects\dom\canvas\utils\gradient_clamp.cpp">
       <Filter>js_backend\objects\dom\canvas\utils</Filter>
     </ClCompile>
+    <ClCompile Include="utils\string_utils.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="dom\css_fonts.cpp">
+      <Filter>dom</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1188,6 +1194,15 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\canvas\utils\gradient_clamp.h">
       <Filter>js_backend\objects\dom\canvas\utils</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\string_utils.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="dom\font_description.h">
+      <Filter>dom</Filter>
+    </ClInclude>
+    <ClInclude Include="dom\css_fonts.h">
+      <Filter>dom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

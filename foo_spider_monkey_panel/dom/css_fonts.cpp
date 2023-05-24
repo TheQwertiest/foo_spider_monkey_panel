@@ -24,13 +24,13 @@ enum class ComponentName
 namespace
 {
 
-std::optional<smp::dom::FontStyle> ParseStyle( std::string_view sv )
+std::optional<smp::dom::FontStyle> ParseStyle( std::wstring_view sv )
 {
-    if ( sv == "regular" )
+    if ( sv == L"regular" )
     {
         return smp::dom::FontStyle::regular;
     }
-    else if ( sv == "italic" )
+    else if ( sv == L"italic" )
     {
         return smp::dom::FontStyle::italic;
     }
@@ -40,13 +40,13 @@ std::optional<smp::dom::FontStyle> ParseStyle( std::string_view sv )
     }
 }
 
-std::optional<smp::dom::FontWeight> ParseWeight( std::string_view sv )
+std::optional<smp::dom::FontWeight> ParseWeight( std::wstring_view sv )
 {
-    if ( sv == "normal" )
+    if ( sv == L"normal" )
     {
         return smp::dom::FontWeight::regular;
     }
-    else if ( sv == "bold" )
+    else if ( sv == L"bold" )
     {
         return smp::dom::FontWeight::bold;
     }
@@ -56,13 +56,13 @@ std::optional<smp::dom::FontWeight> ParseWeight( std::string_view sv )
     }
 }
 
-std::optional<std::pair<double, smp::dom::FontSizeUnit>> ParseSize( std::string_view sv )
+std::optional<std::pair<double, smp::dom::FontSizeUnit>> ParseSize( std::wstring_view sv )
 {
     auto sizeUnit = smp::dom::FontSizeUnit::px;
-    if ( sv.ends_with( "px" ) )
+    if ( sv.ends_with( L"px" ) )
     {
         sizeUnit = smp::dom::FontSizeUnit::px;
-        sv.remove_suffix( std::size( "px" ) - 1 );
+        sv.remove_suffix( std::size( L"px" ) - 1 );
     }
     else
     {
@@ -83,10 +83,10 @@ std::optional<std::pair<double, smp::dom::FontSizeUnit>> ParseSize( std::string_
     return std::make_pair( *sizeOpt, sizeUnit );
 }
 
-std::optional<std::string> ParseFamily( std::string_view sv )
+std::optional<std::wstring> ParseFamily( std::wstring_view sv )
 {
-    if ( !( sv.starts_with( '\'' ) && sv.ends_with( '\'' ) )
-         && !( sv.starts_with( '"' ) && sv.ends_with( '"' ) ) )
+    if ( !( sv.starts_with( L'\'' ) && sv.ends_with( L'\'' ) )
+         && !( sv.starts_with( L'"' ) && sv.ends_with( L'"' ) ) )
     {
         return std::nullopt;
     }
@@ -94,7 +94,7 @@ std::optional<std::string> ParseFamily( std::string_view sv )
     sv.remove_suffix( 1 );
     sv.remove_prefix( 1 );
 
-    return std::string{ sv.data(), sv.size() };
+    return std::wstring{ sv.data(), sv.size() };
 }
 
 } // namespace
@@ -102,14 +102,14 @@ std::optional<std::string> ParseFamily( std::string_view sv )
 namespace smp::dom
 {
 
-std::optional<FontDescription> FromCssFont( const std::string& cssFont )
+std::optional<FontDescription> FromCssFont( const std::wstring& cssFont )
 {
     // TODO: add support for numerical weights
-    std::string_view sv{ cssFont };
+    std::wstring_view sv{ cssFont };
     str_utils::TrimWhitespace( sv );
 
     FontDescription fontDescription;
-    std::string cleanCssFont;
+    std::wstring cleanCssFont;
 
     // TODO: simplify
     // TODO: add sorting (style then weight)
@@ -117,7 +117,7 @@ std::optional<FontDescription> FromCssFont( const std::string& cssFont )
     std::unordered_set<ComponentName> parsedComponents;
     while ( !sv.empty() )
     {
-        if ( sv.starts_with( '\'' ) || sv.starts_with( '"' ) )
+        if ( sv.starts_with( L'\'' ) || sv.starts_with( L'"' ) )
         {
             if ( parsedComponents.contains( ComponentName::family ) )
             {
@@ -125,7 +125,7 @@ std::optional<FontDescription> FromCssFont( const std::string& cssFont )
             }
 
             auto pos = sv.find_first_of( sv[0], 1 );
-            auto component = sv.substr( 0, pos == std::string_view::npos ? pos : pos + 1 );
+            auto component = sv.substr( 0, pos == std::wstring_view::npos ? pos : pos + 1 );
             sv.remove_prefix( component.size() );
             str_utils::LeftTrimWhitespace( sv );
 
@@ -161,7 +161,7 @@ std::optional<FontDescription> FromCssFont( const std::string& cssFont )
 
             fontDescription.style = *styleOpt;
             cleanCssFont += component;
-            cleanCssFont += " ";
+            cleanCssFont += L" ";
             parsedComponents.emplace( ComponentName::style );
         }
         else if ( auto weightOpt = ParseWeight( component ) )
@@ -173,7 +173,7 @@ std::optional<FontDescription> FromCssFont( const std::string& cssFont )
 
             fontDescription.weight = qwr::to_underlying( *weightOpt );
             cleanCssFont += component;
-            cleanCssFont += " ";
+            cleanCssFont += L" ";
             parsedComponents.emplace( ComponentName::weight );
         }
         else if ( auto sizeDataOpt = ParseSize( component ) )
@@ -192,7 +192,7 @@ std::optional<FontDescription> FromCssFont( const std::string& cssFont )
             fontDescription.size = size;
             fontDescription.sizeUnit = sizeUnit;
             cleanCssFont += component;
-            cleanCssFont += " ";
+            cleanCssFont += L" ";
             parsedComponents.emplace( ComponentName::size );
         }
         else
