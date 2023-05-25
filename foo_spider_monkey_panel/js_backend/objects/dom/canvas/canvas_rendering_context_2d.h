@@ -56,6 +56,25 @@ class CanvasRenderingContext2D_Qwr
         alphabetic,
     };
 
+    struct FillTextExOptions
+    {
+        bool hasUnderline = false;
+        bool hasLineThrough = false;
+        bool shouldCollapseSpaces = true;
+        bool shouldCollapseNewLines = true;
+        bool shouldWrapText = true;
+        // visible, clip, ???
+        qwr::u8string overflow = "clip";
+        // normal, nowrap, pre, pre-wrap
+        qwr::u8string whiteSpace = "normal";
+        // clip, ellipsis, clip-char, ellipsis-char, ellipsis-path
+        qwr::u8string textOverflow = "clip";
+        // fast, stroke-compat
+        qwr::u8string renderMode = "alpha-support";
+        double width = 0;
+        double height = 0;
+    };
+
 public:
     ~CanvasRenderingContext2D_Qwr() override;
 
@@ -74,6 +93,8 @@ public:
     void Fill();
     void FillRect( double x, double y, double w, double h );
     void FillText( const std::wstring& text, double x, double y );
+    void FillTextEx( const std::wstring& text, double x, double y, JS::HandleValue options = JS::UndefinedHandleValue );
+    void FillTextExWithOpt( size_t optArgCount, const std::wstring& text, double x, double y, JS::HandleValue options );
     void LineTo( double x, double y );
     void MoveTo( double x, double y );
     void Stroke();
@@ -85,11 +106,6 @@ public:
     GdiDrawBitmap
     DrawImage
 
-    FillTextEx:
-    - text-decorations: underline, strike
-    - overflow
-    - whitespace
-    Draw: SetAlignment, SetLineAlignment, SetTrimming, SetFormatFlags
     GdiDrawText
 
     EstimateLineWrap
@@ -128,6 +144,11 @@ private:
     std::unique_ptr<Gdiplus::Pen> GenerateGradientStrokePen( const std::vector<Gdiplus::PointF>& drawArea );
     Gdiplus::PointF GenerateTextOriginPoint( const std::wstring& text, double x, double y );
 
+    FillTextExOptions ParseOptions_FillTextEx( JS::HandleValue options );
+    float GenerateTextOriginY_FillTextEx( const std::wstring& text, double y, const FillTextExOptions& options );
+    std::wstring PrepareText_FillTextEx( const std::wstring& text, const FillTextExOptions& options );
+    std::unique_ptr<Gdiplus::StringFormat> GenerateStringFormat_FillTextEx( const FillTextExOptions& options );
+
 private:
     JSContext* pJsCtx_ = nullptr;
 
@@ -135,7 +156,7 @@ private:
     std::unique_ptr<Gdiplus::SolidBrush> pFillBrush_;
     std::unique_ptr<Gdiplus::Pen> pStrokePen_;
     std::unique_ptr<Gdiplus::GraphicsPath> pGraphicsPath_;
-    const Gdiplus::StringFormat genericTypographicFormat_;
+    Gdiplus::StringFormat stringFormat_;
 
     double globalAlpha_ = 1.0;
 

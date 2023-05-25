@@ -8,13 +8,19 @@
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/canvas/canvas_gradient.h>
 #include <js_backend/objects/dom/canvas/utils/gradient_clamp.h>
+#include <js_backend/utils/js_property_helper.h>
 #include <utils/gdi_error_helpers.h>
+#include <utils/string_utils.h>
 
+#include <qwr/string_helpers.h>
 #include <qwr/utility.h>
 
 #include <cmath>
 #include <numbers>
+#include <string_view>
 
+namespace str_utils = smp::utils::string;
+using namespace std::literals;
 using namespace smp;
 
 namespace
@@ -129,14 +135,24 @@ auto PrepareText( const std::wstring& text )
 }
 
 /// @throw qwr::QwrException
-const GdiPlusFontData& FetchGdiPlusFont( const smp::dom::FontDescription& fontDescription )
+const GdiPlusFontData& FetchGdiPlusFont( const smp::dom::FontDescription& fontDescription, bool isUnderlined = false, bool isStrikeout = false )
 {
     // TODO: make cache size configurable?
     // TODO: move to a separate file?
-    static std::unordered_map<std::wstring, GdiPlusFontData> cssStrToFontData;
-    if ( cssStrToFontData.contains( fontDescription.cssFont ) )
+    auto cssFont = fontDescription.cssFont;
+    if ( isUnderlined )
     {
-        return cssStrToFontData.at( fontDescription.cssFont );
+        cssFont += L" underline";
+    }
+    if ( isStrikeout )
+    {
+        cssFont += L" line-through";
+    }
+
+    static std::unordered_map<std::wstring, GdiPlusFontData> cssStrToFontData;
+    if ( cssStrToFontData.contains( cssFont ) )
+    {
+        return cssStrToFontData.at( cssFont );
     }
 
     auto pFamily = std::make_unique<Gdiplus::FontFamily>( fontDescription.family.c_str() );
@@ -147,16 +163,25 @@ const GdiPlusFontData& FetchGdiPlusFont( const smp::dom::FontDescription& fontDe
         static_cast<float>( fontDescription.size ),
         [&] {
             const auto isBold = ( fontDescription.weight == qwr::to_underlying( smp::dom::FontWeight::bold ) );
+            int32_t style = 0;
+            if ( isUnderlined )
+            {
+                style |= Gdiplus::FontStyleUnderline;
+            }
+            if ( isStrikeout )
+            {
+                style |= Gdiplus::FontStyleStrikeout;
+            }
             switch ( fontDescription.style )
             {
             case smp::dom::FontStyle::regular:
-                return ( isBold ? Gdiplus::FontStyleBold : Gdiplus::FontStyleRegular );
+                return style | ( isBold ? Gdiplus::FontStyleBold : Gdiplus::FontStyleRegular );
             case smp::dom::FontStyle::italic:
-                return ( isBold ? Gdiplus::FontStyleBoldItalic : Gdiplus::FontStyleItalic );
+                return style | ( isBold ? Gdiplus::FontStyleBoldItalic : Gdiplus::FontStyleItalic );
             default:
             {
                 assert( false );
-                return Gdiplus::FontStyleRegular;
+                return qwr::to_underlying( Gdiplus::FontStyleRegular );
             }
             }
         }(),
@@ -180,7 +205,7 @@ const GdiPlusFontData& FetchGdiPlusFont( const smp::dom::FontDescription& fontDe
     const auto ascentHeight = fontDescription.size * pFamily->GetCellAscent( fontStyle ) / pFamily->GetEmHeight( fontStyle );
 
     const auto [it, isEmplaced] = cssStrToFontData.try_emplace(
-        fontDescription.cssFont,
+        cssFont,
         GdiPlusFontData{
             std::move( pFont ),
             std::move( pFamily ),
@@ -222,6 +247,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Ellipse, CanvasRenderingContext2D_Qwr::El
 MJS_DEFINE_JS_FN_FROM_NATIVE( Fill, CanvasRenderingContext2D_Qwr::Fill );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FillRect, CanvasRenderingContext2D_Qwr::FillRect );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FillText, CanvasRenderingContext2D_Qwr::FillText );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( FillTextEx, CanvasRenderingContext2D_Qwr::FillTextEx, CanvasRenderingContext2D_Qwr::FillTextExWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( LineTo, CanvasRenderingContext2D_Qwr::LineTo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MoveTo, CanvasRenderingContext2D_Qwr::MoveTo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( Stroke, CanvasRenderingContext2D_Qwr::Stroke );
@@ -236,6 +262,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "fill", Fill, 0, kDefaultPropsFlags ),
         JS_FN( "fillRect", FillRect, 4, kDefaultPropsFlags ),
         JS_FN( "fillText", FillText, 3, kDefaultPropsFlags ),
+        JS_FN( "fillTextEx", FillTextEx, 3, kDefaultPropsFlags ),
         JS_FN( "lineTo", LineTo, 2, kDefaultPropsFlags ),
         JS_FN( "moveTo", MoveTo, 2, kDefaultPropsFlags ),
         JS_FN( "stroke", Stroke, 0, kDefaultPropsFlags ),
@@ -295,12 +322,12 @@ CanvasRenderingContext2D_Qwr::CanvasRenderingContext2D_Qwr( JSContext* cx, Gdipl
     , pFillBrush_( std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{} ) )
     , pStrokePen_( std::make_unique<Gdiplus::Pen>( Gdiplus ::Color{} ) )
     , pGraphicsPath_( std::make_unique<Gdiplus::GraphicsPath>() )
-    , genericTypographicFormat_( Gdiplus::StringFormat::GenericTypographic() )
+    , stringFormat_( Gdiplus::StringFormat::GenericTypographic() )
 {
     qwr::error::CheckGdiPlusObject( pFillBrush_ );
     qwr::error::CheckGdiPlusObject( pStrokePen_ );
     qwr::error::CheckGdiPlusObject( pGraphicsPath_ );
-    qwr::error::CheckGdi( genericTypographicFormat_.GetLastStatus(), "GenericTypographic" );
+    qwr::error::CheckGdi( stringFormat_.GetLastStatus(), "GenericTypographic" );
 }
 
 CanvasRenderingContext2D_Qwr::~CanvasRenderingContext2D_Qwr()
@@ -537,7 +564,7 @@ void CanvasRenderingContext2D_Qwr::FillText( const std::wstring& text, double x,
                                                  cleanText.size(),
                                                  gdiPlusFontData.pFont.get(),
                                                  drawPoint,
-                                                 &genericTypographicFormat_,
+                                                 &stringFormat_,
                                                  &bounds );
         qwr::error::CheckGdi( gdiRet, "MeasureString" );
 
@@ -548,8 +575,96 @@ void CanvasRenderingContext2D_Qwr::FillText( const std::wstring& text, double x,
         return;
     }
 
-    auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), drawPoint, &genericTypographicFormat_, ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
+    auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), drawPoint, &stringFormat_, ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
     qwr::error::CheckGdi( gdiRet, "DrawString" );
+}
+
+void CanvasRenderingContext2D_Qwr::FillTextEx( const std::wstring& text, double x, double y, JS::HandleValue options )
+{
+    // TODO: cleanup
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
+    {
+        return;
+    }
+
+    const auto parsedOptions = ParseOptions_FillTextEx( options );
+    if ( !smp::dom::IsValidDouble( parsedOptions.width ) || !smp::dom::IsValidDouble( parsedOptions.height ) )
+    {
+        return;
+    }
+
+    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, parsedOptions.hasUnderline, parsedOptions.hasLineThrough );
+    const auto cleanText = PrepareText_FillTextEx( text, parsedOptions );
+
+    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, parsedOptions );
+    const Gdiplus::PointF drawPoint{ static_cast<float>( x ), drawPointY };
+    std::optional<Gdiplus::RectF> rectOpt;
+    if ( parsedOptions.width && parsedOptions.height )
+    {
+        rectOpt.emplace( static_cast<float>( x ),
+                         drawPointY,
+                         static_cast<float>( parsedOptions.width ),
+                         static_cast<float>( parsedOptions.height + ( drawPointY - y ) ) );
+    }
+
+    const auto pGradientBrush = [&]() -> std::unique_ptr<Gdiplus::Brush> {
+        if ( !pFillGradient_ )
+        {
+            return nullptr;
+        }
+
+        const auto rect = [&] {
+            if ( rectOpt )
+            {
+                return *rectOpt;
+            }
+            else
+            {
+                Gdiplus::RectF bounds;
+                auto gdiRet = pGraphics_->MeasureString( cleanText.c_str(),
+                                                         cleanText.size(),
+                                                         gdiPlusFontData.pFont.get(),
+                                                         drawPoint,
+                                                         &stringFormat_,
+                                                         &bounds );
+                qwr::error::CheckGdi( gdiRet, "MeasureString" );
+
+                return bounds;
+            }
+        }();
+
+        return GenerateLinearGradientBrush( pFillGradient_->GetGradientData(), RectToPoints( rect ), globalAlpha_ );
+    }();
+    if ( pFillGradient_ && !pGradientBrush )
+    { // means that gradient data is empty
+        return;
+    }
+
+    const auto pStringFormat = GenerateStringFormat_FillTextEx( parsedOptions );
+
+    if ( rectOpt )
+    {
+        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), *rectOpt, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
+        qwr::error::CheckGdi( gdiRet, "DrawString" );
+    }
+    else
+    {
+        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), drawPoint, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
+        qwr::error::CheckGdi( gdiRet, "DrawString" );
+    }
+}
+
+void CanvasRenderingContext2D_Qwr::FillTextExWithOpt( size_t optArgCount, const std::wstring& text, double x, double y, JS::HandleValue options )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return FillTextEx( text, x, y, options );
+    case 1:
+        return FillTextEx( text, x, y );
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
 }
 
 void CanvasRenderingContext2D_Qwr::LineTo( double x, double y )
@@ -678,7 +793,7 @@ void CanvasRenderingContext2D_Qwr::StrokeText( const std::wstring& text, double 
                                             gdiPlusFontData.pFont->GetStyle(),
                                             gdiPlusFontData.pFont->GetSize(),
                                             drawPoint,
-                                            &genericTypographicFormat_ );
+                                            &stringFormat_ );
     qwr::error::CheckGdi( gdiRet, "AddString" );
 
     const auto pGradientPen = [&]() -> std::unique_ptr<Gdiplus::Pen> {
@@ -1085,7 +1200,7 @@ Gdiplus::PointF CanvasRenderingContext2D_Qwr::GenerateTextOriginPoint( const std
                                                  text.size(),
                                                  gdiPlusFontData.pFont.get(),
                                                  drawPoint,
-                                                 &genericTypographicFormat_,
+                                                 &stringFormat_,
                                                  &bounds );
         qwr::error::CheckGdi( gdiRet, "MeasureString" );
 
@@ -1100,6 +1215,228 @@ Gdiplus::PointF CanvasRenderingContext2D_Qwr::GenerateTextOriginPoint( const std
     }
 
     return drawPoint;
+}
+
+CanvasRenderingContext2D_Qwr::FillTextExOptions
+CanvasRenderingContext2D_Qwr::ParseOptions_FillTextEx( JS::HandleValue options )
+{
+    if ( options.isNullOrUndefined() )
+    {
+        return {};
+    }
+
+    qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
+    JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
+
+    FillTextExOptions parsedOptions;
+
+    qwr::u8string textDecoration;
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "text-decoration", textDecoration );
+    qwr::u8string_view textDecorationSv{ textDecoration };
+
+    // TODO: move to constants
+    static const std::unordered_set<qwr::u8string_view> kKnownTextDecorationValues{
+        {
+            "none",
+            "underline",
+            "line-through",
+        }
+    };
+    std::unordered_set<qwr::u8string_view> textVisitedComponents;
+    for ( const auto& component: qwr::string::SplitView( textDecorationSv, " "sv ) )
+    {
+        if ( textVisitedComponents.contains( component ) || !kKnownTextDecorationValues.contains( component ) )
+        {
+            textVisitedComponents.clear();
+            break;
+        }
+        textVisitedComponents.emplace( component );
+    }
+    if ( !textVisitedComponents.contains( "none"sv ) )
+    {
+        parsedOptions.hasUnderline = textVisitedComponents.contains( "underline"sv );
+        parsedOptions.hasLineThrough = textVisitedComponents.contains( "line-through"sv );
+    }
+
+    qwr::u8string whiteSpace;
+    // TODO: move to constants
+    static const std::unordered_set<qwr::u8string> kKnownWhiteSpaceValues{
+        {
+            "normal",
+            "nowrap",
+            "pre-wrap",
+            "pre",
+        }
+    };
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "white-space", whiteSpace );
+    if ( kKnownWhiteSpaceValues.contains( whiteSpace ) )
+    {
+        parsedOptions.shouldCollapseNewLines = ( whiteSpace == "normal" || whiteSpace == "nowrap" );
+        parsedOptions.shouldCollapseSpaces = ( whiteSpace == "normal" || whiteSpace == "nowrap" );
+        parsedOptions.shouldWrapText = ( whiteSpace == "normal" || whiteSpace == "pre-wrap" );
+    }
+
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "overflow", parsedOptions.overflow );
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "text-overflow", parsedOptions.textOverflow );
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "renderMode", parsedOptions.renderMode );
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "width", parsedOptions.width );
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "height", parsedOptions.height );
+
+    if ( !parsedOptions.width || !parsedOptions.height )
+    {
+        parsedOptions.shouldWrapText = false;
+    }
+
+    return parsedOptions;
+}
+
+float CanvasRenderingContext2D_Qwr::GenerateTextOriginY_FillTextEx( const std::wstring& text, double y, const FillTextExOptions& options )
+{
+    // TODO: deduplicate/clean up
+    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_ );
+
+    auto drawPointY = static_cast<float>( y );
+    if ( textBaseline_ == TextBaseline::alphabetic )
+    {
+        if ( options.height && options.width )
+        {
+            if ( !options.shouldWrapText )
+            {
+                drawPointY -= gdiPlusFontData.ascentHeight;
+                drawPointY += static_cast<float>( options.height );
+            }
+        }
+        else
+        {
+            drawPointY -= gdiPlusFontData.ascentHeight;
+        }
+    }
+
+    return drawPointY;
+}
+
+std::wstring CanvasRenderingContext2D_Qwr::PrepareText_FillTextEx( const std::wstring& text, const FillTextExOptions& options )
+{
+    auto cleanText = text;
+    for ( auto& ch: cleanText )
+    {
+        if ( ch == L'\t' && options.shouldCollapseSpaces )
+        {
+            ch = L' ';
+        }
+        if ( ( ch == L'\r' || ch == L'\n' ) && options.shouldCollapseNewLines )
+        {
+            ch = L' ';
+        }
+    }
+
+    if ( options.shouldCollapseSpaces || options.shouldCollapseNewLines )
+    {
+        auto it = std::unique( cleanText.begin(), cleanText.end(), []( wchar_t a, wchar_t b ) { return ( a == b ) && ( a == L' ' ); } );
+        cleanText.erase( it, cleanText.end() );
+    }
+
+    return cleanText;
+}
+
+std::unique_ptr<Gdiplus::StringFormat>
+CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExOptions& options )
+{
+    auto pStringFormat = std::make_unique<Gdiplus::StringFormat>( &stringFormat_ );
+    qwr::error::CheckGdiPlusObject( pStringFormat );
+
+    auto stringFormatValue = pStringFormat->GetFormatFlags();
+    if ( options.shouldWrapText )
+    {
+        stringFormatValue &= ~Gdiplus::StringFormatFlagsNoWrap;
+    }
+    else
+    {
+        stringFormatValue |= Gdiplus::StringFormatFlagsNoWrap;
+    }
+    if ( options.overflow == "visible" )
+    {
+        stringFormatValue |= Gdiplus::StringFormatFlagsNoClip;
+    }
+    else
+    {
+        stringFormatValue &= ~Gdiplus::StringFormatFlagsNoClip;
+    }
+    stringFormatValue &= ~Gdiplus::StringFormatFlagsLineLimit;
+
+    auto gdiRet = pStringFormat->SetFormatFlags( stringFormatValue );
+    qwr::error::CheckGdi( gdiRet, "SetFormatFlags" );
+
+    const auto trimmingFlag = [&] {
+        if ( options.textOverflow == "ellipsis" )
+        {
+            return Gdiplus::StringTrimmingEllipsisWord;
+        }
+        else if ( options.textOverflow == "ellipsis-char" )
+        {
+            return Gdiplus::StringTrimmingEllipsisCharacter;
+        }
+        else if ( options.textOverflow == "clip-char" )
+        {
+            return Gdiplus::StringTrimmingCharacter;
+        }
+        else
+        {
+            if ( options.overflow == "visible" )
+            {
+                return Gdiplus::StringTrimmingNone;
+            }
+            else
+            {
+                return Gdiplus::StringTrimmingWord;
+            }
+        }
+    }();
+    gdiRet = pStringFormat->SetTrimming( trimmingFlag );
+    qwr::error::CheckGdi( gdiRet, "SetTrimming" );
+
+    const auto lineAlign = [&] {
+        switch ( textBaseline_ )
+        {
+        case TextBaseline::top:
+        case TextBaseline::alphabetic:
+            return Gdiplus::StringAlignmentNear;
+        case TextBaseline::middle:
+            return Gdiplus::StringAlignmentCenter;
+        case TextBaseline::bottom:
+            return Gdiplus::StringAlignmentFar;
+        default:
+        {
+            assert( false );
+            return Gdiplus::StringAlignmentNear;
+        }
+        }
+    }();
+    gdiRet = pStringFormat->SetLineAlignment( lineAlign );
+    qwr::error::CheckGdi( gdiRet, "SetLineAlignment" );
+
+    const auto align = [&] {
+        switch ( textAlign_ )
+        {
+        case TextAlign::start:
+        case TextAlign::left:
+            return Gdiplus::StringAlignmentNear;
+        case TextAlign::end:
+        case TextAlign::right:
+            return Gdiplus::StringAlignmentFar;
+        case TextAlign::center:
+            return Gdiplus::StringAlignmentCenter;
+        default:
+        {
+            assert( false );
+            return Gdiplus::StringAlignmentNear;
+        }
+        }
+    }();
+    gdiRet = pStringFormat->SetAlignment( align );
+    qwr::error::CheckGdi( gdiRet, "SetAlignment" );
+
+    return pStringFormat;
 }
 
 } // namespace mozjs
