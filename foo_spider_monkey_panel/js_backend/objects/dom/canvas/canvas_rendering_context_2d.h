@@ -67,10 +67,10 @@ class CanvasRenderingContext2D_Qwr
         bool shouldClipByRect = true;
         // normal, nowrap, pre, pre-wrap
         qwr::u8string whiteSpace = "normal";
-        // clip, ellipsis, clip-char, ellipsis-char, ellipsis-path
+        // clip, ellipsis, clip-char, ellipsis-char
         qwr::u8string textOverflow = "clip";
         // fast, stroke-compat
-        qwr::u8string renderMode = "alpha-support";
+        qwr::u8string renderMode = "alpha-compat";
         double width = 0;
         double height = 0;
     };
@@ -106,9 +106,6 @@ public:
     GdiDrawBitmap
     DrawImage
 
-    GdiDrawText
-
-    EstimateLineWrap
     CalcTextHeight
     CalcTextWidth
     MeasureString
@@ -145,16 +142,20 @@ private:
     Gdiplus::PointF GenerateTextOriginPoint( const std::wstring& text, double x, double y );
 
     FillTextExOptions ParseOptions_FillTextEx( JS::HandleValue options );
-    float GenerateTextOriginY_FillTextEx( const std::wstring& text, double y, const FillTextExOptions& options );
+    float GenerateTextOriginY_FillTextEx( const std::wstring& text, double y, double ascentHeight, const FillTextExOptions& options );
     std::wstring PrepareText_FillTextEx( const std::wstring& text, const FillTextExOptions& options );
     std::unique_ptr<Gdiplus::StringFormat> GenerateStringFormat_FillTextEx( const FillTextExOptions& options );
-    void Draw_FillTextEx_String( const std::wstring& text, double x, double y, const FillTextExOptions& options );
-    void Draw_FillTextEx_Path( const std::wstring& text, double x, double y, const FillTextExOptions& options );
+    int32_t GenerateStringFormat_GdiEx_FillTextEx( const FillTextExOptions& options );
+    int32_t GenerateStringFormat_Gdi_FillTextEx( const FillTextExOptions& options );
+    void DrawString_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options );
+    void DrawPath_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options );
+    void DrawGdiString_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options );
 
 private:
     JSContext* pJsCtx_ = nullptr;
 
     smp::not_null<Gdiplus::Graphics*> pGraphics_;
+
     std::unique_ptr<Gdiplus::SolidBrush> pFillBrush_;
     std::unique_ptr<Gdiplus::Pen> pStrokePen_;
     std::unique_ptr<Gdiplus::GraphicsPath> pGraphicsPath_;

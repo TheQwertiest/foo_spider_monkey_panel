@@ -9,11 +9,15 @@
 #include <js_backend/objects/dom/canvas/canvas_gradient.h>
 #include <js_backend/objects/dom/canvas/utils/gradient_clamp.h>
 #include <js_backend/utils/js_property_helper.h>
+#include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
+#include <utils/gdi_helpers.h>
 #include <utils/string_utils.h>
 
+#include <qwr/final_action.h>
 #include <qwr/string_helpers.h>
 #include <qwr/utility.h>
+#include <qwr/winapi_error_helpers.h>
 
 #include <cmath>
 #include <numbers>
@@ -38,6 +42,13 @@ struct GdiPlusFontData
     std::unique_ptr<const Gdiplus::FontFamily> pFontFamily;
     float ascentHeight;
     float lineHeight;
+};
+
+struct GdiFontData
+{
+    std::unique_ptr<CFont> pFont;
+    int32_t ascentHeight;
+    int32_t lineHeight;
 };
 
 } // namespace
@@ -211,6 +222,63 @@ const GdiPlusFontData& FetchGdiPlusFont( const smp::dom::FontDescription& fontDe
             std::move( pFamily ),
             static_cast<float>( static_cast<int>( ascentHeight + 0.5 ) ),
             static_cast<float>( lineHeight ) } );
+    return it->second;
+}
+
+/// @throw qwr::QwrException
+const GdiFontData& FetchGdiFont( Gdiplus::Graphics& graphics, const smp::dom::FontDescription& fontDescription, bool isUnderlined = false, bool isStrikeout = false )
+{
+    auto cssFont = fontDescription.cssFont;
+    if ( isUnderlined )
+    {
+        cssFont += L" underline";
+    }
+    if ( isStrikeout )
+    {
+        cssFont += L" line-through";
+    }
+
+    // TODO: replace with lru cache and make size configurable
+    static std::unordered_map<std::wstring, GdiFontData> cssStrToFontData;
+    if ( cssStrToFontData.contains( cssFont ) )
+    {
+        return cssStrToFontData.at( cssFont );
+    }
+
+    auto pFont = std::make_unique<CFont>();
+    auto hFont = pFont->CreateFontW( -static_cast<int>( fontDescription.size ),
+                                     0,
+                                     0,
+                                     0,
+                                     fontDescription.weight,
+                                     fontDescription.style == smp::dom::FontStyle::italic,
+                                     isUnderlined,
+                                     isStrikeout,
+                                     DEFAULT_CHARSET,
+                                     OUT_DEFAULT_PRECIS,
+                                     CLIP_DEFAULT_PRECIS,
+                                     DEFAULT_QUALITY,
+                                     DEFAULT_PITCH | FF_DONTCARE,
+                                     fontDescription.family.c_str() );
+    qwr::error::CheckWinApi( !!hFont, "CreateFontW" );
+
+    const auto hDc = graphics.GetHDC();
+    qwr::final_action autoHdcReleaser( [&] { graphics.ReleaseHDC( hDc ); } );
+    smp::gdi::ObjectSelector autoFont( hDc, hFont );
+
+    TEXTMETRICW metrics{};
+    auto iRet = ::GetTextMetricsW( hDc, &metrics );
+    qwr::error::CheckWinApi( iRet, "GetTextMetricsW" );
+
+    const auto lineHeight = metrics.tmAscent + metrics.tmInternalLeading + metrics.tmExternalLeading + metrics.tmDescent;
+    const auto ascentHeight = metrics.tmAscent;
+
+    const auto [it, isEmplaced] = cssStrToFontData.try_emplace(
+        cssFont,
+        GdiFontData{
+            std::move( pFont ),
+            static_cast<int32_t>( ascentHeight ),
+            static_cast<int32_t>( lineHeight ) } );
     return it->second;
 }
 
@@ -553,7 +621,7 @@ void CanvasRenderingContext2D_Qwr::FillText( const std::wstring& text, double x,
     options.shouldCollapseSpaces = true;
     options.shouldUseCanvasCollapseRules = true;
 
-    Draw_FillTextEx_String( text, x, y, options );
+    DrawString_FillTextEx( text, x, y, options );
 }
 
 void CanvasRenderingContext2D_Qwr::FillTextEx( const std::wstring& text, double x, double y, JS::HandleValue options )
@@ -569,13 +637,17 @@ void CanvasRenderingContext2D_Qwr::FillTextEx( const std::wstring& text, double 
         return;
     }
 
-    if ( parsedOptions.renderMode == "stroke-compat" )
+    if ( parsedOptions.renderMode == "clarity" )
     {
-        Draw_FillTextEx_Path( text, x, y, parsedOptions );
+        DrawGdiString_FillTextEx( text, x, y, parsedOptions );
+    }
+    else if ( parsedOptions.renderMode == "stroke-compat" )
+    {
+        DrawPath_FillTextEx( text, x, y, parsedOptions );
     }
     else
     {
-        Draw_FillTextEx_String( text, x, y, parsedOptions );
+        DrawString_FillTextEx( text, x, y, parsedOptions );
     }
 }
 
@@ -645,7 +717,7 @@ void CanvasRenderingContext2D_Qwr::Stroke()
 
         return GenerateGradientStrokePen( RectToPoints( bounds ) );
     }();
-    if ( pFillGradient_ && !pGradientPen )
+    if ( pStrokeGradient_ && !pGradientPen )
     { // means that gradient data is empty
         return;
     }
@@ -1221,29 +1293,26 @@ CanvasRenderingContext2D_Qwr::ParseOptions_FillTextEx( JS::HandleValue options )
     return parsedOptions;
 }
 
-float CanvasRenderingContext2D_Qwr::GenerateTextOriginY_FillTextEx( const std::wstring& text, double y, const FillTextExOptions& options )
+float CanvasRenderingContext2D_Qwr::GenerateTextOriginY_FillTextEx( const std::wstring& text, double y, double ascentHeight, const FillTextExOptions& options )
 {
-    // TODO: deduplicate/clean up
-    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_ );
-
-    auto drawPointY = static_cast<float>( y );
+    auto drawPointY = y;
     if ( textBaseline_ == TextBaseline::alphabetic )
     {
         if ( options.height && options.width )
         {
             if ( !options.shouldWrapText )
             {
-                drawPointY -= gdiPlusFontData.ascentHeight;
-                drawPointY += static_cast<float>( options.height );
+                drawPointY -= ascentHeight;
+                drawPointY += options.height;
             }
         }
         else
         {
-            drawPointY -= gdiPlusFontData.ascentHeight;
+            drawPointY -= ascentHeight;
         }
     }
 
-    return drawPointY;
+    return static_cast<float>( drawPointY );
 }
 
 std::wstring CanvasRenderingContext2D_Qwr::PrepareText_FillTextEx( const std::wstring& text, const FillTextExOptions& options )
@@ -1370,12 +1439,148 @@ CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExO
     return pStringFormat;
 }
 
-void CanvasRenderingContext2D_Qwr::Draw_FillTextEx_String( const std::wstring& text, double x, double y, const FillTextExOptions& options )
+int32_t CanvasRenderingContext2D_Qwr::GenerateStringFormat_GdiEx_FillTextEx( const FillTextExOptions& options )
+{
+    int32_t stringFormat = DT_NOPREFIX;
+
+    switch ( textAlign_ )
+    {
+    case TextAlign::start:
+    case TextAlign::left:
+    {
+        stringFormat |= DT_LEFT;
+        break;
+    }
+    case TextAlign::end:
+    case TextAlign::right:
+    {
+        stringFormat |= DT_RIGHT;
+        break;
+    }
+    case TextAlign::center:
+    {
+        stringFormat |= DT_CENTER;
+        break;
+    }
+    default:
+    {
+        assert( false );
+        stringFormat |= DT_LEFT;
+    }
+    }
+
+    switch ( textBaseline_ )
+    {
+    case TextBaseline::top:
+    case TextBaseline::alphabetic:
+    {
+        stringFormat |= DT_TOP;
+        break;
+    }
+    case TextBaseline::middle:
+    {
+        stringFormat |= DT_VCENTER;
+        break;
+    }
+    case TextBaseline::bottom:
+    {
+        stringFormat |= DT_BOTTOM;
+        break;
+    }
+    default:
+    {
+        assert( false );
+        stringFormat |= DT_TOP;
+    }
+    }
+
+    if ( !options.shouldClipByRect )
+    {
+        stringFormat |= DT_NOCLIP;
+    }
+
+    if ( options.shouldWrapText )
+    {
+        stringFormat |= DT_WORDBREAK | DT_EDITCONTROL;
+    }
+
+    if ( options.textOverflow == "ellipsis" )
+    {
+        stringFormat |= DT_WORD_ELLIPSIS;
+    }
+    else if ( options.textOverflow == "ellipsis-char" )
+    {
+        stringFormat |= DT_END_ELLIPSIS;
+    }
+
+    return stringFormat;
+}
+
+int32_t CanvasRenderingContext2D_Qwr::GenerateStringFormat_Gdi_FillTextEx( const FillTextExOptions& options )
+{
+    int32_t stringFormat = TA_NOUPDATECP;
+
+    switch ( textAlign_ )
+    {
+    case TextAlign::start:
+    case TextAlign::left:
+    {
+        stringFormat |= TA_LEFT;
+        break;
+    }
+    case TextAlign::end:
+    case TextAlign::right:
+    {
+        stringFormat |= TA_RIGHT;
+        break;
+    }
+    case TextAlign::center:
+    {
+        stringFormat |= TA_CENTER;
+        break;
+    }
+    default:
+    {
+        assert( false );
+        stringFormat |= TA_LEFT;
+    }
+    }
+
+    switch ( textBaseline_ )
+    {
+    case TextBaseline::top:
+    case TextBaseline::alphabetic:
+    {
+        stringFormat |= TA_TOP;
+        break;
+    }
+    case TextBaseline::middle:
+    {
+        // TODO: fix this
+        stringFormat |= TA_TOP;
+        break;
+    }
+    case TextBaseline::bottom:
+    {
+        stringFormat |= TA_BOTTOM;
+        break;
+    }
+    default:
+    {
+        assert( false );
+        stringFormat |= TA_TOP;
+    }
+    }
+
+    return stringFormat;
+}
+
+void CanvasRenderingContext2D_Qwr::DrawString_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options )
 {
     const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, options.hasUnderline, options.hasLineThrough );
     const auto cleanText = PrepareText_FillTextEx( text, options );
 
-    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, options );
+    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, gdiPlusFontData.ascentHeight, options );
     const Gdiplus::PointF drawPoint{ static_cast<float>( x ), drawPointY };
     std::optional<Gdiplus::RectF> rectOpt;
     if ( options.width && options.height )
@@ -1432,12 +1637,12 @@ void CanvasRenderingContext2D_Qwr::Draw_FillTextEx_String( const std::wstring& t
     }
 }
 
-void CanvasRenderingContext2D_Qwr::Draw_FillTextEx_Path( const std::wstring& text, double x, double y, const FillTextExOptions& options )
+void CanvasRenderingContext2D_Qwr::DrawPath_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options )
 {
     const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, options.hasUnderline, options.hasLineThrough );
     const auto cleanText = PrepareText_FillTextEx( text, options );
 
-    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, options );
+    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, gdiPlusFontData.ascentHeight, options );
     const Gdiplus::PointF drawPoint{ static_cast<float>( x ), drawPointY };
     std::optional<Gdiplus::RectF> rectOpt;
     if ( options.width && options.height )
@@ -1505,6 +1710,58 @@ void CanvasRenderingContext2D_Qwr::Draw_FillTextEx_Path( const std::wstring& tex
 
     auto gdiRet = pGraphics_->FillPath( ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ), pGraphicsPath.get() );
     qwr::error::CheckGdi( gdiRet, "FillPath" );
+}
+
+void CanvasRenderingContext2D_Qwr::DrawGdiString_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options )
+{
+    const auto& gdiFontData = FetchGdiFont( *pGraphics_, fontDescription_, options.hasUnderline, options.hasLineThrough );
+    const auto cleanText = PrepareText_FillTextEx( text, options );
+
+    const auto iX = static_cast<int32_t>( x );
+    auto iY = static_cast<int32_t>( GenerateTextOriginY_FillTextEx( text, y, gdiFontData.ascentHeight, options ) );
+
+    std::optional<RECT> rectOpt;
+    if ( options.width && options.height )
+    {
+        rectOpt.emplace( iX,
+                         iY,
+                         iX + static_cast<int32_t>( options.width ),
+                         iY + static_cast<int32_t>( options.height + ( iY - y ) ) );
+    }
+
+    const auto hDc = pGraphics_->GetHDC();
+    qwr::final_action autoHdcReleaser( [&] { pGraphics_->ReleaseHDC( hDc ); } );
+    smp::gdi::ObjectSelector autoFont( hDc, gdiFontData.pFont->m_hFont );
+
+    Gdiplus::Color clr;
+    auto gdiRet = pFillBrush_->GetColor( &clr );
+    qwr::error::CheckGdi( gdiRet, "GetColor" );
+
+    ::SetTextColor( hDc, smp::colour::ArgbToColorref( clr.GetValue() ) );
+
+    auto iRet = ::SetBkMode( hDc, TRANSPARENT );
+    qwr::error::CheckWinApi( iRet != CLR_INVALID, "SetBkMode" );
+
+    if ( rectOpt )
+    {
+        const auto stringFormat = GenerateStringFormat_GdiEx_FillTextEx( options );
+
+        auto uRet = ::SetTextAlign( hDc, TA_LEFT | TA_TOP | TA_NOUPDATECP );
+        qwr::error::CheckWinApi( uRet != GDI_ERROR, "SetTextAlign" );
+
+        iRet = ::DrawTextEx( hDc, const_cast<wchar_t*>( cleanText.c_str() ), cleanText.size(), &*rectOpt, stringFormat, nullptr );
+        qwr::error::CheckWinApi( iRet, "DrawTextEx" );
+    }
+    else
+    {
+        const auto stringFormat = GenerateStringFormat_Gdi_FillTextEx( options );
+
+        auto uRet = ::SetTextAlign( hDc, stringFormat );
+        qwr::error::CheckWinApi( uRet != GDI_ERROR, "SetTextAlign" );
+
+        iRet = ::TextOutW( hDc, iX, iY, const_cast<wchar_t*>( cleanText.c_str() ), cleanText.size() );
+        qwr::error::CheckWinApi( iRet, "TextOutW" );
+    }
 }
 
 } // namespace mozjs
