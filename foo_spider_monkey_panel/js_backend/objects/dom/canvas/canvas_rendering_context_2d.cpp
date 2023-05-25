@@ -543,45 +543,21 @@ void CanvasRenderingContext2D_Qwr::FillRect( double x, double y, double w, doubl
 
 void CanvasRenderingContext2D_Qwr::FillText( const std::wstring& text, double x, double y )
 {
-    // TODO: implement DrawText for non complex cases
     if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
     {
         return;
     }
 
-    auto cleanText = PrepareText( text );
-    const auto drawPoint = GenerateTextOriginPoint( text, x, y );
-    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_ );
+    FillTextExOptions options;
+    options.shouldCollapseNewLines = true;
+    options.shouldCollapseSpaces = true;
+    options.shouldUseCanvasCollapseRules = true;
 
-    const auto pGradientBrush = [&]() -> std::unique_ptr<Gdiplus::Brush> {
-        if ( !pFillGradient_ )
-        {
-            return nullptr;
-        }
-
-        Gdiplus::RectF bounds;
-        auto gdiRet = pGraphics_->MeasureString( cleanText.c_str(),
-                                                 cleanText.size(),
-                                                 gdiPlusFontData.pFont.get(),
-                                                 drawPoint,
-                                                 &stringFormat_,
-                                                 &bounds );
-        qwr::error::CheckGdi( gdiRet, "MeasureString" );
-
-        return GenerateLinearGradientBrush( pFillGradient_->GetGradientData(), RectToPoints( bounds ), globalAlpha_ );
-    }();
-    if ( pFillGradient_ && !pGradientBrush )
-    { // means that gradient data is empty
-        return;
-    }
-
-    auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), drawPoint, &stringFormat_, ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
-    qwr::error::CheckGdi( gdiRet, "DrawString" );
+    Draw_FillTextEx_String( text, x, y, options );
 }
 
 void CanvasRenderingContext2D_Qwr::FillTextEx( const std::wstring& text, double x, double y, JS::HandleValue options )
 {
-    // TODO: cleanup
     if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
     {
         return;
@@ -593,64 +569,13 @@ void CanvasRenderingContext2D_Qwr::FillTextEx( const std::wstring& text, double 
         return;
     }
 
-    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, parsedOptions.hasUnderline, parsedOptions.hasLineThrough );
-    const auto cleanText = PrepareText_FillTextEx( text, parsedOptions );
-
-    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, parsedOptions );
-    const Gdiplus::PointF drawPoint{ static_cast<float>( x ), drawPointY };
-    std::optional<Gdiplus::RectF> rectOpt;
-    if ( parsedOptions.width && parsedOptions.height )
+    if ( parsedOptions.renderMode == "stroke-compat" )
     {
-        rectOpt.emplace( static_cast<float>( x ),
-                         drawPointY,
-                         static_cast<float>( parsedOptions.width ),
-                         static_cast<float>( parsedOptions.height + ( drawPointY - y ) ) );
-    }
-
-    const auto pGradientBrush = [&]() -> std::unique_ptr<Gdiplus::Brush> {
-        if ( !pFillGradient_ )
-        {
-            return nullptr;
-        }
-
-        const auto rect = [&] {
-            if ( rectOpt )
-            {
-                return *rectOpt;
-            }
-            else
-            {
-                Gdiplus::RectF bounds;
-                auto gdiRet = pGraphics_->MeasureString( cleanText.c_str(),
-                                                         cleanText.size(),
-                                                         gdiPlusFontData.pFont.get(),
-                                                         drawPoint,
-                                                         &stringFormat_,
-                                                         &bounds );
-                qwr::error::CheckGdi( gdiRet, "MeasureString" );
-
-                return bounds;
-            }
-        }();
-
-        return GenerateLinearGradientBrush( pFillGradient_->GetGradientData(), RectToPoints( rect ), globalAlpha_ );
-    }();
-    if ( pFillGradient_ && !pGradientBrush )
-    { // means that gradient data is empty
-        return;
-    }
-
-    const auto pStringFormat = GenerateStringFormat_FillTextEx( parsedOptions );
-
-    if ( rectOpt )
-    {
-        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), *rectOpt, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
-        qwr::error::CheckGdi( gdiRet, "DrawString" );
+        Draw_FillTextEx_Path( text, x, y, parsedOptions );
     }
     else
     {
-        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), drawPoint, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
-        qwr::error::CheckGdi( gdiRet, "DrawString" );
+        Draw_FillTextEx_String( text, x, y, parsedOptions );
     }
 }
 
@@ -1276,9 +1201,15 @@ CanvasRenderingContext2D_Qwr::ParseOptions_FillTextEx( JS::HandleValue options )
         parsedOptions.shouldWrapText = ( whiteSpace == "normal" || whiteSpace == "pre-wrap" );
     }
 
-    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "overflow", parsedOptions.overflow );
+    qwr::u8string overflow;
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "overflow", overflow );
+    if ( overflow == "visible" )
+    {
+        parsedOptions.shouldClipByRect = false;
+    }
+
     utils::OptionalPropertyTo( pJsCtx_, jsOptions, "text-overflow", parsedOptions.textOverflow );
-    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "renderMode", parsedOptions.renderMode );
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "render-mode", parsedOptions.renderMode );
     utils::OptionalPropertyTo( pJsCtx_, jsOptions, "width", parsedOptions.width );
     utils::OptionalPropertyTo( pJsCtx_, jsOptions, "height", parsedOptions.height );
 
@@ -1330,7 +1261,7 @@ std::wstring CanvasRenderingContext2D_Qwr::PrepareText_FillTextEx( const std::ws
         }
     }
 
-    if ( options.shouldCollapseSpaces || options.shouldCollapseNewLines )
+    if ( !options.shouldUseCanvasCollapseRules && ( options.shouldCollapseSpaces || options.shouldCollapseNewLines ) )
     {
         auto it = std::unique( cleanText.begin(), cleanText.end(), []( wchar_t a, wchar_t b ) { return ( a == b ) && ( a == L' ' ); } );
         cleanText.erase( it, cleanText.end() );
@@ -1354,13 +1285,13 @@ CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExO
     {
         stringFormatValue |= Gdiplus::StringFormatFlagsNoWrap;
     }
-    if ( options.overflow == "visible" )
+    if ( options.shouldClipByRect )
     {
-        stringFormatValue |= Gdiplus::StringFormatFlagsNoClip;
+        stringFormatValue &= ~Gdiplus::StringFormatFlagsNoClip;
     }
     else
     {
-        stringFormatValue &= ~Gdiplus::StringFormatFlagsNoClip;
+        stringFormatValue |= Gdiplus::StringFormatFlagsNoClip;
     }
     stringFormatValue &= ~Gdiplus::StringFormatFlagsLineLimit;
 
@@ -1382,13 +1313,13 @@ CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExO
         }
         else
         {
-            if ( options.overflow == "visible" )
+            if ( options.shouldClipByRect )
             {
-                return Gdiplus::StringTrimmingNone;
+                return Gdiplus::StringTrimmingWord;
             }
             else
             {
-                return Gdiplus::StringTrimmingWord;
+                return Gdiplus::StringTrimmingNone;
             }
         }
     }();
@@ -1437,6 +1368,143 @@ CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExO
     qwr::error::CheckGdi( gdiRet, "SetAlignment" );
 
     return pStringFormat;
+}
+
+void CanvasRenderingContext2D_Qwr::Draw_FillTextEx_String( const std::wstring& text, double x, double y, const FillTextExOptions& options )
+{
+    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, options.hasUnderline, options.hasLineThrough );
+    const auto cleanText = PrepareText_FillTextEx( text, options );
+
+    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, options );
+    const Gdiplus::PointF drawPoint{ static_cast<float>( x ), drawPointY };
+    std::optional<Gdiplus::RectF> rectOpt;
+    if ( options.width && options.height )
+    {
+        rectOpt.emplace( static_cast<float>( x ),
+                         drawPointY,
+                         static_cast<float>( options.width ),
+                         static_cast<float>( options.height + ( drawPointY - y ) ) );
+    }
+    const auto pStringFormat = GenerateStringFormat_FillTextEx( options );
+
+    const auto pGradientBrush = [&]() -> std::unique_ptr<Gdiplus::Brush> {
+        if ( !pFillGradient_ )
+        {
+            return nullptr;
+        }
+
+        const auto rect = [&] {
+            if ( rectOpt )
+            {
+                return *rectOpt;
+            }
+            else
+            {
+                Gdiplus::RectF bounds;
+                auto gdiRet = pGraphics_->MeasureString( cleanText.c_str(),
+                                                         cleanText.size(),
+                                                         gdiPlusFontData.pFont.get(),
+                                                         drawPoint,
+                                                         &stringFormat_,
+                                                         &bounds );
+                qwr::error::CheckGdi( gdiRet, "MeasureString" );
+
+                return bounds;
+            }
+        }();
+
+        return GenerateLinearGradientBrush( pFillGradient_->GetGradientData(), RectToPoints( rect ), globalAlpha_ );
+    }();
+    if ( pFillGradient_ && !pGradientBrush )
+    { // means that gradient data is empty
+        return;
+    }
+
+    if ( rectOpt )
+    {
+        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), *rectOpt, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
+        qwr::error::CheckGdi( gdiRet, "DrawString" );
+    }
+    else
+    {
+        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), drawPoint, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
+        qwr::error::CheckGdi( gdiRet, "DrawString" );
+    }
+}
+
+void CanvasRenderingContext2D_Qwr::Draw_FillTextEx_Path( const std::wstring& text, double x, double y, const FillTextExOptions& options )
+{
+    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, options.hasUnderline, options.hasLineThrough );
+    const auto cleanText = PrepareText_FillTextEx( text, options );
+
+    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, options );
+    const Gdiplus::PointF drawPoint{ static_cast<float>( x ), drawPointY };
+    std::optional<Gdiplus::RectF> rectOpt;
+    if ( options.width && options.height )
+    {
+        rectOpt.emplace( static_cast<float>( x ),
+                         drawPointY,
+                         static_cast<float>( options.width ),
+                         static_cast<float>( options.height + ( drawPointY - y ) ) );
+    }
+    const auto pStringFormat = GenerateStringFormat_FillTextEx( options );
+
+    auto pGraphicsPath = std::make_unique<Gdiplus::GraphicsPath>();
+    qwr::error::CheckGdiPlusObject( pGraphicsPath );
+
+    if ( rectOpt )
+    {
+        auto gdiRet = pGraphicsPath->AddString( cleanText.c_str(),
+                                                cleanText.size(),
+                                                gdiPlusFontData.pFontFamily.get(),
+                                                gdiPlusFontData.pFont->GetStyle(),
+                                                gdiPlusFontData.pFont->GetSize(),
+                                                *rectOpt,
+                                                pStringFormat.get() );
+        qwr::error::CheckGdi( gdiRet, "AddString" );
+    }
+    else
+    {
+        auto gdiRet = pGraphicsPath->AddString( cleanText.c_str(),
+                                                cleanText.size(),
+                                                gdiPlusFontData.pFontFamily.get(),
+                                                gdiPlusFontData.pFont->GetStyle(),
+                                                gdiPlusFontData.pFont->GetSize(),
+                                                drawPoint,
+                                                pStringFormat.get() );
+        qwr::error::CheckGdi( gdiRet, "AddString" );
+    }
+
+    const auto pGradientBrush = [&]() -> std::unique_ptr<Gdiplus::Brush> {
+        if ( !pFillGradient_ )
+        {
+            return nullptr;
+        }
+
+        const auto rect = [&] {
+            if ( rectOpt )
+            {
+                return *rectOpt;
+            }
+            else
+            {
+                Gdiplus::RectF bounds;
+                auto gdiRet = pGraphicsPath->GetBounds( &bounds, nullptr, nullptr );
+                qwr::error::CheckGdi( gdiRet, "GetBounds" );
+
+                return bounds;
+            }
+        }();
+
+        return GenerateLinearGradientBrush( pFillGradient_->GetGradientData(), RectToPoints( rect ), globalAlpha_ );
+    }();
+    if ( pFillGradient_ && !pGradientBrush )
+    { // means that gradient data is empty
+        return;
+    }
+
+    auto gdiRet = pGraphics_->FillPath( ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ), pGraphicsPath.get() );
+    qwr::error::CheckGdi( gdiRet, "FillPath" );
 }
 
 } // namespace mozjs

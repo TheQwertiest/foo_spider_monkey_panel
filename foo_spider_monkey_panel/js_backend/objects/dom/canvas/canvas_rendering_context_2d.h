@@ -62,9 +62,9 @@ class CanvasRenderingContext2D_Qwr
         bool hasLineThrough = false;
         bool shouldCollapseSpaces = true;
         bool shouldCollapseNewLines = true;
+        bool shouldUseCanvasCollapseRules = false;
         bool shouldWrapText = true;
-        // visible, clip, ???
-        qwr::u8string overflow = "clip";
+        bool shouldClipByRect = true;
         // normal, nowrap, pre, pre-wrap
         qwr::u8string whiteSpace = "normal";
         // clip, ellipsis, clip-char, ellipsis-char, ellipsis-path
@@ -148,6 +148,8 @@ private:
     float GenerateTextOriginY_FillTextEx( const std::wstring& text, double y, const FillTextExOptions& options );
     std::wstring PrepareText_FillTextEx( const std::wstring& text, const FillTextExOptions& options );
     std::unique_ptr<Gdiplus::StringFormat> GenerateStringFormat_FillTextEx( const FillTextExOptions& options );
+    void Draw_FillTextEx_String( const std::wstring& text, double x, double y, const FillTextExOptions& options );
+    void Draw_FillTextEx_Path( const std::wstring& text, double x, double y, const FillTextExOptions& options );
 
 private:
     JSContext* pJsCtx_ = nullptr;
