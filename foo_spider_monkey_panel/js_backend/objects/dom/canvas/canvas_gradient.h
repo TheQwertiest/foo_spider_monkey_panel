@@ -20,7 +20,6 @@ struct JsObjectTraits<CanvasGradient_Qwr>
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JsPrototypeId PrototypeId;
-    static const JSNative JsConstructor;
 };
 
 class CanvasGradient_Qwr

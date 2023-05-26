@@ -553,6 +553,9 @@
     <ClCompile Include="dom\css_fonts.cpp">
       <Filter>dom</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\canvas\text_metrics.cpp">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1203,6 +1206,9 @@
     </ClInclude>
     <ClInclude Include="dom\css_fonts.h">
       <Filter>dom</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\text_metrics.h">
+      <Filter>js_backend\objects\dom\canvas</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -222,6 +222,7 @@
     <ClCompile Include="js_backend\objects\dom\canvas\canvas.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\canvas_gradient.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.cpp" />
+    <ClCompile Include="js_backend\objects\dom\canvas\text_metrics.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\utils\gradient_clamp.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\window_canvas.cpp" />
     <ClCompile Include="js_backend\objects\dom\console.cpp" />
@@ -427,6 +428,7 @@
     <ClInclude Include="js_backend\objects\dom\canvas\canvas.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\canvas_gradient.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.h" />
+    <ClInclude Include="js_backend\objects\dom\canvas\text_metrics.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\utils\gradient_clamp.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\window_canvas.h" />
     <ClInclude Include="js_backend\objects\dom\console.h" />

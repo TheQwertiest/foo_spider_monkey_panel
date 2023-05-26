@@ -2,6 +2,7 @@
 
 #include <dom/font_description.h>
 #include <js_backend/objects/core/object_base.h>
+#include <js_backend/objects/dom/canvas/text_metrics.h>
 #include <utils/not_null.h>
 
 #include <js/TypeDecls.h>
@@ -96,6 +97,9 @@ public:
     void FillTextEx( const std::wstring& text, double x, double y, JS::HandleValue options = JS::UndefinedHandleValue );
     void FillTextExWithOpt( size_t optArgCount, const std::wstring& text, double x, double y, JS::HandleValue options );
     void LineTo( double x, double y );
+    JSObject* MeasureText( const std::wstring& text );
+    JSObject* MeasureTextEx( const std::wstring& text, JS::HandleValue options = JS::UndefinedHandleValue );
+    JSObject* MeasureTextExWithOpt( size_t optArgCount, const std::wstring& text, JS::HandleValue options );
     void MoveTo( double x, double y );
     void Stroke();
     void StrokeRect( double x, double y, double w, double h );
@@ -105,10 +109,6 @@ public:
     GdiAlphaBlend
     GdiDrawBitmap
     DrawImage
-
-    CalcTextHeight
-    CalcTextWidth
-    MeasureString
 
     SetInterpolationMode
     SetSmoothingMode
@@ -142,7 +142,7 @@ private:
     Gdiplus::PointF GenerateTextOriginPoint( const std::wstring& text, double x, double y );
 
     FillTextExOptions ParseOptions_FillTextEx( JS::HandleValue options );
-    float GenerateTextOriginY_FillTextEx( const std::wstring& text, double y, double ascentHeight, const FillTextExOptions& options );
+    float GenerateTextOriginY_FillTextEx( const std::wstring& text, double y, double descentHeight, double lineHeight, const FillTextExOptions& options );
     std::wstring PrepareText_FillTextEx( const std::wstring& text, const FillTextExOptions& options );
     std::unique_ptr<Gdiplus::StringFormat> GenerateStringFormat_FillTextEx( const FillTextExOptions& options );
     int32_t GenerateStringFormat_GdiEx_FillTextEx( const FillTextExOptions& options );
@@ -150,6 +150,14 @@ private:
     void DrawString_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options );
     void DrawPath_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options );
     void DrawGdiString_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options );
+
+    TextMetrics::MetricsData MeasureString_FillTextEx( const std::wstring& text, const FillTextExOptions& options );
+    TextMetrics::MetricsData MeasurePath_FillTextEx( const std::wstring& text, const FillTextExOptions& options );
+    TextMetrics::MetricsData MeasureGdiString_FillTextEx( const std::wstring& text, const FillTextExOptions& options );
+
+    static bool IsRect_FillTextEx( const FillTextExOptions& options );
+    static bool IsSingleLine_FillTextEx( const FillTextExOptions& options );
+    static bool IsSingleLineRect_FillTextEx( const FillTextExOptions& options );
 
 private:
     JSContext* pJsCtx_ = nullptr;
@@ -159,7 +167,7 @@ private:
     std::unique_ptr<Gdiplus::SolidBrush> pFillBrush_;
     std::unique_ptr<Gdiplus::Pen> pStrokePen_;
     std::unique_ptr<Gdiplus::GraphicsPath> pGraphicsPath_;
-    Gdiplus::StringFormat stringFormat_;
+    const Gdiplus::StringFormat stringFormat_;
 
     double globalAlpha_ = 1.0;
 
