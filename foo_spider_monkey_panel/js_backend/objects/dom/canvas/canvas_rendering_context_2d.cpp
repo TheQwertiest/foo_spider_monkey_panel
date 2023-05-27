@@ -322,7 +322,7 @@ JSClass jsClass = {
 MJS_DEFINE_JS_FN_FROM_NATIVE( BeginPath, CanvasRenderingContext2D_Qwr::BeginPath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( CreateLinearGradient, CanvasRenderingContext2D_Qwr::CreateLinearGradient );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Ellipse, CanvasRenderingContext2D_Qwr::Ellipse, CanvasRenderingContext2D_Qwr::EllipseWithOpt, 1 );
-MJS_DEFINE_JS_FN_FROM_NATIVE( Fill, CanvasRenderingContext2D_Qwr::Fill );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Fill, CanvasRenderingContext2D_Qwr::Fill, CanvasRenderingContext2D_Qwr::FillWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FillRect, CanvasRenderingContext2D_Qwr::FillRect );
 MJS_DEFINE_JS_FN_FROM_NATIVE( FillText, CanvasRenderingContext2D_Qwr::FillText );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( FillTextEx, CanvasRenderingContext2D_Qwr::FillTextEx, CanvasRenderingContext2D_Qwr::FillTextExWithOpt, 1 );
@@ -571,8 +571,10 @@ void CanvasRenderingContext2D_Qwr::EllipseWithOpt( size_t optArgCount, double x,
     }
 }
 
-void CanvasRenderingContext2D_Qwr::Fill()
+void CanvasRenderingContext2D_Qwr::Fill( const qwr::u8string& fillRule )
 {
+    qwr::QwrException::ExpectTrue( fillRule == "nonzero" || fillRule == "evenodd", "'{}' is not a valid value for enumeration CanvasWindingRule", fillRule );
+
     if ( !lastPathPosOpt_ )
     {
         return;
@@ -595,8 +597,24 @@ void CanvasRenderingContext2D_Qwr::Fill()
         return;
     }
 
-    auto gdiRet = pGraphics_->FillPath( ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ), pGraphicsPath_.get() );
+    auto gdiRet = pGraphicsPath_->SetFillMode( fillRule == "nonzero" ? Gdiplus::FillModeWinding : Gdiplus::FillModeAlternate );
+    qwr::error::CheckGdi( gdiRet, "SetFillMode" );
+
+    gdiRet = pGraphics_->FillPath( ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ), pGraphicsPath_.get() );
     qwr::error::CheckGdi( gdiRet, "FillPath" );
+}
+
+void CanvasRenderingContext2D_Qwr::FillWithOpt( size_t optArgCount, const qwr::u8string& fillRule )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return Fill( fillRule );
+    case 1:
+        return Fill();
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
 }
 
 void CanvasRenderingContext2D_Qwr::FillRect( double x, double y, double w, double h )

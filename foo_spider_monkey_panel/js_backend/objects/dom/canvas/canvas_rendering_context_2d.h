@@ -90,8 +90,8 @@ public:
     JSObject* CreateLinearGradient( double x0, double y0, double x1, double y1 );
     void Ellipse( double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterclockwise = false );
     void EllipseWithOpt( size_t optArgCount, double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterclockwise );
-    // TODO: Implement additional args (forgot to)
-    void Fill();
+    void Fill( const qwr::u8string& fillRule = "nonzero" );
+    void FillWithOpt( size_t optArgCount, const qwr::u8string& fillRule );
     void FillRect( double x, double y, double w, double h );
     void FillText( const std::wstring& text, double x, double y );
     void FillTextEx( const std::wstring& text, double x, double y, JS::HandleValue options = JS::UndefinedHandleValue );
