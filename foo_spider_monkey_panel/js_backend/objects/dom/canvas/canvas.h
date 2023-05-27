@@ -35,24 +35,24 @@ class Canvas
 public:
     ~Canvas() override;
 
-    [[nodiscard]] static std::unique_ptr<Canvas> CreateNative( JSContext* cx, int32_t width, int32_t height );
+    [[nodiscard]] static std::unique_ptr<Canvas> CreateNative( JSContext* cx, uint32_t width, uint32_t height );
     [[nodiscard]] size_t GetInternalSize() const;
 
 public:
-    static JSObject* Constructor( JSContext* cx, int32_t width, int32_t height );
+    static JSObject* Constructor( JSContext* cx, uint32_t width, uint32_t height );
 
     JSObject* GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes = JS::UndefinedHandleValue );
     JSObject* GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes );
 
-    int32_t get_Height() const;
-    int32_t get_Width() const;
-    void put_Height( int32_t value );
-    void put_Width( int32_t value );
+    uint32_t get_Height() const;
+    uint32_t get_Width() const;
+    void put_Height( uint32_t value );
+    void put_Width( uint32_t value );
 
 private:
-    [[nodiscard]] Canvas( JSContext* cx, int32_t width, int32_t height );
+    [[nodiscard]] Canvas( JSContext* cx, uint32_t width, uint32_t height );
 
-    void ReinitializeCanvas( int32_t width, int32_t height );
+    void ReinitializeCanvas( uint32_t width, uint32_t height );
 
 private:
     JSContext* pJsCtx_ = nullptr;

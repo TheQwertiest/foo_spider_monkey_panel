@@ -1186,6 +1186,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
             return 0;
         }
 
+        // TODO: check zero size state conditions, maybe skip
         pGraphics_->Reinitialize();
 
         auto pEvent = std::make_unique<PanelEvent>( EventId::kNew_WndResize );

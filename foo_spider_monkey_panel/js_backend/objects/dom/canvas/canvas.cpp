@@ -80,7 +80,7 @@ const JSPropertySpec* JsObjectTraits<Canvas>::JsProperties = jsProperties.data()
 const JsPrototypeId JsObjectTraits<Canvas>::PrototypeId = JsPrototypeId::New_Canvas;
 const JSNative JsObjectTraits<Canvas>::JsConstructor = ::Canvas_Constructor;
 
-Canvas::Canvas( JSContext* cx, int32_t width, int32_t height )
+Canvas::Canvas( JSContext* cx, uint32_t width, uint32_t height )
     : pJsCtx_( cx )
 {
     ReinitializeCanvas( width, height );
@@ -91,7 +91,7 @@ Canvas::~Canvas()
 }
 
 std::unique_ptr<Canvas>
-Canvas::CreateNative( JSContext* cx, int32_t width, int32_t height )
+Canvas::CreateNative( JSContext* cx, uint32_t width, uint32_t height )
 {
     return std::unique_ptr<Canvas>( new Canvas( cx, width, height ) );
 }
@@ -101,7 +101,7 @@ size_t Canvas::GetInternalSize() const
     return sizeof( Gdiplus::Bitmap ) + pBitmap_->GetWidth() * pBitmap_->GetHeight() * Gdiplus::GetPixelFormatSize( pBitmap_->GetPixelFormat() ) / 8;
 }
 
-JSObject* Canvas::Constructor( JSContext* cx, int32_t width, int32_t height )
+JSObject* Canvas::Constructor( JSContext* cx, uint32_t width, uint32_t height )
 {
     return JsObjectBase<Canvas>::CreateJs( cx, width, height );
 }
@@ -145,27 +145,27 @@ JSObject* Canvas::GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount
     }
 }
 
-int32_t Canvas::get_Height() const
+uint32_t Canvas::get_Height() const
 {
     return pBitmap_->GetHeight();
 }
 
-int32_t Canvas::get_Width() const
+uint32_t Canvas::get_Width() const
 {
     return pBitmap_->GetWidth();
 }
 
-void Canvas::put_Height( int32_t value )
+void Canvas::put_Height( uint32_t value )
 {
     ReinitializeCanvas( pBitmap_->GetWidth(), value );
 }
 
-void Canvas::put_Width( int32_t value )
+void Canvas::put_Width( uint32_t value )
 {
     ReinitializeCanvas( value, pBitmap_->GetHeight() );
 }
 
-void Canvas::ReinitializeCanvas( int32_t width, int32_t height )
+void Canvas::ReinitializeCanvas( uint32_t width, uint32_t height )
 {
     if ( width <= 0 )
     {

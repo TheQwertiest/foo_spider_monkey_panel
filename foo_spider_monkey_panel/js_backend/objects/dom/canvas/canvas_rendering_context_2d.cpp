@@ -330,6 +330,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( LineTo, CanvasRenderingContext2D_Qwr::LineTo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MeasureText, CanvasRenderingContext2D_Qwr::MeasureText );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( MeasureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextExWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( MoveTo, CanvasRenderingContext2D_Qwr::MoveTo );
+MJS_DEFINE_JS_FN_FROM_NATIVE( RoundRect, CanvasRenderingContext2D_Qwr::RoundRect );
 MJS_DEFINE_JS_FN_FROM_NATIVE( Stroke, CanvasRenderingContext2D_Qwr::Stroke );
 MJS_DEFINE_JS_FN_FROM_NATIVE( StrokeRect, CanvasRenderingContext2D_Qwr::StrokeRect );
 MJS_DEFINE_JS_FN_FROM_NATIVE( StrokeText, CanvasRenderingContext2D_Qwr::StrokeText );
@@ -347,6 +348,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "measureText", MeasureText, 1, kDefaultPropsFlags ),
         JS_FN( "measureTextEx", MeasureTextEx, 1, kDefaultPropsFlags ),
         JS_FN( "moveTo", MoveTo, 2, kDefaultPropsFlags ),
+        JS_FN( "roundRect", RoundRect, 5, kDefaultPropsFlags ),
         JS_FN( "stroke", Stroke, 0, kDefaultPropsFlags ),
         JS_FN( "strokeRect", StrokeRect, 4, kDefaultPropsFlags ),
         JS_FN( "strokeText", StrokeText, 3, kDefaultPropsFlags ),
@@ -401,15 +403,11 @@ const JsPrototypeId JsObjectTraits<CanvasRenderingContext2D_Qwr>::PrototypeId = 
 CanvasRenderingContext2D_Qwr::CanvasRenderingContext2D_Qwr( JSContext* cx, Gdiplus::Graphics& graphics )
     : pJsCtx_( cx )
     , pGraphics_( &graphics )
-    , pFillBrush_( std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{} ) )
-    , pStrokePen_( std::make_unique<Gdiplus::Pen>( Gdiplus ::Color{} ) )
-    , pGraphicsPath_( std::make_unique<Gdiplus::GraphicsPath>() )
-    , stringFormat_( Gdiplus::StringFormat::GenericTypographic() )
+    , defaultStringFormat_( Gdiplus::StringFormat::GenericTypographic() )
 {
-    qwr::error::CheckGdiPlusObject( pFillBrush_ );
-    qwr::error::CheckGdiPlusObject( pStrokePen_ );
-    qwr::error::CheckGdiPlusObject( pGraphicsPath_ );
-    qwr::error::CheckGdi( stringFormat_.GetLastStatus(), "GenericTypographic" );
+    qwr::error::CheckGdi( defaultStringFormat_.GetLastStatus(), "GenericTypographic" );
+
+    Reinitialize( graphics );
 }
 
 CanvasRenderingContext2D_Qwr::~CanvasRenderingContext2D_Qwr()
@@ -430,6 +428,27 @@ size_t CanvasRenderingContext2D_Qwr::GetInternalSize() const
 void CanvasRenderingContext2D_Qwr::Reinitialize( Gdiplus::Graphics& graphics )
 {
     pGraphics_ = &graphics;
+
+    pFillBrush_ = std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{} );
+    qwr::error::CheckGdiPlusObject( pFillBrush_ );
+
+    pStrokePen_ = std::make_unique<Gdiplus::Pen>( Gdiplus ::Color{} );
+    qwr::error::CheckGdiPlusObject( pStrokePen_ );
+
+    pGraphicsPath_ = std::make_unique<Gdiplus::GraphicsPath>();
+    qwr::error::CheckGdiPlusObject( pGraphicsPath_ );
+
+    globalAlpha_ = 1.0;
+    originalFillColour_ = 0;
+    originalStrokeColour_ = 0;
+    pFillGradient_ = nullptr;
+    pStrokeGradient_ = nullptr;
+    lastPathPosOpt_.reset();
+    fontDescription_ = smp::dom::FontDescription{};
+    textAlign_ = TextAlign::start;
+    textBaseline_ = TextBaseline::alphabetic;
+
+    // TODO: fill with transparent black, if needed
 }
 
 void CanvasRenderingContext2D_Qwr::BeginPath()
@@ -761,6 +780,106 @@ void CanvasRenderingContext2D_Qwr::MoveTo( double x, double y )
     lastPathPosOpt_.emplace( static_cast<float>( x ), static_cast<float>( y ) );
 }
 
+void CanvasRenderingContext2D_Qwr::RoundRect( double x, double y, double w, double h, double radii )
+{
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y )
+         || !smp::dom::IsValidDouble( w ) || !smp::dom::IsValidDouble( h )
+         || !smp::dom::IsValidDouble( radii ) )
+    {
+        return;
+    }
+
+    qwr::QwrException::ExpectTrue( radii >= 0, "Radius can not be negative" );
+
+    if ( w < 0 )
+    {
+        w *= -1;
+        x -= w;
+    }
+    if ( h < 0 )
+    {
+        h *= -1;
+        y -= h;
+    }
+
+    auto upperLeft = radii;
+    auto upperRight = radii;
+    auto lowerLeft = radii;
+    auto lowerRight = radii;
+    const auto top = upperLeft + upperRight;
+    const auto right = upperRight + lowerRight;
+    const auto bottom = lowerRight + lowerLeft;
+    const auto left = upperLeft + lowerLeft;
+    const auto scale = std::min( { w / top, h / right, w / bottom, h / left } );
+    if ( scale < 1 )
+    {
+        upperLeft *= scale;
+        upperRight *= scale;
+        lowerLeft *= scale;
+        lowerRight *= scale;
+    }
+
+    auto generateArcRectFromPoints = []( const auto& from, const auto& to ) {
+        const auto xDir = ( to.X > from.X ) - ( to.X < from.X );
+        const auto yDir = ( to.Y > from.Y ) - ( to.Y < from.Y );
+
+        Gdiplus::RectF rect{};
+        rect.Width = 2 * std::abs( from.X - to.X );
+        rect.Height = 2 * std::abs( from.Y - to.Y );
+
+        if ( xDir > 0 && yDir > 0 )
+        {
+            rect.X = to.X - rect.Width;
+            rect.Y = from.Y;
+        }
+        else if ( xDir < 0 && yDir > 0 )
+        {
+            rect.X = from.X - rect.Width;
+            rect.Y = to.Y - rect.Height;
+        }
+        else if ( xDir < 0 && yDir < 0 )
+        {
+            rect.X = to.X;
+            rect.Y = from.Y - rect.Height;
+        }
+        else if ( xDir > 0 && yDir < 0 )
+        {
+            rect.X = from.X;
+            rect.Y = to.Y;
+        }
+
+        return rect;
+    };
+
+    auto gdiRet = pGraphicsPath_->StartFigure();
+    qwr::error::CheckGdi( gdiRet, "StartFigure" );
+
+    Gdiplus::PointF curPoint{ static_cast<float>( x + w - upperRight ), static_cast<float>( y ) };
+    Gdiplus::PointF nextPoint{ static_cast<float>( x + w ), static_cast<float>( y + upperRight ) };
+    gdiRet = pGraphicsPath_->AddArc( generateArcRectFromPoints( curPoint, nextPoint ), 270.0f, 90.0f );
+    qwr::error::CheckGdi( gdiRet, "AddArc" );
+
+    curPoint = { static_cast<float>( x + w ), static_cast<float>( y + h - lowerRight ) };
+    nextPoint = { static_cast<float>( x + w - lowerRight ), static_cast<float>( y + h ) };
+    gdiRet = pGraphicsPath_->AddArc( generateArcRectFromPoints( curPoint, nextPoint ), 0.0f, 90.0f );
+    qwr::error::CheckGdi( gdiRet, "AddArc" );
+
+    curPoint = { static_cast<float>( x + lowerLeft ), static_cast<float>( y + h ) };
+    nextPoint = { static_cast<float>( x ), static_cast<float>( y + h - lowerLeft ) };
+    gdiRet = pGraphicsPath_->AddArc( generateArcRectFromPoints( curPoint, nextPoint ), 90.0f, 90.0f );
+    qwr::error::CheckGdi( gdiRet, "AddArc" );
+
+    curPoint = { static_cast<float>( x ), static_cast<float>( y + upperLeft ) };
+    nextPoint = { static_cast<float>( x + upperLeft ), static_cast<float>( y ) };
+    gdiRet = pGraphicsPath_->AddArc( generateArcRectFromPoints( curPoint, nextPoint ), 180.0f, 90.0f );
+    qwr::error::CheckGdi( gdiRet, "AddArc" );
+
+    gdiRet = pGraphicsPath_->CloseFigure();
+    qwr::error::CheckGdi( gdiRet, "CloseFigure" );
+
+    lastPathPosOpt_ = nextPoint;
+}
+
 void CanvasRenderingContext2D_Qwr::Stroke()
 {
     if ( !lastPathPosOpt_ )
@@ -853,7 +972,7 @@ void CanvasRenderingContext2D_Qwr::StrokeText( const std::wstring& text, double 
                                             gdiPlusFontData.pFont->GetStyle(),
                                             gdiPlusFontData.pFont->GetSize(),
                                             drawPoint,
-                                            &stringFormat_ );
+                                            &defaultStringFormat_ );
     qwr::error::CheckGdi( gdiRet, "AddString" );
 
     const auto pGradientPen = [&]() -> std::unique_ptr<Gdiplus::Pen> {
@@ -1226,7 +1345,7 @@ CanvasRenderingContext2D_Qwr::GenerateGradientStrokePen( const std::vector<Gdipl
     qwr::error::CheckGdiPlusObject( pPen );
 
     auto gdiRet = pPen->SetBrush( pBrush.get() );
-    qwr::error::CheckGdi( gdiRet, "SetLineJoin" );
+    qwr::error::CheckGdi( gdiRet, "SetBrush" );
 
     return pPen;
 }
@@ -1261,7 +1380,7 @@ Gdiplus::PointF CanvasRenderingContext2D_Qwr::GenerateTextOriginPoint( const std
                                                  text.size(),
                                                  gdiPlusFontData.pFont.get(),
                                                  drawPoint,
-                                                 &stringFormat_,
+                                                 &defaultStringFormat_,
                                                  &bounds );
         qwr::error::CheckGdi( gdiRet, "MeasureString" );
 
@@ -1424,7 +1543,7 @@ std::wstring CanvasRenderingContext2D_Qwr::PrepareText_FillTextEx( const std::ws
 std::unique_ptr<Gdiplus::StringFormat>
 CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExOptions& options )
 {
-    auto pStringFormat = std::make_unique<Gdiplus::StringFormat>( &stringFormat_ );
+    auto pStringFormat = std::make_unique<Gdiplus::StringFormat>( &defaultStringFormat_ );
     qwr::error::CheckGdiPlusObject( pStringFormat );
 
     auto stringFormatValue = pStringFormat->GetFormatFlags();
@@ -1717,7 +1836,7 @@ void CanvasRenderingContext2D_Qwr::DrawString_FillTextEx( const std::wstring& te
                                                          cleanText.size(),
                                                          gdiPlusFontData.pFont.get(),
                                                          drawPoint,
-                                                         &stringFormat_,
+                                                         pStringFormat.get(),
                                                          &bounds );
                 qwr::error::CheckGdi( gdiRet, "MeasureString" );
 

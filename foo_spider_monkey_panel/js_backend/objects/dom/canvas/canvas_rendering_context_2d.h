@@ -101,14 +101,23 @@ public:
     JSObject* MeasureTextEx( const std::wstring& text, JS::HandleValue options = JS::UndefinedHandleValue );
     JSObject* MeasureTextExWithOpt( size_t optArgCount, const std::wstring& text, JS::HandleValue options );
     void MoveTo( double x, double y );
+    // TODO: handle point radii
+    void RoundRect( double x, double y, double w, double h, double radii );
     void Stroke();
     void StrokeRect( double x, double y, double w, double h );
     void StrokeText( const std::wstring& text, double x, double y );
 
     /*
-    GdiAlphaBlend
     GdiDrawBitmap
     DrawImage
+
+    GdiAlphaBlend
+    ApplyAlpha( uint8_t alpha );
+    ApplyMask( JsGdiBitmap* mask );
+    Clone( float x, float y, float w, float h );
+    CreateRawBitmap();
+    Resize( uint32_t w, uint32_t h, uint32_t interpolationMode = 0 );
+    RotateFlip( uint32_t mode );
 
     SetInterpolationMode
     SetSmoothingMode
@@ -163,11 +172,11 @@ private:
     JSContext* pJsCtx_ = nullptr;
 
     smp::not_null<Gdiplus::Graphics*> pGraphics_;
+    const Gdiplus::StringFormat defaultStringFormat_;
 
     std::unique_ptr<Gdiplus::SolidBrush> pFillBrush_;
     std::unique_ptr<Gdiplus::Pen> pStrokePen_;
     std::unique_ptr<Gdiplus::GraphicsPath> pGraphicsPath_;
-    const Gdiplus::StringFormat stringFormat_;
 
     double globalAlpha_ = 1.0;
 
