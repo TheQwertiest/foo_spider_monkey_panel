@@ -38,7 +38,7 @@ namespace smp::config::sci
 {
 
 ScintillaPropsCfg::ScintillaPropsCfg( const GUID& p_guid )
-    : cfg_var( p_guid )
+    : cfg_var_legacy::cfg_var( p_guid )
 {
     init_data( DefaultProps );
 }

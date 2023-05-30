@@ -8,6 +8,7 @@ The linked notices are provided for information only.
 - [DispatchPtr - BSD](licenses/DispatchPtr.txt)
 - [foobar2000 SDK - other](licenses/foobar2000%20SDK.txt)
 - [fmt - other](licenses/fmt.txt)
+- [GSL - MIT](licenses/GSL.txt)
 - [JScript Panel - Unlicense](licenses/JScript%20Panel.txt)
 - [JSON for Modern C++ - MIT](licenses/JSON%20for%20Modern%20C%2B%2B.txt)
 - [KMeans - MIT](licenses/KMeans.txt)

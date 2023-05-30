@@ -15,7 +15,7 @@ struct ScintillaProp
 
 using ScintillaPropList = std::vector<ScintillaProp>;
 
-class ScintillaPropsCfg : public cfg_var
+class ScintillaPropsCfg : public cfg_var_legacy::cfg_var
 {
 public:
     struct DefaultPropValue
