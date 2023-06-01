@@ -35,11 +35,11 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( AddColorStop, CanvasGradient_Qwr::AddColorStop );
+MJS_DEFINE_JS_FN_FROM_NATIVE( addColorStop, CanvasGradient_Qwr::AddColorStop );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
-        JS_FN( "addColorStop", AddColorStop, 2, kDefaultPropsFlags ),
+        JS_FN( "addColorStop", addColorStop, 2, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 

@@ -205,6 +205,7 @@
     <ClCompile Include="fb2k\playlist_lock.cpp" />
     <ClCompile Include="fb2k\selection_holder_helper.cpp" />
     <ClCompile Include="fb2k\stats.cpp" />
+    <ClCompile Include="graphics\gdiplus\gradient_clamp.cpp" />
     <ClCompile Include="js_backend\engine\heartbeat_window.cpp" />
     <ClCompile Include="js_backend\engine\js_container.cpp" />
     <ClCompile Include="js_backend\engine\js_engine.cpp" />
@@ -221,9 +222,9 @@
     <ClCompile Include="js_backend\objects\dom\active_x_object_iterator.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\canvas.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\canvas_gradient.cpp" />
+    <ClCompile Include="js_backend\objects\dom\canvas\module_canvas.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\text_metrics.cpp" />
-    <ClCompile Include="js_backend\objects\dom\canvas\utils\gradient_clamp.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\window_canvas.cpp" />
     <ClCompile Include="js_backend\objects\dom\console.cpp" />
     <ClCompile Include="js_backend\objects\dom\context_menu_manager.cpp" />
@@ -233,6 +234,7 @@
     <ClCompile Include="js_backend\objects\dom\event_target.cpp" />
     <ClCompile Include="js_backend\objects\dom\main_menu_manager.cpp" />
     <ClCompile Include="js_backend\objects\dom\menu_object.cpp" />
+    <ClCompile Include="js_backend\objects\dom\window\image.cpp" />
     <ClCompile Include="js_backend\objects\dom\window\keyboard_event.cpp" />
     <ClCompile Include="js_backend\objects\dom\window\mouse_event.cpp" />
     <ClCompile Include="js_backend\objects\dom\window\paint_event.cpp" />
@@ -405,6 +407,7 @@
     <ClInclude Include="fb2k\playlist_lock.h" />
     <ClInclude Include="fb2k\selection_holder_helper.h" />
     <ClInclude Include="fb2k\stats.h" />
+    <ClInclude Include="graphics\gdiplus\gradient_clamp.h" />
     <ClInclude Include="js_backend\engine\heartbeat_window.h" />
     <ClInclude Include="js_backend\engine\js_container.h" />
     <ClInclude Include="js_backend\engine\js_engine.h" />
@@ -427,9 +430,9 @@
     <ClInclude Include="js_backend\objects\dom\active_x_object_iterator.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\canvas.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\canvas_gradient.h" />
+    <ClInclude Include="js_backend\objects\dom\canvas\module_canvas.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\text_metrics.h" />
-    <ClInclude Include="js_backend\objects\dom\canvas\utils\gradient_clamp.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\window_canvas.h" />
     <ClInclude Include="js_backend\objects\dom\console.h" />
     <ClInclude Include="js_backend\objects\dom\context_menu_manager.h" />
@@ -439,6 +442,7 @@
     <ClInclude Include="js_backend\objects\dom\event_target.h" />
     <ClInclude Include="js_backend\objects\dom\main_menu_manager.h" />
     <ClInclude Include="js_backend\objects\dom\menu_object.h" />
+    <ClInclude Include="js_backend\objects\dom\window\image.h" />
     <ClInclude Include="js_backend\objects\dom\window\keyboard_event.h" />
     <ClInclude Include="js_backend\objects\dom\window\mouse_event.h" />
     <ClInclude Include="js_backend\objects\dom\window\paint_event.h" />
@@ -564,6 +568,7 @@
   <ItemGroup>
     <None Include="packages.config" />
     <None Include="resources\default_script.js" />
+    <None Include="resources\modules\canvas.js" />
     <None Include="resources\modules\fb_playback.js" />
     <None Include="resources\modules\fb_selection.js" />
     <None Include="resources\modules\window.js" />

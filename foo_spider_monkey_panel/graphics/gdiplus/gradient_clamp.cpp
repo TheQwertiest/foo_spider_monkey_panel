@@ -113,7 +113,7 @@ void ClampPositions( Gdiplus::PointF& gradientStart, Gdiplus::PointF& gradientEn
 
 } // namespace
 
-namespace smp::utils
+namespace smp::graphics
 {
 
 void ClampGradient( Gdiplus::PointF& gradientStart, Gdiplus::PointF& gradientEnd,
@@ -125,4 +125,4 @@ void ClampGradient( Gdiplus::PointF& gradientStart, Gdiplus::PointF& gradientEnd
     ClampPositions( gradientStart, gradientEnd, blendPositions, leftShift, rightShift );
 }
 
-} // namespace smp::utils
+} // namespace smp::graphics

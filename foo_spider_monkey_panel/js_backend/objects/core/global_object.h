@@ -27,6 +27,7 @@ class GlobalHeapManager;
 class PlaybackControl;
 class SelectionManager;
 class WindowNew;
+class ModuleCanvas;
 
 } // namespace mozjs
 
@@ -108,7 +109,8 @@ private:
     std::tuple<
         LoadedNativeObject<PlaybackControl>,
         LoadedNativeObject<SelectionManager>,
-        LoadedNativeObject<WindowNew>>
+        LoadedNativeObject<WindowNew>,
+        LoadedNativeObject<ModuleCanvas>>
         loadedNativeObjects_;
 };
 

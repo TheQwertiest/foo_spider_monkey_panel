@@ -45,23 +45,23 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_AND_SELF( GetContext, Canvas::GetContext, Canvas::GetContextWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_AND_SELF( getContext, Canvas::GetContext, Canvas::GetContextWithOpt, 1 );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
-        JS_FN( "getContext", GetContext, 1, kDefaultPropsFlags ),
+        JS_FN( "getContext", getContext, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Height, mozjs::Canvas::get_Height )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Width, mozjs::Canvas::get_Width )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Put_Height, mozjs::Canvas::put_Height )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Put_Width, mozjs::Canvas::put_Width )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_height, mozjs::Canvas::get_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_width, mozjs::Canvas::get_Width )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_height, mozjs::Canvas::put_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_width, mozjs::Canvas::put_Width )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
-        JS_PSGS( "height", Get_Height, Put_Height, kDefaultPropsFlags ),
-        JS_PSGS( "width", Get_Width, Put_Width, kDefaultPropsFlags ),
+        JS_PSGS( "height", get_height, put_height, kDefaultPropsFlags ),
+        JS_PSGS( "width", get_width, put_width, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
@@ -99,6 +99,12 @@ Canvas::CreateNative( JSContext* cx, uint32_t width, uint32_t height )
 size_t Canvas::GetInternalSize() const
 {
     return sizeof( Gdiplus::Bitmap ) + pBitmap_->GetWidth() * pBitmap_->GetHeight() * Gdiplus::GetPixelFormatSize( pBitmap_->GetPixelFormat() ) / 8;
+}
+
+Gdiplus::Bitmap& Canvas::GetBitmap()
+{
+    assert( pBitmap_ );
+    return *pBitmap_;
 }
 
 JSObject* Canvas::Constructor( JSContext* cx, uint32_t width, uint32_t height )

@@ -88,6 +88,21 @@ public:
 public:
     void BeginPath();
     JSObject* CreateLinearGradient( double x0, double y0, double x1, double y1 );
+    void DrawImage1( JS::HandleValue image,
+                     double dx, double dy );
+    void DrawImage2( JS::HandleValue image,
+                     double dx, double dy,
+                     double dw, double dh );
+    void DrawImage3( JS::HandleValue image,
+                     double sx, double sy,
+                     double sw, double sh,
+                     double dx, double dy,
+                     double dw, double dh );
+    void DrawImageWithOpt( size_t optArgCount, JS::HandleValue image,
+                           double arg1, double arg2,
+                           double arg3, double arg4,
+                           double arg5, double arg6,
+                           double arg7, double arg8 );
     void Ellipse( double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterclockwise = false );
     void EllipseWithOpt( size_t optArgCount, double x, double y, double radiusX, double radiusY, double rotation, double startAngle, double endAngle, bool counterclockwise );
     void Fill( const qwr::u8string& fillRule = "nonzero" );
@@ -146,6 +161,12 @@ public:
 
 private:
     [[nodiscard]] CanvasRenderingContext2D_Qwr( JSContext* cx, Gdiplus::Graphics& graphics );
+
+    void DrawImageImpl( JS::HandleValue image,
+                        double& dx, double dy,
+                        const std::optional<double>& dh, const std::optional<double>& dw,
+                        const std::optional<double>& sx, const std::optional<double>& sy,
+                        const std::optional<double>& sw, const std::optional<double>& sh );
 
     std::unique_ptr<Gdiplus::Pen> GenerateGradientStrokePen( const std::vector<Gdiplus::PointF>& drawArea );
     Gdiplus::PointF GenerateTextOriginPoint( const std::wstring& text, double x, double y );

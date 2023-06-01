@@ -194,7 +194,7 @@ JSClassOps jsOps = {
 };
 
 JSClass jsClass = {
-    "WindowNew",
+    "Window",
     kDefaultClassFlags,
     &jsOps
 };

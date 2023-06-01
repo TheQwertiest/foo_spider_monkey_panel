@@ -5,9 +5,10 @@
 #include <dom/css_colours.h>
 #include <dom/css_fonts.h>
 #include <dom/double_helpers.h>
+#include <graphics/gdiplus/gradient_clamp.h>
 #include <js_backend/engine/js_to_native_invoker.h>
+#include <js_backend/objects/dom/canvas/canvas.h>
 #include <js_backend/objects/dom/canvas/canvas_gradient.h>
-#include <js_backend/objects/dom/canvas/utils/gradient_clamp.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <utils/colour_helpers.h>
 #include <utils/gdi_error_helpers.h>
@@ -60,6 +61,16 @@ struct GdiFontData
 namespace
 {
 
+template <typename T>
+inline void AdjustAxis( T& axis, T& dim )
+{
+    if ( dim < 0 )
+    {
+        axis -= dim;
+        dim *= -1;
+    }
+}
+
 inline bool IsEpsilonEqual( float a, float b )
 {
     return std::abs( a - b ) <= 1e-5;
@@ -107,7 +118,7 @@ GenerateLinearGradientBrush( const mozjs::CanvasGradient_Qwr::GradientData& grad
 
     // Gdiplus repeats gradient pattern, instead of clamping colours,
     // when exceeding brush coordinates, hence some school math is required
-    smp::utils::ClampGradient( p0, p1, blendPositions, drawArea );
+    smp::graphics::ClampGradient( p0, p1, blendPositions, drawArea );
 
     auto zippedGradientData = ranges::views::zip( blendPositions, presetColors );
     ranges::actions::sort( zippedGradientData, []( const auto& a, const auto& b ) { return std::get<0>( a ) < std::get<0>( b ); } );
@@ -319,72 +330,74 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( BeginPath, CanvasRenderingContext2D_Qwr::BeginPath );
-MJS_DEFINE_JS_FN_FROM_NATIVE( CreateLinearGradient, CanvasRenderingContext2D_Qwr::CreateLinearGradient );
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Ellipse, CanvasRenderingContext2D_Qwr::Ellipse, CanvasRenderingContext2D_Qwr::EllipseWithOpt, 1 );
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Fill, CanvasRenderingContext2D_Qwr::Fill, CanvasRenderingContext2D_Qwr::FillWithOpt, 1 );
-MJS_DEFINE_JS_FN_FROM_NATIVE( FillRect, CanvasRenderingContext2D_Qwr::FillRect );
-MJS_DEFINE_JS_FN_FROM_NATIVE( FillText, CanvasRenderingContext2D_Qwr::FillText );
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( FillTextEx, CanvasRenderingContext2D_Qwr::FillTextEx, CanvasRenderingContext2D_Qwr::FillTextExWithOpt, 1 );
-MJS_DEFINE_JS_FN_FROM_NATIVE( LineTo, CanvasRenderingContext2D_Qwr::LineTo );
-MJS_DEFINE_JS_FN_FROM_NATIVE( MeasureText, CanvasRenderingContext2D_Qwr::MeasureText );
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( MeasureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextExWithOpt, 1 );
-MJS_DEFINE_JS_FN_FROM_NATIVE( MoveTo, CanvasRenderingContext2D_Qwr::MoveTo );
-MJS_DEFINE_JS_FN_FROM_NATIVE( RoundRect, CanvasRenderingContext2D_Qwr::RoundRect );
-MJS_DEFINE_JS_FN_FROM_NATIVE( Stroke, CanvasRenderingContext2D_Qwr::Stroke );
-MJS_DEFINE_JS_FN_FROM_NATIVE( StrokeRect, CanvasRenderingContext2D_Qwr::StrokeRect );
-MJS_DEFINE_JS_FN_FROM_NATIVE( StrokeText, CanvasRenderingContext2D_Qwr::StrokeText );
+MJS_DEFINE_JS_FN_FROM_NATIVE( beginPath, CanvasRenderingContext2D_Qwr::BeginPath );
+MJS_DEFINE_JS_FN_FROM_NATIVE( createLinearGradient, CanvasRenderingContext2D_Qwr::CreateLinearGradient );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( drawImage, CanvasRenderingContext2D_Qwr::DrawImage3, CanvasRenderingContext2D_Qwr::DrawImageWithOpt, 6 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( ellipse, CanvasRenderingContext2D_Qwr::Ellipse, CanvasRenderingContext2D_Qwr::EllipseWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( fill, CanvasRenderingContext2D_Qwr::Fill, CanvasRenderingContext2D_Qwr::FillWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( fillRect, CanvasRenderingContext2D_Qwr::FillRect );
+MJS_DEFINE_JS_FN_FROM_NATIVE( fillText, CanvasRenderingContext2D_Qwr::FillText );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( fillTextEx, CanvasRenderingContext2D_Qwr::FillTextEx, CanvasRenderingContext2D_Qwr::FillTextExWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( lineTo, CanvasRenderingContext2D_Qwr::LineTo );
+MJS_DEFINE_JS_FN_FROM_NATIVE( measureText, CanvasRenderingContext2D_Qwr::MeasureText );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( measureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextExWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( moveTo, CanvasRenderingContext2D_Qwr::MoveTo );
+MJS_DEFINE_JS_FN_FROM_NATIVE( roundRect, CanvasRenderingContext2D_Qwr::RoundRect );
+MJS_DEFINE_JS_FN_FROM_NATIVE( stroke, CanvasRenderingContext2D_Qwr::Stroke );
+MJS_DEFINE_JS_FN_FROM_NATIVE( strokeRect, CanvasRenderingContext2D_Qwr::StrokeRect );
+MJS_DEFINE_JS_FN_FROM_NATIVE( strokeText, CanvasRenderingContext2D_Qwr::StrokeText );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
-        JS_FN( "beginPath", BeginPath, 0, kDefaultPropsFlags ),
-        JS_FN( "createLinearGradient", CreateLinearGradient, 4, kDefaultPropsFlags ),
-        JS_FN( "ellipse", Ellipse, 7, kDefaultPropsFlags ),
-        JS_FN( "fill", Fill, 0, kDefaultPropsFlags ),
-        JS_FN( "fillRect", FillRect, 4, kDefaultPropsFlags ),
-        JS_FN( "fillText", FillText, 3, kDefaultPropsFlags ),
-        JS_FN( "fillTextEx", FillTextEx, 3, kDefaultPropsFlags ),
-        JS_FN( "lineTo", LineTo, 2, kDefaultPropsFlags ),
-        JS_FN( "measureText", MeasureText, 1, kDefaultPropsFlags ),
-        JS_FN( "measureTextEx", MeasureTextEx, 1, kDefaultPropsFlags ),
-        JS_FN( "moveTo", MoveTo, 2, kDefaultPropsFlags ),
-        JS_FN( "roundRect", RoundRect, 5, kDefaultPropsFlags ),
-        JS_FN( "stroke", Stroke, 0, kDefaultPropsFlags ),
-        JS_FN( "strokeRect", StrokeRect, 4, kDefaultPropsFlags ),
-        JS_FN( "strokeText", StrokeText, 3, kDefaultPropsFlags ),
+        JS_FN( "beginPath", beginPath, 0, kDefaultPropsFlags ),
+        JS_FN( "createLinearGradient", createLinearGradient, 4, kDefaultPropsFlags ),
+        JS_FN( "drawImage", drawImage, 3, kDefaultPropsFlags ),
+        JS_FN( "ellipse", ellipse, 7, kDefaultPropsFlags ),
+        JS_FN( "fill", fill, 0, kDefaultPropsFlags ),
+        JS_FN( "fillRect", fillRect, 4, kDefaultPropsFlags ),
+        JS_FN( "fillText", fillText, 3, kDefaultPropsFlags ),
+        JS_FN( "fillTextEx", fillTextEx, 3, kDefaultPropsFlags ),
+        JS_FN( "lineTo", lineTo, 2, kDefaultPropsFlags ),
+        JS_FN( "measureText", measureText, 1, kDefaultPropsFlags ),
+        JS_FN( "measureTextEx", measureTextEx, 1, kDefaultPropsFlags ),
+        JS_FN( "moveTo", moveTo, 2, kDefaultPropsFlags ),
+        JS_FN( "roundRect", roundRect, 5, kDefaultPropsFlags ),
+        JS_FN( "stroke", stroke, 0, kDefaultPropsFlags ),
+        JS_FN( "strokeRect", strokeRect, 4, kDefaultPropsFlags ),
+        JS_FN( "strokeText", strokeText, 3, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Get_FillStyle, mozjs::CanvasRenderingContext2D_Qwr::get_FillStyle )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Font, mozjs::CanvasRenderingContext2D_Qwr::get_Font )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_GlobalAlpha, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalAlpha )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_GlobalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Get_StrokeStyle, mozjs::CanvasRenderingContext2D_Qwr::get_StrokeStyle )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineJoin, mozjs::CanvasRenderingContext2D_Qwr::get_LineJoin )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_LineWidth, mozjs::CanvasRenderingContext2D_Qwr::get_LineWidth )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_TextAlign, mozjs::CanvasRenderingContext2D_Qwr::get_TextAlign )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_TextBaseline, mozjs::CanvasRenderingContext2D_Qwr::get_TextBaseline )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Put_FillStyle, mozjs::CanvasRenderingContext2D_Qwr::put_FillStyle )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Put_Font, mozjs::CanvasRenderingContext2D_Qwr::put_Font )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Put_GlobalAlpha, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalAlpha )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Put_GlobalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( Put_StrokeStyle, mozjs::CanvasRenderingContext2D_Qwr::put_StrokeStyle )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineJoin, mozjs::CanvasRenderingContext2D_Qwr::put_LineJoin )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Put_LineWidth, mozjs::CanvasRenderingContext2D_Qwr::put_LineWidth )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Put_TextAlign, mozjs::CanvasRenderingContext2D_Qwr::put_TextAlign )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Put_TextBaseline, mozjs::CanvasRenderingContext2D_Qwr::put_TextBaseline )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( get_fillStyle, mozjs::CanvasRenderingContext2D_Qwr::get_FillStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_font, mozjs::CanvasRenderingContext2D_Qwr::get_Font )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_globalAlpha, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalAlpha )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_globalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( get_strokeStyle, mozjs::CanvasRenderingContext2D_Qwr::get_StrokeStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_lineJoin, mozjs::CanvasRenderingContext2D_Qwr::get_LineJoin )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_lineWidth, mozjs::CanvasRenderingContext2D_Qwr::get_LineWidth )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_textAlign, mozjs::CanvasRenderingContext2D_Qwr::get_TextAlign )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_textBaseline, mozjs::CanvasRenderingContext2D_Qwr::get_TextBaseline )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( put_fillStyle, mozjs::CanvasRenderingContext2D_Qwr::put_FillStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_font, mozjs::CanvasRenderingContext2D_Qwr::put_Font )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_globalAlpha, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalAlpha )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_globalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( put_strokeStyle, mozjs::CanvasRenderingContext2D_Qwr::put_StrokeStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_lineJoin, mozjs::CanvasRenderingContext2D_Qwr::put_LineJoin )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_lineWidth, mozjs::CanvasRenderingContext2D_Qwr::put_LineWidth )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_textAlign, mozjs::CanvasRenderingContext2D_Qwr::put_TextAlign )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_textBaseline, mozjs::CanvasRenderingContext2D_Qwr::put_TextBaseline )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
-        JS_PSGS( "fillStyle", Get_FillStyle, Put_FillStyle, kDefaultPropsFlags ),
-        JS_PSGS( "font", Get_Font, Put_Font, kDefaultPropsFlags ),
-        JS_PSGS( "globalAlpha", Get_GlobalAlpha, Put_GlobalAlpha, kDefaultPropsFlags ),
-        JS_PSGS( "globalCompositeOperation", Get_GlobalCompositeOperation, Put_GlobalCompositeOperation, kDefaultPropsFlags ),
-        JS_PSGS( "lineJoin", Get_LineJoin, Put_LineJoin, kDefaultPropsFlags ),
-        JS_PSGS( "lineWidth", Get_LineWidth, Put_LineWidth, kDefaultPropsFlags ),
-        JS_PSGS( "strokeStyle", Get_StrokeStyle, Put_StrokeStyle, kDefaultPropsFlags ),
-        JS_PSGS( "textAlign", Get_TextAlign, Put_TextAlign, kDefaultPropsFlags ),
-        JS_PSGS( "textBaseline", Get_TextBaseline, Put_TextBaseline, kDefaultPropsFlags ),
+        JS_PSGS( "fillStyle", get_fillStyle, put_fillStyle, kDefaultPropsFlags ),
+        JS_PSGS( "font", get_font, put_font, kDefaultPropsFlags ),
+        JS_PSGS( "globalAlpha", get_globalAlpha, put_globalAlpha, kDefaultPropsFlags ),
+        JS_PSGS( "globalCompositeOperation", get_globalCompositeOperation, put_globalCompositeOperation, kDefaultPropsFlags ),
+        JS_PSGS( "lineJoin", get_lineJoin, put_lineJoin, kDefaultPropsFlags ),
+        JS_PSGS( "lineWidth", get_lineWidth, put_lineWidth, kDefaultPropsFlags ),
+        JS_PSGS( "strokeStyle", get_strokeStyle, put_strokeStyle, kDefaultPropsFlags ),
+        JS_PSGS( "textAlign", get_textAlign, put_textAlign, kDefaultPropsFlags ),
+        JS_PSGS( "textBaseline", get_textBaseline, put_textBaseline, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
@@ -466,6 +479,59 @@ JSObject* CanvasRenderingContext2D_Qwr::CreateLinearGradient( double x0, double 
                                    "Coordinate is not a finite floating-point value" );
 
     return JsObjectBase<CanvasGradient_Qwr>::CreateJs( pJsCtx_, x0, y0, x1, y1 );
+}
+
+void CanvasRenderingContext2D_Qwr::DrawImage1( JS::HandleValue image, double dx, double dy )
+{
+    if ( !smp::dom::IsValidDouble( dx ) || !smp::dom::IsValidDouble( dy ) )
+    {
+        return;
+    }
+
+    DrawImageImpl( image, dx, dy, {}, {}, {}, {}, {}, {} );
+}
+
+void CanvasRenderingContext2D_Qwr::DrawImage2( JS::HandleValue image, double dx, double dy, double dw, double dh )
+{
+    if ( !smp::dom::IsValidDouble( dx ) || !smp::dom::IsValidDouble( dy )
+         || !smp::dom::IsValidDouble( dw ) || !smp::dom::IsValidDouble( dh ) )
+    {
+        return;
+    }
+
+    DrawImageImpl( image, dx, dy, dw, dh, {}, {}, {}, {} );
+}
+
+void CanvasRenderingContext2D_Qwr::DrawImage3( JS::HandleValue image, double sx, double sy, double sw, double sh, double dx, double dy, double dw, double dh )
+{
+    if ( !smp::dom::IsValidDouble( sx ) || !smp::dom::IsValidDouble( sy )
+         || !smp::dom::IsValidDouble( sw ) || !smp::dom::IsValidDouble( sh )
+         || !smp::dom::IsValidDouble( dx ) || !smp::dom::IsValidDouble( dy )
+         || !smp::dom::IsValidDouble( dw ) || !smp::dom::IsValidDouble( dh ) )
+    {
+        return;
+    }
+
+    DrawImageImpl( image, dx, dy, dw, dh, sx, sy, sw, sh );
+}
+
+void CanvasRenderingContext2D_Qwr::DrawImageWithOpt( size_t optArgCount, JS::HandleValue image,
+                                                     double arg1, double arg2,
+                                                     double arg3, double arg4,
+                                                     double arg5, double arg6,
+                                                     double arg7, double arg8 )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return DrawImage3( image, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8 );
+    case 4:
+        return DrawImage2( image, arg1, arg2, arg3, arg4 );
+    case 6:
+        return DrawImage1( image, arg1, arg2 );
+    default:
+        throw qwr::QwrException( "{} is not a valid argument count for any overload", 9 - optArgCount );
+    }
 }
 
 void CanvasRenderingContext2D_Qwr::Ellipse( double x, double y, double radiusX, double radiusY,
@@ -626,16 +692,8 @@ void CanvasRenderingContext2D_Qwr::FillRect( double x, double y, double w, doubl
         return;
     }
 
-    if ( w < 0 )
-    {
-        w *= -1;
-        x -= w;
-    }
-    if ( h < 0 )
-    {
-        h *= -1;
-        y -= h;
-    }
+    AdjustAxis( x, w );
+    AdjustAxis( y, h );
 
     const Gdiplus::RectF rect{
         static_cast<float>( x ),
@@ -809,16 +867,8 @@ void CanvasRenderingContext2D_Qwr::RoundRect( double x, double y, double w, doub
 
     qwr::QwrException::ExpectTrue( radii >= 0, "Radius can not be negative" );
 
-    if ( w < 0 )
-    {
-        w *= -1;
-        x -= w;
-    }
-    if ( h < 0 )
-    {
-        h *= -1;
-        y -= h;
-    }
+    AdjustAxis( x, w );
+    AdjustAxis( y, h );
 
     auto upperLeft = radii;
     auto upperRight = radii;
@@ -934,16 +984,8 @@ void CanvasRenderingContext2D_Qwr::StrokeRect( double x, double y, double w, dou
         return;
     }
 
-    if ( w < 0 )
-    {
-        w *= -1;
-        x -= w;
-    }
-    if ( h < 0 )
-    {
-        h *= -1;
-        y -= h;
-    }
+    AdjustAxis( x, w );
+    AdjustAxis( y, h );
 
     const Gdiplus::RectF rect{
         static_cast<float>( x ),
@@ -1342,6 +1384,61 @@ void CanvasRenderingContext2D_Qwr::put_TextBaseline( const qwr::u8string& value 
     else if ( value == "alphabetic" )
     {
         textBaseline_ = TextBaseline::alphabetic;
+    }
+}
+
+void CanvasRenderingContext2D_Qwr::DrawImageImpl( JS::HandleValue image,
+                                                  double& dx, double dy,
+                                                  const std::optional<double>& dh, const std::optional<double>& dw,
+                                                  const std::optional<double>& sx, const std::optional<double>& sy,
+                                                  const std::optional<double>& sw, const std::optional<double>& sh )
+{
+    qwr::QwrException::ExpectTrue( image.isObject(), "image argument is not an object" );
+    JS::RootedObject jsObject( pJsCtx_, &image.toObject() );
+
+    if ( auto pCanvas = Canvas::ExtractNative( pJsCtx_, jsObject ) )
+    {
+        auto& bitmap = pCanvas->GetBitmap();
+        if ( !bitmap.GetWidth() || !bitmap.GetHeight() )
+        {
+            return;
+        }
+
+        auto srcX = static_cast<int32_t>( sx.value_or( 0 ) );
+        auto srcY = static_cast<int32_t>( sy.value_or( 0 ) );
+        auto srcW = static_cast<int32_t>( sw.value_or( bitmap.GetWidth() ) );
+        auto srcH = static_cast<int32_t>( sh.value_or( bitmap.GetHeight() ) );
+        auto dstX = static_cast<int32_t>( dx );
+        auto dstY = static_cast<int32_t>( dy );
+        auto dstW = static_cast<int32_t>( dw.value_or( srcW ) );
+        auto dstH = static_cast<int32_t>( dh.value_or( srcH ) );
+        if ( !srcW || !srcH )
+        {
+            return;
+        }
+
+        AdjustAxis( srcX, srcW );
+        AdjustAxis( srcY, srcH );
+        AdjustAxis( dstX, dstW );
+        AdjustAxis( dstY, dstH );
+
+        auto pImageAttributes = std::make_unique<Gdiplus::ImageAttributes>();
+        qwr::error::CheckGdiPlusObject( pImageAttributes );
+
+        Gdiplus::ColorMatrix cm{};
+        cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0f;
+        cm.m[3][3] = static_cast<float>( globalAlpha_ );
+
+        auto gdiRet = pImageAttributes->SetColorMatrix( &cm );
+        qwr::error::CheckGdi( gdiRet, "SetColorMatrix" );
+
+        Gdiplus::Rect dstRect{ dstX, dstY, dstW, dstH };
+        gdiRet = pGraphics_->DrawImage( &bitmap, dstRect, srcX, srcY, srcW, srcH, Gdiplus::UnitPixel, pImageAttributes.get() );
+        qwr::error::CheckGdi( gdiRet, "DrawImage" );
+    }
+    else
+    {
+        throw qwr::QwrException( "image argument can't be converted to supported object type" );
     }
 }
 

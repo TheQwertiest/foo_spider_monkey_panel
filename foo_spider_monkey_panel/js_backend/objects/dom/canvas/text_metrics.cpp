@@ -35,8 +35,8 @@ JSClass jsClass = {
 // MJS_DEFINE_JS_FN_FROM_NATIVE( Get_ActualBoundingBoxDescent, TextMetrics::get_ActualBoundingBoxDescent )
 // MJS_DEFINE_JS_FN_FROM_NATIVE( Get_ActualBoundingBoxLeft, TextMetrics::get_ActualBoundingBoxLeft )
 // MJS_DEFINE_JS_FN_FROM_NATIVE( Get_ActualBoundingBoxRight, TextMetrics::get_ActualBoundingBoxRight )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Height, TextMetrics::get_Height )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Width, TextMetrics::get_Width )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_height, TextMetrics::get_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_width, TextMetrics::get_Width )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
@@ -45,8 +45,8 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
         // JS_PSG( "actualBoundingBoxDescent", Get_ActualBoundingBoxDescent, kDefaultPropsFlags ),
         // JS_PSG( "actualBoundingBoxLeft", Get_ActualBoundingBoxLeft, kDefaultPropsFlags ),
         // JS_PSG( "actualBoundingBoxRight", Get_ActualBoundingBoxRight, kDefaultPropsFlags ),
-        JS_PSG( "height", Get_Height, kDefaultPropsFlags ),
-        JS_PSG( "width", Get_Width, kDefaultPropsFlags ),
+        JS_PSG( "height", get_height, kDefaultPropsFlags ),
+        JS_PSG( "width", get_width, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 

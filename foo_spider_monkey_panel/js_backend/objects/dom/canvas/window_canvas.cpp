@@ -45,21 +45,21 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_AND_SELF( GetContext, WindowCanvas::GetContext, WindowCanvas::GetContextWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_AND_SELF( getContext, WindowCanvas::GetContext, WindowCanvas::GetContextWithOpt, 1 );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
-        JS_FN( "getContext", GetContext, 1, kDefaultPropsFlags ),
+        JS_FN( "getContext", getContext, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Height, mozjs::WindowCanvas::get_Height )
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Width, mozjs::WindowCanvas::get_Width )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_height, mozjs::WindowCanvas::get_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_width, mozjs::WindowCanvas::get_Width )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
-        JS_PSG( "height", Get_Height, kDefaultPropsFlags ),
-        JS_PSG( "width", Get_Width, kDefaultPropsFlags ),
+        JS_PSG( "height", get_height, kDefaultPropsFlags ),
+        JS_PSG( "width", get_width, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 

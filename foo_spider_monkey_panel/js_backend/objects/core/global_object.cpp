@@ -9,6 +9,7 @@
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/core/global_heap_manager.h>
 #include <js_backend/objects/dom/active_x_object.h>
+#include <js_backend/objects/dom/canvas/module_canvas.h>
 #include <js_backend/objects/dom/console.h>
 #include <js_backend/objects/dom/enumerator.h>
 #include <js_backend/objects/dom/event.h>
@@ -43,6 +44,7 @@
 #include <qwr/final_action.h>
 #include <qwr/string_helpers.h>
 
+#include <concepts>
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -252,9 +254,13 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
 
     {
         const auto prepareForGcHandler = []( auto& loadedNativeObject ) {
-            if ( loadedNativeObject.pNative )
+            using T = std::remove_cvref_t<decltype( loadedNativeObject )>::NativeT;
+            if constexpr ( requires { &T::PrepareForGc; } )
             {
-                loadedNativeObject.pNative->PrepareForGc();
+                if ( loadedNativeObject.pNative )
+                {
+                    loadedNativeObject.pNative->PrepareForGc();
+                }
             }
         };
         std::apply( [&]( auto&... args ) { ( prepareForGcHandler( args ), ... ); }, pNativeGlobal->loadedNativeObjects_ );
@@ -285,13 +291,16 @@ EventStatus JsGlobalObject::HandleEvent( smp::EventBase& event )
     EventStatus status{};
 
     const auto invokeEventHandler = [&, eventId = event.GetId()]( auto& loadedNativeObject ) {
-        using T = std::decay_t<decltype( loadedNativeObject )>::NativeT;
-        if ( T::kHandledEvents.contains( eventId ) && loadedNativeObject.pNative )
+        using T = std::remove_cvref_t<decltype( loadedNativeObject )>::NativeT;
+        if constexpr ( std::is_base_of_v<mozjs::JsEventTarget, T> )
         {
-            JS::RootedObject jsLoadedObject( pJsCtx_, *loadedObjects_.at( loadedNativeObject.moduleId ).get() );
-            auto curStatus = loadedNativeObject.pNative->HandleEvent( jsLoadedObject, event );
-            status.isDefaultSuppressed |= curStatus.isDefaultSuppressed;
-            status.isHandled |= curStatus.isHandled;
+            if ( T::kHandledEvents.contains( eventId ) && loadedNativeObject.pNative )
+            {
+                JS::RootedObject jsLoadedObject( pJsCtx_, *loadedObjects_.at( loadedNativeObject.moduleId ).get() );
+                auto curStatus = loadedNativeObject.pNative->HandleEvent( jsLoadedObject, event );
+                status.isDefaultSuppressed |= curStatus.isDefaultSuppressed;
+                status.isHandled |= curStatus.isHandled;
+            }
         }
     };
 
@@ -336,6 +345,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case mozjs::BuiltinModuleId::kWindow:
             {
                 return initializeLoadedObject.template operator()<WindowNew>( moduleId );
+            }
+            case mozjs::BuiltinModuleId::kCanvas:
+            {
+                return initializeLoadedObject.template operator()<ModuleCanvas>( moduleId );
             }
             // TODO: add event module
             default:

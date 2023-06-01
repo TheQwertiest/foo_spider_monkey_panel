@@ -38,6 +38,8 @@ public:
     [[nodiscard]] static std::unique_ptr<Canvas> CreateNative( JSContext* cx, uint32_t width, uint32_t height );
     [[nodiscard]] size_t GetInternalSize() const;
 
+    Gdiplus::Bitmap& GetBitmap();
+
 public:
     static JSObject* Constructor( JSContext* cx, uint32_t width, uint32_t height );
 

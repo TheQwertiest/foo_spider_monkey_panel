@@ -21,6 +21,11 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kWindow;
     }
+    if ( moduleName == "smp:canvas" )
+    {
+        return BuiltinModuleId::kCanvas;
+    }
+    // TODO: maybe add dom/ prefix to corresponding modules
 
     return std::nullopt;
 }
@@ -35,6 +40,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_FB_SELECTION;
     case mozjs::BuiltinModuleId::kWindow:
         return IDR_MODULE_WINDOW;
+    case mozjs::BuiltinModuleId::kCanvas:
+        return IDR_MODULE_CANVAS;
     default:
         assert( false );
         return 0;

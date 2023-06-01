@@ -2,12 +2,11 @@
 
 #include <vector>
 
-namespace smp::utils
+namespace smp::graphics
 {
 
-// TODO: move to gdi utils
 void ClampGradient( Gdiplus::PointF& gradientStart, Gdiplus::PointF& gradientEnd,
                     std::vector<float>& blendPositions,
                     const std::vector<Gdiplus::PointF>& drawLocation );
 
-} // namespace smp::utils
+} // namespace smp::graphics

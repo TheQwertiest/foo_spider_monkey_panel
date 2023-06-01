@@ -45,6 +45,7 @@ enum class JsPrototypeId : uint32_t
     New_CanvasRenderingContext2d,
     New_CanvasGradient,
     New_TextMetrics,
+    New_Image,
     ProrototypeCount
 };
 }
