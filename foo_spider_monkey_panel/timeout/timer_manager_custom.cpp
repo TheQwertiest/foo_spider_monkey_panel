@@ -4,9 +4,9 @@
 
 #include "timer_manager_custom.h"
 
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/event_timer.h>
 #include <panel/panel_window.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_timer.h>
 #include <timeout/timer_custom.h>
 
 #include <qwr/thread_helpers.h>

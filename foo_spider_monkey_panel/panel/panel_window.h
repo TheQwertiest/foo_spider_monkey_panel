@@ -2,11 +2,11 @@
 
 #include <config/panel_config.h>
 #include <config/resolved_panel_script_settings.h>
-#include <events/event.h>
-#include <events/event_js_executor.h>
 #include <panel/drag_action_params.h>
 #include <panel/panel_adaptor_iface.h>
 #include <panel/user_message.h>
+#include <tasks/events/event.h>
+#include <tasks/events/event_js_executor.h>
 #include <ui/ui_conf.h>
 #include <utils/not_null.h>
 

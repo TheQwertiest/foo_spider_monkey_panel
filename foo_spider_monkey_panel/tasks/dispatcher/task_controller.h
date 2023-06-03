@@ -1,6 +1,7 @@
 #pragma once
 
-#include <events/event.h>
+#include <tasks/dispatcher/event_priority.h>
+#include <tasks/events/event.h>
 
 #include <mutex>
 #include <set>

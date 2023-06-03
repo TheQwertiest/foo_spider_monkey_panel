@@ -1,9 +1,17 @@
 #pragma once
 
+#include <js_backend/engine/js_event_status.h>
 #include <js_backend/objects/core/object_base.h>
 
 #include <unordered_map>
 #include <vector>
+
+namespace smp
+{
+
+class EventBase;
+
+}
 
 namespace mozjs
 {
@@ -34,7 +42,6 @@ public:
     ~JsEventTarget() override = default;
 
     static void Trace( JSTracer* trc, JSObject* obj );
-    void PrepareForGc();
 
     bool HasEventListener( const qwr::u8string& type );
 
@@ -45,6 +52,8 @@ public:
     void RemoveEventListener( const qwr::u8string& type, JS::HandleValue listener );
     // TODO: add on{EVENT_TYPE} proxy
     void DispatchEvent( JS::HandleObject self, JS::HandleValue event );
+
+    virtual EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event );
 
 protected:
     JsEventTarget( JSContext* cx );

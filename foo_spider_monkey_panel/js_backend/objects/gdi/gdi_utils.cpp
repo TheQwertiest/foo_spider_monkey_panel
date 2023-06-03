@@ -91,7 +91,7 @@ size_t JsGdiUtils::GetInternalSize()
 JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    qwr::error::CheckGdiPlusObject( img );
+    smp::error::CheckGdiPlusObject( img );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) );
 }

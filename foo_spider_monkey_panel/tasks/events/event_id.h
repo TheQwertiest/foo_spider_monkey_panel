@@ -1,17 +1,7 @@
 #pragma once
 
-namespace smp::panel
-{
-
-class PanelWindow;
-
-}
-
 namespace smp
 {
-
-class Event_Mouse;
-class Event_Drag;
 
 enum class EventId
 {
@@ -120,6 +110,8 @@ enum class EventId
     kNew_MouseContextMenu,
     //// wheel
     kNew_MouseWheel,
+    // direct js pass-through
+    kNew_JsTarget
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
@@ -174,57 +166,6 @@ const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {
     { EventId::kUiFontChanged, "font_changed" },
     // custom
     { EventId::kNotifyOthers, "notify_data" },
-};
-
-enum class EventPriority
-{
-    kNormal,
-    kInput,
-    kRedraw,
-    kResize,
-    kControl,
-};
-
-class Runnable
-{
-public:
-    virtual ~Runnable() = default;
-    virtual void Run() = 0;
-};
-
-class PanelTarget final
-{
-public:
-    [[nodiscard]] PanelTarget( panel::PanelWindow& panel );
-
-    [[nodiscard]] HWND GetHwnd();
-
-    [[nodiscard]] panel::PanelWindow* GetPanel();
-    void UnlinkPanel();
-
-private:
-    panel::PanelWindow* pPanel_ = nullptr;
-    HWND hWnd_ = nullptr;
-};
-
-class EventBase : public Runnable
-{
-public:
-    [[nodiscard]] EventBase( EventId id );
-    virtual ~EventBase() = default;
-
-    [[nodiscard]] virtual std::unique_ptr<EventBase> Clone();
-
-    void SetTarget( std::shared_ptr<PanelTarget> pTarget );
-    [[nodiscard]] EventId GetId() const;
-
-    [[nodiscard]] virtual const qwr::u8string& GetType() const;
-    [[nodiscard]] virtual Event_Mouse* AsMouseEvent();
-    [[nodiscard]] virtual Event_Drag* AsDragEvent();
-
-protected:
-    const EventId id_;
-    std::shared_ptr<PanelTarget> pTarget_;
 };
 
 } // namespace smp

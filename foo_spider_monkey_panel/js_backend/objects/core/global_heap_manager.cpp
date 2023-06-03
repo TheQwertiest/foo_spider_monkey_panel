@@ -76,6 +76,20 @@ JS::Heap<JS::Value>& GlobalHeapManager::Get( uint32_t id )
     return *heapElements_[id];
 }
 
+JSObject* GlobalHeapManager::GetObject( uint32_t id )
+{
+    std::scoped_lock sl( heapElementsLock_ );
+
+    if ( !unusedHeapElements_.empty() )
+    {
+        unusedHeapElements_.clear();
+    }
+
+    assert( heapElements_.contains( id ) );
+    assert( heapElements_[id]->get().isObject() );
+    return &heapElements_[id]->get().toObject();
+}
+
 void GlobalHeapManager::Remove( uint32_t id )
 { // Can be called in worker thread, outside of JS ctx, so we can't GC or destroy JS objects here
     std::scoped_lock sl( heapElementsLock_ );

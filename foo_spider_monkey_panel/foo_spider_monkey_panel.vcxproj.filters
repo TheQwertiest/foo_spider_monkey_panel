@@ -196,27 +196,6 @@
     <ClCompile Include="com_utils\com_error_helpers.cpp">
       <Filter>com_utils</Filter>
     </ClCompile>
-    <ClCompile Include="events\event_js_task.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="events\event_basic.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="events\event.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="events\event_js_executor.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="events\event_drag.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="events\event_notify_others.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="events\event_timer.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
     <ClCompile Include="timeout\timeout_executor.cpp">
       <Filter>timeout</Filter>
     </ClCompile>
@@ -460,14 +439,11 @@
     <ClCompile Include="js_backend\objects\fb2k\playback_stop_event.cpp">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="events\playback_stop_event.cpp">
-      <Filter>events</Filter>
+    <ClCompile Include="tasks\dispatcher\task_controller.cpp">
+      <Filter>tasks\dispatcher</Filter>
     </ClCompile>
-    <ClCompile Include="events\dispatcher\task_controller.cpp">
-      <Filter>events\dispatcher</Filter>
-    </ClCompile>
-    <ClCompile Include="events\dispatcher\event_dispatcher.cpp">
-      <Filter>events\dispatcher</Filter>
+    <ClCompile Include="tasks\dispatcher\event_dispatcher.cpp">
+      <Filter>tasks\dispatcher</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\utils\mozjs_backport.cpp">
       <Filter>js_backend\utils</Filter>
@@ -481,26 +457,11 @@
     <ClCompile Include="fb2k\callbacks\init_quit.cpp">
       <Filter>fb2k\callbacks</Filter>
     </ClCompile>
-    <ClCompile Include="events\mouse_event.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="events\panel_event.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
     <ClCompile Include="panel\panel_window_graphics.cpp">
       <Filter>panel</Filter>
     </ClCompile>
-    <ClCompile Include="events\event_mouse.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
-    <ClCompile Include="events\wheel_event.cpp">
-      <Filter>events</Filter>
-    </ClCompile>
     <ClCompile Include="os\system_settings.cpp">
       <Filter>os</Filter>
-    </ClCompile>
-    <ClCompile Include="events\keyboard_event.cpp">
-      <Filter>events</Filter>
     </ClCompile>
     <ClCompile Include="panel\mouse_message_handler.cpp">
       <Filter>panel</Filter>
@@ -553,12 +514,74 @@
     <ClCompile Include="js_backend\objects\dom\canvas\text_metrics.cpp">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\window\image.cpp" />
     <ClCompile Include="graphics\gdiplus\gradient_clamp.cpp">
       <Filter>graphics\gdiplus</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\objects\dom\canvas\module_canvas.cpp">
       <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\image_loader.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_basic.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_drag.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_js_executor.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_js_task.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_mouse.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_notify_others.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_timer.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\keyboard_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\mouse_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\panel_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\playback_stop_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\wheel_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\cancellable.cpp">
+      <Filter>tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\panel_target.cpp">
+      <Filter>tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\micro_tasks\micro_task.cpp">
+      <Filter>tasks\micro_tasks</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\utils\js_heap_helper.cpp">
+      <Filter>js_backend\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\js_target_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\window\image.cpp">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\gdiplus\bitmap_generator.cpp">
+      <Filter>graphics\gdiplus</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -781,30 +804,6 @@
     </ClInclude>
     <ClInclude Include="com_utils\com_error_helpers.h">
       <Filter>com_utils</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_js_task.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_js_executor.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_js_callback.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_basic.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_drag.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_notify_others.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_timer.h">
-      <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="timeout\timeout_executor.h">
       <Filter>timeout</Filter>
@@ -1097,14 +1096,11 @@
     <ClInclude Include="js_backend\objects\fb2k\playback_stop_event.h">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="events\playback_stop_event.h">
-      <Filter>events</Filter>
+    <ClInclude Include="tasks\dispatcher\task_controller.h">
+      <Filter>tasks\dispatcher</Filter>
     </ClInclude>
-    <ClInclude Include="events\dispatcher\task_controller.h">
-      <Filter>events\dispatcher</Filter>
-    </ClInclude>
-    <ClInclude Include="events\dispatcher\event_dispatcher.h">
-      <Filter>events\dispatcher</Filter>
+    <ClInclude Include="tasks\dispatcher\event_dispatcher.h">
+      <Filter>tasks\dispatcher</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\utils\mozjs_backport.h">
       <Filter>js_backend\utils</Filter>
@@ -1115,19 +1111,7 @@
     <ClInclude Include="js_backend\objects\fb2k\selection_manager.h">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
-    <ClInclude Include="events\mouse_event.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\panel_event.h">
-      <Filter>events</Filter>
-    </ClInclude>
-    <ClInclude Include="events\event_mouse.h">
-      <Filter>events</Filter>
-    </ClInclude>
     <ClInclude Include="js_backend\utils\js_object_helpers.h">
-      <Filter>js_backend\utils</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\utils\js_event_helpers.h">
       <Filter>js_backend\utils</Filter>
     </ClInclude>
     <ClInclude Include="panel\panel_window_graphics.h">
@@ -1135,9 +1119,6 @@
     </ClInclude>
     <ClInclude Include="js_backend\engine\js_event_status.h">
       <Filter>js_backend\engine</Filter>
-    </ClInclude>
-    <ClInclude Include="events\wheel_event.h">
-      <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="os\system_settings.h">
       <Filter>os</Filter>
@@ -1147,9 +1128,6 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\core\object_traits.h">
       <Filter>js_backend\objects\core</Filter>
-    </ClInclude>
-    <ClInclude Include="events\keyboard_event.h">
-      <Filter>events</Filter>
     </ClInclude>
     <ClInclude Include="panel\mouse_message_handler.h">
       <Filter>panel</Filter>
@@ -1211,12 +1189,86 @@
     <ClInclude Include="js_backend\objects\dom\canvas\text_metrics.h">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\window\image.h" />
     <ClInclude Include="graphics\gdiplus\gradient_clamp.h">
       <Filter>graphics\gdiplus</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\canvas\module_canvas.h">
       <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\image_loader.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\loaded_image.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_basic.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_drag.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_js_callback.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_js_executor.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_js_task.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_mouse.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_notify_others.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_timer.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\keyboard_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\mouse_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\panel_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\playback_stop_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\wheel_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\cancellable.h">
+      <Filter>tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_id.h">
+      <Filter>tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\panel_target.h">
+      <Filter>tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\runnable.h">
+      <Filter>tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\dispatcher\event_priority.h">
+      <Filter>tasks\dispatcher</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\micro_tasks\micro_task.h">
+      <Filter>tasks\micro_tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\js_target_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\window\image.h">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\gdiplus\bitmap_generator.h">
+      <Filter>graphics\gdiplus</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1289,9 +1341,6 @@
     <Filter Include="com_utils">
       <UniqueIdentifier>{b23d43d7-b904-4566-bbbe-2d2b677efb7d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="events">
-      <UniqueIdentifier>{909a5207-b341-4a10-847c-d77a4165b51a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="timeout">
       <UniqueIdentifier>{19b3e8c9-9302-44fe-8178-88312a4df487}</UniqueIdentifier>
     </Filter>
@@ -1331,9 +1380,6 @@
     <Filter Include="fb2k\callbacks">
       <UniqueIdentifier>{edff2f01-3971-4525-9ba7-3276f225ba74}</UniqueIdentifier>
     </Filter>
-    <Filter Include="events\dispatcher">
-      <UniqueIdentifier>{50e469ca-a931-4ca4-9a43-aa29a01bb2dd}</UniqueIdentifier>
-    </Filter>
     <Filter Include="resources\modules">
       <UniqueIdentifier>{9dc2935c-adc9-425b-8517-5dc0b989cc85}</UniqueIdentifier>
     </Filter>
@@ -1354,6 +1400,18 @@
     </Filter>
     <Filter Include="graphics\gdiplus">
       <UniqueIdentifier>{e12b349f-4356-429b-9101-eadf336d9f4d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tasks">
+      <UniqueIdentifier>{909a5207-b341-4a10-847c-d77a4165b51a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tasks\dispatcher">
+      <UniqueIdentifier>{50e469ca-a931-4ca4-9a43-aa29a01bb2dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tasks\events">
+      <UniqueIdentifier>{f53f3621-a80d-46be-97d2-391ac05af1ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tasks\micro_tasks">
+      <UniqueIdentifier>{c84e461e-d8f0-4896-b698-cbcc6ed5a1e3}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

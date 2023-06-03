@@ -1,7 +1,7 @@
 #pragma once
 
-#include <events/event.h>
-#include <events/event_js_executor.h>
+#include <tasks/events/event.h>
+#include <tasks/events/event_js_executor.h>
 
 namespace mozjs
 {

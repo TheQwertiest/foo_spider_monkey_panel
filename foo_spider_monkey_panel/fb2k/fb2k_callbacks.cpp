@@ -1,8 +1,8 @@
 #include <stdafx.h>
 
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/event_js_callback.h>
 #include <fb2k/playlist_lock.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_js_callback.h>
 
 #include <qwr/error_popup.h>
 

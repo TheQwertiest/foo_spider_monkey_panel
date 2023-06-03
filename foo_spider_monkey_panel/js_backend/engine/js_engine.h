@@ -14,9 +14,9 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 
 namespace smp
 {
-
+class MicroTask;
 class HeartbeatWindow;
-}
+} // namespace smp
 
 namespace mozjs
 {
@@ -38,6 +38,7 @@ public: // methods accessed by JsContainer
     [[nodiscard]] bool RegisterContainer( JsContainer& jsContainer );
     void UnregisterContainer( JsContainer& jsContainer );
 
+    void EnqueueMicroTask( const std::shared_ptr<smp::MicroTask>& microTask );
     void MaybeRunJobs();
 
     void OnJsActionStart( JsContainer& jsContainer );
@@ -76,6 +77,8 @@ private:
     void ReportOomError();
 
 private:
+    // TODO: separate engine from context
+    // TODO: move all js globals to engine or context
     JSContext* pJsCtx_ = nullptr;
 
     bool isInitialized_ = false;
@@ -92,6 +95,7 @@ private:
     JsMonitor jsMonitor_;
 
     JS::PersistentRooted<JS::GCVector<JSObject*, 0, js::SystemAllocPolicy>> rejectedPromises_;
+    std::vector<std::shared_ptr<smp::MicroTask>> microTasks_;
     bool areJobsInProgress_ = false;
     uint32_t jobsStartTime_ = 0;
 

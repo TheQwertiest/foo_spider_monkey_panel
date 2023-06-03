@@ -2,8 +2,8 @@
 
 #include "event_dispatcher.h"
 
-#include <events/dispatcher/task_controller.h>
 #include <panel/user_message.h>
+#include <tasks/dispatcher/task_controller.h>
 
 #include <qwr/final_action.h>
 
@@ -141,7 +141,7 @@ void EventDispatcher::PutRunnable( HWND hWnd, std::shared_ptr<Runnable> pRunnabl
     RequestNextEventImpl( hWnd, *pTaskController, sl );
 }
 
-void EventDispatcher::PutEvent( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority )
+void EventDispatcher::PutEvent( HWND hWnd, std::shared_ptr<EventBase> pEvent, EventPriority priority /*= EventPriority::kNormal */ )
 {
     std::scoped_lock sl( taskControllerMapMutex_ );
 
@@ -153,7 +153,7 @@ void EventDispatcher::PutEvent( HWND hWnd, std::unique_ptr<EventBase> pEvent, Ev
 
     auto pTaskController = taskControllerIt->second;
     pEvent->SetTarget( pTaskController->GetTarget() );
-    pTaskController->AddRunnable( std::move( pEvent ), priority );
+    pTaskController->AddRunnable( pEvent, priority );
 
     RequestNextEventImpl( hWnd, *pTaskController, sl );
 }

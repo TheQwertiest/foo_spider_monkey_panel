@@ -3,12 +3,12 @@
 #include "track_drop_target.h"
 
 #include <com_objects/internal/drag_utils.h>
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/event_drag.h>
 #include <js_backend/engine/js_container.h>
 #include <js_backend/objects/core/global_object.h>
 #include <js_backend/objects/dom/drop_source_action.h>
 #include <panel/panel_window.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_drag.h>
 #include <utils/location_processor.h>
 
 namespace

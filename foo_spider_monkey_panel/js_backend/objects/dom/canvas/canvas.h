@@ -36,6 +36,7 @@ public:
     ~Canvas() override;
 
     [[nodiscard]] static std::unique_ptr<Canvas> CreateNative( JSContext* cx, uint32_t width, uint32_t height );
+    // TODO: add dynamic size
     [[nodiscard]] size_t GetInternalSize() const;
 
     Gdiplus::Bitmap& GetBitmap();

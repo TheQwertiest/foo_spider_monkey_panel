@@ -2,9 +2,9 @@
 
 #include "keyboard_message_handler.h"
 
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/keyboard_event.h>
 #include <panel/panel_window.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/keyboard_event.h>
 
 #include <cwctype>
 

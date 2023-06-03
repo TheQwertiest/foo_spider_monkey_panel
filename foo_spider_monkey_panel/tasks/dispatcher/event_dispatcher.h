@@ -1,6 +1,7 @@
 #pragma once
 
-#include <events/event.h>
+#include <tasks/dispatcher/event_priority.h>
+#include <tasks/events/event.h>
 
 #include <mutex>
 #include <unordered_map>
@@ -37,7 +38,7 @@ public:
 
 public: // these can be invoked from worker threads
     void PutRunnable( HWND hWnd, std::shared_ptr<Runnable> pRunnable, EventPriority priority = EventPriority::kNormal );
-    void PutEvent( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
+    void PutEvent( HWND hWnd, std::shared_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
 
     /// @remark Be careful when using this:
     ///         - Event must be cloneable.

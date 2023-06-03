@@ -2,8 +2,8 @@
 
 #include <com_objects/com_tools.h>
 #include <com_objects/drop_target_impl.h>
-#include <events/event.h>
 #include <panel/drag_action_params.h>
+#include <tasks/events/event.h>
 
 namespace smp::panel
 {

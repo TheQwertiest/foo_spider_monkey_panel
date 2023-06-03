@@ -1,8 +1,8 @@
 #pragma once
 
-#include <events/event_js_executor.h>
-#include <events/event_mouse.h>
 #include <panel/drag_action_params.h>
+#include <tasks/events/event_js_executor.h>
+#include <tasks/events/event_mouse.h>
 
 namespace mozjs
 {

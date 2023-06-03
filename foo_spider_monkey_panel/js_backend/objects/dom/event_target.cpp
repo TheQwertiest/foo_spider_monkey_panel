@@ -123,11 +123,6 @@ void JsEventTarget::Trace( JSTracer* trc, JSObject* obj )
     }
 }
 
-void JsEventTarget::PrepareForGc()
-{
-    typeToListeners_.clear();
-}
-
 bool JsEventTarget::HasEventListener( const qwr::u8string& type )
 {
     return typeToListeners_.count( type );
@@ -231,6 +226,11 @@ void JsEventTarget::DispatchEvent( JS::HandleObject self, JS::HandleValue event 
             break;
         }
     }
+}
+
+EventStatus JsEventTarget::HandleEvent( JS::HandleObject /*self*/, const smp::EventBase& /*event*/ )
+{
+    return {};
 }
 
 void JsEventTarget::InvokeListener( JS::HandleObject currentGlobal, JS::HandleObject listener, JS::HandleValue event )

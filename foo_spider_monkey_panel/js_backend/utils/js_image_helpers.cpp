@@ -3,14 +3,14 @@
 #include "js_art_helpers.h"
 
 #include <convert/native_to_js.h>
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/event_js_task.h>
 #include <js_backend/objects/core/global_heap_manager.h>
 #include <js_backend/objects/core/global_object.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/utils/js_async_task.h>
 #include <js_backend/utils/js_error_helper.h>
 #include <js_backend/utils/js_object_constants.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_js_task.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/thread_pool_instance.h>

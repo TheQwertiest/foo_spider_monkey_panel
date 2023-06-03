@@ -13,6 +13,7 @@
 #include <panel/modal_blocking_scope.h>
 #include <panel/panel_window.h>
 #include <panel/user_message.h>
+#include <tasks/micro_tasks/micro_task.h>
 #include <timeout/timer_interface.h>
 #include <utils/make_unique_ptr.h>
 
@@ -118,6 +119,16 @@ void JsEngine::UnregisterContainer( JsContainer& jsContainer )
     }
 }
 
+void JsEngine::EnqueueMicroTask( const std::shared_ptr<smp::MicroTask>& microTask )
+{
+    if ( !isInitialized_ )
+    {
+        return;
+    }
+
+    microTasks_.emplace_back( microTask );
+}
+
 void JsEngine::MaybeRunJobs()
 {
     if ( !isInitialized_ )
@@ -144,6 +155,23 @@ void JsEngine::MaybeRunJobs()
     const auto autoJobs = qwr::final_action( [&] { areJobsInProgress_ = false; } );
 
     {
+        while ( !microTasks_.empty() )
+        {
+            const auto microTasks = microTasks_;
+            microTasks_.clear();
+
+            for ( auto& pMicroTask: microTasks )
+            {
+                if ( !pMicroTask->IsCallable() )
+                {
+                    continue;
+                }
+
+                JSAutoRealm ac( pJsCtx_, pMicroTask->GetJsTarget() );
+                pMicroTask->Run();
+            }
+        }
+
         js::RunJobs( pJsCtx_ );
 
         for ( size_t i = 0; i < rejectedPromises_.length(); ++i )

@@ -34,6 +34,7 @@ public:
     [[nodiscard]] uint32_t Store( JS::HandleObject valueToStore );
     [[nodiscard]] uint32_t Store( JS::HandleFunction valueToStore );
     [[nodiscard]] JS::Heap<JS::Value>& Get( uint32_t id );
+    [[nodiscard]] JSObject* GetObject( uint32_t id );
     void Remove( uint32_t id );
 
     void Trace( JSTracer* trc );

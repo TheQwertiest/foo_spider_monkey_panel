@@ -116,7 +116,7 @@ HFONT JsGdiFont::GetHFont() const
 JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, uint32_t pxSize, uint32_t style )
 {
     auto pGdiFont = std::make_unique<Gdiplus::Font>( fontName.c_str(), static_cast<Gdiplus::REAL>( pxSize ), style, Gdiplus::UnitPixel );
-    qwr::error::CheckGdiPlusObject( pGdiFont );
+    smp::error::CheckGdiPlusObject( pGdiFont );
 
     // Generate HFONT
     // The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
@@ -173,10 +173,10 @@ std::wstring JsGdiFont::get_Name() const
     Gdiplus::FontFamily fontFamily;
     std::array<wchar_t, LF_FACESIZE> name{};
     Gdiplus::Status gdiRet = pGdi_->GetFamily( &fontFamily );
-    qwr::error::CheckGdi( gdiRet, "GetFamily" );
+    smp::error::CheckGdi( gdiRet, "GetFamily" );
 
     gdiRet = fontFamily.GetFamilyName( name.data(), LANG_NEUTRAL );
-    qwr::error::CheckGdi( gdiRet, "GetFamilyName" );
+    smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 
     return std::wstring( name.data() );
 }

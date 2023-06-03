@@ -2,11 +2,11 @@
 
 #include "playback_control.h"
 
-#include <events/playback_stop_event.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle.h>
 #include <js_backend/objects/fb2k/playback_stop_event.h>
+#include <tasks/events/playback_stop_event.h>
 
 using namespace smp;
 
@@ -154,11 +154,6 @@ void PlaybackControl::PostCreate( JSContext* cx, JS::HandleObject self )
 void PlaybackControl::Trace( JSTracer* trc, JSObject* obj )
 {
     JsEventTarget::Trace( trc, obj );
-}
-
-void PlaybackControl::PrepareForGc()
-{
-    JsEventTarget::PrepareForGc();
 }
 
 const std::string& PlaybackControl::EventIdToType( smp::EventId eventId )

@@ -4,7 +4,7 @@
 
 #include <optional>
 
-namespace qwr::error
+namespace smp::error
 {
 
 namespace internal
@@ -59,4 +59,4 @@ void CheckGdiPlusObject( const T& pObj, const T_Parent* pParentObj = nullptr )
     }
 }
 
-} // namespace qwr::error
+} // namespace smp::error

@@ -4,17 +4,18 @@
 
 #include <dom/dom_codes.h>
 #include <dom/dom_keys.h>
-#include <events/keyboard_event.h>
-#include <events/mouse_event.h>
-#include <events/wheel_event.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
+#include <js_backend/objects/dom/window/image.h>
 #include <js_backend/objects/dom/window/keyboard_event.h>
 #include <js_backend/objects/dom/window/mouse_event.h>
 #include <js_backend/objects/dom/window/paint_event.h>
 #include <js_backend/objects/dom/window/wheel_event.h>
 #include <panel/panel_window.h>
 #include <panel/panel_window_graphics.h>
+#include <tasks/events/keyboard_event.h>
+#include <tasks/events/mouse_event.h>
+#include <tasks/events/wheel_event.h>
 
 using namespace smp;
 
@@ -199,23 +200,23 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Repaint, WindowNew::Repaint, WindowNew::RepaintWithOpt, 1 )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( RepaintRect, WindowNew::RepaintRect, WindowNew::RepaintRectWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( repaint, WindowNew::Repaint, WindowNew::RepaintWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( repaintRect, WindowNew::RepaintRect, WindowNew::RepaintRectWithOpt, 1 )
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
-        JS_FN( "repaint", Repaint, 0, kDefaultPropsFlags ),
-        JS_FN( "repaintRect", RepaintRect, 4, kDefaultPropsFlags ),
+        JS_FN( "repaint", repaint, 0, kDefaultPropsFlags ),
+        JS_FN( "repaintRect", repaintRect, 4, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_Height, WindowNew::get_Height )
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_Width, WindowNew::get_Width )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_height, WindowNew::get_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_width, WindowNew::get_Width )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
-        JS_PSG( "height", get_Height, kDefaultPropsFlags ),
-        JS_PSG( "width", get_Width, kDefaultPropsFlags ),
+        JS_PSG( "height", get_height, kDefaultPropsFlags ),
+        JS_PSG( "width", get_width, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
@@ -274,6 +275,7 @@ void WindowNew::PostCreate( JSContext* cx, JS::HandleObject self )
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::MouseEvent>>( cx, self, JsPrototypeId::New_MouseEvent );
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::WheelEvent>>( cx, self, JsPrototypeId::New_WheelEvent );
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::KeyboardEvent>>( cx, self, JsPrototypeId::New_KeyboardEvent );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::Image>>( cx, self, JsPrototypeId::New_Image );
 }
 
 void WindowNew::Trace( JSTracer* trc, JSObject* obj )
@@ -289,8 +291,6 @@ void WindowNew::Trace( JSTracer* trc, JSObject* obj )
 
 void WindowNew::PrepareForGc()
 {
-    JsEventTarget::PrepareForGc();
-
     isFinalized_ = true;
 }
 

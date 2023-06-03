@@ -12,10 +12,12 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 #include <js_backend/engine/js_realm_inner.h>
 #include <js_backend/objects/core/global_object.h>
 #include <js_backend/objects/dom/drop_source_action.h>
+#include <js_backend/objects/dom/event_target.h>
 #include <js_backend/objects/gdi/gdi_graphics.h>
 #include <js_backend/utils/js_async_task.h>
 #include <js_backend/utils/js_error_helper.h>
 #include <js_backend/utils/scope_helper.h>
+#include <tasks/events/js_target_event.h>
 
 #include <qwr/final_action.h>
 
@@ -321,7 +323,20 @@ EventStatus JsContainer::InvokeJsEvent( smp::EventBase& event )
 
     try
     {
-        return pNativeGlobal_->HandleEvent( event );
+        if ( event.GetId() == smp::EventId::kNew_JsTarget )
+        {
+            auto& targetEvent = static_cast<smp::JsTargetEvent&>( event );
+            JS::RootedObject jsTarget( pJsCtx_, targetEvent.GetJsTarget() );
+
+            auto pNativeTarget = JsEventTarget::ExtractNative( pJsCtx_, jsTarget );
+            assert( pNativeTarget );
+
+            return pNativeTarget->HandleEvent( jsTarget, event );
+        }
+        else
+        {
+            return pNativeGlobal_->HandleEvent( event );
+        }
     }
     catch ( ... )
     {

@@ -19,6 +19,7 @@ std::unique_ptr<EventBase> PanelEvent::Clone()
 
 void PanelEvent::Run()
 {
+    assert( core_api::is_main_thread() );
     if ( !pTarget_ )
     {
         return;

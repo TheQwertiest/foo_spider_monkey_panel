@@ -2,9 +2,6 @@
 
 #include "window.h"
 
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/event_basic.h>
-#include <events/event_notify_others.h>
 #include <js_backend/engine/js_engine.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/menu_object.h>
@@ -18,6 +15,9 @@
 #include <js_backend/utils/js_property_helper.h>
 #include <panel/panel_window.h>
 #include <panel/panel_window_graphics.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_basic.h>
+#include <tasks/events/event_notify_others.h>
 #include <timeout/timeout_manager.h>
 #include <utils/gdi_helpers.h>
 

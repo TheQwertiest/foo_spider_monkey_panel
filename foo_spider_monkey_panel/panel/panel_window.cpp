@@ -5,13 +5,6 @@
 #include <com_objects/track_drop_target.h>
 #include <com_utils/com_destruction_handler.h>
 #include <config/smp_package/delayed_package_actions.h>
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/event_basic.h>
-#include <events/event_drag.h>
-#include <events/event_js_callback.h>
-#include <events/keyboard_event.h>
-#include <events/mouse_event.h>
-#include <events/wheel_event.h>
 #include <fb2k/mainmenu_dynamic.h>
 #include <js_backend/engine/js_container.h>
 #include <os/system_settings.h>
@@ -21,6 +14,13 @@
 #include <panel/modal_blocking_scope.h>
 #include <panel/mouse_message_handler.h>
 #include <panel/panel_window_graphics.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_basic.h>
+#include <tasks/events/event_drag.h>
+#include <tasks/events/event_js_callback.h>
+#include <tasks/events/keyboard_event.h>
+#include <tasks/events/mouse_event.h>
+#include <tasks/events/wheel_event.h>
 #include <timeout/timeout_manager.h>
 #include <ui/ui_conf.h>
 #include <utils/art_helpers.h>
@@ -966,8 +966,8 @@ void PanelWindow::UnloadScript( bool force )
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
     }
 
-    DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
     pJsContainer_->Finalize();
+    DynamicMainMenuManager::Get().UnregisterPanel( wnd_ );
     pTimeoutManager_->StopAllTimeouts();
 
     selectionHolder_.release();

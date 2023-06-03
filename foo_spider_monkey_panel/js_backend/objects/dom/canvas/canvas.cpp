@@ -183,10 +183,10 @@ void Canvas::ReinitializeCanvas( uint32_t width, uint32_t height )
     }
 
     auto pBitmap = std::make_unique<Gdiplus::Bitmap>( width, height, PixelFormat32bppPARGB );
-    qwr::error::CheckGdiPlusObject( pBitmap );
+    smp::error::CheckGdiPlusObject( pBitmap );
 
     auto pGraphics = std::make_unique<Gdiplus::Graphics>( pBitmap.get() );
-    qwr::error::CheckGdiPlusObject( pGraphics );
+    smp::error::CheckGdiPlusObject( pGraphics );
 
     pBitmap_ = std::move( pBitmap );
     pGraphics_ = std::move( pGraphics );

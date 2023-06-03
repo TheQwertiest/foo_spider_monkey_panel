@@ -2,12 +2,12 @@
 
 #include "mouse_message_handler.h"
 
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/mouse_event.h>
-#include <events/wheel_event.h>
 #include <os/system_settings.h>
 #include <panel/panel_window.h>
 #include <panel/panel_window_graphics.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/mouse_event.h>
+#include <tasks/events/wheel_event.h>
 
 namespace
 {

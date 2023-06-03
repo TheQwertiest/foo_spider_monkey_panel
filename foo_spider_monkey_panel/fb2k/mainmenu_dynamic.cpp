@@ -2,8 +2,8 @@
 
 #include "mainmenu_dynamic.h"
 
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/event_js_callback.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_js_callback.h>
 
 #include <component_paths.h>
 

@@ -2,9 +2,9 @@
 
 #include "timer_manager_native.h"
 
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/event_timer.h>
 #include <panel/panel_window.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_timer.h>
 #include <timeout/timer_native.h>
 #include <utils/logging.h>
 

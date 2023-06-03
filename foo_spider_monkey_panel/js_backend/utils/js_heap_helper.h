@@ -3,34 +3,14 @@
 #include <js_backend/objects/core/global_heap_manager.h>
 #include <js_backend/objects/core/global_object.h>
 
-#include <array>
-
 namespace mozjs
 {
 
 class HeapHelper : public IHeapUser
 {
 public:
-    HeapHelper( JSContext* cx )
-        : pJsCtx_( cx )
-    {
-        assert( cx );
-
-        JS::RootedObject jsGlobal( cx, JS::CurrentGlobalOrNull( cx ) );
-        assert( jsGlobal );
-
-        pNativeGlobal_ = JsGlobalObject::ExtractNative( cx, jsGlobal );
-        assert( pNativeGlobal_ );
-
-        pNativeGlobal_->GetHeapManager().RegisterUser( this );
-
-        isJsAvailable_ = true;
-    }
-
-    ~HeapHelper() override
-    {
-        Finalize();
-    };
+    HeapHelper( JSContext* cx );
+    ~HeapHelper() override;
 
     template <typename T>
     [[nodiscard]] uint32_t Store( const T& jsObject )
@@ -40,41 +20,16 @@ public:
         return valueHeapIds_.emplace_back( pNativeGlobal_->GetHeapManager().Store( jsObject ) );
     }
 
-    [[nodiscard]] JS::Heap<JS::Value>& Get( uint32_t objectId )
-    {
-        assert( core_api::is_main_thread() );
-        assert( isJsAvailable_ );
-        return pNativeGlobal_->GetHeapManager().Get( objectId );
-    }
+    [[nodiscard]] JS::Heap<JS::Value>& Get( uint32_t objectId );
+    // TODO: remove GetObject, just use return JS::Value& above and use it directly instead
+    [[nodiscard]] JSObject* GetObject( uint32_t objectId );
 
-    bool IsJsAvailable() const
-    {
-        assert( core_api::is_main_thread() );
-        return isJsAvailable_;
-    }
+    bool IsJsAvailable() const;
 
-    void Finalize()
-    { // might be called from worker thread
-        std::scoped_lock sl( cleanupLock_ );
-        if ( !isJsAvailable_ )
-        {
-            return;
-        }
+    // might be called from worker thread
+    void Finalize();
 
-        for ( auto heapId: valueHeapIds_ )
-        {
-            pNativeGlobal_->GetHeapManager().Remove( heapId );
-        }
-        pNativeGlobal_->GetHeapManager().UnregisterUser( this );
-
-        isJsAvailable_ = false;
-    }
-
-    void PrepareForGlobalGc() final
-    {
-        std::scoped_lock sl( cleanupLock_ );
-        isJsAvailable_ = false;
-    }
+    void PrepareForGlobalGc() final;
 
 private:
     JSContext* pJsCtx_ = nullptr;

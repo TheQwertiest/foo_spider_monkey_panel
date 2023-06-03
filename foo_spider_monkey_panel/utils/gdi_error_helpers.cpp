@@ -4,7 +4,7 @@
 
 #include <qwr/string_helpers.h>
 
-namespace qwr::error
+namespace smp::error
 {
 
 const char* GdiErrorCodeToText( Gdiplus::Status errorCode )
@@ -53,6 +53,8 @@ const char* GdiErrorCodeToText( Gdiplus::Status errorCode )
         return "PropertyNotFound";
     case Gdiplus::PropertyNotSupported:
         return "PropertyNotSupported";
+    case Gdiplus::ProfileNotFound:
+        return "ProfileNotFound";
     default:
         return "UnknownErrorCode";
     }
@@ -66,4 +68,4 @@ void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName )
     }
 }
 
-} // namespace qwr::error
+} // namespace smp::error

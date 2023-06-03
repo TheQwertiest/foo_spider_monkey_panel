@@ -2,9 +2,9 @@
 
 #include "mouse_event.h"
 
-#include <events/mouse_event.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/utils/js_property_helper.h>
+#include <tasks/events/mouse_event.h>
 
 namespace
 {

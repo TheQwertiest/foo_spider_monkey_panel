@@ -280,6 +280,7 @@ ScriptLoader& JsGlobalObject::GetScriptLoader()
     return scriptLoader_;
 }
 
+// TODO: simplify class relations, e.g. use Panel directly (in ctx or here)
 HWND JsGlobalObject::GetPanelHwnd() const
 {
     assert( pJsWindow_ );

@@ -1,8 +1,8 @@
 #include <stdafx.h>
 
-#include <events/dispatcher/event_dispatcher.h>
-#include <events/panel_event.h>
-#include <events/playback_stop_event.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/panel_event.h>
+#include <tasks/events/playback_stop_event.h>
 
 using namespace smp;
 

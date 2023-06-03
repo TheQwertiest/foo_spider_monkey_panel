@@ -161,11 +161,6 @@ void SelectionManager::Trace( JSTracer* trc, JSObject* obj )
     JsEventTarget::Trace( trc, obj );
 }
 
-void SelectionManager::PrepareForGc()
-{
-    JsEventTarget::PrepareForGc();
-}
-
 const std::string& SelectionManager::EventIdToType( smp::EventId eventId )
 {
     static const std::unordered_map<EventId, std::string> idToType{

@@ -208,17 +208,17 @@ bool JsUtils::CheckFont( const std::wstring& name ) const
 
     int recv;
     Gdiplus::Status gdiRet = font_collection.GetFamilies( count, font_families.data(), &recv );
-    qwr::error::CheckGdi( gdiRet, "GetFamilies" );
+    smp::error::CheckGdi( gdiRet, "GetFamilies" );
     qwr::QwrException::ExpectTrue( recv == count, "Internal error: GetFamilies numSought != numFound" );
 
     std::array<wchar_t, LF_FACESIZE> family_name_eng{};
     std::array<wchar_t, LF_FACESIZE> family_name_loc{};
     const auto it = ranges::find_if( font_families, [&family_name_eng, &family_name_loc, &name]( const auto& fontFamily ) {
         Gdiplus::Status gdiRet = fontFamily.GetFamilyName( family_name_eng.data(), MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
-        qwr::error::CheckGdi( gdiRet, "GetFamilyName" );
+        smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 
         gdiRet = fontFamily.GetFamilyName( family_name_loc.data() );
-        qwr::error::CheckGdi( gdiRet, "GetFamilyName" );
+        smp::error::CheckGdi( gdiRet, "GetFamilyName" );
 
         return ( !_wcsicmp( name.c_str(), family_name_loc.data() )
                  || !_wcsicmp( name.c_str(), family_name_eng.data() ) );

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <events/event.h>
 #include <js_backend/engine/js_event_status.h>
 #include <js_backend/objects/core/object_base.h>
 #include <js_backend/objects/dom/event_target.h>
+#include <tasks/events/event.h>
 
 #include <optional>
 #include <string>
@@ -46,9 +46,8 @@ public:
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
     static void Trace( JSTracer* trc, JSObject* obj );
-    void PrepareForGc();
 
-    EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event );
+    EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event ) override;
 
 public:
     JSObject* GetNowPlayingTrack();

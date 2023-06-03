@@ -1,8 +1,8 @@
 #pragma once
 
-#include <events/event.h>
-#include <events/event_js_executor.h>
 #include <js_backend/utils/js_heap_helper.h>
+#include <tasks/events/event.h>
+#include <tasks/events/event_js_executor.h>
 
 namespace smp
 {

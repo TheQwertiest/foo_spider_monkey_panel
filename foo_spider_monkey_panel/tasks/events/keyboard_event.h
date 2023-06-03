@@ -1,6 +1,6 @@
 #pragma once
 
-#include <events/panel_event.h>
+#include <tasks/events/panel_event.h>
 
 #include <qwr/enum_bitmask_ops.hpp>
 

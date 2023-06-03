@@ -19,15 +19,13 @@ public:
     [[nodiscard]] virtual bool IsCanceled() const = 0;
 };
 
-// clang-format off
 template <typename... Args>
-requires( std::is_same_v<Args, JS::HandleValue> && ... )
+    requires( std::is_same_v<Args, JS::HandleValue> && ... )
 class JsAsyncTaskImpl
-    // clang-format on
     : public JsAsyncTask
 {
 public:
-    /// throws JsException
+    /// @throw JsException
     JsAsyncTaskImpl( JSContext* cx, Args... args )
         : pJsCtx_( cx )
     {

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <events/mouse_event.h>
+#include <tasks/events/mouse_event.h>
 
 namespace smp
 {
