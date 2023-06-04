@@ -10,9 +10,10 @@
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_target_event.h>
 #include <tasks/micro_tasks/micro_task.h>
-#include <utils/thread_pool_instance.h>
 
+#include <qwr/final_action.h>
 #include <qwr/utility.h>
+#include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
 namespace fs = std::filesystem;
@@ -111,6 +112,11 @@ void ImageFetchThreadTask::Run()
 
     try
     {
+        auto hr = CoInitializeEx( nullptr, COINIT_MULTITHREADED );
+        qwr::error::CheckHR( hr, "CoInitializeEx" );
+
+        qwr::final_action autoCo( [] { CoUninitialize(); } );
+
         auto pLoadedImage = smp::graphics::LoadImageFromFile( imagePath_ );
 
         smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
@@ -361,7 +367,7 @@ qwr::ComPtr<IWICBitmap> Image::GetDecodedBitmap() const
     }
 
     // TODO: add decode() handling
-    return smp::graphics::DecodeImage( *pLoadedImage_ );
+    return ( pDecodedImage_ ? pDecodedImage_ : smp::graphics::DecodeImage( *pLoadedImage_ ) );
 }
 
 std::shared_ptr<const smp::graphics::LoadedImage> Image::GetLoadedImage() const
@@ -528,9 +534,7 @@ void Image::UpdateImageData( JS::HandleObject jsSelf )
     pFetchTask_ = pFetchTask;
     pendingParsedSrc_ = parsedSrc;
 
-    // TODO: replace with fb2k thread pool, once CoInitialize issue is fixed
-    smp::GetThreadPoolInstance().AddTask( [pFetchTask] { pFetchTask->Run(); } );
-    // fb2k::inCpuWorkerThread( [pFetchTask] { pFetchTask->Run(); } );
+    fb2k::inCpuWorkerThread( [pFetchTask] { pFetchTask->Run(); } );
 }
 
 void Image::ProcessFetchEvent( const ImageFetchEvent& fetchEvent, JS::HandleObject jsSelf )

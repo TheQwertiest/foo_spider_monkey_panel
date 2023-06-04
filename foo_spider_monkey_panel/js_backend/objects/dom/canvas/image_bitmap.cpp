@@ -13,7 +13,9 @@
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_runnable_event.h>
 #include <utils/gdi_error_helpers.h>
-#include <utils/thread_pool_instance.h>
+
+#include <qwr/final_action.h>
+#include <qwr/winapi_error_helpers.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Promise.h>
@@ -130,6 +132,11 @@ void BitmapExtractThreadTask::Run()
         assert( pLoadedImage_ || pImage_ );
         if ( pLoadedImage_ )
         {
+            auto hr = CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED );
+            qwr::error::CheckHR( hr, "CoInitializeEx" );
+
+            qwr::final_action autoCo( [] { CoUninitialize(); } );
+
             auto pDecodedImage = smp::graphics::DecodeImage( *pLoadedImage_ );
             pImage_ = smp::graphics::GenerateGdiBitmap( pDecodedImage );
         }
@@ -383,7 +390,7 @@ JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue ima
 
         const Gdiplus::Rect srcRect{ sx, sy, sw.value_or( bitmapW ), sw.value_or( bitmapH ) };
         auto pFetchTask = std::make_shared<BitmapExtractThreadTask>( std::move( pClonedImage ), srcRect, parsedOptions, cx, jsPromise, GetPanelHwndForCurrentGlobal( cx ) );
-        smp::GetThreadPoolInstance().AddTask( [pFetchTask] { pFetchTask->Run(); } );
+        fb2k::inCpuWorkerThread( [pFetchTask] { pFetchTask->Run(); } );
     };
 
     try
@@ -402,7 +409,7 @@ JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue ima
 
             const Gdiplus::Rect srcRect{ sx, sy, sw.value_or( pLoadedImage->width ), sw.value_or( pLoadedImage->height ) };
             auto pFetchTask = std::make_shared<BitmapExtractThreadTask>( pLoadedImage, srcRect, parsedOptions, cx, jsPromise, GetPanelHwndForCurrentGlobal( cx ) );
-            smp::GetThreadPoolInstance().AddTask( [pFetchTask] { pFetchTask->Run(); } );
+            fb2k::inCpuWorkerThread( [pFetchTask] { pFetchTask->Run(); } );
         }
         else if ( auto pImageBitmap = ImageBitmap::ExtractNative( cx, jsObject ) )
         {
