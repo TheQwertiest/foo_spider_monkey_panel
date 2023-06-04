@@ -9,6 +9,7 @@
 #include <js_backend/objects/dom/canvas/canvas.h>
 #include <js_backend/objects/dom/window/image.h>
 #include <js_backend/utils/js_hwnd_helpers.h>
+#include <js_backend/utils/js_property_helper.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_runnable_event.h>
 #include <utils/gdi_error_helpers.h>
@@ -26,16 +27,18 @@ namespace
 class BitmapExtractThreadTask
 {
 public:
-    [[nodiscard]] BitmapExtractThreadTask( JSContext* cx,
-                                           JS::HandleObject jsTarget,
-                                           HWND hPanelWnd,
+    [[nodiscard]] BitmapExtractThreadTask( std::unique_ptr<Gdiplus::Image> pImage,
                                            Gdiplus::Rect srcRect,
-                                           std::unique_ptr<Gdiplus::Image> pImage );
-    [[nodiscard]] BitmapExtractThreadTask( JSContext* cx,
+                                           const mozjs::ImageBitmap::CreateBitmapOptions& options,
+                                           JSContext* cx,
                                            JS::HandleObject jsTarget,
-                                           HWND hPanelWnd,
+                                           HWND hPanelWnd );
+    [[nodiscard]] BitmapExtractThreadTask( std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage,
                                            Gdiplus::Rect srcRect,
-                                           std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage );
+                                           const mozjs::ImageBitmap::CreateBitmapOptions& options,
+                                           JSContext* cx,
+                                           JS::HandleObject jsTarget,
+                                           HWND hPanelWnd );
 
     ~BitmapExtractThreadTask() = default;
 
@@ -51,7 +54,9 @@ private:
 
     HWND hPanelWnd_ = nullptr;
 
-    Gdiplus::Rect srcRect_{};
+    const Gdiplus::Rect srcRect_{};
+    const mozjs::ImageBitmap::CreateBitmapOptions options_;
+
     std::unique_ptr<Gdiplus::Image> pImage_;
     std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage_;
 };
@@ -82,32 +87,36 @@ private:
 namespace
 {
 
-BitmapExtractThreadTask::BitmapExtractThreadTask( JSContext* cx,
-                                                  JS::HandleObject jsTarget,
-                                                  HWND hPanelWnd,
+BitmapExtractThreadTask::BitmapExtractThreadTask( std::unique_ptr<Gdiplus::Image> pImage,
                                                   Gdiplus::Rect srcRect,
-                                                  std::unique_ptr<Gdiplus::Image> pImage )
+                                                  const mozjs::ImageBitmap::CreateBitmapOptions& options,
+                                                  JSContext* cx,
+                                                  JS::HandleObject jsTarget,
+                                                  HWND hPanelWnd )
     : pJsCtx_( cx )
     , pHeapHelper_( std::make_shared<mozjs::HeapHelper>( cx ) )
     , jsTargetId_( pHeapHelper_->Store( jsTarget ) )
     , hPanelWnd_( hPanelWnd )
     , srcRect_( srcRect )
+    , options_( options )
     , pImage_( std::move( pImage ) )
 {
     assert( pJsCtx_ );
     assert( pImage_ );
 }
 
-BitmapExtractThreadTask::BitmapExtractThreadTask( JSContext* cx,
-                                                  JS::HandleObject jsTarget,
-                                                  HWND hPanelWnd,
+BitmapExtractThreadTask::BitmapExtractThreadTask( std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage,
                                                   Gdiplus::Rect srcRect,
-                                                  std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage )
+                                                  const mozjs::ImageBitmap::CreateBitmapOptions& options,
+                                                  JSContext* cx,
+                                                  JS::HandleObject jsTarget,
+                                                  HWND hPanelWnd )
     : pJsCtx_( cx )
     , pHeapHelper_( std::make_shared<mozjs::HeapHelper>( cx ) )
     , jsTargetId_( pHeapHelper_->Store( jsTarget ) )
     , hPanelWnd_( hPanelWnd )
     , srcRect_( srcRect )
+    , options_( options )
     , pLoadedImage_( pLoadedImage )
 {
     assert( pJsCtx_ );
@@ -128,19 +137,50 @@ void BitmapExtractThreadTask::Run()
         const auto imageW = static_cast<int32_t>( pImage_->GetWidth() );
         const auto imageH = static_cast<int32_t>( pImage_->GetHeight() );
 
-        smp::dom::AdjustAxis( srcRect_.X, srcRect_.Width );
-        smp::dom::AdjustAxis( srcRect_.Y, srcRect_.Height );
+        auto srcRect = srcRect_;
+        smp::dom::AdjustAxis( srcRect.X, srcRect.Width );
+        smp::dom::AdjustAxis( srcRect.Y, srcRect.Height );
 
-        if ( !srcRect_.Equals( { 0, 0, imageW, imageH } ) )
-        { // TODO: handle options
-            Gdiplus::Rect dstRect{ 0, 0, srcRect_.Width - srcRect_.X, srcRect_.Height - srcRect_.Y };
+        const auto dstW = static_cast<int32_t>( options_.resizeWidthOpt.value_or( options_.resizeHeightOpt ? imageW * *options_.resizeHeightOpt / imageH : imageW ) );
+        const auto dstH = static_cast<int32_t>( options_.resizeHeightOpt.value_or( options_.resizeWidthOpt ? imageH * *options_.resizeWidthOpt / imageW : imageH ) );
+        const Gdiplus::Rect dstRect{ 0, 0, dstW, dstH };
+
+        if ( options_.shouldFlipY )
+        {
+            auto gdiRet = pImage_->RotateFlip( Gdiplus::RotateNoneFlipY );
+            smp::error::CheckGdi( gdiRet, "RotateFlip" );
+        }
+
+        if ( !srcRect.Equals( { 0, 0, imageW, imageH } ) || dstRect.Width != imageW || dstRect.Height != imageH )
+        {
             auto pBitmap = std::make_unique<Gdiplus::Bitmap>( dstRect.Width, dstRect.Height );
             smp::error::CheckGdiPlusObject( pBitmap );
 
-            std::unique_ptr<Gdiplus::Graphics> pGraphics( Gdiplus::Graphics::FromImage( pBitmap.get() ) );
+            auto pGraphics = std::make_unique<Gdiplus::Graphics>( pBitmap.get() );
             smp::error::CheckGdiPlusObject( pGraphics );
 
-            auto gdiRet = pGraphics->DrawImage( pBitmap.get(), dstRect, srcRect_.X, srcRect_.Y, srcRect_.Width, srcRect_.Height, Gdiplus::UnitPixel );
+            const auto interpolationMode = [&] {
+                if ( options_.resizeQuality == "high" )
+                {
+                    return Gdiplus::InterpolationModeHighQualityBicubic;
+                }
+                else if ( options_.resizeQuality == "medium" )
+                {
+                    return Gdiplus::InterpolationModeHighQualityBilinear;
+                }
+                else if ( options_.resizeQuality == "pixelated" )
+                {
+                    return Gdiplus::InterpolationModeNearestNeighbor;
+                }
+                else
+                {
+                    return Gdiplus::InterpolationModeBilinear;
+                }
+            }();
+            auto gdiRet = pGraphics->SetInterpolationMode( interpolationMode );
+            smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
+
+            gdiRet = pGraphics->DrawImage( pImage_.get(), dstRect, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, Gdiplus::UnitPixel );
             smp::error::CheckGdi( gdiRet, "DrawImage" );
 
             pImage_ = std::move( pBitmap );
@@ -322,6 +362,10 @@ uint32_t ImageBitmap::get_Width() const
 
 JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue image, int32_t sx, int32_t sy, std::optional<int32_t> sw, std::optional<int32_t> sh, JS::HandleValue options )
 {
+    const auto parsedOptions = ParseCreateBitmapOptions( cx, options );
+    qwr::QwrException::ExpectTrue( !parsedOptions.resizeWidthOpt || *parsedOptions.resizeWidthOpt, "resizeWidth passed must be nonzero" );
+    qwr::QwrException::ExpectTrue( !parsedOptions.resizeHeightOpt || *parsedOptions.resizeHeightOpt, "resizeHeight passed must be nonzero" );
+
     JS::RootedObject jsPromise( cx, JS::NewPromiseObject( cx, nullptr ) );
     JsException::ExpectTrue( jsPromise );
 
@@ -338,7 +382,7 @@ JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue ima
         qwr::QwrException::ExpectTrue( bitmapH, "The source image height is 0" );
 
         const Gdiplus::Rect srcRect{ sx, sy, sw.value_or( bitmapW ), sw.value_or( bitmapH ) };
-        auto pFetchTask = std::make_shared<BitmapExtractThreadTask>( cx, jsPromise, GetPanelHwndForCurrentGlobal( cx ), srcRect, std::move( pClonedImage ) );
+        auto pFetchTask = std::make_shared<BitmapExtractThreadTask>( std::move( pClonedImage ), srcRect, parsedOptions, cx, jsPromise, GetPanelHwndForCurrentGlobal( cx ) );
         smp::GetThreadPoolInstance().AddTask( [pFetchTask] { pFetchTask->Run(); } );
     };
 
@@ -357,7 +401,7 @@ JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue ima
             qwr::QwrException::ExpectTrue( pLoadedImage->height, "The source image height is 0" );
 
             const Gdiplus::Rect srcRect{ sx, sy, sw.value_or( pLoadedImage->width ), sw.value_or( pLoadedImage->height ) };
-            auto pFetchTask = std::make_shared<BitmapExtractThreadTask>( cx, jsPromise, GetPanelHwndForCurrentGlobal( cx ), srcRect, pLoadedImage );
+            auto pFetchTask = std::make_shared<BitmapExtractThreadTask>( pLoadedImage, srcRect, parsedOptions, cx, jsPromise, GetPanelHwndForCurrentGlobal( cx ) );
             smp::GetThreadPoolInstance().AddTask( [pFetchTask] { pFetchTask->Run(); } );
         }
         else if ( auto pImageBitmap = ImageBitmap::ExtractNative( cx, jsObject ) )
@@ -384,6 +428,29 @@ JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue ima
     }
 
     return jsPromise;
+}
+
+ImageBitmap::CreateBitmapOptions
+ImageBitmap::ParseCreateBitmapOptions( JSContext* cx, JS::HandleValue options )
+{
+    CreateBitmapOptions parsedOptions;
+    if ( options.isNullOrUndefined() )
+    {
+        return parsedOptions;
+    }
+
+    qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
+    JS::RootedObject jsOptions( cx, &options.toObject() );
+
+    parsedOptions.resizeWidthOpt = utils::GetOptionalProperty<uint32_t>( cx, jsOptions, "resizeWidth" );
+    parsedOptions.resizeHeightOpt = utils::GetOptionalProperty<uint32_t>( cx, jsOptions, "resizeHeight" );
+
+    const auto imageOrientationOpt = utils::GetOptionalProperty<qwr::u8string>( cx, jsOptions, "imageOrientation" );
+    parsedOptions.shouldFlipY = ( imageOrientationOpt == "flipY" );
+
+    utils::OptionalPropertyTo( cx, jsOptions, "resizeQuality", parsedOptions.resizeQuality );
+
+    return parsedOptions;
 }
 
 } // namespace mozjs

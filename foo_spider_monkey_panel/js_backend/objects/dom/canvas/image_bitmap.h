@@ -26,6 +26,15 @@ class ImageBitmap
     : public JsObjectBase<ImageBitmap>
 {
 public:
+    struct CreateBitmapOptions
+    {
+        bool shouldFlipY = false;
+        std::optional<uint32_t> resizeWidthOpt;
+        std::optional<uint32_t> resizeHeightOpt;
+        qwr::u8string resizeQuality = "low";
+    };
+
+public:
     ~ImageBitmap() override;
 
     [[nodiscard]] static std::unique_ptr<ImageBitmap> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Image> pImage );
@@ -46,6 +55,7 @@ private:
     [[nodiscard]] ImageBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Image> pImage );
 
     static JSObject* CreateImageBitmapImpl( JSContext* cx, JS::HandleValue image, int32_t sx, int32_t sy, std::optional<int32_t> sw, std::optional<int32_t> sh, JS::HandleValue options );
+    static CreateBitmapOptions ParseCreateBitmapOptions( JSContext* cx, JS::HandleValue options );
 
 private:
     JSContext* pJsCtx_ = nullptr;
