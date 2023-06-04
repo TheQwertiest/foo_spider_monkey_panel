@@ -238,13 +238,21 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( close, ImageBitmap::Close );
+
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
+        JS_FN( "close", close, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_height, mozjs::ImageBitmap::get_Height )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_width, mozjs::ImageBitmap::get_Width )
+
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
+        JS_PSG( "height", get_height, kDefaultPropsFlags ),
+        JS_PSG( "width", get_width, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
@@ -302,6 +310,16 @@ void ImageBitmap::Close()
     pImage_.reset();
 }
 
+uint32_t ImageBitmap::get_Height() const
+{
+    return ( pImage_ ? pImage_->GetHeight() : 0 );
+}
+
+uint32_t ImageBitmap::get_Width() const
+{
+    return ( pImage_ ? pImage_->GetWidth() : 0 );
+}
+
 JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue image, int32_t sx, int32_t sy, std::optional<int32_t> sw, std::optional<int32_t> sh, JS::HandleValue options )
 {
     JS::RootedObject jsPromise( cx, JS::NewPromiseObject( cx, nullptr ) );
@@ -328,9 +346,6 @@ JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue ima
     {
         qwr::QwrException::ExpectTrue( !sw || *sw, "The crop rect width is 0" );
         qwr::QwrException::ExpectTrue( !sh || *sh, "The crop rect height is 0" );
-
-        // An attempt was made to use an object that is not, or is no longer, usable
-
         qwr::QwrException::ExpectTrue( image.isObject(), "image argument is not an object" );
         JS::RootedObject jsObject( cx, &image.toObject() );
 

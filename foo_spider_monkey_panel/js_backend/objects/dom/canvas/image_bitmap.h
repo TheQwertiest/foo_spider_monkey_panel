@@ -39,6 +39,9 @@ public:
 public:
     void Close();
 
+    uint32_t get_Height() const;
+    uint32_t get_Width() const;
+
 private:
     [[nodiscard]] ImageBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Image> pImage );
 
@@ -48,8 +51,6 @@ private:
     JSContext* pJsCtx_ = nullptr;
 
     std::unique_ptr<Gdiplus::Image> pImage_;
-    size_t width = 0;
-    size_t height = 0;
 };
 
 } // namespace mozjs
