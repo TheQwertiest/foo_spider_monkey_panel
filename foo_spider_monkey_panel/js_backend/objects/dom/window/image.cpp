@@ -2,18 +2,14 @@
 
 #include "image.h"
 
-#include <dom/css_colours.h>
-#include <dom/double_helpers.h>
 #include <graphics/image_loader.h>
 #include <js_backend/engine/js_engine.h>
 #include <js_backend/engine/js_to_native_invoker.h>
-#include <js_backend/objects/dom/canvas/canvas_rendering_context_2d.h>
 #include <js_backend/objects/dom/event.h>
 #include <js_backend/utils/js_hwnd_helpers.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_target_event.h>
 #include <tasks/micro_tasks/micro_task.h>
-#include <utils/gdi_error_helpers.h>
 #include <utils/thread_pool_instance.h>
 
 #include <qwr/utility.h>
@@ -366,6 +362,11 @@ qwr::ComPtr<IWICBitmap> Image::GetDecodedBitmap() const
 
     // TODO: add decode() handling
     return smp::graphics::DecodeImage( *pLoadedImage_ );
+}
+
+std::shared_ptr<const smp::graphics::LoadedImage> Image::GetLoadedImage() const
+{
+    return pLoadedImage_;
 }
 
 Image::CompleteStatus Image::GetStatus() const

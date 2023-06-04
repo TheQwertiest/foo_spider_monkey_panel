@@ -55,10 +55,6 @@ std::unique_ptr<const LoadedImage> LoadImageFromFile( const std::filesystem::pat
 
 qwr::ComPtr<IWICBitmap> DecodeImage( const LoadedImage& loadedImage )
 {
-    // Must be only used on main thread, because we can't use pStream in parallel (can't clone it either).
-    // Revisit if parallel use is needed
-    assert( core_api::is_main_thread() );
-
     auto pStream = [&] {
         auto pMemStreamRaw = SHCreateMemStream( loadedImage.rawData.data(), loadedImage.rawData.size() );
         qwr::error::CheckWinApi( !!pMemStreamRaw, "SHCreateMemStream" );

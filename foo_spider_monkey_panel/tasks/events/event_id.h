@@ -110,8 +110,10 @@ enum class EventId
     kNew_MouseContextMenu,
     //// wheel
     kNew_MouseWheel,
-    // direct js pass-through
-    kNew_JsTarget
+    // to be executed on js target
+    kNew_JsTarget,
+    // to be executed in js
+    kNew_JsRunnable
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {

@@ -39,7 +39,7 @@ public:
     // TODO: add dynamic size
     [[nodiscard]] size_t GetInternalSize() const;
 
-    Gdiplus::Bitmap& GetBitmap();
+    [[nodiscard]] Gdiplus::Bitmap& GetBitmap();
 
 public:
     static JSObject* Constructor( JSContext* cx, uint32_t width, uint32_t height );

@@ -80,6 +80,7 @@ public:
 
     /// @throw qwr::QwrException
     [[nodiscard]] qwr::ComPtr<IWICBitmap> GetDecodedBitmap() const;
+    [[nodiscard]] std::shared_ptr<const smp::graphics::LoadedImage> GetLoadedImage() const;
     [[nodiscard]] CompleteStatus GetStatus() const;
 
 public:

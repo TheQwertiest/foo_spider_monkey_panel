@@ -583,6 +583,12 @@
     <ClCompile Include="graphics\gdiplus\bitmap_generator.cpp">
       <Filter>graphics\gdiplus</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\canvas\image_bitmap.cpp">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\js_runnable_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1269,6 +1275,15 @@
     </ClInclude>
     <ClInclude Include="graphics\gdiplus\bitmap_generator.h">
       <Filter>graphics\gdiplus</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\image_bitmap.h">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\js_runnable_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="dom\axis_adjuster.h">
+      <Filter>dom</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

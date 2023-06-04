@@ -9,17 +9,19 @@
 namespace smp
 {
 
-// TODO: think of a better name to avoid confusion with JsEventTarget
-class JsTargetEvent
+class JsRunnableEvent
     : public PanelEvent
 
 {
 public:
-    [[nodiscard]] JsTargetEvent( const qwr::u8string& type, JSContext* pJsCtx, JS::HandleObject jsTarget );
-    [[nodiscard]] JsTargetEvent( const qwr::u8string& type, JSContext* pJsCtx, const std::shared_ptr<mozjs::HeapHelper>& pHeapHelper, uint32_t jsTargetId );
+    [[nodiscard]] JsRunnableEvent( JSContext* pJsCtx, JS::HandleObject jsTarget );
+    [[nodiscard]] JsRunnableEvent( JSContext* pJsCtx, const std::shared_ptr<mozjs::HeapHelper>& pHeapHelper, uint32_t jsTargetId );
 
-    [[nodiscard]] const qwr::u8string& GetType() const;
     [[nodiscard]] JSObject* GetJsTarget();
+
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
+    virtual void RunJs() = 0;
 
 private:
     const qwr::u8string type_;

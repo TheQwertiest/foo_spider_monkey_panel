@@ -17,6 +17,7 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 #include <js_backend/utils/js_async_task.h>
 #include <js_backend/utils/js_error_helper.h>
 #include <js_backend/utils/scope_helper.h>
+#include <tasks/events/js_runnable_event.h>
 #include <tasks/events/js_target_event.h>
 
 #include <qwr/final_action.h>
@@ -332,6 +333,12 @@ EventStatus JsContainer::InvokeJsEvent( smp::EventBase& event )
             assert( pNativeTarget );
 
             return pNativeTarget->HandleEvent( jsTarget, event );
+        }
+        else if ( event.GetId() == smp::EventId::kNew_JsRunnable )
+        {
+            auto& runnableEvent = static_cast<smp::JsRunnableEvent&>( event );
+            runnableEvent.RunJs();
+            return { .isDefaultSuppressed = false, .isHandled = true };
         }
         else
         {

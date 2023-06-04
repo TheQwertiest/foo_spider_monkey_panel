@@ -2,6 +2,7 @@
 
 #include "canvas_rendering_context_2d.h"
 
+#include <dom/axis_adjuster.h>
 #include <dom/css_colours.h>
 #include <dom/css_fonts.h>
 #include <dom/double_helpers.h>
@@ -10,6 +11,7 @@
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/canvas/canvas.h>
 #include <js_backend/objects/dom/canvas/canvas_gradient.h>
+#include <js_backend/objects/dom/canvas/image_bitmap.h>
 #include <js_backend/objects/dom/window/image.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <utils/colour_helpers.h>
@@ -62,16 +64,6 @@ struct GdiFontData
 
 namespace
 {
-
-template <typename T>
-inline void AdjustAxis( T& axis, T& dim )
-{
-    if ( dim < 0 )
-    {
-        axis -= dim;
-        dim *= -1;
-    }
-}
 
 inline bool IsEpsilonEqual( float a, float b )
 {
@@ -694,8 +686,8 @@ void CanvasRenderingContext2D_Qwr::FillRect( double x, double y, double w, doubl
         return;
     }
 
-    AdjustAxis( x, w );
-    AdjustAxis( y, h );
+    smp::dom::AdjustAxis( x, w );
+    smp::dom::AdjustAxis( y, h );
 
     const Gdiplus::RectF rect{
         static_cast<float>( x ),
@@ -869,8 +861,8 @@ void CanvasRenderingContext2D_Qwr::RoundRect( double x, double y, double w, doub
 
     qwr::QwrException::ExpectTrue( radii >= 0, "Radius can not be negative" );
 
-    AdjustAxis( x, w );
-    AdjustAxis( y, h );
+    smp::dom::AdjustAxis( x, w );
+    smp::dom::AdjustAxis( y, h );
 
     auto upperLeft = radii;
     auto upperRight = radii;
@@ -986,8 +978,8 @@ void CanvasRenderingContext2D_Qwr::StrokeRect( double x, double y, double w, dou
         return;
     }
 
-    AdjustAxis( x, w );
-    AdjustAxis( y, h );
+    smp::dom::AdjustAxis( x, w );
+    smp::dom::AdjustAxis( y, h );
 
     const Gdiplus::RectF rect{
         static_cast<float>( x ),
@@ -1419,10 +1411,10 @@ void CanvasRenderingContext2D_Qwr::DrawImageImpl( JS::HandleValue image,
             return;
         }
 
-        AdjustAxis( srcX, srcW );
-        AdjustAxis( srcY, srcH );
-        AdjustAxis( dstX, dstW );
-        AdjustAxis( dstY, dstH );
+        smp::dom::AdjustAxis( srcX, srcW );
+        smp::dom::AdjustAxis( srcY, srcH );
+        smp::dom::AdjustAxis( dstX, dstW );
+        smp::dom::AdjustAxis( dstY, dstH );
 
         auto pImageAttributes = std::make_unique<Gdiplus::ImageAttributes>();
         smp::error::CheckGdiPlusObject( pImageAttributes );
@@ -1454,6 +1446,16 @@ void CanvasRenderingContext2D_Qwr::DrawImageImpl( JS::HandleValue image,
         }
 
         auto pBitmap = smp::graphics::GenerateGdiBitmap( *pWicBitmap );
+        drawBitmap( *pBitmap );
+    }
+    else if ( auto pImageBitmap = JsObjectBase<ImageBitmap>::ExtractNative( pJsCtx_, jsObject ) )
+    {
+        auto pBitmap = pImageBitmap->GetBitmap();
+        if ( !pBitmap )
+        {
+            return;
+        }
+
         drawBitmap( *pBitmap );
     }
     else

@@ -297,6 +297,7 @@ void ScriptLoader::ExecuteTopLevelScript( const qwr::u8string& script, bool isMo
         if ( rval.isObject() )
         {
             JS::RootedObject evaluationPromise( pJsCtx_, &rval.toObject() );
+            // TODO: fix top level await
             if ( !backport::OnModuleEvaluationFailureSync( pJsCtx_, evaluationPromise ) )
             {
                 throw JsException();
