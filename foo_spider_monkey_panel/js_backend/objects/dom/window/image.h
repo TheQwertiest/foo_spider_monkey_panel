@@ -98,7 +98,7 @@ private:
 
     void UpdateImageData( JS::HandleObject jsSelf );
     void ProcessFetchEvent( const ImageFetchEvent& fetchEvent, JS::HandleObject jsSelf );
-    void HandleImageLoad( const std::wstring& src, const std::optional<smp::graphics::LoadedImage>& loadedImageOpt, JS::HandleObject jsSelf );
+    void HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage, JS::HandleObject jsSelf );
     void HandleImageError( const std::wstring& src, JS::HandleObject jsSelf );
 
 private:
@@ -118,7 +118,7 @@ private:
     std::weak_ptr<smp::EventBase> pDispatchedEvent_;
     std::weak_ptr<::ImageFetchThreadTask> pFetchTask_;
 
-    std::unique_ptr<smp::graphics::LoadedImage> pLoadedImage_;
+    std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage_;
     qwr::ComPtr<IWICBitmap> pDecodedImage_;
 };
 

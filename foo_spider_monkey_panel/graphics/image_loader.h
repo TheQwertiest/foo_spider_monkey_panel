@@ -12,7 +12,7 @@ namespace smp::graphics
 {
 
 /// @throw qwr::QwrException
-LoadedImage LoadImageFromFile( const std::filesystem::path& path );
+std::unique_ptr<const LoadedImage> LoadImageFromFile( const std::filesystem::path& path );
 
 /// @throw qwr::QwrException
 qwr::ComPtr<IWICBitmap> DecodeImage( const LoadedImage& loadedImage );

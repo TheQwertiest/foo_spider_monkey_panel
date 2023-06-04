@@ -67,17 +67,17 @@ class ImageFetchEvent : public smp::JsTargetEvent
 public:
     [[nodiscard]] ImageFetchEvent( const qwr::u8string& type,
                                    const fs::path& imagePath,
-                                   const std::optional<smp::graphics::LoadedImage>& loadedImageOpt,
+                                   std::unique_ptr<const smp::graphics::LoadedImage> pLoadedImage,
                                    JSContext* cx,
                                    std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
                                    uint32_t jsTargetId );
 
-    [[nodiscard]] const std::optional<smp::graphics::LoadedImage>& GetLoadedImage() const;
+    [[nodiscard]] std::shared_ptr<const smp::graphics::LoadedImage> GetLoadedImage() const;
     [[nodiscard]] const fs::path& GetImagePath() const;
 
 private:
     fs::path imagePath_;
-    std::optional<smp::graphics::LoadedImage> loadedImageOpt_;
+    std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage_;
 };
 
 } // namespace
@@ -108,13 +108,13 @@ void ImageFetchThreadTask::Run()
 
     try
     {
-        auto loadedImage = smp::graphics::LoadImageFromFile( imagePath_ );
+        auto pLoadedImage = smp::graphics::LoadImageFromFile( imagePath_ );
 
         smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
                                               std::make_unique<ImageFetchEvent>(
                                                   kImageFetchEventType,
                                                   imagePath_,
-                                                  loadedImage,
+                                                  std::move( pLoadedImage ),
                                                   pJsCtx_,
                                                   pHeapHelper_,
                                                   jsTargetId_ ) );
@@ -126,7 +126,7 @@ void ImageFetchThreadTask::Run()
                                               std::make_unique<ImageFetchEvent>(
                                                   kImageFetchEventType,
                                                   imagePath_,
-                                                  std::nullopt,
+                                                  std::unique_ptr<const smp::graphics::LoadedImage>{},
                                                   pJsCtx_,
                                                   pHeapHelper_,
                                                   jsTargetId_ ) );
@@ -145,19 +145,19 @@ const fs::path& ImageFetchThreadTask::GetImagePath() const
 
 ImageFetchEvent::ImageFetchEvent( const qwr::u8string& type,
                                   const fs::path& imagePath,
-                                  const std::optional<smp::graphics::LoadedImage>& loadedImageOpt,
+                                  std::unique_ptr<const smp::graphics::LoadedImage> pLoadedImage,
                                   JSContext* cx,
                                   std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
                                   uint32_t jsTargetId )
     : smp::JsTargetEvent( type, cx, pHeapHelper, jsTargetId )
     , imagePath_( imagePath )
-    , loadedImageOpt_( loadedImageOpt )
+    , pLoadedImage_( std::move( pLoadedImage ) )
 {
 }
 
-const std::optional<smp::graphics::LoadedImage>& ImageFetchEvent::GetLoadedImage() const
+std::shared_ptr<const smp::graphics::LoadedImage> ImageFetchEvent::GetLoadedImage() const
 {
-    return loadedImageOpt_;
+    return pLoadedImage_;
 }
 
 const fs::path& ImageFetchEvent::GetImagePath() const
@@ -437,7 +437,7 @@ void Image::UpdateImageData( JS::HandleObject jsSelf )
     if ( selectedSrc.empty() )
     {
         cancelAndReset( pFetchTask_ );
-        HandleImageLoad( selectedSrc, std::nullopt, jsSelf );
+        HandleImageLoad( selectedSrc, nullptr, jsSelf );
     }
 
     const auto parsedSrcOpt = [&]() -> std::optional<fs::path> {
@@ -497,9 +497,9 @@ void Image::ProcessFetchEvent( const ImageFetchEvent& fetchEvent, JS::HandleObje
     pFetchTask_.reset();
 
     const auto src = GenerateSrcFromPath( pendingParsedSrc_ );
-    if ( const auto loadedImageOpt = fetchEvent.GetLoadedImage() )
+    if ( const auto pLoadedImage = fetchEvent.GetLoadedImage() )
     {
-        HandleImageLoad( src, *loadedImageOpt, jsSelf );
+        HandleImageLoad( src, pLoadedImage, jsSelf );
     }
     else
     {
@@ -507,14 +507,14 @@ void Image::ProcessFetchEvent( const ImageFetchEvent& fetchEvent, JS::HandleObje
     }
 }
 
-void Image::HandleImageLoad( const std::wstring& src, const std::optional<smp::graphics::LoadedImage>& loadedImageOpt, JS::HandleObject jsSelf )
+void Image::HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage, JS::HandleObject jsSelf )
 {
     isLoading_ = false;
     currentSrc_ = src;
-    if ( loadedImageOpt )
+    if ( pLoadedImage )
     {
         currentStatus_ = CompleteStatus::completely_available;
-        pLoadedImage_ = std::make_unique<smp::graphics::LoadedImage>( *loadedImageOpt );
+        pLoadedImage_ = pLoadedImage;
 
         auto pEvent = std::make_shared<smp::JsTargetEvent>( kImageLoadEventType, pJsCtx_, jsSelf );
         pDispatchedEvent_ = pEvent;

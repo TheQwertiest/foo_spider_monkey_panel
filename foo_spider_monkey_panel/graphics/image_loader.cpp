@@ -10,7 +10,7 @@
 namespace smp::graphics
 {
 
-LoadedImage LoadImageFromFile( const std::filesystem::path& path )
+std::unique_ptr<const LoadedImage> LoadImageFromFile( const std::filesystem::path& path )
 {
     qwr::QwrException::ExpectTrue( std::filesystem::exists( path ), "Path does not point to a file" );
 
@@ -40,11 +40,17 @@ LoadedImage LoadImageFromFile( const std::filesystem::path& path )
     hr = IStream_Reset( pStream );
     qwr::error::CheckWin32( hr, "IStream_Reset" );
 
-    qwr::ComPtr<IStream> pStream2;
-    hr = pStream->Commit( 0 );
-    qwr::error::CheckWin32( hr, "Clone" );
+    STATSTG stats{};
+    hr = pStream->Stat( &stats, STATFLAG_NONAME );
+    qwr::error::CheckWin32( hr, "Stat" );
 
-    return { width, height, pStream };
+    ULONG bytesRead = 0;
+    std::vector<uint8_t> buffer( static_cast<size_t>( stats.cbSize.QuadPart ), 0 );
+    hr = pStream->Read( buffer.data(), buffer.size(), &bytesRead );
+    qwr::error::CheckWin32( hr, "Read" );
+    assert( bytesRead == buffer.size() );
+
+    return std::make_unique<LoadedImage>( width, height, std::move( buffer ) );
 }
 
 qwr::ComPtr<IWICBitmap> DecodeImage( const LoadedImage& loadedImage )
@@ -53,12 +59,25 @@ qwr::ComPtr<IWICBitmap> DecodeImage( const LoadedImage& loadedImage )
     // Revisit if parallel use is needed
     assert( core_api::is_main_thread() );
 
+    auto pStream = [&] {
+        auto pMemStreamRaw = SHCreateMemStream( loadedImage.rawData.data(), loadedImage.rawData.size() );
+        qwr::error::CheckWinApi( !!pMemStreamRaw, "SHCreateMemStream" );
+
+        // copy and assignment operators increase Stream ref count,
+        // while SHCreateMemStream returns object with ref count 1,
+        // so we need to take ownership without increasing ref count
+        // (or decrease ref count manually)
+        qwr::ComPtr<IStream> pStream;
+        pStream.Attach( pMemStreamRaw );
+        return pStream;
+    }();
+
     qwr::ComPtr<IWICImagingFactory> pFactory;
     auto hr = CoCreateInstance( CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IUnknown, reinterpret_cast<void**>( &pFactory ) );
     qwr::error::CheckWin32( hr, "CoCreateInstance" );
 
     qwr::ComPtr<IWICBitmapDecoder> pDecoder;
-    hr = pFactory->CreateDecoderFromStream( loadedImage.pDataStream, nullptr, WICDecodeMetadataCacheOnDemand, &pDecoder );
+    hr = pFactory->CreateDecoderFromStream( pStream, nullptr, WICDecodeMetadataCacheOnDemand, &pDecoder );
     qwr::error::CheckWin32( hr, "CreateDecoderFromStream" );
 
     qwr::ComPtr<IWICBitmapFrameDecode> pSource;
@@ -68,9 +87,6 @@ qwr::ComPtr<IWICBitmap> DecodeImage( const LoadedImage& loadedImage )
     qwr::ComPtr<IWICBitmap> pBitmap;
     hr = pFactory->CreateBitmapFromSource( pSource, WICBitmapCacheOnLoad, &pBitmap );
     qwr::error::CheckWin32( hr, "CreateBitmapFromSource" );
-
-    hr = IStream_Reset( loadedImage.pDataStream );
-    qwr::error::CheckWin32( hr, "IStream_Reset" );
 
     return pBitmap;
 }
