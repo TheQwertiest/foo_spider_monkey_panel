@@ -67,8 +67,10 @@ public:
     EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event ) override;
 
 public:
-    void Repaint( bool force = false );
-    void RepaintWithOpt( size_t optArgCount, bool force );
+    // TODO: add decode option
+    JSObject* LoadImage( JS::HandleValue source );
+    void Redraw( bool force = false );
+    void RedrawWithOpt( size_t optArgCount, bool force );
     void RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force = false );
     void RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
 

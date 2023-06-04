@@ -310,10 +310,8 @@ private:
         {
             JS::RootedValue jsBaseValue( cx, JS::ObjectValue( *jsBaseObject ) );
             JS::RootedObject jsProxyObject( cx, js::NewProxyObject( cx, &TraitsT::JsProxy, jsBaseValue, jsProto ) );
-            if ( !jsProxyObject )
-            {
-                throw smp::JsException();
-            }
+            smp::JsException::ExpectTrue( jsProxyObject );
+
             return jsProxyObject;
         }
         else

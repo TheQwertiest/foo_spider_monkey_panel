@@ -15,13 +15,13 @@ class JsTargetEvent
 
 {
 public:
-    JsTargetEvent( const qwr::u8string& type, JSContext* pJsCtx, JS::HandleObject jsTarget );
-    JsTargetEvent( const qwr::u8string& type, JSContext* pJsCtx, const std::shared_ptr<mozjs::HeapHelper>& pHeapHelper, uint32_t jsTargetId );
+    [[nodiscard]] JsTargetEvent( const qwr::u8string& type, JSContext* pJsCtx, JS::HandleObject jsTarget );
+    [[nodiscard]] JsTargetEvent( const qwr::u8string& type, JSContext* pJsCtx, const std::shared_ptr<mozjs::HeapHelper>& pHeapHelper, uint32_t jsTargetId );
 
-    const qwr::u8string& GetType() const;
+    [[nodiscard]] const qwr::u8string& GetType() const;
 
 public:
-    JSObject* GetJsTarget();
+    [[nodiscard]] JSObject* GetJsTarget();
 
 private:
     const qwr::u8string type_;

@@ -49,6 +49,7 @@ struct JsObjectTraits<Image>
     static const JSNative JsConstructor;
 };
 
+// TODO: install proto to global
 class Image
     : public JsObjectBase<Image>
     , private JsEventTarget
@@ -75,6 +76,9 @@ public:
     EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event ) override;
 
     /// @throw qwr::QwrException
+    [[nodiscard]] static JSObject* LoadImage( JSContext* cx, JS::HandleValue value );
+
+    /// @throw qwr::QwrException
     [[nodiscard]] qwr::ComPtr<IWICBitmap> GetDecodedBitmap() const;
     [[nodiscard]] CompleteStatus GetStatus() const;
 
@@ -96,6 +100,7 @@ public:
 private:
     [[nodiscard]] Image( JSContext* cx, uint32_t width, uint32_t height );
 
+    void InitImageUpdate( const std::wstring& source );
     void UpdateImageData( JS::HandleObject jsSelf );
     void ProcessFetchEvent( const ImageFetchEvent& fetchEvent, JS::HandleObject jsSelf );
     void HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage, JS::HandleObject jsSelf );

@@ -200,13 +200,15 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( repaint, WindowNew::Repaint, WindowNew::RepaintWithOpt, 1 )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( repaintRect, WindowNew::RepaintRect, WindowNew::RepaintRectWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( loadImage, WindowNew::LoadImage )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( redraw, WindowNew::Redraw, WindowNew::RedrawWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( redrawRect, WindowNew::RepaintRect, WindowNew::RepaintRectWithOpt, 1 )
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
-        JS_FN( "repaint", repaint, 0, kDefaultPropsFlags ),
-        JS_FN( "repaintRect", repaintRect, 4, kDefaultPropsFlags ),
+        JS_FN( "loadImage", loadImage, 1, kDefaultPropsFlags ),
+        JS_FN( "redraw", redraw, 0, kDefaultPropsFlags ),
+        JS_FN( "redrawRect", redrawRect, 4, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -350,7 +352,12 @@ EventStatus WindowNew::HandleEvent( JS::HandleObject self, const smp::EventBase&
     return status;
 }
 
-void WindowNew::Repaint( bool force )
+JSObject* WindowNew::LoadImage( JS::HandleValue source )
+{
+    return Image::LoadImage( pJsCtx_, source );
+}
+
+void WindowNew::Redraw( bool force )
 {
     if ( isFinalized_ )
     {
@@ -360,14 +367,14 @@ void WindowNew::Repaint( bool force )
     parentPanel_.Repaint( force );
 }
 
-void WindowNew::RepaintWithOpt( size_t optArgCount, bool force )
+void WindowNew::RedrawWithOpt( size_t optArgCount, bool force )
 {
     switch ( optArgCount )
     {
     case 0:
-        return Repaint( force );
+        return Redraw( force );
     case 1:
-        return Repaint();
+        return Redraw();
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }

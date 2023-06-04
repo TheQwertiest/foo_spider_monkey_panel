@@ -16,6 +16,8 @@
 #include <utils/gdi_error_helpers.h>
 #include <utils/thread_pool_instance.h>
 
+#include <qwr/utility.h>
+
 using namespace smp;
 namespace fs = std::filesystem;
 
@@ -32,6 +34,11 @@ constexpr char kImageErrorEventType[] = "error";
 
 namespace
 {
+
+enum class ReservedSlots
+{
+    kPromise = mozjs::kReservedObjectSlot + 1
+};
 
 class ImageFetchThreadTask
 {
@@ -165,6 +172,11 @@ const fs::path& ImageFetchEvent::GetImagePath() const
     return imagePath_;
 }
 
+bool IsFileSrc( const std::wstring& src )
+{
+    return src.starts_with( kFilePrefix );
+}
+
 std::wstring GenerateSrcFromPath( const fs::path& path )
 {
     auto pathStr = path.wstring();
@@ -175,7 +187,7 @@ std::wstring GenerateSrcFromPath( const fs::path& path )
 /// @throw std::filesystem::error
 std::optional<fs::path> GeneratePathFromSrc( const std::wstring& src )
 {
-    if ( !src.starts_with( kFilePrefix ) )
+    if ( !IsFileSrc( src ) )
     {
         return std::nullopt;
     }
@@ -206,7 +218,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "Image",
-    kDefaultClassFlags,
+    DefaultClassFlags( 1 ),
     &jsOps
 };
 
@@ -318,6 +330,33 @@ EventStatus Image::HandleEvent( JS::HandleObject self, const smp::EventBase& eve
     return status;
 }
 
+JSObject* Image::LoadImage( JSContext* cx, JS::HandleValue source )
+{
+    if ( source.isString() )
+    {
+        const auto srcStr = convert::to_native::ToValue<std::wstring>( cx, source );
+
+        JS::RootedObject jsImage( cx, JsObjectBase<Image>::CreateJs( cx, 0, 0 ) );
+        auto pNative = JsObjectBase<Image>::ExtractNative( cx, jsImage );
+        assert( pNative );
+
+        JS::RootedObject jsPromise( cx, JS::NewPromiseObject( cx, nullptr ) );
+        JsException::ExpectTrue( jsPromise );
+
+        JS_SetReservedSlot( jsImage, qwr::to_underlying( ReservedSlots::kPromise ), JS::ObjectValue( *jsPromise ) );
+
+        pNative->InitImageUpdate( srcStr );
+        pNative->UpdateImageData( jsImage );
+
+        return jsPromise;
+    }
+    else
+    {
+        // TODO: add other supported types
+        throw qwr::QwrException( "source argument can't be converted to supported object type" );
+    }
+}
+
 qwr::ComPtr<IWICBitmap> Image::GetDecodedBitmap() const
 {
     if ( !pLoadedImage_ )
@@ -396,8 +435,7 @@ void Image::put_Height( uint32_t value )
 
 void Image::put_Src( JS::HandleObject jsSelf, const std::wstring& value )
 {
-    pendingSrc_ = value;
-    isLoading_ = true;
+    InitImageUpdate( value );
 
     if ( auto pLockedMicroTask = pMicroTask_.lock(); !pLockedMicroTask )
     {
@@ -416,6 +454,12 @@ void Image::put_Src( JS::HandleObject jsSelf, const std::wstring& value )
 void Image::put_Width( uint32_t value )
 {
     width_ = value;
+}
+
+void Image::InitImageUpdate( const std::wstring& source )
+{
+    pendingSrc_ = source;
+    isLoading_ = true;
 }
 
 void Image::UpdateImageData( JS::HandleObject jsSelf )
@@ -509,6 +553,9 @@ void Image::ProcessFetchEvent( const ImageFetchEvent& fetchEvent, JS::HandleObje
 
 void Image::HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage, JS::HandleObject jsSelf )
 {
+    JS::RootedValue jsPromiseValue( pJsCtx_, JS::GetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kPromise ) ) );
+    const auto isLoadedAsPromise = jsPromiseValue.isObject();
+
     isLoading_ = false;
     currentSrc_ = src;
     if ( pLoadedImage )
@@ -516,28 +563,54 @@ void Image::HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp:
         currentStatus_ = CompleteStatus::completely_available;
         pLoadedImage_ = pLoadedImage;
 
-        auto pEvent = std::make_shared<smp::JsTargetEvent>( kImageLoadEventType, pJsCtx_, jsSelf );
-        pDispatchedEvent_ = pEvent;
-        smp::EventDispatcher::Get().PutEvent( hPanelWnd_, pEvent );
+        if ( !isLoadedAsPromise )
+        {
+            auto pEvent = std::make_shared<smp::JsTargetEvent>( kImageLoadEventType, pJsCtx_, jsSelf );
+            pDispatchedEvent_ = pEvent;
+            smp::EventDispatcher::Get().PutEvent( hPanelWnd_, pEvent );
+        }
     }
     else
     {
         currentStatus_ = CompleteStatus::unavailable;
         pLoadedImage_.reset();
     }
+
+    if ( isLoadedAsPromise )
+    {
+        JS::RootedObject jsPromiseObject( pJsCtx_, &jsPromiseValue.toObject() );
+        JS::RootedValue jsResultValue( pJsCtx_, JS::ObjectValue( *jsSelf ) );
+        JS::SetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kPromise ), JS::UndefinedValue() );
+
+        (void)JS::ResolvePromise( pJsCtx_, jsPromiseObject, jsResultValue );
+    }
 }
 
 void Image::HandleImageError( const std::wstring& src, JS::HandleObject jsSelf )
 {
+    JS::RootedValue jsPromiseValue( pJsCtx_, JS::GetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kPromise ) ) );
+    const auto isLoadedAsPromise = jsPromiseValue.isObject();
+
     isLoading_ = false;
     currentSrc_ = src;
     currentStatus_ = CompleteStatus::broken;
     pLoadedImage_.reset();
 
-    // TODO: think about adding message to error
-    auto pEvent = std::make_shared<smp::JsTargetEvent>( kImageErrorEventType, pJsCtx_, jsSelf );
-    pDispatchedEvent_ = pEvent;
-    smp::EventDispatcher::Get().PutEvent( hPanelWnd_, pEvent );
+    if ( !isLoadedAsPromise )
+    {
+        // TODO: think about adding message to error
+        auto pEvent = std::make_shared<smp::JsTargetEvent>( kImageErrorEventType, pJsCtx_, jsSelf );
+        pDispatchedEvent_ = pEvent;
+        smp::EventDispatcher::Get().PutEvent( hPanelWnd_, pEvent );
+    }
+    else
+    {
+        JS::RootedObject jsPromiseObject( pJsCtx_, &jsPromiseValue.toObject() );
+        JS::RootedValue jsResultValue( pJsCtx_, JS::ObjectValue( *jsSelf ) );
+        JS::SetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kPromise ), JS::UndefinedValue() );
+
+        (void)JS::RejectPromise( pJsCtx_, jsPromiseObject, JS::UndefinedHandleValue );
+    }
 }
 
 } // namespace mozjs
