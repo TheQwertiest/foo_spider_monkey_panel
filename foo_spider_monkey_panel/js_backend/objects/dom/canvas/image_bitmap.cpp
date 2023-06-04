@@ -6,6 +6,7 @@
 #include <graphics/gdiplus/bitmap_generator.h>
 #include <graphics/image_loader.h>
 #include <js_backend/engine/js_to_native_invoker.h>
+#include <js_backend/objects/dom/canvas/canvas.h>
 #include <js_backend/objects/dom/window/image.h>
 #include <js_backend/utils/js_hwnd_helpers.h>
 #include <tasks/dispatcher/event_dispatcher.h>
@@ -29,7 +30,7 @@ public:
                                            JS::HandleObject jsTarget,
                                            HWND hPanelWnd,
                                            Gdiplus::Rect srcRect,
-                                           std::unique_ptr<Gdiplus::Bitmap> pBitmap );
+                                           std::unique_ptr<Gdiplus::Image> pImage );
     [[nodiscard]] BitmapExtractThreadTask( JSContext* cx,
                                            JS::HandleObject jsTarget,
                                            HWND hPanelWnd,
@@ -51,14 +52,14 @@ private:
     HWND hPanelWnd_ = nullptr;
 
     Gdiplus::Rect srcRect_{};
-    std::unique_ptr<Gdiplus::Bitmap> pBitmap_;
+    std::unique_ptr<Gdiplus::Image> pImage_;
     std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage_;
 };
 
 class BitmapExtractEvent : public smp::JsRunnableEvent
 {
 public:
-    [[nodiscard]] BitmapExtractEvent( std::unique_ptr<Gdiplus::Bitmap> pBitmap,
+    [[nodiscard]] BitmapExtractEvent( std::unique_ptr<Gdiplus::Image> pBitmap,
                                       JSContext* cx,
                                       std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
                                       uint32_t jsTargetId );
@@ -72,7 +73,7 @@ public:
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    std::unique_ptr<Gdiplus::Bitmap> pBitmap_;
+    std::unique_ptr<Gdiplus::Image> pImage_;
     std::exception_ptr pException_;
 };
 
@@ -85,16 +86,16 @@ BitmapExtractThreadTask::BitmapExtractThreadTask( JSContext* cx,
                                                   JS::HandleObject jsTarget,
                                                   HWND hPanelWnd,
                                                   Gdiplus::Rect srcRect,
-                                                  std::unique_ptr<Gdiplus::Bitmap> pBitmap )
+                                                  std::unique_ptr<Gdiplus::Image> pImage )
     : pJsCtx_( cx )
     , pHeapHelper_( std::make_shared<mozjs::HeapHelper>( cx ) )
     , jsTargetId_( pHeapHelper_->Store( jsTarget ) )
     , hPanelWnd_( hPanelWnd )
     , srcRect_( srcRect )
-    , pBitmap_( std::move( pBitmap ) )
+    , pImage_( std::move( pImage ) )
 {
     assert( pJsCtx_ );
-    assert( pBitmap_ );
+    assert( pImage_ );
 }
 
 BitmapExtractThreadTask::BitmapExtractThreadTask( JSContext* cx,
@@ -117,20 +118,20 @@ void BitmapExtractThreadTask::Run()
 {
     try
     {
-        assert( pLoadedImage_ || pBitmap_ );
+        assert( pLoadedImage_ || pImage_ );
         if ( pLoadedImage_ )
         {
             auto pDecodedImage = smp::graphics::DecodeImage( *pLoadedImage_ );
-            pBitmap_ = smp::graphics::GenerateGdiBitmap( pDecodedImage );
+            pImage_ = smp::graphics::GenerateGdiBitmap( pDecodedImage );
         }
 
-        const auto bitmapW = static_cast<int32_t>( pBitmap_->GetWidth() );
-        const auto bitmapH = static_cast<int32_t>( pBitmap_->GetHeight() );
+        const auto imageW = static_cast<int32_t>( pImage_->GetWidth() );
+        const auto imageH = static_cast<int32_t>( pImage_->GetHeight() );
 
         smp::dom::AdjustAxis( srcRect_.X, srcRect_.Width );
         smp::dom::AdjustAxis( srcRect_.Y, srcRect_.Height );
 
-        if ( !srcRect_.Equals( { 0, 0, bitmapW, bitmapH } ) )
+        if ( !srcRect_.Equals( { 0, 0, imageW, imageH } ) )
         { // TODO: handle options
             Gdiplus::Rect dstRect{ 0, 0, srcRect_.Width - srcRect_.X, srcRect_.Height - srcRect_.Y };
             auto pBitmap = std::make_unique<Gdiplus::Bitmap>( dstRect.Width, dstRect.Height );
@@ -139,15 +140,15 @@ void BitmapExtractThreadTask::Run()
             std::unique_ptr<Gdiplus::Graphics> pGraphics( Gdiplus::Graphics::FromImage( pBitmap.get() ) );
             smp::error::CheckGdiPlusObject( pGraphics );
 
-            auto gdiRet = pGraphics->DrawImage( pBitmap_.get(), dstRect, srcRect_.X, srcRect_.Y, srcRect_.Width, srcRect_.Height, Gdiplus::UnitPixel );
+            auto gdiRet = pGraphics->DrawImage( pBitmap.get(), dstRect, srcRect_.X, srcRect_.Y, srcRect_.Width, srcRect_.Height, Gdiplus::UnitPixel );
             smp::error::CheckGdi( gdiRet, "DrawImage" );
 
-            pBitmap_ = std::move( pBitmap );
+            pImage_ = std::move( pBitmap );
         }
 
         smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
                                               std::make_unique<BitmapExtractEvent>(
-                                                  std::move( pBitmap_ ),
+                                                  std::move( pImage_ ),
                                                   pJsCtx_,
                                                   pHeapHelper_,
                                                   jsTargetId_ ) );
@@ -163,13 +164,13 @@ void BitmapExtractThreadTask::Run()
     }
 }
 
-BitmapExtractEvent::BitmapExtractEvent( std::unique_ptr<Gdiplus::Bitmap> pBitmap,
+BitmapExtractEvent::BitmapExtractEvent( std::unique_ptr<Gdiplus::Image> pImage,
                                         JSContext* cx,
                                         std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
                                         uint32_t jsTargetId )
     : smp::JsRunnableEvent( cx, pHeapHelper, jsTargetId )
     , pJsCtx_( cx )
-    , pBitmap_( std::move( pBitmap ) )
+    , pImage_( std::move( pImage ) )
 {
 }
 
@@ -195,7 +196,7 @@ void BitmapExtractEvent::RunJs()
             std::rethrow_exception( pException_ );
         }
 
-        JS::RootedObject jsResult( pJsCtx_, mozjs::ImageBitmap::CreateJs( pJsCtx_, std::move( pBitmap_ ) ) );
+        JS::RootedObject jsResult( pJsCtx_, mozjs::ImageBitmap::CreateJs( pJsCtx_, std::move( pImage_ ) ) );
         JS::RootedValue jsResultValue( pJsCtx_, JS::ObjectValue( *jsResult ) );
         (void)JS::ResolvePromise( pJsCtx_, jsPromise, jsResultValue );
     }
@@ -259,11 +260,11 @@ const JSPropertySpec* JsObjectTraits<ImageBitmap>::JsProperties = jsProperties.d
 const JSFunctionSpec* JsObjectTraits<ImageBitmap>::JsFunctions = jsFunctions.data();
 const JsPrototypeId JsObjectTraits<ImageBitmap>::PrototypeId = JsPrototypeId::New_ImageBitmap;
 
-ImageBitmap::ImageBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> pBitmap )
+ImageBitmap::ImageBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Image> pImage )
     : pJsCtx_( cx )
-    , pBitmap_( std::move( pBitmap ) )
+    , pImage_( std::move( pImage ) )
 {
-    assert( pBitmap_ );
+    assert( pImage_ );
 }
 
 ImageBitmap::~ImageBitmap()
@@ -271,9 +272,9 @@ ImageBitmap::~ImageBitmap()
 }
 
 std::unique_ptr<ImageBitmap>
-ImageBitmap::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> pBitmap )
+ImageBitmap::CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Image> pImage )
 {
-    return std::unique_ptr<ImageBitmap>( new ImageBitmap( cx, std::move( pBitmap ) ) );
+    return std::unique_ptr<ImageBitmap>( new ImageBitmap( cx, std::move( pImage ) ) );
 }
 
 size_t ImageBitmap::GetInternalSize() const
@@ -291,20 +292,37 @@ JSObject* ImageBitmap::CreateImageBitmap2( JSContext* cx, JS::HandleValue image,
     return CreateImageBitmapImpl( cx, image, sx, sy, sw, sh, options );
 }
 
-Gdiplus::Bitmap* ImageBitmap::GetBitmap()
+Gdiplus::Image* ImageBitmap::GetBitmap()
 {
-    return pBitmap_.get();
+    return pImage_.get();
 }
 
 void ImageBitmap::Close()
 {
-    pBitmap_.reset();
+    pImage_.reset();
 }
 
 JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue image, int32_t sx, int32_t sy, std::optional<int32_t> sw, std::optional<int32_t> sh, JS::HandleValue options )
 {
     JS::RootedObject jsPromise( cx, JS::NewPromiseObject( cx, nullptr ) );
     JsException::ExpectTrue( jsPromise );
+
+    const auto processBitmap = [&]( auto pBitmap ) {
+        qwr::QwrException::ExpectTrue( !!pBitmap, "An attempt was made to use an object that is not, or is no longer, usable" );
+
+        const auto bitmapW = static_cast<int32_t>( pBitmap->GetWidth() );
+        const auto bitmapH = static_cast<int32_t>( pBitmap->GetHeight() );
+
+        std::unique_ptr<Gdiplus::Image> pClonedImage( static_cast<Gdiplus::Image*>( pBitmap )->Clone() );
+        smp::error::CheckGdiPlusObject( pClonedImage );
+
+        qwr::QwrException::ExpectTrue( bitmapW, "The source image width is 0" );
+        qwr::QwrException::ExpectTrue( bitmapH, "The source image height is 0" );
+
+        const Gdiplus::Rect srcRect{ sx, sy, sw.value_or( bitmapW ), sw.value_or( bitmapH ) };
+        auto pFetchTask = std::make_shared<BitmapExtractThreadTask>( cx, jsPromise, GetPanelHwndForCurrentGlobal( cx ), srcRect, std::move( pClonedImage ) );
+        smp::GetThreadPoolInstance().AddTask( [pFetchTask] { pFetchTask->Run(); } );
+    };
 
     try
     {
@@ -326,6 +344,14 @@ JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue ima
             const Gdiplus::Rect srcRect{ sx, sy, sw.value_or( pLoadedImage->width ), sw.value_or( pLoadedImage->height ) };
             auto pFetchTask = std::make_shared<BitmapExtractThreadTask>( cx, jsPromise, GetPanelHwndForCurrentGlobal( cx ), srcRect, pLoadedImage );
             smp::GetThreadPoolInstance().AddTask( [pFetchTask] { pFetchTask->Run(); } );
+        }
+        else if ( auto pImageBitmap = ImageBitmap::ExtractNative( cx, jsObject ) )
+        {
+            processBitmap( pImageBitmap->GetBitmap() );
+        }
+        else if ( auto pCanvas = Canvas::ExtractNative( cx, jsObject ) )
+        {
+            processBitmap( &pCanvas->GetBitmap() );
         }
         else
         {

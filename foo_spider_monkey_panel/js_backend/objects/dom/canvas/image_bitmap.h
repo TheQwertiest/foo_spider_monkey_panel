@@ -28,26 +28,26 @@ class ImageBitmap
 public:
     ~ImageBitmap() override;
 
-    [[nodiscard]] static std::unique_ptr<ImageBitmap> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> pBitmap );
+    [[nodiscard]] static std::unique_ptr<ImageBitmap> CreateNative( JSContext* cx, std::unique_ptr<Gdiplus::Image> pImage );
     [[nodiscard]] size_t GetInternalSize() const;
 
     static JSObject* CreateImageBitmap1( JSContext* cx, JS::HandleValue image, JS::HandleValue options );
     static JSObject* CreateImageBitmap2( JSContext* cx, JS::HandleValue image, int32_t sx, int32_t sy, int32_t sw, int32_t sh, JS::HandleValue options );
 
-    [[nodiscard]] Gdiplus::Bitmap* GetBitmap();
+    [[nodiscard]] Gdiplus::Image* GetBitmap();
 
 public:
     void Close();
 
 private:
-    [[nodiscard]] ImageBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> pBitmap );
+    [[nodiscard]] ImageBitmap( JSContext* cx, std::unique_ptr<Gdiplus::Image> pImage );
 
     static JSObject* CreateImageBitmapImpl( JSContext* cx, JS::HandleValue image, int32_t sx, int32_t sy, std::optional<int32_t> sw, std::optional<int32_t> sh, JS::HandleValue options );
 
 private:
     JSContext* pJsCtx_ = nullptr;
 
-    std::unique_ptr<Gdiplus::Bitmap> pBitmap_;
+    std::unique_ptr<Gdiplus::Image> pImage_;
     size_t width = 0;
     size_t height = 0;
 };
