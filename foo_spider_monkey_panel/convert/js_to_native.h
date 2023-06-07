@@ -141,10 +141,7 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
     else if constexpr ( std::is_pointer_v<T> )
     { // Extract native pointer
         // TODO: think if there is a good way to move this to convert::to_native
-        if ( !jsValue.isObjectOrNull() )
-        {
-            throw qwr::QwrException( "Value is not a JS object" );
-        }
+        qwr::QwrException::ExpectTrue( jsValue.isObjectOrNull(), "Value is not a JS object" );
 
         if ( jsValue.isNull() )
         { // Not an error: null might be a valid argument

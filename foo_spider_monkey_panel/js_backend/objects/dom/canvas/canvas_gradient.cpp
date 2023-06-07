@@ -52,7 +52,7 @@ namespace mozjs
 
 const JSClass JsObjectTraits<CanvasGradient_Qwr>::JsClass = jsClass;
 const JSFunctionSpec* JsObjectTraits<CanvasGradient_Qwr>::JsFunctions = jsFunctions.data();
-const JsPrototypeId JsObjectTraits<CanvasGradient_Qwr>::PrototypeId = JsPrototypeId::New_Canvas;
+const JsPrototypeId JsObjectTraits<CanvasGradient_Qwr>::PrototypeId = JsPrototypeId::New_CanvasGradient;
 
 CanvasGradient_Qwr::CanvasGradient_Qwr( JSContext* cx, double x0, double y0, double x1, double y1 )
     : pJsCtx_( cx )

@@ -181,11 +181,16 @@
     <ClCompile Include="dom\dom_keys.cpp" />
     <ClCompile Include="graphics\gdiplus\bitmap_generator.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_bitmap.cpp" />
+    <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp" />
+    <ClCompile Include="js_backend\objects\dom\canvas\placeholder.cpp" />
     <ClCompile Include="js_backend\utils\js_heap_helper.cpp" />
     <ClCompile Include="tasks\cancellable.cpp" />
     <ClInclude Include="dom\axis_adjuster.h" />
     <ClInclude Include="graphics\gdiplus\bitmap_generator.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\image_bitmap.h" />
+    <ClInclude Include="js_backend\objects\dom\canvas\image_data.h" />
+    <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h" />
+    <ClInclude Include="js_backend\objects\dom\canvas\placeholder.h" />
     <ClInclude Include="tasks\events\event_id.h" />
     <ClCompile Include="tasks\events\event_mouse.cpp" />
     <ClInclude Include="tasks\dispatcher\event_priority.h" />
@@ -241,7 +246,6 @@
     <ClCompile Include="js_backend\objects\dom\canvas\module_canvas.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\text_metrics.cpp" />
-    <ClCompile Include="js_backend\objects\dom\canvas\window_canvas.cpp" />
     <ClCompile Include="js_backend\objects\dom\console.cpp" />
     <ClCompile Include="js_backend\objects\dom\context_menu_manager.cpp" />
     <ClCompile Include="js_backend\objects\dom\drop_source_action.cpp" />
@@ -253,7 +257,6 @@
     <ClCompile Include="js_backend\objects\dom\window\image.cpp" />
     <ClCompile Include="js_backend\objects\dom\window\keyboard_event.cpp" />
     <ClCompile Include="js_backend\objects\dom\window\mouse_event.cpp" />
-    <ClCompile Include="js_backend\objects\dom\window\paint_event.cpp" />
     <ClCompile Include="js_backend\objects\dom\window\wheel_event.cpp" />
     <ClCompile Include="js_backend\objects\dom\window\window_new.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\fb_file_info.cpp" />
@@ -455,7 +458,6 @@
     <ClInclude Include="js_backend\objects\dom\canvas\module_canvas.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\text_metrics.h" />
-    <ClInclude Include="js_backend\objects\dom\canvas\window_canvas.h" />
     <ClInclude Include="js_backend\objects\dom\console.h" />
     <ClInclude Include="js_backend\objects\dom\context_menu_manager.h" />
     <ClInclude Include="js_backend\objects\dom\drop_source_action.h" />
@@ -467,7 +469,6 @@
     <ClInclude Include="js_backend\objects\dom\window\image.h" />
     <ClInclude Include="js_backend\objects\dom\window\keyboard_event.h" />
     <ClInclude Include="js_backend\objects\dom\window\mouse_event.h" />
-    <ClInclude Include="js_backend\objects\dom\window\paint_event.h" />
     <ClInclude Include="js_backend\objects\dom\window\wheel_event.h" />
     <ClInclude Include="js_backend\objects\dom\window\window_new.h" />
     <ClInclude Include="js_backend\objects\fb2k\fb_file_info.h" />

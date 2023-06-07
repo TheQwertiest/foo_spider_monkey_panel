@@ -4,6 +4,9 @@
 
 #include <panel/user_message.h>
 #include <tasks/dispatcher/task_controller.h>
+// TODO: remove
+#include <js_backend/engine/js_engine.h>
+#include <tasks/micro_tasks/micro_task.h>
 
 #include <qwr/final_action.h>
 
@@ -206,6 +209,23 @@ void EventDispatcher::PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pE
 
         RequestNextEventImpl( hLocalWnd, *pTaskController, sl );
     }
+}
+
+void EventDispatcher::PutMicroTask( HWND hWnd, std::shared_ptr<MicroTask> pMicroTask )
+{
+    assert( core_api::is_main_thread() );
+
+    std::scoped_lock sl( taskControllerMapMutex_ );
+
+    auto taskControllerIt = taskControllerMap_.find( hWnd );
+    if ( taskControllerIt == taskControllerMap_.end() || !taskControllerIt->second )
+    {
+        return;
+    }
+
+    auto pTaskController = taskControllerIt->second;
+    pMicroTask->SetTarget( pTaskController->GetTarget() );
+    mozjs::JsEngine::GetInstance().EnqueueMicroTask( pMicroTask );
 }
 
 void EventDispatcher::NotifyOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent )

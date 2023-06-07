@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_backend/objects/core/object_base.h>
+#include <js_backend/objects/dom/canvas/native/canvas_surface.h>
 
 #include <js/TypeDecls.h>
 
@@ -31,6 +32,7 @@ struct JsObjectTraits<Canvas>
 
 class Canvas
     : public JsObjectBase<Canvas>
+    , public ICanvasSurface
 {
 public:
     ~Canvas() override;
@@ -39,7 +41,15 @@ public:
     // TODO: add dynamic size
     [[nodiscard]] size_t GetInternalSize() const;
 
+    static void Trace( JSTracer* trc, JSObject* obj );
+
     [[nodiscard]] Gdiplus::Bitmap& GetBitmap();
+
+    bool IsDevice() const final;
+    Gdiplus::Bitmap* GetBmp() final;
+    Gdiplus::Graphics& GetGraphics() final;
+    uint32_t GetHeight() const final;
+    uint32_t GetWidth() const final;
 
 public:
     static JSObject* Constructor( JSContext* cx, uint32_t width, uint32_t height );
@@ -63,6 +73,7 @@ private:
     std::unique_ptr<Gdiplus::Bitmap> pBitmap_;
     std::unique_ptr<Gdiplus::Graphics> pGraphics_;
 
+    JS::Heap<JSObject*> jsRenderingContext_;
     CanvasRenderingContext2D_Qwr* pNativeRenderingContext_ = nullptr;
 };
 

@@ -9,6 +9,8 @@
 namespace smp
 {
 
+class PanelTarget;
+
 class MicroTask
     : public Runnable
     , public Cancellable
@@ -20,6 +22,8 @@ public:
     MicroTask( JSContext* pJsCtx, JS::HandleObject jsTarget, RunnerFn fn );
 
 public:
+    void SetTarget( std::shared_ptr<PanelTarget> pTarget );
+
     /// @remark Requires Realm initialized with JsTarget to run
     void Run() final;
 
@@ -34,6 +38,8 @@ private:
     const uint32_t jsTargetId_;
 
     const RunnerFn fn_;
+
+    std::shared_ptr<PanelTarget> pTarget_;
 };
 
 } // namespace smp

@@ -41,12 +41,12 @@ enum class JsPrototypeId : uint32_t
     New_WheelEvent,
     New_KeyboardEvent,
     New_Canvas,
-    New_WindowCanvas,
     New_CanvasRenderingContext2d,
     New_CanvasGradient,
     New_TextMetrics,
     New_Image,
     New_ImageBitmap,
+    New_ImageData,
     ProrototypeCount
 };
 }

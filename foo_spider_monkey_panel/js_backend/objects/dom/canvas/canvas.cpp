@@ -6,19 +6,10 @@
 #include <js_backend/objects/dom/canvas/canvas_rendering_context_2d.h>
 #include <utils/gdi_error_helpers.h>
 
+#include <qwr/final_action.h>
 #include <qwr/utility.h>
 
 using namespace smp;
-
-namespace
-{
-
-enum class ReservedSlots
-{
-    kRenderingContext = mozjs::kReservedObjectSlot + 1
-};
-
-}
 
 namespace
 {
@@ -36,12 +27,12 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     nullptr,
-    nullptr
+    Canvas::Trace
 };
 
 JSClass jsClass = {
     "Canvas",
-    DefaultClassFlags( 1 ),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -101,10 +92,47 @@ size_t Canvas::GetInternalSize() const
     return sizeof( Gdiplus::Bitmap ) + pBitmap_->GetWidth() * pBitmap_->GetHeight() * Gdiplus::GetPixelFormatSize( pBitmap_->GetPixelFormat() ) / 8;
 }
 
+void Canvas::Trace( JSTracer* trc, JSObject* obj )
+{
+    auto pNative = JsObjectBase<Canvas>::ExtractNativeUnchecked( obj );
+    if ( !pNative )
+    {
+        return;
+    }
+
+    JS::TraceEdge( trc, &pNative->jsRenderingContext_, "Heap: Canvas: rendering context" );
+}
+
 Gdiplus::Bitmap& Canvas::GetBitmap()
 {
     assert( pBitmap_ );
     return *pBitmap_;
+}
+
+bool Canvas::IsDevice() const
+{
+    return false;
+}
+
+Gdiplus::Bitmap* Canvas::GetBmp()
+{
+    return pBitmap_.get();
+}
+
+Gdiplus::Graphics& Canvas::GetGraphics()
+{
+    assert( pGraphics_ );
+    return *pGraphics_;
+}
+
+uint32_t Canvas::GetHeight() const
+{
+    return pBitmap_->GetHeight();
+}
+
+uint32_t Canvas::GetWidth() const
+{
+    return pBitmap_->GetWidth();
 }
 
 JSObject* Canvas::Constructor( JSContext* cx, uint32_t width, uint32_t height )
@@ -117,25 +145,16 @@ JSObject* Canvas::GetContext( JS::HandleObject jsSelf, const std::wstring& conte
     qwr::QwrException::ExpectTrue( contextType == L"2d", L"Unsupported contextType value: {}", contextType );
 
     // TODO: handle attributes
-    // TODO: do smth to handle the case when Canvas is destroyed before render context
-
-    JS::RootedValue jsRenderingContextValue(
-        pJsCtx_,
-        JS::GetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kRenderingContext ) ) );
-    JS::RootedObject jsRenderingContext( pJsCtx_ );
-    if ( jsRenderingContextValue.isUndefined() )
+    if ( !jsRenderingContext_.get() )
     {
-        jsRenderingContext = JsObjectBase<CanvasRenderingContext2D_Qwr>::CreateJs( pJsCtx_, *pGraphics_ );
-        JS_SetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kRenderingContext ), JS::ObjectValue( *jsRenderingContext ) );
+        jsRenderingContext_ = JsObjectBase<CanvasRenderingContext2D_Qwr>::CreateJs( pJsCtx_, jsSelf, *this );
 
-        pNativeRenderingContext_ = JsObjectBase<CanvasRenderingContext2D_Qwr>::ExtractNative( pJsCtx_, jsRenderingContext );
-    }
-    else
-    {
-        jsRenderingContext.set( &jsRenderingContextValue.toObject() );
+        JS::RootedObject jsRootedRenderingContext( pJsCtx_, jsRenderingContext_.get() );
+        pNativeRenderingContext_ = JsObjectBase<CanvasRenderingContext2D_Qwr>::ExtractNative( pJsCtx_, jsRootedRenderingContext );
+        assert( pNativeRenderingContext_ );
     }
 
-    return jsRenderingContext;
+    return jsRenderingContext_.get();
 }
 
 JSObject* Canvas::GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes )
@@ -153,12 +172,12 @@ JSObject* Canvas::GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount
 
 uint32_t Canvas::get_Height() const
 {
-    return pBitmap_->GetHeight();
+    return GetHeight();
 }
 
 uint32_t Canvas::get_Width() const
 {
-    return pBitmap_->GetWidth();
+    return GetWidth();
 }
 
 void Canvas::put_Height( uint32_t value )
@@ -193,7 +212,7 @@ void Canvas::ReinitializeCanvas( uint32_t width, uint32_t height )
 
     if ( pNativeRenderingContext_ )
     {
-        pNativeRenderingContext_->Reinitialize( *pGraphics_ );
+        pNativeRenderingContext_->Reinitialize();
     }
 }
 

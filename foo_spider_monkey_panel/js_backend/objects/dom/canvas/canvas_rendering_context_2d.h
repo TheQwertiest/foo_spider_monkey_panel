@@ -2,6 +2,7 @@
 
 #include <dom/font_description.h>
 #include <js_backend/objects/core/object_base.h>
+#include <js_backend/objects/dom/canvas/native/canvas_surface.h>
 #include <js_backend/objects/dom/canvas/text_metrics.h>
 #include <utils/not_null.h>
 
@@ -80,10 +81,12 @@ public:
     ~CanvasRenderingContext2D_Qwr() override;
 
     [[nodiscard]] static std::unique_ptr<CanvasRenderingContext2D_Qwr>
-    CreateNative( JSContext* cx, Gdiplus::Graphics& graphics );
+    CreateNative( JSContext* cx, JS::HandleObject jsCanvas, ICanvasSurface& surface );
     [[nodiscard]] size_t GetInternalSize() const;
 
-    void Reinitialize( Gdiplus::Graphics& graphics );
+    static void Trace( JSTracer* trc, JSObject* obj );
+
+    void Reinitialize();
 
 public:
     void BeginPath();
@@ -111,6 +114,7 @@ public:
     void FillText( const std::wstring& text, double x, double y );
     void FillTextEx( const std::wstring& text, double x, double y, JS::HandleValue options = JS::UndefinedHandleValue );
     void FillTextExWithOpt( size_t optArgCount, const std::wstring& text, double x, double y, JS::HandleValue options );
+    JSObject* GetImageData( int32_t sx, int32_t sy, int32_t sw, int32_t sh );
     void LineTo( double x, double y );
     JSObject* MeasureText( const std::wstring& text );
     JSObject* MeasureTextEx( const std::wstring& text, JS::HandleValue options = JS::UndefinedHandleValue );
@@ -123,8 +127,7 @@ public:
     void StrokeText( const std::wstring& text, double x, double y );
 
     /*
-    GdiDrawBitmap
-    DrawImage
+    Reset
 
     GdiAlphaBlend
     ApplyAlpha( uint8_t alpha );
@@ -140,27 +143,27 @@ public:
     */
 
     qwr::u8string get_GlobalCompositeOperation() const;
-    JS::Value get_FillStyle( JS::HandleObject jsSelf ) const;
+    JS::Value get_FillStyle() const;
     std::wstring get_Font();
     double get_GlobalAlpha() const;
     qwr::u8string get_LineJoin() const;
     double get_LineWidth() const;
-    JS::Value get_StrokeStyle( JS::HandleObject jsSelf ) const;
+    JS::Value get_StrokeStyle() const;
     qwr::u8string get_TextAlign() const;
     qwr::u8string get_TextBaseline() const;
 
     void put_GlobalCompositeOperation( const qwr::u8string& value );
-    void put_FillStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue );
+    void put_FillStyle( JS::HandleValue jsValue );
     void put_Font( const std::wstring& value );
     void put_GlobalAlpha( double value );
     void put_LineJoin( const qwr::u8string& value );
     void put_LineWidth( double value );
-    void put_StrokeStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue );
+    void put_StrokeStyle( JS::HandleValue jsValue );
     void put_TextAlign( const qwr::u8string& value );
     void put_TextBaseline( const qwr::u8string& value );
 
 private:
-    [[nodiscard]] CanvasRenderingContext2D_Qwr( JSContext* cx, Gdiplus::Graphics& graphics );
+    [[nodiscard]] CanvasRenderingContext2D_Qwr( JSContext* cx, JS::HandleObject jsCanvas, ICanvasSurface& surface );
 
     void DrawImageImpl( JS::HandleValue image,
                         double& dx, double dy,
@@ -192,6 +195,9 @@ private:
 private:
     JSContext* pJsCtx_ = nullptr;
 
+    JS::Heap<JSObject*> jsCanvas_;
+
+    ICanvasSurface& surface_;
     smp::not_null<Gdiplus::Graphics*> pGraphics_;
     const Gdiplus::StringFormat defaultStringFormat_;
 
@@ -204,7 +210,10 @@ private:
     uint32_t originalFillColour_ = 0;
     uint32_t originalStrokeColour_ = 0;
 
+    JS::Heap<JSObject*> jsFillGradient_;
     CanvasGradient_Qwr* pFillGradient_ = nullptr;
+
+    JS::Heap<JSObject*> jsStrokeGradient_;
     CanvasGradient_Qwr* pStrokeGradient_ = nullptr;
 
     std::optional<Gdiplus::PointF> lastPathPosOpt_;

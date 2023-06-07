@@ -5,6 +5,7 @@
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/utils/js_object_constants.h>
 
+#include <js/experimental/TypedData.h>
 #include <qwr/final_action.h>
 
 using namespace smp;
@@ -13,6 +14,7 @@ namespace
 {
 
 constexpr uint32_t kMaxLogDepth = 20;
+constexpr uint32_t kMaxArrayElemCount = 100;
 
 } // namespace
 
@@ -36,7 +38,8 @@ qwr::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::Mutabl
     }
 
     JS::RootedValue arrayElement( cx );
-    for ( uint32_t i = 0; i < arraySize; ++i )
+    const auto maxLoopCount = std::min( arraySize, kMaxArrayElemCount );
+    for ( uint32_t i = 0; i < maxLoopCount; ++i )
     {
         if ( !JS_GetElement( cx, jsObject, i, &arrayElement ) )
         {
@@ -50,7 +53,76 @@ qwr::u8string ParseJsArray( JSContext* cx, JS::HandleObject jsObject, JS::Mutabl
         }
     }
 
+    if ( maxLoopCount != arraySize )
+    {
+        output += "...";
+    }
+
     output += "]";
+
+    return output;
+}
+
+qwr::u8string ParseJsTypedArray( JSContext* cx, JS::HandleObject jsObject, JS::MutableHandleObjectVector curObjects, uint32_t& logDepth )
+{
+    qwr::u8string output;
+
+    output += JS::InformalValueTypeName( JS::ObjectValue( *jsObject ) );
+
+    const auto logArray = [&]( auto checker, auto getter, auto elemType ) {
+        if ( !checker( jsObject.get() ) )
+        {
+            return false;
+        }
+
+        using T = decltype( elemType );
+
+        size_t arraySize = 0;
+        bool isShared = false;
+        T* data = nullptr;
+        getter( jsObject, &arraySize, &isShared, &data );
+
+        output += fmt::format( "({}) ", arraySize );
+        output += "[";
+        if ( data )
+        {
+            const auto maxElemCount = std::min( arraySize, kMaxArrayElemCount );
+            std::span<T> truncatedData( data, maxElemCount );
+            output += fmt::format( "{}", fmt::join( truncatedData, ", " ) );
+
+            if ( maxElemCount != arraySize )
+            {
+                output += "...";
+            }
+        }
+        else
+        {
+            output += "ERROR";
+        }
+        output += "]";
+
+        return true;
+    };
+
+#define SMP_LOG_ARRAY( jsType, cType )                                                    \
+    if ( logArray( JS_Is##jsType##Array, js::Get##jsType##ArrayLengthAndData, cType{} ) ) \
+    {                                                                                     \
+        return output;                                                                    \
+    }
+
+    SMP_LOG_ARRAY( Int8, int8_t )
+    SMP_LOG_ARRAY( Uint8, uint8_t )
+    SMP_LOG_ARRAY( Uint8Clamped, uint8_t )
+    SMP_LOG_ARRAY( Int16, int16_t )
+    SMP_LOG_ARRAY( Uint16, uint16_t )
+    SMP_LOG_ARRAY( Int32, int32_t )
+    SMP_LOG_ARRAY( Uint32, uint32_t )
+    SMP_LOG_ARRAY( Float32, float )
+    SMP_LOG_ARRAY( Float64, double )
+
+#undef SMP_LOG_ARRAY
+
+    output += "(unknown type)";
 
     return output;
 }
@@ -170,19 +242,26 @@ qwr::u8string ParseJsValue( JSContext* cx, JS::HandleValue jsValue, JS::MutableH
             }
             qwr::final_action autoPop( [&curObjects] { curObjects.popBack(); } );
 
-            bool is;
-            if ( !JS::IsArrayObject( cx, jsObject, &is ) )
+            if ( JS_IsTypedArrayObject( jsObject.get() ) )
             {
-                throw JsException();
-            }
-
-            if ( is )
-            {
-                output += ParseJsArray( cx, jsObject, curObjects, logDepth );
+                output += ParseJsTypedArray( cx, jsObject, curObjects, logDepth );
             }
             else
             {
-                output += ParseJsObject( cx, jsObject, curObjects, logDepth );
+                bool isArray;
+                if ( !JS::IsArrayObject( cx, jsObject, &isArray ) )
+                {
+                    throw JsException();
+                }
+
+                if ( isArray )
+                {
+                    output += ParseJsArray( cx, jsObject, curObjects, logDepth );
+                }
+                else
+                {
+                    output += ParseJsObject( cx, jsObject, curObjects, logDepth );
+                }
             }
         }
     }

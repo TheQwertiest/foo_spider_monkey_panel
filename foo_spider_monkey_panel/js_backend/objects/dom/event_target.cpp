@@ -118,7 +118,7 @@ void JsEventTarget::Trace( JSTracer* trc, JSObject* obj )
     {
         for ( const auto& pListener: listeners )
         {
-            JS::TraceEdge( trc, &pListener->jsObject, "CustomHeap: EventTarget listeners" );
+            JS::TraceEdge( trc, &pListener->jsObject, "Heap: EventTarget: listener" );
         }
     }
 }

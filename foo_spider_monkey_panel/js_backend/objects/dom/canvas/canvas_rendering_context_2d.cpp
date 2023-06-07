@@ -12,6 +12,7 @@
 #include <js_backend/objects/dom/canvas/canvas.h>
 #include <js_backend/objects/dom/canvas/canvas_gradient.h>
 #include <js_backend/objects/dom/canvas/image_bitmap.h>
+#include <js_backend/objects/dom/canvas/image_data.h>
 #include <js_backend/objects/dom/window/image.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <utils/colour_helpers.h>
@@ -19,6 +20,7 @@
 #include <utils/gdi_helpers.h>
 #include <utils/string_utils.h>
 
+#include <js/experimental/TypedData.h>
 #include <qwr/final_action.h>
 #include <qwr/string_helpers.h>
 #include <qwr/utility.h>
@@ -34,12 +36,6 @@ using namespace smp;
 
 namespace
 {
-
-enum class ReservedSlots
-{
-    kFillGradientSlot = mozjs::kReservedObjectSlot + 1,
-    kStrokeGradientSlot
-};
 
 struct GdiPlusFontData
 {
@@ -297,6 +293,14 @@ const GdiFontData& FetchGdiFont( Gdiplus::Graphics& graphics, const smp::dom::Fo
     return it->second;
 }
 
+inline void BGRAtoRGBA( uint8_t* data, size_t size )
+{
+    for ( size_t i = 0; i < size; i += 4 )
+    {
+        std::swap( data[i], data[i + 2] );
+    }
+}
+
 } // namespace
 
 namespace
@@ -320,7 +324,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "CanvasRenderingContext2D",
-    DefaultClassFlags( 2 ),
+    kDefaultClassFlags,
     &jsOps
 };
 
@@ -332,6 +336,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( fill, CanvasRenderingContext2D_Qwr::Fill,
 MJS_DEFINE_JS_FN_FROM_NATIVE( fillRect, CanvasRenderingContext2D_Qwr::FillRect );
 MJS_DEFINE_JS_FN_FROM_NATIVE( fillText, CanvasRenderingContext2D_Qwr::FillText );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( fillTextEx, CanvasRenderingContext2D_Qwr::FillTextEx, CanvasRenderingContext2D_Qwr::FillTextExWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( getImageData, CanvasRenderingContext2D_Qwr::GetImageData );
 MJS_DEFINE_JS_FN_FROM_NATIVE( lineTo, CanvasRenderingContext2D_Qwr::LineTo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( measureText, CanvasRenderingContext2D_Qwr::MeasureText );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( measureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextExWithOpt, 1 );
@@ -351,6 +356,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "fillRect", fillRect, 4, kDefaultPropsFlags ),
         JS_FN( "fillText", fillText, 3, kDefaultPropsFlags ),
         JS_FN( "fillTextEx", fillTextEx, 3, kDefaultPropsFlags ),
+        JS_FN( "getImageData", getImageData, 4, kDefaultPropsFlags ),
         JS_FN( "lineTo", lineTo, 2, kDefaultPropsFlags ),
         JS_FN( "measureText", measureText, 1, kDefaultPropsFlags ),
         JS_FN( "measureTextEx", measureTextEx, 1, kDefaultPropsFlags ),
@@ -362,20 +368,20 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( get_fillStyle, mozjs::CanvasRenderingContext2D_Qwr::get_FillStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_fillStyle, mozjs::CanvasRenderingContext2D_Qwr::get_FillStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_font, mozjs::CanvasRenderingContext2D_Qwr::get_Font )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_globalAlpha, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalAlpha )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_globalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( get_strokeStyle, mozjs::CanvasRenderingContext2D_Qwr::get_StrokeStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_strokeStyle, mozjs::CanvasRenderingContext2D_Qwr::get_StrokeStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_lineJoin, mozjs::CanvasRenderingContext2D_Qwr::get_LineJoin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_lineWidth, mozjs::CanvasRenderingContext2D_Qwr::get_LineWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_textAlign, mozjs::CanvasRenderingContext2D_Qwr::get_TextAlign )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_textBaseline, mozjs::CanvasRenderingContext2D_Qwr::get_TextBaseline )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( put_fillStyle, mozjs::CanvasRenderingContext2D_Qwr::put_FillStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_fillStyle, mozjs::CanvasRenderingContext2D_Qwr::put_FillStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_font, mozjs::CanvasRenderingContext2D_Qwr::put_Font )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_globalAlpha, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalAlpha )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_globalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( put_strokeStyle, mozjs::CanvasRenderingContext2D_Qwr::put_StrokeStyle )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_strokeStyle, mozjs::CanvasRenderingContext2D_Qwr::put_StrokeStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_lineJoin, mozjs::CanvasRenderingContext2D_Qwr::put_LineJoin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_lineWidth, mozjs::CanvasRenderingContext2D_Qwr::put_LineWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_textAlign, mozjs::CanvasRenderingContext2D_Qwr::put_TextAlign )
@@ -407,14 +413,16 @@ const JSFunctionSpec* JsObjectTraits<CanvasRenderingContext2D_Qwr>::JsFunctions 
 const JSPropertySpec* JsObjectTraits<CanvasRenderingContext2D_Qwr>::JsProperties = jsProperties.data();
 const JsPrototypeId JsObjectTraits<CanvasRenderingContext2D_Qwr>::PrototypeId = JsPrototypeId::New_CanvasRenderingContext2d;
 
-CanvasRenderingContext2D_Qwr::CanvasRenderingContext2D_Qwr( JSContext* cx, Gdiplus::Graphics& graphics )
+CanvasRenderingContext2D_Qwr::CanvasRenderingContext2D_Qwr( JSContext* cx, JS::HandleObject jsCanvas, ICanvasSurface& surface )
     : pJsCtx_( cx )
-    , pGraphics_( &graphics )
+    , jsCanvas_( jsCanvas )
+    , surface_( surface )
+    , pGraphics_( &surface.GetGraphics() )
     , defaultStringFormat_( Gdiplus::StringFormat::GenericTypographic() )
 {
     smp::error::CheckGdi( defaultStringFormat_.GetLastStatus(), "GenericTypographic" );
 
-    Reinitialize( graphics );
+    Reinitialize();
 }
 
 CanvasRenderingContext2D_Qwr::~CanvasRenderingContext2D_Qwr()
@@ -422,9 +430,9 @@ CanvasRenderingContext2D_Qwr::~CanvasRenderingContext2D_Qwr()
 }
 
 std::unique_ptr<mozjs::CanvasRenderingContext2D_Qwr>
-CanvasRenderingContext2D_Qwr::CreateNative( JSContext* cx, Gdiplus::Graphics& graphics )
+CanvasRenderingContext2D_Qwr::CreateNative( JSContext* cx, JS::HandleObject jsCanvas, ICanvasSurface& surface )
 {
-    return std::unique_ptr<CanvasRenderingContext2D_Qwr>( new CanvasRenderingContext2D_Qwr( cx, graphics ) );
+    return std::unique_ptr<CanvasRenderingContext2D_Qwr>( new CanvasRenderingContext2D_Qwr( cx, jsCanvas, surface ) );
 }
 
 size_t CanvasRenderingContext2D_Qwr::GetInternalSize() const
@@ -432,9 +440,22 @@ size_t CanvasRenderingContext2D_Qwr::GetInternalSize() const
     return 0;
 }
 
-void CanvasRenderingContext2D_Qwr::Reinitialize( Gdiplus::Graphics& graphics )
+void CanvasRenderingContext2D_Qwr::Trace( JSTracer* trc, JSObject* obj )
 {
-    pGraphics_ = &graphics;
+    auto pNative = JsObjectBase<CanvasRenderingContext2D_Qwr>::ExtractNativeUnchecked( obj );
+    if ( !pNative )
+    {
+        return;
+    }
+
+    JS::TraceEdge( trc, &pNative->jsCanvas_, "Heap: CanvasRenderingContext2D: canvas" );
+    JS::TraceEdge( trc, &pNative->jsFillGradient_, "Heap: CanvasRenderingContext2D: fill gradient" );
+    JS::TraceEdge( trc, &pNative->jsStrokeGradient_, "Heap: CanvasRenderingContext2D: stroke gradient" );
+}
+
+void CanvasRenderingContext2D_Qwr::Reinitialize()
+{
+    pGraphics_ = &surface_.GetGraphics();
 
     pFillBrush_ = std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{} );
     smp::error::CheckGdiPlusObject( pFillBrush_ );
@@ -448,7 +469,9 @@ void CanvasRenderingContext2D_Qwr::Reinitialize( Gdiplus::Graphics& graphics )
     globalAlpha_ = 1.0;
     originalFillColour_ = 0;
     originalStrokeColour_ = 0;
+    jsFillGradient_ = nullptr;
     pFillGradient_ = nullptr;
+    jsStrokeGradient_ = nullptr;
     pStrokeGradient_ = nullptr;
     lastPathPosOpt_.reset();
     fontDescription_ = smp::dom::FontDescription{};
@@ -767,6 +790,99 @@ void CanvasRenderingContext2D_Qwr::FillTextExWithOpt( size_t optArgCount, const 
     }
 }
 
+JSObject* CanvasRenderingContext2D_Qwr::GetImageData( int32_t sx, int32_t sy, int32_t sw, int32_t sh )
+{
+    qwr::QwrException::ExpectTrue( sw, "The source width is 0" );
+    qwr::QwrException::ExpectTrue( sw, "The source height is 0" );
+
+    smp::dom::AdjustAxis( sx, sw );
+    smp::dom::AdjustAxis( sy, sh );
+
+    // TODO: cleanup this mess, hide it in surface interface somehow
+    if ( surface_.IsDevice() )
+    {
+        CDCHandle cDc = pGraphics_->GetHDC();
+        qwr::final_action autoHdcReleaser( [&] { pGraphics_->ReleaseHDC( cDc ); } );
+
+        CBitmap bitmap{ ::CreateCompatibleBitmap( cDc, sw, sh ) };
+        qwr::error::CheckWinApi( bitmap, "CreateCompatibleBitmap" );
+
+        CDC memDc{ ::CreateCompatibleDC( cDc ) };
+        qwr::error::CheckWinApi( memDc, "CreateCompatibleDC" );
+
+        {
+            gdi::ObjectSelector autoBmp( memDc, bitmap.m_hBitmap );
+
+            auto bRet = memDc.BitBlt( 0, 0, sw, sh, cDc, sx, sy, SRCCOPY );
+            qwr::error::CheckWinApi( bitmap, "BitBlt" );
+        }
+
+        BITMAPINFOHEADER bmpInfoHeader{};
+        bmpInfoHeader.biSize = sizeof( BITMAPINFOHEADER );
+        bmpInfoHeader.biWidth = sw;
+        bmpInfoHeader.biHeight = -sh; // negative height for top-down DIB
+        bmpInfoHeader.biPlanes = 1;
+        bmpInfoHeader.biBitCount = 32;
+        bmpInfoHeader.biCompression = BI_RGB;
+
+        BITMAP tmp{};
+        bitmap.GetBitmap( tmp );
+
+        const auto bmpBufferSize = ( ( sw * bmpInfoHeader.biBitCount + 31 ) / 32 ) * 4 * sh;
+        JS::RootedObject jsArray( pJsCtx_, JS_NewUint8ClampedArray( pJsCtx_, bmpBufferSize ) );
+        smp::JsException::ExpectTrue( jsArray );
+
+        {
+            // Lock array data in place
+            JS::AutoCheckCannotGC nogc;
+
+            bool isShared;
+            uint8_t* data = JS_GetUint8ClampedArrayData( jsArray, &isShared, nogc );
+            assert( !isShared );
+
+            auto iRet = bitmap.GetDIBits( memDc, 0, sh, data, reinterpret_cast<BITMAPINFO*>( &bmpInfoHeader ), DIB_RGB_COLORS );
+            qwr::error::CheckWinApi( iRet, "GetBitmap" );
+
+            BGRAtoRGBA( data, bmpBufferSize );
+        }
+
+        return ImageData::CreateJs( pJsCtx_, sw, sh, jsArray );
+    }
+    else
+    {
+        Gdiplus::BitmapData bmpdata{};
+        bmpdata.Height = sh;
+        bmpdata.Width = sw;
+        bmpdata.Stride = ( ( sw * 32 + 31 ) / 32 ) * 4;
+
+        const auto bmpBufferSize = bmpdata.Stride * sh;
+        JS::RootedObject jsArray( pJsCtx_, JS_NewUint8ClampedArray( pJsCtx_, bmpBufferSize ) );
+        smp::JsException::ExpectTrue( jsArray );
+
+        {
+            // Lock array data in place
+            JS::AutoCheckCannotGC nogc;
+
+            bool isShared;
+            auto data = JS_GetUint8ClampedArrayData( jsArray, &isShared, nogc );
+            assert( !isShared );
+
+            bmpdata.Scan0 = data;
+
+            const Gdiplus::Rect rect{ sx, sy, static_cast<int>( sw ), static_cast<int>( sh ) };
+            auto gdiRet = surface_.GetBmp()->LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeUserInputBuf, PixelFormat32bppARGB, &bmpdata );
+            smp::error::CheckGdi( gdiRet, "LockBits" );
+
+            gdiRet = surface_.GetBmp()->UnlockBits( &bmpdata );
+            smp::error::CheckGdi( gdiRet, "UnlockBits" );
+
+            BGRAtoRGBA( data, bmpBufferSize );
+        }
+
+        return ImageData::CreateJs( pJsCtx_, sw, sh, jsArray );
+    }
+}
+
 void CanvasRenderingContext2D_Qwr::LineTo( double x, double y )
 {
     if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
@@ -1064,17 +1180,12 @@ qwr::u8string CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation() const
     }
 }
 
-JS::Value CanvasRenderingContext2D_Qwr::get_FillStyle( JS::HandleObject jsSelf ) const
+JS::Value CanvasRenderingContext2D_Qwr::get_FillStyle() const
 {
     if ( pFillGradient_ )
     {
-        // assumes that state is valid and corresponding js object is saved
-        JS::RootedValue jsValue(
-            pJsCtx_,
-            JS::GetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kFillGradientSlot ) ) );
-        assert( jsValue.isObject() );
-
-        return jsValue;
+        assert( jsFillGradient_.get() );
+        return JS::ObjectValue( *jsFillGradient_ );
     }
     else
     {
@@ -1117,17 +1228,12 @@ double CanvasRenderingContext2D_Qwr::get_LineWidth() const
     return pStrokePen_->GetWidth();
 }
 
-JS::Value CanvasRenderingContext2D_Qwr::get_StrokeStyle( JS::HandleObject jsSelf ) const
+JS::Value CanvasRenderingContext2D_Qwr::get_StrokeStyle() const
 {
     if ( pStrokeGradient_ )
     {
-        // assumes that state is valid and corresponding js object is saved
-        JS::RootedValue jsValue(
-            pJsCtx_,
-            JS::GetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kStrokeGradientSlot ) ) );
-        assert( jsValue.isObject() );
-
-        return jsValue;
+        assert( jsStrokeGradient_.get() );
+        return JS::ObjectValue( *jsStrokeGradient_ );
     }
     else
     {
@@ -1197,7 +1303,7 @@ void CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation( const qwr::u8st
     smp::error::CheckGdi( gdiRet, "SetCompositingMode" );
 }
 
-void CanvasRenderingContext2D_Qwr::put_FillStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue )
+void CanvasRenderingContext2D_Qwr::put_FillStyle( JS::HandleValue jsValue )
 {
     // TODO: deduplicate code with stroke style
 
@@ -1217,6 +1323,7 @@ void CanvasRenderingContext2D_Qwr::put_FillStyle( JS::HandleObject jsSelf, JS::H
 
         originalFillColour_ = newColour;
         pFillGradient_ = nullptr;
+        jsFillGradient_ = nullptr;
     }
     else
     {
@@ -1224,8 +1331,9 @@ void CanvasRenderingContext2D_Qwr::put_FillStyle( JS::HandleObject jsSelf, JS::H
         {
             // first, verify with ExtractNative
             pFillGradient_ = JsObjectBase<CanvasGradient_Qwr>::ExtractNative( pJsCtx_, jsValue );
+            qwr::QwrException::ExpectTrue( pFillGradient_, "style is not a supported object type" );
             // and only then save
-            JS_SetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kFillGradientSlot ), jsValue );
+            jsFillGradient_.set( &jsValue.toObject() );
         }
         catch ( const qwr::QwrException& /**/ )
         {
@@ -1300,7 +1408,7 @@ void CanvasRenderingContext2D_Qwr::put_LineWidth( double value )
     smp::error::CheckGdi( gdiRet, "SetWidth" );
 }
 
-void CanvasRenderingContext2D_Qwr::put_StrokeStyle( JS::HandleObject jsSelf, JS::HandleValue jsValue )
+void CanvasRenderingContext2D_Qwr::put_StrokeStyle( JS::HandleValue jsValue )
 {
     if ( jsValue.isString() )
     {
@@ -1318,6 +1426,7 @@ void CanvasRenderingContext2D_Qwr::put_StrokeStyle( JS::HandleObject jsSelf, JS:
 
         originalStrokeColour_ = newColour;
         pStrokeGradient_ = nullptr;
+        jsStrokeGradient_ = nullptr;
     }
     else
     {
@@ -1325,8 +1434,9 @@ void CanvasRenderingContext2D_Qwr::put_StrokeStyle( JS::HandleObject jsSelf, JS:
         {
             // first, verify with ExtractNative
             pStrokeGradient_ = JsObjectBase<CanvasGradient_Qwr>::ExtractNative( pJsCtx_, jsValue );
+            qwr::QwrException::ExpectTrue( pStrokeGradient_, "style is not a supported object type" );
             // and only then save
-            JS_SetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kStrokeGradientSlot ), jsValue );
+            jsStrokeGradient_.set( &jsValue.toObject() );
         }
         catch ( const qwr::QwrException& /**/ )
         {

@@ -3,6 +3,7 @@
 #include "micro_task.h"
 
 #include <js_backend/utils/js_error_helper.h>
+#include <tasks/panel_target.h>
 
 namespace smp
 {
@@ -15,6 +16,11 @@ MicroTask::MicroTask( JSContext* pJsCtx, JS::HandleObject jsTarget, RunnerFn fn 
 {
     assert( core_api::is_main_thread() );
     assert( pJsCtx );
+}
+
+void MicroTask::SetTarget( std::shared_ptr<PanelTarget> pTarget )
+{
+    pTarget_ = pTarget;
 }
 
 void MicroTask::Run()
@@ -50,7 +56,7 @@ JSObject* MicroTask::GetJsTarget()
 bool MicroTask::IsCallable() const
 {
     assert( core_api::is_main_thread() );
-    return ( !IsCancelled() && heapHelper_.IsJsAvailable() );
+    return ( pTarget_->GetPanel() && !IsCancelled() && heapHelper_.IsJsAvailable() );
 }
 
 } // namespace smp

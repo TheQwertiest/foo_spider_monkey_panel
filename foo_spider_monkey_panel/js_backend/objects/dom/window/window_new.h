@@ -2,6 +2,7 @@
 
 #include <js_backend/engine/js_event_status.h>
 #include <js_backend/objects/core/object_base.h>
+#include <js_backend/objects/dom/canvas/native/canvas_surface.h>
 #include <js_backend/objects/dom/event_target.h>
 #include <tasks/events/event.h>
 
@@ -23,7 +24,8 @@ class PanelWindow;
 namespace mozjs
 {
 class JsGdiGraphics;
-}
+class CanvasRenderingContext2D_Qwr;
+} // namespace mozjs
 
 namespace mozjs
 {
@@ -48,6 +50,7 @@ struct JsObjectTraits<WindowNew>
 class WindowNew
     : public JsObjectBase<WindowNew>
     , private JsEventTarget
+    , public ICanvasSurface
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( WindowNew );
 
@@ -66,7 +69,16 @@ public:
 
     EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event ) override;
 
+    bool IsDevice() const final;
+    Gdiplus::Graphics& GetGraphics() final;
+    uint32_t GetHeight() const final;
+    uint32_t GetWidth() const final;
+
 public:
+    // TODO: wrap context and disable it while there is not redraw event
+    JSObject* GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes = JS::UndefinedHandleValue );
+    JSObject* GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes );
+    // TODO: replace reserved slot with Heap
     // TODO: add decode option
     JSObject* LoadImage( JS::HandleValue source );
     void Redraw( bool force = false );
@@ -93,6 +105,10 @@ private:
     smp::panel::PanelWindow& parentPanel_;
 
     bool isFinalized_ = false; ///< if true, then parentPanel_ might be already inaccessible
+
+    JS::Heap<JSObject*> jsRenderingContext_;
+    CanvasRenderingContext2D_Qwr* pNativeRenderingContext_ = nullptr;
+    Gdiplus::Graphics* pGraphics_ = nullptr;
 };
 
 } // namespace mozjs

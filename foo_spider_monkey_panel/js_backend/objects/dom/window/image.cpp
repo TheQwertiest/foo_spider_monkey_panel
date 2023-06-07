@@ -454,7 +454,7 @@ void Image::put_Src( JS::HandleObject jsSelf, const std::wstring& value )
         } );
 
         pMicroTask_ = pMicroTask;
-        JsEngine::GetInstance().EnqueueMicroTask( pMicroTask );
+        EventDispatcher::Get().PutMicroTask( hPanelWnd_, pMicroTask );
     }
 }
 

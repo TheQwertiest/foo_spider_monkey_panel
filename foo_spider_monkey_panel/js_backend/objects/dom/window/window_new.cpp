@@ -5,11 +5,11 @@
 #include <dom/dom_codes.h>
 #include <dom/dom_keys.h>
 #include <js_backend/engine/js_to_native_invoker.h>
+#include <js_backend/objects/dom/canvas/canvas_rendering_context_2d.h>
 #include <js_backend/objects/dom/event.h>
 #include <js_backend/objects/dom/window/image.h>
 #include <js_backend/objects/dom/window/keyboard_event.h>
 #include <js_backend/objects/dom/window/mouse_event.h>
-#include <js_backend/objects/dom/window/paint_event.h>
 #include <js_backend/objects/dom/window/wheel_event.h>
 #include <panel/panel_window.h>
 #include <panel/panel_window_graphics.h>
@@ -200,12 +200,14 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_AND_SELF( getContext, WindowNew::GetContext, WindowNew::GetContextWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( loadImage, WindowNew::LoadImage )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( redraw, WindowNew::Redraw, WindowNew::RedrawWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( redrawRect, WindowNew::RepaintRect, WindowNew::RepaintRectWithOpt, 1 )
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
+        JS_FN( "getContext", getContext, 1, kDefaultPropsFlags ),
         JS_FN( "loadImage", loadImage, 1, kDefaultPropsFlags ),
         JS_FN( "redraw", redraw, 0, kDefaultPropsFlags ),
         JS_FN( "redrawRect", redrawRect, 4, kDefaultPropsFlags ),
@@ -314,7 +316,7 @@ const std::string& WindowNew::EventIdToType( smp::EventId eventId )
         { EventId::kNew_MouseLeave, "mouseleave" },
         { EventId::kNew_MouseMove, "mousemove" },
         { EventId::kNew_MouseWheel, "wheel" },
-        { EventId::kNew_WndPaint, "paint" },
+        { EventId::kNew_WndPaint, "redraw" },
         { EventId::kNew_WndResize, "resize" }
     };
 
@@ -350,6 +352,93 @@ EventStatus WindowNew::HandleEvent( JS::HandleObject self, const smp::EventBase&
     const auto pNativeEvent = convert::to_native::ToValue<JsEvent*>( pJsCtx_, jsEvent );
     status.isDefaultSuppressed = pNativeEvent->get_DefaultPrevented();
     return status;
+}
+
+bool WindowNew::IsDevice() const
+{
+    return true;
+}
+
+Gdiplus::Graphics& WindowNew::GetGraphics()
+{
+    qwr::QwrException::ExpectTrue( !isFinalized_, "Internal error: finalized" );
+    qwr::QwrException::ExpectTrue( pGraphics_, "Internal error: graphics is null" );
+    return *pGraphics_;
+}
+
+uint32_t WindowNew::GetHeight() const
+{
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
+    auto pGraphics = parentPanel_.GetGraphics();
+    if ( !pGraphics )
+    {
+        return 0;
+    }
+
+    return pGraphics->GetHeight();
+}
+
+uint32_t WindowNew::GetWidth() const
+{
+    if ( isFinalized_ )
+    {
+        return 0;
+    }
+
+    auto pGraphics = parentPanel_.GetGraphics();
+    if ( !pGraphics )
+    {
+        return 0;
+    }
+
+    return pGraphics->GetWidth();
+}
+
+JSObject* WindowNew::GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes )
+{
+    // TODO: do we actually need isFinalized_ and pGraphics check everywhere?
+    if ( isFinalized_ )
+    {
+        return nullptr;
+    }
+
+    auto pGraphics = parentPanel_.GetGraphics();
+    if ( !pGraphics )
+    {
+        return nullptr;
+    }
+
+    qwr::QwrException::ExpectTrue( contextType == L"2d", L"Unsupported contextType value: {}", contextType );
+    qwr::QwrException::ExpectTrue( pGraphics_, "Canvas context is not available" );
+
+    // TODO: handle attributes
+    if ( !jsRenderingContext_.get() )
+    {
+        jsRenderingContext_ = JsObjectBase<CanvasRenderingContext2D_Qwr>::CreateJs( pJsCtx_, jsSelf, *this );
+
+        JS::RootedObject jsRootedRenderingContext( pJsCtx_, jsRenderingContext_.get() );
+        pNativeRenderingContext_ = JsObjectBase<CanvasRenderingContext2D_Qwr>::ExtractNative( pJsCtx_, jsRootedRenderingContext );
+        assert( pNativeRenderingContext_ );
+    }
+
+    return jsRenderingContext_.get();
+}
+
+JSObject* WindowNew::GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes )
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return GetContext( jsSelf, contextType, attributes );
+    case 1:
+        return GetContext( jsSelf, contextType );
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
 }
 
 JSObject* WindowNew::LoadImage( JS::HandleValue source )
@@ -405,34 +494,12 @@ void WindowNew::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, 
 
 uint32_t WindowNew::get_Height()
 {
-    if ( isFinalized_ )
-    {
-        return 0;
-    }
-
-    auto pGraphics = parentPanel_.GetGraphics();
-    if ( !pGraphics )
-    {
-        return 0;
-    }
-
-    return pGraphics->GetHeight();
+    return GetHeight();
 }
 
 uint32_t WindowNew::get_Width()
 {
-    if ( isFinalized_ )
-    {
-        return 0;
-    }
-
-    auto pGraphics = parentPanel_.GetGraphics();
-    if ( !pGraphics )
-    {
-        return 0;
-    }
-
-    return pGraphics->GetWidth();
+    return GetWidth();
 }
 
 JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8string& eventType )
@@ -498,19 +565,19 @@ void WindowNew::HandlePaintEvent( JS::HandleObject self )
     pGraphics->PaintWithCallback( [&]( Gdiplus::Graphics& gr ) {
         try
         {
+            pGraphics_ = &gr;
+
             JS::RootedObject jsEvent( pJsCtx_,
-                                      mozjs::JsObjectBase<PaintEvent>::CreateJs(
-                                          pJsCtx_,
-                                          gr,
-                                          pGraphics->GetWidth(),
-                                          pGraphics->GetHeight() ) );
-            auto pNativeEvent = mozjs::JsObjectBase<PaintEvent>::ExtractNativeUnchecked( jsEvent );
+                                      mozjs::JsObjectBase<JsEvent>::CreateJs( pJsCtx_, "redraw", JsEvent::EventProperties{} ) );
+            auto pNativeEvent = mozjs::JsObjectBase<JsEvent>::ExtractNativeUnchecked( jsEvent );
             assert( pNativeEvent );
 
             JS::RootedValue jsEventValue( pJsCtx_, JS::ObjectValue( *jsEvent ) );
             DispatchEvent( self, jsEventValue );
 
-            pNativeEvent->ResetGraphics();
+            pGraphics_ = nullptr;
+            jsRenderingContext_ = nullptr;
+            pNativeRenderingContext_ = nullptr;
         }
         catch ( ... )
         {

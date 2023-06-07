@@ -475,9 +475,6 @@
     <ClCompile Include="dom\dom_keys.cpp">
       <Filter>dom</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\window\paint_event.cpp">
-      <Filter>js_backend\objects\dom\window</Filter>
-    </ClCompile>
     <ClCompile Include="js_backend\objects\dom\window\wheel_event.cpp">
       <Filter>js_backend\objects\dom\window</Filter>
     </ClCompile>
@@ -494,9 +491,6 @@
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.cpp">
-      <Filter>js_backend\objects\dom\canvas</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\canvas\window_canvas.cpp">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClCompile>
     <ClCompile Include="dom\css_colours.cpp">
@@ -588,6 +582,12 @@
     </ClCompile>
     <ClCompile Include="tasks\events\js_runnable_event.cpp">
       <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\canvas\placeholder.cpp">
+      <Filter>js_backend\objects</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1153,9 +1153,6 @@
     <ClInclude Include="js_backend\objects\dom\window\mouse_event.h">
       <Filter>js_backend\objects\dom\window</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\window\paint_event.h">
-      <Filter>js_backend\objects\dom\window</Filter>
-    </ClInclude>
     <ClInclude Include="js_backend\objects\dom\window\wheel_event.h">
       <Filter>js_backend\objects\dom\window</Filter>
     </ClInclude>
@@ -1169,9 +1166,6 @@
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\canvas\canvas_rendering_context_2d.h">
-      <Filter>js_backend\objects\dom\canvas</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\canvas\window_canvas.h">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClInclude>
     <ClInclude Include="dom\css_colours.h">
@@ -1284,6 +1278,15 @@
     </ClInclude>
     <ClInclude Include="dom\axis_adjuster.h">
       <Filter>dom</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\image_data.h">
+      <Filter>js_backend\objects\dom\canvas</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\placeholder.h">
+      <Filter>js_backend\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h">
+      <Filter>js_backend\objects\dom\canvas\native</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1427,6 +1430,9 @@
     </Filter>
     <Filter Include="tasks\micro_tasks">
       <UniqueIdentifier>{c84e461e-d8f0-4896-b698-cbcc6ed5a1e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_backend\objects\dom\canvas\native">
+      <UniqueIdentifier>{513ff6ad-d4c7-499c-92cd-0751d2a61fe9}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

@@ -6,6 +6,7 @@
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/canvas/canvas.h>
 #include <js_backend/objects/dom/canvas/image_bitmap.h>
+#include <js_backend/objects/dom/canvas/image_data.h>
 
 namespace
 {
@@ -70,6 +71,7 @@ size_t ModuleCanvas::GetInternalSize()
 void ModuleCanvas::PostCreate( JSContext* cx, JS::HandleObject self )
 {
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::Canvas>>( cx, self, JsPrototypeId::New_Canvas );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::ImageData>>( cx, self, JsPrototypeId::New_ImageData );
 }
 
 JSObject* ModuleCanvas::CreateImageBitmap1( JS::HandleValue image, JS::HandleValue options )
