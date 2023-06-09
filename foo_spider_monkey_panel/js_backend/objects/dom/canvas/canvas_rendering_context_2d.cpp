@@ -802,7 +802,7 @@ void CanvasRenderingContext2D_Qwr::FillTextExWithOpt( size_t optArgCount, const 
 JSObject* CanvasRenderingContext2D_Qwr::GetImageData( int32_t sx, int32_t sy, int32_t sw, int32_t sh )
 {
     qwr::QwrException::ExpectTrue( sw, "The source width is 0" );
-    qwr::QwrException::ExpectTrue( sw, "The source height is 0" );
+    qwr::QwrException::ExpectTrue( sh, "The source height is 0" );
 
     smp::dom::AdjustAxis( sx, sw );
     smp::dom::AdjustAxis( sy, sh );
@@ -817,7 +817,7 @@ JSObject* CanvasRenderingContext2D_Qwr::GetImageData( int32_t sx, int32_t sy, in
                                            { 0, 0, static_cast<int32_t>( surface_.GetWidth() ), static_cast<int32_t>( surface_.GetHeight() ) } );
     if ( imageRect.IsEmptyArea() )
     {
-        return ImageData::CreateJs( pJsCtx_, sw, sh, jsArray );
+        return ImageData::CreateJs( pJsCtx_, jsArray, sw, sh );
     }
 
     std::vector<uint8_t> imageData( imageRect.Width * imageRect.Height * 4 );
@@ -903,7 +903,7 @@ JSObject* CanvasRenderingContext2D_Qwr::GetImageData( int32_t sx, int32_t sy, in
         SwapRBColours( dstData, dstSize );
     }
 
-    return ImageData::CreateJs( pJsCtx_, sw, sh, jsArray );
+    return ImageData::CreateJs( pJsCtx_, jsArray, sw, sh );
 }
 
 void CanvasRenderingContext2D_Qwr::LineTo( double x, double y )
@@ -1089,7 +1089,7 @@ void CanvasRenderingContext2D_Qwr::PutImageData( ImageData* imagedata, int32_t d
 
 void CanvasRenderingContext2D_Qwr::PutImageDataWithOpt( size_t optArgCount, ImageData* imagedata, int32_t dx, int32_t dy, int32_t dirtyX, int32_t dirtyY, int32_t dirtyWidth, int32_t dirtyHeight )
 {
-    qwr::QwrException::ExpectTrue( imagedata, "imagedata" );
+    qwr::QwrException::ExpectTrue( imagedata, "imagedata is not a valid objct" );
     switch ( optArgCount )
     {
     case 0:
