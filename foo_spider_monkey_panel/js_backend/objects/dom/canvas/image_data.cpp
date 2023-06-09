@@ -4,6 +4,8 @@
 
 #include <js_backend/engine/js_to_native_invoker.h>
 
+#include <js/experimental/TypedData.h>
+
 using namespace smp;
 
 namespace
@@ -78,6 +80,15 @@ ImageData::CreateNative( JSContext* cx, uint32_t width, uint32_t height, JS::Han
 size_t ImageData::GetInternalSize() const
 {
     return 0;
+}
+
+std::vector<uint8_t> ImageData::GetDataCopy() const
+{
+    size_t arraySize = 0;
+    bool isShared = false;
+    uint8_t* data = nullptr;
+    js::GetUint8ClampedArrayLengthAndData( pixels_, &arraySize, &isShared, &data );
+    return { data, data + arraySize };
 }
 
 void ImageData::Trace( JSTracer* trc, JSObject* obj )

@@ -293,12 +293,19 @@ const GdiFontData& FetchGdiFont( Gdiplus::Graphics& graphics, const smp::dom::Fo
     return it->second;
 }
 
-inline void BGRAtoRGBA( uint8_t* data, size_t size )
+inline void SwapRBColours( uint8_t* data, size_t size )
 {
     for ( size_t i = 0; i < size; i += 4 )
     {
         std::swap( data[i], data[i + 2] );
     }
+}
+
+Gdiplus::Rect IntersectRects( const Gdiplus::Rect& src, const Gdiplus::Rect& dst )
+{
+    auto result = src;
+    result.Intersect( dst );
+    return result;
 }
 
 } // namespace
@@ -341,6 +348,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( lineTo, CanvasRenderingContext2D_Qwr::LineTo );
 MJS_DEFINE_JS_FN_FROM_NATIVE( measureText, CanvasRenderingContext2D_Qwr::MeasureText );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( measureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextExWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( moveTo, CanvasRenderingContext2D_Qwr::MoveTo );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( putImageData, CanvasRenderingContext2D_Qwr::PutImageData, CanvasRenderingContext2D_Qwr::PutImageDataWithOpt, 4 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( roundRect, CanvasRenderingContext2D_Qwr::RoundRect );
 MJS_DEFINE_JS_FN_FROM_NATIVE( stroke, CanvasRenderingContext2D_Qwr::Stroke );
 MJS_DEFINE_JS_FN_FROM_NATIVE( strokeRect, CanvasRenderingContext2D_Qwr::StrokeRect );
@@ -361,6 +369,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "measureText", measureText, 1, kDefaultPropsFlags ),
         JS_FN( "measureTextEx", measureTextEx, 1, kDefaultPropsFlags ),
         JS_FN( "moveTo", moveTo, 2, kDefaultPropsFlags ),
+        JS_FN( "putImageData", putImageData, 3, kDefaultPropsFlags ),
         JS_FN( "roundRect", roundRect, 5, kDefaultPropsFlags ),
         JS_FN( "stroke", stroke, 0, kDefaultPropsFlags ),
         JS_FN( "strokeRect", strokeRect, 4, kDefaultPropsFlags ),
@@ -798,89 +807,103 @@ JSObject* CanvasRenderingContext2D_Qwr::GetImageData( int32_t sx, int32_t sy, in
     smp::dom::AdjustAxis( sx, sw );
     smp::dom::AdjustAxis( sy, sh );
 
+    const Gdiplus::Rect dstRect{ 0, 0, sw, sh };
+    const auto dstSize = dstRect.Width * dstRect.Height * 4;
+    JS::RootedObject jsArray( pJsCtx_, JS_NewUint8ClampedArray( pJsCtx_, dstSize ) );
+    smp::JsException::ExpectTrue( jsArray );
+
+    const Gdiplus::Rect requestedImageRect{ sx, sy, sw, sh };
+    const auto imageRect = IntersectRects( requestedImageRect,
+                                           { 0, 0, static_cast<int32_t>( surface_.GetWidth() ), static_cast<int32_t>( surface_.GetHeight() ) } );
+    if ( imageRect.IsEmptyArea() )
+    {
+        return ImageData::CreateJs( pJsCtx_, sw, sh, jsArray );
+    }
+
+    std::vector<uint8_t> imageData( imageRect.Width * imageRect.Height * 4 );
+
     // TODO: cleanup this mess, hide it in surface interface somehow
     if ( surface_.IsDevice() )
     {
         CDCHandle cDc = pGraphics_->GetHDC();
         qwr::final_action autoHdcReleaser( [&] { pGraphics_->ReleaseHDC( cDc ); } );
 
-        CBitmap bitmap{ ::CreateCompatibleBitmap( cDc, sw, sh ) };
+        CBitmap bitmap{ ::CreateCompatibleBitmap( cDc, imageRect.Width, imageRect.Height ) };
         qwr::error::CheckWinApi( bitmap, "CreateCompatibleBitmap" );
 
-        CDC memDc{ ::CreateCompatibleDC( cDc ) };
-        qwr::error::CheckWinApi( memDc, "CreateCompatibleDC" );
-
         {
+            CDC memDc{ ::CreateCompatibleDC( cDc ) };
+            qwr::error::CheckWinApi( memDc, "CreateCompatibleDC" );
+
             gdi::ObjectSelector autoBmp( memDc, bitmap.m_hBitmap );
 
-            auto bRet = memDc.BitBlt( 0, 0, sw, sh, cDc, sx, sy, SRCCOPY );
+            auto bRet = memDc.BitBlt( 0, 0, imageRect.Width, imageRect.Height, cDc, imageRect.X, imageRect.Y, SRCCOPY );
             qwr::error::CheckWinApi( bitmap, "BitBlt" );
         }
 
         BITMAPINFOHEADER bmpInfoHeader{};
         bmpInfoHeader.biSize = sizeof( BITMAPINFOHEADER );
-        bmpInfoHeader.biWidth = sw;
-        bmpInfoHeader.biHeight = -sh; // negative height for top-down DIB
+        bmpInfoHeader.biWidth = imageRect.Width;
+        bmpInfoHeader.biHeight = -imageRect.Height; // negative height for top-down DIB
         bmpInfoHeader.biPlanes = 1;
         bmpInfoHeader.biBitCount = 32;
         bmpInfoHeader.biCompression = BI_RGB;
 
-        BITMAP tmp{};
-        bitmap.GetBitmap( tmp );
-
-        const auto bmpBufferSize = ( ( sw * bmpInfoHeader.biBitCount + 31 ) / 32 ) * 4 * sh;
-        JS::RootedObject jsArray( pJsCtx_, JS_NewUint8ClampedArray( pJsCtx_, bmpBufferSize ) );
-        smp::JsException::ExpectTrue( jsArray );
-
-        {
-            // Lock array data in place
-            JS::AutoCheckCannotGC nogc;
-
-            bool isShared;
-            uint8_t* data = JS_GetUint8ClampedArrayData( jsArray, &isShared, nogc );
-            assert( !isShared );
-
-            auto iRet = bitmap.GetDIBits( memDc, 0, sh, data, reinterpret_cast<BITMAPINFO*>( &bmpInfoHeader ), DIB_RGB_COLORS );
-            qwr::error::CheckWinApi( iRet, "GetBitmap" );
-
-            BGRAtoRGBA( data, bmpBufferSize );
-        }
-
-        return ImageData::CreateJs( pJsCtx_, sw, sh, jsArray );
+        auto iRet = bitmap.GetDIBits( cDc, 0, imageRect.Height, imageData.data(), reinterpret_cast<BITMAPINFO*>( &bmpInfoHeader ), DIB_RGB_COLORS );
+        qwr::error::CheckWinApi( iRet, "GetBitmap" );
     }
     else
     {
         Gdiplus::BitmapData bmpdata{};
-        bmpdata.Height = sh;
-        bmpdata.Width = sw;
-        bmpdata.Stride = ( ( sw * 32 + 31 ) / 32 ) * 4;
+        bmpdata.Width = imageRect.Width;
+        bmpdata.Height = imageRect.Height;
+        bmpdata.Stride = imageRect.Width * 4;
+        bmpdata.Scan0 = imageData.data();
 
-        const auto bmpBufferSize = bmpdata.Stride * sh;
-        JS::RootedObject jsArray( pJsCtx_, JS_NewUint8ClampedArray( pJsCtx_, bmpBufferSize ) );
-        smp::JsException::ExpectTrue( jsArray );
+        auto gdiRet = surface_.GetBmp()->LockBits( &imageRect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeUserInputBuf, PixelFormat32bppARGB, &bmpdata );
+        smp::error::CheckGdi( gdiRet, "LockBits" );
 
+        gdiRet = surface_.GetBmp()->UnlockBits( &bmpdata );
+        smp::error::CheckGdi( gdiRet, "UnlockBits" );
+    }
+
+    {
+        JS::AutoCheckCannotGC nogc;
+
+        bool isShared;
+        uint8_t* dstData = JS_GetUint8ClampedArrayData( jsArray, &isShared, nogc );
+        assert( !isShared );
+
+        if ( dstRect.Equals( requestedImageRect ) )
         {
-            // Lock array data in place
-            JS::AutoCheckCannotGC nogc;
+            memcpy( dstData, imageData.data(), imageData.size() );
+        }
+        else
+        {
+            const auto srcStride = imageRect.Width * 4;
+            const auto dstStride = dstRect.Width * 4;
+            auto src = imageData.data();
+            auto dst = dstData
+                       + ( ( requestedImageRect.Y < imageRect.Y ) - ( requestedImageRect.Y > imageRect.Y ) )
+                             * ( requestedImageRect.Height - imageRect.Height )
+                             * dstStride
+                       + ( ( requestedImageRect.X < imageRect.X ) - ( requestedImageRect.X > imageRect.X ) )
+                             * ( requestedImageRect.Width - imageRect.Width )
+                             * 4;
 
-            bool isShared;
-            auto data = JS_GetUint8ClampedArrayData( jsArray, &isShared, nogc );
-            assert( !isShared );
+            for ( int32_t i = 0; i < imageRect.Height; ++i )
+            {
+                memcpy( dst, src, srcStride );
 
-            bmpdata.Scan0 = data;
-
-            const Gdiplus::Rect rect{ sx, sy, static_cast<int>( sw ), static_cast<int>( sh ) };
-            auto gdiRet = surface_.GetBmp()->LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeUserInputBuf, PixelFormat32bppARGB, &bmpdata );
-            smp::error::CheckGdi( gdiRet, "LockBits" );
-
-            gdiRet = surface_.GetBmp()->UnlockBits( &bmpdata );
-            smp::error::CheckGdi( gdiRet, "UnlockBits" );
-
-            BGRAtoRGBA( data, bmpBufferSize );
+                src += srcStride;
+                dst += dstStride;
+            }
         }
 
-        return ImageData::CreateJs( pJsCtx_, sw, sh, jsArray );
+        SwapRBColours( dstData, dstSize );
     }
+
+    return ImageData::CreateJs( pJsCtx_, sw, sh, jsArray );
 }
 
 void CanvasRenderingContext2D_Qwr::LineTo( double x, double y )
@@ -964,6 +987,118 @@ void CanvasRenderingContext2D_Qwr::MoveTo( double x, double y )
 
     BeginPath();
     lastPathPosOpt_.emplace( static_cast<float>( x ), static_cast<float>( y ) );
+}
+
+void CanvasRenderingContext2D_Qwr::PutImageData( ImageData* imagedata, int32_t dx, int32_t dy, int32_t dirtyX, int32_t dirtyY, int32_t dirtyWidth, int32_t dirtyHeight )
+{
+    assert( imagedata );
+
+    smp::dom::AdjustAxis( dirtyX, dirtyWidth );
+    smp::dom::AdjustAxis( dirtyY, dirtyHeight );
+
+    const auto imageWidth = static_cast<int32_t>( imagedata->GetWidth() );
+    const auto imageHeight = static_cast<int32_t>( imagedata->GetHeight() );
+    const Gdiplus::Rect imageRect{ 0, 0, imageWidth, imageHeight };
+    const Gdiplus::Rect requestedImageRect{ dirtyX, dirtyY, dirtyWidth, dirtyHeight };
+    const auto availableImageRect = IntersectRects( requestedImageRect, imageRect );
+    const Gdiplus::Rect requestedDstRect{ dx, dy, availableImageRect.Width, availableImageRect.Height };
+    const auto dstRect = IntersectRects( requestedDstRect,
+                                         { 0, 0, static_cast<int32_t>( surface_.GetWidth() ), static_cast<int32_t>( surface_.GetHeight() ) } );
+    const Gdiplus::Rect clippedImageRect{ availableImageRect.X, availableImageRect.Y, dstRect.Width, dstRect.Height };
+    if ( dstRect.IsEmptyArea() )
+    {
+        return;
+    }
+
+    auto imageData = imagedata->GetDataCopy();
+
+    std::vector<uint8_t> dstData( dstRect.Width * dstRect.Height * 4 );
+    if ( imageRect.Equals( clippedImageRect ) && dstRect.Equals( imageRect ) )
+    {
+        memcpy( dstData.data(), imageData.data(), imageData.size() );
+    }
+    else
+    {
+        const auto srcStride = imageRect.Width * 4;
+        const auto dstStride = dstRect.Width * 4;
+        auto src = imageData.data()
+                   + ( ( requestedDstRect.Y < dstRect.Y ) - ( requestedDstRect.Y > dstRect.Y ) )
+                         * ( requestedDstRect.Height - dstRect.Height )
+                         * srcStride
+                   + ( ( requestedDstRect.X < dstRect.X ) - ( requestedDstRect.X > dstRect.X ) )
+                         * ( requestedDstRect.Width - dstRect.Width )
+                         * 4;
+        auto dst = dstData.data();
+
+        for ( int32_t i = 0; i < dstRect.Height; ++i )
+        {
+            memcpy( dst, src, dstStride );
+
+            src += srcStride;
+            dst += dstStride;
+        }
+    }
+
+    SwapRBColours( dstData.data(), dstData.size() );
+
+    // TODO: cleanup this mess, hide it in surface interface somehow
+    if ( surface_.IsDevice() )
+    {
+        CDCHandle cDc = pGraphics_->GetHDC();
+        qwr::final_action autoHdcReleaser( [&] { pGraphics_->ReleaseHDC( cDc ); } );
+
+        CBitmap bitmap{ ::CreateCompatibleBitmap( cDc, dstRect.Width, dstRect.Height ) };
+        qwr::error::CheckWinApi( bitmap, "CreateCompatibleBitmap" );
+
+        CDC memDc{ ::CreateCompatibleDC( cDc ) };
+        qwr::error::CheckWinApi( memDc, "CreateCompatibleDC" );
+
+        BITMAPINFOHEADER bmpInfoHeader{};
+        bmpInfoHeader.biSize = sizeof( BITMAPINFOHEADER );
+        bmpInfoHeader.biWidth = dstRect.Width;
+        bmpInfoHeader.biHeight = -dstRect.Height; // negative height for top-down DIB
+        bmpInfoHeader.biPlanes = 1;
+        bmpInfoHeader.biBitCount = 32;
+        bmpInfoHeader.biCompression = BI_RGB;
+
+        auto iRet = bitmap.SetDIBits( memDc, 0, dstRect.Height, dstData.data(), reinterpret_cast<BITMAPINFO*>( &bmpInfoHeader ), DIB_RGB_COLORS );
+        qwr::error::CheckWinApi( iRet, "GetBitmap" );
+
+        {
+            gdi::ObjectSelector autoBmp( memDc, bitmap.m_hBitmap );
+
+            auto bRet = cDc.BitBlt( dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height, memDc, 0, 0, SRCCOPY );
+            qwr::error::CheckWinApi( bitmap, "AlphaBlend" );
+        }
+    }
+    else
+    {
+        Gdiplus::BitmapData bmpdata{};
+        bmpdata.Width = dstRect.Width;
+        bmpdata.Height = dstRect.Height;
+        bmpdata.Stride = dstRect.Width * 4;
+        bmpdata.Scan0 = dstData.data();
+
+        auto gdiRet = surface_.GetBmp()->LockBits( &dstRect, Gdiplus::ImageLockModeWrite | Gdiplus::ImageLockModeUserInputBuf, PixelFormat32bppARGB, &bmpdata );
+        smp::error::CheckGdi( gdiRet, "LockBits" );
+
+        gdiRet = surface_.GetBmp()->UnlockBits( &bmpdata );
+        smp::error::CheckGdi( gdiRet, "UnlockBits" );
+    }
+}
+
+void CanvasRenderingContext2D_Qwr::PutImageDataWithOpt( size_t optArgCount, ImageData* imagedata, int32_t dx, int32_t dy, int32_t dirtyX, int32_t dirtyY, int32_t dirtyWidth, int32_t dirtyHeight )
+{
+    qwr::QwrException::ExpectTrue( imagedata, "imagedata" );
+    switch ( optArgCount )
+    {
+    case 0:
+        return PutImageData( imagedata, dx, dy, dirtyX, dirtyY, dirtyWidth, dirtyHeight );
+    case 4:
+        return PutImageData( imagedata, dx, dy, 0, 0, imagedata->GetWidth(), imagedata->GetHeight() );
+    default:
+        throw qwr::QwrException( "{} is not a valid argument count for any overload", 7 - optArgCount );
+    }
 }
 
 void CanvasRenderingContext2D_Qwr::RoundRect( double x, double y, double w, double h, double radii )

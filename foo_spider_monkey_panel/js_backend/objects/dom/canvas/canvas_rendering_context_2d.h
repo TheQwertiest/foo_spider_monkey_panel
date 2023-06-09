@@ -22,7 +22,7 @@ class StringFormat;
 
 namespace mozjs
 {
-
+class ImageData;
 class CanvasGradient_Qwr;
 class CanvasRenderingContext2D_Qwr;
 
@@ -120,6 +120,8 @@ public:
     JSObject* MeasureTextEx( const std::wstring& text, JS::HandleValue options = JS::UndefinedHandleValue );
     JSObject* MeasureTextExWithOpt( size_t optArgCount, const std::wstring& text, JS::HandleValue options );
     void MoveTo( double x, double y );
+    void PutImageData( ImageData* imagedata, int32_t dx, int32_t dy, int32_t dirtyX, int32_t dirtyY, int32_t dirtyWidth, int32_t dirtyHeight );
+    void PutImageDataWithOpt( size_t optArgCount, ImageData* imagedata, int32_t dx, int32_t dy, int32_t dirtyX, int32_t dirtyY, int32_t dirtyWidth, int32_t dirtyHeight );
     // TODO: handle point radii
     void RoundRect( double x, double y, double w, double h, double radii );
     void Stroke();

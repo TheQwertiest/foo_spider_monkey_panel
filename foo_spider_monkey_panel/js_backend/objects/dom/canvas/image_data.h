@@ -29,6 +29,7 @@ public:
 
     [[nodiscard]] static std::unique_ptr<ImageData> CreateNative( JSContext* cx, uint32_t width, uint32_t height, JS::HandleObject pixels );
     [[nodiscard]] size_t GetInternalSize() const;
+    [[nodiscard]] std::vector<uint8_t> GetDataCopy() const;
 
     static void Trace( JSTracer* trc, JSObject* obj );
 
