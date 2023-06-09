@@ -134,27 +134,28 @@ public:
     void Translate( double x, double y );
 
     /*
-    Resize( uint32_t w, uint32_t h, uint32_t interpolationMode = 0 );
-
-    SetInterpolationMode
     SetSmoothingMode
     SetTextRenderingHint
     */
 
-    qwr::u8string get_GlobalCompositeOperation() const;
     JS::Value get_FillStyle() const;
     std::wstring get_Font();
     double get_GlobalAlpha() const;
+    qwr::u8string get_GlobalCompositeOperation() const;
+    bool get_ImageSmoothingEnabled() const;
+    qwr::u8string get_ImageSmoothingQuality() const;
     qwr::u8string get_LineJoin() const;
     double get_LineWidth() const;
     JS::Value get_StrokeStyle() const;
     qwr::u8string get_TextAlign() const;
     qwr::u8string get_TextBaseline() const;
 
-    void put_GlobalCompositeOperation( const qwr::u8string& value );
     void put_FillStyle( JS::HandleValue jsValue );
     void put_Font( const std::wstring& value );
     void put_GlobalAlpha( double value );
+    void put_GlobalCompositeOperation( const qwr::u8string& value );
+    void put_ImageSmoothingEnabled( bool value );
+    void put_ImageSmoothingQuality( const qwr::u8string& value );
     void put_LineJoin( const qwr::u8string& value );
     void put_LineWidth( double value );
     void put_StrokeStyle( JS::HandleValue jsValue );
@@ -194,6 +195,9 @@ private:
     static bool IsSingleLine_FillTextEx( const FillTextExOptions& options );
     static bool IsSingleLineRect_FillTextEx( const FillTextExOptions& options );
 
+    void DisableSmoothing();
+    void SetLastSmoothingQuality();
+
 private:
     JSContext* pJsCtx_ = nullptr;
 
@@ -224,6 +228,8 @@ private:
     smp::dom::FontDescription fontDescription_;
     TextAlign textAlign_ = TextAlign::start;
     TextBaseline textBaseline_ = TextBaseline::alphabetic;
+
+    qwr::u8string lastSmoothingQuality_ = "low";
 };
 
 } // namespace mozjs

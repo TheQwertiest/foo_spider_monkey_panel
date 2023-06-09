@@ -397,6 +397,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_fillStyle, mozjs::CanvasRenderingContext2D_Qwr
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_font, mozjs::CanvasRenderingContext2D_Qwr::get_Font )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_globalAlpha, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalAlpha )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_globalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_imageSmoothingEnabled, mozjs::CanvasRenderingContext2D_Qwr::get_ImageSmoothingEnabled )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_imageSmoothingQuality, mozjs::CanvasRenderingContext2D_Qwr::get_ImageSmoothingQuality )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_strokeStyle, mozjs::CanvasRenderingContext2D_Qwr::get_StrokeStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_lineJoin, mozjs::CanvasRenderingContext2D_Qwr::get_LineJoin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_lineWidth, mozjs::CanvasRenderingContext2D_Qwr::get_LineWidth )
@@ -406,6 +408,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_fillStyle, mozjs::CanvasRenderingContext2D_Qwr
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_font, mozjs::CanvasRenderingContext2D_Qwr::put_Font )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_globalAlpha, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalAlpha )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_globalCompositeOperation, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_imageSmoothingEnabled, mozjs::CanvasRenderingContext2D_Qwr::put_ImageSmoothingEnabled )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_imageSmoothingQuality, mozjs::CanvasRenderingContext2D_Qwr::put_ImageSmoothingQuality )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_strokeStyle, mozjs::CanvasRenderingContext2D_Qwr::put_StrokeStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_lineJoin, mozjs::CanvasRenderingContext2D_Qwr::put_LineJoin )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_lineWidth, mozjs::CanvasRenderingContext2D_Qwr::put_LineWidth )
@@ -418,6 +422,8 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
         JS_PSGS( "font", get_font, put_font, kDefaultPropsFlags ),
         JS_PSGS( "globalAlpha", get_globalAlpha, put_globalAlpha, kDefaultPropsFlags ),
         JS_PSGS( "globalCompositeOperation", get_globalCompositeOperation, put_globalCompositeOperation, kDefaultPropsFlags ),
+        JS_PSGS( "imageSmoothingEnabled", get_imageSmoothingEnabled, put_imageSmoothingEnabled, kDefaultPropsFlags ),
+        JS_PSGS( "imageSmoothingQuality", get_imageSmoothingQuality, put_imageSmoothingQuality, kDefaultPropsFlags ),
         JS_PSGS( "lineJoin", get_lineJoin, put_lineJoin, kDefaultPropsFlags ),
         JS_PSGS( "lineWidth", get_lineWidth, put_lineWidth, kDefaultPropsFlags ),
         JS_PSGS( "strokeStyle", get_strokeStyle, put_strokeStyle, kDefaultPropsFlags ),
@@ -492,6 +498,7 @@ void CanvasRenderingContext2D_Qwr::Reinitialize()
     smp::error::CheckGdiPlusObject( pGraphicsPath_ );
 
     ResetMatrix();
+    DisableSmoothing();
 
     globalAlpha_ = 1.0;
     originalFillColour_ = 0;
@@ -504,6 +511,7 @@ void CanvasRenderingContext2D_Qwr::Reinitialize()
     fontDescription_ = smp::dom::FontDescription{};
     textAlign_ = TextAlign::start;
     textBaseline_ = TextBaseline::alphabetic;
+    lastSmoothingQuality_ = "low";
 
     auto pTmpBrush = std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{ 0x00000000 } );
     smp::error::CheckGdiPlusObject( pTmpBrush );
@@ -1380,20 +1388,6 @@ void CanvasRenderingContext2D_Qwr::Translate( double x, double y )
     smp::error::CheckGdi( gdiRet, "SetTransform" );
 }
 
-qwr::u8string CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation() const
-{
-    switch ( pGraphics_->GetCompositingMode() )
-    {
-    case Gdiplus::CompositingModeSourceOver:
-        return "source-over";
-    default:
-    {
-        assert( false );
-        return "source-over";
-    }
-    }
-}
-
 JS::Value CanvasRenderingContext2D_Qwr::get_FillStyle() const
 {
     if ( pFillGradient_ )
@@ -1417,6 +1411,30 @@ std::wstring CanvasRenderingContext2D_Qwr::get_Font()
 double CanvasRenderingContext2D_Qwr::get_GlobalAlpha() const
 {
     return globalAlpha_;
+}
+
+qwr::u8string CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation() const
+{
+    switch ( pGraphics_->GetCompositingMode() )
+    {
+    case Gdiplus::CompositingModeSourceOver:
+        return "source-over";
+    default:
+    {
+        assert( false );
+        return "source-over";
+    }
+    }
+}
+
+bool CanvasRenderingContext2D_Qwr::get_ImageSmoothingEnabled() const
+{
+    return ( pGraphics_->GetInterpolationMode() != Gdiplus::InterpolationModeNearestNeighbor );
+}
+
+qwr::u8string CanvasRenderingContext2D_Qwr::get_ImageSmoothingQuality() const
+{
+    return lastSmoothingQuality_;
 }
 
 qwr::u8string CanvasRenderingContext2D_Qwr::get_LineJoin() const
@@ -1515,6 +1533,28 @@ void CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation( const qwr::u8st
 
     auto gdiRet = pGraphics_->SetCompositingMode( *gdiCompositingModeOpt );
     smp::error::CheckGdi( gdiRet, "SetCompositingMode" );
+}
+
+void CanvasRenderingContext2D_Qwr::put_ImageSmoothingEnabled( bool value )
+{
+    if ( value )
+    {
+        SetLastSmoothingQuality();
+    }
+    else
+    {
+        DisableSmoothing();
+    }
+}
+
+void CanvasRenderingContext2D_Qwr::put_ImageSmoothingQuality( const qwr::u8string& value )
+{
+    static std::unordered_set<qwr::u8string> knownValues{ { "low", "medium", "high" } };
+    if ( knownValues.count( value ) )
+    {
+        lastSmoothingQuality_ = value;
+        SetLastSmoothingQuality();
+    }
 }
 
 void CanvasRenderingContext2D_Qwr::put_FillStyle( JS::HandleValue jsValue )
@@ -2664,6 +2704,32 @@ bool CanvasRenderingContext2D_Qwr::IsSingleLine_FillTextEx( const FillTextExOpti
 bool CanvasRenderingContext2D_Qwr::IsSingleLineRect_FillTextEx( const FillTextExOptions& options )
 {
     return ( IsRect_FillTextEx( options ) && !options.shouldWrapText && options.shouldCollapseNewLines && options.shouldCollapseSpaces );
+}
+
+void CanvasRenderingContext2D_Qwr::DisableSmoothing()
+{
+    auto gdiRet = pGraphics_->SetInterpolationMode( Gdiplus::InterpolationModeNearestNeighbor );
+    smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
+}
+
+void CanvasRenderingContext2D_Qwr::SetLastSmoothingQuality()
+{
+    const auto interpolationMode = [&] {
+        if ( lastSmoothingQuality_ == "high" )
+        {
+            return Gdiplus::InterpolationModeHighQualityBicubic;
+        }
+        else if ( lastSmoothingQuality_ == "medium" )
+        {
+            return Gdiplus::InterpolationModeHighQualityBilinear;
+        }
+        else
+        {
+            return Gdiplus::InterpolationModeBilinear;
+        }
+    }();
+    auto gdiRet = pGraphics_->SetInterpolationMode( interpolationMode );
+    smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
 }
 
 } // namespace mozjs
