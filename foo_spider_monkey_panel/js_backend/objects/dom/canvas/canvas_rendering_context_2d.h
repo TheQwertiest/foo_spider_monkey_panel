@@ -123,21 +123,18 @@ public:
     void PutImageData( ImageData* imagedata, int32_t dx, int32_t dy, int32_t dirtyX, int32_t dirtyY, int32_t dirtyWidth, int32_t dirtyHeight );
     void PutImageDataWithOpt( size_t optArgCount, ImageData* imagedata, int32_t dx, int32_t dy, int32_t dirtyX, int32_t dirtyY, int32_t dirtyWidth, int32_t dirtyHeight );
     // TODO: handle point radii
+    void Reset();
+    void ResetTransform();
+    void Rotate( double angle );
     void RoundRect( double x, double y, double w, double h, double radii );
+    void Scale( double x, double y );
     void Stroke();
     void StrokeRect( double x, double y, double w, double h );
     void StrokeText( const std::wstring& text, double x, double y );
+    void Translate( double x, double y );
 
     /*
-    Reset
-
-    GdiAlphaBlend
-    ApplyAlpha( uint8_t alpha );
-    ApplyMask( JsGdiBitmap* mask );
-    Clone( float x, float y, float w, float h );
-    CreateRawBitmap();
     Resize( uint32_t w, uint32_t h, uint32_t interpolationMode = 0 );
-    RotateFlip( uint32_t mode );
 
     SetInterpolationMode
     SetSmoothingMode
@@ -166,6 +163,9 @@ public:
 
 private:
     [[nodiscard]] CanvasRenderingContext2D_Qwr( JSContext* cx, JS::HandleObject jsCanvas, ICanvasSurface& surface );
+
+    void MaybeInitializeMatrix();
+    void ResetMatrix();
 
     void DrawImageImpl( JS::HandleValue image,
                         double& dx, double dy,
@@ -206,6 +206,7 @@ private:
     std::unique_ptr<Gdiplus::SolidBrush> pFillBrush_;
     std::unique_ptr<Gdiplus::Pen> pStrokePen_;
     std::unique_ptr<Gdiplus::GraphicsPath> pGraphicsPath_;
+    std::unique_ptr<Gdiplus::Matrix> pMatrix_;
 
     double globalAlpha_ = 1.0;
 

@@ -76,6 +76,12 @@ inline bool IsEpsilonGreater( float a, float b )
     return !IsEpsilonEqual( a, b ) && a > b;
 }
 
+inline auto ConvertRadiansToDegrees( double radians )
+{
+    const auto degrees = ( radians * 180 / std::numbers::pi );
+    return static_cast<float>( degrees );
+};
+
 auto ApplyAlpha( uint32_t colour, double alpha )
 {
     const auto newAlpha = static_cast<uint8_t>( std::round( ( ( colour & 0xFF000000 ) >> ( 8 * 3 ) ) * alpha ) );
@@ -349,10 +355,15 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( measureText, CanvasRenderingContext2D_Qwr::Measure
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( measureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextEx, CanvasRenderingContext2D_Qwr::MeasureTextExWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( moveTo, CanvasRenderingContext2D_Qwr::MoveTo );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( putImageData, CanvasRenderingContext2D_Qwr::PutImageData, CanvasRenderingContext2D_Qwr::PutImageDataWithOpt, 4 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( reset, CanvasRenderingContext2D_Qwr::Reset );
+MJS_DEFINE_JS_FN_FROM_NATIVE( resetTransform, CanvasRenderingContext2D_Qwr::ResetTransform );
+MJS_DEFINE_JS_FN_FROM_NATIVE( rotate, CanvasRenderingContext2D_Qwr::Rotate );
 MJS_DEFINE_JS_FN_FROM_NATIVE( roundRect, CanvasRenderingContext2D_Qwr::RoundRect );
+MJS_DEFINE_JS_FN_FROM_NATIVE( scale, CanvasRenderingContext2D_Qwr::Scale );
 MJS_DEFINE_JS_FN_FROM_NATIVE( stroke, CanvasRenderingContext2D_Qwr::Stroke );
 MJS_DEFINE_JS_FN_FROM_NATIVE( strokeRect, CanvasRenderingContext2D_Qwr::StrokeRect );
 MJS_DEFINE_JS_FN_FROM_NATIVE( strokeText, CanvasRenderingContext2D_Qwr::StrokeText );
+MJS_DEFINE_JS_FN_FROM_NATIVE( translate, CanvasRenderingContext2D_Qwr::Translate );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
@@ -370,10 +381,15 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "measureTextEx", measureTextEx, 1, kDefaultPropsFlags ),
         JS_FN( "moveTo", moveTo, 2, kDefaultPropsFlags ),
         JS_FN( "putImageData", putImageData, 3, kDefaultPropsFlags ),
+        JS_FN( "reset", reset, 0, kDefaultPropsFlags ),
+        JS_FN( "resetTransform", reset, 0, kDefaultPropsFlags ),
+        JS_FN( "rotate", rotate, 1, kDefaultPropsFlags ),
         JS_FN( "roundRect", roundRect, 5, kDefaultPropsFlags ),
+        JS_FN( "scale", scale, 2, kDefaultPropsFlags ),
         JS_FN( "stroke", stroke, 0, kDefaultPropsFlags ),
         JS_FN( "strokeRect", strokeRect, 4, kDefaultPropsFlags ),
         JS_FN( "strokeText", strokeText, 3, kDefaultPropsFlags ),
+        JS_FN( "translate", translate, 2, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -475,6 +491,8 @@ void CanvasRenderingContext2D_Qwr::Reinitialize()
     pGraphicsPath_ = std::make_unique<Gdiplus::GraphicsPath>();
     smp::error::CheckGdiPlusObject( pGraphicsPath_ );
 
+    ResetMatrix();
+
     globalAlpha_ = 1.0;
     originalFillColour_ = 0;
     originalStrokeColour_ = 0;
@@ -487,7 +505,14 @@ void CanvasRenderingContext2D_Qwr::Reinitialize()
     textAlign_ = TextAlign::start;
     textBaseline_ = TextBaseline::alphabetic;
 
-    // TODO: fill with transparent black, if needed
+    auto pTmpBrush = std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{ 0x00000000 } );
+    smp::error::CheckGdiPlusObject( pTmpBrush );
+
+    if ( !surface_.IsDevice() )
+    {
+        auto gdiRet = pGraphics_->Clear( Gdiplus ::Color{ 0x00000000 } );
+        smp::error::CheckGdi( gdiRet, "Clear" );
+    }
 }
 
 void CanvasRenderingContext2D_Qwr::BeginPath()
@@ -573,11 +598,6 @@ void CanvasRenderingContext2D_Qwr::Ellipse( double x, double y, double radiusX, 
 
     qwr::QwrException::ExpectTrue( radiusX > 0 && radiusY > 0, "Negative radius" );
 
-    const auto convertRadiansToDegrees = []( double radians ) {
-        auto degrees = ( radians * 180 / std::numbers::pi );
-        return static_cast<float>( degrees );
-    };
-
     Gdiplus::PointF centerPoint{ static_cast<float>( x ), static_cast<float>( y ) };
     const Gdiplus::RectF rect{
         static_cast<float>( x - radiusX ),
@@ -586,8 +606,8 @@ void CanvasRenderingContext2D_Qwr::Ellipse( double x, double y, double radiusX, 
         static_cast<float>( 2 * radiusY )
     };
 
-    const auto startAngleInDegrees = convertRadiansToDegrees( startAngle );
-    const auto endAngleInDegrees = convertRadiansToDegrees( endAngle );
+    const auto startAngleInDegrees = ConvertRadiansToDegrees( startAngle );
+    const auto endAngleInDegrees = ConvertRadiansToDegrees( endAngle );
     const auto sweepAngleInDegrees = [&] {
         // TODO: simplify
         if ( !counterclockwise )
@@ -633,7 +653,7 @@ void CanvasRenderingContext2D_Qwr::Ellipse( double x, double y, double radiusX, 
     if ( rotation )
     {
         Gdiplus::Matrix matrix;
-        gdiRet = matrix.RotateAt( convertRadiansToDegrees( rotation ), centerPoint );
+        gdiRet = matrix.RotateAt( ConvertRadiansToDegrees( rotation ), centerPoint );
         smp::error::CheckGdi( gdiRet, "RotateAt" );
 
         gdiRet = pTmpGraphicsPath->Transform( &matrix );
@@ -1101,6 +1121,33 @@ void CanvasRenderingContext2D_Qwr::PutImageDataWithOpt( size_t optArgCount, Imag
     }
 }
 
+void CanvasRenderingContext2D_Qwr::Reset()
+{
+    Reinitialize();
+}
+
+void CanvasRenderingContext2D_Qwr::ResetTransform()
+{
+    ResetMatrix();
+}
+
+void CanvasRenderingContext2D_Qwr::Rotate( double angle )
+{
+    if ( !smp::dom::IsValidDouble( angle ) )
+    {
+        return;
+    }
+
+    MaybeInitializeMatrix();
+
+    const auto degrees = ConvertRadiansToDegrees( angle );
+    auto gdiRet = pMatrix_->Rotate( degrees );
+    smp::error::CheckGdi( gdiRet, "Rotate" );
+
+    gdiRet = pGraphics_->SetTransform( pMatrix_.get() );
+    smp::error::CheckGdi( gdiRet, "SetTransform" );
+}
+
 void CanvasRenderingContext2D_Qwr::RoundRect( double x, double y, double w, double h, double radii )
 {
     if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y )
@@ -1191,6 +1238,22 @@ void CanvasRenderingContext2D_Qwr::RoundRect( double x, double y, double w, doub
     smp::error::CheckGdi( gdiRet, "CloseFigure" );
 
     lastPathPosOpt_ = nextPoint;
+}
+
+void CanvasRenderingContext2D_Qwr::Scale( double x, double y )
+{
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
+    {
+        return;
+    }
+
+    MaybeInitializeMatrix();
+
+    auto gdiRet = pMatrix_->Scale( static_cast<float>( x ), static_cast<float>( y ) );
+    smp::error::CheckGdi( gdiRet, "Scale" );
+
+    gdiRet = pGraphics_->SetTransform( pMatrix_.get() );
+    smp::error::CheckGdi( gdiRet, "SetTransform" );
 }
 
 void CanvasRenderingContext2D_Qwr::Stroke()
@@ -1299,6 +1362,22 @@ void CanvasRenderingContext2D_Qwr::StrokeText( const std::wstring& text, double 
 
     gdiRet = pGraphics_->DrawPath( ( pGradientPen ? pGradientPen.get() : pStrokePen_.get() ), pGraphicsPath.get() );
     smp::error::CheckGdi( gdiRet, "DrawPath" );
+}
+
+void CanvasRenderingContext2D_Qwr::Translate( double x, double y )
+{
+    if ( !smp::dom::IsValidDouble( x ) || !smp::dom::IsValidDouble( y ) )
+    {
+        return;
+    }
+
+    MaybeInitializeMatrix();
+
+    auto gdiRet = pMatrix_->Translate( static_cast<float>( x ), static_cast<float>( y ) );
+    smp::error::CheckGdi( gdiRet, "Translate" );
+
+    gdiRet = pGraphics_->SetTransform( pMatrix_.get() );
+    smp::error::CheckGdi( gdiRet, "SetTransform" );
 }
 
 qwr::u8string CanvasRenderingContext2D_Qwr::get_GlobalCompositeOperation() const
@@ -1623,6 +1702,25 @@ void CanvasRenderingContext2D_Qwr::put_TextBaseline( const qwr::u8string& value 
     else if ( value == "alphabetic" )
     {
         textBaseline_ = TextBaseline::alphabetic;
+    }
+}
+
+void CanvasRenderingContext2D_Qwr::MaybeInitializeMatrix()
+{
+    if ( !pMatrix_ )
+    {
+        pMatrix_ = std::make_unique<Gdiplus::Matrix>();
+        smp::error::CheckGdiPlusObject( pMatrix_ );
+    }
+}
+
+void CanvasRenderingContext2D_Qwr::ResetMatrix()
+{
+    if ( pMatrix_ )
+    {
+        pMatrix_.reset();
+        auto gdiRet = pGraphics_->ResetTransform();
+        smp::error::CheckGdi( gdiRet, "ResetTransform" );
     }
 }
 
