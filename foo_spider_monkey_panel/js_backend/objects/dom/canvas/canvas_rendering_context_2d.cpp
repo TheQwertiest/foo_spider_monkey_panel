@@ -393,6 +393,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_antialiasingEnabled, mozjs::CanvasRenderingContext2D_Qwr::get_AntialiasingEnabled )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_fillStyle, mozjs::CanvasRenderingContext2D_Qwr::get_FillStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_font, mozjs::CanvasRenderingContext2D_Qwr::get_Font )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_globalAlpha, mozjs::CanvasRenderingContext2D_Qwr::get_GlobalAlpha )
@@ -404,6 +405,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_lineJoin, mozjs::CanvasRenderingContext2D_Qwr:
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_lineWidth, mozjs::CanvasRenderingContext2D_Qwr::get_LineWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_textAlign, mozjs::CanvasRenderingContext2D_Qwr::get_TextAlign )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_textBaseline, mozjs::CanvasRenderingContext2D_Qwr::get_TextBaseline )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_antialiasingEnabled, mozjs::CanvasRenderingContext2D_Qwr::put_AntialiasingEnabled )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_fillStyle, mozjs::CanvasRenderingContext2D_Qwr::put_FillStyle )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_font, mozjs::CanvasRenderingContext2D_Qwr::put_Font )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_globalAlpha, mozjs::CanvasRenderingContext2D_Qwr::put_GlobalAlpha )
@@ -418,6 +420,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( put_textBaseline, mozjs::CanvasRenderingContext2D_
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
+        JS_PSGS( "antialiasingEnabled", get_antialiasingEnabled, put_antialiasingEnabled, kDefaultPropsFlags ),
         JS_PSGS( "fillStyle", get_fillStyle, put_fillStyle, kDefaultPropsFlags ),
         JS_PSGS( "font", get_font, put_font, kDefaultPropsFlags ),
         JS_PSGS( "globalAlpha", get_globalAlpha, put_globalAlpha, kDefaultPropsFlags ),
@@ -499,6 +502,8 @@ void CanvasRenderingContext2D_Qwr::Reinitialize()
 
     ResetMatrix();
     DisableSmoothing();
+    auto gdiRet = pGraphics_->SetSmoothingMode( Gdiplus::SmoothingModeAntiAlias );
+    smp::error::CheckGdi( gdiRet, "SetSmoothingMode" );
 
     globalAlpha_ = 1.0;
     originalFillColour_ = 0;
@@ -518,7 +523,7 @@ void CanvasRenderingContext2D_Qwr::Reinitialize()
 
     if ( !surface_.IsDevice() )
     {
-        auto gdiRet = pGraphics_->Clear( Gdiplus ::Color{ 0x00000000 } );
+        gdiRet = pGraphics_->Clear( Gdiplus ::Color{ 0x00000000 } );
         smp::error::CheckGdi( gdiRet, "Clear" );
     }
 }
@@ -1388,6 +1393,11 @@ void CanvasRenderingContext2D_Qwr::Translate( double x, double y )
     smp::error::CheckGdi( gdiRet, "SetTransform" );
 }
 
+bool CanvasRenderingContext2D_Qwr::get_AntialiasingEnabled() const
+{
+    return ( pGraphics_->GetSmoothingMode() == Gdiplus::SmoothingModeAntiAlias );
+}
+
 JS::Value CanvasRenderingContext2D_Qwr::get_FillStyle() const
 {
     if ( pFillGradient_ )
@@ -1403,7 +1413,7 @@ JS::Value CanvasRenderingContext2D_Qwr::get_FillStyle() const
     }
 }
 
-std::wstring CanvasRenderingContext2D_Qwr::get_Font()
+std::wstring CanvasRenderingContext2D_Qwr::get_Font() const
 {
     return fontDescription_.cssFont;
 }
@@ -1497,6 +1507,16 @@ qwr::u8string CanvasRenderingContext2D_Qwr::get_TextAlign() const
     }
 }
 
+bool CanvasRenderingContext2D_Qwr::get_TextAntialiasingEnabled() const
+{
+    return {};
+}
+
+qwr::u8string CanvasRenderingContext2D_Qwr::get_TextAntialiasingQuality() const
+{
+    return {};
+}
+
 qwr::u8string CanvasRenderingContext2D_Qwr::get_TextBaseline() const
 {
     switch ( textBaseline_ )
@@ -1515,6 +1535,12 @@ qwr::u8string CanvasRenderingContext2D_Qwr::get_TextBaseline() const
         return "alphabetic";
     }
     }
+}
+
+void CanvasRenderingContext2D_Qwr::put_AntialiasingEnabled( bool value )
+{
+    auto gdiRet = pGraphics_->SetSmoothingMode( value ? Gdiplus::SmoothingModeAntiAlias : Gdiplus::SmoothingModeNone );
+    smp::error::CheckGdi( gdiRet, "SetSmoothingMode" );
 }
 
 void CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation( const qwr::u8string& value )
@@ -1723,6 +1749,16 @@ void CanvasRenderingContext2D_Qwr::put_TextAlign( const qwr::u8string& value )
     {
         textAlign_ = TextAlign::center;
     }
+}
+
+void CanvasRenderingContext2D_Qwr::put_TextAntialiasingEnabled( bool value )
+{
+    (void)value;
+}
+
+void CanvasRenderingContext2D_Qwr::put_TextAntialiasingQuality( const qwr::u8string& value )
+{
+    (void)value;
 }
 
 void CanvasRenderingContext2D_Qwr::put_TextBaseline( const qwr::u8string& value )

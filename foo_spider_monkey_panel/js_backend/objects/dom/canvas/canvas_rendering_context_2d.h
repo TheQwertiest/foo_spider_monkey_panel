@@ -134,12 +134,14 @@ public:
     void Translate( double x, double y );
 
     /*
-    SetSmoothingMode
     SetTextRenderingHint
     */
 
+    // TODO: implement state saving
+
+    bool get_AntialiasingEnabled() const;
     JS::Value get_FillStyle() const;
-    std::wstring get_Font();
+    std::wstring get_Font() const;
     double get_GlobalAlpha() const;
     qwr::u8string get_GlobalCompositeOperation() const;
     bool get_ImageSmoothingEnabled() const;
@@ -148,8 +150,12 @@ public:
     double get_LineWidth() const;
     JS::Value get_StrokeStyle() const;
     qwr::u8string get_TextAlign() const;
+    // TODO: implement
+    bool get_TextAntialiasingEnabled() const;
+    qwr::u8string get_TextAntialiasingQuality() const;
     qwr::u8string get_TextBaseline() const;
 
+    void put_AntialiasingEnabled( bool value );
     void put_FillStyle( JS::HandleValue jsValue );
     void put_Font( const std::wstring& value );
     void put_GlobalAlpha( double value );
@@ -160,6 +166,9 @@ public:
     void put_LineWidth( double value );
     void put_StrokeStyle( JS::HandleValue jsValue );
     void put_TextAlign( const qwr::u8string& value );
+    // TODO: implement
+    void put_TextAntialiasingEnabled( bool value );
+    void put_TextAntialiasingQuality( const qwr::u8string& value );
     void put_TextBaseline( const qwr::u8string& value );
 
 private:
@@ -230,6 +239,8 @@ private:
     TextBaseline textBaseline_ = TextBaseline::alphabetic;
 
     qwr::u8string lastSmoothingQuality_ = "low";
+    // TODO: implement
+    qwr::u8string lastTextAntialisingQuality_ = "low";
 };
 
 } // namespace mozjs
