@@ -23,7 +23,6 @@ JSClassOps jsOps = {
     ImageData::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

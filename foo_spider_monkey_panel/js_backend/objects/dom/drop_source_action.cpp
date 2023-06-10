@@ -21,7 +21,6 @@ JSClassOps jsOps = {
     JsDropSourceAction::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

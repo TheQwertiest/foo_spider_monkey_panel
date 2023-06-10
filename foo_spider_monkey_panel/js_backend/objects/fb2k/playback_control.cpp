@@ -25,7 +25,6 @@ JSClassOps jsOps = {
     JsObjectBase<PlaybackControl>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     PlaybackControl::Trace
 };
 

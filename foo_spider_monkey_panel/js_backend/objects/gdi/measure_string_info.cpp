@@ -21,7 +21,6 @@ constexpr JSClassOps jsOps = {
     JsMeasureStringInfo::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

@@ -21,7 +21,6 @@ JSClassOps jsOps = {
     JsObjectBase<mozjs::MouseEvent>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

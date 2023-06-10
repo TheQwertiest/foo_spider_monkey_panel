@@ -34,7 +34,6 @@ JSClassOps jsOps = {
     JsFbMetadbHandleList::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 
@@ -408,9 +407,9 @@ JS::Value JsFbMetadbHandleList::GetLibraryRelativePaths()
         pJsCtx_,
         qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ),
         [&api]( const auto& vec, auto index ) {
-        pfc::string8_fast path;
-        api->get_relative_path( vec[index], path );
-        return path;
+            pfc::string8_fast path;
+            api->get_relative_path( vec[index], path );
+            return path;
         },
         &jsValue );
 
@@ -630,14 +629,14 @@ void JsFbMetadbHandleList::UpdateFileInfoFromJSON( const qwr::u8string& str )
         ranges::views::enumerate( handleList )
         | ranges::views::transform(
             [isArray, &jsonObject]( const auto& zippedElem ) {
-        const auto& [i, handle] = zippedElem;
+                const auto& [i, handle] = zippedElem;
 
-        // TODO: think of a better way of handling unavalaible info,
-        //       currently it uses dummy value instead
-        file_info_impl fileInfo = handle->get_info_ref()->info();
-        ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
-        return fileInfo;
-          } )
+                // TODO: think of a better way of handling unavalaible info,
+                //       currently it uses dummy value instead
+                file_info_impl fileInfo = handle->get_info_ref()->info();
+                ModifyFileInfoWithJson( isArray ? jsonObject[i] : jsonObject, fileInfo );
+                return fileInfo;
+            } )
         | ranges::to_vector;
 
     metadb_io_v2::get()->update_info_async_simple(

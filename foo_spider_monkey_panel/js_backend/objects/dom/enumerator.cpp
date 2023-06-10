@@ -26,7 +26,6 @@ JSClassOps jsOps = {
     JsEnumerator::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

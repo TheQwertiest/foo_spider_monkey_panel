@@ -19,7 +19,6 @@ JSClassOps jsOps = {
     PlaceHolder::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

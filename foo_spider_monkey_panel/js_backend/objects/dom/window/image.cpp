@@ -214,7 +214,6 @@ JSClassOps jsOps = {
     JsObjectBase<Image>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     Image::Trace
 };
 

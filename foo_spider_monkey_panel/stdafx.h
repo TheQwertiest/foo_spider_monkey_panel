@@ -89,13 +89,14 @@
 #endif
 
 // 4251: dll interface warning
+// 4244: narrowing conversion 
 #define SMP_MJS_SUPPRESS_WARNINGS_PUSH \
     __pragma( warning( push ) )        \
-    __pragma( warning( disable : 4251 ) ) 
+    __pragma( warning( disable : 4251 ) ) \
+    __pragma( warning( disable : 4244 ) ) 
 
 #define SMP_MJS_SUPPRESS_WARNINGS_POP \
     __pragma( warning( pop ) )
-
 
 // Mozilla SpiderMonkey
 SMP_MJS_SUPPRESS_WARNINGS_PUSH

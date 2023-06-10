@@ -27,7 +27,6 @@ JSClassOps jsOps = {
     JsEventTarget::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     JsEventTarget::Trace
 };
 

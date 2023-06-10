@@ -48,7 +48,6 @@ JSClassOps jsOps = {
     JsUtils::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

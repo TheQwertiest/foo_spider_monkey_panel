@@ -20,7 +20,6 @@ JSClassOps jsOps = {
     JsObjectBase<mozjs::PlaybackStopEvent>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

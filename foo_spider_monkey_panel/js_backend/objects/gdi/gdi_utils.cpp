@@ -32,7 +32,6 @@ JSClassOps jsOps = {
     JsGdiUtils::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

@@ -123,7 +123,7 @@ public:
         return CreateJsObject_Final( cx, jsProto, jsObject, std::move( pNativeObject ) );
     }
 
-    static void FinalizeJsObject( JSFreeOp* /*fop*/, JSObject* pSelf )
+    static void FinalizeJsObject( JS::GCContext* /*gcCtx*/, JSObject* pSelf )
     {
         auto pNative = Self::ExtractNativeUnchecked( pSelf );
         if ( pNative )

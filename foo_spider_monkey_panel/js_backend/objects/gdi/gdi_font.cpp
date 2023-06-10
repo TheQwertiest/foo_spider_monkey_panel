@@ -29,7 +29,6 @@ JSClassOps jsOps = {
     JsGdiFont::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

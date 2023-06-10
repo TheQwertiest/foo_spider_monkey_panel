@@ -33,7 +33,6 @@ JSClassOps jsOps = {
     JsGdiGraphics::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

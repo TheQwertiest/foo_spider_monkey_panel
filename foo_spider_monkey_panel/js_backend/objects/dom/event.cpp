@@ -26,7 +26,6 @@ JSClassOps jsOps = {
     JsEvent::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

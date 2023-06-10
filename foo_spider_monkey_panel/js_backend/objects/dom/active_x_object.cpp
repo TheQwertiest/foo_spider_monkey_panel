@@ -268,7 +268,6 @@ JSClassOps jsOps = {
     JsActiveXObject::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

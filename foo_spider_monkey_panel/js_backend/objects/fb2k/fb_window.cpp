@@ -23,7 +23,6 @@ JSClassOps jsOps = {
     JsFbWindow::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

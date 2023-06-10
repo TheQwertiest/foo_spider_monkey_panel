@@ -406,7 +406,8 @@ JSObject* ScriptLoader::GetCompiledModule( const std::filesystem::path& scriptPa
 
     const auto pStencil = JsEngine::GetInstance().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, true );
 
-    JS::RootedObject jsModule( pJsCtx_, JS::InstantiateModuleStencil( pJsCtx_, opts, pStencil ) );
+    JS::InstantiateOptions instOpts{ opts };
+    JS::RootedObject jsModule( pJsCtx_, JS::InstantiateModuleStencil( pJsCtx_, instOpts, pStencil ) );
     JsException::ExpectTrue( jsModule );
 
     std::wstring urlPath = L"file://" + scriptPath.lexically_normal().wstring();
@@ -463,7 +464,8 @@ JSScript* ScriptLoader::GetCompiledScript( const std::filesystem::path& scriptPa
 
     const auto pStencil = JsEngine::GetInstance().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, false );
 
-    JS::RootedScript jsScript( pJsCtx_, JS::InstantiateGlobalStencil( pJsCtx_, opts, pStencil ) );
+    JS::InstantiateOptions instOpts{ opts };
+    JS::RootedScript jsScript( pJsCtx_, JS::InstantiateGlobalStencil( pJsCtx_, instOpts, pStencil ) );
     JsException::ExpectTrue( jsScript );
 
     JS::RootedValue jsScriptPath( pJsCtx_ );

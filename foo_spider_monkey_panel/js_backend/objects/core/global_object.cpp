@@ -83,7 +83,7 @@ namespace
 
 using namespace mozjs;
 
-void JsFinalizeOpLocal( JSFreeOp* /*fop*/, JSObject* obj )
+void JsFinalizeOpLocal( JS::GCContext* /*gcCtx*/, JSObject* obj )
 {
     auto x = static_cast<JsGlobalObject*>( mozjs::utils::GetMaybePtrFromReservedSlot( obj, kReservedObjectSlot ) );
     if ( x )
@@ -108,7 +108,6 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     JsFinalizeOpLocal,
-    nullptr,
     nullptr,
     nullptr,
     nullptr // set in runtime to JS_GlobalObjectTraceHook

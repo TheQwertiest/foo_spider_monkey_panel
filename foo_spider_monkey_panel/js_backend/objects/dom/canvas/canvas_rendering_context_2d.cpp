@@ -331,7 +331,6 @@ JSClassOps jsOps = {
     CanvasRenderingContext2D_Qwr::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

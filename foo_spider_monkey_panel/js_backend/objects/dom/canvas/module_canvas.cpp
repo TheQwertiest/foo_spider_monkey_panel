@@ -23,7 +23,6 @@ JSClassOps jsOps = {
     JsObjectBase<ModuleCanvas>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

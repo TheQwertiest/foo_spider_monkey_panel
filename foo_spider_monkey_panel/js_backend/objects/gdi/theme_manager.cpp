@@ -27,7 +27,6 @@ JSClassOps jsOps = {
     JsThemeManager::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

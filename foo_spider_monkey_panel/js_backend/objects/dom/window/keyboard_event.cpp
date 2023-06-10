@@ -21,7 +21,6 @@ JSClassOps jsOps = {
     JsObjectBase<mozjs::KeyboardEvent>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

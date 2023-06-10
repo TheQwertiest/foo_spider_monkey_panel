@@ -1,0 +1,35 @@
+diff a/mozjs b/mozjs
+--- a/mozjs/Debug/include/js/Debug.h
++++ b/mozjs/Debug/include/js/Debug.h
+@@ -246,6 +246,9 @@ class Builder {
+ class BuilderOrigin : public Builder {
+   template <typename T>
+   T unwrapAny(const BuiltThing<T>& thing) {
+-    MOZ_ASSERT(&thing.owner == this);
++#if _DEBUG
++    // does no compile otherwise
++    MOZ_ASSERT_HELPER1_NO_STATIC_ASSERT("MOZ_ASSERT_NO_STATIC", &thing.owner == this);
++#endif
+     return thing.value.get();
+   }
+
+--- a/mozjs/Debug/include/mozilla/Assertions.h
++++ b/mozjs/Debug/include/mozilla/Assertions.h
+@@ -410,6 +410,17 @@ struct AssertionConditionType {
+     }                                                                \
+   } while (false)
+ 
++// TheQwertiest: compiler(?) bug workaround
++#define MOZ_ASSERT_HELPER1_NO_STATIC_ASSERT(kind, expr)        \
++  do {                                                         \
++    if (MOZ_UNLIKELY(!MOZ_CHECK_ASSERT_ASSIGNMENT(expr))) {    \
++      MOZ_FUZZING_HANDLE_CRASH_EVENT2(kind, #expr);            \
++      MOZ_REPORT_ASSERTION_FAILURE(#expr, __FILE__, __LINE__); \
++      MOZ_CRASH_ANNOTATE(kind "(" #expr ")");                  \
++      MOZ_REALLY_CRASH(__LINE__);                              \
++    }                                                          \
++  } while (false)
++
+ #define MOZ_ASSERT_GLUE(a, b) a b
+ #define MOZ_RELEASE_ASSERT(...)                                       \
+   MOZ_ASSERT_GLUE(                                                    \

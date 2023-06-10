@@ -21,7 +21,6 @@ JSClassOps jsOps = {
     JsObjectBase<mozjs::WheelEvent>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

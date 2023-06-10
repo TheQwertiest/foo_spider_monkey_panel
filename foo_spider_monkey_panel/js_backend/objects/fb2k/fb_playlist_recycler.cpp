@@ -26,7 +26,6 @@ JSClassOps jsOps = {
     JsFbPlaylistRecycler::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

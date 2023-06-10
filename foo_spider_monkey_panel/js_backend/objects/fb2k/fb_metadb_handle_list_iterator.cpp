@@ -25,7 +25,6 @@ JSClassOps jsOps = {
     JsFbMetadbHandleList_Iterator::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

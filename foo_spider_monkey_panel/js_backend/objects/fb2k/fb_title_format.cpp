@@ -27,7 +27,6 @@ JSClassOps jsOps = {
     JsFbTitleFormat::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 
@@ -143,9 +142,9 @@ JS::Value JsFbTitleFormat::EvalWithMetadbs( JsFbMetadbHandleList* handles )
         pJsCtx_,
         qwr::pfc_x::Make_Stl_CRef( handles->GetHandleList() ),
         [&titleFormat = titleFormatObject_]( const auto& vec, auto index ) {
-        pfc::string8_fast text;
-        vec[index]->format_title( nullptr, text, titleFormat, nullptr );
-        return text;
+            pfc::string8_fast text;
+            vec[index]->format_title( nullptr, text, titleFormat, nullptr );
+            return text;
         },
         &jsValue );
     return jsValue;

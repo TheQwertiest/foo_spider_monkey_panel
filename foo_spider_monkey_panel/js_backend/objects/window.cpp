@@ -109,7 +109,6 @@ JSClassOps jsOps = {
     JsObjectBase<JsWindow>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     JsWindow::Trace
 };
 

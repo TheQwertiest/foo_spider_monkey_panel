@@ -21,7 +21,6 @@ JSClassOps jsOps = {
     TextMetrics::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

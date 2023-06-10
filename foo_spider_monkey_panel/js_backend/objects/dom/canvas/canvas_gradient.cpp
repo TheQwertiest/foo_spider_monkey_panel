@@ -25,7 +25,6 @@ JSClassOps jsOps = {
     CanvasGradient_Qwr::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

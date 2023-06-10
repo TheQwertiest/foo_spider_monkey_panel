@@ -48,7 +48,6 @@ JSClassOps jsOps = {
     JsObjectBase<SelectionManager>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     SelectionManager::Trace
 };
 

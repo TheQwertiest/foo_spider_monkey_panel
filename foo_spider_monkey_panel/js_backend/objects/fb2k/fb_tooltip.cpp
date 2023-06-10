@@ -26,7 +26,6 @@ JSClassOps jsOps = {
     JsFbTooltip::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 

@@ -26,7 +26,6 @@ JSClassOps jsOps = {
     Canvas::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     Canvas::Trace
 };
 

@@ -168,7 +168,8 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
         return false;
     }
 
-    if ( !JS::CreateError( cx, static_cast<JSExnType>( pReport->exnType ), excnStackObject, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, &newExcn ) )
+    JS::Rooted<mozilla::Maybe<JS::Value>> cause( cx, mozilla::Nothing{} );
+    if ( !JS::CreateError( cx, static_cast<JSExnType>( pReport->exnType ), excnStackObject, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, cause, &newExcn ) )
     {
         return false;
     }

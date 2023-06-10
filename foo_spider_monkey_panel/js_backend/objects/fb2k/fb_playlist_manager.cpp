@@ -35,7 +35,6 @@ JSClassOps jsOps = {
     JsFbPlaylistManager::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 
