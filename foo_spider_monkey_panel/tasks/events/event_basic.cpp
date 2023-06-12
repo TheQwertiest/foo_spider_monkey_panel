@@ -2,6 +2,7 @@
 
 #include "event_basic.h"
 
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 
 namespace smp

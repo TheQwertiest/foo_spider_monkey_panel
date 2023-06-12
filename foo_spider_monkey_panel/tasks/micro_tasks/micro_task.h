@@ -1,6 +1,7 @@
 #pragma once
 
 #include <js_backend/utils/js_heap_helper.h>
+#include <panel/panel_fwd.h>
 #include <tasks/cancellable.h>
 #include <tasks/runnable.h>
 
@@ -8,8 +9,6 @@
 
 namespace smp
 {
-
-class PanelTarget;
 
 class MicroTask
     : public Runnable
@@ -22,7 +21,7 @@ public:
     MicroTask( JSContext* pJsCtx, JS::HandleObject jsTarget, RunnerFn fn );
 
 public:
-    void SetTarget( std::shared_ptr<PanelTarget> pTarget );
+    void SetTarget( smp::not_null_shared<panel::PanelAccessor> pTarget );
 
     /// @remark Requires Realm initialized with JsTarget to run
     void Run() final;
@@ -39,7 +38,7 @@ private:
 
     const RunnerFn fn_;
 
-    std::shared_ptr<PanelTarget> pTarget_;
+    std::shared_ptr<panel::PanelAccessor> pTarget_;
 };
 
 } // namespace smp

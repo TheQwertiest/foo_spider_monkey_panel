@@ -184,6 +184,7 @@
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\placeholder.cpp" />
     <ClCompile Include="js_backend\utils\js_heap_helper.cpp" />
+    <ClCompile Include="panel\panel_accessor.cpp" />
     <ClCompile Include="tasks\cancellable.cpp" />
     <ClInclude Include="dom\axis_adjuster.h" />
     <ClInclude Include="graphics\gdiplus\bitmap_generator.h" />
@@ -191,6 +192,8 @@
     <ClInclude Include="js_backend\objects\dom\canvas\image_data.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\placeholder.h" />
+    <ClInclude Include="panel\panel_accessor.h" />
+    <ClInclude Include="panel\panel_fwd.h" />
     <ClInclude Include="tasks\events\event_id.h" />
     <ClCompile Include="tasks\events\event_mouse.cpp" />
     <ClInclude Include="tasks\dispatcher\event_priority.h" />
@@ -200,7 +203,6 @@
     <ClInclude Include="tasks\events\js_runnable_event.h" />
     <ClInclude Include="tasks\events\js_target_event.h" />
     <ClInclude Include="tasks\micro_tasks\micro_task.h" />
-    <ClInclude Include="tasks\panel_target.h" />
     <ClCompile Include="tasks\events\wheel_event.cpp" />
     <ClCompile Include="tasks\events\panel_event.cpp" />
     <ClCompile Include="tasks\dispatcher\event_dispatcher.cpp" />
@@ -289,7 +291,7 @@
     <ClCompile Include="js_backend\utils\cached_utf8_paths_hack.cpp" />
     <ClCompile Include="js_backend\utils\js_art_helpers.cpp" />
     <ClCompile Include="js_backend\utils\js_error_helper.cpp" />
-    <ClCompile Include="js_backend\utils\js_hwnd_helpers.cpp" />
+    <ClCompile Include="js_backend\utils\panel_from_global.cpp" />
     <ClCompile Include="js_backend\utils\js_image_helpers.cpp" />
     <ClCompile Include="js_backend\utils\js_object_constants.cpp" />
     <ClCompile Include="js_backend\utils\js_prototype_helpers.cpp" />
@@ -309,7 +311,6 @@
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
     <ClCompile Include="tasks\micro_tasks\micro_task.cpp" />
-    <ClCompile Include="tasks\panel_target.cpp" />
     <ClCompile Include="timeout\timeout.cpp" />
     <ClCompile Include="timeout\timeout_executor.cpp" />
     <ClCompile Include="timeout\timeout_manager.cpp" />
@@ -503,7 +504,7 @@
     <ClInclude Include="js_backend\utils\js_async_task.h" />
     <ClInclude Include="js_backend\utils\js_error_helper.h" />
     <ClInclude Include="js_backend\utils\js_heap_helper.h" />
-    <ClInclude Include="js_backend\utils\js_hwnd_helpers.h" />
+    <ClInclude Include="js_backend\utils\panel_from_global.h" />
     <ClInclude Include="js_backend\utils\js_image_helpers.h" />
     <ClInclude Include="js_backend\utils\js_object_constants.h" />
     <ClInclude Include="js_backend\utils\js_object_helpers.h" />

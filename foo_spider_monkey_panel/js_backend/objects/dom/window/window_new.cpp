@@ -11,6 +11,8 @@
 #include <js_backend/objects/dom/window/keyboard_event.h>
 #include <js_backend/objects/dom/window/mouse_event.h>
 #include <js_backend/objects/dom/window/wheel_event.h>
+#include <js_backend/utils/panel_from_global.h>
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 #include <panel/panel_window_graphics.h>
 #include <tasks/events/keyboard_event.h>
@@ -202,7 +204,7 @@ JSClass jsClass = {
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_AND_SELF( getContext, WindowNew::GetContext, WindowNew::GetContextWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( loadImage, WindowNew::LoadImage )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( redraw, WindowNew::Redraw, WindowNew::RedrawWithOpt, 1 )
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( redrawRect, WindowNew::RepaintRect, WindowNew::RepaintRectWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( redrawRect, WindowNew::RedrawRect, WindowNew::RedrawRectWithOpt, 1 )
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
@@ -255,17 +257,17 @@ const std::unordered_set<EventId> WindowNew::kHandledEvents{
     EventId::kNew_WndResize
 };
 
-WindowNew::WindowNew( JSContext* cx, smp::panel::PanelWindow& parentPanel )
+WindowNew::WindowNew( JSContext* cx )
     : JsEventTarget( cx )
     , pJsCtx_( cx )
-    , parentPanel_( parentPanel )
+    , pHostPanel_( GetHostPanelForCurrentGlobal( cx ) )
 {
 }
 
 std::unique_ptr<WindowNew>
-WindowNew::CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel )
+WindowNew::CreateNative( JSContext* cx )
 {
-    return std::unique_ptr<WindowNew>( new WindowNew( cx, parentPanel ) );
+    return std::unique_ptr<WindowNew>( new WindowNew( cx ) );
 }
 
 size_t WindowNew::GetInternalSize()
@@ -290,11 +292,6 @@ void WindowNew::Trace( JSTracer* trc, JSObject* obj )
     }
 
     JsEventTarget::Trace( trc, obj );
-}
-
-void WindowNew::PrepareForGc()
-{
-    isFinalized_ = true;
 }
 
 const std::string& WindowNew::EventIdToType( smp::EventId eventId )
@@ -326,10 +323,6 @@ const std::string& WindowNew::EventIdToType( smp::EventId eventId )
 EventStatus WindowNew::HandleEvent( JS::HandleObject self, const smp::EventBase& event )
 {
     EventStatus status;
-    if ( isFinalized_ )
-    {
-        return status;
-    }
 
     const auto& eventType = EventIdToType( event.GetId() );
     if ( !HasEventListener( eventType ) )
@@ -360,59 +353,32 @@ bool WindowNew::IsDevice() const
 
 Gdiplus::Graphics& WindowNew::GetGraphics()
 {
-    qwr::QwrException::ExpectTrue( !isFinalized_, "Internal error: finalized" );
-    qwr::QwrException::ExpectTrue( pGraphics_, "Internal error: graphics is null" );
+    assert( pGraphics_ );
     return *pGraphics_;
 }
 
 uint32_t WindowNew::GetHeight() const
 {
-    if ( isFinalized_ )
-    {
-        return 0;
-    }
-
-    auto pGraphics = parentPanel_.GetGraphics();
-    if ( !pGraphics )
-    {
-        return 0;
-    }
-
-    return pGraphics->GetHeight();
+    auto pPanel = pHostPanel_->GetPanel();
+    assert( pPanel );
+    return pPanel->GetGraphics().GetHeight();
 }
 
 uint32_t WindowNew::GetWidth() const
 {
-    if ( isFinalized_ )
-    {
-        return 0;
-    }
+    auto pPanel = pHostPanel_->GetPanel();
+    assert( pPanel );
 
-    auto pGraphics = parentPanel_.GetGraphics();
-    if ( !pGraphics )
-    {
-        return 0;
-    }
-
-    return pGraphics->GetWidth();
+    return pPanel->GetGraphics().GetWidth();
 }
 
 JSObject* WindowNew::GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes )
 {
-    // TODO: do we actually need isFinalized_ and pGraphics check everywhere?
-    if ( isFinalized_ )
-    {
-        return nullptr;
-    }
+    auto pPanel = pHostPanel_->GetPanel();
+    assert( pPanel );
 
-    auto pGraphics = parentPanel_.GetGraphics();
-    if ( !pGraphics )
-    {
-        return nullptr;
-    }
-
+    qwr::QwrException::ExpectTrue( pPanel->GetGraphics().IsPaintInProgress(), "Canvas context is not available" );
     qwr::QwrException::ExpectTrue( contextType == L"2d", L"Unsupported contextType value: {}", contextType );
-    qwr::QwrException::ExpectTrue( pGraphics_, "Canvas context is not available" );
 
     // TODO: handle attributes
     if ( !jsRenderingContext_.get() )
@@ -447,12 +413,10 @@ JSObject* WindowNew::LoadImage( JS::HandleValue source )
 
 void WindowNew::Redraw( bool force )
 {
-    if ( isFinalized_ )
-    {
-        return;
-    }
+    auto pPanel = pHostPanel_->GetPanel();
+    assert( pPanel );
 
-    parentPanel_.Repaint( force );
+    pPanel->Repaint( force );
 }
 
 void WindowNew::RedrawWithOpt( size_t optArgCount, bool force )
@@ -468,24 +432,22 @@ void WindowNew::RedrawWithOpt( size_t optArgCount, bool force )
     }
 }
 
-void WindowNew::RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
+void WindowNew::RedrawRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
 {
-    if ( isFinalized_ )
-    {
-        return;
-    }
+    auto pPanel = pHostPanel_->GetPanel();
+    assert( pPanel );
 
-    parentPanel_.RepaintRect( CRect{ static_cast<int>( x ), static_cast<int>( y ), static_cast<int>( x + w ), static_cast<int>( y + h ) }, force );
+    pPanel->RepaintRect( CRect{ static_cast<int>( x ), static_cast<int>( y ), static_cast<int>( x + w ), static_cast<int>( y + h ) }, force );
 }
 
-void WindowNew::RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
+void WindowNew::RedrawRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force )
 {
     switch ( optArgCount )
     {
     case 0:
-        return RepaintRect( x, y, w, h, force );
+        return RedrawRect( x, y, w, h, force );
     case 1:
-        return RepaintRect( x, y, w, h );
+        return RedrawRect( x, y, w, h );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -503,6 +465,9 @@ uint32_t WindowNew::get_Width()
 
 JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8string& eventType )
 {
+    auto pPanel = pHostPanel_->GetPanel();
+    assert( pPanel );
+
     JS::RootedObject jsEvent( pJsCtx_ );
 
     switch ( event.GetId() )
@@ -532,7 +497,7 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
         jsEvent = mozjs::JsObjectBase<mozjs::MouseEvent>::CreateJs(
             pJsCtx_,
             eventType,
-            GenerateMouseEventProps( mouseEvent, parentPanel_.GetHWND() ) );
+            GenerateMouseEventProps( mouseEvent, pPanel->GetHWND() ) );
         break;
     }
     case EventId::kNew_MouseWheel:
@@ -541,7 +506,7 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
         jsEvent = mozjs::JsObjectBase<mozjs::WheelEvent>::CreateJs(
             pJsCtx_,
             eventType,
-            GenerateWheelEventProps( wheelEvent, parentPanel_.GetHWND() ) );
+            GenerateWheelEventProps( wheelEvent, pPanel->GetHWND() ) );
         break;
     }
     default:
@@ -554,14 +519,11 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
 
 void WindowNew::HandlePaintEvent( JS::HandleObject self )
 {
-    auto pGraphics = parentPanel_.GetGraphics();
-    if ( !pGraphics )
-    {
-        return;
-    }
+    auto pPanel = pHostPanel_->GetPanel();
+    assert( pPanel );
 
     std::exception_ptr eptr;
-    pGraphics->PaintWithCallback( [&]( Gdiplus::Graphics& gr ) {
+    pPanel->GetGraphics().PaintWithCallback( [&]( Gdiplus::Graphics& gr ) {
         try
         {
             pGraphics_ = &gr;

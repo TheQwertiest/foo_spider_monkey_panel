@@ -6,6 +6,7 @@
 #include <js_backend/objects/core/object_base.h>
 #include <js_backend/utils/js_error_helper.h>
 #include <js_backend/utils/js_object_constants.h>
+#include <js_backend/utils/panel_from_global.h>
 
 #include <qwr/string_helpers.h>
 
@@ -102,45 +103,45 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
         ProcessJsArgs<ArgTypes...>(
             jsArgs,
             [cx, &valueVector]( const JS::CallArgs& jsArgs, auto argTypeStruct, size_t index ) {
-        using ArgType = typename std::remove_const_t<std::remove_reference_t<decltype( argTypeStruct )::type>>;
+                using ArgType = typename std::remove_const_t<std::remove_reference_t<decltype( argTypeStruct )::type>>;
 
-        constexpr size_t MaxArgCount = sizeof...( ArgTypes );
-        // Not an error: default value might be set in callback
-        const bool isDefaultValue = ( index >= jsArgs.length() || index > MaxArgCount );
+                constexpr size_t MaxArgCount = sizeof...( ArgTypes );
+                // Not an error: default value might be set in callback
+                const bool isDefaultValue = ( index >= jsArgs.length() || index > MaxArgCount );
 
-        if constexpr ( std::is_same_v<ArgType, JS::HandleValue> )
-        {
-            if ( isDefaultValue )
-            {
-                return ArgType( JS::UndefinedHandleValue );
-            }
-            else
-            {
-                return ArgType( jsArgs[index] );
-            }
-        }
-        else if constexpr ( std::is_same_v<ArgType, JS::HandleValueArray> )
-        {
-            if ( isDefaultValue )
-            {
-                return JS::HandleValueArray::empty();
-            }
-            else
-            {
-                return JS::HandleValueArray::fromMarkedLocation( valueVector.length(), valueVector.begin() );
-            }
-        }
-        else
-        {
-            if ( isDefaultValue )
-            {
-                return ArgType(); ///< Dummy value
-            }
-            else
-            {
-                return convert::to_native::ToValue<ArgType>( cx, jsArgs[index] );
-            }
-        }
+                if constexpr ( std::is_same_v<ArgType, JS::HandleValue> )
+                {
+                    if ( isDefaultValue )
+                    {
+                        return ArgType( JS::UndefinedHandleValue );
+                    }
+                    else
+                    {
+                        return ArgType( jsArgs[index] );
+                    }
+                }
+                else if constexpr ( std::is_same_v<ArgType, JS::HandleValueArray> )
+                {
+                    if ( isDefaultValue )
+                    {
+                        return JS::HandleValueArray::empty();
+                    }
+                    else
+                    {
+                        return JS::HandleValueArray::fromMarkedLocation( valueVector.length(), valueVector.begin() );
+                    }
+                }
+                else
+                {
+                    if ( isDefaultValue )
+                    {
+                        return ArgType(); ///< Dummy value
+                    }
+                    else
+                    {
+                        return convert::to_native::ToValue<ArgType>( cx, jsArgs[index] );
+                    }
+                }
             } );
 
     if constexpr ( hasValueArray )
@@ -385,6 +386,11 @@ void InvokeNativeCallback( JSContext* cx,
                            FuncOptType fnWithOpt,
                            unsigned argc, JS::Value* vp )
 {
+    if ( !HasHostPanelForCurrentGlobal( cx ) )
+    {
+        return;
+    }
+
     mozjs::internal::InvokeNativeCallback_Member<
         OptArgCount,
         HasSelfArg,
@@ -402,6 +408,11 @@ void InvokeNativeCallback( JSContext* cx,
                            FuncOptType fnWithOpt,
                            unsigned argc, JS::Value* vp )
 {
+    if ( !HasHostPanelForCurrentGlobal( cx ) )
+    {
+        return;
+    }
+
     mozjs::internal::InvokeNativeCallback_Member<
         OptArgCount,
         HasSelfArg,
@@ -419,6 +430,11 @@ void InvokeNativeCallback( JSContext* cx,
                            FuncOptType fnWithOpt,
                            unsigned argc, JS::Value* vp )
 {
+    if ( !HasHostPanelForCurrentGlobal( cx ) )
+    {
+        return;
+    }
+
     mozjs::internal::InvokeNativeCallback_Static<
         OptArgCount,
         ReturnType,

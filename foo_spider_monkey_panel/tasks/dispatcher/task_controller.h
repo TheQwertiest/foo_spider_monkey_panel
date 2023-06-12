@@ -1,5 +1,6 @@
 #pragma once
 
+#include <panel/panel_fwd.h>
 #include <tasks/dispatcher/event_priority.h>
 #include <tasks/events/event.h>
 
@@ -10,7 +11,11 @@ namespace smp
 {
 
 class TaskController;
-class js_panel_window;
+
+}
+
+namespace smp
+{
 
 class Task
 {
@@ -53,9 +58,9 @@ private:
 class TaskController : public std::enable_shared_from_this<TaskController>
 {
 public:
-    TaskController( std::shared_ptr<PanelTarget> pTarget );
+    TaskController( smp::not_null_shared<panel::PanelAccessor> pTarget );
 
-    [[nodiscard]] std::shared_ptr<PanelTarget> GetTarget();
+    [[nodiscard]] smp::not_null_shared<panel::PanelAccessor> GetTarget();
 
     void AddTask( std::shared_ptr<Task> pTask );
     void AddRunnable( std::shared_ptr<Runnable> pRunnable, EventPriority priority );
@@ -65,7 +70,7 @@ public:
     bool ExecuteNextTask();
 
 private:
-    std::shared_ptr<PanelTarget> pTarget_;
+    smp::not_null_shared<panel::PanelAccessor> pTarget_;
 
     mutable std::mutex tasksMutex_;
     std::set<std::shared_ptr<Task>, Task::PriorityCompare> tasks_;

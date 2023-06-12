@@ -29,6 +29,8 @@ public:
     [[nodiscard]] uint32_t GetWidth() const;
     [[nodiscard]] uint32_t GetHeight() const;
 
+    [[nodiscard]] bool IsPaintInProgress() const;
+
 private:
     void PaintBackground( CPaintDC& paintDc, CDC& memDc );
 
@@ -43,6 +45,8 @@ private:
 
     uint32_t width_ = 0;
     uint32_t height_ = 0;
+
+    bool isPainting_ = false;
 };
 
 } // namespace smp::panel

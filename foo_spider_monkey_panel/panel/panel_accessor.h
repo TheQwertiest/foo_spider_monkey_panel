@@ -7,13 +7,13 @@ class PanelWindow;
 
 }
 
-namespace smp
+namespace smp::panel
 {
 
-class PanelTarget final
+class PanelAccessor final
 {
 public:
-    [[nodiscard]] PanelTarget( panel::PanelWindow& panel );
+    [[nodiscard]] PanelAccessor( panel::PanelWindow& panel );
 
     [[nodiscard]] HWND GetHwnd();
 
@@ -25,4 +25,4 @@ private:
     HWND hWnd_ = nullptr;
 };
 
-} // namespace smp
+} // namespace smp::panel

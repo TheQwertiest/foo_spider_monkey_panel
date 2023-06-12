@@ -8,8 +8,8 @@
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/canvas/canvas.h>
 #include <js_backend/objects/dom/window/image.h>
-#include <js_backend/utils/js_hwnd_helpers.h>
 #include <js_backend/utils/js_property_helper.h>
+#include <js_backend/utils/panel_from_global.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_runnable_event.h>
 #include <utils/gdi_error_helpers.h>

@@ -2,6 +2,7 @@
 
 #include "event.h"
 
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 
 namespace smp
@@ -17,7 +18,7 @@ std::unique_ptr<EventBase> EventBase::Clone()
     return nullptr;
 }
 
-void EventBase::SetTarget( std::shared_ptr<PanelTarget> pTarget )
+void EventBase::SetTarget( smp::not_null_shared<panel::PanelAccessor> pTarget )
 {
     pTarget_ = pTarget;
 }

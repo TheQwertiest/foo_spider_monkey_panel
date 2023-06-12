@@ -6,6 +6,7 @@
 
 #include <js_backend/engine/js_container.h>
 #include <js_backend/utils/js_async_task.h>
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 #include <tasks/events/event_js_executor.h>
 #include <timeout/timeout_executor.h>
@@ -24,10 +25,10 @@ constexpr std::chrono::microseconds kTimeoutMaxConsecutiveCallbacks{ 4 };
 namespace smp
 {
 
-TimeoutManager::TimeoutManager( std::shared_ptr<PanelTarget> pTarget )
-    : pTarget_( pTarget )
+TimeoutManager::TimeoutManager( smp::not_null_shared<panel::PanelAccessor> pHostPanel )
+    : pHostPanel_( pHostPanel )
     , timeoutStorage_( *this )
-    , pExecutor_( std::make_shared<TimeoutExecutor>( *this, pTarget ) )
+    , pExecutor_( std::make_shared<TimeoutExecutor>( *this, pHostPanel ) )
 {
 }
 
@@ -286,7 +287,7 @@ void TimeoutManager::RunTimeout( const TimeStamp& now, const TimeStamp& targetDe
         else
         {
             // Save target in the local variable in case TimeoutManager is destroyed during timeout call
-            const auto pTarget = pTarget_;
+            const auto pTarget = pHostPanel_;
             if ( !pTarget->GetPanel() )
             {
                 // Means that the panel was destroyed at some point.
@@ -295,7 +296,7 @@ void TimeoutManager::RunTimeout( const TimeStamp& now, const TimeStamp& targetDe
 
             // This timeout is good to run.
             pTimeout->SetRunningState( true );
-            const auto has_succeeded = pTarget_->GetPanel()->ExecuteEvent_JsCode( *pTimeout->Task() );
+            const auto has_succeeded = pTarget->GetPanel()->ExecuteEvent_JsCode( *pTimeout->Task() );
             pTimeout->SetRunningState( false );
             if ( !has_succeeded || !pTarget->GetPanel() )
             {

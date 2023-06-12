@@ -176,12 +176,8 @@ std::optional<LRESULT> MouseMessageHandler::HandleMessage( const MSG& msg )
         const auto mousePos = [&]() -> POINT {
             if ( msg.lParam == -1 )
             { // happens if invoked via keyboard
-                const auto pGraphics = parent_.GetGraphics();
-                if ( !pGraphics )
-                {
-                    return {};
-                }
-                return { (LONG)pGraphics->GetWidth() * 2 / 3, (LONG)pGraphics->GetHeight() * 2 / 3 };
+                const auto& graphics = parent_.GetGraphics();
+                return { (LONG)graphics.GetWidth() * 2 / 3, (LONG)graphics.GetHeight() * 2 / 3 };
             }
             else
             {

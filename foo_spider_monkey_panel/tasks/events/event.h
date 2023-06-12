@@ -1,8 +1,8 @@
 #pragma once
 
+#include <panel/panel_fwd.h>
 #include <tasks/cancellable.h>
 #include <tasks/events/event_id.h>
-#include <tasks/panel_target.h>
 #include <tasks/runnable.h>
 
 namespace smp
@@ -20,7 +20,7 @@ public:
 
     [[nodiscard]] virtual std::unique_ptr<EventBase> Clone();
 
-    void SetTarget( std::shared_ptr<PanelTarget> pTarget );
+    void SetTarget( smp::not_null_shared<panel::PanelAccessor> pTarget );
     [[nodiscard]] EventId GetId() const;
 
     [[nodiscard]] virtual const qwr::u8string& GetType() const;
@@ -29,7 +29,7 @@ public:
 
 protected:
     const EventId id_;
-    std::shared_ptr<PanelTarget> pTarget_;
+    std::shared_ptr<panel::PanelAccessor> pTarget_;
 };
 
 } // namespace smp

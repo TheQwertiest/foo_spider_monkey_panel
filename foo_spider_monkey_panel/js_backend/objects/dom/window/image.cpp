@@ -6,7 +6,7 @@
 #include <js_backend/engine/js_engine.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
-#include <js_backend/utils/js_hwnd_helpers.h>
+#include <js_backend/utils/panel_from_global.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_target_event.h>
 #include <tasks/micro_tasks/micro_task.h>

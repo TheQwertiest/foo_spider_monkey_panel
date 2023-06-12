@@ -31,6 +31,7 @@
 #include <js_backend/utils/js_object_helpers.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <js_backend/utils/js_prototype_helpers.h>
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 #include <utils/logging.h>
 
@@ -187,7 +188,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" );
         CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" );
         CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" );
-        CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentContainer.GetParentPanel() );
+        CreateAndInstallObject<JsWindow>( cx, jsObj, "window", *parentContainer.GetHostPanel()->GetPanel() );
 
         if ( !JS_DefineFunctions( cx, jsObj, jsFunctions.data() ) )
         {
@@ -286,6 +287,11 @@ HWND JsGlobalObject::GetPanelHwnd() const
     return pJsWindow_->GetHwnd();
 }
 
+smp::not_null_shared<smp::panel::PanelAccessor> JsGlobalObject::GetHostPanel() const
+{
+    return parentContainer_.GetHostPanel();
+}
+
 EventStatus JsGlobalObject::HandleEvent( smp::EventBase& event )
 {
     EventStatus status{};
@@ -317,16 +323,7 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
     if ( !loadedObjects_.contains( moduleId ) )
     {
         const auto initializeLoadedObject = [&]<typename T>( auto moduleId ) {
-            auto pNative = [&] {
-                if constexpr ( std::is_same_v<T, WindowNew> )
-                {
-                    return T::CreateNative( pJsCtx_, parentContainer_.GetParentPanel() );
-                }
-                else
-                {
-                    return T::CreateNative( pJsCtx_ );
-                }
-            }();
+            auto pNative = T::CreateNative( pJsCtx_ );
             std::get<LoadedNativeObject<T>>( loadedNativeObjects_ ) = { pNative.get(), moduleId };
             return JsObjectBase<T>::CreateJsFromNative( pJsCtx_, std::move( pNative ) );
         };
@@ -378,7 +375,9 @@ void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
 void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue options )
 {
     const auto parsedOptions = ParseIncludeOptions( options );
-    scriptLoader_.IncludeScript( path, parentContainer_.GetParentPanel().GetScriptSettings(), parsedOptions.alwaysEvaluate );
+    auto pPanel = parentContainer_.GetHostPanel()->GetPanel();
+    assert( pPanel );
+    scriptLoader_.IncludeScript( path, pPanel->GetScriptSettings(), parsedOptions.alwaysEvaluate );
 }
 
 void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const qwr::u8string& path, JS::HandleValue options )

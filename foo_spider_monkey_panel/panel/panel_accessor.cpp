@@ -1,33 +1,33 @@
 #include <stdafx.h>
 
-#include "panel_target.h"
+#include "panel_accessor.h"
 
 #include <panel/panel_window.h>
 
-namespace smp
+namespace smp::panel
 {
 
-PanelTarget::PanelTarget( panel::PanelWindow& panel )
+PanelAccessor::PanelAccessor( panel::PanelWindow& panel )
     : pPanel_( &panel )
     , hWnd_( panel.GetHWND() )
 {
 }
 
-HWND PanelTarget::GetHwnd()
+HWND PanelAccessor::GetHwnd()
 {
     return hWnd_;
 }
 
-panel::PanelWindow* PanelTarget::GetPanel()
+panel::PanelWindow* PanelAccessor::GetPanel()
 {
     assert( core_api::is_main_thread() );
     return pPanel_;
 }
 
-void PanelTarget::UnlinkPanel()
+void PanelAccessor::UnlinkPanel()
 {
     pPanel_ = nullptr;
     hWnd_ = nullptr;
 }
 
-} // namespace smp
+} // namespace smp::panel

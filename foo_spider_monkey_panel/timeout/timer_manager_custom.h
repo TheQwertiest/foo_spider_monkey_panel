@@ -1,5 +1,6 @@
 #pragma once
 
+#include <panel/panel_fwd.h>
 #include <timeout/time_types.h>
 
 #include <condition_variable>
@@ -10,7 +11,6 @@
 namespace smp
 {
 
-class PanelTarget;
 class Timer_Custom;
 class TimerHolder;
 
@@ -23,7 +23,7 @@ public:
     void Finalize();
 
     [[nodiscard]] static const TimeDuration& GetAllowedEarlyFiringTime();
-    [[nodiscard]] std::unique_ptr<Timer_Custom> CreateTimer( std::shared_ptr<PanelTarget> pTarget );
+    [[nodiscard]] std::unique_ptr<Timer_Custom> CreateTimer( not_null_shared<panel::PanelAccessor> pTarget );
 
 public:
     void AddTimer( std::shared_ptr<Timer_Custom> pTimer );

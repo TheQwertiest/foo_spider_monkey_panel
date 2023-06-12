@@ -367,7 +367,7 @@
     <ClCompile Include="js_backend\utils\js_error_helper.cpp">
       <Filter>js_backend\utils</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\utils\js_hwnd_helpers.cpp">
+    <ClCompile Include="js_backend\utils\panel_from_global.cpp">
       <Filter>js_backend\utils</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\utils\js_image_helpers.cpp">
@@ -559,9 +559,6 @@
     <ClCompile Include="tasks\cancellable.cpp">
       <Filter>tasks</Filter>
     </ClCompile>
-    <ClCompile Include="tasks\panel_target.cpp">
-      <Filter>tasks</Filter>
-    </ClCompile>
     <ClCompile Include="tasks\micro_tasks\micro_task.cpp">
       <Filter>tasks\micro_tasks</Filter>
     </ClCompile>
@@ -588,6 +585,9 @@
     </ClCompile>
     <ClCompile Include="js_backend\objects\dom\canvas\placeholder.cpp">
       <Filter>js_backend\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="panel\panel_accessor.cpp">
+      <Filter>panel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1012,7 +1012,7 @@
     <ClInclude Include="js_backend\utils\js_heap_helper.h">
       <Filter>js_backend\utils</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\utils\js_hwnd_helpers.h">
+    <ClInclude Include="js_backend\utils\panel_from_global.h">
       <Filter>js_backend\utils</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\utils\js_image_helpers.h">
@@ -1249,9 +1249,6 @@
     <ClInclude Include="tasks\events\event_id.h">
       <Filter>tasks</Filter>
     </ClInclude>
-    <ClInclude Include="tasks\panel_target.h">
-      <Filter>tasks</Filter>
-    </ClInclude>
     <ClInclude Include="tasks\runnable.h">
       <Filter>tasks</Filter>
     </ClInclude>
@@ -1287,6 +1284,12 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h">
       <Filter>js_backend\objects\dom\canvas\native</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\panel_accessor.h">
+      <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="panel\panel_fwd.h">
+      <Filter>panel</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -2,11 +2,6 @@
 
 #include "js_container.h"
 
-#include <panel/panel_window.h>
-
-SMP_MJS_SUPPRESS_WARNINGS_PUSH
-#include <js/Wrapper.h>
-SMP_MJS_SUPPRESS_WARNINGS_POP
 #include <js_backend/engine/js_engine.h>
 #include <js_backend/engine/js_gc.h>
 #include <js_backend/engine/js_realm_inner.h>
@@ -17,8 +12,14 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 #include <js_backend/utils/js_async_task.h>
 #include <js_backend/utils/js_error_helper.h>
 #include <js_backend/utils/scope_helper.h>
+#include <panel/panel_accessor.h>
+#include <panel/panel_window.h>
 #include <tasks/events/js_runnable_event.h>
 #include <tasks/events/js_target_event.h>
+
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Wrapper.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <qwr/final_action.h>
 
@@ -27,10 +28,9 @@ using namespace smp;
 namespace mozjs
 {
 
-JsContainer::JsContainer( panel::PanelWindow& parentPanel )
+JsContainer::JsContainer( smp::not_null_shared<smp::panel::PanelAccessor> pHostPanel )
+    : pHostPanel_( pHostPanel )
 {
-    pParentPanel_ = &parentPanel;
-
     bool bRet = JsEngine::GetInstance().RegisterContainer( *this );
     jsStatus_ = ( bRet ? JsStatus::Ready : JsStatus::EngineFailed );
 }
@@ -51,7 +51,7 @@ bool JsContainer::Initialize()
     }
 
     assert( pJsCtx_ );
-    assert( pParentPanel_ );
+    assert( pHostPanel_->GetPanel() );
 
     if ( JsStatus::Working == jsStatus_ )
     {
@@ -141,10 +141,15 @@ void JsContainer::Fail( const qwr::u8string& errorText )
         jsStatus_ = JsStatus::Failed;
     }
 
-    assert( pParentPanel_ );
-    const qwr::u8string errorTextPadded = [pParentPanel = pParentPanel_, &errorText]() {
+    auto pPanel = pHostPanel_->GetPanel();
+    if ( !pPanel )
+    {
+        return;
+    }
+
+    const auto errorTextPadded = [&] {
         qwr::u8string text =
-            fmt::format( "Error: " SMP_NAME_WITH_VERSION " ({})", pParentPanel->GetPanelDescription() );
+            fmt::format( "Error: " SMP_NAME_WITH_VERSION " ({})", pPanel->GetPanelDescription() );
         if ( !errorText.empty() )
         {
             text += "\n";
@@ -154,7 +159,7 @@ void JsContainer::Fail( const qwr::u8string& errorText )
         return text;
     }();
 
-    pParentPanel_->Fail( errorTextPadded );
+    pPanel->Fail( errorTextPadded );
 }
 
 JsContainer::JsStatus JsContainer::GetStatus() const
@@ -225,10 +230,9 @@ void JsContainer::RunJobs()
     JsEngine::GetInstance().MaybeRunJobs();
 }
 
-smp::panel::PanelWindow& JsContainer::GetParentPanel() const
+smp::not_null_shared<smp::panel::PanelAccessor> JsContainer::GetHostPanel() const
 {
-    assert( pParentPanel_ );
-    return *pParentPanel_;
+    return pHostPanel_;
 }
 
 bool JsContainer::InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, panel::DragActionParams& actionParams )

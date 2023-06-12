@@ -3,7 +3,7 @@
 #include "micro_task.h"
 
 #include <js_backend/utils/js_error_helper.h>
-#include <tasks/panel_target.h>
+#include <panel/panel_accessor.h>
 
 namespace smp
 {
@@ -18,7 +18,7 @@ MicroTask::MicroTask( JSContext* pJsCtx, JS::HandleObject jsTarget, RunnerFn fn 
     assert( pJsCtx );
 }
 
-void MicroTask::SetTarget( std::shared_ptr<PanelTarget> pTarget )
+void MicroTask::SetTarget( smp::not_null_shared<panel::PanelAccessor> pTarget )
 {
     pTarget_ = pTarget;
 }

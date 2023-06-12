@@ -38,12 +38,12 @@ void RunnableTask::Run()
     pRunnable_->Run();
 }
 
-TaskController::TaskController( std::shared_ptr<PanelTarget> pTarget )
-    : pTarget_( std::move( pTarget ) )
+TaskController::TaskController( smp::not_null_shared<panel::PanelAccessor> pTarget )
+    : pTarget_( pTarget )
 {
 }
 
-std::shared_ptr<PanelTarget> TaskController::GetTarget()
+smp::not_null_shared<panel::PanelAccessor> TaskController::GetTarget()
 {
     return pTarget_;
 }

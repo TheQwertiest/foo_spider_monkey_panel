@@ -2,6 +2,7 @@
 
 #include "timer_manager_native.h"
 
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/event_timer.h>
@@ -37,7 +38,7 @@ const TimeDuration& TimerManager_Native::GetAllowedEarlyFiringTime()
     return earlyDelay;
 }
 
-std::unique_ptr<Timer_Native> TimerManager_Native::CreateTimer( std::shared_ptr<PanelTarget> pTarget )
+std::unique_ptr<Timer_Native> TimerManager_Native::CreateTimer( not_null_shared<panel::PanelAccessor> pTarget )
 {
     return std::unique_ptr<Timer_Native>( new Timer_Native( *this, pTarget ) );
 }
@@ -85,7 +86,7 @@ void TimerManager_Native::DestroyNativeTimer( HANDLE hTimer, bool waitForDestruc
 
 void TimerManager_Native::PostTimerEvent( std::shared_ptr<Timer_Native> pTimer )
 {
-    EventDispatcher::Get().PutEvent( pTimer->Target().GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
+    EventDispatcher::Get().PutEvent( pTimer->Target()->GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
 }
 
 } // namespace smp

@@ -2,6 +2,7 @@
 
 #include <js_backend/engine/js_event_status.h>
 #include <js_backend/engine/native_to_js_invoker.h>
+#include <panel/panel_fwd.h>
 
 #include <qwr/final_action.h>
 
@@ -14,7 +15,6 @@ class EventBase;
 
 namespace panel
 {
-class PanelWindow;
 struct DragActionParams;
 } // namespace panel
 
@@ -38,7 +38,7 @@ class JsContainer final
     friend class JsEngine;
 
 public:
-    JsContainer( smp::panel::PanelWindow& parentPanel );
+    JsContainer( smp::not_null_shared<smp::panel::PanelAccessor> pHostPanel );
     JsContainer( const JsContainer& ) = delete;
     ~JsContainer();
 
@@ -65,7 +65,7 @@ public:
     static void RunJobs();
 
 public:
-    smp::panel::PanelWindow& GetParentPanel() const;
+    smp::not_null_shared<smp::panel::PanelAccessor> GetHostPanel() const;
 
 public:
     template <typename ReturnType = std::nullptr_t, typename... ArgTypes>
@@ -103,8 +103,8 @@ private:
     void OnJsActionEnd();
 
 private:
+    smp::not_null_shared<smp::panel::PanelAccessor> pHostPanel_;
     JSContext* pJsCtx_ = nullptr;
-    smp::panel::PanelWindow* pParentPanel_ = nullptr;
 
     JS::PersistentRootedObject jsGlobal_;
     JS::PersistentRootedObject jsGraphics_;

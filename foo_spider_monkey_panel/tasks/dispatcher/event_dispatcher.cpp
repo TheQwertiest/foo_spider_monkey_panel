@@ -19,7 +19,7 @@ EventDispatcher& EventDispatcher::Get()
     return em;
 }
 
-void EventDispatcher::AddWindow( HWND hWnd, std::shared_ptr<PanelTarget> pTarget )
+void EventDispatcher::AddWindow( HWND hWnd, smp::not_null_shared<panel::PanelAccessor> pTarget )
 {
     std::unique_lock ul( taskControllerMapMutex_ );
 

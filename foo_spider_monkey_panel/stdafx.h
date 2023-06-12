@@ -135,6 +135,7 @@ namespace qwr
 #include <qwr/qwr_exception.h>
 
 #include <utils/js_exception.h>
+#include <utils/not_null.h>
 
 #include <component_defines.h>
 #include <component_guids.h>

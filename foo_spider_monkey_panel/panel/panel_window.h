@@ -72,7 +72,7 @@ public: // accessors
     [[nodiscard]] config::PanelProperties& GetPanelProperties();
     [[nodiscard]] qwr::u8string GetPanelDescription( bool includeVersionAndAuthor = true );
 
-    [[nodiscard]] PanelWindowGraphics* GetGraphics();
+    [[nodiscard]] PanelWindowGraphics& GetGraphics();
 
     [[nodiscard]] HWND GetHWND() const;
     [[nodiscard]] POINT& MaxSize();
@@ -154,7 +154,7 @@ private:
     config::ResolvedPanelScriptSettings scriptSettings_;
 
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
-    std::shared_ptr<PanelTarget> pTarget_;
+    std::shared_ptr<PanelAccessor> pAccessor_;
     std::unique_ptr<TimeoutManager> pTimeoutManager_;
 
     CWindow wnd_;

@@ -193,4 +193,10 @@ not_null<T> operator+( const not_null<T>&, std::ptrdiff_t ) = delete;
 template <class T>
 not_null<T> operator+( std::ptrdiff_t, const not_null<T>& ) = delete;
 
+template <class T>
+using not_null_shared = not_null<std::shared_ptr<T>>;
+
+template <class T>
+using not_null_unique = not_null<std::unique_ptr<T>>;
+
 } // namespace smp

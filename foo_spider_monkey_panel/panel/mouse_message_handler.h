@@ -1,11 +1,11 @@
 #pragma once
 
+#include <panel/panel_fwd.h>
+
 #include <optional>
 
 namespace smp::panel
 {
-
-class PanelWindow;
 
 class MouseMessageHandler
 {

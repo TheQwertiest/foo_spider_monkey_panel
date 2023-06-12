@@ -9,6 +9,11 @@
 // TODO: add on_size and mouse_move (drag_over as well?) coalescing (https://searchfox.org/mozilla-central/source/dom/ipc/PBrowser.ipdl)
 // TODO: add dynamic input task prioritization (kInputLow)
 
+namespace smp::panel
+{
+class PanelAccessor;
+}
+
 namespace smp
 {
 
@@ -27,7 +32,7 @@ public:
     static [[nodiscard]] EventDispatcher& Get();
 
 public:
-    void AddWindow( HWND hWnd, std::shared_ptr<PanelTarget> pTarget );
+    void AddWindow( HWND hWnd, smp::not_null_shared<panel::PanelAccessor> pTarget );
     void RemoveWindow( HWND hWnd );
 
     void NotifyAllAboutExit();

@@ -13,6 +13,7 @@
 #include <panel/keyboard_message_handler.h>
 #include <panel/modal_blocking_scope.h>
 #include <panel/mouse_message_handler.h>
+#include <panel/panel_accessor.h>
 #include <panel/panel_window_graphics.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/event_basic.h>
@@ -226,9 +227,13 @@ qwr::u8string PanelWindow::GetPanelDescription( bool includeVersionAndAuthor )
     return ret;
 }
 
-PanelWindowGraphics* PanelWindow::GetGraphics()
+PanelWindowGraphics& PanelWindow::GetGraphics()
 {
-    return pGraphics_.get();
+    // it will be only null when script is unloaded,
+    // which means that panel accessor will be null as well,
+    // which the caller must check before invoking any panel methods
+    assert( pGraphics_ );
+    return *pGraphics_;
 }
 
 HWND PanelWindow::GetHWND() const
@@ -949,7 +954,7 @@ void PanelWindow::LoadScript( bool isFirstLoad )
     if ( !isFirstLoad )
     { // Reloading script won't trigger WM_SIZE, so invoke it explicitly.
         auto pEvent = std::make_unique<PanelEvent>( EventId::kNew_WndResize );
-        pEvent->SetTarget( pTarget_ );
+        pEvent->SetTarget( pAccessor_ );
         ProcessEventManually( *pEvent );
     }
 }
@@ -1174,7 +1179,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
         }
 
         auto pEvent = std::make_unique<PanelEvent>( EventId::kNew_WndPaint );
-        pEvent->SetTarget( pTarget_ );
+        pEvent->SetTarget( pAccessor_ );
         ProcessEventManually( *pEvent );
 
         return 0;
@@ -1190,7 +1195,7 @@ std::optional<LRESULT> PanelWindow::ProcessWindowMessage( const MSG& msg )
         pGraphics_->Reinitialize();
 
         auto pEvent = std::make_unique<PanelEvent>( EventId::kNew_WndResize );
-        pEvent->SetTarget( pTarget_ );
+        pEvent->SetTarget( pAccessor_ );
         ProcessEventManually( *pEvent );
 
         return 0;
@@ -1368,11 +1373,11 @@ void PanelWindow::OnCreate( HWND hWnd )
     pGraphics_ = std::make_unique<PanelWindowGraphics>( *this );
     pGraphics_->Reinitialize();
 
-    pTarget_ = std::make_shared<PanelTarget>( *this );
-    EventDispatcher::Get().AddWindow( wnd_, pTarget_ );
+    pAccessor_ = std::make_shared<PanelAccessor>( *this );
+    EventDispatcher::Get().AddWindow( wnd_, pAccessor_ );
 
-    pJsContainer_ = std::make_shared<mozjs::JsContainer>( *this );
-    pTimeoutManager_ = std::make_unique<TimeoutManager>( pTarget_ );
+    pJsContainer_ = std::make_shared<mozjs::JsContainer>( pAccessor_ );
+    pTimeoutManager_ = std::make_unique<TimeoutManager>( pAccessor_ );
 
     if ( !ReloadScriptSettings() )
     { // this might happen when script source fails to resolve
@@ -1387,9 +1392,9 @@ void PanelWindow::OnDestroy()
 
     UnloadScript();
 
-    if ( pTarget_ )
+    if ( pAccessor_ )
     {
-        pTarget_->UnlinkPanel();
+        pAccessor_->UnlinkPanel();
     }
 
     if ( pTimeoutManager_ )

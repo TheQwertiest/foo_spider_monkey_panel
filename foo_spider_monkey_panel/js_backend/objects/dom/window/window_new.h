@@ -4,6 +4,7 @@
 #include <js_backend/objects/core/object_base.h>
 #include <js_backend/objects/dom/canvas/native/canvas_surface.h>
 #include <js_backend/objects/dom/event_target.h>
+#include <panel/panel_fwd.h>
 #include <tasks/events/event.h>
 
 #include <optional>
@@ -13,11 +14,6 @@
 namespace smp
 {
 class EventBase;
-
-namespace panel
-{
-class PanelWindow;
-}
 
 } // namespace smp
 
@@ -60,12 +56,11 @@ public:
 public:
     ~WindowNew() override = default;
 
-    static std::unique_ptr<WindowNew> CreateNative( JSContext* cx, smp::panel::PanelWindow& parentPanel );
+    static std::unique_ptr<WindowNew> CreateNative( JSContext* cx );
     [[nodiscard]] size_t GetInternalSize();
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
     static void Trace( JSTracer* trc, JSObject* obj );
-    void PrepareForGc();
 
     EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event ) override;
 
@@ -83,15 +78,15 @@ public:
     JSObject* LoadImage( JS::HandleValue source );
     void Redraw( bool force = false );
     void RedrawWithOpt( size_t optArgCount, bool force );
-    void RepaintRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force = false );
-    void RepaintRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
+    void RedrawRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force = false );
+    void RedrawRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
 
 public:
     uint32_t get_Height();
     uint32_t get_Width();
 
 protected:
-    [[nodiscard]] WindowNew( JSContext* cx, smp::panel::PanelWindow& parentPanel );
+    [[nodiscard]] WindowNew( JSContext* cx );
 
 private:
     [[nodiscard]] const std::string& EventIdToType( smp::EventId eventId );
@@ -102,9 +97,7 @@ private:
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    smp::panel::PanelWindow& parentPanel_;
-
-    bool isFinalized_ = false; ///< if true, then parentPanel_ might be already inaccessible
+    smp::not_null_shared<smp::panel::PanelAccessor> pHostPanel_;
 
     JS::Heap<JSObject*> jsRenderingContext_;
     CanvasRenderingContext2D_Qwr* pNativeRenderingContext_ = nullptr;

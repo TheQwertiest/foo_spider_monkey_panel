@@ -9,9 +9,9 @@
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/utils/js_art_helpers.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_hwnd_helpers.h>
 #include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_property_helper.h>
+#include <js_backend/utils/panel_from_global.h>
 #include <ui/ui_html.h>
 #include <ui/ui_input_box.h>
 #include <utils/art_helpers.h>

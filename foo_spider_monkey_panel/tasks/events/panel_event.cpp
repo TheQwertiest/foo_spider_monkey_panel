@@ -2,6 +2,7 @@
 
 #include "panel_event.h"
 
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 
 namespace smp
@@ -20,10 +21,7 @@ std::unique_ptr<EventBase> PanelEvent::Clone()
 void PanelEvent::Run()
 {
     assert( core_api::is_main_thread() );
-    if ( !pTarget_ )
-    {
-        return;
-    }
+    assert( pTarget_ );
 
     auto pPanel = pTarget_->GetPanel();
     if ( !pPanel )

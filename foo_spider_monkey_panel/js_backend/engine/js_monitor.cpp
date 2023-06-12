@@ -8,6 +8,7 @@
 #include <js_backend/engine/js_container.h>
 #include <js_backend/engine/js_engine.h>
 #include <panel/modal_blocking_scope.h>
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 #include <ui/ui_slow_script.h>
 
@@ -204,9 +205,17 @@ bool JsMonitor::OnInterrupt()
             {
             case JsContainer::JsStatus::Working:
             {
-                auto& parentPanel = pContainer->GetParentPanel();
-                panelName = parentPanel.GetPanelDescription( false );
-                parentHwnd = parentPanel.GetHWND();
+                auto pPanel = pContainer->GetHostPanel()->GetPanel();
+                if ( pPanel )
+                {
+                    panelName = pPanel->GetPanelDescription( false );
+                    parentHwnd = pPanel->GetHWND();
+                }
+                else
+                { // paranoia check
+                    assert( false );
+                    parentHwnd = GetActiveWindow();
+                }
                 break;
             }
             case JsContainer::JsStatus::Ready:

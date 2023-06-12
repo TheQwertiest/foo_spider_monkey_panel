@@ -1,5 +1,6 @@
 #pragma once
 
+#include <panel/panel_fwd.h>
 #include <timeout/time_types.h>
 #include <timeout/timer_interface_fwd.h>
 
@@ -44,17 +45,17 @@ public:
 
     void Fire( uint64_t generation );
 
-    [[nodiscard]] PanelTarget& Target() const;
+    [[nodiscard]] not_null_shared<panel::PanelAccessor> Target() const;
     [[nodiscard]] const TimeStamp& When() const;
     [[nodiscard]] uint64_t Generation() const;
     [[nodiscard]] TimerHolder* Holder() const;
 
 private:
-    Timer_Custom( TimerManager_Custom& pParent, std::shared_ptr<PanelTarget> pTarget );
+    Timer_Custom( TimerManager_Custom& pParent, not_null_shared<panel::PanelAccessor> pTarget );
 
 private:
     TimerManager_Custom& pParent_;
-    std::shared_ptr<PanelTarget> pTarget_;
+    not_null_shared<panel::PanelAccessor> pTarget_;
     TimerHolder* pHolder_ = nullptr;
 
     mutable std::mutex mutex_;

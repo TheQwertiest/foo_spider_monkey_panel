@@ -2,6 +2,7 @@
 
 #include "event_js_executor.h"
 
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 
 namespace smp

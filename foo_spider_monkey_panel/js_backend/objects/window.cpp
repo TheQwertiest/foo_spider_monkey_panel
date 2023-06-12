@@ -502,11 +502,11 @@ uint32_t JsWindow::GetColourDUI( uint32_t type )
 
 JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
 {
-    if ( isFinalized_ || !parentPanel_.GetGraphics() )
+    if ( isFinalized_ )
     {
         return nullptr;
     }
-    const auto& graphics = *parentPanel_.GetGraphics();
+    const auto& graphics = parentPanel_.GetGraphics();
 
     qwr::QwrException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::CUI, "Can be called only in CUI" );
 
@@ -551,11 +551,11 @@ JSObject* JsWindow::GetFontCUIWithOpt( size_t optArgCount, uint32_t type, const 
 
 JSObject* JsWindow::GetFontDUI( uint32_t type )
 {
-    if ( isFinalized_ || !parentPanel_.GetGraphics() )
+    if ( isFinalized_ )
     {
         return nullptr;
     }
-    const auto& graphics = *parentPanel_.GetGraphics();
+    const auto& graphics = parentPanel_.GetGraphics();
 
     qwr::QwrException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
@@ -807,11 +807,11 @@ uint32_t JsWindow::get_DlgCode()
 
 uint32_t JsWindow::get_Height()
 {
-    if ( isFinalized_ || !parentPanel_.GetGraphics() )
+    if ( isFinalized_ )
     {
         return 0;
     }
-    const auto& graphics = *parentPanel_.GetGraphics();
+    const auto& graphics = parentPanel_.GetGraphics();
 
     return graphics.GetHeight();
 }
@@ -987,11 +987,11 @@ JSObject* JsWindow::get_Tooltip()
 
 uint32_t JsWindow::get_Width()
 {
-    if ( isFinalized_ || !parentPanel_.GetGraphics() )
+    if ( isFinalized_ )
     {
         return 0;
     }
-    const auto& graphics = *parentPanel_.GetGraphics();
+    const auto& graphics = parentPanel_.GetGraphics();
 
     return graphics.GetWidth();
 }

@@ -9,7 +9,7 @@ using namespace smp;
 namespace smp
 {
 
-Timer_Native::Timer_Native( TimerManager_Native& pParent, std::shared_ptr<PanelTarget> pTarget )
+Timer_Native::Timer_Native( TimerManager_Native& pParent, not_null_shared<panel::PanelAccessor> pTarget )
     : pParent_( pParent )
     , pTarget_( pTarget )
 {
@@ -74,10 +74,9 @@ VOID CALLBACK Timer_Native::TimerProc( PVOID lpParameter, BOOLEAN /*TimerOrWaitF
     pTimer->pParent_.PostTimerEvent( pTimer->shared_from_this() );
 }
 
-PanelTarget& Timer_Native::Target() const
+not_null_shared<panel::PanelAccessor> Timer_Native::Target() const
 {
-    assert( pTarget_ );
-    return *pTarget_;
+    return pTarget_;
 }
 
 const TimeStamp& Timer_Native::When() const

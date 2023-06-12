@@ -2,6 +2,7 @@
 
 #include <js_backend/engine/js_event_status.h>
 #include <js_backend/objects/core/script_loader.h>
+#include <panel/panel_fwd.h>
 
 #include <optional>
 #include <tuple>
@@ -10,11 +11,6 @@
 namespace smp
 {
 class EventBase;
-
-namespace panel
-{
-class PanelWindow;
-}
 
 } // namespace smp
 
@@ -55,12 +51,13 @@ public:
 
     static void PrepareForGc( JSContext* cx, JS::HandleObject self );
 
-    ScriptLoader& GetScriptLoader();
+    [[nodiscard]] ScriptLoader& GetScriptLoader();
 
     /// @remark HWND might be null, if called before fb2k initialization is completed
     [[nodiscard]] HWND GetPanelHwnd() const;
+    [[nodiscard]] smp::not_null_shared<smp::panel::PanelAccessor> GetHostPanel() const;
 
-    EventStatus HandleEvent( smp::EventBase& event );
+    [[nodiscard]] EventStatus HandleEvent( smp::EventBase& event );
 
 public:
     JSObject* InternalLazyLoad( uint8_t moduleIdRaw );

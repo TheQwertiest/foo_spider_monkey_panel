@@ -1,5 +1,6 @@
 #pragma once
 
+#include <panel/panel_fwd.h>
 #include <timeout/time_types.h>
 #include <timeout/timer_interface_fwd.h>
 
@@ -12,7 +13,6 @@
 namespace smp
 {
 
-class PanelTarget;
 class TimerManager_Native;
 
 /// @brief Timer information holder.
@@ -32,18 +32,18 @@ public:
 
     void Fire( uint64_t generation );
 
-    [[nodiscard]] PanelTarget& Target() const;
+    [[nodiscard]] not_null_shared<panel::PanelAccessor> Target() const;
     [[nodiscard]] const TimeStamp& When() const;
     [[nodiscard]] uint64_t Generation() const;
 
 private:
-    Timer_Native( TimerManager_Native& pParent, std::shared_ptr<PanelTarget> pTarget );
+    Timer_Native( TimerManager_Native& pParent, not_null_shared<panel::PanelAccessor> pTarget );
 
     static VOID CALLBACK TimerProc( PVOID lpParameter, BOOLEAN TimerOrWaitFired );
 
 private:
     TimerManager_Native& pParent_;
-    std::shared_ptr<PanelTarget> pTarget_;
+    not_null_shared<panel::PanelAccessor> pTarget_;
     HANDLE hTimer_ = nullptr;
 
     TimerNotifyTask* pTask_ = nullptr;

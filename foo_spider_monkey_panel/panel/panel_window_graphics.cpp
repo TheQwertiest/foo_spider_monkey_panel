@@ -74,7 +74,9 @@ void PanelWindowGraphics::PaintWithCallback( const std::function<void( Gdiplus::
                                    updateRc.Width(),
                                    updateRc.Height() } );
 
+        isPainting_ = true;
         callback( gr );
+        isPainting_ = false;
     }
 
     BitBlt( paintDc, 0, 0, width_, height_, memDc, 0, 0, SRCCOPY );
@@ -238,6 +240,11 @@ void PanelWindowGraphics::PaintBackground( CPaintDC& paintDc, CDC& memDc )
         CRect rc{ 0, 0, static_cast<int>( width_ ), static_cast<int>( height_ ) };
         memDc.FillRect( &rc, (HBRUSH)( COLOR_WINDOW + 1 ) );
     }
+}
+
+bool PanelWindowGraphics::IsPaintInProgress() const
+{
+    return isPainting_;
 }
 
 } // namespace smp::panel

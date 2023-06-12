@@ -1,5 +1,6 @@
 #pragma once
 
+#include <panel/panel_fwd.h>
 #include <tasks/events/event.h>
 #include <timeout/time_types.h>
 
@@ -26,7 +27,7 @@ class TimeoutExecutor;
 class TimeoutManager
 {
 public:
-    TimeoutManager( std::shared_ptr<PanelTarget> pTarget );
+    TimeoutManager( smp::not_null_shared<panel::PanelAccessor> pHostPanel );
     ~TimeoutManager();
 
     void Finalize();
@@ -82,7 +83,7 @@ private:
     };
 
 private:
-    std::shared_ptr<PanelTarget> pTarget_;
+    smp::not_null_shared<panel::PanelAccessor> pHostPanel_;
 
     bool isLoading_ = true;
 
