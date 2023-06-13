@@ -3,14 +3,17 @@
 #include "image.h"
 
 #include <graphics/image_loader.h>
-#include <js_backend/engine/js_engine.h>
+#include <js_backend/engine/context.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
 #include <js_backend/utils/panel_from_global.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_target_event.h>
-#include <tasks/micro_tasks/micro_task.h>
+#include <tasks/micro_tasks/js_target_micro_task.h>
 
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Promise.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
 #include <qwr/final_action.h>
 #include <qwr/utility.h>
 #include <qwr/winapi_error_helpers.h>
@@ -445,7 +448,7 @@ void Image::put_Src( JS::HandleObject jsSelf, const std::wstring& value )
 
     if ( auto pLockedMicroTask = pMicroTask_.lock(); !pLockedMicroTask )
     {
-        auto pMicroTask = std::make_shared<MicroTask>( pJsCtx_, jsSelf, []( JSContext* cx, JS::HandleObject jsSelf ) {
+        auto pMicroTask = std::make_shared<JsTargetMicroTask>( pJsCtx_, jsSelf, []( JSContext* cx, JS::HandleObject jsSelf ) {
             auto pSelf = JsObjectBase<mozjs::Image>::ExtractNative( cx, jsSelf );
             assert( pSelf );
 
@@ -453,7 +456,7 @@ void Image::put_Src( JS::HandleObject jsSelf, const std::wstring& value )
         } );
 
         pMicroTask_ = pMicroTask;
-        EventDispatcher::Get().PutMicroTask( hPanelWnd_, pMicroTask );
+        ContextInner::Get().EnqueueMicroTask( pMicroTask );
     }
 }
 

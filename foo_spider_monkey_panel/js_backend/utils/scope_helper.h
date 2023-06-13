@@ -26,7 +26,7 @@ public:
 
 private:
     JSAutoRealm ac_;
-    mozjs::error::AutoJsReport are_;
+    mozjs::error::AutoReportError are_;
 };
 
 } // namespace mozjs

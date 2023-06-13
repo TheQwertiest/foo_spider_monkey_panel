@@ -199,10 +199,12 @@ public:
         : _variant_t( varSrc )
     {
     }
+
     CDispatchVariant( const VARIANT* pSrc )
         : _variant_t( pSrc )
     {
     }
+
     CDispatchVariant( const _variant_t& varSrc )
         : _variant_t( varSrc )
     {
@@ -217,6 +219,7 @@ public:
         : _variant_t( pSrc, fAddRef )
     {
     }
+
     CDispatchVariant( IUnknown* pSrc, bool fAddRef = true ) throw()
         : _variant_t( pSrc, fAddRef )
     {
@@ -228,10 +231,12 @@ public:
     {
         return _variant_t::operator=( varSrc );
     }
+
     _variant_t& operator=( const VARIANT* pSrc )
     {
         return _variant_t::operator=( pSrc );
     }
+
     _variant_t& operator=( const _variant_t& varSrc )
     {
         return _variant_t::operator=( varSrc );
@@ -241,6 +246,7 @@ public:
     {
         return _variant_t::operator=( pSrc );
     }
+
     _variant_t& operator=( IUnknown* pSrc )
     {
         return _variant_t::operator=( pSrc );
@@ -284,29 +290,36 @@ public:
         : IDispatchPtr( p )
     {
     }
+
     CDispatchPtr() throw()
     {
     }
+
     CDispatchPtr( int null )
         : IDispatchPtr( null )
     {
     }
+
     CDispatchPtr( Interface* pInterface ) throw()
         : IDispatchPtr( pInterface )
     {
     }
+
     CDispatchPtr( Interface* pInterface, bool fAddRef ) throw()
         : IDispatchPtr( pInterface, fAddRef )
     {
     }
+
     explicit CDispatchPtr( const CLSID& clsid, IUnknown* pOuter = NULL, DWORD dwClsContext = CLSCTX_ALL )
         : IDispatchPtr( clsid, pOuter, dwClsContext )
     {
     }
+
     explicit CDispatchPtr( LPOLESTR str, IUnknown* pOuter = NULL, DWORD dwClsContext = CLSCTX_ALL )
         : IDispatchPtr( str, pOuter, dwClsContext )
     {
     }
+
     explicit CDispatchPtr( LPCSTR str, IUnknown* pOuter = NULL, DWORD dwClsContext = CLSCTX_ALL )
         : IDispatchPtr( str, pOuter, dwClsContext )
     {
@@ -320,11 +333,13 @@ public:
         IDispatchPtr::operator=( p );
         return *this;
     }
+
     CDispatchPtr& operator=( Interface* pInterface ) throw()
     {
         IDispatchPtr::operator=( pInterface );
         return *this;
     }
+
     CDispatchPtr& operator=( int null )
     {
         IDispatchPtr::operator=( null );

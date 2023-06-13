@@ -1,7 +1,7 @@
 #pragma once
 
-#include <com_objects/com_interface.h>
-#include <com_objects/com_tools.h>
+#include <com/objects/com_interface.h>
+#include <com/objects/com_tools.h>
 
 #include <OleIdl.h>
 

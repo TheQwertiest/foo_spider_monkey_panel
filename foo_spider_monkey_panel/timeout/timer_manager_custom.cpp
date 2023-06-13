@@ -10,7 +10,7 @@
 #include <tasks/events/event_timer.h>
 #include <timeout/timer_custom.h>
 
-#include <qwr/thread_helpers.h>
+#include <qwr/thread_name_setter.h>
 
 using namespace smp;
 

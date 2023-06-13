@@ -2,8 +2,8 @@
 
 #include "drop_source_impl.h"
 
-#include <com_objects/internal/drag_image.h>
-#include <com_objects/internal/drag_utils.h>
+#include <com/objects/internal/drag_image.h>
+#include <com/objects/internal/drag_utils.h>
 
 #include <qwr/winapi_error_helpers.h>
 

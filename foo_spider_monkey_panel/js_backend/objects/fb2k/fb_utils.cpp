@@ -2,7 +2,7 @@
 
 #include "fb_utils.h"
 
-#include <com_objects/drop_source_impl.h>
+#include <com/objects/drop_source_impl.h>
 #include <fb2k/mainmenu_dynamic.h>
 #include <fb2k/selection_holder_helper.h>
 #include <fb2k/stats.h>

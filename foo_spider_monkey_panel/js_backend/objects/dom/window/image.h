@@ -18,8 +18,9 @@ namespace smp
 {
 
 class MicroTask;
+class JsTargetMicroTask;
 
-}
+} // namespace smp
 
 namespace smp::graphics
 {
@@ -120,7 +121,7 @@ private:
     std::wstring pendingSrc_;
     std::filesystem::path pendingParsedSrc_;
 
-    std::weak_ptr<smp::MicroTask> pMicroTask_;
+    std::weak_ptr<smp::JsTargetMicroTask> pMicroTask_;
     std::weak_ptr<smp::EventBase> pDispatchedEvent_;
     std::weak_ptr<::ImageFetchThreadTask> pFetchTask_;
 

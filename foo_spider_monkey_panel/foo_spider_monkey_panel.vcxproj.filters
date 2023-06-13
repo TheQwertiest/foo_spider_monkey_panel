@@ -22,26 +22,26 @@
     <ClCompile Include="ui\ui_name_value_edit.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\com_tools.cpp">
-      <Filter>com_objects</Filter>
+    <ClCompile Include="com\objects\com_tools.cpp">
+      <Filter>com\objects</Filter>
     </ClCompile>
     <ClCompile Include="ui\ui_html.cpp">
       <Filter>ui</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\drop_source_impl.cpp">
-      <Filter>com_objects</Filter>
+    <ClCompile Include="com\objects\drop_source_impl.cpp">
+      <Filter>com\objects</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\drop_target_impl.cpp">
-      <Filter>com_objects</Filter>
+    <ClCompile Include="com\objects\drop_target_impl.cpp">
+      <Filter>com\objects</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\internal\drag_utils.cpp">
-      <Filter>com_objects\internal</Filter>
+    <ClCompile Include="com\objects\internal\drag_utils.cpp">
+      <Filter>com\objects\internal</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\internal\drag_image.cpp">
-      <Filter>com_objects\internal</Filter>
+    <ClCompile Include="com\objects\internal\drag_image.cpp">
+      <Filter>com\objects\internal</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\host_external.cpp">
-      <Filter>com_objects</Filter>
+    <ClCompile Include="com\objects\host_external.cpp">
+      <Filter>com\objects</Filter>
     </ClCompile>
     <ClCompile Include="utils\gdi_error_helpers.cpp">
       <Filter>utils</Filter>
@@ -165,11 +165,11 @@
     <ClCompile Include="ui\impl\ui_conf_tab_package.cpp">
       <Filter>ui\impl</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\track_drop_target.cpp">
-      <Filter>com_objects</Filter>
+    <ClCompile Include="com\objects\track_drop_target.cpp">
+      <Filter>com\objects</Filter>
     </ClCompile>
-    <ClCompile Include="com_objects\file_drop_target.cpp">
-      <Filter>com_objects</Filter>
+    <ClCompile Include="com\objects\file_drop_target.cpp">
+      <Filter>com\objects</Filter>
     </ClCompile>
     <ClCompile Include="component_paths.cpp" />
     <ClCompile Include="utils\path_helpers.cpp">
@@ -190,11 +190,11 @@
     <ClCompile Include="utils\resource_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="com_utils\com_destruction_handler.cpp">
-      <Filter>com_utils</Filter>
+    <ClCompile Include="com\utils\com_destruction_handler.cpp">
+      <Filter>com\utils</Filter>
     </ClCompile>
-    <ClCompile Include="com_utils\com_error_helpers.cpp">
-      <Filter>com_utils</Filter>
+    <ClCompile Include="com\utils\com_error_helpers.cpp">
+      <Filter>com\utils</Filter>
     </ClCompile>
     <ClCompile Include="timeout\timeout_executor.cpp">
       <Filter>timeout</Filter>
@@ -229,7 +229,7 @@
     <ClCompile Include="ui\impl\ui_menu_edit_with.cpp">
       <Filter>ui\impl</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\engine\js_engine.cpp">
+    <ClCompile Include="js_backend\engine\engine.cpp">
       <Filter>js_backend\engine</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\engine\js_gc.cpp">
@@ -356,9 +356,6 @@
       <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\objects\core\global_object.cpp">
-      <Filter>js_backend\objects\core</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\core\global_heap_manager.cpp">
       <Filter>js_backend\objects\core</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\utils\js_art_helpers.cpp">
@@ -559,7 +556,7 @@
     <ClCompile Include="tasks\cancellable.cpp">
       <Filter>tasks</Filter>
     </ClCompile>
-    <ClCompile Include="tasks\micro_tasks\micro_task.cpp">
+    <ClCompile Include="tasks\micro_tasks\js_target_micro_task.cpp">
       <Filter>tasks\micro_tasks</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\utils\js_heap_helper.cpp">
@@ -589,6 +586,12 @@
     <ClCompile Include="panel\panel_accessor.cpp">
       <Filter>panel</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\engine\context.cpp">
+      <Filter>js_backend\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\engine\global_heap_manager.cpp">
+      <Filter>js_backend\engine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -612,32 +615,32 @@
     <ClInclude Include="ui\ui_input_box.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\drop_source_impl.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com\objects\drop_source_impl.h">
+      <Filter>com\objects</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\drop_target_impl.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com\objects\drop_target_impl.h">
+      <Filter>com\objects</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\com_tools.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com\objects\com_tools.h">
+      <Filter>com\objects</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\dispatch_ptr.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com\objects\dispatch_ptr.h">
+      <Filter>com\objects</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_html.h">
       <Filter>ui</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\host_external.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com\objects\host_external.h">
+      <Filter>com\objects</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\internal\drag_utils.h">
-      <Filter>com_objects\internal</Filter>
+    <ClInclude Include="com\objects\internal\drag_utils.h">
+      <Filter>com\objects\internal</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\internal\handle.h">
-      <Filter>com_objects\internal</Filter>
+    <ClInclude Include="com\objects\internal\handle.h">
+      <Filter>com\objects\internal</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\internal\drag_image.h">
-      <Filter>com_objects\internal</Filter>
+    <ClInclude Include="com\objects\internal\drag_image.h">
+      <Filter>com\objects\internal</Filter>
     </ClInclude>
     <ClInclude Include="utils\gdi_error_helpers.h">
       <Filter>utils</Filter>
@@ -663,8 +666,8 @@
     <ClInclude Include="utils\location_processor.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\com_interface.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com\objects\com_interface.h">
+      <Filter>com\objects</Filter>
     </ClInclude>
     <ClInclude Include="ui\ui_slow_script.h">
       <Filter>ui</Filter>
@@ -780,11 +783,11 @@
     <ClInclude Include="ui\impl\ui_conf_tab_package.h">
       <Filter>ui\impl</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\file_drop_target.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com\objects\file_drop_target.h">
+      <Filter>com\objects</Filter>
     </ClInclude>
-    <ClInclude Include="com_objects\track_drop_target.h">
-      <Filter>com_objects</Filter>
+    <ClInclude Include="com\objects\track_drop_target.h">
+      <Filter>com\objects</Filter>
     </ClInclude>
     <ClInclude Include="component_paths.h" />
     <ClInclude Include="utils\path_helpers.h">
@@ -805,11 +808,11 @@
     <ClInclude Include="utils\resource_helpers.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="com_utils\com_destruction_handler.h">
-      <Filter>com_utils</Filter>
+    <ClInclude Include="com\utils\com_destruction_handler.h">
+      <Filter>com\utils</Filter>
     </ClInclude>
-    <ClInclude Include="com_utils\com_error_helpers.h">
-      <Filter>com_utils</Filter>
+    <ClInclude Include="com\utils\com_error_helpers.h">
+      <Filter>com\utils</Filter>
     </ClInclude>
     <ClInclude Include="timeout\timeout_executor.h">
       <Filter>timeout</Filter>
@@ -862,7 +865,7 @@
     <ClInclude Include="js_backend\engine\js_container.h">
       <Filter>js_backend\engine</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\engine\js_engine.h">
+    <ClInclude Include="js_backend\engine\engine.h">
       <Filter>js_backend\engine</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\engine\js_gc.h">
@@ -987,9 +990,6 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\menu_object.h">
       <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\core\global_heap_manager.h">
-      <Filter>js_backend\objects\core</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\objects\core\global_object.h">
       <Filter>js_backend\objects\core</Filter>
@@ -1255,7 +1255,7 @@
     <ClInclude Include="tasks\dispatcher\event_priority.h">
       <Filter>tasks\dispatcher</Filter>
     </ClInclude>
-    <ClInclude Include="tasks\micro_tasks\micro_task.h">
+    <ClInclude Include="tasks\micro_tasks\js_target_micro_task.h">
       <Filter>tasks\micro_tasks</Filter>
     </ClInclude>
     <ClInclude Include="tasks\events\js_target_event.h">
@@ -1290,6 +1290,15 @@
     </ClInclude>
     <ClInclude Include="panel\panel_fwd.h">
       <Filter>panel</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\engine\context.h">
+      <Filter>js_backend\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\micro_tasks\micro_task_runnable.h">
+      <Filter>tasks\micro_tasks</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\engine\global_heap_manager.h">
+      <Filter>js_backend\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1335,12 +1344,6 @@
     <Filter Include="ui">
       <UniqueIdentifier>{6cdd963f-4f38-4310-b440-f96d5e5d2df5}</UniqueIdentifier>
     </Filter>
-    <Filter Include="com_objects">
-      <UniqueIdentifier>{613a7600-ce84-49fd-b050-5da2374693d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="com_objects\internal">
-      <UniqueIdentifier>{48f476b5-50dc-4578-ac4c-1cfae89d2b42}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ui\scintilla">
       <UniqueIdentifier>{026a4588-b180-4f15-bc70-daedd985c371}</UniqueIdentifier>
     </Filter>
@@ -1358,9 +1361,6 @@
     </Filter>
     <Filter Include="ui\impl">
       <UniqueIdentifier>{6470c9be-1e65-41eb-8ed9-74e95928e341}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="com_utils">
-      <UniqueIdentifier>{b23d43d7-b904-4566-bbbe-2d2b677efb7d}</UniqueIdentifier>
     </Filter>
     <Filter Include="timeout">
       <UniqueIdentifier>{19b3e8c9-9302-44fe-8178-88312a4df487}</UniqueIdentifier>
@@ -1437,10 +1437,22 @@
     <Filter Include="js_backend\objects\dom\canvas\native">
       <UniqueIdentifier>{513ff6ad-d4c7-499c-92cd-0751d2a61fe9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="com">
+      <UniqueIdentifier>{0500386b-5963-400e-972f-7d4c898fb4fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="com\objects">
+      <UniqueIdentifier>{613a7600-ce84-49fd-b050-5da2374693d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="com\objects\internal">
+      <UniqueIdentifier>{48f476b5-50dc-4578-ac4c-1cfae89d2b42}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="com\utils">
+      <UniqueIdentifier>{b23d43d7-b904-4566-bbbe-2d2b677efb7d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="com_objects\com_interface.idl">
-      <Filter>com_objects</Filter>
+    <Midl Include="com\objects\com_interface.idl">
+      <Filter>com\objects</Filter>
     </Midl>
   </ItemGroup>
   <ItemGroup>

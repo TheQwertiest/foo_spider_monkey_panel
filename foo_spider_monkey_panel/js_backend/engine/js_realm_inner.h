@@ -5,6 +5,7 @@
 namespace mozjs
 {
 
+// TODO: rename to JsRealm
 class JsRealmInner final
 {
 public:

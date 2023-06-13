@@ -2,7 +2,7 @@
 
 #include "heartbeat_window.h"
 
-#include <js_backend/engine/js_engine.h>
+#include <js_backend/engine/context.h>
 #include <panel/user_message.h>
 
 #include <qwr/winapi_error_helpers.h>
@@ -53,7 +53,7 @@ LRESULT CALLBACK HeartbeatWindow::WndProc( HWND hWnd, UINT message, WPARAM wPara
     }
     case static_cast<UINT>( MiscMessage::heartbeat ):
     {
-        mozjs::JsEngine::GetInstance().OnHeartbeat();
+        mozjs::ContextInner::Get().OnHeartbeat();
         return 0;
     }
     default:

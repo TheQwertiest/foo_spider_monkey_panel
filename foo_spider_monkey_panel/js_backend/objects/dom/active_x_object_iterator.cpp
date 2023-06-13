@@ -2,7 +2,7 @@
 
 #include "active_x_object_iterator.h"
 
-#include <com_objects/dispatch_ptr.h>
+#include <com/objects/dispatch_ptr.h>
 #include <convert/com.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/active_x_object.h>

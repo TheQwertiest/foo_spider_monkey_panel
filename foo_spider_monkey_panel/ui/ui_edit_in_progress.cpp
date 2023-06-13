@@ -2,7 +2,7 @@
 
 #include "ui_edit_in_progress.h"
 
-#include <qwr/thread_helpers.h>
+#include <qwr/thread_name_setter.h>
 #include <qwr/ui_centered_message_box.h>
 #include <qwr/winapi_error_helpers.h>
 

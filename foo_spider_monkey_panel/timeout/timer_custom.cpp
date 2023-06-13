@@ -5,7 +5,7 @@
 #include <panel/panel_window.h>
 #include <timeout/timer_manager_custom.h>
 
-#include <qwr/thread_helpers.h>
+#include <qwr/thread_name_setter.h>
 
 using namespace smp;
 

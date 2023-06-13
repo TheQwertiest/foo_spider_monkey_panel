@@ -2,7 +2,7 @@
 
 #include "drag_utils.h"
 
-#include <com_objects/internal/drag_image.h>
+#include <com/objects/internal/drag_image.h>
 #include <utils/gdi_helpers.h>
 
 #include <qwr/final_action.h>

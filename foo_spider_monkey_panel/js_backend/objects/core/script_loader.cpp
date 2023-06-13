@@ -8,7 +8,7 @@
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
 #include <fb2k/advanced_config.h>
-#include <js_backend/engine/js_engine.h>
+#include <js_backend/engine/context.h>
 #include <js_backend/engine/js_script_cache.h>
 #include <js_backend/utils/cached_utf8_paths_hack.h>
 #include <js_backend/utils/mozjs_backport.h>
@@ -404,7 +404,7 @@ JSObject* ScriptLoader::GetCompiledModule( const std::filesystem::path& scriptPa
     JS::CompileOptions opts( pJsCtx_ );
     FillCompileOptions( opts, scriptPath );
 
-    const auto pStencil = JsEngine::GetInstance().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, true );
+    const auto pStencil = ContextInner::Get().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, true );
 
     JS::InstantiateOptions instOpts{ opts };
     JS::RootedObject jsModule( pJsCtx_, JS::InstantiateModuleStencil( pJsCtx_, instOpts, pStencil ) );
@@ -462,7 +462,7 @@ JSScript* ScriptLoader::GetCompiledScript( const std::filesystem::path& scriptPa
     JS::CompileOptions opts( pJsCtx_ );
     FillCompileOptions( opts, scriptPath );
 
-    const auto pStencil = JsEngine::GetInstance().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, false );
+    const auto pStencil = ContextInner::Get().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, false );
 
     JS::InstantiateOptions instOpts{ opts };
     JS::RootedScript jsScript( pJsCtx_, JS::InstantiateGlobalStencil( pJsCtx_, instOpts, pStencil ) );

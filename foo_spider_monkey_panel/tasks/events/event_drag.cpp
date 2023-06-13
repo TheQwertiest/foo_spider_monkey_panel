@@ -2,7 +2,7 @@
 
 #include "event_drag.h"
 
-#include <com_utils/com_destruction_handler.h>
+#include <com/utils/com_destruction_handler.h>
 #include <js_backend/engine/js_container.h>
 #include <panel/panel_window.h>
 

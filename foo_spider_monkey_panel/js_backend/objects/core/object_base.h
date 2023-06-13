@@ -17,6 +17,7 @@ namespace mozjs
 {
 
 // TODO: extract JsObjectBase from inherited class to a standalone
+// TODO: rename GetNativeSize to SizeOfExcludingThis
 
 // Methods required by T of JsObjectBase<T>
 

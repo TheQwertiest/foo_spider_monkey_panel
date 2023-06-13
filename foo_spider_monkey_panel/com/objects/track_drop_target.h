@@ -1,7 +1,7 @@
 #pragma once
 
-#include <com_objects/com_tools.h>
-#include <com_objects/drop_target_impl.h>
+#include <com/objects/com_tools.h>
+#include <com/objects/drop_target_impl.h>
 #include <panel/drag_action_params.h>
 #include <tasks/events/event.h>
 

@@ -2,7 +2,7 @@
 
 #include "js_realm_inner.h"
 
-#include <js_backend/engine/js_engine.h>
+#include <js_backend/engine/engine.h>
 
 namespace mozjs
 {

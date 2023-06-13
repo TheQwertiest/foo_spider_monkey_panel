@@ -2,8 +2,8 @@
 
 #include "panel_window.h"
 
-#include <com_objects/track_drop_target.h>
-#include <com_utils/com_destruction_handler.h>
+#include <com/objects/track_drop_target.h>
+#include <com/utils/com_destruction_handler.h>
 #include <config/smp_package/delayed_package_actions.h>
 #include <fb2k/mainmenu_dynamic.h>
 #include <js_backend/engine/js_container.h>
@@ -1012,7 +1012,7 @@ void PanelWindow::OnProcessingEventFinish()
     if ( !eventNestedCounter_ )
     { // Jobs (e.g. futures) should be drained only with empty JS stack and after the current task (as required by ES).
         // Also see https://developer.mozilla.org/en-US/docs/Web/JavaScript/EventLoop#Run-to-completion
-        mozjs::JsContainer::RunJobs();
+        mozjs::JsContainer::PerformMicroTaskCheckPoint();
     }
 
     if ( !eventNestedCounter_ || modal::IsModalBlocked() )

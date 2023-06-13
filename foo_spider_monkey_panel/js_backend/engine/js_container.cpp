@@ -2,7 +2,8 @@
 
 #include "js_container.h"
 
-#include <js_backend/engine/js_engine.h>
+#include <js_backend/engine/context.h>
+#include <js_backend/engine/engine.h>
 #include <js_backend/engine/js_gc.h>
 #include <js_backend/engine/js_realm_inner.h>
 #include <js_backend/objects/core/global_object.h>
@@ -31,14 +32,15 @@ namespace mozjs
 JsContainer::JsContainer( smp::not_null_shared<smp::panel::PanelAccessor> pHostPanel )
     : pHostPanel_( pHostPanel )
 {
-    bool bRet = JsEngine::GetInstance().RegisterContainer( *this );
+    // use engine to access context, since it might not be initialized yet
+    bool bRet = JsEngine::GetContext().RegisterContainer( *this );
     jsStatus_ = ( bRet ? JsStatus::Ready : JsStatus::EngineFailed );
 }
 
 JsContainer::~JsContainer()
 {
     Finalize();
-    JsEngine::GetInstance().UnregisterContainer( *this );
+    ContextInner::Get().UnregisterContainer( *this );
     pJsCtx_ = nullptr;
 }
 
@@ -130,7 +132,7 @@ void JsContainer::Finalize()
     pNativeGlobal_ = nullptr;
     jsGlobal_.reset();
 
-    (void)JsEngine::GetInstance().GetGcEngine().TriggerGc();
+    (void)ContextInner::Get().GetGcEngine().TriggerGc();
 }
 
 void JsContainer::Fail( const qwr::u8string& errorText )
@@ -225,9 +227,9 @@ bool JsContainer::ExecuteScriptFile( const std::filesystem::path& scriptPath, bo
     }
 }
 
-void JsContainer::RunJobs()
+void JsContainer::PerformMicroTaskCheckPoint()
 {
-    JsEngine::GetInstance().MaybeRunJobs();
+    ContextInner::Get().PerformMicroTaskCheckPoint();
 }
 
 smp::not_null_shared<smp::panel::PanelAccessor> JsContainer::GetHostPanel() const
@@ -393,7 +395,7 @@ void JsContainer::OnJsActionStart()
 {
     if ( nestedJsCounter_++ == 0 )
     {
-        JsEngine::GetInstance().OnJsActionStart( *this );
+        ContextInner::Get().OnJsActionStart( *this );
     }
 }
 
@@ -401,7 +403,7 @@ void JsContainer::OnJsActionEnd()
 {
     if ( --nestedJsCounter_ == 0 )
     {
-        JsEngine::GetInstance().OnJsActionEnd( *this );
+        ContextInner::Get().OnJsActionEnd( *this );
     }
 }
 

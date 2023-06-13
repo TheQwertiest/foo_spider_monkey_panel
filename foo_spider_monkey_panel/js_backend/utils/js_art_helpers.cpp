@@ -3,7 +3,7 @@
 #include "js_art_helpers.h"
 
 #include <convert/native_to_js.h>
-#include <js_backend/objects/core/global_heap_manager.h>
+#include <js_backend/engine/global_heap_manager.h>
 #include <js_backend/objects/core/global_object.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/utils/js_async_task.h>

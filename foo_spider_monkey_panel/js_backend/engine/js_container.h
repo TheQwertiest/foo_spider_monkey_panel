@@ -23,7 +23,7 @@ struct DragActionParams;
 namespace mozjs
 {
 
-class JsEngine;
+class ContextInner;
 class JsRealmInner;
 class JsGlobalObject;
 class JsGdiGraphics;
@@ -35,7 +35,7 @@ class JsContainer final
     : public std::enable_shared_from_this<JsContainer>
 {
     // To set JS_Context
-    friend class JsEngine;
+    friend class ContextInner;
 
 public:
     JsContainer( smp::not_null_shared<smp::panel::PanelAccessor> pHostPanel );
@@ -62,7 +62,7 @@ public:
     [[nodiscard]] bool ExecuteScript( const qwr::u8string& scriptCode, bool isModule );
     [[nodiscard]] bool ExecuteScriptFile( const std::filesystem::path& scriptPath, bool isModule );
 
-    static void RunJobs();
+    static void PerformMicroTaskCheckPoint();
 
 public:
     smp::not_null_shared<smp::panel::PanelAccessor> GetHostPanel() const;

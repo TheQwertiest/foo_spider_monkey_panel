@@ -147,9 +147,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="component_paths.cpp" />
-    <ClCompile Include="com_objects\file_drop_target.cpp" />
-    <ClCompile Include="com_utils\com_destruction_handler.cpp" />
-    <ClCompile Include="com_utils\com_error_helpers.cpp" />
+    <ClCompile Include="com\objects\file_drop_target.cpp" />
+    <ClCompile Include="com\utils\com_destruction_handler.cpp" />
+    <ClCompile Include="com\utils\com_error_helpers.cpp" />
     <ClCompile Include="config\default_script.cpp" />
     <ClCompile Include="config\module_package\module_specifier.cpp" />
     <ClCompile Include="config\module_package\package.cpp" />
@@ -165,13 +165,13 @@
     <ClCompile Include="config\smp_package\package_manager.cpp" />
     <ClCompile Include="config\panel_config.cpp" />
     <ClCompile Include="dllmain.cpp" />
-    <ClCompile Include="com_objects\com_tools.cpp" />
-    <ClCompile Include="com_objects\drop_source_impl.cpp" />
-    <ClCompile Include="com_objects\drop_target_impl.cpp" />
-    <ClCompile Include="com_objects\track_drop_target.cpp" />
-    <ClCompile Include="com_objects\host_external.cpp" />
-    <ClCompile Include="com_objects\internal\drag_image.cpp" />
-    <ClCompile Include="com_objects\internal\drag_utils.cpp" />
+    <ClCompile Include="com\objects\com_tools.cpp" />
+    <ClCompile Include="com\objects\drop_source_impl.cpp" />
+    <ClCompile Include="com\objects\drop_target_impl.cpp" />
+    <ClCompile Include="com\objects\track_drop_target.cpp" />
+    <ClCompile Include="com\objects\host_external.cpp" />
+    <ClCompile Include="com\objects\internal\drag_image.cpp" />
+    <ClCompile Include="com\objects\internal\drag_utils.cpp" />
     <ClCompile Include="convert\com.cpp" />
     <ClCompile Include="convert\js_to_native.cpp" />
     <ClCompile Include="convert\native_to_js.cpp" />
@@ -180,6 +180,7 @@
     <ClCompile Include="dom\dom_codes.cpp" />
     <ClCompile Include="dom\dom_keys.cpp" />
     <ClCompile Include="graphics\gdiplus\bitmap_generator.cpp" />
+    <ClCompile Include="js_backend\engine\context.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_bitmap.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\placeholder.cpp" />
@@ -188,6 +189,7 @@
     <ClCompile Include="tasks\cancellable.cpp" />
     <ClInclude Include="dom\axis_adjuster.h" />
     <ClInclude Include="graphics\gdiplus\bitmap_generator.h" />
+    <ClInclude Include="js_backend\engine\context.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\image_bitmap.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\image_data.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h" />
@@ -202,7 +204,7 @@
     <ClCompile Include="tasks\events\keyboard_event.cpp" />
     <ClInclude Include="tasks\events\js_runnable_event.h" />
     <ClInclude Include="tasks\events\js_target_event.h" />
-    <ClInclude Include="tasks\micro_tasks\micro_task.h" />
+    <ClInclude Include="tasks\micro_tasks\js_target_micro_task.h" />
     <ClCompile Include="tasks\events\wheel_event.cpp" />
     <ClCompile Include="tasks\events\panel_event.cpp" />
     <ClCompile Include="tasks\dispatcher\event_dispatcher.cpp" />
@@ -231,14 +233,14 @@
     <ClCompile Include="graphics\image_loader.cpp" />
     <ClCompile Include="js_backend\engine\heartbeat_window.cpp" />
     <ClCompile Include="js_backend\engine\js_container.cpp" />
-    <ClCompile Include="js_backend\engine\js_engine.cpp" />
+    <ClCompile Include="js_backend\engine\engine.cpp" />
     <ClCompile Include="js_backend\engine\js_gc.cpp" />
     <ClCompile Include="js_backend\engine\js_monitor.cpp" />
     <ClCompile Include="js_backend\engine\js_realm_inner.cpp" />
     <ClCompile Include="js_backend\engine\js_script_cache.cpp" />
     <ClCompile Include="js_backend\engine\native_to_js_invoker.cpp" />
     <ClCompile Include="js_backend\objects\core\builtin_modules.cpp" />
-    <ClCompile Include="js_backend\objects\core\global_heap_manager.cpp" />
+    <ClCompile Include="js_backend\engine\global_heap_manager.cpp" />
     <ClCompile Include="js_backend\objects\core\global_object.cpp" />
     <ClCompile Include="js_backend\objects\core\script_loader.cpp" />
     <ClCompile Include="js_backend\objects\dom\active_x_object.cpp" />
@@ -310,7 +312,7 @@
       <PrecompiledHeader>Create</PrecompiledHeader>
       <PrecompiledHeaderFile>stdafx.h</PrecompiledHeaderFile>
     </ClCompile>
-    <ClCompile Include="tasks\micro_tasks\micro_task.cpp" />
+    <ClCompile Include="tasks\micro_tasks\js_target_micro_task.cpp" />
     <ClCompile Include="timeout\timeout.cpp" />
     <ClCompile Include="timeout\timeout_executor.cpp" />
     <ClCompile Include="timeout\timeout_manager.cpp" />
@@ -367,19 +369,19 @@
     <ClInclude Include="component_defines.h" />
     <ClInclude Include="component_guids.h" />
     <ClInclude Include="component_paths.h" />
-    <ClInclude Include="com_objects\com_tools.h" />
-    <ClInclude Include="com_objects\dispatch_ptr.h" />
-    <ClInclude Include="com_objects\drop_source_impl.h" />
-    <ClInclude Include="com_objects\drop_target_impl.h" />
-    <ClInclude Include="com_objects\file_drop_target.h" />
-    <ClInclude Include="com_objects\track_drop_target.h" />
-    <ClInclude Include="com_objects\host_external.h" />
-    <ClInclude Include="com_objects\internal\drag_image.h" />
-    <ClInclude Include="com_objects\internal\drag_utils.h" />
-    <ClInclude Include="com_objects\internal\handle.h" />
-    <ClInclude Include="com_objects\com_interface.h" />
-    <ClInclude Include="com_utils\com_destruction_handler.h" />
-    <ClInclude Include="com_utils\com_error_helpers.h" />
+    <ClInclude Include="com\objects\com_tools.h" />
+    <ClInclude Include="com\objects\dispatch_ptr.h" />
+    <ClInclude Include="com\objects\drop_source_impl.h" />
+    <ClInclude Include="com\objects\drop_target_impl.h" />
+    <ClInclude Include="com\objects\file_drop_target.h" />
+    <ClInclude Include="com\objects\track_drop_target.h" />
+    <ClInclude Include="com\objects\host_external.h" />
+    <ClInclude Include="com\objects\internal\drag_image.h" />
+    <ClInclude Include="com\objects\internal\drag_utils.h" />
+    <ClInclude Include="com\objects\internal\handle.h" />
+    <ClInclude Include="com\objects\com_interface.h" />
+    <ClInclude Include="com\utils\com_destruction_handler.h" />
+    <ClInclude Include="com\utils\com_error_helpers.h" />
     <ClInclude Include="config\basic_script_sources.h" />
     <ClInclude Include="config\default_script.h" />
     <ClInclude Include="config\module_package\module_specifier.h" />
@@ -410,6 +412,7 @@
     <ClInclude Include="tasks\cancellable.h" />
     <ClInclude Include="tasks\events\event_mouse.h" />
     <ClInclude Include="tasks\events\keyboard_event.h" />
+    <ClInclude Include="tasks\micro_tasks\micro_task_runnable.h" />
     <ClInclude Include="tasks\runnable.h" />
     <ClInclude Include="tasks\events\wheel_event.h" />
     <ClInclude Include="tasks\events\panel_event.h" />
@@ -436,7 +439,7 @@
     <ClInclude Include="graphics\loaded_image.h" />
     <ClInclude Include="js_backend\engine\heartbeat_window.h" />
     <ClInclude Include="js_backend\engine\js_container.h" />
-    <ClInclude Include="js_backend\engine\js_engine.h" />
+    <ClInclude Include="js_backend\engine\engine.h" />
     <ClInclude Include="js_backend\engine\js_event_status.h" />
     <ClInclude Include="js_backend\engine\js_gc.h" />
     <ClInclude Include="js_backend\engine\js_monitor.h" />
@@ -445,7 +448,7 @@
     <ClInclude Include="js_backend\engine\js_to_native_invoker.h" />
     <ClInclude Include="js_backend\engine\native_to_js_invoker.h" />
     <ClInclude Include="js_backend\objects\core\builtin_modules.h" />
-    <ClInclude Include="js_backend\objects\core\global_heap_manager.h" />
+    <ClInclude Include="js_backend\engine\global_heap_manager.h" />
     <ClInclude Include="js_backend\objects\core\global_object.h" />
     <ClInclude Include="js_backend\objects\core\object_base.h" />
     <ClInclude Include="js_backend\objects\core\object_traits.h" />
@@ -602,7 +605,7 @@
     <None Include="resources\scintilla_jscript.api" />
   </ItemGroup>
   <ItemGroup>
-    <Midl Include="com_objects\com_interface.idl" />
+    <Midl Include="com\objects\com_interface.idl" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\foo_spider_monkey_panel.rc" />

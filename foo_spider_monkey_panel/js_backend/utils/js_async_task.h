@@ -1,6 +1,6 @@
 #pragma once
 
-#include <js_backend/objects/core/global_heap_manager.h>
+#include <js_backend/engine/global_heap_manager.h>
 #include <js_backend/objects/core/global_object.h>
 
 #include <array>

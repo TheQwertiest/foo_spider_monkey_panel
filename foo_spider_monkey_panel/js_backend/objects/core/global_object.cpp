@@ -2,12 +2,12 @@
 
 #include "global_object.h"
 
+#include <js_backend/engine/engine.h>
+#include <js_backend/engine/global_heap_manager.h>
 #include <js_backend/engine/js_container.h>
-#include <js_backend/engine/js_engine.h>
 #include <js_backend/engine/js_realm_inner.h>
 #include <js_backend/engine/js_script_cache.h>
 #include <js_backend/engine/js_to_native_invoker.h>
-#include <js_backend/objects/core/global_heap_manager.h>
 #include <js_backend/objects/dom/active_x_object.h>
 #include <js_backend/objects/dom/canvas/module_canvas.h>
 #include <js_backend/objects/dom/console.h>
@@ -164,10 +164,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
     JS::RealmOptions options( creationOptions, JS::RealmBehaviors{} );
     JS::RootedObject jsObj( cx,
                             JS_NewGlobalObject( cx, &jsClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
-    if ( !jsObj )
-    {
-        throw JsException();
-    }
+    JsException::ExpectTrue( jsObj );
 
     {
         JSAutoRealm ac( cx, jsObj );

@@ -7,7 +7,7 @@
 
 #include "drag_image.h"
 
-#include <com_objects/internal/handle.h>
+#include <com/objects/internal/handle.h>
 #include <utils/image_helpers.h>
 
 namespace uih
@@ -57,6 +57,7 @@ void draw_drag_image_background( HWND wnd, bool isThemed, HTHEME theme, HDC dc, 
         FillRect( dc, &rc, gdi_object_t<HBRUSH>::ptr_t( CreateSolidBrush( selectionBackgroundColour ) ) );
     }
 }
+
 void draw_drag_image_label( HWND wnd, bool isThemed, HTHEME theme, HDC dc, const RECT& rc, COLORREF selectionTextColour, const char* text )
 {
     constexpr int theme_state = 0;

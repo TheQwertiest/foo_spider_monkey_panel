@@ -2,7 +2,8 @@
 
 #include "window.h"
 
-#include <js_backend/engine/js_engine.h>
+#include <js_backend/engine/context.h>
+#include <js_backend/engine/js_gc.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/menu_object.h>
 #include <js_backend/objects/fb2k/fb_properties.h>
@@ -863,7 +864,7 @@ JSObject* JsWindow::get_JsMemoryStats()
 
     JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
     utils::AddProperty( pJsCtx_, jsObject, "MemoryUsage", JsGc::GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal ) );
-    utils::AddProperty( pJsCtx_, jsObject, "TotalMemoryUsage", JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage() );
+    utils::AddProperty( pJsCtx_, jsObject, "TotalMemoryUsage", ContextInner::Get().GetGcEngine().GetTotalHeapUsage() );
     utils::AddProperty( pJsCtx_, jsObject, "TotalMemoryLimit", JsGc::GetMaxHeap() );
 
     return jsObject;
@@ -977,7 +978,7 @@ uint64_t JsWindow::get_TotalMemoryUsage() const
         return 0;
     }
 
-    return JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage();
+    return ContextInner::Get().GetGcEngine().GetTotalHeapUsage();
 }
 
 JSObject* JsWindow::get_Tooltip()

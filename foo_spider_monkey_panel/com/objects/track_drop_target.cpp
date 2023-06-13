@@ -2,7 +2,7 @@
 
 #include "track_drop_target.h"
 
-#include <com_objects/internal/drag_utils.h>
+#include <com/objects/internal/drag_utils.h>
 #include <js_backend/engine/js_container.h>
 #include <js_backend/objects/core/global_object.h>
 #include <js_backend/objects/dom/drop_source_action.h>

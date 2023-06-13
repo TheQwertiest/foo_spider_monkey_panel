@@ -184,12 +184,12 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
 namespace mozjs::error
 {
 
-AutoJsReport::AutoJsReport( JSContext* cx )
+AutoReportError::AutoReportError( JSContext* cx )
     : cx( cx )
 {
 }
 
-AutoJsReport::~AutoJsReport() noexcept
+AutoReportError::~AutoReportError() noexcept
 {
     if ( isDisabled_ )
     {
@@ -228,7 +228,7 @@ AutoJsReport::~AutoJsReport() noexcept
     }
 }
 
-void AutoJsReport::Disable()
+void AutoReportError::Disable()
 {
     isDisabled_ = true;
 }
