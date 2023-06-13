@@ -180,6 +180,9 @@
     <ClCompile Include="dom\dom_codes.cpp" />
     <ClCompile Include="dom\dom_keys.cpp" />
     <ClCompile Include="graphics\gdiplus\bitmap_generator.cpp" />
+    <ClCompile Include="graphics\gdiplus\font_manager.cpp" />
+    <ClCompile Include="graphics\gdi\font_manager.cpp" />
+    <ClCompile Include="graphics\image_manager.cpp" />
     <ClCompile Include="js_backend\engine\context.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_bitmap.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp" />
@@ -187,6 +190,10 @@
     <ClCompile Include="js_backend\utils\js_heap_helper.cpp" />
     <ClCompile Include="panel\panel_accessor.cpp" />
     <ClCompile Include="tasks\cancellable.cpp" />
+    <ClInclude Include="graphics\gdiplus\font_manager.h" />
+    <ClInclude Include="graphics\gdi\font_manager.h" />
+    <ClInclude Include="graphics\gdi\object_selector.h" />
+    <ClInclude Include="graphics\image_manager.h" />
     <ClInclude Include="dom\axis_adjuster.h" />
     <ClInclude Include="graphics\gdiplus\bitmap_generator.h" />
     <ClInclude Include="js_backend\engine\context.h" />
@@ -230,7 +237,7 @@
     <ClCompile Include="fb2k\selection_holder_helper.cpp" />
     <ClCompile Include="fb2k\stats.cpp" />
     <ClCompile Include="graphics\gdiplus\gradient_clamp.cpp" />
-    <ClCompile Include="graphics\image_loader.cpp" />
+    <ClCompile Include="graphics\image_decoder.cpp" />
     <ClCompile Include="js_backend\engine\heartbeat_window.cpp" />
     <ClCompile Include="js_backend\engine\js_container.cpp" />
     <ClCompile Include="js_backend\engine\engine.cpp" />
@@ -345,7 +352,7 @@
     <ClCompile Include="utils\art_helpers.cpp" />
     <ClCompile Include="utils\art_loading_options.cpp" />
     <ClCompile Include="utils\edit_text.cpp" />
-    <ClCompile Include="utils\gdi_error_helpers.cpp" />
+    <ClCompile Include="graphics\gdiplus\error_handler.cpp" />
     <ClCompile Include="utils\gdi_helpers.cpp" />
     <ClCompile Include="utils\guid_helpers.cpp" />
     <ClCompile Include="utils\image_helpers.cpp" />
@@ -435,7 +442,7 @@
     <ClInclude Include="fb2k\selection_holder_helper.h" />
     <ClInclude Include="fb2k\stats.h" />
     <ClInclude Include="graphics\gdiplus\gradient_clamp.h" />
-    <ClInclude Include="graphics\image_loader.h" />
+    <ClInclude Include="graphics\image_decoder.h" />
     <ClInclude Include="graphics\loaded_image.h" />
     <ClInclude Include="js_backend\engine\heartbeat_window.h" />
     <ClInclude Include="js_backend\engine\js_container.h" />
@@ -567,13 +574,14 @@
     <ClInclude Include="utils\colour_helpers.h" />
     <ClInclude Include="utils\edit_text.h" />
     <ClInclude Include="utils\fmt_pfc_adaptor.h" />
-    <ClInclude Include="utils\gdi_error_helpers.h" />
+    <ClInclude Include="graphics\gdiplus\error_handler.h" />
     <ClInclude Include="utils\gdi_helpers.h" />
     <ClInclude Include="utils\guid_helpers.h" />
     <ClInclude Include="utils\image_helpers.h" />
     <ClInclude Include="utils\json_std_extenders.h" />
     <ClInclude Include="utils\js_exception.h" />
     <ClInclude Include="utils\kmeans.h" />
+    <ClInclude Include="utils\lru_cache.h" />
     <ClInclude Include="utils\not_null.h" />
     <ClInclude Include="utils\script_resource.h" />
     <ClInclude Include="utils\location_processor.h" />

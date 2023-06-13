@@ -4,9 +4,9 @@
 
 #include <dom/css_colours.h>
 #include <dom/double_helpers.h>
+#include <graphics/gdiplus/error_handler.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/canvas/canvas_rendering_context_2d.h>
-#include <utils/gdi_error_helpers.h>
 
 using namespace smp;
 

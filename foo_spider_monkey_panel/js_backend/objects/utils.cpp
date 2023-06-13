@@ -4,6 +4,7 @@
 
 #include <config/smp_package/package.h>
 #include <config/smp_package/package_manager.h>
+#include <graphics/gdiplus/error_handler.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
@@ -17,7 +18,6 @@
 #include <utils/art_helpers.h>
 #include <utils/colour_helpers.h>
 #include <utils/edit_text.h>
-#include <utils/gdi_error_helpers.h>
 
 #include <qwr/file_helpers.h>
 #include <qwr/winapi_error_helpers.h>
@@ -207,17 +207,17 @@ bool JsUtils::CheckFont( const std::wstring& name ) const
 
     int recv;
     Gdiplus::Status gdiRet = font_collection.GetFamilies( count, font_families.data(), &recv );
-    smp::error::CheckGdi( gdiRet, "GetFamilies" );
+    smp::CheckGdiPlusStatus( gdiRet, "GetFamilies" );
     qwr::QwrException::ExpectTrue( recv == count, "Internal error: GetFamilies numSought != numFound" );
 
     std::array<wchar_t, LF_FACESIZE> family_name_eng{};
     std::array<wchar_t, LF_FACESIZE> family_name_loc{};
     const auto it = ranges::find_if( font_families, [&family_name_eng, &family_name_loc, &name]( const auto& fontFamily ) {
         Gdiplus::Status gdiRet = fontFamily.GetFamilyName( family_name_eng.data(), MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ) );
-        smp::error::CheckGdi( gdiRet, "GetFamilyName" );
+        smp::CheckGdiPlusStatus( gdiRet, "GetFamilyName" );
 
         gdiRet = fontFamily.GetFamilyName( family_name_loc.data() );
-        smp::error::CheckGdi( gdiRet, "GetFamilyName" );
+        smp::CheckGdiPlusStatus( gdiRet, "GetFamilyName" );
 
         return ( !_wcsicmp( name.c_str(), family_name_loc.data() )
                  || !_wcsicmp( name.c_str(), family_name_eng.data() ) );

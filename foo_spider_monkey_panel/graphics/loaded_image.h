@@ -4,7 +4,7 @@
 
 #include <vector>
 
-namespace smp::graphics
+namespace smp
 {
 
 struct LoadedImage
@@ -14,4 +14,4 @@ struct LoadedImage
     std::vector<uint8_t> rawData;
 };
 
-} // namespace smp::graphics
+} // namespace smp

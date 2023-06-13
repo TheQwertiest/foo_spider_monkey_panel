@@ -6,7 +6,11 @@
 #include <dom/css_colours.h>
 #include <dom/css_fonts.h>
 #include <dom/double_helpers.h>
+#include <graphics/gdi/font_manager.h>
+#include <graphics/gdi/object_selector.h>
 #include <graphics/gdiplus/bitmap_generator.h>
+#include <graphics/gdiplus/error_handler.h>
+#include <graphics/gdiplus/font_manager.h>
 #include <graphics/gdiplus/gradient_clamp.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/canvas/canvas.h>
@@ -16,7 +20,6 @@
 #include <js_backend/objects/dom/window/image.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <utils/colour_helpers.h>
-#include <utils/gdi_error_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/string_utils.h>
 
@@ -36,25 +39,6 @@ using namespace smp;
 
 namespace
 {
-
-struct GdiPlusFontData
-{
-    std::unique_ptr<const Gdiplus::Font> pFont;
-    std::unique_ptr<const Gdiplus::FontFamily> pFontFamily;
-    float ascentHeight;
-    float descentHeight;
-    float lineHeight;
-};
-
-struct GdiFontData
-{
-    std::unique_ptr<CFont> pFont;
-    int32_t ascentHeight;
-    int32_t descentHeight;
-    int32_t lineHeight;
-    // TODO: fix this, probably caused by leading paddings
-    int32_t magicLineHeight;
-};
 
 } // namespace
 
@@ -114,7 +98,7 @@ GenerateLinearGradientBrush( const mozjs::CanvasGradient_Qwr::GradientData& grad
 
     // Gdiplus repeats gradient pattern, instead of clamping colours,
     // when exceeding brush coordinates, hence some school math is required
-    smp::graphics::ClampGradient( p0, p1, blendPositions, drawArea );
+    smp::ClampGdiPlusGradient( p0, p1, blendPositions, drawArea );
 
     auto zippedGradientData = ranges::views::zip( blendPositions, presetColors );
     ranges::actions::sort( zippedGradientData, []( const auto& a, const auto& b ) { return std::get<0>( a ) < std::get<0>( b ); } );
@@ -134,10 +118,10 @@ GenerateLinearGradientBrush( const mozjs::CanvasGradient_Qwr::GradientData& grad
     ranges::for_each( presetColors, [&]( auto& elem ) { elem = ApplyAlpha( elem.GetValue(), alpha ); } );
 
     auto pBrush = std::make_unique<Gdiplus::LinearGradientBrush>( p0, p1, Gdiplus::Color{}, Gdiplus::Color{} );
-    smp::error::CheckGdiPlusObject( pBrush );
+    smp::CheckGdiPlusObject( pBrush );
 
     auto gdiRet = pBrush->SetInterpolationColors( presetColors.data(), blendPositions.data(), blendPositions.size() );
-    smp::error::CheckGdi( gdiRet, "SetInterpolationColors" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetInterpolationColors" );
 
     return pBrush;
 }
@@ -154,149 +138,6 @@ auto PrepareText( const std::wstring& text )
         }
     }
     return cleanText;
-}
-
-/// @throw qwr::QwrException
-const GdiPlusFontData& FetchGdiPlusFont( const smp::dom::FontDescription& fontDescription, bool isUnderlined = false, bool isStrikeout = false )
-{
-    // TODO: lower case css font
-    // TODO: make cache size configurable?
-    // TODO: move to a separate file?
-    auto cssFont = fontDescription.cssFont;
-    if ( isUnderlined )
-    {
-        cssFont += L" underline";
-    }
-    if ( isStrikeout )
-    {
-        cssFont += L" line-through";
-    }
-
-    static std::unordered_map<std::wstring, GdiPlusFontData> cssStrToFontData;
-    if ( cssStrToFontData.contains( cssFont ) )
-    {
-        return cssStrToFontData.at( cssFont );
-    }
-
-    auto pFamily = std::make_unique<Gdiplus::FontFamily>( fontDescription.family.c_str() );
-    smp::error::CheckGdiPlusObject( pFamily );
-
-    auto pFont = std::make_unique<Gdiplus::Font>(
-        pFamily.get(),
-        static_cast<float>( fontDescription.size ),
-        [&] {
-            const auto isBold = ( fontDescription.weight == qwr::to_underlying( smp::dom::FontWeight::bold ) );
-            int32_t style = 0;
-            if ( isUnderlined )
-            {
-                style |= Gdiplus::FontStyleUnderline;
-            }
-            if ( isStrikeout )
-            {
-                style |= Gdiplus::FontStyleStrikeout;
-            }
-            switch ( fontDescription.style )
-            {
-            case smp::dom::FontStyle::regular:
-                return style | ( isBold ? Gdiplus::FontStyleBold : Gdiplus::FontStyleRegular );
-            case smp::dom::FontStyle::italic:
-                return style | ( isBold ? Gdiplus::FontStyleBoldItalic : Gdiplus::FontStyleItalic );
-            default:
-            {
-                assert( false );
-                return qwr::to_underlying( Gdiplus::FontStyleRegular );
-            }
-            }
-        }(),
-        [&] {
-            switch ( fontDescription.sizeUnit )
-            {
-            case smp::dom::FontSizeUnit::px:
-                return Gdiplus::UnitPixel;
-            default:
-            {
-                assert( false );
-                return Gdiplus::UnitPixel;
-            }
-            }
-        }() );
-    smp::error::CheckGdiPlusObject( pFont );
-
-    // TODO: handle dpi and units here
-    const auto fontStyle = pFont->GetStyle();
-    const auto lineHeight = fontDescription.size * pFamily->GetLineSpacing( fontStyle ) / pFamily->GetEmHeight( fontStyle );
-    const auto ascentHeight = fontDescription.size * pFamily->GetCellAscent( fontStyle ) / pFamily->GetEmHeight( fontStyle );
-    const auto descentHeight = fontDescription.size * pFamily->GetCellDescent( fontStyle ) / pFamily->GetEmHeight( fontStyle );
-
-    const auto [it, isEmplaced] = cssStrToFontData.try_emplace(
-        cssFont,
-        GdiPlusFontData{
-            std::move( pFont ),
-            std::move( pFamily ),
-            static_cast<float>( ascentHeight ),
-            static_cast<float>( descentHeight ),
-            static_cast<float>( lineHeight ) } );
-    return it->second;
-}
-
-/// @throw qwr::QwrException
-const GdiFontData& FetchGdiFont( Gdiplus::Graphics& graphics, const smp::dom::FontDescription& fontDescription, bool isUnderlined = false, bool isStrikeout = false )
-{
-    // TODO: lower case css font
-    auto cssFont = fontDescription.cssFont;
-    if ( isUnderlined )
-    {
-        cssFont += L" underline";
-    }
-    if ( isStrikeout )
-    {
-        cssFont += L" line-through";
-    }
-
-    // TODO: replace with lru cache and make size configurable
-    static std::unordered_map<std::wstring, GdiFontData> cssStrToFontData;
-    if ( cssStrToFontData.contains( cssFont ) )
-    {
-        return cssStrToFontData.at( cssFont );
-    }
-
-    auto pFont = std::make_unique<CFont>();
-    auto hFont = pFont->CreateFontW( -static_cast<int>( fontDescription.size ),
-                                     0,
-                                     0,
-                                     0,
-                                     fontDescription.weight,
-                                     fontDescription.style == smp::dom::FontStyle::italic,
-                                     isUnderlined,
-                                     isStrikeout,
-                                     DEFAULT_CHARSET,
-                                     OUT_DEFAULT_PRECIS,
-                                     CLIP_DEFAULT_PRECIS,
-                                     DEFAULT_QUALITY,
-                                     DEFAULT_PITCH | FF_DONTCARE,
-                                     fontDescription.family.c_str() );
-    qwr::error::CheckWinApi( !!hFont, "CreateFontW" );
-
-    const auto hDc = graphics.GetHDC();
-    qwr::final_action autoHdcReleaser( [&] { graphics.ReleaseHDC( hDc ); } );
-    smp::gdi::ObjectSelector autoFont( hDc, hFont );
-
-    TEXTMETRICW metrics{};
-    auto iRet = ::GetTextMetricsW( hDc, &metrics );
-    qwr::error::CheckWinApi( iRet, "GetTextMetricsW" );
-
-    const auto trueLineHeight = metrics.tmAscent + metrics.tmInternalLeading + metrics.tmExternalLeading + metrics.tmDescent;
-    const auto magicLineHeight = fontDescription.size * trueLineHeight / metrics.tmHeight;
-
-    const auto [it, isEmplaced] = cssStrToFontData.try_emplace(
-        cssFont,
-        GdiFontData{
-            std::move( pFont ),
-            static_cast<int32_t>( metrics.tmAscent ),
-            static_cast<int32_t>( metrics.tmDescent ),
-            static_cast<int32_t>( trueLineHeight ),
-            static_cast<int32_t>( magicLineHeight ) } );
-    return it->second;
 }
 
 inline void SwapRBColours( uint8_t* data, size_t size )
@@ -453,7 +294,7 @@ CanvasRenderingContext2D_Qwr::CanvasRenderingContext2D_Qwr( JSContext* cx, JS::H
     , pGraphics_( &surface.GetGraphics() )
     , defaultStringFormat_( Gdiplus::StringFormat::GenericTypographic() )
 {
-    smp::error::CheckGdi( defaultStringFormat_.GetLastStatus(), "GenericTypographic" );
+    smp::CheckGdiPlusStatus( defaultStringFormat_.GetLastStatus(), "GenericTypographic" );
 
     Reinitialize();
 }
@@ -491,18 +332,18 @@ void CanvasRenderingContext2D_Qwr::Reinitialize()
     pGraphics_ = &surface_.GetGraphics();
 
     pFillBrush_ = std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{} );
-    smp::error::CheckGdiPlusObject( pFillBrush_ );
+    smp::CheckGdiPlusObject( pFillBrush_ );
 
     pStrokePen_ = std::make_unique<Gdiplus::Pen>( Gdiplus ::Color{} );
-    smp::error::CheckGdiPlusObject( pStrokePen_ );
+    smp::CheckGdiPlusObject( pStrokePen_ );
 
     pGraphicsPath_ = std::make_unique<Gdiplus::GraphicsPath>();
-    smp::error::CheckGdiPlusObject( pGraphicsPath_ );
+    smp::CheckGdiPlusObject( pGraphicsPath_ );
 
     ResetMatrix();
     DisableSmoothing();
     auto gdiRet = pGraphics_->SetSmoothingMode( Gdiplus::SmoothingModeAntiAlias );
-    smp::error::CheckGdi( gdiRet, "SetSmoothingMode" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetSmoothingMode" );
 
     globalAlpha_ = 1.0;
     originalFillColour_ = 0;
@@ -518,19 +359,19 @@ void CanvasRenderingContext2D_Qwr::Reinitialize()
     lastSmoothingQuality_ = "low";
 
     auto pTmpBrush = std::make_unique<Gdiplus::SolidBrush>( Gdiplus ::Color{ 0x00000000 } );
-    smp::error::CheckGdiPlusObject( pTmpBrush );
+    smp::CheckGdiPlusObject( pTmpBrush );
 
     if ( !surface_.IsDevice() )
     {
         gdiRet = pGraphics_->Clear( Gdiplus ::Color{ 0x00000000 } );
-        smp::error::CheckGdi( gdiRet, "Clear" );
+        smp::CheckGdiPlusStatus( gdiRet, "Clear" );
     }
 }
 
 void CanvasRenderingContext2D_Qwr::BeginPath()
 {
     auto gdiRet = pGraphicsPath_->Reset();
-    smp::error::CheckGdi( gdiRet, "Reset" );
+    smp::CheckGdiPlusStatus( gdiRet, "Reset" );
 
     lastPathPosOpt_.reset();
 }
@@ -655,29 +496,29 @@ void CanvasRenderingContext2D_Qwr::Ellipse( double x, double y, double radiusX, 
     }();
 
     auto pTmpGraphicsPath = std::make_unique<Gdiplus::GraphicsPath>();
-    smp::error::CheckGdiPlusObject( pTmpGraphicsPath );
+    smp::CheckGdiPlusObject( pTmpGraphicsPath );
 
     // TODO: AddArc fails when startAngleInDegrees == sweepAngleInDegrees,
     // canvas API does not (and it sets last point at the corresponding angle)
     auto gdiRet = pTmpGraphicsPath->AddArc( rect, startAngleInDegrees, sweepAngleInDegrees );
-    smp::error::CheckGdi( gdiRet, "AddArc" );
+    smp::CheckGdiPlusStatus( gdiRet, "AddArc" );
 
     if ( rotation )
     {
         Gdiplus::Matrix matrix;
         gdiRet = matrix.RotateAt( ConvertRadiansToDegrees( rotation ), centerPoint );
-        smp::error::CheckGdi( gdiRet, "RotateAt" );
+        smp::CheckGdiPlusStatus( gdiRet, "RotateAt" );
 
         gdiRet = pTmpGraphicsPath->Transform( &matrix );
-        smp::error::CheckGdi( gdiRet, "Transform" );
+        smp::CheckGdiPlusStatus( gdiRet, "Transform" );
     }
 
     gdiRet = pGraphicsPath_->AddPath( pTmpGraphicsPath.get(), true );
-    smp::error::CheckGdi( gdiRet, "AddPath" );
+    smp::CheckGdiPlusStatus( gdiRet, "AddPath" );
 
     Gdiplus::PointF lastPoint;
     gdiRet = pGraphicsPath_->GetLastPoint( &lastPoint );
-    smp::error::CheckGdi( gdiRet, "GetLastPoint" );
+    smp::CheckGdiPlusStatus( gdiRet, "GetLastPoint" );
 
     lastPathPosOpt_ = lastPoint;
 }
@@ -712,7 +553,7 @@ void CanvasRenderingContext2D_Qwr::Fill( const qwr::u8string& fillRule )
 
         Gdiplus::RectF bounds;
         auto gdiRet = pGraphicsPath_->GetBounds( &bounds, nullptr, nullptr );
-        smp::error::CheckGdi( gdiRet, "GetBounds" );
+        smp::CheckGdiPlusStatus( gdiRet, "GetBounds" );
 
         return GenerateLinearGradientBrush( pFillGradient_->GetGradientData(), RectToPoints( bounds ), globalAlpha_ );
     }();
@@ -722,10 +563,10 @@ void CanvasRenderingContext2D_Qwr::Fill( const qwr::u8string& fillRule )
     }
 
     auto gdiRet = pGraphicsPath_->SetFillMode( fillRule == "nonzero" ? Gdiplus::FillModeWinding : Gdiplus::FillModeAlternate );
-    smp::error::CheckGdi( gdiRet, "SetFillMode" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetFillMode" );
 
     gdiRet = pGraphics_->FillPath( ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ), pGraphicsPath_.get() );
-    smp::error::CheckGdi( gdiRet, "FillPath" );
+    smp::CheckGdiPlusStatus( gdiRet, "FillPath" );
 }
 
 void CanvasRenderingContext2D_Qwr::FillWithOpt( size_t optArgCount, const qwr::u8string& fillRule )
@@ -773,7 +614,7 @@ void CanvasRenderingContext2D_Qwr::FillRect( double x, double y, double w, doubl
     }
 
     auto gdiRet = pGraphics_->FillRectangle( ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ), rect );
-    smp::error::CheckGdi( gdiRet, "FillRectangle" );
+    smp::CheckGdiPlusStatus( gdiRet, "FillRectangle" );
 }
 
 void CanvasRenderingContext2D_Qwr::FillText( const std::wstring& text, double x, double y )
@@ -867,7 +708,7 @@ JSObject* CanvasRenderingContext2D_Qwr::GetImageData( int32_t sx, int32_t sy, in
             CDC memDc{ ::CreateCompatibleDC( cDc ) };
             qwr::error::CheckWinApi( memDc, "CreateCompatibleDC" );
 
-            gdi::ObjectSelector autoBmp( memDc, bitmap.m_hBitmap );
+            GdiObjectSelector autoBmp( memDc, bitmap.m_hBitmap );
 
             auto bRet = memDc.BitBlt( 0, 0, imageRect.Width, imageRect.Height, cDc, imageRect.X, imageRect.Y, SRCCOPY );
             qwr::error::CheckWinApi( bitmap, "BitBlt" );
@@ -893,10 +734,10 @@ JSObject* CanvasRenderingContext2D_Qwr::GetImageData( int32_t sx, int32_t sy, in
         bmpdata.Scan0 = imageData.data();
 
         auto gdiRet = surface_.GetBmp()->LockBits( &imageRect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeUserInputBuf, PixelFormat32bppARGB, &bmpdata );
-        smp::error::CheckGdi( gdiRet, "LockBits" );
+        smp::CheckGdiPlusStatus( gdiRet, "LockBits" );
 
         gdiRet = surface_.GetBmp()->UnlockBits( &bmpdata );
-        smp::error::CheckGdi( gdiRet, "UnlockBits" );
+        smp::CheckGdiPlusStatus( gdiRet, "UnlockBits" );
     }
 
     {
@@ -952,11 +793,11 @@ void CanvasRenderingContext2D_Qwr::LineTo( double x, double y )
     }
 
     auto gdiRet = pGraphicsPath_->AddLine( *lastPathPosOpt_, pointTo );
-    smp::error::CheckGdi( gdiRet, "AddLine" );
+    smp::CheckGdiPlusStatus( gdiRet, "AddLine" );
 
     Gdiplus::PointF lastPoint;
     gdiRet = pGraphicsPath_->GetLastPoint( &lastPoint );
-    smp::error::CheckGdi( gdiRet, "GetLastPoint" );
+    smp::CheckGdiPlusStatus( gdiRet, "GetLastPoint" );
 
     lastPathPosOpt_ = pointTo;
 }
@@ -1097,7 +938,7 @@ void CanvasRenderingContext2D_Qwr::PutImageData( ImageData* imagedata, int32_t d
         qwr::error::CheckWinApi( iRet, "GetBitmap" );
 
         {
-            gdi::ObjectSelector autoBmp( memDc, bitmap.m_hBitmap );
+            GdiObjectSelector autoBmp( memDc, bitmap.m_hBitmap );
 
             auto bRet = cDc.BitBlt( dstRect.X, dstRect.Y, dstRect.Width, dstRect.Height, memDc, 0, 0, SRCCOPY );
             qwr::error::CheckWinApi( bitmap, "AlphaBlend" );
@@ -1112,10 +953,10 @@ void CanvasRenderingContext2D_Qwr::PutImageData( ImageData* imagedata, int32_t d
         bmpdata.Scan0 = dstData.data();
 
         auto gdiRet = surface_.GetBmp()->LockBits( &dstRect, Gdiplus::ImageLockModeWrite | Gdiplus::ImageLockModeUserInputBuf, PixelFormat32bppARGB, &bmpdata );
-        smp::error::CheckGdi( gdiRet, "LockBits" );
+        smp::CheckGdiPlusStatus( gdiRet, "LockBits" );
 
         gdiRet = surface_.GetBmp()->UnlockBits( &bmpdata );
-        smp::error::CheckGdi( gdiRet, "UnlockBits" );
+        smp::CheckGdiPlusStatus( gdiRet, "UnlockBits" );
     }
 }
 
@@ -1154,10 +995,10 @@ void CanvasRenderingContext2D_Qwr::Rotate( double angle )
 
     const auto degrees = ConvertRadiansToDegrees( angle );
     auto gdiRet = pMatrix_->Rotate( degrees );
-    smp::error::CheckGdi( gdiRet, "Rotate" );
+    smp::CheckGdiPlusStatus( gdiRet, "Rotate" );
 
     gdiRet = pGraphics_->SetTransform( pMatrix_.get() );
-    smp::error::CheckGdi( gdiRet, "SetTransform" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetTransform" );
 }
 
 void CanvasRenderingContext2D_Qwr::RoundRect( double x, double y, double w, double h, double radii )
@@ -1224,30 +1065,30 @@ void CanvasRenderingContext2D_Qwr::RoundRect( double x, double y, double w, doub
     };
 
     auto gdiRet = pGraphicsPath_->StartFigure();
-    smp::error::CheckGdi( gdiRet, "StartFigure" );
+    smp::CheckGdiPlusStatus( gdiRet, "StartFigure" );
 
     Gdiplus::PointF curPoint{ static_cast<float>( x + w - upperRight ), static_cast<float>( y ) };
     Gdiplus::PointF nextPoint{ static_cast<float>( x + w ), static_cast<float>( y + upperRight ) };
     gdiRet = pGraphicsPath_->AddArc( generateArcRectFromPoints( curPoint, nextPoint ), 270.0f, 90.0f );
-    smp::error::CheckGdi( gdiRet, "AddArc" );
+    smp::CheckGdiPlusStatus( gdiRet, "AddArc" );
 
     curPoint = { static_cast<float>( x + w ), static_cast<float>( y + h - lowerRight ) };
     nextPoint = { static_cast<float>( x + w - lowerRight ), static_cast<float>( y + h ) };
     gdiRet = pGraphicsPath_->AddArc( generateArcRectFromPoints( curPoint, nextPoint ), 0.0f, 90.0f );
-    smp::error::CheckGdi( gdiRet, "AddArc" );
+    smp::CheckGdiPlusStatus( gdiRet, "AddArc" );
 
     curPoint = { static_cast<float>( x + lowerLeft ), static_cast<float>( y + h ) };
     nextPoint = { static_cast<float>( x ), static_cast<float>( y + h - lowerLeft ) };
     gdiRet = pGraphicsPath_->AddArc( generateArcRectFromPoints( curPoint, nextPoint ), 90.0f, 90.0f );
-    smp::error::CheckGdi( gdiRet, "AddArc" );
+    smp::CheckGdiPlusStatus( gdiRet, "AddArc" );
 
     curPoint = { static_cast<float>( x ), static_cast<float>( y + upperLeft ) };
     nextPoint = { static_cast<float>( x + upperLeft ), static_cast<float>( y ) };
     gdiRet = pGraphicsPath_->AddArc( generateArcRectFromPoints( curPoint, nextPoint ), 180.0f, 90.0f );
-    smp::error::CheckGdi( gdiRet, "AddArc" );
+    smp::CheckGdiPlusStatus( gdiRet, "AddArc" );
 
     gdiRet = pGraphicsPath_->CloseFigure();
-    smp::error::CheckGdi( gdiRet, "CloseFigure" );
+    smp::CheckGdiPlusStatus( gdiRet, "CloseFigure" );
 
     lastPathPosOpt_ = nextPoint;
 }
@@ -1262,10 +1103,10 @@ void CanvasRenderingContext2D_Qwr::Scale( double x, double y )
     MaybeInitializeMatrix();
 
     auto gdiRet = pMatrix_->Scale( static_cast<float>( x ), static_cast<float>( y ) );
-    smp::error::CheckGdi( gdiRet, "Scale" );
+    smp::CheckGdiPlusStatus( gdiRet, "Scale" );
 
     gdiRet = pGraphics_->SetTransform( pMatrix_.get() );
-    smp::error::CheckGdi( gdiRet, "SetTransform" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetTransform" );
 }
 
 void CanvasRenderingContext2D_Qwr::Stroke()
@@ -1283,7 +1124,7 @@ void CanvasRenderingContext2D_Qwr::Stroke()
 
         Gdiplus::RectF bounds;
         auto gdiRet = pGraphicsPath_->GetBounds( &bounds, nullptr, nullptr );
-        smp::error::CheckGdi( gdiRet, "GetBounds" );
+        smp::CheckGdiPlusStatus( gdiRet, "GetBounds" );
 
         return GenerateGradientStrokePen( RectToPoints( bounds ) );
     }();
@@ -1293,7 +1134,7 @@ void CanvasRenderingContext2D_Qwr::Stroke()
     }
 
     auto gdiRet = pGraphics_->DrawPath( ( pGradientPen ? pGradientPen.get() : pStrokePen_.get() ), pGraphicsPath_.get() );
-    smp::error::CheckGdi( gdiRet, "DrawPath" );
+    smp::CheckGdiPlusStatus( gdiRet, "DrawPath" );
 }
 
 void CanvasRenderingContext2D_Qwr::StrokeRect( double x, double y, double w, double h )
@@ -1328,7 +1169,7 @@ void CanvasRenderingContext2D_Qwr::StrokeRect( double x, double y, double w, dou
     }
 
     auto gdiRet = pGraphics_->DrawRectangle( ( pGradientPen ? pGradientPen.get() : pStrokePen_.get() ), rect );
-    smp::error::CheckGdi( gdiRet, "DrawRectangle" );
+    smp::CheckGdiPlusStatus( gdiRet, "DrawRectangle" );
 }
 
 void CanvasRenderingContext2D_Qwr::StrokeText( const std::wstring& text, double x, double y )
@@ -1341,19 +1182,19 @@ void CanvasRenderingContext2D_Qwr::StrokeText( const std::wstring& text, double 
     auto cleanText = PrepareText( text );
 
     auto pGraphicsPath = std::make_unique<Gdiplus::GraphicsPath>();
-    smp::error::CheckGdiPlusObject( pGraphicsPath );
+    smp::CheckGdiPlusObject( pGraphicsPath );
 
     const auto drawPoint = GenerateTextOriginPoint( text, x, y );
-    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_ );
+    const auto ppFontData = smp::GdiPlusFontManager::Get().Load( fontDescription_, false, false );
 
     auto gdiRet = pGraphicsPath->AddString( cleanText.c_str(),
                                             cleanText.size(),
-                                            gdiPlusFontData.pFontFamily.get(),
-                                            gdiPlusFontData.pFont->GetStyle(),
-                                            gdiPlusFontData.pFont->GetSize(),
+                                            ppFontData->pFontFamily.get(),
+                                            ppFontData->pFont->GetStyle(),
+                                            ppFontData->pFont->GetSize(),
                                             drawPoint,
                                             &defaultStringFormat_ );
-    smp::error::CheckGdi( gdiRet, "AddString" );
+    smp::CheckGdiPlusStatus( gdiRet, "AddString" );
 
     const auto pGradientPen = [&]() -> std::unique_ptr<Gdiplus::Pen> {
         if ( !pStrokeGradient_ )
@@ -1363,7 +1204,7 @@ void CanvasRenderingContext2D_Qwr::StrokeText( const std::wstring& text, double 
 
         Gdiplus::RectF bounds;
         auto gdiRet = pGraphicsPath->GetBounds( &bounds, nullptr, nullptr );
-        smp::error::CheckGdi( gdiRet, "GetBounds" );
+        smp::CheckGdiPlusStatus( gdiRet, "GetBounds" );
 
         return GenerateGradientStrokePen( RectToPoints( bounds ) );
     }();
@@ -1373,7 +1214,7 @@ void CanvasRenderingContext2D_Qwr::StrokeText( const std::wstring& text, double 
     }
 
     gdiRet = pGraphics_->DrawPath( ( pGradientPen ? pGradientPen.get() : pStrokePen_.get() ), pGraphicsPath.get() );
-    smp::error::CheckGdi( gdiRet, "DrawPath" );
+    smp::CheckGdiPlusStatus( gdiRet, "DrawPath" );
 }
 
 void CanvasRenderingContext2D_Qwr::Translate( double x, double y )
@@ -1386,10 +1227,10 @@ void CanvasRenderingContext2D_Qwr::Translate( double x, double y )
     MaybeInitializeMatrix();
 
     auto gdiRet = pMatrix_->Translate( static_cast<float>( x ), static_cast<float>( y ) );
-    smp::error::CheckGdi( gdiRet, "Translate" );
+    smp::CheckGdiPlusStatus( gdiRet, "Translate" );
 
     gdiRet = pGraphics_->SetTransform( pMatrix_.get() );
-    smp::error::CheckGdi( gdiRet, "SetTransform" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetTransform" );
 }
 
 bool CanvasRenderingContext2D_Qwr::get_AntialiasingEnabled() const
@@ -1539,7 +1380,7 @@ qwr::u8string CanvasRenderingContext2D_Qwr::get_TextBaseline() const
 void CanvasRenderingContext2D_Qwr::put_AntialiasingEnabled( bool value )
 {
     auto gdiRet = pGraphics_->SetSmoothingMode( value ? Gdiplus::SmoothingModeAntiAlias : Gdiplus::SmoothingModeNone );
-    smp::error::CheckGdi( gdiRet, "SetSmoothingMode" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetSmoothingMode" );
 }
 
 void CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation( const qwr::u8string& value )
@@ -1557,7 +1398,7 @@ void CanvasRenderingContext2D_Qwr::put_GlobalCompositeOperation( const qwr::u8st
     }
 
     auto gdiRet = pGraphics_->SetCompositingMode( *gdiCompositingModeOpt );
-    smp::error::CheckGdi( gdiRet, "SetCompositingMode" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetCompositingMode" );
 }
 
 void CanvasRenderingContext2D_Qwr::put_ImageSmoothingEnabled( bool value )
@@ -1598,7 +1439,7 @@ void CanvasRenderingContext2D_Qwr::put_FillStyle( JS::HandleValue jsValue )
         const auto newColour = gdiColourOpt->GetValue();
 
         auto gdiRet = pFillBrush_->SetColor( ApplyAlpha( newColour, globalAlpha_ ) );
-        smp::error::CheckGdi( gdiRet, "SetColor" );
+        smp::CheckGdiPlusStatus( gdiRet, "SetColor" );
 
         originalFillColour_ = newColour;
         pFillGradient_ = nullptr;
@@ -1644,10 +1485,10 @@ void CanvasRenderingContext2D_Qwr::put_GlobalAlpha( double value )
     globalAlpha_ = value;
 
     auto gdiRet = pFillBrush_->SetColor( ApplyAlpha( originalFillColour_, globalAlpha_ ) );
-    smp::error::CheckGdi( gdiRet, "SetColor" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetColor" );
 
     gdiRet = pStrokePen_->SetColor( ApplyAlpha( originalStrokeColour_, globalAlpha_ ) );
-    smp::error::CheckGdi( gdiRet, "SetColor" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetColor" );
 }
 
 void CanvasRenderingContext2D_Qwr::put_LineJoin( const qwr::u8string& value )
@@ -1673,7 +1514,7 @@ void CanvasRenderingContext2D_Qwr::put_LineJoin( const qwr::u8string& value )
     }
 
     auto gdiRet = pStrokePen_->SetLineJoin( *gdiLineJoinOpt );
-    smp::error::CheckGdi( gdiRet, "SetLineJoin" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetLineJoin" );
 }
 
 void CanvasRenderingContext2D_Qwr::put_LineWidth( double value )
@@ -1684,7 +1525,7 @@ void CanvasRenderingContext2D_Qwr::put_LineWidth( double value )
     }
 
     auto gdiRet = pStrokePen_->SetWidth( static_cast<Gdiplus::REAL>( value ) );
-    smp::error::CheckGdi( gdiRet, "SetWidth" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetWidth" );
 }
 
 void CanvasRenderingContext2D_Qwr::put_StrokeStyle( JS::HandleValue jsValue )
@@ -1701,7 +1542,7 @@ void CanvasRenderingContext2D_Qwr::put_StrokeStyle( JS::HandleValue jsValue )
         const auto newColour = gdiColourOpt->GetValue();
 
         auto gdiRet = pStrokePen_->SetColor( ApplyAlpha( newColour, globalAlpha_ ) );
-        smp::error::CheckGdi( gdiRet, "SetColor" );
+        smp::CheckGdiPlusStatus( gdiRet, "SetColor" );
 
         originalStrokeColour_ = newColour;
         pStrokeGradient_ = nullptr;
@@ -1785,7 +1626,7 @@ void CanvasRenderingContext2D_Qwr::MaybeInitializeMatrix()
     if ( !pMatrix_ )
     {
         pMatrix_ = std::make_unique<Gdiplus::Matrix>();
-        smp::error::CheckGdiPlusObject( pMatrix_ );
+        smp::CheckGdiPlusObject( pMatrix_ );
     }
 }
 
@@ -1795,7 +1636,7 @@ void CanvasRenderingContext2D_Qwr::ResetMatrix()
     {
         pMatrix_.reset();
         auto gdiRet = pGraphics_->ResetTransform();
-        smp::error::CheckGdi( gdiRet, "ResetTransform" );
+        smp::CheckGdiPlusStatus( gdiRet, "ResetTransform" );
     }
 }
 
@@ -1835,18 +1676,18 @@ void CanvasRenderingContext2D_Qwr::DrawImageImpl( JS::HandleValue image,
         smp::dom::AdjustAxis( dstY, dstH );
 
         auto pImageAttributes = std::make_unique<Gdiplus::ImageAttributes>();
-        smp::error::CheckGdiPlusObject( pImageAttributes );
+        smp::CheckGdiPlusObject( pImageAttributes );
 
         Gdiplus::ColorMatrix cm{};
         cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0f;
         cm.m[3][3] = static_cast<float>( globalAlpha_ );
 
         auto gdiRet = pImageAttributes->SetColorMatrix( &cm );
-        smp::error::CheckGdi( gdiRet, "SetColorMatrix" );
+        smp::CheckGdiPlusStatus( gdiRet, "SetColorMatrix" );
 
         Gdiplus::Rect dstRect{ dstX, dstY, dstW, dstH };
         gdiRet = pGraphics_->DrawImage( &bitmap, dstRect, srcX, srcY, srcW, srcH, Gdiplus::UnitPixel, pImageAttributes.get() );
-        smp::error::CheckGdi( gdiRet, "DrawImage" );
+        smp::CheckGdiPlusStatus( gdiRet, "DrawImage" );
     };
 
     if ( auto pCanvas = Canvas::ExtractNative( pJsCtx_, jsObject ) )
@@ -1863,7 +1704,7 @@ void CanvasRenderingContext2D_Qwr::DrawImageImpl( JS::HandleValue image,
             return;
         }
 
-        auto pBitmap = smp::graphics::GenerateGdiBitmap( *pWicBitmap );
+        auto pBitmap = smp::GenerateGdiBitmap( *pWicBitmap );
         drawBitmap( *pBitmap );
     }
     else if ( auto pImageBitmap = JsObjectBase<ImageBitmap>::ExtractNative( pJsCtx_, jsObject ) )
@@ -1897,27 +1738,27 @@ CanvasRenderingContext2D_Qwr::GenerateGradientStrokePen( const std::vector<Gdipl
     }
 
     std::unique_ptr<Gdiplus::Pen> pPen( pStrokePen_->Clone() );
-    smp::error::CheckGdiPlusObject( pPen );
+    smp::CheckGdiPlusObject( pPen );
 
     auto gdiRet = pPen->SetBrush( pBrush.get() );
-    smp::error::CheckGdi( gdiRet, "SetBrush" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetBrush" );
 
     return pPen;
 }
 
 Gdiplus::PointF CanvasRenderingContext2D_Qwr::GenerateTextOriginPoint( const std::wstring& text, double x, double y )
 {
-    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_ );
+    const auto pFontData = smp::GdiPlusFontManager::Get().Load( fontDescription_, false, false );
 
     Gdiplus::PointF drawPoint{ static_cast<float>( x ), static_cast<float>( y ) };
     if ( textBaseline_ == TextBaseline::alphabetic )
     {
-        const auto descentOffset = static_cast<int32_t>( gdiPlusFontData.ascentHeight + 0.5 );
+        const auto descentOffset = static_cast<int32_t>( pFontData->ascentHeight + 0.5 );
         drawPoint.Y -= descentOffset;
     }
     else
     { // this is the only way I've found that makes it look the same as in browsers...
-        drawPoint.Y -= gdiPlusFontData.lineHeight / 2;
+        drawPoint.Y -= pFontData->lineHeight / 2;
         if ( textBaseline_ == TextBaseline::top )
         {
             drawPoint.Y += static_cast<float>( fontDescription_.size / 2 );
@@ -1933,11 +1774,11 @@ Gdiplus::PointF CanvasRenderingContext2D_Qwr::GenerateTextOriginPoint( const std
         Gdiplus::RectF bounds;
         auto gdiRet = pGraphics_->MeasureString( text.c_str(),
                                                  text.size(),
-                                                 gdiPlusFontData.pFont.get(),
+                                                 pFontData->pFont.get(),
                                                  drawPoint,
                                                  &defaultStringFormat_,
                                                  &bounds );
-        smp::error::CheckGdi( gdiRet, "MeasureString" );
+        smp::CheckGdiPlusStatus( gdiRet, "MeasureString" );
 
         if ( textAlign_ == TextAlign::right || textAlign_ == TextAlign::end )
         {
@@ -2099,7 +1940,7 @@ std::unique_ptr<Gdiplus::StringFormat>
 CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExOptions& options )
 {
     auto pStringFormat = std::make_unique<Gdiplus::StringFormat>( &defaultStringFormat_ );
-    smp::error::CheckGdiPlusObject( pStringFormat );
+    smp::CheckGdiPlusObject( pStringFormat );
 
     auto stringFormatValue = pStringFormat->GetFormatFlags();
     if ( options.shouldWrapText )
@@ -2122,7 +1963,7 @@ CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExO
     }
 
     auto gdiRet = pStringFormat->SetFormatFlags( stringFormatValue );
-    smp::error::CheckGdi( gdiRet, "SetFormatFlags" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetFormatFlags" );
 
     const auto trimmingFlag = [&] {
         if ( options.textOverflow == "ellipsis" )
@@ -2150,7 +1991,7 @@ CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExO
         }
     }();
     gdiRet = pStringFormat->SetTrimming( trimmingFlag );
-    smp::error::CheckGdi( gdiRet, "SetTrimming" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetTrimming" );
 
     const auto lineAlign = [&] {
         if ( IsSingleLine_FillTextEx( options ) )
@@ -2176,7 +2017,7 @@ CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExO
         }
     }();
     gdiRet = pStringFormat->SetLineAlignment( lineAlign );
-    smp::error::CheckGdi( gdiRet, "SetLineAlignment" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetLineAlignment" );
 
     const auto align = [&] {
         switch ( textAlign_ )
@@ -2197,7 +2038,7 @@ CanvasRenderingContext2D_Qwr::GenerateStringFormat_FillTextEx( const FillTextExO
         }
     }();
     gdiRet = pStringFormat->SetAlignment( align );
-    smp::error::CheckGdi( gdiRet, "SetAlignment" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetAlignment" );
 
     return pStringFormat;
 }
@@ -2358,10 +2199,10 @@ int32_t CanvasRenderingContext2D_Qwr::GenerateStringFormat_Gdi_FillTextEx( const
 
 void CanvasRenderingContext2D_Qwr::DrawString_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options )
 {
-    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, options.hasUnderline, options.hasLineThrough );
+    const auto pFontData = smp::GdiPlusFontManager::Get().Load( fontDescription_, options.hasUnderline, options.hasLineThrough );
     const auto cleanText = PrepareText_FillTextEx( text, options );
     const auto pStringFormat = GenerateStringFormat_FillTextEx( options );
-    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, gdiPlusFontData.ascentHeight, gdiPlusFontData.lineHeight, options );
+    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, pFontData->ascentHeight, pFontData->lineHeight, options );
 
     const Gdiplus::PointF drawPoint{ static_cast<float>( x ), drawPointY };
     std::optional<Gdiplus::RectF> rectOpt;
@@ -2389,11 +2230,11 @@ void CanvasRenderingContext2D_Qwr::DrawString_FillTextEx( const std::wstring& te
                 Gdiplus::RectF bounds;
                 auto gdiRet = pGraphics_->MeasureString( cleanText.c_str(),
                                                          cleanText.size(),
-                                                         gdiPlusFontData.pFont.get(),
+                                                         pFontData->pFont.get(),
                                                          drawPoint,
                                                          pStringFormat.get(),
                                                          &bounds );
-                smp::error::CheckGdi( gdiRet, "MeasureString" );
+                smp::CheckGdiPlusStatus( gdiRet, "MeasureString" );
 
                 return bounds;
             }
@@ -2408,22 +2249,22 @@ void CanvasRenderingContext2D_Qwr::DrawString_FillTextEx( const std::wstring& te
 
     if ( rectOpt )
     {
-        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), *rectOpt, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
-        smp::error::CheckGdi( gdiRet, "DrawString" );
+        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), pFontData->pFont.get(), *rectOpt, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
+        smp::CheckGdiPlusStatus( gdiRet, "DrawString" );
     }
     else
     {
-        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), gdiPlusFontData.pFont.get(), drawPoint, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
-        smp::error::CheckGdi( gdiRet, "DrawString" );
+        auto gdiRet = pGraphics_->DrawString( cleanText.c_str(), cleanText.size(), pFontData->pFont.get(), drawPoint, pStringFormat.get(), ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ) );
+        smp::CheckGdiPlusStatus( gdiRet, "DrawString" );
     }
 }
 
 void CanvasRenderingContext2D_Qwr::DrawPath_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options )
 {
-    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, options.hasUnderline, options.hasLineThrough );
+    const auto pFontData = smp::GdiPlusFontManager::Get().Load( fontDescription_, options.hasUnderline, options.hasLineThrough );
     const auto cleanText = PrepareText_FillTextEx( text, options );
     const auto pStringFormat = GenerateStringFormat_FillTextEx( options );
-    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, gdiPlusFontData.ascentHeight, gdiPlusFontData.lineHeight, options );
+    const auto drawPointY = GenerateTextOriginY_FillTextEx( text, y, pFontData->ascentHeight, pFontData->lineHeight, options );
 
     const Gdiplus::PointF drawPoint{ static_cast<float>( x ), drawPointY };
     std::optional<Gdiplus::RectF> rectOpt;
@@ -2436,29 +2277,29 @@ void CanvasRenderingContext2D_Qwr::DrawPath_FillTextEx( const std::wstring& text
     }
 
     auto pGraphicsPath = std::make_unique<Gdiplus::GraphicsPath>();
-    smp::error::CheckGdiPlusObject( pGraphicsPath );
+    smp::CheckGdiPlusObject( pGraphicsPath );
 
     if ( rectOpt )
     {
         auto gdiRet = pGraphicsPath->AddString( cleanText.c_str(),
                                                 cleanText.size(),
-                                                gdiPlusFontData.pFontFamily.get(),
-                                                gdiPlusFontData.pFont->GetStyle(),
-                                                gdiPlusFontData.pFont->GetSize(),
+                                                pFontData->pFontFamily.get(),
+                                                pFontData->pFont->GetStyle(),
+                                                pFontData->pFont->GetSize(),
                                                 *rectOpt,
                                                 pStringFormat.get() );
-        smp::error::CheckGdi( gdiRet, "AddString" );
+        smp::CheckGdiPlusStatus( gdiRet, "AddString" );
     }
     else
     {
         auto gdiRet = pGraphicsPath->AddString( cleanText.c_str(),
                                                 cleanText.size(),
-                                                gdiPlusFontData.pFontFamily.get(),
-                                                gdiPlusFontData.pFont->GetStyle(),
-                                                gdiPlusFontData.pFont->GetSize(),
+                                                pFontData->pFontFamily.get(),
+                                                pFontData->pFont->GetStyle(),
+                                                pFontData->pFont->GetSize(),
                                                 drawPoint,
                                                 pStringFormat.get() );
-        smp::error::CheckGdi( gdiRet, "AddString" );
+        smp::CheckGdiPlusStatus( gdiRet, "AddString" );
     }
 
     const auto pGradientBrush = [&]() -> std::unique_ptr<Gdiplus::Brush> {
@@ -2476,7 +2317,7 @@ void CanvasRenderingContext2D_Qwr::DrawPath_FillTextEx( const std::wstring& text
             {
                 Gdiplus::RectF bounds;
                 auto gdiRet = pGraphicsPath->GetBounds( &bounds, nullptr, nullptr );
-                smp::error::CheckGdi( gdiRet, "GetBounds" );
+                smp::CheckGdiPlusStatus( gdiRet, "GetBounds" );
 
                 return bounds;
             }
@@ -2490,16 +2331,20 @@ void CanvasRenderingContext2D_Qwr::DrawPath_FillTextEx( const std::wstring& text
     }
 
     auto gdiRet = pGraphics_->FillPath( ( pGradientBrush ? pGradientBrush.get() : pFillBrush_.get() ), pGraphicsPath.get() );
-    smp::error::CheckGdi( gdiRet, "FillPath" );
+    smp::CheckGdiPlusStatus( gdiRet, "FillPath" );
 }
 
 void CanvasRenderingContext2D_Qwr::DrawGdiString_FillTextEx( const std::wstring& text, double x, double y, const FillTextExOptions& options )
 {
-    const auto& gdiFontData = FetchGdiFont( *pGraphics_, fontDescription_, options.hasUnderline, options.hasLineThrough );
+    const auto pFontData = [&] {
+        CDCHandle cDc = pGraphics_->GetHDC();
+        qwr::final_action autoHdcReleaser( [&] { pGraphics_->ReleaseHDC( cDc ); } );
+        return smp::GdiFontManager::Get().Load( cDc, fontDescription_, options.hasUnderline, options.hasLineThrough );
+    }();
     const auto cleanText = PrepareText_FillTextEx( text, options );
 
     const auto iX = static_cast<int32_t>( x );
-    auto iY = static_cast<int32_t>( GenerateTextOriginY_FillTextEx( text, y, gdiFontData.ascentHeight, gdiFontData.magicLineHeight, options ) );
+    auto iY = static_cast<int32_t>( GenerateTextOriginY_FillTextEx( text, y, pFontData->ascentHeight, pFontData->magicLineHeight, options ) );
 
     std::optional<CRect> rectOpt;
     if ( IsRect_FillTextEx( options ) )
@@ -2512,11 +2357,11 @@ void CanvasRenderingContext2D_Qwr::DrawGdiString_FillTextEx( const std::wstring&
 
     CDCHandle cDc = pGraphics_->GetHDC();
     qwr::final_action autoHdcReleaser( [&] { pGraphics_->ReleaseHDC( cDc ); } );
-    smp::gdi::ObjectSelector autoFont( cDc, gdiFontData.pFont->m_hFont );
+    smp::GdiObjectSelector autoFont( cDc, pFontData->pFont->m_hFont );
 
     Gdiplus::Color clr;
     auto gdiRet = pFillBrush_->GetColor( &clr );
-    smp::error::CheckGdi( gdiRet, "GetColor" );
+    smp::CheckGdiPlusStatus( gdiRet, "GetColor" );
 
     cDc.SetTextColor( smp::colour::ArgbToColorref( clr.GetValue() ) );
 
@@ -2567,7 +2412,7 @@ void CanvasRenderingContext2D_Qwr::DrawGdiString_FillTextEx( const std::wstring&
 TextMetrics::MetricsData
 CanvasRenderingContext2D_Qwr::MeasureString_FillTextEx( const std::wstring& text, const FillTextExOptions& options )
 {
-    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, options.hasUnderline, options.hasLineThrough );
+    const auto pFontData = smp::GdiPlusFontManager::Get().Load( fontDescription_, options.hasUnderline, options.hasLineThrough );
     const auto cleanText = PrepareText_FillTextEx( text, options );
     const auto pStringFormat = GenerateStringFormat_FillTextEx( options );
 
@@ -2585,11 +2430,11 @@ CanvasRenderingContext2D_Qwr::MeasureString_FillTextEx( const std::wstring& text
     {
         auto gdiRet = pGraphics_->MeasureString( cleanText.c_str(),
                                                  cleanText.size(),
-                                                 gdiPlusFontData.pFont.get(),
+                                                 pFontData->pFont.get(),
                                                  *rectOpt,
                                                  pStringFormat.get(),
                                                  &bounds );
-        smp::error::CheckGdi( gdiRet, "MeasureString" );
+        smp::CheckGdiPlusStatus( gdiRet, "MeasureString" );
 
         bounds.Width = std::min( bounds.Width, rectOpt->Width );
         bounds.Height = std::min( bounds.Height, rectOpt->Height );
@@ -2598,11 +2443,11 @@ CanvasRenderingContext2D_Qwr::MeasureString_FillTextEx( const std::wstring& text
     {
         auto gdiRet = pGraphics_->MeasureString( cleanText.c_str(),
                                                  cleanText.size(),
-                                                 gdiPlusFontData.pFont.get(),
+                                                 pFontData->pFont.get(),
                                                  Gdiplus::PointF{},
                                                  pStringFormat.get(),
                                                  &bounds );
-        smp::error::CheckGdi( gdiRet, "MeasureString" );
+        smp::CheckGdiPlusStatus( gdiRet, "MeasureString" );
     }
 
     TextMetrics::MetricsData data;
@@ -2615,7 +2460,7 @@ CanvasRenderingContext2D_Qwr::MeasureString_FillTextEx( const std::wstring& text
 TextMetrics::MetricsData
 CanvasRenderingContext2D_Qwr::MeasurePath_FillTextEx( const std::wstring& text, const FillTextExOptions& options )
 {
-    const auto& gdiPlusFontData = FetchGdiPlusFont( fontDescription_, options.hasUnderline, options.hasLineThrough );
+    const auto pFontData = smp::GdiPlusFontManager::Get().Load( fontDescription_, options.hasUnderline, options.hasLineThrough );
     const auto cleanText = PrepareText_FillTextEx( text, options );
     const auto pStringFormat = GenerateStringFormat_FillTextEx( options );
 
@@ -2629,37 +2474,37 @@ CanvasRenderingContext2D_Qwr::MeasurePath_FillTextEx( const std::wstring& text, 
     }
 
     auto pGraphicsPath = std::make_unique<Gdiplus::GraphicsPath>();
-    smp::error::CheckGdiPlusObject( pGraphicsPath );
+    smp::CheckGdiPlusObject( pGraphicsPath );
 
     if ( rectOpt )
     {
         auto gdiRet = pGraphicsPath->AddString( cleanText.c_str(),
                                                 cleanText.size(),
-                                                gdiPlusFontData.pFontFamily.get(),
-                                                gdiPlusFontData.pFont->GetStyle(),
-                                                gdiPlusFontData.pFont->GetSize(),
+                                                pFontData->pFontFamily.get(),
+                                                pFontData->pFont->GetStyle(),
+                                                pFontData->pFont->GetSize(),
                                                 *rectOpt,
                                                 pStringFormat.get() );
-        smp::error::CheckGdi( gdiRet, "AddString" );
+        smp::CheckGdiPlusStatus( gdiRet, "AddString" );
     }
     else
     {
         auto gdiRet = pGraphicsPath->AddString( cleanText.c_str(),
                                                 cleanText.size(),
-                                                gdiPlusFontData.pFontFamily.get(),
-                                                gdiPlusFontData.pFont->GetStyle(),
-                                                gdiPlusFontData.pFont->GetSize(),
+                                                pFontData->pFontFamily.get(),
+                                                pFontData->pFont->GetStyle(),
+                                                pFontData->pFont->GetSize(),
                                                 Gdiplus::PointF{},
                                                 pStringFormat.get() );
-        smp::error::CheckGdi( gdiRet, "AddString" );
+        smp::CheckGdiPlusStatus( gdiRet, "AddString" );
     }
 
     const auto pTempPen = std::make_unique<Gdiplus::Pen>( Gdiplus::Color{}, 0.00001f );
-    smp::error::CheckGdiPlusObject( pTempPen );
+    smp::CheckGdiPlusObject( pTempPen );
 
     Gdiplus::RectF bounds;
     auto gdiRet = pGraphicsPath->GetBounds( &bounds, nullptr, pTempPen.get() );
-    smp::error::CheckGdi( gdiRet, "GetBounds" );
+    smp::CheckGdiPlusStatus( gdiRet, "GetBounds" );
 
     TextMetrics::MetricsData data;
     data.width = bounds.Width;
@@ -2676,7 +2521,11 @@ CanvasRenderingContext2D_Qwr::MeasurePath_FillTextEx( const std::wstring& text, 
 TextMetrics::MetricsData
 CanvasRenderingContext2D_Qwr::MeasureGdiString_FillTextEx( const std::wstring& text, const FillTextExOptions& options )
 {
-    const auto& gdiFontData = FetchGdiFont( *pGraphics_, fontDescription_, options.hasUnderline, options.hasLineThrough );
+    const auto pFontData = [&] {
+        CDCHandle cDc = pGraphics_->GetHDC();
+        qwr::final_action autoHdcReleaser( [&] { pGraphics_->ReleaseHDC( cDc ); } );
+        return smp::GdiFontManager::Get().Load( cDc, fontDescription_, options.hasUnderline, options.hasLineThrough );
+    }();
     const auto cleanText = PrepareText_FillTextEx( text, options );
 
     std::optional<CRect> rectOpt;
@@ -2690,7 +2539,7 @@ CanvasRenderingContext2D_Qwr::MeasureGdiString_FillTextEx( const std::wstring& t
 
     CDCHandle cDc = pGraphics_->GetHDC();
     qwr::final_action autoHdcReleaser( [&] { pGraphics_->ReleaseHDC( cDc ); } );
-    smp::gdi::ObjectSelector autoFont( cDc, gdiFontData.pFont->m_hFont );
+    smp::GdiObjectSelector autoFont( cDc, pFontData->pFont->m_hFont );
 
     if ( rectOpt )
     {
@@ -2744,7 +2593,7 @@ bool CanvasRenderingContext2D_Qwr::IsSingleLineRect_FillTextEx( const FillTextEx
 void CanvasRenderingContext2D_Qwr::DisableSmoothing()
 {
     auto gdiRet = pGraphics_->SetInterpolationMode( Gdiplus::InterpolationModeNearestNeighbor );
-    smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetInterpolationMode" );
 }
 
 void CanvasRenderingContext2D_Qwr::SetLastSmoothingQuality()
@@ -2764,7 +2613,7 @@ void CanvasRenderingContext2D_Qwr::SetLastSmoothingQuality()
         }
     }();
     auto gdiRet = pGraphics_->SetInterpolationMode( interpolationMode );
-    smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetInterpolationMode" );
 }
 
 } // namespace mozjs

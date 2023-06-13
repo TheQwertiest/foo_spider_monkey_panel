@@ -2,8 +2,8 @@
 
 #include "panel_window_graphics.h"
 
+#include <graphics/gdi/object_selector.h>
 #include <panel/panel_window.h>
-#include <utils/gdi_helpers.h>
 
 namespace smp::panel
 {
@@ -61,7 +61,7 @@ void PanelWindowGraphics::PaintWithCallback( const std::function<void( Gdiplus::
     const CRect updateRc{ paintDc.m_ps.rcPaint };
 
     CDC memDc{ CreateCompatibleDC( paintDc ) };
-    gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
+    GdiObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
 
     PaintBackground( paintDc, memDc );
 
@@ -93,7 +93,7 @@ void PanelWindowGraphics::PaintFallback()
     const CRect updateRc{ paintDc.m_ps.rcPaint };
 
     CDC memDc{ CreateCompatibleDC( paintDc ) };
-    gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
+    GdiObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
 
     PaintBackground( paintDc, memDc );
 
@@ -148,7 +148,7 @@ void PanelWindowGraphics::PaintPseudoTransparentBackground()
         // Background bitmap
         CClientDC parentDc{ parentWnd };
         CDC bgDc{ ::CreateCompatibleDC( parentDc ) };
-        gdi::ObjectSelector autoBmp( bgDc, bmpBg_.m_hBitmap );
+        GdiObjectSelector autoBmp( bgDc, bmpBg_.m_hBitmap );
 
         // Paint background
         bgDc.BitBlt( childRc.left, childRc.top, childRc.Width(), childRc.Height(), parentDc, pt.x, pt.y, SRCCOPY );
@@ -168,7 +168,7 @@ void PanelWindowGraphics::PaintErrorSplash()
     const CRect updateRc{ paintDc.m_ps.rcPaint };
 
     CDC memDc{ CreateCompatibleDC( paintDc ) };
-    gdi::ObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
+    GdiObjectSelector autoBmp( memDc, bmp_.m_hBitmap );
 
     CDCHandle cdc{ memDc.m_hDC };
     CFont font;
@@ -186,7 +186,7 @@ void PanelWindowGraphics::PaintErrorSplash()
                      DEFAULT_QUALITY,
                      DEFAULT_PITCH | FF_DONTCARE,
                      L"Tahoma" );
-    gdi::ObjectSelector autoFontSelector( cdc, font.m_hFont );
+    GdiObjectSelector autoFontSelector( cdc, font.m_hFont );
 
     LOGBRUSH lbBack = { BS_SOLID, RGB( 225, 60, 45 ), 0 };
     CBrush brush;
@@ -224,7 +224,7 @@ void PanelWindowGraphics::PaintBackground( CPaintDC& paintDc, CDC& memDc )
     if ( parent_.GetPanelConfig().panelSettings.isPseudoTransparent )
     {
         CDC bgDc{ CreateCompatibleDC( paintDc ) };
-        gdi::ObjectSelector autoBgBmp( bgDc, bmpBg_.m_hBitmap );
+        GdiObjectSelector autoBgBmp( bgDc, bmpBg_.m_hBitmap );
 
         memDc.BitBlt( updateRc.left,
                       updateRc.top,

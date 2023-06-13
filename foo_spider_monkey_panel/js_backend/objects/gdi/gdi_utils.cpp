@@ -2,6 +2,7 @@
 
 #include "gdi_utils.h"
 
+#include <graphics/gdiplus/error_handler.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/objects/gdi/gdi_font.h>
@@ -9,7 +10,6 @@
 #include <js_backend/utils/js_image_helpers.h>
 #include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/panel_from_global.h>
-#include <utils/gdi_error_helpers.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 
@@ -90,7 +90,7 @@ size_t JsGdiUtils::GetInternalSize()
 JSObject* JsGdiUtils::CreateImage( uint32_t w, uint32_t h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    smp::error::CheckGdiPlusObject( img );
+    smp::CheckGdiPlusObject( img );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) );
 }

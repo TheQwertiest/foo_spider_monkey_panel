@@ -2,7 +2,7 @@
 
 #include "bitmap_generator.h"
 
-#include <utils/gdi_error_helpers.h>
+#include <graphics/gdiplus/error_handler.h>
 #include <utils/guid_helpers.h>
 
 #include <wincodec.h>
@@ -34,7 +34,7 @@ const std::unordered_map<GUID, int, smp::utils::GuidHasher> kWicFormatToGdiPlusF
 
 }
 
-namespace smp::graphics
+namespace smp
 {
 
 std::unique_ptr<Gdiplus::Bitmap> GenerateGdiBitmap( IWICBitmap& wicBitmap )
@@ -60,12 +60,12 @@ std::unique_ptr<Gdiplus::Bitmap> GenerateGdiBitmap( IWICBitmap& wicBitmap )
     qwr::error::CheckHR( hr, "GetSize" );
 
     auto pGdiBitmap = std::make_unique<Gdiplus::Bitmap>( width, height, gdiFormat );
-    smp::error::CheckGdiPlusObject( pGdiBitmap );
+    smp::CheckGdiPlusObject( pGdiBitmap );
 
     Gdiplus::Rect gdiRect{ 0, 0, static_cast<int32_t>( width ), static_cast<int32_t>( height ) };
     Gdiplus::BitmapData bmpData{};
     auto gdiRet = pGdiBitmap->LockBits( &gdiRect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, gdiFormat, &bmpData );
-    smp::error::CheckGdi( gdiRet, "LockBits" );
+    smp::CheckGdiPlusStatus( gdiRet, "LockBits" );
     {
         qwr::final_action autoLockBits( [&] { pGdiBitmap->UnlockBits( &bmpData ); } );
 
@@ -76,4 +76,4 @@ std::unique_ptr<Gdiplus::Bitmap> GenerateGdiBitmap( IWICBitmap& wicBitmap )
     return pGdiBitmap;
 }
 
-} // namespace smp::graphics
+} // namespace smp

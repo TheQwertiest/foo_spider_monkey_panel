@@ -43,9 +43,6 @@
     <ClCompile Include="com\objects\host_external.cpp">
       <Filter>com\objects</Filter>
     </ClCompile>
-    <ClCompile Include="utils\gdi_error_helpers.cpp">
-      <Filter>utils</Filter>
-    </ClCompile>
     <ClCompile Include="utils\gdi_helpers.cpp">
       <Filter>utils</Filter>
     </ClCompile>
@@ -511,7 +508,7 @@
     <ClCompile Include="js_backend\objects\dom\canvas\module_canvas.cpp">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClCompile>
-    <ClCompile Include="graphics\image_loader.cpp">
+    <ClCompile Include="graphics\image_decoder.cpp">
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="tasks\events\event.cpp">
@@ -592,6 +589,18 @@
     <ClCompile Include="js_backend\engine\global_heap_manager.cpp">
       <Filter>js_backend\engine</Filter>
     </ClCompile>
+    <ClCompile Include="graphics\image_manager.cpp">
+      <Filter>graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\gdi\font_manager.cpp">
+      <Filter>graphics\gdi</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\gdiplus\font_manager.cpp">
+      <Filter>graphics\gdiplus</Filter>
+    </ClCompile>
+    <ClCompile Include="graphics\gdiplus\error_handler.cpp">
+      <Filter>graphics\gdiplus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -641,9 +650,6 @@
     </ClInclude>
     <ClInclude Include="com\objects\internal\drag_image.h">
       <Filter>com\objects\internal</Filter>
-    </ClInclude>
-    <ClInclude Include="utils\gdi_error_helpers.h">
-      <Filter>utils</Filter>
     </ClInclude>
     <ClInclude Include="utils\gdi_helpers.h">
       <Filter>utils</Filter>
@@ -1195,7 +1201,7 @@
     <ClInclude Include="js_backend\objects\dom\canvas\module_canvas.h">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClInclude>
-    <ClInclude Include="graphics\image_loader.h">
+    <ClInclude Include="graphics\image_decoder.h">
       <Filter>graphics</Filter>
     </ClInclude>
     <ClInclude Include="graphics\loaded_image.h">
@@ -1299,6 +1305,24 @@
     </ClInclude>
     <ClInclude Include="js_backend\engine\global_heap_manager.h">
       <Filter>js_backend\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\image_manager.h">
+      <Filter>graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\gdi\font_manager.h">
+      <Filter>graphics\gdi</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\gdiplus\font_manager.h">
+      <Filter>graphics\gdiplus</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\gdiplus\error_handler.h">
+      <Filter>graphics\gdiplus</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\lru_cache.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="graphics\gdi\object_selector.h">
+      <Filter>graphics\gdi</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1448,6 +1472,9 @@
     </Filter>
     <Filter Include="com\utils">
       <UniqueIdentifier>{b23d43d7-b904-4566-bbbe-2d2b677efb7d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="graphics\gdi">
+      <UniqueIdentifier>{464953ea-8c11-4b5a-ad9e-468c006df947}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

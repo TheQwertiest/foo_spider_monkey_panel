@@ -1,5 +1,6 @@
 #pragma once
 
+#include <graphics/gdi/object_selector.h>
 #include <js_backend/objects/core/object_base.h>
 #include <utils/gdi_helpers.h>
 
@@ -55,7 +56,7 @@ private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;
     const smp::gdi::unique_gdi_ptr<HDC> pDc_;
     const smp::gdi::unique_gdi_ptr<HBITMAP> hBmp_;
-    const smp::gdi::ObjectSelector<HBITMAP> autoBmp_;
+    const smp::GdiObjectSelector<HBITMAP> autoBmp_;
     uint32_t width_;
     uint32_t height_;
 };

@@ -2,10 +2,10 @@
 
 struct IWICBitmap;
 
-namespace smp::graphics
+namespace smp
 {
 
 /// @throw qwr::QwrException
 std::unique_ptr<Gdiplus::Bitmap> GenerateGdiBitmap( IWICBitmap& wicBitmap );
 
-} // namespace smp::graphics
+} // namespace smp

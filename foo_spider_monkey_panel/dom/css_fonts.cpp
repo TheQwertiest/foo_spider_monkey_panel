@@ -4,7 +4,10 @@
 
 #include <utils/string_utils.h>
 
+#include <qwr/algorithm.h>
 #include <qwr/utility.h>
+
+#include <cwctype>
 
 namespace str_utils = smp::utils::string;
 
@@ -109,12 +112,9 @@ std::optional<FontDescription> FromCssFont( const std::wstring& cssFont )
     str_utils::TrimWhitespace( sv );
 
     FontDescription fontDescription;
-    std::wstring cleanCssFont;
 
     // TODO: simplify
-    // TODO: add sorting (style then weight)
-    // TODO: replace single quote with double quote in cleanCssFont
-    std::unordered_set<ComponentName> parsedComponents;
+    std::unordered_map<ComponentName, std::wstring> parsedComponents;
     while ( !sv.empty() )
     {
         if ( sv.starts_with( L'\'' ) || sv.starts_with( L'"' ) )
@@ -136,8 +136,7 @@ std::optional<FontDescription> FromCssFont( const std::wstring& cssFont )
             }
 
             fontDescription.family = *familyOpt;
-            cleanCssFont += component;
-            parsedComponents.emplace( ComponentName::family );
+            parsedComponents.emplace( ComponentName::family, component );
 
             break;
         }
@@ -160,9 +159,7 @@ std::optional<FontDescription> FromCssFont( const std::wstring& cssFont )
             }
 
             fontDescription.style = *styleOpt;
-            cleanCssFont += component;
-            cleanCssFont += L" ";
-            parsedComponents.emplace( ComponentName::style );
+            parsedComponents.emplace( ComponentName::style, component );
         }
         else if ( auto weightOpt = ParseWeight( component ) )
         {
@@ -172,9 +169,7 @@ std::optional<FontDescription> FromCssFont( const std::wstring& cssFont )
             }
 
             fontDescription.weight = qwr::to_underlying( *weightOpt );
-            cleanCssFont += component;
-            cleanCssFont += L" ";
-            parsedComponents.emplace( ComponentName::weight );
+            parsedComponents.emplace( ComponentName::weight, component );
         }
         else if ( auto sizeDataOpt = ParseSize( component ) )
         {
@@ -191,9 +186,7 @@ std::optional<FontDescription> FromCssFont( const std::wstring& cssFont )
 
             fontDescription.size = size;
             fontDescription.sizeUnit = sizeUnit;
-            cleanCssFont += component;
-            cleanCssFont += L" ";
-            parsedComponents.emplace( ComponentName::size );
+            parsedComponents.emplace( ComponentName::size, component );
         }
         else
         {
@@ -211,6 +204,24 @@ std::optional<FontDescription> FromCssFont( const std::wstring& cssFont )
         return std::nullopt;
     }
 
+    // normalize cssFont value
+    std::wstring cleanCssFont;
+    for ( const auto name: { ComponentName::style, ComponentName::weight, ComponentName::size, ComponentName::family } )
+    {
+        if ( auto pComponent = qwr::FindAsPointer( parsedComponents, name ) )
+        {
+            auto cleanComponent = *pComponent;
+            if ( name == ComponentName::family )
+            {
+                std::replace( cleanComponent.begin(), cleanComponent.end(), '\'', '"' );
+            }
+            else
+            {
+                ranges::transform( cleanComponent, cleanComponent.begin(), []( wint_t c ) { return std::towlower( c ); } );
+            }
+            cleanCssFont += cleanComponent;
+        }
+    }
     fontDescription.cssFont = cleanCssFont;
 
     return fontDescription;

@@ -4,7 +4,9 @@
 
 #include <dom/axis_adjuster.h>
 #include <graphics/gdiplus/bitmap_generator.h>
-#include <graphics/image_loader.h>
+#include <graphics/gdiplus/error_handler.h>
+#include <graphics/image_decoder.h>
+#include <graphics/loaded_image.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/canvas/canvas.h>
 #include <js_backend/objects/dom/window/image.h>
@@ -12,7 +14,6 @@
 #include <js_backend/utils/panel_from_global.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_runnable_event.h>
-#include <utils/gdi_error_helpers.h>
 
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
@@ -35,7 +36,7 @@ public:
                                            JSContext* cx,
                                            JS::HandleObject jsTarget,
                                            HWND hPanelWnd );
-    [[nodiscard]] BitmapExtractThreadTask( std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage,
+    [[nodiscard]] BitmapExtractThreadTask( std::shared_ptr<const smp::LoadedImage> pLoadedImage,
                                            Gdiplus::Rect srcRect,
                                            const mozjs::ImageBitmap::CreateBitmapOptions& options,
                                            JSContext* cx,
@@ -60,7 +61,7 @@ private:
     const mozjs::ImageBitmap::CreateBitmapOptions options_;
 
     std::unique_ptr<Gdiplus::Image> pImage_;
-    std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage_;
+    std::shared_ptr<const smp::LoadedImage> pLoadedImage_;
 };
 
 class BitmapExtractEvent : public smp::JsRunnableEvent
@@ -107,7 +108,7 @@ BitmapExtractThreadTask::BitmapExtractThreadTask( std::unique_ptr<Gdiplus::Image
     assert( pImage_ );
 }
 
-BitmapExtractThreadTask::BitmapExtractThreadTask( std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage,
+BitmapExtractThreadTask::BitmapExtractThreadTask( std::shared_ptr<const smp::LoadedImage> pLoadedImage,
                                                   Gdiplus::Rect srcRect,
                                                   const mozjs::ImageBitmap::CreateBitmapOptions& options,
                                                   JSContext* cx,
@@ -137,8 +138,8 @@ void BitmapExtractThreadTask::Run()
 
             qwr::final_action autoCo( [] { CoUninitialize(); } );
 
-            auto pDecodedImage = smp::graphics::DecodeImage( *pLoadedImage_ );
-            pImage_ = smp::graphics::GenerateGdiBitmap( pDecodedImage );
+            auto pDecodedImage = smp::DecodeImage( *pLoadedImage_ );
+            pImage_ = smp::GenerateGdiBitmap( pDecodedImage );
         }
 
         const auto imageW = static_cast<int32_t>( pImage_->GetWidth() );
@@ -155,16 +156,16 @@ void BitmapExtractThreadTask::Run()
         if ( options_.shouldFlipY )
         {
             auto gdiRet = pImage_->RotateFlip( Gdiplus::RotateNoneFlipY );
-            smp::error::CheckGdi( gdiRet, "RotateFlip" );
+            smp::CheckGdiPlusStatus( gdiRet, "RotateFlip" );
         }
 
         if ( !srcRect.Equals( { 0, 0, imageW, imageH } ) || dstRect.Width != imageW || dstRect.Height != imageH )
         {
             auto pBitmap = std::make_unique<Gdiplus::Bitmap>( dstRect.Width, dstRect.Height );
-            smp::error::CheckGdiPlusObject( pBitmap );
+            smp::CheckGdiPlusObject( pBitmap );
 
             auto pGraphics = std::make_unique<Gdiplus::Graphics>( pBitmap.get() );
-            smp::error::CheckGdiPlusObject( pGraphics );
+            smp::CheckGdiPlusObject( pGraphics );
 
             const auto interpolationMode = [&] {
                 if ( options_.resizeQuality == "high" )
@@ -185,10 +186,10 @@ void BitmapExtractThreadTask::Run()
                 }
             }();
             auto gdiRet = pGraphics->SetInterpolationMode( interpolationMode );
-            smp::error::CheckGdi( gdiRet, "SetInterpolationMode" );
+            smp::CheckGdiPlusStatus( gdiRet, "SetInterpolationMode" );
 
             gdiRet = pGraphics->DrawImage( pImage_.get(), dstRect, srcRect.X, srcRect.Y, srcRect.Width, srcRect.Height, Gdiplus::UnitPixel );
-            smp::error::CheckGdi( gdiRet, "DrawImage" );
+            smp::CheckGdiPlusStatus( gdiRet, "DrawImage" );
 
             pImage_ = std::move( pBitmap );
         }
@@ -382,7 +383,7 @@ JSObject* ImageBitmap::CreateImageBitmapImpl( JSContext* cx, JS::HandleValue ima
         const auto bitmapH = static_cast<int32_t>( pBitmap->GetHeight() );
 
         std::unique_ptr<Gdiplus::Image> pClonedImage( static_cast<Gdiplus::Image*>( pBitmap )->Clone() );
-        smp::error::CheckGdiPlusObject( pClonedImage );
+        smp::CheckGdiPlusObject( pClonedImage );
 
         qwr::QwrException::ExpectTrue( bitmapW, "The source image width is 0" );
         qwr::QwrException::ExpectTrue( bitmapH, "The source image height is 0" );

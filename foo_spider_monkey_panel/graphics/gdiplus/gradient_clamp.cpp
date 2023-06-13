@@ -113,16 +113,16 @@ void ClampPositions( Gdiplus::PointF& gradientStart, Gdiplus::PointF& gradientEn
 
 } // namespace
 
-namespace smp::graphics
+namespace smp
 {
 
-void ClampGradient( Gdiplus::PointF& gradientStart, Gdiplus::PointF& gradientEnd,
-                    std::vector<float>& blendPositions,
-                    const std::vector<Gdiplus::PointF>& drawLocation )
+void ClampGdiPlusGradient( Gdiplus::PointF& gradientStart, Gdiplus::PointF& gradientEnd,
+                           std::vector<float>& blendPositions,
+                           const std::vector<Gdiplus::PointF>& drawLocation )
 {
     const auto leftShift = GetDistanceToFarthestLeft( gradientStart, gradientEnd, drawLocation );
     const auto rightShift = GetDistanceToFarthestRight( gradientStart, gradientEnd, drawLocation );
     ClampPositions( gradientStart, gradientEnd, blendPositions, leftShift, rightShift );
 }
 
-} // namespace smp::graphics
+} // namespace smp

@@ -1,13 +1,11 @@
 #include <stdafx.h>
 
-#include "gdi_error_helpers.h"
+#include "error_handler.h"
 
-#include <qwr/string_helpers.h>
-
-namespace smp::error
+namespace smp
 {
 
-const char* GdiErrorCodeToText( Gdiplus::Status errorCode )
+const char* GdiPlusStatusToText( Gdiplus::Status errorCode )
 {
     switch ( errorCode )
     {
@@ -60,12 +58,12 @@ const char* GdiErrorCodeToText( Gdiplus::Status errorCode )
     }
 }
 
-void CheckGdi( Gdiplus::Status gdiStatus, std::string_view functionName )
+void CheckGdiPlusStatus( Gdiplus::Status gdiStatus, std::string_view functionName )
 {
     if ( gdiStatus > 0 )
     {
-        throw qwr::QwrException( "GdiPlus error: {} failed with error ({:#x}): {}", functionName, static_cast<int>( gdiStatus ), GdiErrorCodeToText( gdiStatus ) );
+        throw qwr::QwrException( "GdiPlus error: {} failed with error ({:#x}): {}", functionName, static_cast<int>( gdiStatus ), GdiPlusStatusToText( gdiStatus ) );
     }
 }
 
-} // namespace smp::error
+} // namespace smp

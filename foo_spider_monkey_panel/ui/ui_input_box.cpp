@@ -2,6 +2,7 @@
 
 #include "ui_input_box.h"
 
+#include <graphics/gdi/object_selector.h>
 #include <utils/gdi_helpers.h>
 
 #include <qwr/pfc_helpers_ui.h>
@@ -68,7 +69,7 @@ void CInputBox::AdjustPromptControlToFit()
         CPaintDC dc( m_hWnd );
         HDC hDc = dc.m_hDC;
 
-        gdi::ObjectSelector autoFont( hDc, promptCtrl.GetFont() );
+        GdiObjectSelector autoFont( hDc, promptCtrl.GetFont() );
 
         const auto promptW = qwr::unicode::ToWide( prompt_ );
         DrawText( hDc, const_cast<wchar_t*>( promptW.c_str() ), -1, &newPromptRc, DT_CALCRECT | DT_NOPREFIX | DT_WORDBREAK );

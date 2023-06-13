@@ -22,7 +22,7 @@ class JsTargetMicroTask;
 
 } // namespace smp
 
-namespace smp::graphics
+namespace smp
 {
 
 struct LoadedImage;
@@ -81,7 +81,7 @@ public:
 
     /// @throw qwr::QwrException
     [[nodiscard]] qwr::ComPtr<IWICBitmap> GetDecodedBitmap() const;
-    [[nodiscard]] std::shared_ptr<const smp::graphics::LoadedImage> GetLoadedImage() const;
+    [[nodiscard]] std::shared_ptr<const smp::LoadedImage> GetLoadedImage() const;
     [[nodiscard]] CompleteStatus GetStatus() const;
 
 public:
@@ -105,7 +105,7 @@ private:
     void InitImageUpdate( const std::wstring& source );
     void UpdateImageData( JS::HandleObject jsSelf );
     void ProcessFetchEvent( const ImageFetchEvent& fetchEvent, JS::HandleObject jsSelf );
-    void HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage, JS::HandleObject jsSelf );
+    void HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp::LoadedImage> pLoadedImage, JS::HandleObject jsSelf );
     void HandleImageError( const std::wstring& src, JS::HandleObject jsSelf );
 
 private:
@@ -125,7 +125,7 @@ private:
     std::weak_ptr<smp::EventBase> pDispatchedEvent_;
     std::weak_ptr<::ImageFetchThreadTask> pFetchTask_;
 
-    std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage_;
+    std::shared_ptr<const smp::LoadedImage> pLoadedImage_;
     qwr::ComPtr<IWICBitmap> pDecodedImage_;
 };
 

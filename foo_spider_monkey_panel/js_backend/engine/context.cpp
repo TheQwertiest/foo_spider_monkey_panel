@@ -2,6 +2,9 @@
 
 #include "context.h"
 
+#include <graphics/gdi/font_manager.h>
+#include <graphics/gdiplus/font_manager.h>
+#include <graphics/image_manager.h>
 #include <js_backend/engine/engine.h>
 #include <js_backend/engine/global_heap_manager.h>
 #include <js_backend/engine/heartbeat_window.h>
@@ -488,6 +491,10 @@ void ContextInner::Finalize()
         pJsCtx_ = nullptr;
         pThreadLocalContext = nullptr;
     }
+
+    GdiPlusFontManager::Get().ClearCache();
+    GdiFontManager::Get().ClearCache();
+    ImageManager::Get().ClearCache();
 
     JsEngine::Get().Finalize();
     isInitialized_ = false;

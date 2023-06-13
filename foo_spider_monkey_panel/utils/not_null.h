@@ -135,6 +135,18 @@ auto make_not_null( T&& t ) noexcept
     return not_null<std::remove_cvref_t<T>>{ std::forward<T>( t ) };
 }
 
+template <class T, class... Args>
+auto make_not_null_shared( Args&&... args ) noexcept
+{
+    return make_not_null( std::make_shared<T>( std::forward<Args>( args )... ) );
+}
+
+template <class T, class... Args>
+auto make_not_null_unique( Args&&... args ) noexcept
+{
+    return make_not_null( std::make_unique<T>( std::forward<Args>( args )... ) );
+}
+
 template <class T, class U>
 auto operator==( const not_null<T>& lhs,
                  const not_null<U>& rhs ) noexcept( noexcept( lhs.get() == rhs.get() ) )
@@ -195,6 +207,9 @@ not_null<T> operator+( std::ptrdiff_t, const not_null<T>& ) = delete;
 
 template <class T>
 using not_null_shared = not_null<std::shared_ptr<T>>;
+
+template <class T>
+using not_null_weak = not_null<std::weak_ptr<T>>;
 
 template <class T>
 using not_null_unique = not_null<std::unique_ptr<T>>;

@@ -2,7 +2,8 @@
 
 #include "image.h"
 
-#include <graphics/image_loader.h>
+#include <graphics/image_decoder.h>
+#include <graphics/image_manager.h>
 #include <js_backend/engine/context.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
@@ -74,17 +75,17 @@ class ImageFetchEvent : public smp::JsTargetEvent
 public:
     [[nodiscard]] ImageFetchEvent( const qwr::u8string& type,
                                    const fs::path& imagePath,
-                                   std::unique_ptr<const smp::graphics::LoadedImage> pLoadedImage,
+                                   std::shared_ptr<const smp::LoadedImage> pLoadedImage,
                                    JSContext* cx,
                                    std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
                                    uint32_t jsTargetId );
 
-    [[nodiscard]] std::shared_ptr<const smp::graphics::LoadedImage> GetLoadedImage() const;
+    [[nodiscard]] std::shared_ptr<const smp::LoadedImage> GetLoadedImage() const;
     [[nodiscard]] const fs::path& GetImagePath() const;
 
 private:
     fs::path imagePath_;
-    std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage_;
+    std::shared_ptr<const smp::LoadedImage> pLoadedImage_;
 };
 
 } // namespace
@@ -120,7 +121,7 @@ void ImageFetchThreadTask::Run()
 
         qwr::final_action autoCo( [] { CoUninitialize(); } );
 
-        auto pLoadedImage = smp::graphics::LoadImageFromFile( imagePath_ );
+        auto pLoadedImage = smp::ImageManager::Load( imagePath_ );
 
         smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
                                               std::make_unique<ImageFetchEvent>(
@@ -138,7 +139,7 @@ void ImageFetchThreadTask::Run()
                                               std::make_unique<ImageFetchEvent>(
                                                   kImageFetchEventType,
                                                   imagePath_,
-                                                  std::unique_ptr<const smp::graphics::LoadedImage>{},
+                                                  std::shared_ptr<const smp::LoadedImage>{},
                                                   pJsCtx_,
                                                   pHeapHelper_,
                                                   jsTargetId_ ) );
@@ -157,7 +158,7 @@ const fs::path& ImageFetchThreadTask::GetImagePath() const
 
 ImageFetchEvent::ImageFetchEvent( const qwr::u8string& type,
                                   const fs::path& imagePath,
-                                  std::unique_ptr<const smp::graphics::LoadedImage> pLoadedImage,
+                                  std::shared_ptr<const smp::LoadedImage> pLoadedImage,
                                   JSContext* cx,
                                   std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
                                   uint32_t jsTargetId )
@@ -167,7 +168,7 @@ ImageFetchEvent::ImageFetchEvent( const qwr::u8string& type,
 {
 }
 
-std::shared_ptr<const smp::graphics::LoadedImage> ImageFetchEvent::GetLoadedImage() const
+std::shared_ptr<const smp::LoadedImage> ImageFetchEvent::GetLoadedImage() const
 {
     return pLoadedImage_;
 }
@@ -369,10 +370,10 @@ qwr::ComPtr<IWICBitmap> Image::GetDecodedBitmap() const
     }
 
     // TODO: add decode() handling
-    return ( pDecodedImage_ ? pDecodedImage_ : smp::graphics::DecodeImage( *pLoadedImage_ ) );
+    return ( pDecodedImage_ ? pDecodedImage_ : smp::DecodeImage( *pLoadedImage_ ) );
 }
 
-std::shared_ptr<const smp::graphics::LoadedImage> Image::GetLoadedImage() const
+std::shared_ptr<const smp::LoadedImage> Image::GetLoadedImage() const
 {
     return pLoadedImage_;
 }
@@ -513,16 +514,13 @@ void Image::UpdateImageData( JS::HandleObject jsSelf )
     }
     const auto& parsedSrc = *parsedSrcOpt;
 
-    // TODO: implement cache
-    /*
-    if ( cache_.has( parsedSrc ) )
+    if ( auto pImage = ImageManager::Get().GetCached( parsedSrc ) )
     {
         cancelAndReset( pFetchTask_ );
-        HandleImageLoad( GenerateSrcFromPath(parsedSrc), cache_.at( parsedSrc ) );
+        HandleImageLoad( GenerateSrcFromPath( parsedSrc ), pImage, jsSelf );
 
         return;
     }
-    */
 
     if ( auto pLockedFetchTask = pFetchTask_.lock();
          pLockedFetchTask && pLockedFetchTask->GetImagePath() == parsedSrc )
@@ -558,7 +556,7 @@ void Image::ProcessFetchEvent( const ImageFetchEvent& fetchEvent, JS::HandleObje
     }
 }
 
-void Image::HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp::graphics::LoadedImage> pLoadedImage, JS::HandleObject jsSelf )
+void Image::HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp::LoadedImage> pLoadedImage, JS::HandleObject jsSelf )
 {
     JS::RootedValue jsPromiseValue( pJsCtx_, JS::GetReservedSlot( jsSelf, qwr::to_underlying( ReservedSlots::kPromise ) ) );
     const auto isLoadedAsPromise = jsPromiseValue.isObject();
@@ -567,6 +565,8 @@ void Image::HandleImageLoad( const std::wstring& src, std::shared_ptr<const smp:
     currentSrc_ = src;
     if ( pLoadedImage )
     {
+        ImageManager::Get().MaybeCache( currentSrc_, smp::not_null_shared<const smp::LoadedImage>{ pLoadedImage } );
+
         currentStatus_ = CompleteStatus::completely_available;
         pLoadedImage_ = pLoadedImage;
 

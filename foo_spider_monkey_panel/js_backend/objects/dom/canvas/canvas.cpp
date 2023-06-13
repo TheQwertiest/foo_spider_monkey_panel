@@ -2,9 +2,9 @@
 
 #include "canvas.h"
 
+#include <graphics/gdiplus/error_handler.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/canvas/canvas_rendering_context_2d.h>
-#include <utils/gdi_error_helpers.h>
 
 #include <qwr/final_action.h>
 #include <qwr/utility.h>
@@ -201,10 +201,10 @@ void Canvas::ReinitializeCanvas( uint32_t width, uint32_t height )
     }
 
     auto pBitmap = std::make_unique<Gdiplus::Bitmap>( width, height, PixelFormat32bppPARGB );
-    smp::error::CheckGdiPlusObject( pBitmap );
+    smp::CheckGdiPlusObject( pBitmap );
 
     auto pGraphics = std::make_unique<Gdiplus::Graphics>( pBitmap.get() );
-    smp::error::CheckGdiPlusObject( pGraphics );
+    smp::CheckGdiPlusObject( pGraphics );
 
     pBitmap_ = std::move( pBitmap );
     pGraphics_ = std::move( pGraphics );
