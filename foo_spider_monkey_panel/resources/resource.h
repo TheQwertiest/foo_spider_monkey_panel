@@ -27,6 +27,7 @@
 #define IDR_MODULE_FB_SELECTION            132
 #define IDR_MODULE_WINDOW                  133
 #define IDR_MODULE_CANVAS                  134
+#define IDR_MODULE_TRACK                   135
 #define IDC_EDIT_PANEL_NAME                1000
 #define IDC_EDIT                           1001
 #define IDC_DEL                            1010
@@ -117,7 +118,7 @@
 //
 #ifdef APSTUDIO_INVOKED
 #    ifndef APSTUDIO_READONLY_SYMBOLS
-#        define _APS_NEXT_RESOURCE_VALUE 135
+#        define _APS_NEXT_RESOURCE_VALUE 136
 #        define _APS_NEXT_COMMAND_VALUE  40031
 #        define _APS_NEXT_CONTROL_VALUE  1129
 #        define _APS_NEXT_SYMED_VALUE    101

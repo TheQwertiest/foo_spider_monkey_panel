@@ -50,12 +50,12 @@ public:
     EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event ) override;
 
 public:
-    JSObject* GetNowPlayingTrack();
+    JSObject* GetCurrentlyPlayingTrack();
     void Next();
     void Pause();
     void Play();
-    void Prev();
-    void Random();
+    void Previous();
+    void PlayRandom();
     void Stop();
     void VolumeDown();
     void VolumeMute();
@@ -68,7 +68,7 @@ public:
     bool get_StopAfterCurrent();
     float get_Volume();
     void put_CurrentTime( double time );
-    void put_StopAfterCurrent( bool p );
+    void put_StopAfterCurrent( bool value );
     void put_Volume( float value );
 
 private:

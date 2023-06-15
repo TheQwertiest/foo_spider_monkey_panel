@@ -605,8 +605,9 @@ IDR_SCINTILLA_JS_API        SCRIPT                "scintilla_jscript.api"
 IDR_RECOVERY_PACKAGE_SCRIPT SCRIPT                "recovery_package_script.js"
 IDR_RECOVERY_PACKAGE_JSON   SCRIPT                "recovery_package_json.json"
 IDR_MODULE_CANVAS           SCRIPT                "modules/canvas.js"
-IDR_MODULE_FB_PLAYBACK      SCRIPT                "modules/fb_playback.js"
-IDR_MODULE_FB_SELECTION     SCRIPT                "modules/fb_selection.js"
+IDR_MODULE_FB_PLAYBACK      SCRIPT                "modules/playback.js"
+IDR_MODULE_FB_SELECTION     SCRIPT                "modules/selection.js"
+IDR_MODULE_TRACK            SCRIPT                "modules/track.js"
 IDR_MODULE_WINDOW           SCRIPT                "modules/window.js"
 
 

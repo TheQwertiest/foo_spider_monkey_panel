@@ -218,6 +218,7 @@ std::optional<FontDescription> FromCssFont( const std::wstring& cssFont )
             else
             {
                 ranges::transform( cleanComponent, cleanComponent.begin(), []( wint_t c ) { return std::towlower( c ); } );
+                cleanComponent += ' ';
             }
             cleanCssFont += cleanComponent;
         }

@@ -22,6 +22,8 @@ struct JsObjectTraits<PlaceHolder>
 class PlaceHolder
     : public JsObjectBase<PlaceHolder>
 {
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( PlaceHolder );
+
 public:
     ~PlaceHolder() override;
 

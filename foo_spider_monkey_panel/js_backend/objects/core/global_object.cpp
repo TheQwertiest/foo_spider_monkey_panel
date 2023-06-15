@@ -19,6 +19,7 @@
 #include <js_backend/objects/fb2k/fb_profiler.h>
 #include <js_backend/objects/fb2k/fb_title_format.h>
 #include <js_backend/objects/fb2k/fb_utils.h>
+#include <js_backend/objects/fb2k/module_track.h>
 #include <js_backend/objects/fb2k/playback_control.h>
 #include <js_backend/objects/fb2k/selection_manager.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
@@ -343,6 +344,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case mozjs::BuiltinModuleId::kCanvas:
             {
                 return initializeLoadedObject.template operator()<ModuleCanvas>( moduleId );
+            }
+            case mozjs::BuiltinModuleId::kTrack:
+            {
+                return initializeLoadedObject.template operator()<ModuleTrack>( moduleId );
             }
             // TODO: add event module
             default:

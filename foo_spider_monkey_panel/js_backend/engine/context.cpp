@@ -2,6 +2,7 @@
 
 #include "context.h"
 
+#include <fb2k/title_format_manager.h>
 #include <graphics/gdi/font_manager.h>
 #include <graphics/gdiplus/font_manager.h>
 #include <graphics/image_manager.h>
@@ -495,6 +496,7 @@ void ContextInner::Finalize()
     GdiPlusFontManager::Get().ClearCache();
     GdiFontManager::Get().ClearCache();
     ImageManager::Get().ClearCache();
+    TitleFormatManager::Get().ClearCache();
 
     JsEngine::Get().Finalize();
     isInitialized_ = false;

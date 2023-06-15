@@ -9,6 +9,14 @@ namespace mozjs
 
 std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& moduleName )
 {
+    if ( moduleName == "smp:dom/window" )
+    {
+        return BuiltinModuleId::kWindow;
+    }
+    if ( moduleName == "smp:dom/canvas" )
+    {
+        return BuiltinModuleId::kCanvas;
+    }
     if ( moduleName == "smp:fb/playback" )
     {
         return BuiltinModuleId::kFbPlaybackControl;
@@ -17,15 +25,10 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kFbSelectionManager;
     }
-    if ( moduleName == "smp:window" )
+    if ( moduleName == "smp:fb/track" )
     {
-        return BuiltinModuleId::kWindow;
+        return BuiltinModuleId::kTrack;
     }
-    if ( moduleName == "smp:canvas" )
-    {
-        return BuiltinModuleId::kCanvas;
-    }
-    // TODO: maybe add dom/ prefix to corresponding modules
 
     return std::nullopt;
 }
@@ -42,6 +45,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_WINDOW;
     case mozjs::BuiltinModuleId::kCanvas:
         return IDR_MODULE_CANVAS;
+    case mozjs::BuiltinModuleId::kTrack:
+        return IDR_MODULE_TRACK;
     default:
         assert( false );
         return 0;

@@ -65,6 +65,8 @@ template <class T>
 class not_null
 {
 public:
+    using element_type = T;
+
     static_assert( details::is_comparable_to_nullptr<T>, "T cannot be compared to nullptr." );
 
     template <typename U>

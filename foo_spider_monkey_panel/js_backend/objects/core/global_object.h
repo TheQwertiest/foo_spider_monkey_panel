@@ -24,6 +24,7 @@ class PlaybackControl;
 class SelectionManager;
 class WindowNew;
 class ModuleCanvas;
+class ModuleTrack;
 
 } // namespace mozjs
 
@@ -107,7 +108,8 @@ private:
         LoadedNativeObject<PlaybackControl>,
         LoadedNativeObject<SelectionManager>,
         LoadedNativeObject<WindowNew>,
-        LoadedNativeObject<ModuleCanvas>>
+        LoadedNativeObject<ModuleCanvas>,
+        LoadedNativeObject<ModuleTrack>>
         loadedNativeObjects_;
 };
 

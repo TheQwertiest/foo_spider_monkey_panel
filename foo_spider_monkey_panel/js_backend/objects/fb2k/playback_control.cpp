@@ -4,8 +4,8 @@
 
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
-#include <js_backend/objects/fb2k/fb_metadb_handle.h>
 #include <js_backend/objects/fb2k/playback_stop_event.h>
+#include <js_backend/objects/fb2k/track.h>
 #include <tasks/events/playback_stop_event.h>
 
 using namespace smp;
@@ -34,12 +34,12 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( getNowPlayingTrack, PlaybackControl::GetNowPlayingTrack )
+MJS_DEFINE_JS_FN_FROM_NATIVE( getCurrentlyPlayingTrack, PlaybackControl::GetCurrentlyPlayingTrack )
 MJS_DEFINE_JS_FN_FROM_NATIVE( next, PlaybackControl::Next )
 MJS_DEFINE_JS_FN_FROM_NATIVE( pause, PlaybackControl::Pause )
 MJS_DEFINE_JS_FN_FROM_NATIVE( play, PlaybackControl::Play )
-MJS_DEFINE_JS_FN_FROM_NATIVE( prev, PlaybackControl::Prev )
-MJS_DEFINE_JS_FN_FROM_NATIVE( random, PlaybackControl::Random )
+MJS_DEFINE_JS_FN_FROM_NATIVE( playRandom, PlaybackControl::PlayRandom )
+MJS_DEFINE_JS_FN_FROM_NATIVE( previous, PlaybackControl::Previous )
 MJS_DEFINE_JS_FN_FROM_NATIVE( stop, PlaybackControl::Stop )
 MJS_DEFINE_JS_FN_FROM_NATIVE( volumeDown, PlaybackControl::VolumeDown )
 MJS_DEFINE_JS_FN_FROM_NATIVE( volumeMute, PlaybackControl::VolumeMute )
@@ -47,12 +47,12 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( volumeUp, PlaybackControl::VolumeUp )
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
-        JS_FN( "getNowPlayingTrack", getNowPlayingTrack, 0, kDefaultPropsFlags ),
+        JS_FN( "getCurrentlyPlayingTrack", getCurrentlyPlayingTrack, 0, kDefaultPropsFlags ),
         JS_FN( "next", next, 0, kDefaultPropsFlags ),
         JS_FN( "pause", pause, 0, kDefaultPropsFlags ),
         JS_FN( "play", play, 0, kDefaultPropsFlags ),
-        JS_FN( "prev", prev, 0, kDefaultPropsFlags ),
-        JS_FN( "random", random, 0, kDefaultPropsFlags ),
+        JS_FN( "playRandom", playRandom, 0, kDefaultPropsFlags ),
+        JS_FN( "previous", previous, 0, kDefaultPropsFlags ),
         JS_FN( "stop", stop, 0, kDefaultPropsFlags ),
         JS_FN( "volumeDown", volumeDown, 0, kDefaultPropsFlags ),
         JS_FN( "volumeMute", volumeMute, 0, kDefaultPropsFlags ),
@@ -207,15 +207,15 @@ EventStatus PlaybackControl::HandleEvent( JS::HandleObject self, const smp::Even
     return status;
 }
 
-JSObject* PlaybackControl::GetNowPlayingTrack()
+JSObject* PlaybackControl::GetCurrentlyPlayingTrack()
 {
-    metadb_handle_ptr metadb;
-    if ( !playback_control::get()->get_now_playing( metadb ) )
+    metadb_handle_ptr metadbHandle;
+    if ( !playback_control::get()->get_now_playing( metadbHandle ) )
     {
         return nullptr;
     }
 
-    return JsFbMetadbHandle::CreateJs( pJsCtx_, metadb );
+    return Track::CreateJs( pJsCtx_, metadbHandle );
 }
 
 void PlaybackControl::Next()
@@ -233,14 +233,14 @@ void PlaybackControl::Play()
     standard_commands::main_play();
 }
 
-void PlaybackControl::Prev()
-{
-    standard_commands::main_previous();
-}
-
-void PlaybackControl::Random()
+void PlaybackControl::PlayRandom()
 {
     standard_commands::main_random();
+}
+
+void PlaybackControl::Previous()
+{
+    standard_commands::main_previous();
 }
 
 void PlaybackControl::Stop()
@@ -293,9 +293,9 @@ void PlaybackControl::put_CurrentTime( double time )
     playback_control::get()->playback_seek( time );
 }
 
-void PlaybackControl::put_StopAfterCurrent( bool p )
+void PlaybackControl::put_StopAfterCurrent( bool value )
 {
-    playback_control::get()->set_stop_after_current( p );
+    playback_control::get()->set_stop_after_current( value );
 }
 
 void PlaybackControl::put_Volume( float value )

@@ -135,7 +135,14 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
                 {
                     if ( isDefaultValue )
                     {
-                        return ArgType(); ///< Dummy value
+                        if constexpr ( !std::is_default_constructible_v<ArgType> )
+                        {
+                            throw qwr::QwrException( "Internal error: non default-constructible type is used as optional argument" );
+                        }
+                        else
+                        {
+                            return ArgType(); ///< Dummy value
+                        }
                     }
                     else
                     {

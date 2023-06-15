@@ -117,10 +117,8 @@ void JsFbMetadbHandle::ClearStats()
     }
 }
 
-bool JsFbMetadbHandle::Compare( JsFbMetadbHandle* handle )
+bool JsFbMetadbHandle::Compare( smp::not_null<JsFbMetadbHandle*> handle )
 {
-    qwr::QwrException::ExpectTrue( handle, "handle argument is null" );
-
     return ( handle->GetHandle() == metadbHandle_ );
 }
 

@@ -106,6 +106,7 @@ public:
         JS::RootedObject jsObject( cx, CreateJsObject_Base( cx, jsProto ) );
         assert( jsObject );
 
+        // TODO: replace unique_ptr with not_null_unique
         std::unique_ptr<T> pNativeObject = T::CreateNative( cx, std::forward<ArgTypes>( args )... );
         assert( pNativeObject );
         pNativeObject->Self::nativeObjectSize_ = sizeof( T ) + pNativeObject->GetInternalSize();

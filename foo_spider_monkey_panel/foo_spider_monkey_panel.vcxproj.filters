@@ -256,51 +256,6 @@
     <ClCompile Include="js_backend\objects\utils.cpp">
       <Filter>js_backend\objects</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle_list.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle_list_iterator.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_playback_queue_item.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_playing_item_location.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_playlist_manager.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_playlist_recycler.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_profiler.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_properties.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_title_format.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_tooltip.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_ui_selection_holder.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_utils.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_window.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_file_info.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
     <ClCompile Include="js_backend\objects\gdi\gdi_graphics.cpp">
       <Filter>js_backend\objects\gdi</Filter>
     </ClCompile>
@@ -326,30 +281,6 @@
       <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\objects\dom\active_x_object_iterator.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\console.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\context_menu_manager.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\drop_source_action.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\enumerator.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\event.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\event_target.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\main_menu_manager.cpp">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\menu_object.cpp">
       <Filter>js_backend\objects\dom</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\objects\core\global_object.cpp">
@@ -600,6 +531,87 @@
     </ClCompile>
     <ClCompile Include="graphics\gdiplus\error_handler.cpp">
       <Filter>graphics\gdiplus</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\track.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_file_info.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle_list.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_metadb_handle_list_iterator.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_playback_queue_item.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_playing_item_location.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_playlist_manager.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_playlist_recycler.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_profiler.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_properties.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_title_format.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_tooltip.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_ui_selection_holder.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_utils.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\fb_window.cpp">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\title_format_manager.cpp">
+      <Filter>fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\console.cpp">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\context_menu_manager.cpp">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\drop_source_action.cpp">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\enumerator.cpp">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\event.cpp">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\event_target.cpp">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\main_menu_manager.cpp">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\menu_object.cpp">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\module_track.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\track_info_snapshot.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -901,51 +913,6 @@
     <ClInclude Include="js_backend\objects\window.h">
       <Filter>js_backend\objects</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle_list.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle_list_iterator.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_playback_queue_item.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_playing_item_location.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_playlist_manager.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_playlist_recycler.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_profiler.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_properties.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_title_format.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_tooltip.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_ui_selection_holder.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_utils.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_window.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_file_info.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
     <ClInclude Include="js_backend\objects\gdi\gdi_graphics.h">
       <Filter>js_backend\objects\gdi</Filter>
     </ClInclude>
@@ -971,30 +938,6 @@
       <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\active_x_object_iterator.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\console.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\context_menu_manager.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\drop_source_action.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\enumerator.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\event.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\event_target.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\main_menu_manager.h">
-      <Filter>js_backend\objects\dom</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\menu_object.h">
       <Filter>js_backend\objects\dom</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\objects\core\global_object.h">
@@ -1324,6 +1267,87 @@
     <ClInclude Include="graphics\gdi\object_selector.h">
       <Filter>graphics\gdi</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\track.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_file_info.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle_list.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_metadb_handle_list_iterator.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_playback_queue_item.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_playing_item_location.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_playlist_manager.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_playlist_recycler.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_profiler.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_properties.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_title_format.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_tooltip.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_ui_selection_holder.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_utils.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\fb_window.h">
+      <Filter>js_backend\objects\fb2k\remove</Filter>
+    </ClInclude>
+    <ClInclude Include="fb2k\title_format_manager.h">
+      <Filter>fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\console.h">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\context_menu_manager.h">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\drop_source_action.h">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\enumerator.h">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\event.h">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\event_target.h">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\main_menu_manager.h">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\menu_object.h">
+      <Filter>js_backend\objects\dom\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\module_track.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\track_info_snapshot.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1345,16 +1369,19 @@
     <None Include="resources\recovery_package_json.json">
       <Filter>resources</Filter>
     </None>
-    <None Include="resources\modules\fb_playback.js">
+    <None Include="resources\modules\playback.js">
       <Filter>resources\modules</Filter>
     </None>
-    <None Include="resources\modules\fb_selection.js">
+    <None Include="resources\modules\selection.js">
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\window.js">
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\canvas.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\track.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>
@@ -1475,6 +1502,12 @@
     </Filter>
     <Filter Include="graphics\gdi">
       <UniqueIdentifier>{464953ea-8c11-4b5a-ad9e-468c006df947}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_backend\objects\fb2k\remove">
+      <UniqueIdentifier>{0944dfbc-b80a-4352-b47a-4d2e47524f7c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_backend\objects\dom\delete">
+      <UniqueIdentifier>{4073b245-adf3-48d8-90bc-4945f41dcbc5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

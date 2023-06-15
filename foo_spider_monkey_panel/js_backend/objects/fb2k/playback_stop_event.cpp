@@ -29,11 +29,11 @@ JSClass jsClass = {
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( Get_Reason, mozjs::PlaybackStopEvent::get_Reason )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_reason, mozjs::PlaybackStopEvent::get_Reason )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
-        JS_PSG( "reason", Get_Reason, kDefaultPropsFlags ),
+        JS_PSG( "reason", get_reason, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 

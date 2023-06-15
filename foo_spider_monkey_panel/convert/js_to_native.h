@@ -37,10 +37,22 @@ inline constexpr bool IsJsSimpleConvertableV = IsJsSimpleConvertableImplV<std::r
 template <typename T>
 T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 {
-    auto pNative = std::remove_pointer_t<T>::ExtractNative( cx, jsObject );
-    qwr::QwrException::ExpectTrue( pNative, "Object is not of valid type" );
+    if constexpr ( requires { qwr::is_specialization_of_v<T, smp::not_null>&& std::is_pointer_v<typename T::element_type>; } )
+    {
+        using NativeT = std::decay_t<typename T::element_type>;
 
-    return pNative;
+        auto pNative = std::remove_pointer_t<NativeT>::ExtractNative( cx, jsObject );
+        qwr::QwrException::ExpectTrue( pNative, "Object is not of valid type" );
+
+        return pNative;
+    }
+    else
+    {
+        auto pNative = std::remove_pointer_t<T>::ExtractNative( cx, jsObject );
+        qwr::QwrException::ExpectTrue( pNative, "Object is not of valid type" );
+
+        return pNative;
+    }
 }
 
 template <typename T>
@@ -138,10 +150,18 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
     { // Construct and copy
         return to_native::internal::ToOptional<typename T::value_type>( cx, jsValue );
     }
+    else if constexpr ( qwr::is_specialization_of_v<T, smp::not_null> )
+    { // Construct and copy
+        qwr::QwrException::ExpectTrue( jsValue.isObjectOrNull(), "Value is not a JS object" );
+        qwr::QwrException::ExpectTrue( !jsValue.isNull(), "Value is null" );
+
+        JS::RootedObject jsObject( cx, &jsValue.toObject() );
+        return to_native::internal::ToSimpleValue<T>( cx, jsObject );
+    }
     else if constexpr ( std::is_pointer_v<T> )
     { // Extract native pointer
         // TODO: think if there is a good way to move this to convert::to_native
-        qwr::QwrException::ExpectTrue( jsValue.isObjectOrNull(), "Value is not a JS object" );
+        qwr::QwrException::ExpectTrue( jsValue.isObjectOrNull(), "Value is not a JS object or null" );
 
         if ( jsValue.isNull() )
         { // Not an error: null might be a valid argument

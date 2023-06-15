@@ -12,6 +12,7 @@ enum class BuiltinModuleId : uint8_t
     kWindow,
     kEvents,
     kCanvas,
+    kTrack,
     kCount
 };
 

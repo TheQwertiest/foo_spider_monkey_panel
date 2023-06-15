@@ -179,6 +179,7 @@
     <ClCompile Include="dom\css_fonts.cpp" />
     <ClCompile Include="dom\dom_codes.cpp" />
     <ClCompile Include="dom\dom_keys.cpp" />
+    <ClCompile Include="fb2k\title_format_manager.cpp" />
     <ClCompile Include="graphics\gdiplus\bitmap_generator.cpp" />
     <ClCompile Include="graphics\gdiplus\font_manager.cpp" />
     <ClCompile Include="graphics\gdi\font_manager.cpp" />
@@ -187,9 +188,13 @@
     <ClCompile Include="js_backend\objects\dom\canvas\image_bitmap.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\placeholder.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\module_track.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\track.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\track_info_snapshot.cpp" />
     <ClCompile Include="js_backend\utils\js_heap_helper.cpp" />
     <ClCompile Include="panel\panel_accessor.cpp" />
     <ClCompile Include="tasks\cancellable.cpp" />
+    <ClInclude Include="fb2k\title_format_manager.h" />
     <ClInclude Include="graphics\gdiplus\font_manager.h" />
     <ClInclude Include="graphics\gdi\font_manager.h" />
     <ClInclude Include="graphics\gdi\object_selector.h" />
@@ -201,6 +206,9 @@
     <ClInclude Include="js_backend\objects\dom\canvas\image_data.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\placeholder.h" />
+    <ClInclude Include="js_backend\objects\fb2k\module_track.h" />
+    <ClInclude Include="js_backend\objects\fb2k\track.h" />
+    <ClInclude Include="js_backend\objects\fb2k\track_info_snapshot.h" />
     <ClInclude Include="panel\panel_accessor.h" />
     <ClInclude Include="panel\panel_fwd.h" />
     <ClInclude Include="tasks\events\event_id.h" />
@@ -603,8 +611,9 @@
     <None Include="packages.config" />
     <None Include="resources\default_script.js" />
     <None Include="resources\modules\canvas.js" />
-    <None Include="resources\modules\fb_playback.js" />
-    <None Include="resources\modules\fb_selection.js" />
+    <None Include="resources\modules\playback.js" />
+    <None Include="resources\modules\selection.js" />
+    <None Include="resources\modules\track.js" />
     <None Include="resources\modules\window.js" />
     <None Include="resources\recovery_package_json.json" />
     <None Include="resources\foo_spider_monkey_panel.rc2" />

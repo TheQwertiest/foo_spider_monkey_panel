@@ -28,14 +28,14 @@ JSClass jsClass = {
     &jsOps
 };
 
-constexpr auto jsProperties = std::to_array<JSPropertySpec>(
-    {
-        JS_PS_END,
-    } );
-
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FS_END,
+    } );
+
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
+    {
+        JS_PS_END,
     } );
 
 MJS_VERIFY_OBJECT( mozjs::PlaceHolder );
@@ -46,8 +46,8 @@ namespace mozjs
 {
 
 const JSClass JsObjectTraits<PlaceHolder>::JsClass = jsClass;
-const JSPropertySpec* JsObjectTraits<PlaceHolder>::JsProperties = jsProperties.data();
 const JSFunctionSpec* JsObjectTraits<PlaceHolder>::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsObjectTraits<PlaceHolder>::JsProperties = jsProperties.data();
 
 PlaceHolder::PlaceHolder( JSContext* cx )
     : pJsCtx_( cx )

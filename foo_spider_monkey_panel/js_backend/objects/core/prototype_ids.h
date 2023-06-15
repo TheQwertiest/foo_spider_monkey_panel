@@ -47,6 +47,8 @@ enum class JsPrototypeId : uint32_t
     New_Image,
     New_ImageBitmap,
     New_ImageData,
+    New_Track,
+    New_TrackInfoSnapshot,
     ProrototypeCount
 };
 }
