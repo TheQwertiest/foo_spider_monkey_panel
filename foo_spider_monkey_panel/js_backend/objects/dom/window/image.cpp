@@ -223,7 +223,7 @@ JSClassOps jsOps = {
 
 JSClass jsClass = {
     "Image",
-    DefaultClassFlags( 1 ),
+    DefaultClassFlagsWithSlots( 1 ),
     &jsOps
 };
 

@@ -63,6 +63,8 @@ public:
     virtual ~JsObjectBase() = default;
 
 public:
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static JSObject* CreateProto( JSContext* cx )
     {
         JS::RootedObject pParentJsProto( cx, Self::GetParentProto( cx ) );
@@ -78,6 +80,8 @@ public:
         return jsObject;
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static JSObject* InstallProto( JSContext* cx, JS::HandleObject parentObject )
     {
         JS::RootedObject pParentJsProto( cx, Self::GetParentProto( cx ) );
@@ -99,6 +103,8 @@ public:
         return pJsProto;
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     template <typename... ArgTypes>
     [[nodiscard]] static JSObject* CreateJs( JSContext* cx, ArgTypes&&... args )
     {
@@ -114,6 +120,8 @@ public:
         return CreateJsObject_Final( cx, jsProto, jsObject, std::move( pNativeObject ) );
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static JSObject* CreateJsFromNative( JSContext* cx, std::unique_ptr<T> pNativeObject )
     {
         JS::RootedObject jsProto( cx, Self::GetObjectProto( cx ) );
@@ -141,6 +149,8 @@ public:
         }
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static T* ExtractNative( JSContext* cx, JS::HandleObject jsObject )
     {
         if ( auto pNative = ExtractNativeExact( cx, jsObject ); pNative )
@@ -151,6 +161,8 @@ public:
         return Self::ExtractNativeFuzzy( cx, jsObject );
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static T* ExtractNative( JSContext* cx, JS::HandleValue jsValue )
     {
         if ( !jsValue.isObject() )
@@ -190,6 +202,8 @@ private:
         return Self::ExtractNativeFromVoid( pVoid );
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static T* ExtractNativeFuzzy( JSContext* cx, JS::HandleObject jsObject )
     {
         if constexpr ( TraitsHandlerT::Trait_IsExtendable() )
@@ -233,6 +247,8 @@ private:
         }
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static JSObject* GetObjectProto( JSContext* cx )
     {
         if constexpr ( TraitsT::HasProto )
@@ -256,6 +272,8 @@ private:
         }
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static JSObject* GetParentProto( JSContext* cx )
     {
         if constexpr ( TraitsHandlerT::Trait_HasParentProto() )
@@ -270,6 +288,8 @@ private:
         }
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static JSObject* CreateJsObject_Base( JSContext* cx, JS::HandleObject jsProto )
     {
         JS::RootedObject jsObject( cx, JS_NewObjectWithGivenProto( cx, &TraitsT::JsClass, jsProto ) );
@@ -281,6 +301,8 @@ private:
         return jsObject;
     }
 
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     [[nodiscard]] static JSObject* CreateJsObject_Final( JSContext* cx,
                                                          [[maybe_unused]] JS::HandleObject jsProto,
                                                          JS::HandleObject jsBaseObject,
@@ -323,6 +345,8 @@ private:
     }
 
 private: // non trait related helpers
+    /// @throw qwr::QwrException
+    /// @throw smp::JsException
     static void DefinePropertiesAndFunctions( JSContext* cx,
                                               JS::HandleObject jsObject,
                                               const JSPropertySpec* ps,

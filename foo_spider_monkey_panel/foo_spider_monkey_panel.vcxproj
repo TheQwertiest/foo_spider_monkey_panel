@@ -188,6 +188,8 @@
     <ClCompile Include="js_backend\objects\dom\canvas\image_bitmap.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\placeholder.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\track_list.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\track_list_iterator.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\module_track.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_info_snapshot.cpp" />
@@ -206,6 +208,8 @@
     <ClInclude Include="js_backend\objects\dom\canvas\image_data.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\placeholder.h" />
+    <ClInclude Include="js_backend\objects\fb2k\track_list.h" />
+    <ClInclude Include="js_backend\objects\fb2k\track_list_iterator.h" />
     <ClInclude Include="js_backend\objects\fb2k\module_track.h" />
     <ClInclude Include="js_backend\objects\fb2k\track.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_info_snapshot.h" />

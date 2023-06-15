@@ -11,7 +11,7 @@ public:
     static TitleFormatManager& Get();
 
     /// @throw qwr::QwrException
-    [[nodiscard]] titleformat_object::ptr Load( const qwr::u8string& spec, const qwr::u8string& fallback ) const;
+    [[nodiscard]] titleformat_object::ptr Load( const qwr::u8string& spec, const qwr::u8string& fallback = "" ) const;
     void ClearCache();
 
 private:

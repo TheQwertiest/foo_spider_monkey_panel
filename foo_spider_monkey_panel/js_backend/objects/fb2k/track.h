@@ -13,7 +13,7 @@ template <>
 struct JsObjectTraits<Track>
 {
     static constexpr bool HasProto = true;
-    static constexpr bool HasGlobal = true;
+    static constexpr bool HasGlobalProto = true;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;

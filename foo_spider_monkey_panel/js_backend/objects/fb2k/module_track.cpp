@@ -5,6 +5,7 @@
 #include <convert/js_to_native.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/fb2k/track.h>
+#include <js_backend/objects/fb2k/track_list.h>
 
 namespace
 {
@@ -59,6 +60,7 @@ size_t ModuleTrack::GetInternalSize()
 void ModuleTrack::PostCreate( JSContext* cx, JS::HandleObject self )
 {
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::Track>>( cx, self, JsPrototypeId::New_Track );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::TrackList>>( cx, self, JsPrototypeId::New_TrackList );
 }
 
 } // namespace mozjs

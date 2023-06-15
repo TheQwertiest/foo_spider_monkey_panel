@@ -130,13 +130,13 @@ bool Track::IsEqual( smp::not_null<Track*> handle )
 
 pfc::string8_fast Track::FormatTitle( const qwr::u8string& spec, const qwr::u8string& fallback )
 {
-    auto titleFormat = smp::TitleFormatManager::Get().Load( spec, fallback );
+    auto pTitleFormat = smp::TitleFormatManager::Get().Load( spec, fallback );
 
     pfc::string8_fast text;
     playback_control::get()->playback_format_title_ex( metadbHandle_,
                                                        nullptr,
                                                        text,
-                                                       titleFormat,
+                                                       pTitleFormat,
                                                        nullptr,
                                                        playback_control::display_level_all );
     return text;

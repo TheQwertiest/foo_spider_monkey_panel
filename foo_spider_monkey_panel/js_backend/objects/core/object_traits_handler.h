@@ -116,7 +116,7 @@ public:
                     {
                         TraitsT::JsProxy
                     }
-                    -> std::same_as<js::BaseProxyHandler&>;
+                    -> std::same_as<const js::BaseProxyHandler&>;
                 }, "Object must set a reference to it's proxy handler type when it has the proxy wrapper enabled" );
         }
 
