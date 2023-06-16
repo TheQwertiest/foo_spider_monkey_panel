@@ -508,7 +508,7 @@
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\canvas\placeholder.cpp">
+    <ClCompile Include="js_backend\objects\placeholder.cpp">
       <Filter>js_backend\objects</Filter>
     </ClCompile>
     <ClCompile Include="panel\panel_accessor.cpp">
@@ -617,6 +617,21 @@
       <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
     <ClCompile Include="js_backend\objects\fb2k\track_list_iterator.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\playlist_manager.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\playlist.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\playlist_index_manager.cpp">
+      <Filter>fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\callbacks\playlist.cpp">
+      <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\playlist_iterator.cpp">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1234,7 +1249,7 @@
     <ClInclude Include="js_backend\objects\dom\canvas\image_data.h">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\canvas\placeholder.h">
+    <ClInclude Include="js_backend\objects\placeholder.h">
       <Filter>js_backend\objects</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h">
@@ -1360,6 +1375,18 @@
     <ClInclude Include="js_backend\objects\fb2k\track_list_iterator.h">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\playlist_manager.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\playlist.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="fb2k\playlist_index_manager.h">
+      <Filter>fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\playlist_iterator.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1394,6 +1421,9 @@
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\track.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\playlist_manager.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>

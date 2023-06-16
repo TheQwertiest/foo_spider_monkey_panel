@@ -5,7 +5,7 @@
 #include <js_backend/objects/dom/canvas/native/canvas_surface.h>
 #include <js_backend/objects/dom/event_target.h>
 #include <panel/panel_fwd.h>
-#include <tasks/events/event.h>
+#include <tasks/events/event_id.h>
 
 #include <optional>
 #include <string>

@@ -17,14 +17,15 @@ class EventBase;
 namespace mozjs
 {
 
+class GlobalHeapManager;
 class JsContainer;
 class JsWindow;
-class GlobalHeapManager;
-class PlaybackControl;
-class SelectionManager;
-class WindowNew;
 class ModuleCanvas;
 class ModuleTrack;
+class PlaybackControl;
+class PlaylistManager;
+class SelectionManager;
+class WindowNew;
 
 } // namespace mozjs
 
@@ -105,11 +106,12 @@ private:
     };
 
     std::tuple<
-        LoadedNativeObject<PlaybackControl>,
-        LoadedNativeObject<SelectionManager>,
-        LoadedNativeObject<WindowNew>,
         LoadedNativeObject<ModuleCanvas>,
-        LoadedNativeObject<ModuleTrack>>
+        LoadedNativeObject<ModuleTrack>,
+        LoadedNativeObject<PlaybackControl>,
+        LoadedNativeObject<PlaylistManager>,
+        LoadedNativeObject<SelectionManager>,
+        LoadedNativeObject<WindowNew>>
         loadedNativeObjects_;
 };
 

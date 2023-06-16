@@ -87,6 +87,22 @@ enum class EventId
     kNew_FbPlaybackStop,
     kNew_FbPlaybackTime,
     kNew_FbPlaybackVolumeChange,
+    // playlist
+    kNew_FbPlaylistActivate,
+    kNew_FbPlaylistCreated,
+    kNew_FbPlaylistItemEnsureVisible,
+    kNew_FbPlaylistItemFocusChange,
+    kNew_FbPlaylistItemsAdded,
+    kNew_FbPlaylistItemsRemoved,
+    kNew_FbPlaylistItemsReordered,
+    kNew_FbPlaylistItemsReplaced,
+    kNew_FbPlaylistItemsSelectionChange,
+    kNew_FbPlaylistLocked,
+    // TODO: handle in playback
+    kNew_FbPlaylistPlaybackOrderChanged,
+    kNew_FbPlaylistRenamed,
+    kNew_FbPlaylistsRemoved,
+    kNew_FbPlaylistsReorder,
     // selection
     kNew_FbSelectionChange,
     // panel
@@ -98,7 +114,7 @@ enum class EventId
     kNew_MouseButtonClick,
     kNew_MouseButtonAuxClick,
     kNew_MouseButtonDoubleClick,
-    kNew_MouseButtonDoubleClickNative,
+    kNew_MouseButtonDoubleClickSystem,
     kNew_MouseButtonDown,
     kNew_MouseButtonUp,
     //// move
@@ -113,7 +129,7 @@ enum class EventId
     // to be executed on js target
     kNew_JsTarget,
     // to be executed in js
-    kNew_JsRunnable
+    kNew_JsRunnable,
 };
 
 const std::unordered_map<EventId, qwr::u8string> kCallbackIdToName = {

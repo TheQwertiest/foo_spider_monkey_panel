@@ -61,6 +61,12 @@ public:
     void VolumeMute();
     void VolumeUp();
 
+    // TODO: prop? method?
+    qwr::u8string GetPlaybackOrderName( uint32_t playbackOrderIndex );
+    qwr::u8string GetPlaybackOrderCount();
+    uint32_t GetActivePlaybackOrder();
+    void SetActivePlaybackOrderByName( uint32_t playbackOrderIndex );
+
 public:
     bool get_IsPaused();
     bool get_IsPlaying();

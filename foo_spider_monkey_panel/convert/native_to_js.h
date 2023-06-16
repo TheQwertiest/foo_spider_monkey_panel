@@ -93,11 +93,31 @@ template <>
 void ToValue( JSContext* cx, const t_playback_queue_item& inValue, JS::MutableHandleValue wrappedValue );
 
 template <typename T>
+void ToValue( JSContext* cx, std::vector<T> inValue, JS::MutableHandleValue wrappedValue )
+{
+    JS::RootedObject jsArray( cx, JS::NewArrayObject( cx, inValue.size() ) );
+    smp::JsException::ExpectTrue( jsArray );
+
+    JS::RootedValue jsValue( cx );
+    for ( const auto& [i, elem]: ranges::views::enumerate( inValue ) )
+    {
+        ToValue<T>( cx, elem, &jsValue );
+        if ( !JS_SetElement( cx, jsArray, i, jsValue ) )
+        {
+            throw smp::JsException();
+        }
+    }
+
+    wrappedValue.set( JS::ObjectValue( *jsArray ) );
+}
+
+template <typename T>
 void ToValue( JSContext* cx, std::unique_ptr<T> inValue, JS::MutableHandleValue wrappedValue )
 {
     static_assert( qwr::always_false_v<T>, "Unsupported type" );
 }
 
+// TODO: remove
 template <>
 void ToValue( JSContext* cx, std::unique_ptr<Gdiplus::Bitmap> inValue, JS::MutableHandleValue wrappedValue );
 
@@ -118,7 +138,7 @@ void ToValue( JSContext* cx, const std::optional<T>& inValue, JS::MutableHandleV
 {
     if ( !inValue )
     {
-        wrappedValue.setNull();
+        wrappedValue.setUndefined();
         return;
     }
 

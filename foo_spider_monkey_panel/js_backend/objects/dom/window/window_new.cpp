@@ -245,7 +245,7 @@ const std::unordered_set<EventId> WindowNew::kHandledEvents{
     EventId::kNew_MouseButtonAuxClick,
     EventId::kNew_MouseButtonClick,
     EventId::kNew_MouseButtonDoubleClick,
-    EventId::kNew_MouseButtonDoubleClickNative,
+    EventId::kNew_MouseButtonDoubleClickSystem,
     EventId::kNew_MouseButtonDown,
     EventId::kNew_MouseButtonUp,
     EventId::kNew_MouseContextMenu,
@@ -304,7 +304,7 @@ const std::string& WindowNew::EventIdToType( smp::EventId eventId )
         { EventId::kNew_MouseButtonAuxClick, "auxclick" },
         { EventId::kNew_MouseButtonClick, "click" },
         { EventId::kNew_MouseButtonDoubleClick, "dblclick" },
-        { EventId::kNew_MouseButtonDoubleClickNative, "dblclicknative" },
+        { EventId::kNew_MouseButtonDoubleClickSystem, "dblclicksystem" },
         { EventId::kNew_MouseButtonDown, "mousedown" },
         { EventId::kNew_MouseButtonUp, "mouseup" },
         { EventId::kNew_MouseContextMenu, "contextmenu" },
@@ -485,7 +485,7 @@ JSObject* WindowNew::GenerateEvent( const smp::EventBase& event, const qwr::u8st
     case EventId::kNew_MouseButtonAuxClick:
     case EventId::kNew_MouseButtonClick:
     case EventId::kNew_MouseButtonDoubleClick:
-    case EventId::kNew_MouseButtonDoubleClickNative:
+    case EventId::kNew_MouseButtonDoubleClickSystem:
     case EventId::kNew_MouseButtonDown:
     case EventId::kNew_MouseButtonUp:
     case EventId::kNew_MouseContextMenu:

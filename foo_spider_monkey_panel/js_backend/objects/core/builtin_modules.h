@@ -13,6 +13,7 @@ enum class BuiltinModuleId : uint8_t
     kEvents,
     kCanvas,
     kTrack,
+    kPlaylistManager,
     kCount
 };
 

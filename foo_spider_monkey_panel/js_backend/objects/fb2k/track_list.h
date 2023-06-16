@@ -39,8 +39,10 @@ public:
 
     [[nodiscard]] const metadb_handle_list& GetHandleList() const;
 
-    JS::Value GetItem( int32_t index ) const;
-    void PutItem( int32_t index, smp::not_null<Track*> track );
+    JS::Value GetItem( uint32_t index ) const;
+    void PutItem( uint32_t index, smp::not_null<Track*> track );
+
+    static metadb_handle_list ValueToHandleList( JSContext* cx, JS::HandleValue tracks );
 
 public:
     static JSObject* Constructor( JSContext* cx, JS::HandleValue value = JS::UndefinedHandleValue );
@@ -59,8 +61,8 @@ public:
     void RemoveAll();
     void RemoveByIndex( int32_t index );
     void RemoveByValue( smp::not_null<Track*> track );
-    void SortByFormat( const qwr::u8string& spec, int8_t direction = 1 );
-    void SortByFormatWithOpt( size_t optArgCount, const qwr::u8string& spec, int8_t direction );
+    void SortByFormat( const qwr::u8string& query, int8_t direction = 1 );
+    void SortByFormatWithOpt( size_t optArgCount, const qwr::u8string& query, int8_t direction );
     void SortByPath();
     void SortByRelativePath();
     JSObject* Splice( int32_t start, JS::HandleValue deleteCount = JS::UndefinedHandleValue, JS::HandleValue tracks = JS::UndefinedHandleValue );
@@ -76,8 +78,6 @@ public:
 
 private:
     TrackList( JSContext* cx, const metadb_handle_list& tracks );
-
-    static metadb_handle_list ToHandleList( JSContext* cx, JS::HandleValue tracks );
 
 private:
     JSContext* pJsCtx_ = nullptr;

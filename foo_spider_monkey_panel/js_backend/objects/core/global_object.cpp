@@ -21,6 +21,7 @@
 #include <js_backend/objects/fb2k/fb_utils.h>
 #include <js_backend/objects/fb2k/module_track.h>
 #include <js_backend/objects/fb2k/playback_control.h>
+#include <js_backend/objects/fb2k/playlist_manager.h>
 #include <js_backend/objects/fb2k/selection_manager.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/objects/gdi/gdi_font.h>
@@ -329,25 +330,29 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
         JS::RootedObject jsObject( pJsCtx_, [&]() -> JSObject* {
             switch ( moduleId )
             {
-            case mozjs::BuiltinModuleId::kFbPlaybackControl:
+            case BuiltinModuleId::kFbPlaybackControl:
             {
                 return initializeLoadedObject.template operator()<PlaybackControl>( moduleId );
             }
-            case mozjs::BuiltinModuleId::kFbSelectionManager:
+            case BuiltinModuleId::kFbSelectionManager:
             {
                 return initializeLoadedObject.template operator()<SelectionManager>( moduleId );
             }
-            case mozjs::BuiltinModuleId::kWindow:
+            case BuiltinModuleId::kWindow:
             {
                 return initializeLoadedObject.template operator()<WindowNew>( moduleId );
             }
-            case mozjs::BuiltinModuleId::kCanvas:
+            case BuiltinModuleId::kCanvas:
             {
                 return initializeLoadedObject.template operator()<ModuleCanvas>( moduleId );
             }
-            case mozjs::BuiltinModuleId::kTrack:
+            case BuiltinModuleId::kTrack:
             {
                 return initializeLoadedObject.template operator()<ModuleTrack>( moduleId );
+            }
+            case BuiltinModuleId::kPlaylistManager:
+            {
+                return initializeLoadedObject.template operator()<PlaylistManager>( moduleId );
             }
             // TODO: add event module
             default:

@@ -165,7 +165,7 @@ std::optional<LRESULT> MouseMessageHandler::HandleMessage( const MSG& msg )
         { // https://w3c.github.io/uievents/#event-type-dblclick
             lastMouseDownCount_ = 2;
             EventDispatcher::Get().PutEvent( wnd,
-                                             GenerateMouseEvent( EventId::kNew_MouseButtonDoubleClickNative, msg ),
+                                             GenerateMouseEvent( EventId::kNew_MouseButtonDoubleClickSystem, msg ),
                                              EventPriority::kInput );
         }
 

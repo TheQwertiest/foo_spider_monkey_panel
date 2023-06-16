@@ -41,8 +41,8 @@ public:
     static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const qwr::u8string& path, uint32_t subTrackIndex );
 
     bool IsEqual( smp::not_null<Track*> handle );
-    pfc::string8_fast FormatTitle( const qwr::u8string& spec, const qwr::u8string& fallback = "<ERROR>" );
-    pfc::string8_fast FormatTitleWithOpt( size_t optArgCount, const qwr::u8string& spec, const qwr::u8string& fallback = "<ERROR>" );
+    pfc::string8_fast FormatTitle( const qwr::u8string& query, const qwr::u8string& fallback = "<ERROR>" );
+    pfc::string8_fast FormatTitleWithOpt( size_t optArgCount, const qwr::u8string& query, const qwr::u8string& fallback = "<ERROR>" );
 
     pfc::string8_fast get_DisplayPath() const;
     JSObject* get_InfoSnapshot() const;

@@ -108,7 +108,7 @@ GUID ToSimpleValue<GUID>( JSContext* cx, const JS::HandleValue& jsValue );
 template <typename T>
 std::optional<T> ToOptional( JSContext* cx, const JS::HandleValue& jsValue )
 {
-    if ( jsValue.isNullOrUndefined() )
+    if ( jsValue.isUndefined() )
     {
         return std::nullopt;
     }
@@ -151,7 +151,7 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
         return to_native::internal::ToOptional<typename T::value_type>( cx, jsValue );
     }
     else if constexpr ( qwr::is_specialization_of_v<T, smp::not_null> )
-    { // Construct and copy
+    { // Extract not null native pointer
         qwr::QwrException::ExpectTrue( jsValue.isObjectOrNull(), "Value is not a JS object" );
         qwr::QwrException::ExpectTrue( !jsValue.isNull(), "Value is null" );
 

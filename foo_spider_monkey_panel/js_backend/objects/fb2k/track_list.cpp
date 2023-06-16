@@ -164,6 +164,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( from, TrackList::From );
 constexpr auto jsStaticFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "from", from, 1, kDefaultPropsFlags ),
+        JS_FS_END,
     } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_length, TrackList::get_Length );
@@ -213,31 +214,42 @@ const metadb_handle_list& TrackList::GetHandleList() const
     return metadbHandleList_;
 }
 
-JS::Value TrackList::GetItem( int32_t index ) const
+JS::Value TrackList::GetItem( uint32_t index ) const
 {
     qwr::QwrException::ExpectTrue( index < static_cast<int32_t>( metadbHandleList_.size() ), "Index is out of bounds" );
 
-    const auto adjustedIndex = ( index < 0 ? metadbHandleList_.size() + index : index );
-    if ( adjustedIndex >= metadbHandleList_.size() )
-    {
-        return JS::UndefinedValue();
-    }
-
-    return JS::ObjectValue( *Track::CreateJs( pJsCtx_, metadbHandleList_[adjustedIndex] ) );
+    return JS::ObjectValue( *Track::CreateJs( pJsCtx_, metadbHandleList_[index] ) );
 }
 
-void TrackList::PutItem( int32_t index, smp::not_null<Track*> track )
+void TrackList::PutItem( uint32_t index, smp::not_null<Track*> track )
 {
     qwr::QwrException::ExpectTrue( index < static_cast<int32_t>( metadbHandleList_.size() ), "Index is out of bounds" );
 
-    const auto adjustedIndex = ( index < 0 ? metadbHandleList_.size() + index : index );
-    if ( adjustedIndex >= metadbHandleList_.size() )
+    metadbHandleList_.replace_item( index, track->GetHandle() );
+    isSorted_ = false;
+}
+
+metadb_handle_list TrackList::ValueToHandleList( JSContext* cx, JS::HandleValue tracks )
+{
+    if ( auto pTrackList = TrackList::ExtractNative( cx, tracks ) )
     {
-        return;
+        return pTrackList->GetHandleList();
     }
 
-    metadbHandleList_.replace_item( adjustedIndex, track->GetHandle() );
-    isSorted_ = false;
+    {
+        bool is;
+        JsException::ExpectTrue( JS::IsArrayObject( cx, tracks, &is ) );
+        if ( is )
+        {
+            metadb_handle_list handleList;
+            convert::to_native::ProcessArray<smp::not_null<Track*>>( cx, tracks, [&handleList]( auto pTrack ) {
+                handleList.add_item( pTrack->GetHandle() );
+            } );
+            return handleList;
+        }
+    }
+
+    throw qwr::QwrException( "Unsupported argument type" );
 }
 
 JSObject* TrackList::Constructor( JSContext* cx, JS::HandleValue value )
@@ -255,7 +267,7 @@ JSObject* TrackList::Constructor( JSContext* cx, JS::HandleValue value )
     }
     else
     {
-        return TrackList::CreateJs( cx, ToHandleList( cx, value ) );
+        return TrackList::CreateJs( cx, ValueToHandleList( cx, value ) );
     }
 }
 
@@ -275,13 +287,13 @@ JSObject* TrackList::ConstructorWithOpt( JSContext* cx, size_t optArgCount, JS::
 JSObject* TrackList::Concat( JS::HandleValue tracks ) const
 {
     auto handles = metadbHandleList_;
-    handles += ToHandleList( pJsCtx_, tracks );
+    handles += ValueToHandleList( pJsCtx_, tracks );
     return TrackList::CreateJs( pJsCtx_, handles );
 }
 
 void TrackList::ConcatInPlace( JS::HandleValue tracks )
 {
-    metadbHandleList_ += ToHandleList( pJsCtx_, tracks );
+    metadbHandleList_ += ValueToHandleList( pJsCtx_, tracks );
     isSorted_ = false;
 }
 
@@ -390,21 +402,21 @@ void TrackList::RemoveByValue( smp::not_null<Track*> track )
     metadbHandleList_.remove_by_idx( idx );
 }
 
-void TrackList::SortByFormat( const qwr::u8string& spec, int8_t direction )
+void TrackList::SortByFormat( const qwr::u8string& query, int8_t direction )
 {
-    auto pTitleFormat = smp::TitleFormatManager::Get().Load( spec );
+    auto pTitleFormat = smp::TitleFormatManager::Get().Load( query );
     metadbHandleList_.sort_by_format( pTitleFormat, nullptr, direction );
     isSorted_ = false;
 }
 
-void TrackList::SortByFormatWithOpt( size_t optArgCount, const qwr::u8string& spec, int8_t direction )
+void TrackList::SortByFormatWithOpt( size_t optArgCount, const qwr::u8string& query, int8_t direction )
 {
     switch ( optArgCount )
     {
     case 0:
-        return SortByFormat( spec, direction );
+        return SortByFormat( query, direction );
     case 1:
-        return SortByFormat( spec );
+        return SortByFormat( query );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
@@ -446,7 +458,7 @@ void TrackList::SortByRelativePath()
 
 JSObject* TrackList::Splice( int32_t start, JS::HandleValue deleteCount, JS::HandleValue tracks )
 {
-    const auto newHandles = ToHandleList( pJsCtx_, tracks );
+    const auto newHandles = ValueToHandleList( pJsCtx_, tracks );
     const auto iHandleSize = static_cast<int32_t>( metadbHandleList_.size() );
     const auto adjustedStart = [&] {
         if ( start < 0 )
@@ -540,35 +552,12 @@ JSObject* TrackList::CreateIterator( JS::HandleObject jsSelf ) const
 
 JSObject* TrackList::From( JSContext* cx, JS::HandleValue tracks )
 {
-    return TrackList::CreateJs( cx, ToHandleList( cx, tracks ) );
+    return TrackList::CreateJs( cx, ValueToHandleList( cx, tracks ) );
 }
 
 uint32_t TrackList::get_Length() const
 {
     return metadbHandleList_.size();
-}
-
-metadb_handle_list TrackList::ToHandleList( JSContext* cx, JS::HandleValue tracks )
-{
-    if ( auto pTrackList = TrackList::ExtractNative( cx, tracks ) )
-    {
-        return pTrackList->GetHandleList();
-    }
-
-    {
-        bool is;
-        JsException::ExpectTrue( JS::IsArrayObject( cx, tracks, &is ) );
-        if ( is )
-        {
-            metadb_handle_list handleList;
-            convert::to_native::ProcessArray<smp::not_null<Track*>>( cx, tracks, [&handleList]( auto pTrack ) {
-                handleList.add_item( pTrack->GetHandle() );
-            } );
-            return handleList;
-        }
-    }
-
-    throw qwr::QwrException( "Unsupported argument type" );
 }
 
 } // namespace mozjs

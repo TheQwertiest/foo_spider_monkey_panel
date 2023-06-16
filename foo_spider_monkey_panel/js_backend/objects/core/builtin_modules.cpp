@@ -21,13 +21,17 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kFbPlaybackControl;
     }
-    if ( moduleName == "smp:fb/selection" )
+    if ( moduleName == "smp:fb/selection-manager" )
     {
         return BuiltinModuleId::kFbSelectionManager;
     }
     if ( moduleName == "smp:fb/track" )
     {
         return BuiltinModuleId::kTrack;
+    }
+    if ( moduleName == "smp:fb/playlist-manager" )
+    {
+        return BuiltinModuleId::kPlaylistManager;
     }
 
     return std::nullopt;
@@ -42,11 +46,13 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
     case mozjs::BuiltinModuleId::kFbSelectionManager:
         return IDR_MODULE_FB_SELECTION;
     case mozjs::BuiltinModuleId::kWindow:
-        return IDR_MODULE_WINDOW;
+        return IDR_MODULE_DOM_WINDOW;
     case mozjs::BuiltinModuleId::kCanvas:
-        return IDR_MODULE_CANVAS;
+        return IDR_MODULE_DOM_CANVAS;
     case mozjs::BuiltinModuleId::kTrack:
-        return IDR_MODULE_TRACK;
+        return IDR_MODULE_FB_TRACK;
+    case mozjs::BuiltinModuleId::kPlaylistManager:
+        return IDR_MODULE_FB_PLAYLIST_MANAGER;
     default:
         assert( false );
         return 0;

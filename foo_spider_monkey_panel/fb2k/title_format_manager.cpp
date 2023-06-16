@@ -19,23 +19,23 @@ TitleFormatManager& TitleFormatManager::Get()
     return cache;
 }
 
-titleformat_object::ptr TitleFormatManager::Load( const qwr::u8string& spec, const qwr::u8string& fallback ) const
+titleformat_object::ptr TitleFormatManager::Load( const qwr::u8string& query, const qwr::u8string& fallback ) const
 {
-    const auto specWithFallback = spec + '\0' + fallback;
-    if ( auto pTitleFormat = qwr::FindAsPointer( specToTitleFormat_, specWithFallback ) )
+    const auto queryWithFallback = query + '\0' + fallback;
+    if ( auto pTitleFormat = qwr::FindAsPointer( queryToTitleFormat_, queryWithFallback ) )
     {
         return *pTitleFormat;
     }
 
     titleformat_object::ptr titleFormat;
-    titleformat_compiler::get()->compile_safe_ex( titleFormat, spec.c_str(), fallback.c_str() );
-    const auto [it, isEmplaced] = specToTitleFormat_.try_emplace( specWithFallback, titleFormat );
+    titleformat_compiler::get()->compile_safe_ex( titleFormat, query.c_str(), fallback.c_str() );
+    const auto [it, isEmplaced] = queryToTitleFormat_.try_emplace( queryWithFallback, titleFormat );
     return it->second;
 }
 
 void TitleFormatManager::ClearCache()
 {
-    specToTitleFormat_.clear();
+    queryToTitleFormat_.clear();
 }
 
 } // namespace smp

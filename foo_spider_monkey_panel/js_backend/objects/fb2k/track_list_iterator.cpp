@@ -95,35 +95,20 @@ JSObject* TrackList_Iterator::Next()
 
     if ( !jsNext_ )
     {
-        JS::RootedValue jsValue( pJsCtx_ );
-        if ( !isAtEnd )
-        {
-            jsValue = pTrackList_->GetItem( curPosition_ );
-        }
-
-        JS::RootedObject jsNext( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
-        // TODO: replace with add property
-        utils::SetProperty( pJsCtx_, jsNext, "value", static_cast<JS::HandleValue>( jsValue ) );
-        utils::SetProperty( pJsCtx_, jsNext, "done", isAtEnd );
-
-        jsNext_ = jsNext;
-
-        return jsNext;
+        jsNext_ = JS_NewPlainObject( pJsCtx_ );
     }
-    else
+
+    JS::RootedValue jsValue( pJsCtx_ );
+    if ( !isAtEnd )
     {
-        JS::RootedValue jsValue( pJsCtx_ );
-        if ( !isAtEnd )
-        {
-            jsValue = pTrackList_->GetItem( curPosition_ );
-        }
-
-        JS::RootedObject jsNext( pJsCtx_, jsNext_.get() );
-        utils::SetProperty( pJsCtx_, jsNext, "value", static_cast<JS::HandleValue>( jsValue ) );
-        utils::SetProperty( pJsCtx_, jsNext, "done", isAtEnd );
-
-        return jsNext;
+        jsValue = pTrackList_->GetItem( curPosition_ );
     }
+
+    JS::RootedObject jsNext( pJsCtx_, jsNext_ );
+    utils::SetProperty( pJsCtx_, jsNext, "value", static_cast<JS::HandleValue>( jsValue ) );
+    utils::SetProperty( pJsCtx_, jsNext, "done", isAtEnd );
+
+    return jsNext;
 }
 
 } // namespace mozjs

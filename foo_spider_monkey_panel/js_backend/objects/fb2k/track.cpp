@@ -128,9 +128,9 @@ bool Track::IsEqual( smp::not_null<Track*> handle )
     return ( metadbHandle_ == handle->GetHandle() );
 }
 
-pfc::string8_fast Track::FormatTitle( const qwr::u8string& spec, const qwr::u8string& fallback )
+pfc::string8_fast Track::FormatTitle( const qwr::u8string& query, const qwr::u8string& fallback )
 {
-    auto pTitleFormat = smp::TitleFormatManager::Get().Load( spec, fallback );
+    auto pTitleFormat = smp::TitleFormatManager::Get().Load( query, fallback );
 
     pfc::string8_fast text;
     playback_control::get()->playback_format_title_ex( metadbHandle_,
@@ -142,14 +142,14 @@ pfc::string8_fast Track::FormatTitle( const qwr::u8string& spec, const qwr::u8st
     return text;
 }
 
-pfc::string8_fast Track::FormatTitleWithOpt( size_t optArgCount, const qwr::u8string& spec, const qwr::u8string& fallback )
+pfc::string8_fast Track::FormatTitleWithOpt( size_t optArgCount, const qwr::u8string& query, const qwr::u8string& fallback )
 {
     switch ( optArgCount )
     {
     case 0:
-        return FormatTitle( spec, fallback );
+        return FormatTitle( query, fallback );
     case 1:
-        return FormatTitle( spec );
+        return FormatTitle( query );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }
