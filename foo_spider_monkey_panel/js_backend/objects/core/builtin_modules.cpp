@@ -33,6 +33,10 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kPlaylistManager;
     }
+    if ( moduleName == "smp:fb/library" )
+    {
+        return BuiltinModuleId::kLibrary;
+    }
 
     return std::nullopt;
 }
@@ -53,6 +57,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_FB_TRACK;
     case mozjs::BuiltinModuleId::kPlaylistManager:
         return IDR_MODULE_FB_PLAYLIST_MANAGER;
+    case mozjs::BuiltinModuleId::kLibrary:
+        return IDR_MODULE_FB_LIBRARY;
     default:
         assert( false );
         return 0;

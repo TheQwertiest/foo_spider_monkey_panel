@@ -38,6 +38,7 @@ public:
     [[nodiscard]] size_t GetInternalSize() const;
 
     [[nodiscard]] const metadb_handle_list& GetHandleList() const;
+    [[nodiscard]] metadb_handle_list& GetMutableHandleList();
 
     JS::Value GetItem( uint32_t index ) const;
     void PutItem( uint32_t index, smp::not_null<Track*> track );
@@ -64,6 +65,7 @@ public:
     void SortByFormat( const qwr::u8string& query, int8_t direction = 1 );
     void SortByFormatWithOpt( size_t optArgCount, const qwr::u8string& query, int8_t direction );
     void SortByPath();
+    // TODO: move to library
     void SortByRelativePath();
     JSObject* Splice( int32_t start, JS::HandleValue deleteCount = JS::UndefinedHandleValue, JS::HandleValue tracks = JS::UndefinedHandleValue );
     JSObject* SpliceWithOpt( size_t optArgCount, int32_t start, JS::HandleValue deleteCount, JS::HandleValue tracks );

@@ -13,7 +13,7 @@
 #include <js_backend/utils/js_property_helper.h>
 #include <js_backend/utils/panel_from_global.h>
 #include <tasks/dispatcher/event_dispatcher.h>
-#include <tasks/events/js_runnable_event.h>
+#include <tasks/events/js_promise_event.h>
 
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
@@ -52,8 +52,7 @@ public:
 
 private:
     JSContext* pJsCtx_ = nullptr;
-    std::shared_ptr<mozjs::HeapHelper> pHeapHelper_;
-    const uint32_t jsTargetId_;
+    mozjs::HeapDataHolder_Object heapHolder_;
 
     HWND hPanelWnd_ = nullptr;
 
@@ -62,27 +61,6 @@ private:
 
     std::unique_ptr<Gdiplus::Image> pImage_;
     std::shared_ptr<const smp::LoadedImage> pLoadedImage_;
-};
-
-class BitmapExtractEvent : public smp::JsRunnableEvent
-{
-public:
-    [[nodiscard]] BitmapExtractEvent( std::unique_ptr<Gdiplus::Image> pBitmap,
-                                      JSContext* cx,
-                                      std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
-                                      uint32_t jsTargetId );
-
-    [[nodiscard]] BitmapExtractEvent( std::exception_ptr pException,
-                                      JSContext* cx,
-                                      std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
-                                      uint32_t jsTargetId );
-
-    void RunJs() final;
-
-private:
-    JSContext* pJsCtx_ = nullptr;
-    std::unique_ptr<Gdiplus::Image> pImage_;
-    std::exception_ptr pException_;
 };
 
 } // namespace
@@ -97,8 +75,7 @@ BitmapExtractThreadTask::BitmapExtractThreadTask( std::unique_ptr<Gdiplus::Image
                                                   JS::HandleObject jsTarget,
                                                   HWND hPanelWnd )
     : pJsCtx_( cx )
-    , pHeapHelper_( std::make_shared<mozjs::HeapHelper>( cx ) )
-    , jsTargetId_( pHeapHelper_->Store( jsTarget ) )
+    , heapHolder_( cx, jsTarget )
     , hPanelWnd_( hPanelWnd )
     , srcRect_( srcRect )
     , options_( options )
@@ -115,8 +92,7 @@ BitmapExtractThreadTask::BitmapExtractThreadTask( std::shared_ptr<const smp::Loa
                                                   JS::HandleObject jsTarget,
                                                   HWND hPanelWnd )
     : pJsCtx_( cx )
-    , pHeapHelper_( std::make_shared<mozjs::HeapHelper>( cx ) )
-    , jsTargetId_( pHeapHelper_->Store( jsTarget ) )
+    , heapHolder_( cx, jsTarget )
     , hPanelWnd_( hPanelWnd )
     , srcRect_( srcRect )
     , options_( options )
@@ -194,68 +170,26 @@ void BitmapExtractThreadTask::Run()
             pImage_ = std::move( pBitmap );
         }
 
+        const auto pArgWrapper = std::make_shared<std::tuple<std::unique_ptr<Gdiplus::Image>>>( std::move( pImage_ ) );
+        const auto promiseResolver = [cx = pJsCtx_, pArgWrapper]() -> JS::Value {
+            auto [pImage] = std::move( *pArgWrapper );
+            JS::RootedObject jsResult( cx, mozjs::ImageBitmap::CreateJs( cx, std::move( pImage ) ) );
+            JS::RootedValue jsResultValue( cx, JS::ObjectValue( *jsResult ) );
+            return jsResultValue;
+        };
         smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
-                                              std::make_unique<BitmapExtractEvent>(
-                                                  std::move( pImage_ ),
+                                              std::make_unique<smp::JsPromiseEvent>(
                                                   pJsCtx_,
-                                                  pHeapHelper_,
-                                                  jsTargetId_ ) );
+                                                  std::move( heapHolder_ ),
+                                                  promiseResolver ) );
     }
     catch ( const qwr::QwrException& /*e*/ )
     {
         smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
-                                              std::make_unique<BitmapExtractEvent>(
-                                                  std::current_exception(),
+                                              std::make_unique<smp::JsPromiseEvent>(
                                                   pJsCtx_,
-                                                  pHeapHelper_,
-                                                  jsTargetId_ ) );
-    }
-}
-
-BitmapExtractEvent::BitmapExtractEvent( std::unique_ptr<Gdiplus::Image> pImage,
-                                        JSContext* cx,
-                                        std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
-                                        uint32_t jsTargetId )
-    : smp::JsRunnableEvent( cx, pHeapHelper, jsTargetId )
-    , pJsCtx_( cx )
-    , pImage_( std::move( pImage ) )
-{
-}
-
-BitmapExtractEvent::BitmapExtractEvent( std::exception_ptr pException,
-                                        JSContext* cx,
-                                        std::shared_ptr<mozjs::HeapHelper> pHeapHelper,
-                                        uint32_t jsTargetId )
-    : smp::JsRunnableEvent( cx, pHeapHelper, jsTargetId )
-    , pJsCtx_( cx )
-    , pException_( pException )
-{
-}
-
-void BitmapExtractEvent::RunJs()
-{
-    assert( JS::GetCurrentRealmOrNull( pJsCtx_ ) );
-    JS::RootedObject jsPromise( pJsCtx_, GetJsTarget() );
-
-    try
-    {
-        if ( pException_ )
-        {
-            std::rethrow_exception( pException_ );
-        }
-
-        JS::RootedObject jsResult( pJsCtx_, mozjs::ImageBitmap::CreateJs( pJsCtx_, std::move( pImage_ ) ) );
-        JS::RootedValue jsResultValue( pJsCtx_, JS::ObjectValue( *jsResult ) );
-        (void)JS::ResolvePromise( pJsCtx_, jsPromise, jsResultValue );
-    }
-    catch ( ... )
-    {
-        mozjs::error::ExceptionToJsError( pJsCtx_ );
-
-        JS::RootedValue jsError( pJsCtx_ );
-        (void)JS_GetPendingException( pJsCtx_, &jsError );
-
-        (void)JS::RejectPromise( pJsCtx_, jsPromise, jsError );
+                                                  std::move( heapHolder_ ),
+                                                  std::current_exception() ) );
     }
 }
 

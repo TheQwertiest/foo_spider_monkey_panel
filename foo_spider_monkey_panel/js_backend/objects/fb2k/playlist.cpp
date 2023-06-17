@@ -196,7 +196,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( setAsCurrentlyPlaying, Playlist::SetAsCurrentlyPla
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setLockedOperations, Playlist::SetLockedOperations, Playlist::SetLockedOperationsWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( showAutoPlaylistUi, Playlist::ShowAutoPlaylistUi );
 MJS_DEFINE_JS_FN_FROM_NATIVE( undo, Playlist::Undo );
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( createIterator, TrackList::CreateIterator );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( createIterator, Playlist::CreateIterator );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
@@ -248,7 +248,7 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "index", get_index, kDefaultPropsFlags ),
         JS_PSG( "isValid", get_isValid, kDefaultPropsFlags ),
-        JS_PSG( "isAutoPlaylisy", get_isAutoPlaylist, kDefaultPropsFlags ),
+        JS_PSG( "isAutoPlaylist", get_isAutoPlaylist, kDefaultPropsFlags ),
         JS_PSG( "length", get_length, kDefaultPropsFlags ),
         JS_PSGS( "name", get_name, put_name, kDefaultPropsFlags ),
         JS_PS_END,

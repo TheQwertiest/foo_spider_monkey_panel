@@ -214,6 +214,11 @@ const metadb_handle_list& TrackList::GetHandleList() const
     return metadbHandleList_;
 }
 
+metadb_handle_list& TrackList::GetMutableHandleList()
+{
+    return metadbHandleList_;
+}
+
 JS::Value TrackList::GetItem( uint32_t index ) const
 {
     qwr::QwrException::ExpectTrue( index < static_cast<int32_t>( metadbHandleList_.size() ), "Index is out of bounds" );

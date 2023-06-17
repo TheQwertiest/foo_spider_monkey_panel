@@ -131,6 +131,10 @@ namespace qwr
 
 #include <utils/fmt_pfc_adaptor.h>
 
+// Frequently used or heavy STL headers
+#include <ranges>
+
+// Frequently used headers and utilities
 #include <qwr/unicode.h>
 #include <qwr/qwr_exception.h>
 

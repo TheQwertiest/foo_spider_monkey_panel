@@ -1,6 +1,6 @@
 #pragma once
 
-#include <js_backend/utils/js_heap_helper.h>
+#include <js_backend/utils/heap_data_holder.h>
 #include <tasks/events/panel_event.h>
 #include <utils/not_null.h>
 
@@ -14,9 +14,9 @@ class JsRunnableEvent
 
 {
 public:
-    [[nodiscard]] JsRunnableEvent( JSContext* pJsCtx, JS::HandleObject jsTarget );
-    [[nodiscard]] JsRunnableEvent( JSContext* pJsCtx, const std::shared_ptr<mozjs::HeapHelper>& pHeapHelper, uint32_t jsTargetId );
+    [[nodiscard]] JsRunnableEvent( mozjs::HeapDataHolder_Object heapHolder );
 
+    /// @remark This should be called only from valid js ctx
     [[nodiscard]] JSObject* GetJsTarget();
 
     /// @throw qwr::QwrException
@@ -27,8 +27,7 @@ private:
     const qwr::u8string type_;
     JSContext* pJsCtx_ = nullptr;
 
-    smp::not_null<std::shared_ptr<mozjs::HeapHelper>> pHeapHelper_;
-    const uint32_t jsTargetId_;
+    mozjs::HeapDataHolder_Object heapHolder_;
 };
 
 } // namespace smp

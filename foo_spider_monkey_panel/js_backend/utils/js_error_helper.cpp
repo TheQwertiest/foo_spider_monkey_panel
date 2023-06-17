@@ -337,7 +337,7 @@ void ExceptionToJsError( JSContext* cx )
     {
         throw;
     }
-    catch ( const JsException& )
+    catch ( const JsException& /*e*/ )
     {
         assert( JS_IsExceptionPending( cx ) );
     }

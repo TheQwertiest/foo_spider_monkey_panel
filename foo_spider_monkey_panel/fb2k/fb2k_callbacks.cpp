@@ -37,7 +37,7 @@ public:
     void on_core_settings_change( const dsp_chain_config& p_newdata ) override;
 };
 
-class my_library_callback : public library_callback
+class LibraryCallbackImpl : public library_callback
 {
 public:
     void on_items_added( metadb_handle_list_cref p_data ) override;
@@ -188,17 +188,17 @@ void my_dsp_config_callback::on_core_settings_change( const dsp_chain_config& )
     EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbDspPresetChanged ) );
 }
 
-void my_library_callback::on_items_added( metadb_handle_list_cref p_data )
+void LibraryCallbackImpl::on_items_added( metadb_handle_list_cref p_data )
 {
     EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsAdded, std::make_shared<metadb_handle_list>( p_data ) ) );
 }
 
-void my_library_callback::on_items_modified( metadb_handle_list_cref p_data )
+void LibraryCallbackImpl::on_items_modified( metadb_handle_list_cref p_data )
 {
     EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsChanged, std::make_shared<metadb_handle_list>( p_data ) ) );
 }
 
-void my_library_callback::on_items_removed( metadb_handle_list_cref p_data )
+void LibraryCallbackImpl::on_items_removed( metadb_handle_list_cref p_data )
 {
     EventDispatcher::Get().PutEventToAll( GenerateEvent_JsCallback( EventId::kFbLibraryItemsRemoved, std::make_shared<metadb_handle_list>( p_data ) ) );
 }
@@ -424,7 +424,7 @@ namespace
 
 FB2K_SERVICE_FACTORY( InitStageCallback );
 FB2K_SERVICE_FACTORY( my_initquit );
-FB2K_SERVICE_FACTORY( my_library_callback );
+FB2K_SERVICE_FACTORY( LibraryCallbackImpl );
 FB2K_SERVICE_FACTORY( my_play_callback_static );
 FB2K_SERVICE_FACTORY( my_playback_queue_callback );
 FB2K_SERVICE_FACTORY( my_playback_statistics_collector );

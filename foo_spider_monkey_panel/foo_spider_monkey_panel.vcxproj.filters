@@ -379,7 +379,7 @@
     <ClCompile Include="js_backend\objects\fb2k\selection_manager.cpp">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="fb2k\callbacks\init_quit.cpp">
+    <ClCompile Include="fb2k\callbacks\selection.cpp">
       <Filter>fb2k\callbacks</Filter>
     </ClCompile>
     <ClCompile Include="panel\panel_window_graphics.cpp">
@@ -443,27 +443,6 @@
       <Filter>graphics</Filter>
     </ClCompile>
     <ClCompile Include="tasks\events\event.cpp">
-      <Filter>tasks\events</Filter>
-    </ClCompile>
-    <ClCompile Include="tasks\events\event_basic.cpp">
-      <Filter>tasks\events</Filter>
-    </ClCompile>
-    <ClCompile Include="tasks\events\event_drag.cpp">
-      <Filter>tasks\events</Filter>
-    </ClCompile>
-    <ClCompile Include="tasks\events\event_js_executor.cpp">
-      <Filter>tasks\events</Filter>
-    </ClCompile>
-    <ClCompile Include="tasks\events\event_js_task.cpp">
-      <Filter>tasks\events</Filter>
-    </ClCompile>
-    <ClCompile Include="tasks\events\event_mouse.cpp">
-      <Filter>tasks\events</Filter>
-    </ClCompile>
-    <ClCompile Include="tasks\events\event_notify_others.cpp">
-      <Filter>tasks\events</Filter>
-    </ClCompile>
-    <ClCompile Include="tasks\events\event_timer.cpp">
       <Filter>tasks\events</Filter>
     </ClCompile>
     <ClCompile Include="tasks\events\keyboard_event.cpp">
@@ -633,6 +612,39 @@
     </ClCompile>
     <ClCompile Include="js_backend\objects\fb2k\playlist_iterator.cpp">
       <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\library.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_basic.cpp">
+      <Filter>tasks\events\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_drag.cpp">
+      <Filter>tasks\events\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_js_executor.cpp">
+      <Filter>tasks\events\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_js_task.cpp">
+      <Filter>tasks\events\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_mouse.cpp">
+      <Filter>tasks\events\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_notify_others.cpp">
+      <Filter>tasks\events\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\event_timer.cpp">
+      <Filter>tasks\events\delete</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\js_promise_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\utils\heap_data_holder.cpp">
+      <Filter>js_backend\utils</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\callbacks\library.cpp">
+      <Filter>fb2k\callbacks</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1174,30 +1186,6 @@
     <ClInclude Include="tasks\events\event.h">
       <Filter>tasks\events</Filter>
     </ClInclude>
-    <ClInclude Include="tasks\events\event_basic.h">
-      <Filter>tasks\events</Filter>
-    </ClInclude>
-    <ClInclude Include="tasks\events\event_drag.h">
-      <Filter>tasks\events</Filter>
-    </ClInclude>
-    <ClInclude Include="tasks\events\event_js_callback.h">
-      <Filter>tasks\events</Filter>
-    </ClInclude>
-    <ClInclude Include="tasks\events\event_js_executor.h">
-      <Filter>tasks\events</Filter>
-    </ClInclude>
-    <ClInclude Include="tasks\events\event_js_task.h">
-      <Filter>tasks\events</Filter>
-    </ClInclude>
-    <ClInclude Include="tasks\events\event_mouse.h">
-      <Filter>tasks\events</Filter>
-    </ClInclude>
-    <ClInclude Include="tasks\events\event_notify_others.h">
-      <Filter>tasks\events</Filter>
-    </ClInclude>
-    <ClInclude Include="tasks\events\event_timer.h">
-      <Filter>tasks\events</Filter>
-    </ClInclude>
     <ClInclude Include="tasks\events\keyboard_event.h">
       <Filter>tasks\events</Filter>
     </ClInclude>
@@ -1387,6 +1375,39 @@
     <ClInclude Include="js_backend\objects\fb2k\playlist_iterator.h">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\library.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_timer.h">
+      <Filter>tasks\events\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_basic.h">
+      <Filter>tasks\events\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_drag.h">
+      <Filter>tasks\events\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_js_callback.h">
+      <Filter>tasks\events\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_js_executor.h">
+      <Filter>tasks\events\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_js_task.h">
+      <Filter>tasks\events\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_mouse.h">
+      <Filter>tasks\events\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\event_notify_others.h">
+      <Filter>tasks\events\delete</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\js_promise_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\utils\heap_data_holder.h">
+      <Filter>js_backend\utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1424,6 +1445,9 @@
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\playlist_manager.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\library.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>
@@ -1550,6 +1574,9 @@
     </Filter>
     <Filter Include="js_backend\objects\dom\delete">
       <UniqueIdentifier>{4073b245-adf3-48d8-90bc-4945f41dcbc5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="tasks\events\delete">
+      <UniqueIdentifier>{4a581d2a-c74a-4648-b18f-cf568dfddcb8}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

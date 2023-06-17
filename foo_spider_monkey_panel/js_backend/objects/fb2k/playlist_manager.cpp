@@ -133,6 +133,28 @@ void PlaylistManager::Trace( JSTracer* trc, JSObject* obj )
     }
 }
 
+const std::string& PlaylistManager::EventIdToType( smp::EventId eventId )
+{
+    static const std::unordered_map<EventId, std::string> idToType{
+        { EventId::kNew_FbPlaylistActivate, "playlistActivate" },
+        { EventId::kNew_FbPlaylistCreated, "playlistCreate" },
+        { EventId::kNew_FbPlaylistItemEnsureVisible, "ensureTrackVisible" },
+        { EventId::kNew_FbPlaylistItemFocusChange, "trackFocusChange" },
+        { EventId::kNew_FbPlaylistItemsAdded, "tracksAdd" },
+        { EventId::kNew_FbPlaylistItemsRemoved, "tracksRemove" },
+        { EventId::kNew_FbPlaylistItemsReordered, "tracksReorder" },
+        { EventId::kNew_FbPlaylistItemsReplaced, "tracksReplace" },
+        { EventId::kNew_FbPlaylistItemsSelectionChange, "tracksSelectionChange" },
+        { EventId::kNew_FbPlaylistLocked, "playlistLockChange" },
+        { EventId::kNew_FbPlaylistRenamed, "playlistRename" },
+        { EventId::kNew_FbPlaylistsRemoved, "playlistsDelete" },
+        { EventId::kNew_FbPlaylistsReorder, "playlistsReorder" },
+    };
+
+    assert( idToType.contains( eventId ) );
+    return idToType.at( eventId );
+}
+
 EventStatus PlaylistManager::HandleEvent( JS::HandleObject self, const smp::EventBase& event )
 {
     EventStatus status;
@@ -423,28 +445,6 @@ void PlaylistManager::OrderPlaylistsByNameWithOpt( size_t optArgCount, int8_t di
 void PlaylistManager::SetActivePlaylistAsUiEditContext()
 {
     ui_edit_context_manager::get()->set_context_active_playlist();
-}
-
-const std::string& PlaylistManager::EventIdToType( smp::EventId eventId )
-{
-    static const std::unordered_map<EventId, std::string> idToType{
-        { EventId::kNew_FbPlaylistActivate, "playlistActivate" },
-        { EventId::kNew_FbPlaylistCreated, "playlistCreate" },
-        { EventId::kNew_FbPlaylistItemEnsureVisible, "ensureTrackVisible" },
-        { EventId::kNew_FbPlaylistItemFocusChange, "trackFocusChange" },
-        { EventId::kNew_FbPlaylistItemsAdded, "tracksAdd" },
-        { EventId::kNew_FbPlaylistItemsRemoved, "tracksRemove" },
-        { EventId::kNew_FbPlaylistItemsReordered, "tracksReorder" },
-        { EventId::kNew_FbPlaylistItemsReplaced, "tracksReplace" },
-        { EventId::kNew_FbPlaylistItemsSelectionChange, "tracksSelectionChange" },
-        { EventId::kNew_FbPlaylistLocked, "playlistLockChange" },
-        { EventId::kNew_FbPlaylistRenamed, "playlistRename" },
-        { EventId::kNew_FbPlaylistsRemoved, "playlistsDelete" },
-        { EventId::kNew_FbPlaylistsReorder, "playlistsReorder" },
-    };
-
-    assert( idToType.contains( eventId ) );
-    return idToType.at( eventId );
 }
 
 uint32_t PlaylistManager::CreatePlaylistImpl( uint32_t playlistIndex, const qwr::u8string& name )

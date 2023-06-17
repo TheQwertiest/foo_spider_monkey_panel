@@ -35,12 +35,18 @@ template <typename T>
     requires( std::is_convertible_v<decltype( std::declval<T>() != nullptr ), bool> )
 inline constexpr bool is_comparable_to_nullptr<T> = true;
 
-// Resolves to the more efficient of `const T` or `const T&`, in the context of returning a const-qualified value
+// Resolves to the more efficient of `T` or `T&`, in the context of returning a const-qualified value
 // of type T.
 //
 // Copied from cppfront's implementation of the CppCoreGuidelines F.16 (https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#Rf-in)
 template <typename T>
 using value_or_reference_return_t = std::conditional_t<
+    sizeof( T ) < 2 * sizeof( void* ) && std::is_trivially_copy_constructible<T>::value,
+    T,
+    T&>;
+
+template <typename T>
+using const_value_or_reference_return_t = std::conditional_t<
     sizeof( T ) < 2 * sizeof( void* ) && std::is_trivially_copy_constructible<T>::value,
     const T,
     const T&>;
@@ -86,6 +92,13 @@ public:
 
     template <typename U>
         requires( std::is_convertible_v<U, T> )
+    constexpr not_null( not_null<U>&& other )
+        : not_null( std::move( other.get() ) )
+    {
+    }
+
+    template <typename U>
+        requires( std::is_convertible_v<U, T> )
     constexpr not_null( const not_null<U>& other )
         : not_null( other.get() )
     {
@@ -94,7 +107,12 @@ public:
     not_null( const not_null& other ) = default;
     not_null& operator=( const not_null& other ) = default;
 
-    constexpr details::value_or_reference_return_t<T> get() const
+    constexpr details::const_value_or_reference_return_t<T> get() const
+    {
+        return ptr_;
+    }
+
+    constexpr details::value_or_reference_return_t<T> get()
     {
         return ptr_;
     }
@@ -104,12 +122,27 @@ public:
         return get();
     }
 
+    constexpr operator T()
+    {
+        return get();
+    }
+
     constexpr decltype( auto ) operator->() const
     {
         return get();
     }
 
+    constexpr decltype( auto ) operator->()
+    {
+        return get();
+    }
+
     constexpr decltype( auto ) operator*() const
+    {
+        return *get();
+    }
+
+    constexpr decltype( auto ) operator*()
     {
         return *get();
     }

@@ -37,9 +37,9 @@ uint32_t GlobalHeapManager::Store( JS::HandleValue valueToStore )
 {
     std::scoped_lock sl( heapElementsLock_ );
 
-    if ( !unusedHeapElements_.empty() )
+    if ( !removedHeapElements_.empty() )
     {
-        unusedHeapElements_.clear();
+        removedHeapElements_.clear();
     }
 
     while ( heapElements_.contains( currentHeapId_ ) )
@@ -67,9 +67,9 @@ JS::Heap<JS::Value>& GlobalHeapManager::Get( uint32_t id )
 {
     std::scoped_lock sl( heapElementsLock_ );
 
-    if ( !unusedHeapElements_.empty() )
+    if ( !removedHeapElements_.empty() )
     {
-        unusedHeapElements_.clear();
+        removedHeapElements_.clear();
     }
 
     assert( heapElements_.contains( id ) );
@@ -80,9 +80,9 @@ JSObject* GlobalHeapManager::GetObject( uint32_t id )
 {
     std::scoped_lock sl( heapElementsLock_ );
 
-    if ( !unusedHeapElements_.empty() )
+    if ( !removedHeapElements_.empty() )
     {
-        unusedHeapElements_.clear();
+        removedHeapElements_.clear();
     }
 
     assert( heapElements_.contains( id ) );
@@ -95,21 +95,50 @@ void GlobalHeapManager::Remove( uint32_t id )
     std::scoped_lock sl( heapElementsLock_ );
 
     assert( heapElements_.contains( id ) );
-    unusedHeapElements_.emplace_back( std::move( heapElements_[id] ) );
+    removedHeapElements_.emplace_back( std::move( heapElements_[id] ) );
     heapElements_.erase( id );
+}
+
+void GlobalHeapManager::StoreData( smp::not_null_unique<IHeapTraceableData> pData )
+{
+    std::scoped_lock sl( heapElementsLock_ );
+
+    if ( !removedHeapData_.empty() )
+    {
+        removedHeapData_.clear();
+    }
+
+    heapData_.try_emplace( pData.get().get(), std::move( pData.get() ) );
+}
+
+void GlobalHeapManager::RemoveData( void* pData )
+{ // Can be called in worker thread, outside of JS ctx, so we can't GC or destroy JS objects here
+    std::scoped_lock sl( heapElementsLock_ );
+
+    assert( heapData_.contains( pData ) );
+    removedHeapData_.emplace_back( std::move( heapData_[pData] ) );
+    heapData_.erase( pData );
 }
 
 void GlobalHeapManager::Trace( JSTracer* trc )
 {
     std::scoped_lock sl( heapElementsLock_ );
 
-    for ( auto& [id, heapElement]: heapElements_ )
+    for ( auto& pElem: heapElements_ | ranges::views::values )
     {
-        JS::TraceEdge( trc, heapElement.get(), "CustomHeap: Global(in-use elements)" );
+        JS::TraceEdge( trc, pElem.get(), "CustomHeap: Global(in-use elements)" );
     }
-    for ( auto& heapElement: unusedHeapElements_ )
+    for ( auto& pElem: removedHeapElements_ )
     {
-        JS::TraceEdge( trc, heapElement.get(), "CustomHeap: Global(unused elements)" );
+        JS::TraceEdge( trc, pElem.get(), "CustomHeap: Global(unused elements)" );
+    }
+    for ( auto& pElem: heapData_ | ranges::views::values )
+    {
+        pElem->Trace( trc );
+    }
+    for ( auto& pElem: removedHeapData_ )
+    {
+        pElem->Trace( trc );
     }
 }
 
@@ -121,8 +150,10 @@ void GlobalHeapManager::PrepareForGc()
     {
         heapUser->PrepareForGlobalGc();
     }
-    unusedHeapElements_.clear();
+    removedHeapElements_.clear();
     heapElements_.clear();
+    removedHeapData_.clear();
+    heapData_.clear();
 }
 
 } // namespace mozjs

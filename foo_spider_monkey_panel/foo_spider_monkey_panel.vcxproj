@@ -179,6 +179,7 @@
     <ClCompile Include="dom\css_fonts.cpp" />
     <ClCompile Include="dom\dom_codes.cpp" />
     <ClCompile Include="dom\dom_keys.cpp" />
+    <ClCompile Include="fb2k\callbacks\library.cpp" />
     <ClCompile Include="fb2k\callbacks\playlist.cpp" />
     <ClCompile Include="fb2k\playlist_index_manager.cpp" />
     <ClCompile Include="fb2k\title_format_manager.cpp" />
@@ -189,6 +190,7 @@
     <ClCompile Include="js_backend\engine\context.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_bitmap.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\library.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\playlist.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\playlist_iterator.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\playlist_manager.cpp" />
@@ -198,6 +200,7 @@
     <ClCompile Include="js_backend\objects\fb2k\module_track.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_info_snapshot.cpp" />
+    <ClCompile Include="js_backend\utils\heap_data_holder.cpp" />
     <ClCompile Include="js_backend\utils\js_heap_helper.cpp" />
     <ClCompile Include="panel\panel_accessor.cpp" />
     <ClCompile Include="tasks\cancellable.cpp" />
@@ -213,6 +216,7 @@
     <ClInclude Include="js_backend\objects\dom\canvas\image_bitmap.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\image_data.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h" />
+    <ClInclude Include="js_backend\objects\fb2k\library.h" />
     <ClInclude Include="js_backend\objects\fb2k\playlist.h" />
     <ClInclude Include="js_backend\objects\fb2k\playlist_iterator.h" />
     <ClInclude Include="js_backend\objects\fb2k\playlist_manager.h" />
@@ -222,14 +226,17 @@
     <ClInclude Include="js_backend\objects\fb2k\module_track.h" />
     <ClInclude Include="js_backend\objects\fb2k\track.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_info_snapshot.h" />
+    <ClInclude Include="js_backend\utils\heap_data_holder.h" />
     <ClInclude Include="panel\panel_accessor.h" />
     <ClInclude Include="panel\panel_fwd.h" />
     <ClInclude Include="tasks\events\event_id.h" />
     <ClCompile Include="tasks\events\event_mouse.cpp" />
     <ClInclude Include="tasks\dispatcher\event_priority.h" />
+    <ClCompile Include="tasks\events\js_promise_event.cpp" />
     <ClCompile Include="tasks\events\js_runnable_event.cpp" />
     <ClCompile Include="tasks\events\js_target_event.cpp" />
     <ClCompile Include="tasks\events\keyboard_event.cpp" />
+    <ClInclude Include="tasks\events\js_promise_event.h" />
     <ClInclude Include="tasks\events\js_runnable_event.h" />
     <ClInclude Include="tasks\events\js_target_event.h" />
     <ClInclude Include="tasks\micro_tasks\js_target_micro_task.h" />
@@ -249,7 +256,7 @@
     <ClCompile Include="fb2k\acfu_integration.cpp" />
     <ClCompile Include="fb2k\advanced_config.cpp" />
     <ClCompile Include="fb2k\callbacks\playback.cpp" />
-    <ClCompile Include="fb2k\callbacks\init_quit.cpp" />
+    <ClCompile Include="fb2k\callbacks\selection.cpp" />
     <ClCompile Include="fb2k\config.cpp" />
     <ClCompile Include="fb2k\fb2k_callbacks.cpp" />
     <ClCompile Include="fb2k\mainmenu.cpp" />
@@ -624,6 +631,7 @@
     <None Include="packages.config" />
     <None Include="resources\default_script.js" />
     <None Include="resources\modules\canvas.js" />
+    <None Include="resources\modules\library.js" />
     <None Include="resources\modules\playback.js" />
     <None Include="resources\modules\playlist_manager.js" />
     <None Include="resources\modules\selection.js" />

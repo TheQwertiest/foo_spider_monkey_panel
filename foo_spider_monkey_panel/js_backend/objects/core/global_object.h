@@ -20,6 +20,7 @@ namespace mozjs
 class GlobalHeapManager;
 class JsContainer;
 class JsWindow;
+class Library;
 class ModuleCanvas;
 class ModuleTrack;
 class PlaybackControl;
@@ -106,6 +107,7 @@ private:
     };
 
     std::tuple<
+        LoadedNativeObject<Library>,
         LoadedNativeObject<ModuleCanvas>,
         LoadedNativeObject<ModuleTrack>,
         LoadedNativeObject<PlaybackControl>,

@@ -69,13 +69,8 @@ enum class EventId
     kNotifyOthers,
     kTimer,
     // new
-    /// control
-    kNew_InputBlur,
-    kNew_InputFocus,
-    // window
-    kNew_WndPaint,
-    kNew_WndResize,
-    // playback
+    // fb
+    /// playback
     kNew_FbPlaybackDynamicInfo,
     kNew_FbPlaybackDynamicInfoTrack,
     kNew_FbPlaybackEdited,
@@ -87,7 +82,7 @@ enum class EventId
     kNew_FbPlaybackStop,
     kNew_FbPlaybackTime,
     kNew_FbPlaybackVolumeChange,
-    // playlist
+    /// playlist
     kNew_FbPlaylistActivate,
     kNew_FbPlaylistCreated,
     kNew_FbPlaylistItemEnsureVisible,
@@ -98,14 +93,24 @@ enum class EventId
     kNew_FbPlaylistItemsReplaced,
     kNew_FbPlaylistItemsSelectionChange,
     kNew_FbPlaylistLocked,
-    // TODO: handle in playback
+    /// TODO: handle in playback
     kNew_FbPlaylistPlaybackOrderChanged,
     kNew_FbPlaylistRenamed,
     kNew_FbPlaylistsRemoved,
     kNew_FbPlaylistsReorder,
-    // selection
+    /// library
+    kNew_FbLibraryItemsAdded,
+    kNew_FbLibraryItemsModified,
+    kNew_FbLibraryItemsRemoved,
+    /// selection
     kNew_FbSelectionChange,
-    // panel
+    // window
+    /// graphics
+    kNew_WndPaint,
+    kNew_WndResize,
+    /// control
+    kNew_InputBlur,
+    kNew_InputFocus,
     /// keyboard
     kNew_KeyboardKeyDown,
     kNew_KeyboardKeyUp,

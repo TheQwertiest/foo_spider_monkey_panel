@@ -4,6 +4,13 @@
 #include <set>
 #include <shared_mutex>
 
+#define MJS_HEAP_TRACER_BEGIN            \
+    void Trace( JSTracer* trc ) override \
+    {
+#define MJS_HEAP_TRACE_VALUE( value, description ) \
+    JS::TraceEdge( trc, &value, "CustomHeap: " description );
+#define MJS_HEAP_TRACER_END }
+
 namespace mozjs
 {
 
@@ -13,6 +20,12 @@ public:
     IHeapUser() = default;
     virtual ~IHeapUser() = default;
     virtual void PrepareForGlobalGc() = 0;
+};
+
+struct IHeapTraceableData
+{
+    virtual ~IHeapTraceableData() = default;
+    virtual void Trace( JSTracer* trc ) = 0;
 };
 
 /// @details Contains a tracer, which is removed only in destructor
@@ -37,6 +50,9 @@ public:
     [[nodiscard]] JSObject* GetObject( uint32_t id );
     void Remove( uint32_t id );
 
+    void StoreData( smp::not_null_unique<IHeapTraceableData> pData );
+    void RemoveData( void* pData );
+
     void Trace( JSTracer* trc );
     void PrepareForGc();
 
@@ -52,7 +68,10 @@ private:
 
     std::mutex heapElementsLock_;
     std::unordered_map<uint32_t, std::unique_ptr<HeapElement>> heapElements_;
-    std::list<std::unique_ptr<HeapElement>> unusedHeapElements_;
+    std::vector<std::unique_ptr<HeapElement>> removedHeapElements_;
+
+    std::unordered_map<void*, std::unique_ptr<IHeapTraceableData>> heapData_;
+    std::vector<std::unique_ptr<IHeapTraceableData>> removedHeapData_;
 
     std::mutex heapUsersLock_;
     std::unordered_map<IHeapUser*, IHeapUser*> heapUsers_;

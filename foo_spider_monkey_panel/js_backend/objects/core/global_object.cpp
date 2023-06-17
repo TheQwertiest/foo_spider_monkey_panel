@@ -19,6 +19,7 @@
 #include <js_backend/objects/fb2k/fb_profiler.h>
 #include <js_backend/objects/fb2k/fb_title_format.h>
 #include <js_backend/objects/fb2k/fb_utils.h>
+#include <js_backend/objects/fb2k/library.h>
 #include <js_backend/objects/fb2k/module_track.h>
 #include <js_backend/objects/fb2k/playback_control.h>
 #include <js_backend/objects/fb2k/playlist_manager.h>
@@ -353,6 +354,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case BuiltinModuleId::kPlaylistManager:
             {
                 return initializeLoadedObject.template operator()<PlaylistManager>( moduleId );
+            }
+            case BuiltinModuleId::kLibrary:
+            {
+                return initializeLoadedObject.template operator()<Library>( moduleId );
             }
             // TODO: add event module
             default:

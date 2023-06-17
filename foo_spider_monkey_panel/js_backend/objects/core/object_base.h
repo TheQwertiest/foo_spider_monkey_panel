@@ -149,6 +149,7 @@ public:
         }
     }
 
+    /// @return nullptr if object couldn't be extracted
     /// @throw qwr::QwrException
     /// @throw smp::JsException
     [[nodiscard]] static T* ExtractNative( JSContext* cx, JS::HandleObject jsObject )
@@ -161,6 +162,7 @@ public:
         return Self::ExtractNativeFuzzy( cx, jsObject );
     }
 
+    /// @return nullptr if object couldn't be extracted
     /// @throw qwr::QwrException
     /// @throw smp::JsException
     [[nodiscard]] static T* ExtractNative( JSContext* cx, JS::HandleValue jsValue )
@@ -176,6 +178,7 @@ public:
 
     /// @brief Direct cast from private, does not unwrap value nor checks if JS object actually holds the desired type.
     ///        Should not be used directly with values received from JS code (use ExtractNative() instead).
+    /// @return nullptr if object couldn't be extracted
     [[nodiscard]] static T* ExtractNativeUnchecked( JSObject* jsObject )
     {
         return Self::ExtractNativeFromVoid( mozjs::utils::GetMaybePtrFromReservedSlot( jsObject, kReservedObjectSlot ) );
@@ -202,6 +205,7 @@ private:
         return Self::ExtractNativeFromVoid( pVoid );
     }
 
+    /// @return nullptr if object couldn't be extracted
     /// @throw qwr::QwrException
     /// @throw smp::JsException
     [[nodiscard]] static T* ExtractNativeFuzzy( JSContext* cx, JS::HandleObject jsObject )
@@ -233,6 +237,7 @@ private:
         }
     }
 
+    /// @return nullptr if object couldn't be extracted
     [[nodiscard]] static T* ExtractNativeFromVoid( void* pVoid )
     {
         if constexpr ( TraitsHandlerT::Trait_HasParentProto() )
@@ -247,6 +252,7 @@ private:
         }
     }
 
+    /// @return nullptr if object couldn't be extracted
     /// @throw qwr::QwrException
     /// @throw smp::JsException
     [[nodiscard]] static JSObject* GetObjectProto( JSContext* cx )
@@ -272,6 +278,7 @@ private:
         }
     }
 
+    /// @return nullptr if object did not specify a parent prototype
     /// @throw qwr::QwrException
     /// @throw smp::JsException
     [[nodiscard]] static JSObject* GetParentProto( JSContext* cx )
