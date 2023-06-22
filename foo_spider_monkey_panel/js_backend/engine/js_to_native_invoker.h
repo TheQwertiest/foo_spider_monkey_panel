@@ -109,45 +109,52 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
                 // Not an error: default value might be set in callback
                 const bool isDefaultValue = ( index >= jsArgs.length() || index > MaxArgCount );
 
-                if constexpr ( std::is_same_v<ArgType, JS::HandleValue> )
+                try
                 {
-                    if ( isDefaultValue )
+                    if constexpr ( std::is_same_v<ArgType, JS::HandleValue> )
                     {
-                        return ArgType( JS::UndefinedHandleValue );
-                    }
-                    else
-                    {
-                        return ArgType( jsArgs[index] );
-                    }
-                }
-                else if constexpr ( std::is_same_v<ArgType, JS::HandleValueArray> )
-                {
-                    if ( isDefaultValue )
-                    {
-                        return JS::HandleValueArray::empty();
-                    }
-                    else
-                    {
-                        return JS::HandleValueArray::fromMarkedLocation( valueVector.length(), valueVector.begin() );
-                    }
-                }
-                else
-                {
-                    if ( isDefaultValue )
-                    {
-                        if constexpr ( !std::is_default_constructible_v<ArgType> )
+                        if ( isDefaultValue )
                         {
-                            throw qwr::QwrException( "Internal error: non default-constructible type is used as optional argument" );
+                            return ArgType( JS::UndefinedHandleValue );
                         }
                         else
                         {
-                            return ArgType(); ///< Dummy value
+                            return ArgType( jsArgs[index] );
+                        }
+                    }
+                    else if constexpr ( std::is_same_v<ArgType, JS::HandleValueArray> )
+                    {
+                        if ( isDefaultValue )
+                        {
+                            return JS::HandleValueArray::empty();
+                        }
+                        else
+                        {
+                            return JS::HandleValueArray::fromMarkedLocation( valueVector.length(), valueVector.begin() );
                         }
                     }
                     else
                     {
-                        return convert::to_native::ToValue<ArgType>( cx, jsArgs[index] );
+                        if ( isDefaultValue )
+                        {
+                            if constexpr ( !std::is_default_constructible_v<ArgType> )
+                            {
+                                throw qwr::QwrException( "Internal error: non default-constructible type is used as optional argument" );
+                            }
+                            else
+                            {
+                                return ArgType(); ///< Dummy value
+                            }
+                        }
+                        else
+                        {
+                            return convert::to_native::ToValue<ArgType>( cx, jsArgs[index] );
+                        }
                     }
+                }
+                catch ( const qwr::QwrException& e )
+                { // TODO: we lose stacktrace info here, make this configurable
+                    throw qwr::QwrException( "Argument {}: {}", index, e.what() );
                 }
             } );
 

@@ -574,12 +574,6 @@
     <ClCompile Include="js_backend\objects\dom\enumerator.cpp">
       <Filter>js_backend\objects\dom\delete</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\event.cpp">
-      <Filter>js_backend\objects\dom\delete</Filter>
-    </ClCompile>
-    <ClCompile Include="js_backend\objects\dom\event_target.cpp">
-      <Filter>js_backend\objects\dom\delete</Filter>
-    </ClCompile>
     <ClCompile Include="js_backend\objects\dom\main_menu_manager.cpp">
       <Filter>js_backend\objects\dom\delete</Filter>
     </ClCompile>
@@ -645,6 +639,18 @@
     </ClCompile>
     <ClCompile Include="fb2k\callbacks\library.cpp">
       <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\track_image_manager.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\track_image.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\event_target.cpp">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\dom\event.cpp">
+      <Filter>js_backend\objects\dom\window</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1339,12 +1345,6 @@
     <ClInclude Include="js_backend\objects\dom\enumerator.h">
       <Filter>js_backend\objects\dom\delete</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\event.h">
-      <Filter>js_backend\objects\dom\delete</Filter>
-    </ClInclude>
-    <ClInclude Include="js_backend\objects\dom\event_target.h">
-      <Filter>js_backend\objects\dom\delete</Filter>
-    </ClInclude>
     <ClInclude Include="js_backend\objects\dom\main_menu_manager.h">
       <Filter>js_backend\objects\dom\delete</Filter>
     </ClInclude>
@@ -1408,6 +1408,18 @@
     <ClInclude Include="js_backend\utils\heap_data_holder.h">
       <Filter>js_backend\utils</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\track_image_manager.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\track_image.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\event_target.h">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\dom\event.h">
+      <Filter>js_backend\objects\dom\window</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1448,6 +1460,9 @@
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\library.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\track_image_manager.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>

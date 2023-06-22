@@ -234,28 +234,22 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_complete, Image::get_Complete )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_currentSrc, Image::get_CurrentSrc )
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_height, Image::get_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_naturalHeight, Image::get_NaturalHeight )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_naturalWidth, Image::get_NaturalWidth )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_src, Image::get_Src )
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_width, Image::get_Width )
-MJS_DEFINE_JS_FN_FROM_NATIVE( put_height, Image::put_Height )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( put_src, Image::put_Src )
-MJS_DEFINE_JS_FN_FROM_NATIVE( put_width, Image::put_Width )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "complete", get_complete, kDefaultPropsFlags ),
         JS_PSG( "currentSrc", get_currentSrc, kDefaultPropsFlags ),
-        JS_PSGS( "height", get_height, put_height, kDefaultPropsFlags ),
         JS_PSG( "naturalHeight", get_naturalHeight, kDefaultPropsFlags ),
         JS_PSG( "naturalWidth", get_naturalWidth, kDefaultPropsFlags ),
         JS_PSGS( "src", get_src, put_src, kDefaultPropsFlags ),
-        JS_PSGS( "width", get_width, put_width, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( Image_Constructor, Image::Constructor, Image::ConstructorWithOpt, 2 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( Image_Constructor, Image::Constructor )
 
 MJS_VERIFY_OBJECT( mozjs::Image );
 
@@ -270,13 +264,23 @@ const JSFunctionSpec* JsObjectTraits<Image>::JsFunctions = jsFunctions.data();
 const JsPrototypeId JsObjectTraits<Image>::PrototypeId = JsPrototypeId::New_Image;
 const JSNative JsObjectTraits<Image>::JsConstructor = ::Image_Constructor;
 
-Image::Image( JSContext* cx, uint32_t width, uint32_t height )
+Image::Image( JSContext* cx )
     : JsEventTarget( cx )
     , pJsCtx_( cx )
     , hPanelWnd_( GetPanelHwndForCurrentGlobal( pJsCtx_ ) )
-    , width_( width )
-    , height_( height )
 {
+}
+
+Image::Image( JSContext* cx, std::shared_ptr<const smp::LoadedImage> pLoadedImage, const std::wstring& src )
+    : JsEventTarget( cx )
+    , pJsCtx_( cx )
+    , hPanelWnd_( GetPanelHwndForCurrentGlobal( pJsCtx_ ) )
+{
+    isLoading_ = false;
+    pendingSrc_ = src;
+    currentSrc_ = src;
+    currentStatus_ = ( pLoadedImage ? CompleteStatus::completely_available : CompleteStatus::unavailable );
+    pLoadedImage_ = pLoadedImage;
 }
 
 Image::~Image()
@@ -284,9 +288,9 @@ Image::~Image()
 }
 
 std::unique_ptr<Image>
-Image::CreateNative( JSContext* cx, uint32_t width, uint32_t height )
+Image::CreateNative( JSContext* cx )
 {
-    return std::unique_ptr<Image>( new Image( cx, width, height ) );
+    return std::unique_ptr<Image>( new Image( cx ) );
 }
 
 size_t Image::GetInternalSize() const
@@ -341,7 +345,7 @@ JSObject* Image::LoadImage( JSContext* cx, JS::HandleValue source )
     {
         const auto srcStr = convert::to_native::ToValue<std::wstring>( cx, source );
 
-        JS::RootedObject jsImage( cx, JsObjectBase<Image>::CreateJs( cx, 0, 0 ) );
+        JS::RootedObject jsImage( cx, JsObjectBase<Image>::CreateJs( cx ) );
         auto pNative = JsObjectBase<Image>::ExtractNative( cx, jsImage );
         assert( pNative );
 
@@ -349,7 +353,7 @@ JSObject* Image::LoadImage( JSContext* cx, JS::HandleValue source )
         JsException::ExpectTrue( jsPromise );
 
         JS_SetReservedSlot( jsImage, qwr::to_underlying( ReservedSlots::kPromise ), JS::ObjectValue( *jsPromise ) );
-
+        // TODO: replace this with a separate thread task
         pNative->InitImageUpdate( srcStr );
         pNative->UpdateImageData( jsImage );
 
@@ -383,24 +387,9 @@ Image::CompleteStatus Image::GetStatus() const
     return currentStatus_;
 }
 
-JSObject* Image::Constructor( JSContext* cx, uint32_t width, uint32_t height )
+JSObject* Image::Constructor( JSContext* cx )
 {
-    return JsObjectBase<Image>::CreateJs( cx, width, height );
-}
-
-JSObject* Image::ConstructorWithOpt( JSContext* cx, size_t optArgCount, uint32_t width, uint32_t height )
-{
-    switch ( optArgCount )
-    {
-    case 0:
-        return Constructor( cx, width, height );
-    case 1:
-        return Constructor( cx, width );
-    case 2:
-        return Constructor( cx );
-    default:
-        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
-    }
+    return JsObjectBase<Image>::CreateJs( cx );
 }
 
 bool Image::get_Complete() const
@@ -411,11 +400,6 @@ bool Image::get_Complete() const
 std::wstring Image::get_CurrentSrc() const
 {
     return currentSrc_;
-}
-
-uint32_t Image::get_Height() const
-{
-    return height_;
 }
 
 uint32_t Image::get_NaturalHeight() const
@@ -431,16 +415,6 @@ uint32_t Image::get_NaturalWidth() const
 std::wstring Image::get_Src() const
 {
     return pendingSrc_;
-}
-
-uint32_t Image::get_Width() const
-{
-    return width_;
-}
-
-void Image::put_Height( uint32_t value )
-{
-    height_ = value;
 }
 
 void Image::put_Src( JS::HandleObject jsSelf, const std::wstring& value )
@@ -459,11 +433,6 @@ void Image::put_Src( JS::HandleObject jsSelf, const std::wstring& value )
         pMicroTask_ = pMicroTask;
         ContextInner::Get().EnqueueMicroTask( pMicroTask );
     }
-}
-
-void Image::put_Width( uint32_t value )
-{
-    width_ = value;
 }
 
 void Image::InitImageUpdate( const std::wstring& source )

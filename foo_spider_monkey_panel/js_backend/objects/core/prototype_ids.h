@@ -53,6 +53,7 @@ enum class JsPrototypeId : uint32_t
     New_TrackListIterator,
     New_Playlist,
     New_PlaylistIterator,
+    New_TrackImage,
     ProrototypeCount
 };
 }

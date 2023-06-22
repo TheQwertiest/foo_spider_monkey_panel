@@ -37,6 +37,10 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kLibrary;
     }
+    if ( moduleName == "smp:fb/track-image-manager" )
+    {
+        return BuiltinModuleId::kTrackImageManager;
+    }
 
     return std::nullopt;
 }
@@ -59,6 +63,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_FB_PLAYLIST_MANAGER;
     case mozjs::BuiltinModuleId::kLibrary:
         return IDR_MODULE_FB_LIBRARY;
+    case mozjs::BuiltinModuleId::kTrackImageManager:
+        return IDR_MODULE_FB_TRACK_IMAGE_MANAGER;
     default:
         assert( false );
         return 0;

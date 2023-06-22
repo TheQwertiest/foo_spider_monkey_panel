@@ -26,6 +26,7 @@ class ModuleTrack;
 class PlaybackControl;
 class PlaylistManager;
 class SelectionManager;
+class TrackImageManager;
 class WindowNew;
 
 } // namespace mozjs
@@ -113,6 +114,7 @@ private:
         LoadedNativeObject<PlaybackControl>,
         LoadedNativeObject<PlaylistManager>,
         LoadedNativeObject<SelectionManager>,
+        LoadedNativeObject<TrackImageManager>,
         LoadedNativeObject<WindowNew>>
         loadedNativeObjects_;
 };

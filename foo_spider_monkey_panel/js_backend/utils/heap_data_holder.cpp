@@ -24,8 +24,6 @@ HeapDataHolderImpl::HeapDataHolderImpl( JSContext* cx, smp::not_null_unique<IHea
     auto& heapManager = pNativeGlobal_->GetHeapManager();
     heapManager.RegisterUser( this );
     heapManager.StoreData( std::move( pData ) );
-
-    isJsAvailable_ = true;
 }
 
 HeapDataHolderImpl::HeapDataHolderImpl( HeapDataHolderImpl&& other )
@@ -35,7 +33,13 @@ HeapDataHolderImpl::HeapDataHolderImpl( HeapDataHolderImpl&& other )
 {
     std::scoped_lock sl( other.cleanupLock_ );
     isJsAvailable_ = other.isJsAvailable_;
-    other.isJsAvailable_ = false;
+    if ( isJsAvailable_ )
+    {
+        auto& heapManager = pNativeGlobal_->GetHeapManager();
+        heapManager.RegisterUser( this );
+    }
+    assert( other.hasData_ );
+    other.hasData_ = false;
 }
 
 HeapDataHolderImpl::~HeapDataHolderImpl()
@@ -46,7 +50,7 @@ HeapDataHolderImpl::~HeapDataHolderImpl()
 IHeapTraceableData& HeapDataHolderImpl::Get()
 {
     assert( core_api::is_main_thread() );
-    assert( isJsAvailable_ );
+    assert( isJsAvailable_ && hasData_ );
     return *pData_;
 }
 
@@ -65,7 +69,10 @@ void HeapDataHolderImpl::Finalize()
     }
 
     auto& heapManager = pNativeGlobal_->GetHeapManager();
-    heapManager.RemoveData( pData_ );
+    if ( hasData_ )
+    {
+        heapManager.RemoveData( pData_ );
+    }
     heapManager.UnregisterUser( this );
 
     isJsAvailable_ = false;

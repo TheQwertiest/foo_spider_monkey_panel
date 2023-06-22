@@ -12,18 +12,10 @@ namespace
 {
 
 /// @throw qwr::QwrException
-smp::not_null_shared<const smp::LoadedImage> FetchImageFromFile( const std::filesystem::path& path )
+smp::not_null_shared<const smp::LoadedImage> FetchImageFromStream( qwr::ComPtr<IStream> pStream )
 {
-    qwr::QwrException::ExpectTrue( std::filesystem::exists( path ), "Path does not point to a file" );
-
-    // Note: this prevents the file from being modified or being deleted, but it allows 'delayed' loading
-    // and also doesn't block read operations
-    qwr::ComPtr<IStream> pStream;
-    HRESULT hr = SHCreateStreamOnFileEx( path.c_str(), STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, false, nullptr, &pStream );
-    qwr::error::CheckWin32( hr, "SHCreateStreamOnFileEx" );
-
     qwr::ComPtr<IWICImagingFactory> pFactory;
-    hr = CoCreateInstance( CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IUnknown, reinterpret_cast<void**>( &pFactory ) );
+    auto hr = CoCreateInstance( CLSID_WICImagingFactory, nullptr, CLSCTX_INPROC_SERVER, IID_IUnknown, reinterpret_cast<void**>( &pFactory ) );
     qwr::error::CheckWin32( hr, "CoCreateInstance" );
 
     qwr::ComPtr<IWICBitmapDecoder> pDecoder;
@@ -55,6 +47,36 @@ smp::not_null_shared<const smp::LoadedImage> FetchImageFromFile( const std::file
     return smp::make_not_null_shared<const smp::LoadedImage>( width, height, std::move( buffer ) );
 }
 
+/// @throw qwr::QwrException
+smp::not_null_shared<const smp::LoadedImage> FetchImageFromFile( const std::filesystem::path& path )
+{
+    qwr::QwrException::ExpectTrue( std::filesystem::exists( path ), "Path does not point to a file" );
+
+    // Note: this prevents the file from being modified or being deleted, but it allows 'delayed' loading
+    // and also doesn't block read operations
+    qwr::ComPtr<IStream> pStream;
+    HRESULT hr = SHCreateStreamOnFileEx( path.c_str(), STGM_READ | STGM_SHARE_DENY_WRITE, GENERIC_READ, false, nullptr, &pStream );
+    qwr::error::CheckWin32( hr, "SHCreateStreamOnFileEx" );
+
+    return FetchImageFromStream( pStream );
+}
+
+/// @throw qwr::QwrException
+smp::not_null_shared<const smp::LoadedImage> FetchImageFromData( std::span<const uint8_t> imageData )
+{
+    auto pMemStream = SHCreateMemStream( imageData.data(), imageData.size() );
+    qwr::error::CheckWinApi( pMemStream, "SHCreateMemStream" );
+
+    // copy and assignment operators increase Stream ref count,
+    // while SHCreateMemStream returns object with ref count 1,
+    // so we need to take ownership without increasing ref count
+    // (or decrease ref count manually)
+    qwr::ComPtr<IStream> pStream;
+    pStream.Attach( pMemStream );
+
+    return FetchImageFromStream( pStream );
+}
+
 } // namespace
 
 namespace smp
@@ -68,13 +90,14 @@ ImageManager::ImageManager()
 
 ImageManager& ImageManager::Get()
 {
-    assert( core_api::is_main_thread() );
     static ImageManager cache;
     return cache;
 }
 
 std::shared_ptr<const LoadedImage> ImageManager::GetCached( const std::wstring& uri ) const
 {
+    std::scoped_lock lock( mutex_ );
+
     if ( uriToImage_.Contains( uri ) )
     {
         return uriToImage_.Get( uri );
@@ -85,7 +108,8 @@ std::shared_ptr<const LoadedImage> ImageManager::GetCached( const std::wstring& 
         auto pWeakImage = uriToImageWeak_.at( uri );
         if ( auto pImage = pWeakImage.lock() )
         {
-            return not_null_shared<const LoadedImage>( pImage );
+            auto pSharedImage = not_null_shared<const LoadedImage>( pImage );
+            return const_cast<ImageManager*>( this )->MaybeCache( uri, pSharedImage );
         }
     }
 
@@ -98,23 +122,33 @@ ImageManager::Load( const std::filesystem::path& path )
     return FetchImageFromFile( path );
 }
 
-void ImageManager::MaybeCache( const std::wstring& uri, not_null_shared<const LoadedImage> pImage )
+not_null_shared<const LoadedImage>
+ImageManager::Load( std::span<const uint8_t> data )
 {
+    return FetchImageFromData( data );
+}
+
+not_null_shared<const LoadedImage>
+ImageManager::MaybeCache( const std::wstring& uri, not_null_shared<const LoadedImage> pImage )
+{
+    std::scoped_lock lock( mutex_ );
+
     if ( uriToImage_.Contains( uri ) )
-    {
-        return;
+    { // means that it was loaded by someone else,
+        // hence should discard incoming image and return the saved one
+        return uriToImage_.Get( uri );
     }
 
     uriToImageWeak_.try_emplace( uri, pImage.get() );
 
     // TODO: move to config
-    if ( pImage->rawData.size() > 50 * 1000 * 1000LL )
+    // don't cache huge images
+    if ( pImage->rawData.size() <= 50 * 1000 * 1000LL )
     {
-        // don't cache huge images
-        return;
+        uriToImage_.Put( uri, pImage );
     }
 
-    uriToImage_.Put( uri, pImage );
+    return pImage;
 }
 
 void ImageManager::ClearCache()

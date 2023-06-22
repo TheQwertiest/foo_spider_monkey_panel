@@ -42,6 +42,7 @@ struct JsObjectTraits<Image>
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
     static constexpr bool HasParentProto = true;
+    static constexpr bool IsExtendable = true;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
@@ -53,7 +54,7 @@ struct JsObjectTraits<Image>
 // TODO: install proto to global
 class Image
     : public JsObjectBase<Image>
-    , private JsEventTarget
+    , protected JsEventTarget
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( Image );
 
@@ -68,7 +69,7 @@ public:
 public:
     ~Image() override;
 
-    [[nodiscard]] static std::unique_ptr<Image> CreateNative( JSContext* cx, uint32_t width, uint32_t height );
+    [[nodiscard]] static std::unique_ptr<Image> CreateNative( JSContext* cx );
     // TODO: add dynamic size
     [[nodiscard]] size_t GetInternalSize() const;
 
@@ -85,23 +86,20 @@ public:
     [[nodiscard]] CompleteStatus GetStatus() const;
 
 public:
-    static JSObject* Constructor( JSContext* cx, uint32_t width = 0, uint32_t height = 0 );
-    static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, uint32_t width, uint32_t height );
+    static JSObject* Constructor( JSContext* cx );
 
     bool get_Complete() const;
     std::wstring get_CurrentSrc() const;
-    uint32_t get_Height() const;
     uint32_t get_NaturalHeight() const;
     uint32_t get_NaturalWidth() const;
     std::wstring get_Src() const;
-    uint32_t get_Width() const;
-    void put_Height( uint32_t value );
-    void put_Src( JS::HandleObject jsSelf, const std::wstring& value );
-    void put_Width( uint32_t value );
+    virtual void put_Src( JS::HandleObject jsSelf, const std::wstring& value );
+
+protected:
+    [[nodiscard]] Image( JSContext* cx );
+    [[nodiscard]] Image( JSContext* cx, std::shared_ptr<const smp::LoadedImage> pLoadedImage, const std::wstring& src );
 
 private:
-    [[nodiscard]] Image( JSContext* cx, uint32_t width, uint32_t height );
-
     void InitImageUpdate( const std::wstring& source );
     void UpdateImageData( JS::HandleObject jsSelf );
     void ProcessFetchEvent( const ImageFetchEvent& fetchEvent, JS::HandleObject jsSelf );
@@ -111,8 +109,6 @@ private:
 private:
     JSContext* pJsCtx_ = nullptr;
     HWND hPanelWnd_ = nullptr;
-    uint32_t width_;
-    uint32_t height_;
 
     std::wstring currentSrc_;
     CompleteStatus currentStatus_ = CompleteStatus::unavailable;

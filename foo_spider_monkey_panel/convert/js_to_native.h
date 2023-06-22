@@ -7,6 +7,12 @@
 
 #include <optional>
 
+namespace mozjs
+{
+template <typename T>
+class JsObjectBase;
+}
+
 namespace mozjs::convert::to_native
 {
 
@@ -39,9 +45,9 @@ T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 {
     if constexpr ( requires { qwr::is_specialization_of_v<T, smp::not_null>&& std::is_pointer_v<typename T::element_type>; } )
     {
-        using NativeT = std::decay_t<typename T::element_type>;
+        using NativeT = std::remove_cvref_t<std::remove_pointer_t<typename T::element_type>>;
 
-        auto pNative = std::remove_pointer_t<NativeT>::ExtractNative( cx, jsObject );
+        auto pNative = mozjs::JsObjectBase<NativeT>::ExtractNative( cx, jsObject );
         qwr::QwrException::ExpectTrue( pNative, "Object is not of valid type" );
 
         return pNative;

@@ -611,6 +611,7 @@ IDR_MODULE_FB_PLAYBACK      SCRIPT                "modules/playback.js"
 IDR_MODULE_FB_PLAYLIST_MANAGER  SCRIPT            "modules/playlist_manager.js"
 IDR_MODULE_FB_SELECTION     SCRIPT                "modules/selection.js"
 IDR_MODULE_FB_TRACK         SCRIPT                "modules/track.js"
+IDR_MODULE_FB_TRACK_IMAGE_MANAGER  SCRIPT         "modules/track_image_manager.js"
 
 
 /////////////////////////////////////////////////////////////////////////////

@@ -73,7 +73,6 @@ public:
     // TODO: wrap context and disable it while there is not redraw event
     JSObject* GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes = JS::UndefinedHandleValue );
     JSObject* GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes );
-    // TODO: replace reserved slot with Heap
     // TODO: add decode option
     JSObject* LoadImage( JS::HandleValue source );
     void Redraw( bool force = false );

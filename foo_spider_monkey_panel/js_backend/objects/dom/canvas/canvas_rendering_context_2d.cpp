@@ -1807,7 +1807,7 @@ CanvasRenderingContext2D_Qwr::ParseOptions_FillTextEx( JS::HandleValue options )
     FillTextExOptions parsedOptions;
 
     qwr::u8string textDecoration;
-    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "text-decoration", textDecoration );
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "textDecoration", textDecoration );
     qwr::u8string_view textDecorationSv{ textDecoration };
 
     // TODO: move to constants
@@ -1844,7 +1844,7 @@ CanvasRenderingContext2D_Qwr::ParseOptions_FillTextEx( JS::HandleValue options )
             "pre",
         }
     };
-    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "white-space", whiteSpace );
+    utils::OptionalPropertyTo( pJsCtx_, jsOptions, "whiteSpace", whiteSpace );
     if ( kKnownWhiteSpaceValues.contains( whiteSpace ) )
     {
         parsedOptions.shouldCollapseNewLines = ( whiteSpace == "normal" || whiteSpace == "nowrap" );
@@ -1861,7 +1861,7 @@ CanvasRenderingContext2D_Qwr::ParseOptions_FillTextEx( JS::HandleValue options )
     else
     {
         parsedOptions.shouldClipByRect = true;
-        utils::OptionalPropertyTo( pJsCtx_, jsOptions, "text-overflow", parsedOptions.textOverflow );
+        utils::OptionalPropertyTo( pJsCtx_, jsOptions, "textOverflow", parsedOptions.textOverflow );
     }
 
     utils::OptionalPropertyTo( pJsCtx_, jsOptions, "render-mode", parsedOptions.renderMode );

@@ -97,7 +97,8 @@ private:
     JsGlobalObject* pNativeGlobal_ = nullptr;
 
     mutable std::mutex cleanupLock_;
-    bool isJsAvailable_ = false;
+    bool isJsAvailable_ = true;
+    bool hasData_ = true;
 };
 
 } // namespace mozjs
