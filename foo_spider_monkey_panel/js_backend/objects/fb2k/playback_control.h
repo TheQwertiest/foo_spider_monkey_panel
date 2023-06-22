@@ -42,7 +42,7 @@ public:
     ~PlaybackControl() override = default;
 
     static std::unique_ptr<PlaybackControl> CreateNative( JSContext* cx );
-    [[nodiscard]] size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize() const;
     static void PostCreate( JSContext* cx, JS::HandleObject self );
 
     static void Trace( JSTracer* trc, JSObject* obj );
@@ -61,19 +61,15 @@ public:
     void VolumeMute();
     void VolumeUp();
 
-    // TODO: prop? method?
-    qwr::u8string GetPlaybackOrderName( uint32_t playbackOrderIndex );
-    qwr::u8string GetPlaybackOrderCount();
-    uint32_t GetActivePlaybackOrder();
-    void SetActivePlaybackOrderByName( uint32_t playbackOrderIndex );
-
 public:
-    bool get_IsPaused();
-    bool get_IsPlaying();
-    double get_CurrentTime();
-    bool get_StopAfterCurrent();
-    float get_Volume();
+    bool get_IsPaused() const;
+    bool get_IsPlaying() const;
+    double get_CurrentTime() const;
+    qwr::u8string get_PlaybackOrder() const;
+    bool get_StopAfterCurrent() const;
+    float get_Volume() const;
     void put_CurrentTime( double time );
+    void put_PlaybackOrder( const qwr::u8string& value );
     void put_StopAfterCurrent( bool value );
     void put_Volume( float value );
 

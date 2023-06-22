@@ -13,6 +13,54 @@ using namespace smp;
 namespace
 {
 
+const std::unordered_map<qwr::u8string, uint32_t> kPlaybackOrderStrToIdx{
+    { "normal", 0 },
+    { "repeat-playlist", 1 },
+    { "repeat-track", 2 },
+    { "random", 3 },
+    { "shuffle-tracks", 4 },
+    { "shuffle-albums", 5 },
+    { "shuffle-folder", 6 },
+};
+const auto kPlaybackOrderIdxToStr = kPlaybackOrderStrToIdx
+                                    | ranges::views::transform( []( const auto& elem ) { return std::make_pair( elem.second, elem.first ); } )
+                                    | ranges::to<std::unordered_map>();
+
+} // namespace
+
+namespace
+{
+
+auto GenerateStopEventProps( const smp::PlaybackStopEvent& event )
+{
+    mozjs::PlaybackStopEvent::EventProperties props{
+        .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
+        .reason = [&] {
+            switch ( event.GetReason() )
+            {
+            case play_control::stop_reason_user:
+                return "user";
+            case play_control::stop_reason_eof:
+                return "eof";
+            case play_control::stop_reason_starting_another:
+                return "starting-another";
+            case play_control::stop_reason_shutting_down:
+                return "shutting-down";
+            default:
+                assert( false );
+                return "unknown";
+            }
+        }()
+    };
+
+    return props;
+}
+
+} // namespace
+
+namespace
+{
+
 using namespace mozjs;
 
 JSClassOps jsOps = {
@@ -117,7 +165,7 @@ PlaybackControl::CreateNative( JSContext* cx )
     return std::unique_ptr<PlaybackControl>( new PlaybackControl( cx ) );
 }
 
-size_t PlaybackControl::GetInternalSize()
+size_t PlaybackControl::GetInternalSize() const
 {
     return 0;
 }
@@ -125,29 +173,6 @@ size_t PlaybackControl::GetInternalSize()
 void PlaybackControl::PostCreate( JSContext* cx, JS::HandleObject self )
 {
     utils::CreateAndInstallPrototype<JsObjectBase<mozjs::PlaybackStopEvent>>( cx, self, JsPrototypeId::New_PlaybackStopEvent );
-
-    {
-        JS::RootedObject jsObject( cx, JS_NewPlainObject( cx ) );
-        JsException::ExpectTrue( jsObject );
-
-        static const auto props = std::to_array<JSPropertySpec>(
-            {
-                JS_INT32_PS( "STOP_REASON_USER", playback_control::stop_reason_user, kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_INT32_PS( "STOP_REASON_EOF", playback_control::stop_reason_eof, kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_INT32_PS( "STOP_REASON_STARTING_ANOTHER", playback_control::stop_reason_starting_another, kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_INT32_PS( "STOP_REASON_SHUTTING_DOWN", playback_control::stop_reason_shutting_down, kDefaultPropsFlags | JSPROP_READONLY ),
-                JS_PS_END,
-            } );
-        if ( !JS_DefineProperties( cx, jsObject, props.data() ) )
-        {
-            throw smp::JsException();
-        }
-
-        if ( !JS_DefineProperty( cx, self, "constants", jsObject, JSPROP_ENUMERATE | JSPROP_PERMANENT | JSPROP_READONLY ) )
-        {
-            throw JsException();
-        }
-    }
 }
 
 void PlaybackControl::Trace( JSTracer* trc, JSObject* obj )
@@ -190,11 +215,12 @@ EventStatus PlaybackControl::HandleEvent( JS::HandleObject self, const smp::Even
     JS::RootedValue jsEvent( pJsCtx_ );
     if ( event.GetId() == EventId::kNew_FbPlaybackStop )
     {
+        const auto& playbackStopEvent = static_cast<const smp::PlaybackStopEvent&>( event );
         jsEvent.setObjectOrNull(
             mozjs::JsObjectBase<PlaybackStopEvent>::CreateJs(
                 pJsCtx_,
                 eventType,
-                static_cast<const smp::PlaybackStopEvent&>( event ).GetReason() ) );
+                GenerateStopEventProps( playbackStopEvent ) ) );
     }
     else
     {
@@ -263,27 +289,34 @@ void PlaybackControl::VolumeUp()
     standard_commands::main_volume_up();
 }
 
-bool PlaybackControl::get_IsPaused()
+bool PlaybackControl::get_IsPaused() const
 {
     return playback_control::get()->is_paused();
 }
 
-bool PlaybackControl::get_IsPlaying()
+bool PlaybackControl::get_IsPlaying() const
 {
     return playback_control::get()->is_playing();
 }
 
-double PlaybackControl::get_CurrentTime()
+double PlaybackControl::get_CurrentTime() const
 {
     return playback_control::get()->playback_get_position();
 }
 
-bool PlaybackControl::get_StopAfterCurrent()
+qwr::u8string PlaybackControl::get_PlaybackOrder() const
+{
+    const auto idx = playlist_manager::get()->playback_order_get_active();
+    assert( kPlaybackOrderIdxToStr.contains( idx ) );
+    return kPlaybackOrderIdxToStr.at( idx );
+}
+
+bool PlaybackControl::get_StopAfterCurrent() const
 {
     return playback_control::get()->get_stop_after_current();
 }
 
-float PlaybackControl::get_Volume()
+float PlaybackControl::get_Volume() const
 {
     return playback_control::get()->get_volume();
 }
@@ -291,6 +324,12 @@ float PlaybackControl::get_Volume()
 void PlaybackControl::put_CurrentTime( double time )
 {
     playback_control::get()->playback_seek( time );
+}
+
+void PlaybackControl::put_PlaybackOrder( const qwr::u8string& value )
+{
+    qwr::QwrException::ExpectTrue( kPlaybackOrderStrToIdx.contains( value ), "Unknown playback order value" );
+    playlist_manager::get()->playback_order_set_active( kPlaybackOrderStrToIdx.at( value ) );
 }
 
 void PlaybackControl::put_StopAfterCurrent( bool value )

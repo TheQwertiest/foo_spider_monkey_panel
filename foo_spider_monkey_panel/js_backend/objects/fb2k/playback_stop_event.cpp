@@ -51,23 +51,24 @@ const JSPropertySpec* JsObjectTraits<PlaybackStopEvent>::JsProperties = jsProper
 const JsPrototypeId JsObjectTraits<PlaybackStopEvent>::PrototypeId = JsPrototypeId::New_PlaybackStopEvent;
 const JSNative JsObjectTraits<PlaybackStopEvent>::JsConstructor = ::PlaybackStopEvent_Constructor;
 
-PlaybackStopEvent::PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options )
-    : JsEvent( cx, type, options.baseOptions )
+PlaybackStopEvent::PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props )
+    : JsEvent( cx, type, props.baseProps )
     , pJsCtx_( cx )
-    , stopReason_( options.reason )
+    , props_( props )
+{
+}
+
+PlaybackStopEvent::PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options )
+    : PlaybackStopEvent( cx,
+                         type,
+                         options.ToDefaultProps() )
 {
 }
 
 std::unique_ptr<PlaybackStopEvent>
-PlaybackStopEvent::CreateNative( JSContext* cx, const qwr::u8string& type, play_control::t_stop_reason reason )
+PlaybackStopEvent::CreateNative( JSContext* cx, const qwr::u8string& type, const EventProperties& props )
 {
-    // TODO: replace with options.ToDefaultProps()?
-    EventOptions options{
-        .baseOptions{ .cancelable = false },
-        .reason = reason
-    };
-
-    return CreateNative( cx, type, options );
+    return std::unique_ptr<PlaybackStopEvent>( new mozjs::PlaybackStopEvent( cx, type, props ) );
 }
 
 std::unique_ptr<PlaybackStopEvent>
@@ -76,7 +77,7 @@ PlaybackStopEvent::CreateNative( JSContext* cx, const qwr::u8string& type, const
     return std::unique_ptr<PlaybackStopEvent>( new mozjs::PlaybackStopEvent( cx, type, options ) );
 }
 
-size_t PlaybackStopEvent::GetInternalSize()
+size_t PlaybackStopEvent::GetInternalSize() const
 {
     return 0;
 }
@@ -99,9 +100,9 @@ JSObject* PlaybackStopEvent::ConstructorWithOpt( JSContext* cx, size_t optArgCou
     }
 }
 
-uint8_t PlaybackStopEvent::get_Reason() const
+qwr::u8string PlaybackStopEvent::get_Reason() const
 {
-    return stopReason_;
+    return props_.reason;
 }
 
 PlaybackStopEvent::EventOptions PlaybackStopEvent::ExtractOptions( JSContext* cx, JS::HandleValue options )
@@ -117,19 +118,17 @@ PlaybackStopEvent::EventOptions PlaybackStopEvent::ExtractOptions( JSContext* cx
 
     parsedOptions.baseOptions = ParentJsType::ExtractOptions( cx, options );
 
-    if ( const auto propOpt =
-             utils::GetOptionalProperty<int32_t>(
-                 cx, jsOptions, "reason" ) )
-    {
-        const auto reasonRaw = *propOpt;
-        qwr::QwrException::ExpectTrue( reasonRaw >= playback_control::stop_reason_user && reasonRaw <= playback_control::stop_reason_shutting_down,
-                                       "Unknown stop reason: {}",
-                                       reasonRaw );
-
-        parsedOptions.reason = static_cast<play_control::t_stop_reason>( reasonRaw );
-    }
+    utils::OptionalPropertyTo( cx, jsOptions, "reason", parsedOptions.reason );
 
     return parsedOptions;
+}
+
+PlaybackStopEvent::EventProperties PlaybackStopEvent::EventOptions::ToDefaultProps() const
+{
+    return {
+        .baseProps = baseOptions.ToDefaultProps(),
+        .reason = reason,
+    };
 }
 
 } // namespace mozjs

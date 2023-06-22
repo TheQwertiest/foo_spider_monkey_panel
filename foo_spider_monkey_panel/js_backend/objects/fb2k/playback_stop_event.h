@@ -31,11 +31,20 @@ class PlaybackStopEvent
 
     using ParentJsType = JsEvent;
 
+public:
+    struct EventProperties
+    {
+        ParentJsType::EventProperties baseProps;
+        qwr::u8string reason = "user";
+    };
+
 protected:
     struct EventOptions
     {
         ParentJsType::EventOptions baseOptions;
-        play_control::t_stop_reason reason = play_control::t_stop_reason::stop_reason_user;
+        qwr::u8string reason = "user";
+
+        EventProperties ToDefaultProps() const;
     };
 
 public:
@@ -45,22 +54,23 @@ public:
     static JSObject* Constructor( JSContext* cx, const qwr::u8string& type, JS::HandleValue options = JS::UndefinedHandleValue );
     static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, const qwr::u8string& type, JS::HandleValue options );
 
-    uint8_t get_Reason() const;
+    qwr::u8string get_Reason() const;
 
 protected:
+    [[nodiscard]] PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props );
     [[nodiscard]] PlaybackStopEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );
-    [[nodiscard]] size_t GetInternalSize();
+    [[nodiscard]] size_t GetInternalSize() const;
 
     [[nodiscard]] static EventOptions ExtractOptions( JSContext* cx, JS::HandleValue options );
 
 private:
-    static std::unique_ptr<PlaybackStopEvent> CreateNative( JSContext* cx, const qwr::u8string& type, play_control::t_stop_reason reason );
+    static std::unique_ptr<PlaybackStopEvent> CreateNative( JSContext* cx, const qwr::u8string& type, const EventProperties& props );
     static std::unique_ptr<PlaybackStopEvent> CreateNative( JSContext* cx, const qwr::u8string& type, const EventOptions& options );
 
 private:
     JSContext* pJsCtx_ = nullptr;
 
-    play_control::t_stop_reason stopReason_ = play_control::stop_reason_user;
+    EventProperties props_;
 };
 
 } // namespace mozjs
