@@ -112,6 +112,14 @@ void TracksSearchThreadTask::Run()
                                                   std::move( heapHolder_ ),
                                                   std::current_exception() ) );
     }
+    catch ( const foobar2000_io::exception_aborted& /*e*/ )
+    {
+        smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
+                                              std::make_unique<smp::JsPromiseEvent>(
+                                                  pJsCtx_,
+                                                  std::move( heapHolder_ ),
+                                                  std::current_exception() ) );
+    }
 }
 
 } // namespace

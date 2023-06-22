@@ -346,6 +346,11 @@ void ExceptionToJsError( JSContext* cx )
         JS_ClearPendingException( cx );
         JS_ReportErrorUTF8( cx, e.what() );
     }
+    catch ( const foobar2000_io::exception_aborted& e )
+    {
+        JS_ClearPendingException( cx );
+        JS_ReportErrorUTF8( cx, e.what() );
+    }
     catch ( const _com_error& e )
     {
         JS_ClearPendingException( cx );
