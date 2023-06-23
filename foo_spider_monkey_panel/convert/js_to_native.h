@@ -158,8 +158,7 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
     }
     else if constexpr ( qwr::is_specialization_of_v<T, smp::not_null> )
     { // Extract not null native pointer
-        qwr::QwrException::ExpectTrue( jsValue.isObjectOrNull(), "Value is not a JS object" );
-        qwr::QwrException::ExpectTrue( !jsValue.isNull(), "Value is null" );
+        qwr::QwrException::ExpectTrue( jsValue.isObject(), "Value is not a JS object" );
 
         JS::RootedObject jsObject( cx, &jsValue.toObject() );
         return to_native::internal::ToSimpleValue<T>( cx, jsObject );
@@ -167,10 +166,11 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
     else if constexpr ( std::is_pointer_v<T> )
     { // Extract native pointer
         // TODO: think if there is a good way to move this to convert::to_native
-        qwr::QwrException::ExpectTrue( jsValue.isObjectOrNull(), "Value is not a JS object or null" );
+        qwr::QwrException::ExpectTrue( jsValue.isObject() || jsValue.isUndefined(), "Value is not a JS object" );
 
-        if ( jsValue.isNull() )
-        { // Not an error: null might be a valid argument
+        // TODO: is there a case where null should be accepted?
+        if ( jsValue.isUndefined() )
+        { // Not an error: undefined might be a valid argument)
             return static_cast<T>( nullptr );
         }
 

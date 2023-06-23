@@ -14,11 +14,11 @@ class InitQuitImpl
 {
 public:
     // initquit
-    void on_init() override;
-    void on_quit() override;
+    void on_init() final;
+    void on_quit() final;
 
     // ui_selection_callback
-    void on_selection_changed( metadb_handle_list_cref p_selection ) override;
+    void on_selection_changed( metadb_handle_list_cref p_selection ) final;
 };
 
 } // namespace

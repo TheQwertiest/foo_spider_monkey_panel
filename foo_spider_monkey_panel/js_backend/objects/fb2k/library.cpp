@@ -3,11 +3,12 @@
 #include "library.h"
 
 #include <js_backend/engine/js_to_native_invoker.h>
-#include <js_backend/objects/dom/event.h>
 #include <js_backend/objects/fb2k/track.h>
+#include <js_backend/objects/fb2k/track_event.h>
 #include <js_backend/objects/fb2k/track_list.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_promise_event.h>
+#include <tasks/events/track_event.h>
 #include <utils/relative_filepath_trie.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
@@ -122,6 +123,16 @@ void TracksSearchThreadTask::Run()
     }
 }
 
+auto GenerateTrackEventProps( const smp::TrackEvent& event )
+{
+    mozjs::TrackEvent::EventProperties props{
+        .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
+        .affectedTracks = event.GetAffectedTracks()
+    };
+
+    return props;
+}
+
 } // namespace
 
 namespace
@@ -232,10 +243,28 @@ EventStatus Library::HandleEvent( JS::HandleObject self, const smp::EventBase& e
     }
     status.isHandled = true;
 
-    JS::RootedObject jsEvent( pJsCtx_,
-                              mozjs::JsEvent::CreateJs( pJsCtx_, eventType, JsEvent::EventProperties{ .cancelable = false } ) );
-    JS::RootedValue jsEventValue( pJsCtx_, JS::ObjectValue( *jsEvent ) );
-    DispatchEvent( self, jsEventValue );
+    JS::RootedValue jsEvent( pJsCtx_ );
+    switch ( event.GetId() )
+    {
+    case EventId::kNew_FbLibraryItemsAdded:
+    case EventId::kNew_FbLibraryItemsModified:
+    case EventId::kNew_FbLibraryItemsRemoved:
+    {
+        const auto& trackEvent = static_cast<const smp::TrackEvent&>( event );
+        jsEvent.setObjectOrNull( mozjs::JsObjectBase<TrackEvent>::CreateJs(
+            pJsCtx_,
+            eventType,
+            GenerateTrackEventProps( trackEvent ) ) );
+        break;
+    }
+    default:
+    {
+        jsEvent.setObjectOrNull( mozjs::JsEvent::CreateJs( pJsCtx_, eventType, JsEvent::EventProperties{ .cancelable = false } ) );
+        break;
+    }
+    }
+
+    DispatchEvent( self, jsEvent );
 
     const auto pNativeEvent = convert::to_native::ToValue<JsEvent*>( pJsCtx_, jsEvent );
     status.isDefaultSuppressed = pNativeEvent->get_DefaultPrevented();

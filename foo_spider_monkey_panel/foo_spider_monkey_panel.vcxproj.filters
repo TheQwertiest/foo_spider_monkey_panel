@@ -652,6 +652,12 @@
     <ClCompile Include="js_backend\objects\dom\event.cpp">
       <Filter>js_backend\objects\dom\window</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\track_event.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\track_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1419,6 +1425,12 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\dom\event.h">
       <Filter>js_backend\objects\dom\window</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\track_event.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\track_event.h">
+      <Filter>tasks\events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
