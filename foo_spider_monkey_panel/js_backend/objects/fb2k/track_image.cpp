@@ -175,6 +175,14 @@ void ImageFetchThreadTask::Run()
                                                   std::move( heapHolder_ ),
                                                   std::current_exception() ) );
     }
+    catch ( const pfc::exception& /*e*/ )
+    { // album_art_extractor may throw on io failure
+        smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
+                                              std::make_unique<smp::JsPromiseEvent>(
+                                                  pJsCtx_,
+                                                  std::move( heapHolder_ ),
+                                                  std::current_exception() ) );
+    }
 }
 
 std::optional<ArtData> ImageFetchThreadTask::GetArtData() const

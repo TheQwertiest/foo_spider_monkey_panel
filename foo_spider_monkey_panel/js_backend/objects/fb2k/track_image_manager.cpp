@@ -157,6 +157,10 @@ void EmbedImageThreadTask::run( threaded_process_status& p_status, abort_callbac
             {
                 throw qwr::QwrException( e.what() );
             }
+            catch ( const exception_album_art_unsupported_format& e )
+            {
+                throw qwr::QwrException( e.what() );
+            }
         }
 
         // TODO: cache and return embedded image
@@ -222,6 +226,10 @@ void UnembedImageThreadTask::run( threaded_process_status& p_status, abort_callb
                 pArtEditorInstance->commit( p_abort );
             }
             catch ( const exception_album_art_unsupported_entry& e )
+            {
+                throw qwr::QwrException( e.what() );
+            }
+            catch ( const exception_album_art_unsupported_format& e )
             {
                 throw qwr::QwrException( e.what() );
             }
@@ -300,6 +308,10 @@ void UnembedAllImagesThreadTask::run( threaded_process_status& p_status, abort_c
                 pArtEditorInstance->commit( p_abort );
             }
             catch ( const exception_album_art_unsupported_entry& e )
+            {
+                throw qwr::QwrException( e.what() );
+            }
+            catch ( const exception_album_art_unsupported_format& e )
             {
                 throw qwr::QwrException( e.what() );
             }

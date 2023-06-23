@@ -99,10 +99,12 @@ void PlaylistCallbackImpl::on_items_selection_change( t_size p_playlist, const p
 
 void PlaylistCallbackImpl::on_items_modified( t_size p_playlist, const pfc::bit_array& p_mask )
 {
+    EventDispatcher::Get().PutEventToAll( std::make_unique<PanelEvent>( EventId::kNew_FbPlaylistItemsModified ) );
 }
 
 void PlaylistCallbackImpl::on_items_modified_fromplayback( t_size p_playlist, const pfc::bit_array& p_mask, play_control::t_display_level p_level )
 {
+    // TODO: test if this is covered by playback events
 }
 
 void PlaylistCallbackImpl::on_playback_order_changed( t_size p_new_index )

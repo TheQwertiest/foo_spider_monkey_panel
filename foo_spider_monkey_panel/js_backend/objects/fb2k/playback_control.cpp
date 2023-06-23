@@ -185,7 +185,7 @@ const std::string& PlaybackControl::EventIdToType( smp::EventId eventId )
     static const std::unordered_map<EventId, std::string> idToType{
         { EventId::kNew_FbPlaybackDynamicInfo, "trackDynamicInfoChange" },
         { EventId::kNew_FbPlaybackDynamicInfoTrack, "trackStreamInfoChange" },
-        { EventId::kNew_FbPlaybackEdited, "trackInfoEdit" },
+        { EventId::kNew_FbPlaybackEdited, "trackInfoChange" },
         { EventId::kNew_FbPlaybackNewTrack, "start" },
         { EventId::kNew_FbPlaybackPlay, "play" },
         { EventId::kNew_FbPlaybackPause, "pause" },

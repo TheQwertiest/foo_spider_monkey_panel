@@ -260,7 +260,7 @@ JSObject* Library::FilterTracks( JS::HandleValue tracks, const qwr::u8string& qu
         {
             return search_filter_manager_v3::get()->create( query.c_str() );
         }
-        catch ( const std::exception& e )
+        catch ( const pfc::exception& e )
         { // create throws on invalid query
             throw qwr::QwrException( e.what() );
         }

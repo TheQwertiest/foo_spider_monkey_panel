@@ -428,19 +428,22 @@ pfc::string8_fast Playlist::GetAutoPlaylistDisplayName() const
 
     qwr::QwrException::ExpectTrue( autoPlApi->is_client_present( playlistIndex ), "Playlist is not an auto-playlist" );
 
-    autoplaylist_client_v2::ptr autoPlClient;
+    autoplaylist_client_v2::ptr autoPlClientV2;
     try
     {
-        autoplaylist_client::ptr client = autoPlApi->query_client( playlistIndex );
-        client->service_query_t( autoPlClient );
+        autoplaylist_client::ptr autoPlClient = autoPlApi->query_client( playlistIndex );
+        if ( !autoPlClient->service_query_t( autoPlClientV2 ) )
+        {
+            return "";
+        }
     }
-    catch ( const pfc::exception& /*e*/ )
+    catch ( const exception_autoplaylist& /*e*/ )
     {
         return "";
     }
 
     pfc::string8_fast name;
-    autoPlClient->get_display_name( name );
+    autoPlClientV2->get_display_name( name );
     return name;
 }
 
@@ -545,18 +548,21 @@ bool Playlist::IsAutoPlaylistUiAvailable() const
         return false;
     }
 
-    autoplaylist_client_v2::ptr clientV2;
+    autoplaylist_client_v2::ptr autoPlClientV2;
     try
     {
-        autoplaylist_client::ptr client = autoPlApi->query_client( playlistIndex );
-        client->service_query_t( clientV2 );
+        autoplaylist_client::ptr autoPlClient = autoPlApi->query_client( playlistIndex );
+        if ( !autoPlClient->service_query_t( autoPlClientV2 ) )
+        {
+            return false;
+        }
     }
-    catch ( const pfc::exception& /*e*/ )
+    catch ( const exception_autoplaylist& /*e*/ )
     {
         return false;
     }
 
-    return clientV2->show_ui_available();
+    return autoPlClientV2->show_ui_available();
 }
 
 bool Playlist::IsLocked() const
@@ -853,8 +859,15 @@ void Playlist::ShowAutoPlaylistUi() const
 
     qwr::QwrException::ExpectTrue( autoPlApi->is_client_present( playlistIndex ), "Playlist is not an auto-playlist" );
 
-    auto client = autoPlApi->query_client( playlistIndex );
-    client->show_ui( playlistIndex );
+    try
+    {
+        auto client = autoPlApi->query_client( playlistIndex );
+        client->show_ui( playlistIndex );
+    }
+    catch ( const exception_autoplaylist& e )
+    {
+        throw qwr::QwrException( e.what() );
+    }
 }
 
 void Playlist::Undo()

@@ -88,6 +88,7 @@ const std::unordered_set<smp::EventId> PlaylistManager::kHandledEvents{
     EventId::kNew_FbPlaylistItemEnsureVisible,
     EventId::kNew_FbPlaylistItemFocusChange,
     EventId::kNew_FbPlaylistItemsAdded,
+    EventId::kNew_FbPlaylistItemsModified,
     EventId::kNew_FbPlaylistItemsRemoved,
     EventId::kNew_FbPlaylistItemsReordered,
     EventId::kNew_FbPlaylistItemsReplaced,
@@ -144,6 +145,7 @@ const std::string& PlaylistManager::EventIdToType( smp::EventId eventId )
         { EventId::kNew_FbPlaylistItemsRemoved, "tracksRemove" },
         { EventId::kNew_FbPlaylistItemsReordered, "tracksReorder" },
         { EventId::kNew_FbPlaylistItemsReplaced, "tracksReplace" },
+        { EventId::kNew_FbPlaylistItemsModified, "tracksInfoChange" },
         { EventId::kNew_FbPlaylistItemsSelectionChange, "tracksSelectionChange" },
         { EventId::kNew_FbPlaylistLocked, "playlistLockChange" },
         { EventId::kNew_FbPlaylistRenamed, "playlistRename" },
@@ -187,7 +189,7 @@ JSObject* PlaylistManager::CreateAutoPlaylist( const qwr::u8string& query, const
         smp::PlaylistIndexManager::Get().OnPlaylistAdded( actualPlaylistIndex );
         return GetPlaylist( actualPlaylistIndex );
     }
-    catch ( const pfc::exception& e )
+    catch ( const exception_autoplaylist& e )
     { // Bad query expression
         playlist_manager::get()->remove_playlist( actualPlaylistIndex );
         throw qwr::QwrException( e.what() );

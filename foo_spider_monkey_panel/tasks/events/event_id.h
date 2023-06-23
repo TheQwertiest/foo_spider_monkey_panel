@@ -88,6 +88,7 @@ enum class EventId
     kNew_FbPlaylistItemEnsureVisible,
     kNew_FbPlaylistItemFocusChange,
     kNew_FbPlaylistItemsAdded,
+    kNew_FbPlaylistItemsModified,
     kNew_FbPlaylistItemsRemoved,
     kNew_FbPlaylistItemsReordered,
     kNew_FbPlaylistItemsReplaced,
