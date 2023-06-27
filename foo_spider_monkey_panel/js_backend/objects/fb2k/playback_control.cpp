@@ -4,7 +4,7 @@
 
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
-#include <js_backend/objects/fb2k/playback_stop_event.h>
+#include <js_backend/objects/fb2k/events/playback_stop_event.h>
 #include <js_backend/objects/fb2k/track.h>
 #include <tasks/events/playback_stop_event.h>
 
@@ -172,7 +172,7 @@ size_t PlaybackControl::GetInternalSize() const
 
 void PlaybackControl::PostCreate( JSContext* cx, JS::HandleObject self )
 {
-    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::PlaybackStopEvent>>( cx, self, JsPrototypeId::New_PlaybackStopEvent );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::PlaybackStopEvent>>( cx, self );
 }
 
 void PlaybackControl::Trace( JSTracer* trc, JSObject* obj )

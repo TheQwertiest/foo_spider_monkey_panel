@@ -1,5 +1,6 @@
 #pragma once
 
+#include <js_backend/objects/core/object_traits.h>
 #include <js_backend/objects/core/prototype_ids.h>
 
 #include <qwr/string_helpers.h>
@@ -66,18 +67,37 @@ void CreateAndInstallPrototype( JSContext* cx, JsPrototypeId protoId )
     JS_SetReservedSlot( globalObject, slotIdx, protoVal );
 }
 
+// TODO: replace with version below
+template <typename JsObjectType>
+void CreateAndInstallPrototype( JSContext* cx, JS::HandleObject jsObject, JsPrototypeId protoId )
+{
+    JS::RootedObject globalObject( cx, JS::CurrentGlobalOrNull( cx ) );
+    assert( globalObject );
+
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS::GetClass( globalObject ) ) );
+
+    JS::RootedObject jsProto( cx, JsObjectType::InstallProto( cx, jsObject ) );
+    assert( jsProto );
+
+    JS::Value protoVal = JS::ObjectValue( *jsProto );
+    JS_SetReservedSlot( globalObject, slotIdx, protoVal );
+}
+
 /// @brief Create a prototype for the specified object.
 ///        Created prototype is accessible from JS.
 ///
 /// @remark This should only be applied to singleton objects
 template <typename JsObjectType>
-void CreateAndInstallPrototype( JSContext* cx, JS::HandleObject jsObject, JsPrototypeId protoId )
+void CreateAndInstallPrototype( JSContext* cx, JS::HandleObject jsObject )
 {
     // TODO: why global slot? maybe move to corresponding objects instead?
     JS::RootedObject globalObject( cx, JS::CurrentGlobalOrNull( cx ) );
     assert( globalObject );
 
-    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + static_cast<uint32_t>( protoId );
+    const auto protoId = static_cast<uint32_t>( JsObjectTraits<typename JsObjectType::BaseT>::PrototypeId );
+
+    uint32_t slotIdx = JSCLASS_GLOBAL_SLOT_COUNT + protoId;
     assert( slotIdx < JSCLASS_RESERVED_SLOTS( JS::GetClass( globalObject ) ) );
 
     JS::RootedObject jsProto( cx, JsObjectType::InstallProto( cx, jsObject ) );

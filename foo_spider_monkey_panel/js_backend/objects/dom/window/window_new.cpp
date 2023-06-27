@@ -277,21 +277,23 @@ size_t WindowNew::GetInternalSize()
 
 void WindowNew::PostCreate( JSContext* cx, JS::HandleObject self )
 {
-    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::MouseEvent>>( cx, self, JsPrototypeId::New_MouseEvent );
-    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::WheelEvent>>( cx, self, JsPrototypeId::New_WheelEvent );
-    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::KeyboardEvent>>( cx, self, JsPrototypeId::New_KeyboardEvent );
-    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::Image>>( cx, self, JsPrototypeId::New_Image );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::MouseEvent>>( cx, self );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::WheelEvent>>( cx, self );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::KeyboardEvent>>( cx, self );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::Image>>( cx, self );
 }
 
 void WindowNew::Trace( JSTracer* trc, JSObject* obj )
 {
+    JsEventTarget::Trace( trc, obj );
+
     auto pNative = JsObjectBase<WindowNew>::ExtractNativeUnchecked( obj );
     if ( !pNative )
     {
         return;
     }
 
-    JsEventTarget::Trace( trc, obj );
+    JS::TraceEdge( trc, &pNative->jsRenderingContext_, "Heap: WindowNew: rendering context" );
 }
 
 const std::string& WindowNew::EventIdToType( smp::EventId eventId )

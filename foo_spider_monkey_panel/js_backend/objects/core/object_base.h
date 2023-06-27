@@ -52,6 +52,7 @@ class JsObjectBase
     using Self = JsObjectBase<T>;
 
 public:
+    using BaseT = T;
     using TraitsT = std::conditional_t<requires { requires JsObjectTraits<T>::kIsFake; }, T, JsObjectTraits<T>>;
     using TraitsHandlerT = JsObjectTraitsHandler<TraitsT, T>;
 

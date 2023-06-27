@@ -20,10 +20,12 @@ struct JsObjectTraits<Library>
 
     static constexpr bool HasProto = false;
     static constexpr bool HasParentProto = true;
+    static constexpr bool HasPostCreate = true;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
     static const JSPropertySpec* JsProperties;
+    static const PostJsCreateFn PostCreate;
 };
 
 class Library
@@ -40,6 +42,9 @@ public:
 
     [[nodiscard]] static std::unique_ptr<Library> CreateNative( JSContext* cx );
     [[nodiscard]] size_t GetInternalSize() const;
+    static void PostCreate( JSContext* cx, JS::HandleObject self );
+
+    static void Trace( JSTracer* trc, JSObject* obj );
 
     EventStatus HandleEvent( JS::HandleObject self, const smp::EventBase& event ) override;
 

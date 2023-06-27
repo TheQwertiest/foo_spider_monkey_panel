@@ -1,5 +1,10 @@
 let m = _internalModule;
 
+export const MultiPlaylistEvent = m.MultiPlaylistEvent;
+export const PlaylistEvent = m.PlaylistEvent;
+export const PlaylistMultiTrackEvent = m.PlaylistMultiTrackEvent;
+export const PlaylistTrackEvent = m.PlaylistTrackEvent;
+
 export function createAutoPlaylist(...args) { return m.createAutoPlaylist(...args); };
 export function createPlaylist(...args) { return m.createPlaylist(...args); };
 export function deletePlaylist(...args) { return m.deletePlaylist(...args); };

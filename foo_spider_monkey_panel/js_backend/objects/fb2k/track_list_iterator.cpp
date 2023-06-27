@@ -80,6 +80,7 @@ void TrackList_Iterator::Trace( JSTracer* trc, JSObject* obj )
         return;
     }
 
+    JS::TraceEdge( trc, &pNative->jsParent_, "Heap: TrackList_Iterator: parent" );
     JS::TraceEdge( trc, &pNative->jsNext_, "Heap: TrackList_Iterator: next element" );
 }
 

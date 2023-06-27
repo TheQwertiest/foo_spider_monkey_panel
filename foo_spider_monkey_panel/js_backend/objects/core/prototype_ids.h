@@ -36,7 +36,7 @@ enum class JsPrototypeId : uint32_t
     ThemeManager,
     //////
     New_PlaybackStopEvent,
-    New_TrackEvent,
+    New_LibraryTrackEvent,
     New_PaintEvent,
     New_MouseEvent,
     New_WheelEvent,
@@ -55,6 +55,10 @@ enum class JsPrototypeId : uint32_t
     New_Playlist,
     New_PlaylistIterator,
     New_TrackImage,
+    New_MultiPlaylistEvent,
+    New_PlaylistMultiTrackEvent,
+    New_PlaylistEvent,
+    New_PlaylistTrackEvent,
     ProrototypeCount
 };
 }

@@ -138,6 +138,7 @@ void ToValue( JSContext* cx, const GUID& inValue, JS::MutableHandleValue wrapped
     ToValue<std::wstring_view>( cx, smp::utils::GuidToStr( inValue, true ), wrappedValue );
 }
 
+// TODO: remove custom js objects from here
 template <>
 void ToValue( JSContext* cx, const metadb_handle_ptr& inValue, JS::MutableHandleValue wrappedValue )
 {

@@ -337,7 +337,8 @@ size_t TrackImage::GetInternalSize() const
 
 void TrackImage::Trace( JSTracer* trc, JSObject* obj )
 {
-    // TODO: check if underlying object is traced
+    Image::Trace( trc, obj );
+
     auto pNative = JsObjectBase<TrackImage>::ExtractNativeUnchecked( obj );
     if ( !pNative )
     {

@@ -361,9 +361,6 @@
     <ClCompile Include="fb2k\callbacks\playback.cpp">
       <Filter>fb2k\callbacks</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\playback_stop_event.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
     <ClCompile Include="tasks\dispatcher\task_controller.cpp">
       <Filter>tasks\dispatcher</Filter>
     </ClCompile>
@@ -652,11 +649,38 @@
     <ClCompile Include="js_backend\objects\dom\event.cpp">
       <Filter>js_backend\objects\dom\window</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\track_event.cpp">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClCompile>
-    <ClCompile Include="tasks\events\track_event.cpp">
+    <ClCompile Include="tasks\events\library_item_event.cpp">
       <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\playlist_multi_item_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\multi_playlist_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\playlist_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\playlist_item_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\events\playlist_multi_track_event.cpp">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\events\playlist_track_event.cpp">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\events\library_item_event.cpp">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\events\multi_playlist_event.cpp">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\events\playback_stop_event.cpp">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\events\playlist_event.cpp">
+      <Filter>js_backend\objects\fb2k\events</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1093,9 +1117,6 @@
     <ClInclude Include="js_backend\objects\core\builtin_modules.h">
       <Filter>js_backend\objects\core</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\playback_stop_event.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
     <ClInclude Include="tasks\dispatcher\task_controller.h">
       <Filter>tasks\dispatcher</Filter>
     </ClInclude>
@@ -1426,11 +1447,38 @@
     <ClInclude Include="js_backend\objects\dom\event.h">
       <Filter>js_backend\objects\dom\window</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\track_event.h">
-      <Filter>js_backend\objects\fb2k</Filter>
-    </ClInclude>
-    <ClInclude Include="tasks\events\track_event.h">
+    <ClInclude Include="tasks\events\library_item_event.h">
       <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\multi_playlist_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\playlist_multi_item_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\playlist_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\playlist_item_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\events\playlist_multi_track_event.h">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\events\playlist_track_event.h">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\events\library_item_event.h">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\events\multi_playlist_event.h">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\events\playback_stop_event.h">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\events\playlist_event.h">
+      <Filter>js_backend\objects\fb2k\events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1604,6 +1652,9 @@
     </Filter>
     <Filter Include="tasks\events\delete">
       <UniqueIdentifier>{4a581d2a-c74a-4648-b18f-cf568dfddcb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_backend\objects\fb2k\events">
+      <UniqueIdentifier>{7999b300-2385-45ad-a9ab-99d7a34a5145}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

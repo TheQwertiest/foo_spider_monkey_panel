@@ -56,7 +56,8 @@ public:
     std::vector<qwr::u8string> GetLockedOperations() const;
     JSObject* GetSelectedTracks() const;
     std::vector<uint32_t> GetSelectedTrackIndices() const;
-    JSObject* GetTracks() const;
+    JSObject* GetTracks( JS::HandleValue trackIndices = JS::UndefinedHandleValue ) const;
+    JSObject* GetTracksWithOpt( size_t optArgCount, JS::HandleValue trackIndices ) const;
     void InsertTracks( JS::HandleValue tracks, uint32_t start = pfc_infinite, JS::HandleValue options = JS::UndefinedHandleValue );
     void InsertTracksWithOpt( size_t optArgCount, JS::HandleValue tracks, uint32_t start, JS::HandleValue options );
     bool IsAutoPlaylistUiAvailable() const;

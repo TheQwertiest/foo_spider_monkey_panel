@@ -15,7 +15,7 @@ public:
     [[nodiscard]] play_control::t_stop_reason GetReason() const;
 
 private:
-    play_control::t_stop_reason reason_;
+    const play_control::t_stop_reason reason_;
 };
 
 } // namespace smp

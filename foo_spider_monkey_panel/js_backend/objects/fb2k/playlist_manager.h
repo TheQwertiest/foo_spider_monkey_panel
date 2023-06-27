@@ -20,9 +20,11 @@ struct JsObjectTraits<PlaylistManager>
 
     static constexpr bool HasProto = false;
     static constexpr bool HasParentProto = true;
+    static constexpr bool HasPostCreate = true;
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
+    static const PostJsCreateFn PostCreate;
 };
 
 class PlaylistManager
@@ -39,6 +41,7 @@ public:
 
     [[nodiscard]] static std::unique_ptr<PlaylistManager> CreateNative( JSContext* cx );
     [[nodiscard]] size_t GetInternalSize() const;
+    static void PostCreate( JSContext* cx, JS::HandleObject self );
 
     static void Trace( JSTracer* trc, JSObject* obj );
 
@@ -73,6 +76,7 @@ private:
     [[nodiscard]] PlaylistManager( JSContext* cx );
 
     [[nodiscard]] const std::string& EventIdToType( smp::EventId eventId );
+    [[nodiscard]] JSObject* GenerateEvent( const smp::EventBase& event, const qwr::u8string& eventType );
 
     [[nodiscard]] uint32_t CreatePlaylistImpl( uint32_t playlistIndex, const qwr::u8string& name );
 

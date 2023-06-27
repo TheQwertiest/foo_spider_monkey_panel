@@ -176,7 +176,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( getLockName, Playlist::GetLockName );
 MJS_DEFINE_JS_FN_FROM_NATIVE( getLockedOperations, Playlist::GetLockedOperations );
 MJS_DEFINE_JS_FN_FROM_NATIVE( getSelectedTrackIndices, Playlist::GetSelectedTrackIndices );
 MJS_DEFINE_JS_FN_FROM_NATIVE( getSelectedTracks, Playlist::GetSelectedTracks );
-MJS_DEFINE_JS_FN_FROM_NATIVE( getTracks, Playlist::GetTracks );
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( getTracks, Playlist::GetTracks, Playlist::GetTracksWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( insertTracks, Playlist::InsertTracks, Playlist::InsertTracksWithOpt, 2 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( isAutoPlaylistUiAvailable, Playlist::IsAutoPlaylistUiAvailable );
 MJS_DEFINE_JS_FN_FROM_NATIVE( isLocked, Playlist::IsLocked );
@@ -527,14 +527,43 @@ std::vector<qwr::u8string> Playlist::GetLockedOperations() const
     return actions;
 }
 
-JSObject* Playlist::GetTracks() const
+JSObject* Playlist::GetTracks( JS::HandleValue trackIndices ) const
 {
     const auto api = playlist_manager::get();
     const auto playlistIndex = get_Index();
 
     metadb_handle_list handles;
-    api->playlist_get_all_items( playlistIndex, handles );
+    if ( trackIndices.isUndefined() )
+    {
+        api->playlist_get_all_items( playlistIndex, handles );
+    }
+    else
+    {
+        const auto handleIndicesVec = convert::to_native::ToValue<std::vector<uint32_t>>( pJsCtx_, trackIndices );
+        const auto handleCount = api->playlist_get_item_count( playlistIndex );
+        pfc::bit_array_bittable handleIndicesBitArray( pfc::bit_array_false{}, handleCount );
+        for ( auto index: handleIndicesVec )
+        {
+            qwr::QwrException::ExpectTrue( index < handleCount, "Index is out of bounds" );
+            handleIndicesBitArray.set( index, true );
+        }
+
+        api->playlist_get_items( playlistIndex, handles, handleIndicesBitArray );
+    }
     return TrackList::CreateJs( pJsCtx_, handles );
+}
+
+JSObject* Playlist::GetTracksWithOpt( size_t optArgCount, JS::HandleValue trackIndices ) const
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return GetTracks( trackIndices );
+    case 1:
+        return GetTracks();
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
 }
 
 bool Playlist::IsAutoPlaylistUiAvailable() const

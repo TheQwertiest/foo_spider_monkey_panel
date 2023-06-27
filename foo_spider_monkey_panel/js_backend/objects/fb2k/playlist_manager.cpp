@@ -7,14 +7,66 @@
 #include <fb2k/title_format_manager.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/event.h>
+#include <js_backend/objects/fb2k/events/multi_playlist_event.h>
+#include <js_backend/objects/fb2k/events/playlist_event.h>
+#include <js_backend/objects/fb2k/events/playlist_multi_track_event.h>
+#include <js_backend/objects/fb2k/events/playlist_track_event.h>
 #include <js_backend/objects/fb2k/playlist.h>
 #include <js_backend/objects/fb2k/track.h>
 #include <js_backend/objects/fb2k/track_list.h>
 #include <js_backend/utils/js_property_helper.h>
-#include <tasks/events/event.h>
+#include <tasks/events/multi_playlist_event.h>
+#include <tasks/events/playlist_event.h>
+#include <tasks/events/playlist_item_event.h>
+#include <tasks/events/playlist_multi_item_event.h>
 #include <utils/text_helpers.h>
 
 using namespace smp;
+
+namespace
+{
+
+auto GeneratePlaylistEventProps( const smp::PlaylistEvent& event )
+{
+    mozjs::PlaylistEvent::EventProperties props{
+        .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
+        .playlistIndex = event.GetPlaylistIndex()
+    };
+
+    return props;
+}
+
+auto GenerateMultiPlaylistEventProps( const smp::MultiPlaylistEvent& event )
+{
+    mozjs::MultiPlaylistEvent::EventProperties props{
+        .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
+        .playlistIndices = event.GetPlaylistIndices()
+    };
+
+    return props;
+}
+
+auto GenerateTrackEventProps( const smp::PlaylistItemEvent& event )
+{
+    mozjs::PlaylistTrackEvent::EventProperties props{
+        .baseProps = GeneratePlaylistEventProps( event ),
+        .trackIndex = event.GetItemIndex()
+    };
+
+    return props;
+}
+
+auto GenerateMultiTrackEventProps( const smp::PlaylistMultiItemEvent& event )
+{
+    mozjs::PlaylistMultiTrackEvent::EventProperties props{
+        .baseProps = GeneratePlaylistEventProps( event ),
+        .trackIndices = event.GetItemIndices()
+    };
+
+    return props;
+}
+
+} // namespace
 
 namespace
 {
@@ -81,6 +133,7 @@ namespace mozjs
 
 const JSClass JsObjectTraits<PlaylistManager>::JsClass = jsClass;
 const JSFunctionSpec* JsObjectTraits<PlaylistManager>::JsFunctions = jsFunctions.data();
+const PostJsCreateFn JsObjectTraits<PlaylistManager>::PostCreate = PlaylistManager::PostCreate;
 
 const std::unordered_set<smp::EventId> PlaylistManager::kHandledEvents{
     EventId::kNew_FbPlaylistActivate,
@@ -120,8 +173,18 @@ size_t PlaylistManager::GetInternalSize() const
     return 0;
 }
 
+void PlaylistManager::PostCreate( JSContext* cx, JS::HandleObject self )
+{
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::PlaylistEvent>>( cx, self );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::PlaylistTrackEvent>>( cx, self );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::PlaylistMultiTrackEvent>>( cx, self );
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::MultiPlaylistEvent>>( cx, self );
+}
+
 void PlaylistManager::Trace( JSTracer* trc, JSObject* obj )
 {
+    JsEventTarget::Trace( trc, obj );
+
     auto pNative = JsObjectBase<PlaylistManager>::ExtractNativeUnchecked( obj );
     if ( !pNative )
     {
@@ -168,14 +231,72 @@ EventStatus PlaylistManager::HandleEvent( JS::HandleObject self, const smp::Even
     }
     status.isHandled = true;
 
-    JS::RootedObject jsEvent( pJsCtx_,
-                              mozjs::JsEvent::CreateJs( pJsCtx_, eventType, JsEvent::EventProperties{ .cancelable = false } ) );
+    JS::RootedObject jsEvent( pJsCtx_, GenerateEvent( event, eventType ) );
     JS::RootedValue jsEventValue( pJsCtx_, JS::ObjectValue( *jsEvent ) );
     DispatchEvent( self, jsEventValue );
 
     const auto pNativeEvent = convert::to_native::ToValue<JsEvent*>( pJsCtx_, jsEvent );
     status.isDefaultSuppressed = pNativeEvent->get_DefaultPrevented();
     return status;
+}
+
+JSObject* PlaylistManager::GenerateEvent( const smp::EventBase& event, const qwr::u8string& eventType )
+{
+    JS::RootedObject jsEvent( pJsCtx_ );
+
+    switch ( event.GetId() )
+    {
+    case EventId::kNew_FbPlaylistCreated:
+    case EventId::kNew_FbPlaylistItemFocusChange:
+    case EventId::kNew_FbPlaylistLocked:
+    case EventId::kNew_FbPlaylistRenamed:
+    {
+        const auto& playlistEvent = static_cast<const smp::PlaylistEvent&>( event );
+        jsEvent = mozjs::JsObjectBase<mozjs::PlaylistEvent>::CreateJs(
+            pJsCtx_,
+            eventType,
+            GeneratePlaylistEventProps( playlistEvent ) );
+        break;
+    }
+    case EventId::kNew_FbPlaylistItemEnsureVisible:
+    {
+        const auto& playlistEvent = static_cast<const smp::PlaylistItemEvent&>( event );
+        jsEvent = mozjs::JsObjectBase<mozjs::PlaylistTrackEvent>::CreateJs(
+            pJsCtx_,
+            eventType,
+            GenerateTrackEventProps( playlistEvent ) );
+        break;
+    }
+    case EventId::kNew_FbPlaylistItemsAdded:
+    case EventId::kNew_FbPlaylistItemsRemoved:
+    case EventId::kNew_FbPlaylistItemsReordered:
+    case EventId::kNew_FbPlaylistItemsReplaced:
+    case EventId::kNew_FbPlaylistItemsModified:
+    case EventId::kNew_FbPlaylistItemsSelectionChange:
+    {
+        const auto& playlistEvent = static_cast<const smp::PlaylistMultiItemEvent&>( event );
+        jsEvent = mozjs::JsObjectBase<mozjs::PlaylistMultiTrackEvent>::CreateJs(
+            pJsCtx_,
+            eventType,
+            GenerateMultiTrackEventProps( playlistEvent ) );
+        break;
+    }
+    case EventId::kNew_FbPlaylistsRemoved:
+    case EventId::kNew_FbPlaylistsReorder:
+    {
+        const auto& playlistEvent = static_cast<const smp::MultiPlaylistEvent&>( event );
+        jsEvent = mozjs::JsObjectBase<mozjs::MultiPlaylistEvent>::CreateJs(
+            pJsCtx_,
+            eventType,
+            GenerateMultiPlaylistEventProps( playlistEvent ) );
+        break;
+    }
+    default:
+        jsEvent = mozjs::JsEvent::CreateJs( pJsCtx_, eventType, JsEvent::EventProperties{ .cancelable = false } );
+        break;
+    }
+
+    return jsEvent;
 }
 
 JSObject* PlaylistManager::CreateAutoPlaylist( const qwr::u8string& query, const qwr::u8string& sortQuery, uint32_t playlistIndex, const qwr::u8string& name, bool enforceSort )

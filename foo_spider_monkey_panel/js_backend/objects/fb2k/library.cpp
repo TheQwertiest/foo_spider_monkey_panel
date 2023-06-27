@@ -3,12 +3,12 @@
 #include "library.h"
 
 #include <js_backend/engine/js_to_native_invoker.h>
+#include <js_backend/objects/fb2k/events/library_item_event.h>
 #include <js_backend/objects/fb2k/track.h>
-#include <js_backend/objects/fb2k/track_event.h>
 #include <js_backend/objects/fb2k/track_list.h>
 #include <tasks/dispatcher/event_dispatcher.h>
 #include <tasks/events/js_promise_event.h>
-#include <tasks/events/track_event.h>
+#include <tasks/events/library_item_event.h>
 #include <utils/relative_filepath_trie.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
@@ -123,11 +123,11 @@ void TracksSearchThreadTask::Run()
     }
 }
 
-auto GenerateTrackEventProps( const smp::TrackEvent& event )
+auto GenerateTrackEventProps( const smp::LibraryItemEvent& event )
 {
-    mozjs::TrackEvent::EventProperties props{
+    mozjs::LibraryTrackEvent::EventProperties props{
         .baseProps = mozjs::JsEvent::EventProperties{ .cancelable = false },
-        .affectedTracks = event.GetAffectedTracks()
+        .handles = event.GetHandles()
     };
 
     return props;
@@ -150,7 +150,7 @@ JSClassOps jsOps = {
     JsObjectBase<Library>::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr
+    Library::Trace
 };
 
 JSClass jsClass = {
@@ -192,6 +192,7 @@ namespace mozjs
 const JSClass JsObjectTraits<Library>::JsClass = jsClass;
 const JSFunctionSpec* JsObjectTraits<Library>::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsObjectTraits<Library>::JsProperties = jsProperties.data();
+const PostJsCreateFn JsObjectTraits<Library>::PostCreate = Library::PostCreate;
 
 const std::unordered_set<smp::EventId> Library::kHandledEvents{
     EventId::kNew_FbLibraryItemsAdded,
@@ -218,6 +219,16 @@ Library::CreateNative( JSContext* cx )
 size_t Library::GetInternalSize() const
 {
     return 0;
+}
+
+void Library::PostCreate( JSContext* cx, JS::HandleObject self )
+{
+    utils::CreateAndInstallPrototype<JsObjectBase<mozjs::LibraryTrackEvent>>( cx, self );
+}
+
+void Library::Trace( JSTracer* trc, JSObject* obj )
+{
+    JsEventTarget::Trace( trc, obj );
 }
 
 const std::string& Library::EventIdToType( smp::EventId eventId )
@@ -250,8 +261,8 @@ EventStatus Library::HandleEvent( JS::HandleObject self, const smp::EventBase& e
     case EventId::kNew_FbLibraryItemsModified:
     case EventId::kNew_FbLibraryItemsRemoved:
     {
-        const auto& trackEvent = static_cast<const smp::TrackEvent&>( event );
-        jsEvent.setObjectOrNull( mozjs::JsObjectBase<TrackEvent>::CreateJs(
+        const auto& trackEvent = static_cast<const smp::LibraryItemEvent&>( event );
+        jsEvent.setObjectOrNull( mozjs::JsObjectBase<LibraryTrackEvent>::CreateJs(
             pJsCtx_,
             eventType,
             GenerateTrackEventProps( trackEvent ) ) );
