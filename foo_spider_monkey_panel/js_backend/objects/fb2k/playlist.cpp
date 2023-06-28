@@ -541,7 +541,7 @@ JSObject* Playlist::GetTracks( JS::HandleValue trackIndices ) const
     {
         const auto handleIndicesVec = convert::to_native::ToValue<std::vector<uint32_t>>( pJsCtx_, trackIndices );
         const auto handleCount = api->playlist_get_item_count( playlistIndex );
-        pfc::bit_array_bittable handleIndicesBitArray( pfc::bit_array_false{}, handleCount );
+        pfc::bit_array_bittable handleIndicesBitArray;
         for ( auto index: handleIndicesVec )
         {
             qwr::QwrException::ExpectTrue( index < handleCount, "Index is out of bounds" );

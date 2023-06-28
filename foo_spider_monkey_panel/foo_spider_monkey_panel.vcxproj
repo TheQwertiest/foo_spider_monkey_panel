@@ -179,6 +179,7 @@
     <ClCompile Include="dom\css_fonts.cpp" />
     <ClCompile Include="dom\dom_codes.cpp" />
     <ClCompile Include="dom\dom_keys.cpp" />
+    <ClCompile Include="fb2k\callbacks\playback_queue.cpp" />
     <ClCompile Include="fb2k\callbacks\library.cpp" />
     <ClCompile Include="fb2k\callbacks\playlist.cpp" />
     <ClCompile Include="fb2k\playlist_index_manager.cpp" />
@@ -192,9 +193,11 @@
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\events\library_item_event.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\events\multi_playlist_event.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\events\playback_queue_event.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\events\playlist_multi_track_event.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\events\playlist_event.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\events\playlist_track_event.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\playback_queue.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_image.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_image_manager.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\library.cpp" />
@@ -225,9 +228,11 @@
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h" />
     <ClInclude Include="js_backend\objects\fb2k\events\library_item_event.h" />
     <ClInclude Include="js_backend\objects\fb2k\events\multi_playlist_event.h" />
+    <ClInclude Include="js_backend\objects\fb2k\events\playback_queue_event.h" />
     <ClInclude Include="js_backend\objects\fb2k\events\playlist_multi_track_event.h" />
     <ClInclude Include="js_backend\objects\fb2k\events\playlist_event.h" />
     <ClInclude Include="js_backend\objects\fb2k\events\playlist_track_event.h" />
+    <ClInclude Include="js_backend\objects\fb2k\playback_queue.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_image.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_image_manager.h" />
     <ClInclude Include="js_backend\objects\fb2k\library.h" />
@@ -255,12 +260,14 @@
     <ClInclude Include="tasks\events\js_target_event.h" />
     <ClInclude Include="tasks\events\library_item_event.h" />
     <ClInclude Include="tasks\events\multi_playlist_event.h" />
+    <ClInclude Include="tasks\events\playback_queue_event.h" />
     <ClInclude Include="tasks\events\playlist_event.h" />
     <ClInclude Include="tasks\events\playlist_multi_item_event.h" />
     <ClInclude Include="tasks\events\playlist_item_event.h" />
     <ClInclude Include="tasks\micro_tasks\js_target_micro_task.h" />
     <ClCompile Include="tasks\events\library_item_event.cpp" />
     <ClCompile Include="tasks\events\multi_playlist_event.cpp" />
+    <ClCompile Include="tasks\events\playback_queue_event.cpp" />
     <ClCompile Include="tasks\events\playlist_event.cpp" />
     <ClCompile Include="tasks\events\playlist_multi_item_event.cpp" />
     <ClCompile Include="tasks\events\playlist_item_event.cpp" />
@@ -657,6 +664,7 @@
     <None Include="resources\modules\canvas.js" />
     <None Include="resources\modules\library.js" />
     <None Include="resources\modules\playback.js" />
+    <None Include="resources\modules\playback_queue.js" />
     <None Include="resources\modules\playlist_manager.js" />
     <None Include="resources\modules\ui_selection_manager.js" />
     <None Include="resources\modules\track.js" />

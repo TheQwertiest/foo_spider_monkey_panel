@@ -21,7 +21,7 @@ struct JsObjectTraits<Playlist_Iterator>
     static const JsPrototypeId PrototypeId;
 };
 
-class Playlist_Iterator
+class Playlist_Iterator final
     : public JsObjectBase<Playlist_Iterator>
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( Playlist_Iterator );

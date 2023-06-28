@@ -29,7 +29,7 @@ struct JsObjectTraits<PlaybackControl>
     static const PostJsCreateFn PostCreate;
 };
 
-class PlaybackControl
+class PlaybackControl final
     : public JsObjectBase<PlaybackControl>
     , private JsEventTarget
 {

@@ -82,6 +82,7 @@ enum class EventId
     kNew_FbPlaybackStop,
     kNew_FbPlaybackTime,
     kNew_FbPlaybackVolumeChange,
+    kNew_FbPlaylistPlaybackOrderChanged,
     /// playlist
     kNew_FbPlaylistActivate,
     kNew_FbPlaylistCreated,
@@ -94,11 +95,11 @@ enum class EventId
     kNew_FbPlaylistItemsReplaced,
     kNew_FbPlaylistItemsSelectionChange,
     kNew_FbPlaylistLocked,
-    /// TODO: handle in playback
-    kNew_FbPlaylistPlaybackOrderChanged,
     kNew_FbPlaylistRenamed,
     kNew_FbPlaylistsRemoved,
     kNew_FbPlaylistsReorder,
+    /// queue
+    kNew_FbPlaybackQueueChanged,
     /// library
     kNew_FbLibraryItemsAdded,
     kNew_FbLibraryItemsModified,

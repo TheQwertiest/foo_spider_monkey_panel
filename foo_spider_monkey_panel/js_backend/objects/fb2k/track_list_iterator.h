@@ -21,7 +21,7 @@ struct JsObjectTraits<TrackList_Iterator>
     static const JsPrototypeId PrototypeId;
 };
 
-class TrackList_Iterator
+class TrackList_Iterator final
     : public JsObjectBase<TrackList_Iterator>
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( TrackList_Iterator );

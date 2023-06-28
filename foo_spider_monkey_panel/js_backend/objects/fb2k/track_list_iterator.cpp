@@ -97,6 +97,7 @@ JSObject* TrackList_Iterator::Next()
     if ( !jsNext_ )
     {
         jsNext_ = JS_NewPlainObject( pJsCtx_ );
+        smp::JsException::ExpectTrue( jsNext_ );
     }
 
     JS::RootedValue jsValue( pJsCtx_ );

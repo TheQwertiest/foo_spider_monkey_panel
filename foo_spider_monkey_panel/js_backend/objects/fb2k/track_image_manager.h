@@ -20,7 +20,7 @@ struct JsObjectTraits<TrackImageManager>
     static const JSFunctionSpec* JsFunctions;
 };
 
-class TrackImageManager
+class TrackImageManager final
     : public JsObjectBase<TrackImageManager>
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( TrackImageManager );

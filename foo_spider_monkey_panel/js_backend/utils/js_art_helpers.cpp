@@ -141,10 +141,7 @@ bool JsAlbumArtTask::InvokeJsImpl( JSContext* cx, JS::HandleObject, JS::HandleVa
         }
 
         JS::RootedObject jsResult( cx, JS_NewPlainObject( cx ) );
-        if ( !jsResult )
-        {
-            throw JsException();
-        }
+        JsException::ExpectTrue( jsResult );
 
         utils::AddProperty( cx, jsResult, "image", JS::HandleValue{ jsBitmapValue } );
         utils::AddProperty( cx, jsResult, "path", path_ );

@@ -16,6 +16,7 @@ enum class BuiltinModuleId : uint8_t
     kPlaylistManager,
     kLibrary,
     kTrackImageManager,
+    kPlaybackQueue,
     kCount
 };
 

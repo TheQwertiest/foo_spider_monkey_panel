@@ -25,7 +25,7 @@ struct JsObjectTraits<Playlist>
     static const js::BaseProxyHandler& JsProxy;
 };
 
-class Playlist
+class Playlist final
     : public JsObjectBase<Playlist>
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( Playlist );
@@ -41,7 +41,15 @@ public:
     uint32_t GetItemCount() const;
 
 public:
+    // TODO: add lock checks everywhere
+    // TODO: add bulk remove items
+    // TODO: add replace items
+    // TODO: add splice?
+    // TODO: use array naming for methods?
+
     // TODO: maybe add a promise?
+    // TODO: maybe integrate in InsertTracks instead?
+    // TODO: add silent flag?
     void AddPaths( const std::vector<qwr::u8string>& paths, uint32_t start = pfc_infinite, JS::HandleValue options = JS::UndefinedHandleValue );
     void AddPathsWithOpt( size_t optArgCount, const std::vector<qwr::u8string>& paths, uint32_t start, JS::HandleValue options );
     void ClearSelection();
@@ -72,6 +80,7 @@ public:
     void RemoveAll();
     void RemoveSelectedTracks();
     void RemoveUnselectedTracks();
+    // TODO: remove invertSelection, add UnselectTracks instead
     void SelectTracks( const std::vector<uint32_t>& trackIndices, bool invertSelection = false );
     void SelectTracksWithOpt( size_t optArgCount, const std::vector<uint32_t>& trackIndices, bool invertSelection );
     void SetAsActive();

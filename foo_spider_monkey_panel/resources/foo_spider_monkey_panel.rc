@@ -599,19 +599,33 @@ END
 // SCRIPT
 //
 
-IDR_DEFAULT_SCRIPT          SCRIPT                "default_script.js"
-IDR_SCINTILLA_INTERFACE_API SCRIPT                "scintilla_interface.api"
-IDR_SCINTILLA_JS_API        SCRIPT                "scintilla_jscript.api"
-IDR_RECOVERY_PACKAGE_SCRIPT SCRIPT                "recovery_package_script.js"
-IDR_RECOVERY_PACKAGE_JSON   SCRIPT                "recovery_package_json.json"
-IDR_MODULE_DOM_CANVAS       SCRIPT                "modules/canvas.js"
-IDR_MODULE_DOM_WINDOW       SCRIPT                "modules/window.js"
-IDR_MODULE_FB_LIBRARY       SCRIPT                "modules/library.js"
-IDR_MODULE_FB_PLAYBACK      SCRIPT                "modules/playback.js"
-IDR_MODULE_FB_PLAYLIST_MANAGER      SCRIPT        "modules/playlist_manager.js"
-IDR_MODULE_FB_TRACK                 SCRIPT        "modules/track.js"
-IDR_MODULE_FB_TRACK_IMAGE_MANAGER   SCRIPT        "modules/track_image_manager.js"
-IDR_MODULE_FB_UI_SELECTION_MANGAGER SCRIPT        "modules/ui_selection_manager.js"
+IDR_DEFAULT_SCRIPT      SCRIPT                  "default_script.js"
+
+IDR_SCINTILLA_INTERFACE_API SCRIPT                  "scintilla_interface.api"
+
+IDR_SCINTILLA_JS_API    SCRIPT                  "scintilla_jscript.api"
+
+IDR_RECOVERY_PACKAGE_SCRIPT SCRIPT                  "recovery_package_script.js"
+
+IDR_RECOVERY_PACKAGE_JSON SCRIPT                  "recovery_package_json.json"
+
+IDR_MODULE_DOM_CANVAS   SCRIPT                  "modules/canvas.js"
+
+IDR_MODULE_DOM_WINDOW   SCRIPT                  "modules/window.js"
+
+IDR_MODULE_FB_LIBRARY   SCRIPT                  "modules/library.js"
+
+IDR_MODULE_FB_PLAYBACK  SCRIPT                  "modules/playback.js"
+
+IDR_MODULE_FB_PLAYBACK_QUEUE SCRIPT              "modules/playback_queue.js"
+
+IDR_MODULE_FB_PLAYLIST_MANAGER SCRIPT                  "modules/playlist_manager.js"
+
+IDR_MODULE_FB_TRACK     SCRIPT                  "modules/track.js"
+
+IDR_MODULE_FB_TRACK_IMAGE_MANAGER SCRIPT                  "modules/track_image_manager.js"
+
+IDR_MODULE_FB_UI_SELECTION_MANAGER SCRIPT                  "modules/ui_selection_manager.js"
 
 
 /////////////////////////////////////////////////////////////////////////////

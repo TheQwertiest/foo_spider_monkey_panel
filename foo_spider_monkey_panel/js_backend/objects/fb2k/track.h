@@ -22,7 +22,7 @@ struct JsObjectTraits<Track>
     static const JSNative JsConstructor;
 };
 
-class Track
+class Track final
     : public JsObjectBase<Track>
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( Track );

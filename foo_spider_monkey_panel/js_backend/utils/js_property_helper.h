@@ -36,12 +36,15 @@ std::optional<T> GetOptionalProperty( JSContext* cx, JS::HandleObject jsObject, 
 };
 
 template <typename T>
-void OptionalPropertyTo( JSContext* cx, JS::HandleObject jsObject, const std::string& propName, T& dst )
+bool OptionalPropertyTo( JSContext* cx, JS::HandleObject jsObject, const std::string& propName, T& dst )
 {
     if ( auto propOpt = GetOptionalProperty<T>( cx, jsObject, propName ) )
     {
         dst = std::move( *propOpt );
+        return true;
     }
+
+    return false;
 }
 
 template <typename T>

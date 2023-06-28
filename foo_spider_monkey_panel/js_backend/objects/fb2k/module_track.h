@@ -18,7 +18,7 @@ struct JsObjectTraits<ModuleTrack>
     static const PostJsCreateFn PostCreate;
 };
 
-class ModuleTrack
+class ModuleTrack final
     : public JsObjectBase<ModuleTrack>
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( ModuleTrack );

@@ -22,6 +22,7 @@
 #include <js_backend/objects/fb2k/library.h>
 #include <js_backend/objects/fb2k/module_track.h>
 #include <js_backend/objects/fb2k/playback_control.h>
+#include <js_backend/objects/fb2k/playback_queue.h>
 #include <js_backend/objects/fb2k/playlist_manager.h>
 #include <js_backend/objects/fb2k/track_image_manager.h>
 #include <js_backend/objects/fb2k/ui_selection_manager.h>
@@ -363,6 +364,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case BuiltinModuleId::kTrackImageManager:
             {
                 return initializeLoadedObject.template operator()<TrackImageManager>( moduleId );
+            }
+            case BuiltinModuleId::kPlaybackQueue:
+            {
+                return initializeLoadedObject.template operator()<PlaybackQueue>( moduleId );
             }
             // TODO: add event module
             default:

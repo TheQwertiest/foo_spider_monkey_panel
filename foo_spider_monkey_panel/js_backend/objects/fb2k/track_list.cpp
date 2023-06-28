@@ -115,6 +115,7 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( clear, TrackList::Clear );
 MJS_DEFINE_JS_FN_FROM_NATIVE( concat, TrackList::Concat );
 MJS_DEFINE_JS_FN_FROM_NATIVE( concatInPlace, TrackList::ConcatInPlace );
 MJS_DEFINE_JS_FN_FROM_NATIVE( difference, TrackList::Difference );
@@ -126,10 +127,9 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( optimizeForValueSearch, TrackList::Optimi
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( sortByFormat, TrackList::SortByFormat, TrackList::SortByFormatWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( sortByPath, TrackList::SortByPath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( sortByRelativePath, TrackList::SortByRelativePath );
+MJS_DEFINE_JS_FN_FROM_NATIVE( pullAt, TrackList::PullAt );
+MJS_DEFINE_JS_FN_FROM_NATIVE( pull, TrackList::Pull );
 MJS_DEFINE_JS_FN_FROM_NATIVE( push, TrackList::Push );
-MJS_DEFINE_JS_FN_FROM_NATIVE( removeAll, TrackList::RemoveAll );
-MJS_DEFINE_JS_FN_FROM_NATIVE( removeByIndex, TrackList::RemoveByIndex );
-MJS_DEFINE_JS_FN_FROM_NATIVE( removeByValue, TrackList::RemoveByValue );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( splice, TrackList::Splice, TrackList::SpliceWithOpt, 2 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( toArray, TrackList::ToArray );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_LOG( Union, "union", TrackList::Union );
@@ -137,6 +137,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( createIterator, TrackList::CreateIterato
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
+        JS_FN( "clear", clear, 0, kDefaultPropsFlags ),
         JS_FN( "concat", concat, 1, kDefaultPropsFlags ),
         JS_FN( "concatInPlace", concatInPlace, 1, kDefaultPropsFlags ),
         JS_FN( "difference", difference, 1, kDefaultPropsFlags ),
@@ -148,10 +149,9 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "sortByFormat", sortByFormat, 1, kDefaultPropsFlags ),
         JS_FN( "sortByPath", sortByPath, 0, kDefaultPropsFlags ),
         JS_FN( "sortByRelativePath", sortByRelativePath, 0, kDefaultPropsFlags ),
+        JS_FN( "pullAt", pullAt, 1, kDefaultPropsFlags ),
+        JS_FN( "pull", pull, 1, kDefaultPropsFlags ),
         JS_FN( "push", push, 1, kDefaultPropsFlags ),
-        JS_FN( "removeAll", removeAll, 0, kDefaultPropsFlags ),
-        JS_FN( "removeByIndex", removeByIndex, 1, kDefaultPropsFlags ),
-        JS_FN( "removeByValue", removeByValue, 1, kDefaultPropsFlags ),
         JS_FN( "splice", splice, 1, kDefaultPropsFlags ),
         JS_FN( "toArray", toArray, 0, kDefaultPropsFlags ),
         JS_FN( "union", Union, 1, kDefaultPropsFlags ),
@@ -196,6 +196,11 @@ TrackList::TrackList( JSContext* cx, const metadb_handle_list& tracks )
     : pJsCtx_( cx )
     , metadbHandleList_( tracks )
 {
+}
+
+void TrackList::Clear()
+{
+    metadbHandleList_.remove_all();
 }
 
 std::unique_ptr<TrackList>
@@ -372,18 +377,7 @@ void TrackList::OptimizeForValueSearchWithOpt( size_t optArgCount, bool removeDu
     }
 }
 
-void TrackList::Push( smp::not_null<Track*> track )
-{
-    metadbHandleList_.add_item( track->GetHandle() );
-    isSorted_ = false;
-}
-
-void TrackList::RemoveAll()
-{
-    metadbHandleList_.remove_all();
-}
-
-void TrackList::RemoveByIndex( int32_t index )
+void TrackList::PullAt( int32_t index )
 {
     const auto adjustedIndex = ( index < 0 ? metadbHandleList_.size() + index : index );
     qwr::QwrException::ExpectTrue( adjustedIndex < metadbHandleList_.size(), "Index is out of bounds" );
@@ -391,7 +385,7 @@ void TrackList::RemoveByIndex( int32_t index )
     metadbHandleList_.remove_by_idx( index );
 }
 
-void TrackList::RemoveByValue( smp::not_null<Track*> track )
+void TrackList::Pull( smp::not_null<Track*> track )
 {
     const auto idx = [&] {
         if ( isSorted_ )
@@ -405,6 +399,12 @@ void TrackList::RemoveByValue( smp::not_null<Track*> track )
     }();
 
     metadbHandleList_.remove_by_idx( idx );
+}
+
+void TrackList::Push( smp::not_null<Track*> track )
+{
+    metadbHandleList_.add_item( track->GetHandle() );
+    isSorted_ = false;
 }
 
 void TrackList::SortByFormat( const qwr::u8string& query, int8_t direction )

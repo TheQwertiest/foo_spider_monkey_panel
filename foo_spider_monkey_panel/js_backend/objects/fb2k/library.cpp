@@ -164,7 +164,6 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( filterTracks, Library::FilterTracks, Libr
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( getTracks, Library::GetTracks, Library::GetTracksWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( getTracksRelativePath, Library::GetTracksRelativePath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( orderTracksByRelativePath, Library::OrderTracksByRelativePath );
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_isEnabled, Library::get_IsEnabled );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
@@ -175,6 +174,8 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "orderTracksByRelativePath", orderTracksByRelativePath, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
+
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_isEnabled, Library::get_IsEnabled );
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {

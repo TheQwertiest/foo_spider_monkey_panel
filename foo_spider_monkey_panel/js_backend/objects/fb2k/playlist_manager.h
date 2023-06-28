@@ -27,7 +27,7 @@ struct JsObjectTraits<PlaylistManager>
     static const PostJsCreateFn PostCreate;
 };
 
-class PlaylistManager
+class PlaylistManager final
     : public JsObjectBase<PlaylistManager>
     , private JsEventTarget
 {

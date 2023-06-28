@@ -101,14 +101,16 @@ JSObject* JsActiveXObject_Iterator::Next()
 {
     LoadCurrentElement();
 
+    // TODO: use simplified logic from new iterators
     if ( !jsNextId_ )
     {
         JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
+        smp::JsException::ExpectTrue( jsObject );
 
         JS::RootedValue jsValue( pJsCtx_ );
         convert::com::VariantToJs( pJsCtx_, curElem_, &jsValue );
-        utils::AddProperty( pJsCtx_, jsObject, "value", static_cast<JS::HandleValue>( jsValue ) );
-        utils::AddProperty( pJsCtx_, jsObject, "done", isAtEnd_ );
+        utils::SetProperty( pJsCtx_, jsObject, "value", static_cast<JS::HandleValue>( jsValue ) );
+        utils::SetProperty( pJsCtx_, jsObject, "done", isAtEnd_ );
 
         jsNextId_ = heapHelper_.Store( jsObject );
 

@@ -21,7 +21,7 @@ struct JsObjectTraits<TrackInfoSnapshot>
     static const JsPrototypeId PrototypeId;
 };
 
-class TrackInfoSnapshot
+class TrackInfoSnapshot final
     : public JsObjectBase<TrackInfoSnapshot>
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( TrackInfoSnapshot );

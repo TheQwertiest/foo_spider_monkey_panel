@@ -23,7 +23,7 @@ struct JsObjectTraits<UiSelectionManager>
     static const JSFunctionSpec* JsFunctions;
 };
 
-class UiSelectionManager
+class UiSelectionManager final
     : public JsObjectBase<UiSelectionManager>
     , private JsEventTarget
 {

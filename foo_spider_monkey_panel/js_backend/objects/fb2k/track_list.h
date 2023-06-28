@@ -26,7 +26,7 @@ struct JsObjectTraits<TrackList>
     static const js::BaseProxyHandler& JsProxy;
 };
 
-class TrackList
+class TrackList final
     : public JsObjectBase<TrackList>
 {
     MOZJS_ENABLE_OBJECT_BASE_ACCESS( TrackList );
@@ -49,6 +49,7 @@ public:
     static JSObject* Constructor( JSContext* cx, JS::HandleValue value = JS::UndefinedHandleValue );
     static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, JS::HandleValue value );
 
+    void Clear();
     JSObject* Concat( JS::HandleValue tracks ) const;
     void ConcatInPlace( JS::HandleValue tracks );
     JSObject* Difference( smp::not_null<TrackList*> tracks ) const;
@@ -58,10 +59,11 @@ public:
     JSObject* Intersection( smp::not_null<TrackList*> tracks ) const;
     void OptimizeForValueSearch( bool removeDuplicates = false );
     void OptimizeForValueSearchWithOpt( size_t optArgCount, bool removeDuplicates );
+    // TODO: return removed values
+    // TODO: add array support
+    void PullAt( int32_t index );
+    void Pull( smp::not_null<Track*> track );
     void Push( smp::not_null<Track*> track );
-    void RemoveAll();
-    void RemoveByIndex( int32_t index );
-    void RemoveByValue( smp::not_null<Track*> track );
     void SortByFormat( const qwr::u8string& query, int8_t direction = 1 );
     void SortByFormatWithOpt( size_t optArgCount, const qwr::u8string& query, int8_t direction );
     void SortByPath();

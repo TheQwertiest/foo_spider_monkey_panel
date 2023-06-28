@@ -682,6 +682,18 @@
     <ClCompile Include="js_backend\objects\fb2k\events\playlist_event.cpp">
       <Filter>js_backend\objects\fb2k\events</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\playback_queue.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\callbacks\playback_queue.cpp">
+      <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="tasks\events\playback_queue_event.cpp">
+      <Filter>tasks\events</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\events\playback_queue_event.cpp">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1480,6 +1492,15 @@
     <ClInclude Include="js_backend\objects\fb2k\events\playlist_event.h">
       <Filter>js_backend\objects\fb2k\events</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\playback_queue.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="tasks\events\playback_queue_event.h">
+      <Filter>tasks\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\events\playback_queue_event.h">
+      <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1523,6 +1544,9 @@
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\track_image_manager.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\playback_queue.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>

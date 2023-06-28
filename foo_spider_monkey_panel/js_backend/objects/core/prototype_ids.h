@@ -59,6 +59,7 @@ enum class JsPrototypeId : uint32_t
     New_PlaylistMultiTrackEvent,
     New_PlaylistEvent,
     New_PlaylistTrackEvent,
+    New_PlaybackQueueEvent,
     ProrototypeCount
 };
 }

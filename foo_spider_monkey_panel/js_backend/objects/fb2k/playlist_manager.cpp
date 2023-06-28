@@ -471,9 +471,11 @@ JSObject* PlaylistManager::GetCurrentlyPlayingTrackLocation() const
     }
 
     JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
+    JsException::ExpectTrue( jsObject );
+
     JS::RootedObject jsPlaylist( pJsCtx_, GetPlaylist( playlistIndex ) );
-    utils::AddProperty( pJsCtx_, jsObject, "playlist", static_cast<JS::HandleObject>( jsPlaylist ) );
-    utils::AddProperty( pJsCtx_, jsObject, "trackIndex", trackIndex );
+    utils::SetProperty( pJsCtx_, jsObject, "playlist", static_cast<JS::HandleObject>( jsPlaylist ) );
+    utils::SetProperty( pJsCtx_, jsObject, "trackIndex", trackIndex );
     return jsObject;
 }
 

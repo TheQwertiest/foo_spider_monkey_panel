@@ -32,7 +32,7 @@ struct JsObjectTraits<TrackImage>
     static const JsPrototypeId PrototypeId;
 };
 
-class TrackImage
+class TrackImage final
     : public JsObjectBase<TrackImage>
     , private Image
 {

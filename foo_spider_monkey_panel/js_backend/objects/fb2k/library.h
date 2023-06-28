@@ -28,7 +28,7 @@ struct JsObjectTraits<Library>
     static const PostJsCreateFn PostCreate;
 };
 
-class Library
+class Library final
     : public JsObjectBase<Library>
     , private JsEventTarget
 {

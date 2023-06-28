@@ -41,6 +41,10 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kTrackImageManager;
     }
+    if ( moduleName == "smp:fb/playback-queue" )
+    {
+        return BuiltinModuleId::kPlaybackQueue;
+    }
 
     return std::nullopt;
 }
@@ -52,7 +56,7 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
     case mozjs::BuiltinModuleId::kFbPlaybackControl:
         return IDR_MODULE_FB_PLAYBACK;
     case mozjs::BuiltinModuleId::kFbUiSelectionManager:
-        return IDR_MODULE_FB_UI_SELECTION_MANGAGER;
+        return IDR_MODULE_FB_UI_SELECTION_MANAGER;
     case mozjs::BuiltinModuleId::kWindow:
         return IDR_MODULE_DOM_WINDOW;
     case mozjs::BuiltinModuleId::kCanvas:
@@ -65,6 +69,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_FB_LIBRARY;
     case mozjs::BuiltinModuleId::kTrackImageManager:
         return IDR_MODULE_FB_TRACK_IMAGE_MANAGER;
+    case mozjs::BuiltinModuleId::kPlaybackQueue:
+        return IDR_MODULE_FB_PLAYBACK_QUEUE;
     default:
         assert( false );
         return 0;
