@@ -8,7 +8,7 @@ namespace mozjs
 enum class BuiltinModuleId : uint8_t
 {
     kFbPlaybackControl,
-    kFbSelectionManager,
+    kFbUiSelectionManager,
     kWindow,
     kEvents,
     kCanvas,

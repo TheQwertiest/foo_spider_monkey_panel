@@ -236,6 +236,11 @@ PanelWindowGraphics& PanelWindow::GetGraphics()
     return *pGraphics_;
 }
 
+ui_selection_holder::ptr PanelWindow::GetSelectionHolder()
+{
+    return selectionHolder_;
+}
+
 HWND PanelWindow::GetHWND() const
 {
     return wnd_;

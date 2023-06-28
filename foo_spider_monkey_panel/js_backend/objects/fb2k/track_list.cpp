@@ -535,7 +535,11 @@ JSObject* TrackList::SpliceWithOpt( size_t optArgCount, int32_t start, JS::Handl
 JS::Value TrackList::ToArray() const
 {
     JS::RootedValue jsValue( pJsCtx_ );
-    convert::to_js::ToArrayValue( pJsCtx_, metadbHandleList_, &jsValue );
+    convert::to_js::ToArrayValue(
+        pJsCtx_,
+        metadbHandleList_.size(),
+        [&]( auto i ) { return Track::CreateJs( pJsCtx_, metadbHandleList_[i] ); },
+        &jsValue );
     return jsValue;
 }
 

@@ -104,7 +104,8 @@ enum class EventId
     kNew_FbLibraryItemsModified,
     kNew_FbLibraryItemsRemoved,
     /// selection
-    kNew_FbSelectionChange,
+    kNew_FbAnySelectionChange,
+    kNew_FbPreferedSelectionChange,
     // window
     /// graphics
     kNew_WndPaint,

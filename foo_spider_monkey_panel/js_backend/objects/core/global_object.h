@@ -25,7 +25,7 @@ class ModuleCanvas;
 class ModuleTrack;
 class PlaybackControl;
 class PlaylistManager;
-class SelectionManager;
+class UiSelectionManager;
 class TrackImageManager;
 class WindowNew;
 
@@ -113,7 +113,7 @@ private:
         LoadedNativeObject<ModuleTrack>,
         LoadedNativeObject<PlaybackControl>,
         LoadedNativeObject<PlaylistManager>,
-        LoadedNativeObject<SelectionManager>,
+        LoadedNativeObject<UiSelectionManager>,
         LoadedNativeObject<TrackImageManager>,
         LoadedNativeObject<WindowNew>>
         loadedNativeObjects_;

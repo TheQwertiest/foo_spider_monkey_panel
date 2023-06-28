@@ -74,6 +74,9 @@ public: // accessors
 
     [[nodiscard]] PanelWindowGraphics& GetGraphics();
 
+    /// @remark Do *not* store returned ptr: it's lifetime must be controlled by panel
+    [[nodiscard]] ui_selection_holder::ptr GetSelectionHolder();
+
     [[nodiscard]] HWND GetHWND() const;
     [[nodiscard]] POINT& MaxSize();
     [[nodiscard]] POINT& MinSize();
@@ -168,11 +171,10 @@ private:
     bool isBgRepaintNeeded_ = false; // used only internally
     bool isPaintInProgress_ = false; // used only internally
 
-    bool isMouseTracked_ = false;   // used only internally
-    bool isMouseCaptured_ = false;  // used only internally
-    bool hasInternalDrag_ = false;  // used only internally
-    bool isDraggingInside_ = false; // used only internally
-    // TODO: is this needed at all?
+    bool isMouseTracked_ = false;              // used only internally
+    bool isMouseCaptured_ = false;             // used only internally
+    bool hasInternalDrag_ = false;             // used only internally
+    bool isDraggingInside_ = false;            // used only internally
     ui_selection_holder::ptr selectionHolder_; // used only internally
 
     CComPtr<smp::com::IDropTargetImpl> dropTargetHandler_; // used only internally

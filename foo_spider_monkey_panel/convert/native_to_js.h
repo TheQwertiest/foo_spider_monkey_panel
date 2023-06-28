@@ -155,6 +155,36 @@ void ToArrayValue( JSContext* cx, const T& inContainer, F&& accessorFunc, JS::Mu
     for ( const auto i: ranges::views::indices( inContainer.size() ) )
     {
         ToValue( cx, accessorFunc( inContainer, i ), &jsValue );
+
+        if ( !JS_SetElement( cx, jsArray, i, jsValue ) )
+        {
+            throw smp::JsException();
+        }
+    }
+
+    wrappedValue.set( JS::ObjectValue( *jsArray ) );
+}
+
+template <typename F>
+void ToArrayValue( JSContext* cx, size_t arraySize, F&& generatorFn, JS::MutableHandleValue wrappedValue )
+{
+    JS::RootedObject jsArray( cx, JS::NewArrayObject( cx, arraySize ) );
+    smp::JsException::ExpectTrue( jsArray );
+
+    JS::RootedValue jsValue( cx );
+    [[maybe_unused]] JS::RootedObject jsObject( cx );
+    for ( const auto i: ranges::views::indices( arraySize ) )
+    {
+        if constexpr ( std::is_same_v<std::invoke_result_t<F, size_t>, JSObject*> )
+        {
+            JS::RootedObject jsObject( cx, generatorFn( i ) );
+            jsValue.setObject( *jsObject );
+        }
+        else
+        {
+            ToValue( cx, generatorFn( i ), &jsValue );
+        }
+
         if ( !JS_SetElement( cx, jsArray, i, jsValue ) )
         {
             throw smp::JsException();

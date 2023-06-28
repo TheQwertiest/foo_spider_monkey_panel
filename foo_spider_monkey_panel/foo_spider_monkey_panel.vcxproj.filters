@@ -373,10 +373,10 @@
     <ClCompile Include="utils\script_resource.cpp">
       <Filter>utils</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\fb2k\selection_manager.cpp">
+    <ClCompile Include="js_backend\objects\fb2k\ui_selection_manager.cpp">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
-    <ClCompile Include="fb2k\callbacks\selection.cpp">
+    <ClCompile Include="fb2k\callbacks\ui_selection.cpp">
       <Filter>fb2k\callbacks</Filter>
     </ClCompile>
     <ClCompile Include="panel\panel_window_graphics.cpp">
@@ -1129,7 +1129,7 @@
     <ClInclude Include="utils\script_resource.h">
       <Filter>utils</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\fb2k\selection_manager.h">
+    <ClInclude Include="js_backend\objects\fb2k\ui_selection_manager.h">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
     <ClInclude Include="js_backend\utils\js_object_helpers.h">
@@ -1504,7 +1504,7 @@
     <None Include="resources\modules\playback.js">
       <Filter>resources\modules</Filter>
     </None>
-    <None Include="resources\modules\selection.js">
+    <None Include="resources\modules\ui_selection_manager.js">
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\window.js">

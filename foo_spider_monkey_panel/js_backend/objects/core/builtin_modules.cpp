@@ -21,9 +21,9 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kFbPlaybackControl;
     }
-    if ( moduleName == "smp:fb/selection-manager" )
+    if ( moduleName == "smp:fb/ui-selection-manager" )
     {
-        return BuiltinModuleId::kFbSelectionManager;
+        return BuiltinModuleId::kFbUiSelectionManager;
     }
     if ( moduleName == "smp:fb/track" )
     {
@@ -51,8 +51,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
     {
     case mozjs::BuiltinModuleId::kFbPlaybackControl:
         return IDR_MODULE_FB_PLAYBACK;
-    case mozjs::BuiltinModuleId::kFbSelectionManager:
-        return IDR_MODULE_FB_SELECTION;
+    case mozjs::BuiltinModuleId::kFbUiSelectionManager:
+        return IDR_MODULE_FB_UI_SELECTION_MANGAGER;
     case mozjs::BuiltinModuleId::kWindow:
         return IDR_MODULE_DOM_WINDOW;
     case mozjs::BuiltinModuleId::kCanvas:
