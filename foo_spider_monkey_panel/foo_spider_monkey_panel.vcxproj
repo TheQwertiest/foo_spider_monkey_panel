@@ -198,6 +198,7 @@
     <ClCompile Include="js_backend\objects\fb2k\events\playlist_event.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\events\playlist_track_event.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\playback_queue.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\playlist_recycle_bin.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_image.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_image_manager.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\library.cpp" />
@@ -233,6 +234,7 @@
     <ClInclude Include="js_backend\objects\fb2k\events\playlist_event.h" />
     <ClInclude Include="js_backend\objects\fb2k\events\playlist_track_event.h" />
     <ClInclude Include="js_backend\objects\fb2k\playback_queue.h" />
+    <ClInclude Include="js_backend\objects\fb2k\playlist_recycle_bin.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_image.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_image_manager.h" />
     <ClInclude Include="js_backend\objects\fb2k\library.h" />
@@ -631,6 +633,7 @@
     <ClInclude Include="utils\art_helpers.h" />
     <ClInclude Include="utils\art_loading_options.h" />
     <ClInclude Include="utils\colour_helpers.h" />
+    <ClInclude Include="utils\float_comparators.h" />
     <ClInclude Include="utils\edit_text.h" />
     <ClInclude Include="utils\fmt_pfc_adaptor.h" />
     <ClInclude Include="graphics\gdiplus\error_handler.h" />

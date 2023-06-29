@@ -19,7 +19,6 @@ struct JsObjectTraits<TrackList>
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
-    static const JSFunctionSpec* JsStaticFunctions;
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
@@ -75,8 +74,6 @@ public:
     JSObject* Union( smp::not_null<TrackList*> tracks ) const;
 
     JSObject* CreateIterator( JS::HandleObject jsSelf ) const;
-
-    static JSObject* From( JSContext* cx, JS::HandleValue tracks );
 
     uint32_t get_Length() const;
 

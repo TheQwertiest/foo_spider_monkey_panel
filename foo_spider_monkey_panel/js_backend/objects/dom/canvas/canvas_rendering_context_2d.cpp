@@ -20,6 +20,7 @@
 #include <js_backend/objects/dom/window/image.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <utils/colour_helpers.h>
+#include <utils/float_comparators.h>
 #include <utils/gdi_helpers.h>
 #include <utils/string_utils.h>
 
@@ -44,21 +45,6 @@ namespace
 
 namespace
 {
-
-inline bool IsEpsilonEqual( float a, float b )
-{
-    return std::abs( a - b ) <= 1e-5;
-}
-
-inline bool IsEpsilonLess( float a, float b )
-{
-    return !IsEpsilonEqual( a, b ) && a < b;
-}
-
-inline bool IsEpsilonGreater( float a, float b )
-{
-    return !IsEpsilonEqual( a, b ) && a > b;
-}
 
 inline auto ConvertRadiansToDegrees( double radians )
 {

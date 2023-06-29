@@ -694,6 +694,9 @@
     <ClCompile Include="js_backend\objects\fb2k\events\playback_queue_event.cpp">
       <Filter>js_backend\objects\fb2k\events</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\playlist_recycle_bin.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1500,6 +1503,12 @@
     </ClInclude>
     <ClInclude Include="js_backend\objects\fb2k\events\playback_queue_event.h">
       <Filter>js_backend\objects\fb2k\events</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\playlist_recycle_bin.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
+    <ClInclude Include="utils\float_comparators.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

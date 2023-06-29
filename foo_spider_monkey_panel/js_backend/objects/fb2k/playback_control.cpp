@@ -7,6 +7,7 @@
 #include <js_backend/objects/fb2k/events/playback_stop_event.h>
 #include <js_backend/objects/fb2k/track.h>
 #include <tasks/events/playback_stop_event.h>
+#include <utils/float_comparators.h>
 
 using namespace smp;
 
@@ -54,6 +55,26 @@ auto GenerateStopEventProps( const smp::PlaybackStopEvent& event )
     };
 
     return props;
+}
+
+float DbToFraction( float db )
+{
+    if ( IsEpsilonEqual( db, -100 ) )
+    {
+        return 0;
+    }
+
+    return std::clamp( std::powf( 2.0f, db / 10.0f ), 0.0f, 1.0f );
+}
+
+float FractionToDb( float fraction )
+{
+    if ( IsEpsilonEqual( fraction, 0 ) )
+    {
+        return -100;
+    }
+
+    return std::clamp( 10 * std::log2f( fraction ), -100.0f, 0.0f );
 }
 
 } // namespace
@@ -318,7 +339,7 @@ bool PlaybackControl::get_StopAfterCurrent() const
 
 float PlaybackControl::get_Volume() const
 {
-    return playback_control::get()->get_volume();
+    return DbToFraction( playback_control::get()->get_volume() );
 }
 
 void PlaybackControl::put_CurrentTime( double time )
@@ -339,7 +360,7 @@ void PlaybackControl::put_StopAfterCurrent( bool value )
 
 void PlaybackControl::put_Volume( float value )
 {
-    playback_control::get()->set_volume( value );
+    playback_control::get()->set_volume( FractionToDb( std::clamp( value, 0.0f, 1.0f ) ) );
 }
 
 } // namespace mozjs

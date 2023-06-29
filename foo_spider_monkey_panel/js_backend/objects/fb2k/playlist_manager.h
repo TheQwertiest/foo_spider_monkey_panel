@@ -24,6 +24,7 @@ struct JsObjectTraits<PlaylistManager>
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
+    static const JSPropertySpec* JsProperties;
     static const PostJsCreateFn PostCreate;
 };
 
@@ -51,6 +52,7 @@ public:
     // TODO: add event handling
     JSObject* CreateAutoPlaylist( const qwr::u8string& query, const qwr::u8string& sortQuery = "", uint32_t playlistIndex = pfc_infinite, const qwr::u8string& name = "", bool enforceSort = false );
     JSObject* CreateAutoPlaylistWithOpt( size_t optArgCount, const qwr::u8string& query, const qwr::u8string& sortQuery, uint32_t playlistIndex, const qwr::u8string& name, bool enforceSort );
+    // TODO: add option to create playlist from tracks
     JSObject* CreatePlaylist( uint32_t playlistIndex = pfc_infinite, const qwr::u8string& name = "" );
     JSObject* CreatePlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const qwr::u8string& name );
     void DeletePlaylist( uint32_t playlistIndex, bool switchIfActive = true );
@@ -69,8 +71,7 @@ public:
     void SetActivePlaylistAsUiEditContext();
 
 public:
-    // TODO: impl
-    // JSObject* get_PlaylistRecycler();
+    JSObject* get_RecycleBin() const;
 
 private:
     [[nodiscard]] PlaylistManager( JSContext* cx );
@@ -83,6 +84,7 @@ private:
 private:
     JSContext* pJsCtx_ = nullptr;
     mutable std::unordered_map<uint64_t, JS::Heap<JSObject*>> idToPlaylist_;
+    mutable JS::Heap<JSObject*> jsRecycleBin_;
 };
 
 } // namespace mozjs

@@ -159,14 +159,6 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( from, TrackList::From );
-
-constexpr auto jsStaticFunctions = std::to_array<JSFunctionSpec>(
-    {
-        JS_FN( "from", from, 1, kDefaultPropsFlags ),
-        JS_FS_END,
-    } );
-
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_length, TrackList::get_Length );
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
@@ -186,7 +178,6 @@ namespace mozjs
 
 const JSClass JsObjectTraits<TrackList>::JsClass = jsClass;
 const JSFunctionSpec* JsObjectTraits<TrackList>::JsFunctions = jsFunctions.data();
-const JSFunctionSpec* JsObjectTraits<TrackList>::JsStaticFunctions = jsStaticFunctions.data();
 const JSPropertySpec* JsObjectTraits<TrackList>::JsProperties = jsProperties.data();
 const JsPrototypeId JsObjectTraits<TrackList>::PrototypeId = JsPrototypeId::New_TrackList;
 const JSNative JsObjectTraits<TrackList>::JsConstructor = ::TrackList_Constructor;
@@ -557,11 +548,6 @@ JSObject* TrackList::Union( smp::not_null<TrackList*> tracks ) const
 JSObject* TrackList::CreateIterator( JS::HandleObject jsSelf ) const
 {
     return TrackList_Iterator::CreateJs( pJsCtx_, jsSelf );
-}
-
-JSObject* TrackList::From( JSContext* cx, JS::HandleValue tracks )
-{
-    return TrackList::CreateJs( cx, ValueToHandleList( cx, tracks ) );
 }
 
 uint32_t TrackList::get_Length() const

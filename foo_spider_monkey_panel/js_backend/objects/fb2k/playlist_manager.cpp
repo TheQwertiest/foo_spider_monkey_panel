@@ -12,6 +12,7 @@
 #include <js_backend/objects/fb2k/events/playlist_multi_track_event.h>
 #include <js_backend/objects/fb2k/events/playlist_track_event.h>
 #include <js_backend/objects/fb2k/playlist.h>
+#include <js_backend/objects/fb2k/playlist_recycle_bin.h>
 #include <js_backend/objects/fb2k/track.h>
 #include <js_backend/objects/fb2k/track_list.h>
 #include <js_backend/utils/js_property_helper.h>
@@ -124,6 +125,14 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_recycleBin, PlaylistManager::get_RecycleBin )
+
+constexpr auto jsProperties = std::to_array<JSPropertySpec>(
+    {
+        JS_PSG( "recycleBin", get_recycleBin, kDefaultPropsFlags ),
+        JS_PS_END,
+    } );
+
 MJS_VERIFY_OBJECT( mozjs::PlaylistManager );
 
 } // namespace
@@ -133,6 +142,7 @@ namespace mozjs
 
 const JSClass JsObjectTraits<PlaylistManager>::JsClass = jsClass;
 const JSFunctionSpec* JsObjectTraits<PlaylistManager>::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsObjectTraits<PlaylistManager>::JsProperties = jsProperties.data();
 const PostJsCreateFn JsObjectTraits<PlaylistManager>::PostCreate = PlaylistManager::PostCreate;
 
 const std::unordered_set<smp::EventId> PlaylistManager::kHandledEvents{
@@ -195,6 +205,7 @@ void PlaylistManager::Trace( JSTracer* trc, JSObject* obj )
     {
         JS::TraceEdge( trc, &value, "Heap: PlaylistManager: playlist" );
     }
+    JS::TraceEdge( trc, &pNative->jsRecycleBin_, "Heap: PlaylistManager: recycle bin" );
 }
 
 const std::string& PlaylistManager::EventIdToType( smp::EventId eventId )
@@ -570,6 +581,15 @@ void PlaylistManager::OrderPlaylistsByNameWithOpt( size_t optArgCount, int8_t di
 void PlaylistManager::SetActivePlaylistAsUiEditContext()
 {
     ui_edit_context_manager::get()->set_context_active_playlist();
+}
+
+JSObject* PlaylistManager::get_RecycleBin() const
+{
+    if ( !jsRecycleBin_ )
+    {
+        jsRecycleBin_ = PlaylistRecycleBin::CreateJs( pJsCtx_ );
+    }
+    return jsRecycleBin_.get();
 }
 
 uint32_t PlaylistManager::CreatePlaylistImpl( uint32_t playlistIndex, const qwr::u8string& name )
