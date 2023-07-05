@@ -49,7 +49,6 @@ public:
     const qwr::u8string& GetSelectionSourceWithOpt( size_t optArgCount, bool ignoreCurrentlyPlaying );
     void SetSelection( JS::HandleValue tracks, const qwr::u8string& type = "undefined" );
     void SetSelectionWithOpt( size_t optArgCount, JS::HandleValue tracks, const qwr::u8string& type );
-
     void TrackActivePlaylist();
     void TrackActivePlaylistSelection();
 

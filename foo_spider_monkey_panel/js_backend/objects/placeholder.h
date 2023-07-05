@@ -31,7 +31,7 @@ public:
     [[nodiscard]] size_t GetInternalSize() const;
 
 public:
-    static JSObject* Constructor( JSContext* cx );
+    void Dummy();
 
 private:
     [[nodiscard]] PlaceHolder( JSContext* cx );

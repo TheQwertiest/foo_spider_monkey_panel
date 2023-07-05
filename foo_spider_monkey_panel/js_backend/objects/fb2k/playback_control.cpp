@@ -129,21 +129,27 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FS_END,
     } );
 
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_paused, PlaybackControl::get_IsPaused )
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_playing, PlaybackControl::get_IsPlaying )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_currentTime, PlaybackControl::get_CurrentTime )
-MJS_DEFINE_JS_FN_FROM_NATIVE( get_stopAfterCurrent, PlaybackControl::get_StopAfterCurrent )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_cursorFollowsPlayback, PlaybackControl::get_CursorFollowsPlayback )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_paused, PlaybackControl::get_IsPaused )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_playbackFollowsCursor, PlaybackControl::get_PlaybackFollowsCursor )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_playing, PlaybackControl::get_IsPlaying )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_stopAfterCurrent, PlaybackControl::get_StopAfterCurrentTrack )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_volume, PlaybackControl::get_Volume )
-MJS_DEFINE_JS_FN_FROM_NATIVE( put_playbackTime, PlaybackControl::put_CurrentTime )
-MJS_DEFINE_JS_FN_FROM_NATIVE( put_stopAfterCurrent, PlaybackControl::put_StopAfterCurrent )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_currentTime, PlaybackControl::put_CurrentTime )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_cursorFollowsPlayback, PlaybackControl::put_cursorFollowsPlayback )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_playbackFollowsCursor, PlaybackControl::put_playbackFollowsCursor )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_stopAfterCurrent, PlaybackControl::put_StopAfterCurrentTrack )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_volume, PlaybackControl::put_Volume )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
+        JS_PSGS( "currentTime", get_currentTime, put_currentTime, kDefaultPropsFlags ),
+        JS_PSGS( "cursorFollowsPlayback", get_cursorFollowsPlayback, put_cursorFollowsPlayback, kDefaultPropsFlags ),
         JS_PSG( "paused", get_paused, kDefaultPropsFlags ),
+        JS_PSGS( "playbackFollowsCursor", get_playbackFollowsCursor, put_playbackFollowsCursor, kDefaultPropsFlags ),
         JS_PSG( "playing", get_playing, kDefaultPropsFlags ),
-        JS_PSGS( "currentTime", get_currentTime, put_playbackTime, kDefaultPropsFlags ),
-        JS_PSGS( "stopAfterCurrent", get_stopAfterCurrent, put_stopAfterCurrent, kDefaultPropsFlags ),
+        JS_PSGS( "stopAfterCurrentTrack", get_stopAfterCurrent, put_stopAfterCurrent, kDefaultPropsFlags ),
         JS_PSGS( "volume", get_volume, put_volume, kDefaultPropsFlags ),
         JS_PS_END,
     } );
@@ -310,6 +316,16 @@ void PlaybackControl::VolumeUp()
     standard_commands::main_volume_up();
 }
 
+double PlaybackControl::get_CurrentTime() const
+{
+    return playback_control::get()->playback_get_position();
+}
+
+bool PlaybackControl::get_CursorFollowsPlayback() const
+{
+    return config_object::g_get_data_bool_simple( standard_config_objects::bool_cursor_follows_playback, false );
+}
+
 bool PlaybackControl::get_IsPaused() const
 {
     return playback_control::get()->is_paused();
@@ -320,9 +336,9 @@ bool PlaybackControl::get_IsPlaying() const
     return playback_control::get()->is_playing();
 }
 
-double PlaybackControl::get_CurrentTime() const
+bool PlaybackControl::get_PlaybackFollowsCursor() const
 {
-    return playback_control::get()->playback_get_position();
+    return config_object::g_get_data_bool_simple( standard_config_objects::bool_playback_follows_cursor, false );
 }
 
 qwr::u8string PlaybackControl::get_PlaybackOrder() const
@@ -332,7 +348,7 @@ qwr::u8string PlaybackControl::get_PlaybackOrder() const
     return kPlaybackOrderIdxToStr.at( idx );
 }
 
-bool PlaybackControl::get_StopAfterCurrent() const
+bool PlaybackControl::get_StopAfterCurrentTrack() const
 {
     return playback_control::get()->get_stop_after_current();
 }
@@ -347,13 +363,23 @@ void PlaybackControl::put_CurrentTime( double time )
     playback_control::get()->playback_seek( time );
 }
 
+void PlaybackControl::put_CursorFollowsPlayback( bool value )
+{
+    config_object::g_set_data_bool( standard_config_objects::bool_cursor_follows_playback, value );
+}
+
+void PlaybackControl::put_PlaybackFollowsCursor( bool value )
+{
+    config_object::g_set_data_bool( standard_config_objects::bool_playback_follows_cursor, value );
+}
+
 void PlaybackControl::put_PlaybackOrder( const qwr::u8string& value )
 {
     qwr::QwrException::ExpectTrue( kPlaybackOrderStrToIdx.contains( value ), "Unknown playback order value" );
     playlist_manager::get()->playback_order_set_active( kPlaybackOrderStrToIdx.at( value ) );
 }
 
-void PlaybackControl::put_StopAfterCurrent( bool value )
+void PlaybackControl::put_StopAfterCurrentTrack( bool value )
 {
     playback_control::get()->set_stop_after_current( value );
 }

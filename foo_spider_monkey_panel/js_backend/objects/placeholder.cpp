@@ -2,6 +2,8 @@
 
 #include "placeholder.h"
 
+#include <js_backend/engine/js_to_native_invoker.h>
+
 using namespace smp;
 
 namespace
@@ -28,13 +30,17 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( dummy, PlaceHolder::Dummy );
+
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
+        JS_FN( "dummy", dummy, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
+        JS_PSG( "dummy", dummy, kDefaultPropsFlags ),
         JS_PS_END,
     } );
 
@@ -69,9 +75,8 @@ size_t PlaceHolder::GetInternalSize() const
     return 0;
 }
 
-JSObject* PlaceHolder::Constructor( JSContext* cx )
+void PlaceHolder::Dummy()
 {
-    return JsObjectBase<PlaceHolder>::CreateJs( cx );
 }
 
 } // namespace mozjs

@@ -62,10 +62,13 @@ OnProcessLocationsNotify_InsertHandles::OnProcessLocationsNotify_InsertHandles( 
 
 void OnProcessLocationsNotify_InsertHandles::on_completion( metadb_handle_list_cref handles )
 {
+    // TODO: use playlist id instead of idx, in case playlist index wash changed during async
+
     auto api = playlist_manager::get();
     if ( playlistIdx_ >= api->get_playlist_count()
          || ( api->playlist_lock_get_filter_mask( playlistIdx_ ) & playlist_lock::filter_add ) )
     {
+        // TODO: throw here
         return;
     }
 
@@ -80,6 +83,7 @@ void OnProcessLocationsNotify_InsertHandles::on_completion( metadb_handle_list_c
 
 void OnProcessLocationsNotify_InsertHandles::on_aborted()
 {
+    // TODO: throw here
 }
 
 PlaylistProxyHandler::PlaylistProxyHandler()

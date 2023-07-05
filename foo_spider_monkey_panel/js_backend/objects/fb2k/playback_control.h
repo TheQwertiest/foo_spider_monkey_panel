@@ -62,15 +62,21 @@ public:
     void VolumeUp();
 
 public:
+    double get_CurrentTime() const;
+    bool get_CursorFollowsPlayback() const;
     bool get_IsPaused() const;
     bool get_IsPlaying() const;
-    double get_CurrentTime() const;
+    bool get_PlaybackFollowsCursor() const;
     qwr::u8string get_PlaybackOrder() const;
-    bool get_StopAfterCurrent() const;
+    qwr::u8string get_ReplayGainMode() const;
+    bool get_StopAfterCurrentTrack() const;
     float get_Volume() const;
     void put_CurrentTime( double time );
+    void put_CursorFollowsPlayback( bool value );
+    void put_PlaybackFollowsCursor( bool value );
     void put_PlaybackOrder( const qwr::u8string& value );
-    void put_StopAfterCurrent( bool value );
+    void put_ReplayGainMode( const qwr::u8string& value );
+    void put_StopAfterCurrentTrack( bool value );
     void put_Volume( float value );
 
 private:

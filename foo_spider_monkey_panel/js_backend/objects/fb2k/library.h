@@ -58,6 +58,7 @@ public:
     std::vector<pfc::string8_fast> GetTracksRelativePath( JS::HandleValue tracks ) const;
     // TODO: add array support
     void OrderTracksByRelativePath( smp::not_null<TrackList*> tracks );
+    void ShowSearchUi( const qwr::u8string& query );
 
     bool get_IsEnabled() const;
 

@@ -164,6 +164,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( filterTracks, Library::FilterTracks, Libr
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( getTracks, Library::GetTracks, Library::GetTracksWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( getTracksRelativePath, Library::GetTracksRelativePath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( orderTracksByRelativePath, Library::OrderTracksByRelativePath );
+MJS_DEFINE_JS_FN_FROM_NATIVE( showSearchUi, Library::ShowSearchUi );
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
@@ -172,6 +173,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "getTracks", getTracks, 0, kDefaultPropsFlags ),
         JS_FN( "getTracksRelativePath", getTracksRelativePath, 1, kDefaultPropsFlags ),
         JS_FN( "orderTracksByRelativePath", orderTracksByRelativePath, 1, kDefaultPropsFlags ),
+        JS_FN( "showSearchUi", showSearchUi, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -426,6 +428,11 @@ void Library::OrderTracksByRelativePath( smp::not_null<TrackList*> tracks )
     }
 
     handles.reorder( trie.get_sorted_values().data() );
+}
+
+void Library::ShowSearchUi( const qwr::u8string& query )
+{
+    library_search_ui::get()->show( query.c_str() );
 }
 
 bool Library::get_IsEnabled() const

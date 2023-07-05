@@ -48,6 +48,8 @@ public:
     static JSObject* Constructor( JSContext* cx, JS::HandleValue value = JS::UndefinedHandleValue );
     static JSObject* ConstructorWithOpt( JSContext* cx, size_t optArgCount, JS::HandleValue value );
 
+    // TODO: add filter by query
+
     void Clear();
     JSObject* Concat( JS::HandleValue tracks ) const;
     void ConcatInPlace( JS::HandleValue tracks );
