@@ -26,8 +26,9 @@ class ModuleTrack;
 class PlaybackControl;
 class PlaybackQueue;
 class PlaylistManager;
-class UiSelectionManager;
+class ReplayGainManager;
 class TrackImageManager;
+class UiSelectionManager;
 class WindowNew;
 
 } // namespace mozjs
@@ -115,8 +116,9 @@ private:
         LoadedNativeObject<PlaybackControl>,
         LoadedNativeObject<PlaybackQueue>,
         LoadedNativeObject<PlaylistManager>,
-        LoadedNativeObject<UiSelectionManager>,
+        LoadedNativeObject<ReplayGainManager>,
         LoadedNativeObject<TrackImageManager>,
+        LoadedNativeObject<UiSelectionManager>,
         LoadedNativeObject<WindowNew>>
         loadedNativeObjects_;
 };

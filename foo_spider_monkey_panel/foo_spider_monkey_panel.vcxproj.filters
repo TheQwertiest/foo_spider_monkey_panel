@@ -697,6 +697,15 @@
     <ClCompile Include="js_backend\objects\fb2k\playlist_recycle_bin.cpp">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\replay_gain_manager.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\callbacks\config_objects.cpp">
+      <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\callbacks\replay_gain.cpp">
+      <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1510,6 +1519,9 @@
     <ClInclude Include="utils\float_comparators.h">
       <Filter>utils</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\replay_gain_manager.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1556,6 +1568,9 @@
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\playback_queue.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\replay_gain_manager.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>

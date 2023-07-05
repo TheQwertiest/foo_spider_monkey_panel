@@ -137,8 +137,8 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( get_playing, PlaybackControl::get_IsPlaying )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_stopAfterCurrent, PlaybackControl::get_StopAfterCurrentTrack )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_volume, PlaybackControl::get_Volume )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_currentTime, PlaybackControl::put_CurrentTime )
-MJS_DEFINE_JS_FN_FROM_NATIVE( put_cursorFollowsPlayback, PlaybackControl::put_cursorFollowsPlayback )
-MJS_DEFINE_JS_FN_FROM_NATIVE( put_playbackFollowsCursor, PlaybackControl::put_playbackFollowsCursor )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_cursorFollowsPlayback, PlaybackControl::put_CursorFollowsPlayback )
+MJS_DEFINE_JS_FN_FROM_NATIVE( put_playbackFollowsCursor, PlaybackControl::put_PlaybackFollowsCursor )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_stopAfterCurrent, PlaybackControl::put_StopAfterCurrentTrack )
 MJS_DEFINE_JS_FN_FROM_NATIVE( put_volume, PlaybackControl::put_Volume )
 
@@ -167,17 +167,21 @@ const JSPropertySpec* JsObjectTraits<PlaybackControl>::JsProperties = jsProperti
 const PostJsCreateFn JsObjectTraits<PlaybackControl>::PostCreate = PlaybackControl::PostCreate;
 
 const std::unordered_set<EventId> PlaybackControl::kHandledEvents{
+    EventId::kNew_FbCfgCursorFollowsPlaybackChanged,
+    EventId::kNew_FbCfgPlaybackFollowsCursorChanged,
+    EventId::kNew_FbCfgPlaylistStopAfterCurrentChanged,
     EventId::kNew_FbPlaybackDynamicInfo,
     EventId::kNew_FbPlaybackDynamicInfoTrack,
     EventId::kNew_FbPlaybackEdited,
     EventId::kNew_FbPlaybackNewTrack,
-    EventId::kNew_FbPlaybackPlay,
     EventId::kNew_FbPlaybackPause,
+    EventId::kNew_FbPlaybackPlay,
     EventId::kNew_FbPlaybackSeek,
     EventId::kNew_FbPlaybackStarting,
     EventId::kNew_FbPlaybackStop,
     EventId::kNew_FbPlaybackTime,
-    EventId::kNew_FbPlaybackVolumeChange
+    EventId::kNew_FbPlaybackVolumeChange,
+    EventId::kNew_FbPlaylistPlaybackOrderChanged,
 };
 
 PlaybackControl::PlaybackControl( JSContext* cx )
@@ -210,17 +214,21 @@ void PlaybackControl::Trace( JSTracer* trc, JSObject* obj )
 const std::string& PlaybackControl::EventIdToType( smp::EventId eventId )
 {
     static const std::unordered_map<EventId, std::string> idToType{
+        { EventId::kNew_FbCfgCursorFollowsPlaybackChanged, "cursorFollowsPlaybackChange" },
+        { EventId::kNew_FbCfgPlaybackFollowsCursorChanged, "playbackFollowsCursorChange" },
+        { EventId::kNew_FbCfgPlaylistStopAfterCurrentChanged, "stopAfterCurrentTrackChange" },
         { EventId::kNew_FbPlaybackDynamicInfo, "trackDynamicInfoChange" },
         { EventId::kNew_FbPlaybackDynamicInfoTrack, "trackStreamInfoChange" },
         { EventId::kNew_FbPlaybackEdited, "trackInfoChange" },
         { EventId::kNew_FbPlaybackNewTrack, "start" },
-        { EventId::kNew_FbPlaybackPlay, "play" },
         { EventId::kNew_FbPlaybackPause, "pause" },
+        { EventId::kNew_FbPlaybackPlay, "play" },
         { EventId::kNew_FbPlaybackSeek, "seek" },
         { EventId::kNew_FbPlaybackStarting, "starting" },
         { EventId::kNew_FbPlaybackStop, "stop" },
         { EventId::kNew_FbPlaybackTime, "timeUpdate" },
-        { EventId::kNew_FbPlaybackVolumeChange, "volumeChange" }
+        { EventId::kNew_FbPlaybackVolumeChange, "volumeChange" },
+        { EventId::kNew_FbPlaylistPlaybackOrderChanged, "playbackOrderChange" },
     };
 
     assert( idToType.size() == kHandledEvents.size() );

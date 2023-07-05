@@ -32,6 +32,7 @@
 #define IDR_MODULE_FB_LIBRARY              137
 #define IDR_MODULE_FB_TRACK_IMAGE_MANAGER  138
 #define IDR_MODULE_FB_PLAYBACK_QUEUE       139
+#define IDR_MODULE_FB_REPLAY_GAIN_MANAGER  140
 #define IDC_EDIT_PANEL_NAME                1000
 #define IDC_EDIT                           1001
 #define IDC_DEL                            1010
@@ -122,7 +123,7 @@
 //
 #ifdef APSTUDIO_INVOKED
 #    ifndef APSTUDIO_READONLY_SYMBOLS
-#        define _APS_NEXT_RESOURCE_VALUE 140
+#        define _APS_NEXT_RESOURCE_VALUE 141
 #        define _APS_NEXT_COMMAND_VALUE  40031
 #        define _APS_NEXT_CONTROL_VALUE  1129
 #        define _APS_NEXT_SYMED_VALUE    101

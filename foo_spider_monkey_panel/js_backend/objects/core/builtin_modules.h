@@ -9,14 +9,15 @@ enum class BuiltinModuleId : uint8_t
 {
     kFbPlaybackControl,
     kFbUiSelectionManager,
-    kWindow,
+    kDomWindow,
     kEvents,
-    kCanvas,
-    kTrack,
-    kPlaylistManager,
-    kLibrary,
-    kTrackImageManager,
-    kPlaybackQueue,
+    kDomCanvas,
+    kFbTrack,
+    kFbPlaylistManager,
+    kFbLibrary,
+    kFbTrackImageManager,
+    kFbPlaybackQueue,
+    kFbReplayGainManager,
     kCount
 };
 

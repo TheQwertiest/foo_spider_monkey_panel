@@ -11,11 +11,11 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
 {
     if ( moduleName == "smp:dom/window" )
     {
-        return BuiltinModuleId::kWindow;
+        return BuiltinModuleId::kDomWindow;
     }
     if ( moduleName == "smp:dom/canvas" )
     {
-        return BuiltinModuleId::kCanvas;
+        return BuiltinModuleId::kDomCanvas;
     }
     if ( moduleName == "smp:fb/playback" )
     {
@@ -27,23 +27,27 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     }
     if ( moduleName == "smp:fb/track" )
     {
-        return BuiltinModuleId::kTrack;
+        return BuiltinModuleId::kFbTrack;
     }
     if ( moduleName == "smp:fb/playlist-manager" )
     {
-        return BuiltinModuleId::kPlaylistManager;
+        return BuiltinModuleId::kFbPlaylistManager;
     }
     if ( moduleName == "smp:fb/library" )
     {
-        return BuiltinModuleId::kLibrary;
+        return BuiltinModuleId::kFbLibrary;
     }
     if ( moduleName == "smp:fb/track-image-manager" )
     {
-        return BuiltinModuleId::kTrackImageManager;
+        return BuiltinModuleId::kFbTrackImageManager;
     }
     if ( moduleName == "smp:fb/playback-queue" )
     {
-        return BuiltinModuleId::kPlaybackQueue;
+        return BuiltinModuleId::kFbPlaybackQueue;
+    }
+    if ( moduleName == "smp:fb/replay-gain-manager" )
+    {
+        return BuiltinModuleId::kFbReplayGainManager;
     }
 
     return std::nullopt;
@@ -57,20 +61,22 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_FB_PLAYBACK;
     case mozjs::BuiltinModuleId::kFbUiSelectionManager:
         return IDR_MODULE_FB_UI_SELECTION_MANAGER;
-    case mozjs::BuiltinModuleId::kWindow:
+    case mozjs::BuiltinModuleId::kDomWindow:
         return IDR_MODULE_DOM_WINDOW;
-    case mozjs::BuiltinModuleId::kCanvas:
+    case mozjs::BuiltinModuleId::kDomCanvas:
         return IDR_MODULE_DOM_CANVAS;
-    case mozjs::BuiltinModuleId::kTrack:
+    case mozjs::BuiltinModuleId::kFbTrack:
         return IDR_MODULE_FB_TRACK;
-    case mozjs::BuiltinModuleId::kPlaylistManager:
+    case mozjs::BuiltinModuleId::kFbPlaylistManager:
         return IDR_MODULE_FB_PLAYLIST_MANAGER;
-    case mozjs::BuiltinModuleId::kLibrary:
+    case mozjs::BuiltinModuleId::kFbLibrary:
         return IDR_MODULE_FB_LIBRARY;
-    case mozjs::BuiltinModuleId::kTrackImageManager:
+    case mozjs::BuiltinModuleId::kFbTrackImageManager:
         return IDR_MODULE_FB_TRACK_IMAGE_MANAGER;
-    case mozjs::BuiltinModuleId::kPlaybackQueue:
+    case mozjs::BuiltinModuleId::kFbPlaybackQueue:
         return IDR_MODULE_FB_PLAYBACK_QUEUE;
+    case mozjs::BuiltinModuleId::kFbReplayGainManager:
+        return IDR_MODULE_FB_REPLAY_GAIN_MANAGER;
     default:
         assert( false );
         return 0;

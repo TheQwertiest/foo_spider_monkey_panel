@@ -24,6 +24,7 @@
 #include <js_backend/objects/fb2k/playback_control.h>
 #include <js_backend/objects/fb2k/playback_queue.h>
 #include <js_backend/objects/fb2k/playlist_manager.h>
+#include <js_backend/objects/fb2k/replay_gain_manager.h>
 #include <js_backend/objects/fb2k/track_image_manager.h>
 #include <js_backend/objects/fb2k/ui_selection_manager.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
@@ -341,33 +342,37 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             {
                 return initializeLoadedObject.template operator()<UiSelectionManager>( moduleId );
             }
-            case BuiltinModuleId::kWindow:
+            case BuiltinModuleId::kDomWindow:
             {
                 return initializeLoadedObject.template operator()<WindowNew>( moduleId );
             }
-            case BuiltinModuleId::kCanvas:
+            case BuiltinModuleId::kDomCanvas:
             {
                 return initializeLoadedObject.template operator()<ModuleCanvas>( moduleId );
             }
-            case BuiltinModuleId::kTrack:
+            case BuiltinModuleId::kFbTrack:
             {
                 return initializeLoadedObject.template operator()<ModuleTrack>( moduleId );
             }
-            case BuiltinModuleId::kPlaylistManager:
+            case BuiltinModuleId::kFbPlaylistManager:
             {
                 return initializeLoadedObject.template operator()<PlaylistManager>( moduleId );
             }
-            case BuiltinModuleId::kLibrary:
+            case BuiltinModuleId::kFbLibrary:
             {
                 return initializeLoadedObject.template operator()<Library>( moduleId );
             }
-            case BuiltinModuleId::kTrackImageManager:
+            case BuiltinModuleId::kFbTrackImageManager:
             {
                 return initializeLoadedObject.template operator()<TrackImageManager>( moduleId );
             }
-            case BuiltinModuleId::kPlaybackQueue:
+            case BuiltinModuleId::kFbPlaybackQueue:
             {
                 return initializeLoadedObject.template operator()<PlaybackQueue>( moduleId );
+            }
+            case BuiltinModuleId::kFbReplayGainManager:
+            {
+                return initializeLoadedObject.template operator()<ReplayGainManager>( moduleId );
             }
             // TODO: add event module
             default:
