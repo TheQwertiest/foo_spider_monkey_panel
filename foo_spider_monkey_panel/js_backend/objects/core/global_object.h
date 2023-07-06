@@ -27,6 +27,7 @@ class PlaybackControl;
 class PlaybackQueue;
 class PlaylistManager;
 class ReplayGainManager;
+class TrackCustomMetaManager;
 class TrackImageManager;
 class UiSelectionManager;
 class WindowNew;
@@ -117,6 +118,7 @@ private:
         LoadedNativeObject<PlaybackQueue>,
         LoadedNativeObject<PlaylistManager>,
         LoadedNativeObject<ReplayGainManager>,
+        LoadedNativeObject<TrackCustomMetaManager>,
         LoadedNativeObject<TrackImageManager>,
         LoadedNativeObject<UiSelectionManager>,
         LoadedNativeObject<WindowNew>>

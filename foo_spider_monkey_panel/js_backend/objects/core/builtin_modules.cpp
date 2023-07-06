@@ -49,6 +49,10 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kFbReplayGainManager;
     }
+    if ( moduleName == "smp:fb/track-custom-meta-manager" )
+    {
+        return BuiltinModuleId::kFbTrackCustomMetaManager;
+    }
 
     return std::nullopt;
 }
@@ -57,26 +61,28 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
 {
     switch ( moduleId )
     {
-    case mozjs::BuiltinModuleId::kFbPlaybackControl:
+    case BuiltinModuleId::kFbPlaybackControl:
         return IDR_MODULE_FB_PLAYBACK;
-    case mozjs::BuiltinModuleId::kFbUiSelectionManager:
+    case BuiltinModuleId::kFbUiSelectionManager:
         return IDR_MODULE_FB_UI_SELECTION_MANAGER;
-    case mozjs::BuiltinModuleId::kDomWindow:
+    case BuiltinModuleId::kDomWindow:
         return IDR_MODULE_DOM_WINDOW;
-    case mozjs::BuiltinModuleId::kDomCanvas:
+    case BuiltinModuleId::kDomCanvas:
         return IDR_MODULE_DOM_CANVAS;
-    case mozjs::BuiltinModuleId::kFbTrack:
+    case BuiltinModuleId::kFbTrack:
         return IDR_MODULE_FB_TRACK;
-    case mozjs::BuiltinModuleId::kFbPlaylistManager:
+    case BuiltinModuleId::kFbPlaylistManager:
         return IDR_MODULE_FB_PLAYLIST_MANAGER;
-    case mozjs::BuiltinModuleId::kFbLibrary:
+    case BuiltinModuleId::kFbLibrary:
         return IDR_MODULE_FB_LIBRARY;
-    case mozjs::BuiltinModuleId::kFbTrackImageManager:
+    case BuiltinModuleId::kFbTrackImageManager:
         return IDR_MODULE_FB_TRACK_IMAGE_MANAGER;
-    case mozjs::BuiltinModuleId::kFbPlaybackQueue:
+    case BuiltinModuleId::kFbPlaybackQueue:
         return IDR_MODULE_FB_PLAYBACK_QUEUE;
-    case mozjs::BuiltinModuleId::kFbReplayGainManager:
+    case BuiltinModuleId::kFbReplayGainManager:
         return IDR_MODULE_FB_REPLAY_GAIN_MANAGER;
+    case BuiltinModuleId::kFbTrackCustomMetaManager:
+        return IDR_MODULE_FB_TRACK_CUSTOM_META_MANAGER;
     default:
         assert( false );
         return 0;

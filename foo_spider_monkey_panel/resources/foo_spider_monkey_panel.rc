@@ -625,6 +625,8 @@ IDR_MODULE_FB_REPLAY_GAIN_MANAGER SCRIPT "modules/replay_gain_manager.js"
 
 IDR_MODULE_FB_TRACK     SCRIPT                  "modules/track.js"
 
+IDR_MODULE_FB_TRACK_CUSTOM_META_MANAGER SCRIPT "modules/track_custom_meta_manager.js"
+
 IDR_MODULE_FB_TRACK_IMAGE_MANAGER SCRIPT                  "modules/track_image_manager.js"
 
 IDR_MODULE_FB_UI_SELECTION_MANAGER SCRIPT                  "modules/ui_selection_manager.js"

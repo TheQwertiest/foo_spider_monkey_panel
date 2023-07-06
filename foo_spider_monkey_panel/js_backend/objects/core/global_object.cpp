@@ -25,6 +25,7 @@
 #include <js_backend/objects/fb2k/playback_queue.h>
 #include <js_backend/objects/fb2k/playlist_manager.h>
 #include <js_backend/objects/fb2k/replay_gain_manager.h>
+#include <js_backend/objects/fb2k/track_custom_meta_manager.h>
 #include <js_backend/objects/fb2k/track_image_manager.h>
 #include <js_backend/objects/fb2k/ui_selection_manager.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
@@ -373,6 +374,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case BuiltinModuleId::kFbReplayGainManager:
             {
                 return initializeLoadedObject.template operator()<ReplayGainManager>( moduleId );
+            }
+            case BuiltinModuleId::kFbTrackCustomMetaManager:
+            {
+                return initializeLoadedObject.template operator()<TrackCustomMetaManager>( moduleId );
             }
             // TODO: add event module
             default:

@@ -110,11 +110,13 @@ metadb_handle_ptr& JsFbMetadbHandle::GetHandle()
 
 void JsFbMetadbHandle::ClearStats()
 {
+    /*
     if ( metadb_index_hash hash;
-         !stats::HashHandle( metadbHandle_, hash ) )
+         !custom_meta::HashHandle( metadbHandle_, hash ) )
     {
-        stats::SetStats( hash, {} );
+        custom_meta::SetData( hash, {} );
     }
+    */
 }
 
 bool JsFbMetadbHandle::Compare( smp::not_null<JsFbMetadbHandle*> handle )
@@ -130,81 +132,93 @@ JSObject* JsFbMetadbHandle::GetFileInfo()
 
 void JsFbMetadbHandle::RefreshStats()
 {
+    /*
     if ( metadb_index_hash hash;
-         stats::HashHandle( metadbHandle_, hash ) )
+         custom_meta::HashHandle( metadbHandle_, hash ) )
     {
-        stats::RefreshStats( hash );
+        custom_meta::CommitData( hash );
     }
+    */
 }
 
 void JsFbMetadbHandle::SetFirstPlayed( const qwr::u8string& first_played )
 {
+    /*
     if ( metadb_index_hash hash;
-         stats::HashHandle( metadbHandle_, hash ) )
+         custom_meta::HashHandle( metadbHandle_, hash ) )
     {
-        stats::Fields tmp = stats::GetStats( hash );
+        custom_meta::Fields tmp = custom_meta::GetData( hash );
         if ( tmp.first_played != first_played )
         {
             tmp.first_played = first_played;
-            stats::SetStats( hash, tmp );
+            custom_meta::SetData( hash, tmp );
         }
     }
+    */
 }
 
 void JsFbMetadbHandle::SetLastPlayed( const qwr::u8string& last_played )
 {
+    /*
     if ( metadb_index_hash hash;
-         stats::HashHandle( metadbHandle_, hash ) )
+         custom_meta::HashHandle( metadbHandle_, hash ) )
     {
-        auto tmp = stats::GetStats( hash );
+        auto tmp = custom_meta::GetData( hash );
         if ( tmp.last_played != last_played )
         {
             tmp.last_played = last_played;
-            stats::SetStats( hash, tmp );
+            custom_meta::SetData( hash, tmp );
         }
     }
+    */
 }
 
 void JsFbMetadbHandle::SetLoved( uint32_t loved )
 {
+    /*
     if ( metadb_index_hash hash;
-         stats::HashHandle( metadbHandle_, hash ) )
+         custom_meta::HashHandle( metadbHandle_, hash ) )
     {
-        auto tmp = stats::GetStats( hash );
+        auto tmp = custom_meta::GetData( hash );
         if ( tmp.loved != loved )
         {
             tmp.loved = loved;
-            stats::SetStats( hash, tmp );
+            custom_meta::SetData( hash, tmp );
         }
     }
+    */
 }
 
 void JsFbMetadbHandle::SetPlaycount( uint32_t playcount )
 {
+    /*
     if ( metadb_index_hash hash;
-         stats::HashHandle( metadbHandle_, hash ) )
+         custom_meta::HashHandle( metadbHandle_, hash ) )
     {
-        auto tmp = stats::GetStats( hash );
+        auto tmp = custom_meta::GetData( hash );
         if ( tmp.playcount != playcount )
         {
             tmp.playcount = playcount;
-            stats::SetStats( hash, tmp );
+            custom_meta::SetData( hash, tmp );
         }
     }
+    */
 }
 
 void JsFbMetadbHandle::SetRating( uint32_t rating )
 {
+    /*
     if ( metadb_index_hash hash;
-         stats::HashHandle( metadbHandle_, hash ) )
+         custom_meta::HashHandle( metadbHandle_, hash ) )
     {
-        auto tmp = stats::GetStats( hash );
+        auto tmp = custom_meta::GetData( hash );
         if ( tmp.rating != rating )
         {
             tmp.rating = rating;
-            stats::SetStats( hash, tmp );
+            custom_meta::SetData( hash, tmp );
         }
     }
+    */
 }
 
 int64_t JsFbMetadbHandle::get_FileSize()

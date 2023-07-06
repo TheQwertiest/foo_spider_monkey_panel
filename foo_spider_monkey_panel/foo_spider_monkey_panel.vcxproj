@@ -184,6 +184,7 @@
     <ClCompile Include="fb2k\callbacks\library.cpp" />
     <ClCompile Include="fb2k\callbacks\playlist.cpp" />
     <ClCompile Include="fb2k\callbacks\replay_gain.cpp" />
+    <ClCompile Include="fb2k\custom_meta_fields.cpp" />
     <ClCompile Include="fb2k\playlist_index_manager.cpp" />
     <ClCompile Include="fb2k\title_format_manager.cpp" />
     <ClCompile Include="graphics\gdiplus\bitmap_generator.cpp" />
@@ -202,6 +203,7 @@
     <ClCompile Include="js_backend\objects\fb2k\playback_queue.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\playlist_recycle_bin.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\replay_gain_manager.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\track_custom_meta_manager.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_image.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_image_manager.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\library.cpp" />
@@ -218,6 +220,7 @@
     <ClCompile Include="js_backend\utils\js_heap_helper.cpp" />
     <ClCompile Include="panel\panel_accessor.cpp" />
     <ClCompile Include="tasks\cancellable.cpp" />
+    <ClInclude Include="fb2k\custom_meta_fields.h" />
     <ClInclude Include="fb2k\playlist_index_manager.h" />
     <ClInclude Include="fb2k\title_format_manager.h" />
     <ClInclude Include="graphics\gdiplus\font_manager.h" />
@@ -239,6 +242,7 @@
     <ClInclude Include="js_backend\objects\fb2k\playback_queue.h" />
     <ClInclude Include="js_backend\objects\fb2k\playlist_recycle_bin.h" />
     <ClInclude Include="js_backend\objects\fb2k\replay_gain_manager.h" />
+    <ClInclude Include="js_backend\objects\fb2k\track_custom_meta_manager.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_image.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_image_manager.h" />
     <ClInclude Include="js_backend\objects\fb2k\library.h" />
@@ -300,7 +304,6 @@
     <ClCompile Include="fb2k\mainmenu_dynamic.cpp" />
     <ClCompile Include="fb2k\playlist_lock.cpp" />
     <ClCompile Include="fb2k\selection_holder_helper.cpp" />
-    <ClCompile Include="fb2k\stats.cpp" />
     <ClCompile Include="graphics\gdiplus\gradient_clamp.cpp" />
     <ClCompile Include="graphics\image_decoder.cpp" />
     <ClCompile Include="js_backend\engine\heartbeat_window.cpp" />
@@ -505,7 +508,6 @@
     <ClInclude Include="fb2k\mainmenu_dynamic.h" />
     <ClInclude Include="fb2k\playlist_lock.h" />
     <ClInclude Include="fb2k\selection_holder_helper.h" />
-    <ClInclude Include="fb2k\stats.h" />
     <ClInclude Include="graphics\gdiplus\gradient_clamp.h" />
     <ClInclude Include="graphics\image_decoder.h" />
     <ClInclude Include="graphics\loaded_image.h" />
@@ -674,6 +676,7 @@
     <None Include="resources\modules\playback_queue.js" />
     <None Include="resources\modules\playlist_manager.js" />
     <None Include="resources\modules\replay_gain_manager.js" />
+    <None Include="resources\modules\track_custom_meta_manager.js" />
     <None Include="resources\modules\ui_selection_manager.js" />
     <None Include="resources\modules\track.js" />
     <None Include="resources\modules\track_image_manager.js" />

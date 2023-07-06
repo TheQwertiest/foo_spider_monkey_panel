@@ -516,17 +516,19 @@ void JsFbMetadbHandleList::OrderByRelativePath()
 
 void JsFbMetadbHandleList::RefreshStats()
 {
+    /*
     pfc::list_t<metadb_index_hash> hashes;
     for ( const auto& handle: qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ) )
     {
         metadb_index_hash hash;
-        if ( stats::HashHandle( handle, hash ) )
+        if ( custom_meta::HashHandle( handle, hash ) )
         {
             hashes.add_item( hash );
         }
     }
 
-    stats::RefreshStats( hashes );
+    custom_meta::CommitData( hashes );
+    */
 }
 
 void JsFbMetadbHandleList::Remove( JsFbMetadbHandle* handle )
