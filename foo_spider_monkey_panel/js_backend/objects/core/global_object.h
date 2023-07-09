@@ -10,6 +10,7 @@
 
 namespace smp
 {
+
 class EventBase;
 
 } // namespace smp
@@ -17,6 +18,7 @@ class EventBase;
 namespace mozjs
 {
 
+class DspManager;
 class GlobalHeapManager;
 class JsContainer;
 class JsWindow;
@@ -111,6 +113,7 @@ private:
     };
 
     std::tuple<
+        LoadedNativeObject<DspManager>,
         LoadedNativeObject<Library>,
         LoadedNativeObject<ModuleCanvas>,
         LoadedNativeObject<ModuleTrack>,

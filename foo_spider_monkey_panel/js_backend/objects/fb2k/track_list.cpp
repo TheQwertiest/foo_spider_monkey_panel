@@ -217,14 +217,14 @@ metadb_handle_list& TrackList::GetMutableHandleList()
 
 JS::Value TrackList::GetItem( uint32_t index ) const
 {
-    qwr::QwrException::ExpectTrue( index < static_cast<int32_t>( metadbHandleList_.size() ), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( index < static_cast<uint32_t>( metadbHandleList_.size() ), "Index is out of bounds" );
 
     return JS::ObjectValue( *Track::CreateJs( pJsCtx_, metadbHandleList_[index] ) );
 }
 
 void TrackList::PutItem( uint32_t index, smp::not_null<Track*> track )
 {
-    qwr::QwrException::ExpectTrue( index < static_cast<int32_t>( metadbHandleList_.size() ), "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( index < static_cast<uint32_t>( metadbHandleList_.size() ), "Index is out of bounds" );
 
     metadbHandleList_.replace_item( index, track->GetHandle() );
     isSorted_ = false;

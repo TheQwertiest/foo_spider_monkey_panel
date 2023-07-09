@@ -26,9 +26,6 @@
 	path = submodules/json
 	url = https://github.com/nlohmann/json.git
 	branch = master
-[submodule "submodules/timsort"]
-	path = submodules/timsort
-	url = https://github.com/tvanslyke/timsort-cpp.git
 [submodule "submodules/range"]
 	path = submodules/range
 	url = https://github.com/ericniebler/range-v3.git

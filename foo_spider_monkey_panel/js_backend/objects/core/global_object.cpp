@@ -14,6 +14,7 @@
 #include <js_backend/objects/dom/enumerator.h>
 #include <js_backend/objects/dom/event.h>
 #include <js_backend/objects/dom/window/window_new.h>
+#include <js_backend/objects/fb2k/dsp_manager.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/objects/fb2k/fb_playlist_manager.h>
 #include <js_backend/objects/fb2k/fb_profiler.h>
@@ -378,6 +379,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case BuiltinModuleId::kFbTrackCustomMetaManager:
             {
                 return initializeLoadedObject.template operator()<TrackCustomMetaManager>( moduleId );
+            }
+            case BuiltinModuleId::kFbDspManager:
+            {
+                return initializeLoadedObject.template operator()<DspManager>( moduleId );
             }
             // TODO: add event module
             default:

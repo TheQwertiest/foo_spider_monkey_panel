@@ -177,8 +177,12 @@ void ToArrayValue( JSContext* cx, size_t arraySize, F&& generatorFn, JS::Mutable
     {
         if constexpr ( std::is_same_v<std::invoke_result_t<F, size_t>, JSObject*> )
         {
-            JS::RootedObject jsObject( cx, generatorFn( i ) );
+            jsObject = generatorFn( i );
             jsValue.setObject( *jsObject );
+        }
+        else if constexpr ( std::is_same_v<std::invoke_result_t<F, size_t>, JS::Value> )
+        {
+            jsValue.set( generatorFn( i ) );
         }
         else
         {

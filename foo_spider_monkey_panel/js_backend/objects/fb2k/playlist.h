@@ -36,8 +36,8 @@ public:
     [[nodiscard]] static std::unique_ptr<Playlist> CreateNative( JSContext* cx, uint32_t index );
     [[nodiscard]] size_t GetInternalSize() const;
 
-    JS::Value GetItem( int32_t trackIndex ) const;
-    void PutItem( int32_t trackIndex, smp::not_null<Track*> track );
+    JS::Value GetItem( uint32_t trackIndex ) const;
+    void PutItem( uint32_t trackIndex, smp::not_null<Track*> track );
     uint32_t GetItemCount() const;
 
 public:

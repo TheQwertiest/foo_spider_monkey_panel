@@ -104,7 +104,7 @@ bool PlaylistProxyHandler::get( JSContext* cx, JS::HandleObject proxy, JS::Handl
         auto pNativeTarget = mozjs::Playlist::ExtractNative( cx, proxy );
         assert( pNativeTarget );
 
-        vp.set( pNativeTarget->GetItem( static_cast<int32_t>( id.toInt() ) ) );
+        vp.set( pNativeTarget->GetItem( static_cast<uint32_t>( id.toInt() ) ) );
     }
     catch ( ... )
     {
@@ -129,7 +129,7 @@ bool PlaylistProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::Handl
         assert( pNativeTarget );
 
         auto pNativeValue = mozjs::convert::to_native::ToValue<smp::not_null<mozjs::Track*>>( cx, v );
-        pNativeTarget->PutItem( static_cast<int32_t>( id.toInt() ), pNativeValue );
+        pNativeTarget->PutItem( static_cast<uint32_t>( id.toInt() ), pNativeValue );
     }
     catch ( ... )
     {
@@ -292,38 +292,24 @@ size_t Playlist::GetInternalSize() const
     return 0;
 }
 
-JS::Value Playlist::GetItem( int32_t trackIndex ) const
+JS::Value Playlist::GetItem( uint32_t trackIndex ) const
 {
     const auto api = playlist_manager::get();
     const auto playlistIndex = get_Index();
-    const auto trackCount = static_cast<int32_t>( GetItemCount() );
 
-    qwr::QwrException::ExpectTrue( trackIndex < trackCount, "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( trackIndex < GetItemCount(), "Index is out of bounds" );
 
-    const auto adjustedTrackIndex = ( trackIndex < 0 ? trackCount + trackIndex : trackIndex );
-    if ( adjustedTrackIndex < 0 )
-    {
-        return JS::UndefinedValue();
-    }
-
-    return JS::ObjectValue( *Track::CreateJs( pJsCtx_, api->playlist_get_item_handle( playlistIndex, adjustedTrackIndex ) ) );
+    return JS::ObjectValue( *Track::CreateJs( pJsCtx_, api->playlist_get_item_handle( playlistIndex, trackIndex ) ) );
 }
 
-void Playlist::PutItem( int32_t trackIndex, smp::not_null<Track*> track )
+void Playlist::PutItem( uint32_t trackIndex, smp::not_null<Track*> track )
 {
     const auto api = playlist_manager::get();
     const auto playlistIndex = get_Index();
-    const auto trackCount = static_cast<int32_t>( GetItemCount() );
 
-    qwr::QwrException::ExpectTrue( trackIndex < trackCount, "Index is out of bounds" );
+    qwr::QwrException::ExpectTrue( trackIndex < GetItemCount(), "Index is out of bounds" );
 
-    const auto adjustedTrackIndex = ( trackIndex < 0 ? trackCount + trackIndex : trackIndex );
-    if ( adjustedTrackIndex < 0 )
-    {
-        return;
-    }
-
-    api->playlist_replace_item( playlistIndex, adjustedTrackIndex, track->GetHandle() );
+    api->playlist_replace_item( playlistIndex, trackIndex, track->GetHandle() );
 }
 
 size_t Playlist::GetItemCount() const
@@ -895,6 +881,7 @@ void Playlist::ShowAutoPlaylistUi() const
     try
     {
         auto client = autoPlApi->query_client( playlistIndex );
+        // TODO: check if modal
         client->show_ui( playlistIndex );
     }
     catch ( const exception_autoplaylist& e )

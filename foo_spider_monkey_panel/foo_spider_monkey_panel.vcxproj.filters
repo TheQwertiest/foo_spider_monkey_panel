@@ -709,6 +709,12 @@
     <ClCompile Include="js_backend\objects\fb2k\track_custom_meta_manager.cpp">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\dsp_manager.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\callbacks\dsp_config.cpp">
+      <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1528,6 +1534,9 @@
     <ClInclude Include="js_backend\objects\fb2k\track_custom_meta_manager.h">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\dsp_manager.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1580,6 +1589,9 @@
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\track_custom_meta_manager.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\dsp_manager.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>

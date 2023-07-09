@@ -153,9 +153,20 @@ public:
     /// @return nullptr if object couldn't be extracted
     /// @throw qwr::QwrException
     /// @throw smp::JsException
-    [[nodiscard]] static T* ExtractNative( JSContext* cx, JS::HandleObject jsObject )
+    [[nodiscard]] static T* ExtractNative( JSContext* cx, JS::HandleObject jsObjectHandle )
     {
-        if ( auto pNative = ExtractNativeExact( cx, jsObject ); pNative )
+        JS::RootedObject jsObject( cx, jsObjectHandle );
+        if ( js::IsWrapper( jsObject ) )
+        {
+            jsObject = js::UncheckedUnwrap( jsObject );
+        }
+
+        if ( js::IsProxy( jsObject ) && js::GetProxyHandler( jsObject )->family() == GetSmpProxyFamily() )
+        {
+            jsObject = js::GetProxyTargetObject( jsObject );
+        }
+
+        if ( auto pNative = ExtractNativeExact( cx, jsObject ) )
         {
             return pNative;
         }
@@ -188,21 +199,7 @@ public:
 private:
     [[nodiscard]] static T* ExtractNativeExact( JSContext* cx, JS::HandleObject jsObject )
     {
-        JS::RootedObject jsUnwrappedObject( cx, jsObject );
-        if ( js::IsWrapper( jsObject ) )
-        {
-            jsUnwrappedObject = js::UncheckedUnwrap( jsObject );
-        }
-
-        if constexpr ( TraitsHandlerT::Trait_HasProxy() )
-        {
-            if ( js::IsProxy( jsUnwrappedObject ) && js::GetProxyHandler( jsUnwrappedObject )->family() == GetSmpProxyFamily() )
-            {
-                jsUnwrappedObject = js::GetProxyTargetObject( jsUnwrappedObject );
-            }
-        }
-
-        auto pVoid = mozjs::utils::GetInstanceFromReservedSlot( cx, jsUnwrappedObject, &TraitsT::JsClass, nullptr );
+        auto pVoid = mozjs::utils::GetInstanceFromReservedSlot( cx, jsObject, &TraitsT::JsClass, nullptr );
         return Self::ExtractNativeFromVoid( pVoid );
     }
 
