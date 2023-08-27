@@ -7,6 +7,7 @@
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/objects/fb2k/fb_playback_queue_item.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
+#include <utils/guid_helpers.h>
 
 namespace mozjs::convert::to_js
 {
@@ -131,6 +132,13 @@ void ToValue( JSContext* /*cx*/, const std::nullptr_t& /*inValue*/, JS::MutableH
     wrappedValue.setUndefined();
 }
 
+template <>
+void ToValue( JSContext* cx, const GUID& inValue, JS::MutableHandleValue wrappedValue )
+{
+    ToValue<std::wstring_view>( cx, smp::utils::GuidToStr( inValue, true ), wrappedValue );
+}
+
+// TODO: remove custom js objects from here
 template <>
 void ToValue( JSContext* cx, const metadb_handle_ptr& inValue, JS::MutableHandleValue wrappedValue )
 {

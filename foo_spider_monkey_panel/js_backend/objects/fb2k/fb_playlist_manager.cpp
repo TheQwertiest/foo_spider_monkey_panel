@@ -10,7 +10,7 @@
 #include <js_backend/objects/fb2k/fb_playing_item_location.h>
 #include <js_backend/objects/fb2k/fb_playlist_recycler.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <utils/location_processor.h>
 #include <utils/text_helpers.h>
@@ -33,7 +33,6 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     JsFbPlaylistManager::FinalizeJsObject,
-    nullptr,
     nullptr,
     nullptr,
     nullptr

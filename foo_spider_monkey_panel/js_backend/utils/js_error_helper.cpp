@@ -7,6 +7,7 @@
 #include <js_backend/objects/core/global_object.h>
 #include <js_backend/utils/cached_utf8_paths_hack.h>
 #include <js_backend/utils/js_property_helper.h>
+#include <js_backend/utils/js_prototype_helpers.h>
 
 #include <qwr/final_action.h>
 #include <qwr/string_helpers.h>
@@ -167,7 +168,8 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
         return false;
     }
 
-    if ( !JS::CreateError( cx, static_cast<JSExnType>( pReport->exnType ), excnStackObject, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, &newExcn ) )
+    JS::Rooted<mozilla::Maybe<JS::Value>> cause( cx, mozilla::Nothing{} );
+    if ( !JS::CreateError( cx, static_cast<JSExnType>( pReport->exnType ), excnStackObject, jsFilenameStr, pReport->lineno, pReport->column, nullptr, jsMessageStr, cause, &newExcn ) )
     {
         return false;
     }
@@ -182,12 +184,12 @@ bool PrependTextToJsObjectException( JSContext* cx, JS::HandleValue excn, const 
 namespace mozjs::error
 {
 
-AutoJsReport::AutoJsReport( JSContext* cx )
+AutoReportError::AutoReportError( JSContext* cx )
     : cx( cx )
 {
 }
 
-AutoJsReport::~AutoJsReport() noexcept
+AutoReportError::~AutoReportError() noexcept
 {
     if ( isDisabled_ )
     {
@@ -211,7 +213,7 @@ AutoJsReport::~AutoJsReport() noexcept
             return;
         }
 
-        auto globalCtx = static_cast<JsGlobalObject*>( JS::GetPrivate( global ) );
+        auto globalCtx = static_cast<JsGlobalObject*>( mozjs::utils::GetMaybePtrFromReservedSlot( global, kReservedObjectSlot ) );
         if ( !globalCtx )
         {
             assert( 0 );
@@ -226,7 +228,7 @@ AutoJsReport::~AutoJsReport() noexcept
     }
 }
 
-void AutoJsReport::Disable()
+void AutoReportError::Disable()
 {
     isDisabled_ = true;
 }
@@ -335,11 +337,16 @@ void ExceptionToJsError( JSContext* cx )
     {
         throw;
     }
-    catch ( const JsException& )
+    catch ( const JsException& /*e*/ )
     {
         assert( JS_IsExceptionPending( cx ) );
     }
     catch ( const qwr::QwrException& e )
+    {
+        JS_ClearPendingException( cx );
+        JS_ReportErrorUTF8( cx, e.what() );
+    }
+    catch ( const foobar2000_io::exception_aborted& e )
     {
         JS_ClearPendingException( cx );
         JS_ReportErrorUTF8( cx, e.what() );

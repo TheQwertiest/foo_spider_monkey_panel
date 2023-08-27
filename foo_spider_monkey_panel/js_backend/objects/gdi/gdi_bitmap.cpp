@@ -2,12 +2,12 @@
 
 #include "gdi_bitmap.h"
 
+#include <graphics/gdiplus/error_handler.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/gdi/gdi_graphics.h>
 #include <js_backend/objects/gdi/gdi_raw_bitmap.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
-#include <utils/gdi_error_helpers.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <utils/image_helpers.h>
 #include <utils/kmeans.h>
 #include <utils/stackblur.h>
@@ -33,7 +33,6 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     JsGdiBitmap::FinalizeJsObject,
-    nullptr,
     nullptr,
     nullptr,
     nullptr
@@ -112,15 +111,15 @@ std::unique_ptr<Gdiplus::Bitmap> CreateDownsizedImage( Gdiplus::Bitmap& srcImg, 
     }();
 
     auto pBitmap = std::make_unique<Gdiplus::Bitmap>( imgWidth, imgHeight, PixelFormat32bppPARGB );
-    qwr::error::CheckGdiPlusObject( pBitmap );
+    smp::CheckGdiPlusObject( pBitmap );
 
     Gdiplus::Graphics gr( pBitmap.get() );
 
     Gdiplus::Status gdiRet = gr.SetInterpolationMode( Gdiplus::InterpolationModeHighQualityBilinear );
-    qwr::error::CheckGdi( gdiRet, "SetInterpolationMode" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetInterpolationMode" );
 
     gdiRet = gr.DrawImage( &srcImg, 0, 0, imgWidth, imgHeight ); // scale image down
-    qwr::error::CheckGdi( gdiRet, "DrawImage" );
+    smp::CheckGdiPlusStatus( gdiRet, "DrawImage" );
 
     return pBitmap;
 }
@@ -167,7 +166,7 @@ JSObject* JsGdiBitmap::Constructor( JSContext* cx, JsGdiBitmap* other )
     auto pGdi = other->GdiBitmap();
 
     std::unique_ptr<Gdiplus::Bitmap> img( pGdi->Clone( 0, 0, pGdi->GetWidth(), pGdi->GetHeight(), PixelFormat32bppPARGB ) );
-    qwr::error::CheckGdiPlusObject( img, pGdi );
+    smp::CheckGdiPlusObject( img, pGdi );
 
     return JsGdiBitmap::CreateJs( cx, std::move( img ) );
 }
@@ -188,7 +187,7 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
     const UINT height = pGdi_->GetHeight();
 
     std::unique_ptr<Gdiplus::Bitmap> out( new Gdiplus::Bitmap( width, height, PixelFormat32bppPARGB ) );
-    qwr::error::CheckGdiPlusObject( out );
+    smp::CheckGdiPlusObject( out );
 
     Gdiplus::ColorMatrix cm{};
     cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = cm.m[4][4] = 1.0;
@@ -196,7 +195,7 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
 
     Gdiplus::ImageAttributes ia;
     Gdiplus::Status gdiRet = ia.SetColorMatrix( &cm );
-    qwr::error::CheckGdi( gdiRet, "SetColorMatrix" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetColorMatrix" );
 
     Gdiplus::Graphics g( out.get() );
     gdiRet = g.DrawImage( pGdi_.get(),
@@ -207,7 +206,7 @@ JSObject* JsGdiBitmap::ApplyAlpha( uint8_t alpha )
                           height,
                           Gdiplus::UnitPixel,
                           &ia );
-    qwr::error::CheckGdi( gdiRet, "DrawImage" );
+    smp::CheckGdiPlusStatus( gdiRet, "DrawImage" );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) );
 }
@@ -227,7 +226,7 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 
     Gdiplus::BitmapData maskBmpData = { 0 };
     Gdiplus::Status gdiRet = pBitmapMask->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &maskBmpData );
-    qwr::error::CheckGdi( gdiRet, "mask::LockBits" );
+    smp::CheckGdiPlusStatus( gdiRet, "mask::LockBits" );
 
     qwr::final_action autoMaskBits( [pBitmapMask, &maskBmpData] {
         pBitmapMask->UnlockBits( &maskBmpData );
@@ -235,7 +234,7 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 
     Gdiplus::BitmapData dstBmpData = { 0 };
     gdiRet = pGdi_->LockBits( &rect, Gdiplus::ImageLockModeRead | Gdiplus::ImageLockModeWrite, PixelFormat32bppARGB, &dstBmpData );
-    qwr::error::CheckGdi( gdiRet, "dst::LockBits" );
+    smp::CheckGdiPlusStatus( gdiRet, "dst::LockBits" );
 
     qwr::final_action autoDstBits( [&pGdi = pGdi_, &dstBmpData] {
         pGdi->UnlockBits( &dstBmpData );
@@ -259,7 +258,7 @@ void JsGdiBitmap::ApplyMask( JsGdiBitmap* mask )
 JSObject* JsGdiBitmap::Clone( float x, float y, float w, float h )
 {
     std::unique_ptr<Gdiplus::Bitmap> img( pGdi_->Clone( x, y, w, h, PixelFormat32bppPARGB ) );
-    qwr::error::CheckGdiPlusObject( img, pGdi_.get() );
+    smp::CheckGdiPlusObject( img, pGdi_.get() );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( img ) );
 }
@@ -279,7 +278,7 @@ JS::Value JsGdiBitmap::GetColourScheme( uint32_t count )
     Gdiplus::BitmapData bmpdata{};
 
     Gdiplus::Status gdiRet = pBitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
-    qwr::error::CheckGdi( gdiRet, "LockBits" );
+    smp::CheckGdiPlusStatus( gdiRet, "LockBits" );
 
     std::map<uint32_t, uint32_t> color_counters;
     const auto colourRange = ranges::make_subrange( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
@@ -336,7 +335,7 @@ qwr::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
     Gdiplus::BitmapData bmpdata{};
 
     Gdiplus::Status gdiRet = pBitmap->LockBits( &rect, Gdiplus::ImageLockModeRead, PixelFormat32bppARGB, &bmpdata );
-    qwr::error::CheckGdi( gdiRet, "LockBits" );
+    smp::CheckGdiPlusStatus( gdiRet, "LockBits" );
 
     std::map<uint32_t, uint32_t> colour_counters;
     const auto colourRange = ranges::make_subrange( reinterpret_cast<const uint32_t*>( bmpdata.Scan0 ),
@@ -409,7 +408,7 @@ qwr::u8string JsGdiBitmap::GetColourSchemeJSON( uint32_t count )
 JSObject* JsGdiBitmap::GetGraphics()
 {
     std::unique_ptr<Gdiplus::Graphics> g( new Gdiplus::Graphics( pGdi_.get() ) );
-    qwr::error::CheckGdiPlusObject( g );
+    smp::CheckGdiPlusObject( g );
 
     JS::RootedObject jsObject( pJsCtx_, JsGdiGraphics::CreateJs( pJsCtx_ ) );
 
@@ -427,7 +426,7 @@ JSObject* JsGdiBitmap::InvertColours()
     const UINT height = pGdi_->GetHeight();
 
     std::unique_ptr<Gdiplus::Bitmap> out( new Gdiplus::Bitmap( width, height, PixelFormat32bppPARGB ) );
-    qwr::error::CheckGdiPlusObject( out );
+    smp::CheckGdiPlusObject( out );
 
     Gdiplus::ColorMatrix cm{};
     cm.m[0][0] = cm.m[1][1] = cm.m[2][2] = -1.f;
@@ -435,7 +434,7 @@ JSObject* JsGdiBitmap::InvertColours()
 
     Gdiplus::ImageAttributes ia;
     Gdiplus::Status gdiRet = ia.SetColorMatrix( &cm );
-    qwr::error::CheckGdi( gdiRet, "SetColorMatrix" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetColorMatrix" );
 
     Gdiplus::Graphics g( out.get() );
     gdiRet = g.DrawImage( pGdi_.get(),
@@ -446,7 +445,7 @@ JSObject* JsGdiBitmap::InvertColours()
                           height,
                           Gdiplus::UnitPixel,
                           &ia );
-    qwr::error::CheckGdi( gdiRet, "DrawImage" );
+    smp::CheckGdiPlusStatus( gdiRet, "DrawImage" );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( out ) );
 }
@@ -466,14 +465,14 @@ void JsGdiBitmap::ReleaseGraphics( JsGdiGraphics* graphics )
 JSObject* JsGdiBitmap::Resize( uint32_t w, uint32_t h, uint32_t interpolationMode )
 {
     std::unique_ptr<Gdiplus::Bitmap> bitmap( new Gdiplus::Bitmap( w, h, PixelFormat32bppPARGB ) );
-    qwr::error::CheckGdiPlusObject( bitmap );
+    smp::CheckGdiPlusObject( bitmap );
 
     Gdiplus::Graphics g( bitmap.get() );
     Gdiplus::Status gdiRet = g.SetInterpolationMode( static_cast<Gdiplus::InterpolationMode>( interpolationMode ) );
-    qwr::error::CheckGdi( gdiRet, "SetInterpolationMode" );
+    smp::CheckGdiPlusStatus( gdiRet, "SetInterpolationMode" );
 
     gdiRet = g.DrawImage( pGdi_.get(), 0, 0, w, h );
-    qwr::error::CheckGdi( gdiRet, "DrawImage" );
+    smp::CheckGdiPlusStatus( gdiRet, "DrawImage" );
 
     return JsGdiBitmap::CreateJs( pJsCtx_, std::move( bitmap ) );
 }
@@ -494,7 +493,7 @@ JSObject* JsGdiBitmap::ResizeWithOpt( size_t optArgCount, uint32_t w, uint32_t h
 void JsGdiBitmap::RotateFlip( uint32_t mode )
 {
     Gdiplus::Status gdiRet = pGdi_->RotateFlip( static_cast<Gdiplus::RotateFlipType>( mode ) );
-    qwr::error::CheckGdi( gdiRet, "RotateFlip" );
+    smp::CheckGdiPlusStatus( gdiRet, "RotateFlip" );
 }
 
 bool JsGdiBitmap::SaveAs( const std::wstring& path, const std::wstring& format )

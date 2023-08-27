@@ -18,3 +18,5 @@
 component/** linguist-detectable=false
 miniz/** linguist-detectable=false
 scripts/** linguist-detectable=false
+
+scripts/patches/mozjs-missing_defines.patch eol=crlf

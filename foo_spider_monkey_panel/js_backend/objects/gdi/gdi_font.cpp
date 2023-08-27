@@ -2,10 +2,10 @@
 
 #include "gdi_font.h"
 
+#include <graphics/gdiplus/error_handler.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
-#include <utils/gdi_error_helpers.h>
+#include <js_backend/utils/js_object_constants.h>
 
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
@@ -27,7 +27,6 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     JsGdiFont::FinalizeJsObject,
-    nullptr,
     nullptr,
     nullptr,
     nullptr
@@ -116,7 +115,7 @@ HFONT JsGdiFont::GetHFont() const
 JSObject* JsGdiFont::Constructor( JSContext* cx, const std::wstring& fontName, uint32_t pxSize, uint32_t style )
 {
     auto pGdiFont = std::make_unique<Gdiplus::Font>( fontName.c_str(), static_cast<Gdiplus::REAL>( pxSize ), style, Gdiplus::UnitPixel );
-    qwr::error::CheckGdiPlusObject( pGdiFont );
+    smp::CheckGdiPlusObject( pGdiFont );
 
     // Generate HFONT
     // The benefit of replacing Gdiplus::Font::GetLogFontW is that you can get it work with CCF/OpenType fonts.
@@ -173,10 +172,10 @@ std::wstring JsGdiFont::get_Name() const
     Gdiplus::FontFamily fontFamily;
     std::array<wchar_t, LF_FACESIZE> name{};
     Gdiplus::Status gdiRet = pGdi_->GetFamily( &fontFamily );
-    qwr::error::CheckGdi( gdiRet, "GetFamily" );
+    smp::CheckGdiPlusStatus( gdiRet, "GetFamily" );
 
     gdiRet = fontFamily.GetFamilyName( name.data(), LANG_NEUTRAL );
-    qwr::error::CheckGdi( gdiRet, "GetFamilyName" );
+    smp::CheckGdiPlusStatus( gdiRet, "GetFamilyName" );
 
     return std::wstring( name.data() );
 }

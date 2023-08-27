@@ -2,29 +2,44 @@
 
 #include "global_object.h"
 
+#include <js_backend/engine/engine.h>
+#include <js_backend/engine/global_heap_manager.h>
 #include <js_backend/engine/js_container.h>
-#include <js_backend/engine/js_engine.h>
 #include <js_backend/engine/js_realm_inner.h>
 #include <js_backend/engine/js_script_cache.h>
 #include <js_backend/engine/js_to_native_invoker.h>
-#include <js_backend/objects/core/global_heap_manager.h>
 #include <js_backend/objects/dom/active_x_object.h>
+#include <js_backend/objects/dom/canvas/module_canvas.h>
 #include <js_backend/objects/dom/console.h>
 #include <js_backend/objects/dom/enumerator.h>
 #include <js_backend/objects/dom/event.h>
+#include <js_backend/objects/dom/window/window_new.h>
+#include <js_backend/objects/fb2k/dsp_manager.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/objects/fb2k/fb_playlist_manager.h>
 #include <js_backend/objects/fb2k/fb_profiler.h>
 #include <js_backend/objects/fb2k/fb_title_format.h>
 #include <js_backend/objects/fb2k/fb_utils.h>
+#include <js_backend/objects/fb2k/library.h>
+#include <js_backend/objects/fb2k/module_track.h>
+#include <js_backend/objects/fb2k/playback_control.h>
+#include <js_backend/objects/fb2k/playback_queue.h>
+#include <js_backend/objects/fb2k/playlist_manager.h>
+#include <js_backend/objects/fb2k/replay_gain_manager.h>
+#include <js_backend/objects/fb2k/track_custom_meta_manager.h>
+#include <js_backend/objects/fb2k/track_image_manager.h>
+#include <js_backend/objects/fb2k/ui_selection_manager.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/objects/gdi/gdi_font.h>
 #include <js_backend/objects/gdi/gdi_utils.h>
 #include <js_backend/objects/utils.h>
 #include <js_backend/objects/window.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
+#include <js_backend/utils/js_object_helpers.h>
 #include <js_backend/utils/js_property_helper.h>
+#include <js_backend/utils/js_prototype_helpers.h>
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 #include <utils/logging.h>
 
@@ -38,6 +53,7 @@
 #include <qwr/final_action.h>
 #include <qwr/string_helpers.h>
 
+#include <concepts>
 #include <filesystem>
 
 namespace fs = std::filesystem;
@@ -56,7 +72,7 @@ static T* GetNativeObjectProperty( JSContext* cx, JS::HandleObject self, const s
     }
 
     JS::RootedObject jsProperty( cx, &jsPropertyValue.toObject() );
-    return JsObjectBase<T>::ExtractNative( cx, jsProperty );
+    return mozjs::JsObjectBase<T>::ExtractNative( cx, jsProperty );
 }
 
 template <typename T>
@@ -76,13 +92,13 @@ namespace
 
 using namespace mozjs;
 
-void JsFinalizeOpLocal( JSFreeOp* /*fop*/, JSObject* obj )
+void JsFinalizeOpLocal( JS::GCContext* /*gcCtx*/, JSObject* obj )
 {
-    auto x = static_cast<JsGlobalObject*>( JS::GetPrivate( obj ) );
+    auto x = static_cast<JsGlobalObject*>( mozjs::utils::GetMaybePtrFromReservedSlot( obj, kReservedObjectSlot ) );
     if ( x )
     {
         delete x;
-        JS::SetPrivate( obj, nullptr );
+        JS::SetReservedSlot( obj, kReservedObjectSlot, JS::UndefinedValue() );
 
         auto pJsRealm = static_cast<JsRealmInner*>( JS::GetRealmPrivate( js::GetNonCCWObjectRealm( obj ) ) );
         if ( pJsRealm )
@@ -103,26 +119,27 @@ JSClassOps jsOps = {
     JsFinalizeOpLocal,
     nullptr,
     nullptr,
-    nullptr,
     nullptr // set in runtime to JS_GlobalObjectTraceHook
 };
 
 constexpr JSClass jsClass = {
     "Global",
-    JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>( JsPrototypeId::ProrototypeCount ) ) | JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE,
+    JSCLASS_GLOBAL_FLAGS_WITH_SLOTS( static_cast<uint32_t>( JsPrototypeId::ProrototypeCount ) ) | JSCLASS_FOREGROUND_FINALIZE,
     &jsOps
 };
 
-MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_FULL( IncludeScript, "include", JsGlobalObject::IncludeScript, JsGlobalObject::IncludeScriptWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE( internalModuleLoad, JsGlobalObject::InternalLazyLoad )
+MJS_DEFINE_JS_FN_FROM_NATIVE_FULL( includeScript, "include", JsGlobalObject::IncludeScript, JsGlobalObject::IncludeScriptWithOpt, 1, false )
 MJS_DEFINE_JS_FN_FROM_NATIVE( clearInterval, JsGlobalObject::ClearInterval )
 MJS_DEFINE_JS_FN_FROM_NATIVE( clearTimeout, JsGlobalObject::ClearTimeout )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setInterval, JsGlobalObject::SetInterval, JsGlobalObject::SetIntervalWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( setTimeout, JsGlobalObject::SetTimeout, JsGlobalObject::SetTimeoutWithOpt, 1 )
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>( {
+    JS_FN( "_internalModuleLoad", internalModuleLoad, 1, kDefaultPropsFlags ),
     JS_FN( "clearInterval", clearInterval, 1, kDefaultPropsFlags ),
     JS_FN( "clearTimeout", clearTimeout, 1, kDefaultPropsFlags ),
-    JS_FN( "include", IncludeScript, 1, kDefaultPropsFlags ),
+    JS_FN( "include", includeScript, 1, kDefaultPropsFlags ),
     JS_FN( "setInterval", setInterval, 2, kDefaultPropsFlags ),
     JS_FN( "setTimeout", setTimeout, 2, kDefaultPropsFlags ),
     JS_FS_END,
@@ -155,10 +172,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
     JS::RealmOptions options( creationOptions, JS::RealmBehaviors{} );
     JS::RootedObject jsObj( cx,
                             JS_NewGlobalObject( cx, &jsClass, nullptr, JS::DontFireOnNewGlobalHook, options ) );
-    if ( !jsObj )
-    {
-        throw JsException();
-    }
+    JsException::ExpectTrue( jsObj );
 
     {
         JSAutoRealm ac( cx, jsObj );
@@ -171,16 +185,15 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
 
         DefineConsole( cx, jsObj );
 
-#ifdef SMP_V2
         utils::CreateAndInstallPrototype<JsEvent>( cx, JsPrototypeId::Event );
         utils::CreateAndInstallPrototype<JsEventTarget>( cx, JsPrototypeId::EventTarget );
-#endif
 
+        // TODO: remove
         CreateAndInstallObject<JsGdiUtils>( cx, jsObj, "gdi" );
         CreateAndInstallObject<JsFbPlaylistManager>( cx, jsObj, "plman" );
         CreateAndInstallObject<JsUtils>( cx, jsObj, "utils" );
         CreateAndInstallObject<JsFbUtils>( cx, jsObj, "fb" );
-        CreateAndInstallObject<JsWindow>( cx, jsObj, "window", parentContainer.GetParentPanel() );
+        CreateAndInstallObject<JsWindow>( cx, jsObj, "window", *parentContainer.GetHostPanel()->GetPanel() );
 
         if ( !JS_DefineFunctions( cx, jsObj, jsFunctions.data() ) )
         {
@@ -210,7 +223,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
         pNative->heapManager_ = GlobalHeapManager::Create( cx );
         assert( pNative->heapManager_ );
 
-        JS::SetPrivate( jsObj, pNative.release() );
+        JS::SetReservedSlot( jsObj, kReservedObjectSlot, JS::PrivateValue( pNative.release() ) );
 
         JS_FireOnNewGlobalObject( cx, jsObj );
     }
@@ -220,7 +233,7 @@ JSObject* JsGlobalObject::CreateNative( JSContext* cx, JsContainer& parentContai
 
 JsGlobalObject* JsGlobalObject::ExtractNative( JSContext* cx, JS::HandleObject jsObject )
 {
-    return static_cast<mozjs::JsGlobalObject*>( JS_GetInstancePrivate( cx, jsObject, &mozjs::JsGlobalObject::JsClass, nullptr ) );
+    return static_cast<mozjs::JsGlobalObject*>( mozjs::utils::GetInstanceFromReservedSlot( cx, jsObject, &mozjs::JsGlobalObject::JsClass, nullptr ) );
 }
 
 void JsGlobalObject::Fail( const qwr::u8string& errorText )
@@ -244,6 +257,22 @@ void JsGlobalObject::PrepareForGc( JSContext* cx, JS::HandleObject self )
     CleanupObjectProperty<JsWindow>( cx, self, "window" );
     CleanupObjectProperty<JsFbPlaylistManager>( cx, self, "plman" );
 
+    {
+        const auto prepareForGcHandler = []( auto& loadedNativeObject ) {
+            using T = std::remove_cvref_t<decltype( loadedNativeObject )>::NativeT;
+            if constexpr ( requires { &T::PrepareForGc; } )
+            {
+                if ( loadedNativeObject.pNative )
+                {
+                    loadedNativeObject.pNative->PrepareForGc();
+                }
+            }
+        };
+        std::apply( [&]( auto&... args ) { ( prepareForGcHandler( args ), ... ); }, pNativeGlobal->loadedNativeObjects_ );
+    }
+
+    pNativeGlobal->loadedObjects_.clear();
+
     if ( pNativeGlobal->heapManager_ )
     {
         pNativeGlobal->heapManager_->PrepareForGc();
@@ -256,10 +285,116 @@ ScriptLoader& JsGlobalObject::GetScriptLoader()
     return scriptLoader_;
 }
 
+// TODO: simplify class relations, e.g. use Panel directly (in ctx or here)
 HWND JsGlobalObject::GetPanelHwnd() const
 {
     assert( pJsWindow_ );
     return pJsWindow_->GetHwnd();
+}
+
+smp::not_null_shared<smp::panel::PanelAccessor> JsGlobalObject::GetHostPanel() const
+{
+    return parentContainer_.GetHostPanel();
+}
+
+EventStatus JsGlobalObject::HandleEvent( smp::EventBase& event )
+{
+    EventStatus status{};
+
+    const auto invokeEventHandler = [&, eventId = event.GetId()]( auto& loadedNativeObject ) {
+        using T = std::remove_cvref_t<decltype( loadedNativeObject )>::NativeT;
+        if constexpr ( std::is_base_of_v<mozjs::JsEventTarget, T> )
+        {
+            if ( T::kHandledEvents.contains( eventId ) && loadedNativeObject.pNative )
+            {
+                JS::RootedObject jsLoadedObject( pJsCtx_, *loadedObjects_.at( loadedNativeObject.moduleId ).get() );
+                auto curStatus = loadedNativeObject.pNative->HandleEvent( jsLoadedObject, event );
+                status.isDefaultSuppressed |= curStatus.isDefaultSuppressed;
+                status.isHandled |= curStatus.isHandled;
+            }
+        }
+    };
+
+    std::apply( [&]( auto&... args ) { ( invokeEventHandler( args ), ... ); }, loadedNativeObjects_ );
+
+    return status;
+}
+
+JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
+{
+    qwr::QwrException::ExpectTrue( moduleIdRaw < static_cast<uint8_t>( BuiltinModuleId::kCount ), "Internal error: unknown module id" );
+
+    const BuiltinModuleId moduleId{ moduleIdRaw };
+    if ( !loadedObjects_.contains( moduleId ) )
+    {
+        const auto initializeLoadedObject = [&]<typename T>( auto moduleId ) {
+            auto pNative = T::CreateNative( pJsCtx_ );
+            std::get<LoadedNativeObject<T>>( loadedNativeObjects_ ) = { pNative.get(), moduleId };
+            return JsObjectBase<T>::CreateJsFromNative( pJsCtx_, std::move( pNative ) );
+        };
+
+        JS::RootedObject jsObject( pJsCtx_, [&]() -> JSObject* {
+            switch ( moduleId )
+            {
+            case BuiltinModuleId::kFbPlaybackControl:
+            {
+                return initializeLoadedObject.template operator()<PlaybackControl>( moduleId );
+            }
+            case BuiltinModuleId::kFbUiSelectionManager:
+            {
+                return initializeLoadedObject.template operator()<UiSelectionManager>( moduleId );
+            }
+            case BuiltinModuleId::kDomWindow:
+            {
+                return initializeLoadedObject.template operator()<WindowNew>( moduleId );
+            }
+            case BuiltinModuleId::kDomCanvas:
+            {
+                return initializeLoadedObject.template operator()<ModuleCanvas>( moduleId );
+            }
+            case BuiltinModuleId::kFbTrack:
+            {
+                return initializeLoadedObject.template operator()<ModuleTrack>( moduleId );
+            }
+            case BuiltinModuleId::kFbPlaylistManager:
+            {
+                return initializeLoadedObject.template operator()<PlaylistManager>( moduleId );
+            }
+            case BuiltinModuleId::kFbLibrary:
+            {
+                return initializeLoadedObject.template operator()<Library>( moduleId );
+            }
+            case BuiltinModuleId::kFbTrackImageManager:
+            {
+                return initializeLoadedObject.template operator()<TrackImageManager>( moduleId );
+            }
+            case BuiltinModuleId::kFbPlaybackQueue:
+            {
+                return initializeLoadedObject.template operator()<PlaybackQueue>( moduleId );
+            }
+            case BuiltinModuleId::kFbReplayGainManager:
+            {
+                return initializeLoadedObject.template operator()<ReplayGainManager>( moduleId );
+            }
+            case BuiltinModuleId::kFbTrackCustomMetaManager:
+            {
+                return initializeLoadedObject.template operator()<TrackCustomMetaManager>( moduleId );
+            }
+            case BuiltinModuleId::kFbDspManager:
+            {
+                return initializeLoadedObject.template operator()<DspManager>( moduleId );
+            }
+            // TODO: add event module
+            default:
+                assert( false );
+                return nullptr;
+            }
+        }() );
+
+        loadedObjects_.try_emplace( moduleId, std::make_unique<JS::Heap<JSObject*>>( jsObject ) );
+    }
+
+    return *loadedObjects_.at( moduleId ).get();
 }
 
 void JsGlobalObject::ClearInterval( uint32_t intervalId )
@@ -277,7 +412,9 @@ void JsGlobalObject::ClearTimeout( uint32_t timeoutId )
 void JsGlobalObject::IncludeScript( const qwr::u8string& path, JS::HandleValue options )
 {
     const auto parsedOptions = ParseIncludeOptions( options );
-    scriptLoader_.IncludeScript( path, parentContainer_.GetParentPanel().GetScriptSettings(), parsedOptions.alwaysEvaluate );
+    auto pPanel = parentContainer_.GetHostPanel()->GetPanel();
+    assert( pPanel );
+    scriptLoader_.IncludeScript( path, pPanel->GetScriptSettings(), parsedOptions.alwaysEvaluate );
 }
 
 void JsGlobalObject::IncludeScriptWithOpt( size_t optArgCount, const qwr::u8string& path, JS::HandleValue options )
@@ -321,10 +458,7 @@ JsGlobalObject::IncludeOptions JsGlobalObject::ParseIncludeOptions( JS::HandleVa
         qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
-        if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "always_evaluate" ) )
-        {
-            parsedOptions.alwaysEvaluate = *propOpt;
-        }
+        utils::OptionalPropertyTo( pJsCtx_, jsOptions, "always_evaluate", parsedOptions.alwaysEvaluate );
     }
 
     return parsedOptions;
@@ -332,7 +466,7 @@ JsGlobalObject::IncludeOptions JsGlobalObject::ParseIncludeOptions( JS::HandleVa
 
 void JsGlobalObject::Trace( JSTracer* trc, JSObject* obj )
 {
-    auto pNative = static_cast<JsGlobalObject*>( JS::GetPrivate( obj ) );
+    auto pNative = static_cast<JsGlobalObject*>( mozjs::utils::GetMaybePtrFromReservedSlot( obj, kReservedObjectSlot ) );
     if ( !pNative )
     {
         return;
@@ -341,6 +475,11 @@ void JsGlobalObject::Trace( JSTracer* trc, JSObject* obj )
     if ( pNative->heapManager_ )
     {
         pNative->heapManager_->Trace( trc );
+    }
+
+    for ( const auto& jsLoadedObject: pNative->loadedObjects_ | ranges::views::values )
+    {
+        JS::TraceEdge( trc, jsLoadedObject.get(), "CustomHeap: loaded module objects" );
     }
 
     pNative->scriptLoader_.Trace( trc );

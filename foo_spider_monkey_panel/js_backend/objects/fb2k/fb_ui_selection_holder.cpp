@@ -6,7 +6,7 @@
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 
 using namespace smp;
 
@@ -25,13 +25,12 @@ JSClassOps jsOps = {
     JsFbUiSelectionHolder::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 
 JSClass jsClass = {
     "FbUiSelectionHolder",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE, // selection_holder must be finalized in foreground
+    JSCLASS_HAS_RESERVED_SLOTS( 1 ) | JSCLASS_FOREGROUND_FINALIZE, // selection_holder must be finalized in foreground
     &jsOps
 };
 

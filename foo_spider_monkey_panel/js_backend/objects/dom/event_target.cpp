@@ -27,8 +27,7 @@ JSClassOps jsOps = {
     JsEventTarget::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
-    nullptr
+    JsEventTarget::Trace
 };
 
 JSClass jsClass = {
@@ -70,16 +69,18 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>( {
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( JsEventTarget_Constructor, JsEventTarget::Constructor );
 
+MJS_VERIFY_OBJECT( mozjs::JsEventTarget );
+
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass JsEventTarget::JsClass = jsClass;
-const JSFunctionSpec* JsEventTarget::JsFunctions = jsFunctions.data();
-const JSPropertySpec* JsEventTarget::JsProperties = jsProperties.data();
-const JsPrototypeId JsEventTarget::PrototypeId = JsPrototypeId::EventTarget;
-const JSNative JsEventTarget::JsConstructor = ::JsEventTarget_Constructor;
+const JSClass JsObjectTraits<JsEventTarget>::JsClass = jsClass;
+const JSFunctionSpec* JsObjectTraits<JsEventTarget>::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsObjectTraits<JsEventTarget>::JsProperties = jsProperties.data();
+const JsPrototypeId JsObjectTraits<JsEventTarget>::PrototypeId = JsPrototypeId::EventTarget;
+const JSNative JsObjectTraits<JsEventTarget>::JsConstructor = ::JsEventTarget_Constructor;
 
 int64_t JsEventTarget::dispatchNestedCounter_ = 0;
 
@@ -104,20 +105,26 @@ size_t JsEventTarget::GetInternalSize()
     return 0;
 }
 
-void JsEventTarget::Trace( JSTracer* trc )
+void JsEventTarget::Trace( JSTracer* trc, JSObject* obj )
 {
-    for ( const auto& [type, listeners]: typeToListeners_ )
+    auto pNative = JsObjectBase<JsEventTarget>::ExtractNativeUnchecked( obj );
+    if ( !pNative )
+    {
+        return;
+    }
+
+    for ( const auto& [type, listeners]: pNative->typeToListeners_ )
     {
         for ( const auto& pListener: listeners )
         {
-            JS::TraceEdge( trc, &pListener->jsObject, "CustomHeap: EventTarget listeners" );
+            JS::TraceEdge( trc, &pListener->jsObject, "Heap: EventTarget: listener" );
         }
     }
 }
 
-void JsEventTarget::PrepareForGc()
+bool JsEventTarget::HasEventListener( const qwr::u8string& type )
 {
-    typeToListeners_.clear();
+    return typeToListeners_.count( type );
 }
 
 void JsEventTarget::AddEventListener( const qwr::u8string& type, JS::HandleValue listener )
@@ -191,15 +198,26 @@ void JsEventTarget::DispatchEvent( JS::HandleObject self, JS::HandleValue event 
     } );
 
     // make a copy, since listeners might be added or removed during event dispatch
-    const auto listenersCopy = typeToListeners_.at( type );
-    for ( const auto& listenerElement: listenersCopy )
+    const auto listenersElementCopy = typeToListeners_.at( type );
+
+    // root to avoid untraceable js values
+    JS::RootedObjectVector jsListenersCopy( pJsCtx_ );
+    for ( const auto& listener: listenersElementCopy )
     {
-        if ( listenerElement->isRemoved )
+        if ( !jsListenersCopy.append( listener->jsObject.get() ) )
+        {
+            throw JsException();
+        }
+    }
+
+    for ( const auto& [jsListener, element]: ranges::views::zip( jsListenersCopy, listenersElementCopy ) )
+    {
+        if ( element->isRemoved )
         {
             continue;
         }
 
-        JS::RootedObject jsObject( pJsCtx_, listenerElement->jsObject );
+        JS::RootedObject jsObject( pJsCtx_, jsListener );
         InvokeListener( jsGlobal, jsObject, event );
 
         if ( pNativeEvent->IsPropagationStopped() )
@@ -207,6 +225,11 @@ void JsEventTarget::DispatchEvent( JS::HandleObject self, JS::HandleValue event 
             break;
         }
     }
+}
+
+EventStatus JsEventTarget::HandleEvent( JS::HandleObject /*self*/, const smp::EventBase& /*event*/ )
+{
+    return {};
 }
 
 void JsEventTarget::InvokeListener( JS::HandleObject currentGlobal, JS::HandleObject listener, JS::HandleValue event )

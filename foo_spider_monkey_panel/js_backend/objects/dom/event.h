@@ -1,18 +1,18 @@
 #pragma once
 
 #include <js_backend/objects/core/object_base.h>
+#include <js_backend/objects/core/object_traits.h>
 
 #include <js/TypeDecls.h>
 
 namespace mozjs
 {
 
-class JsEvent
-    : public JsObjectBase<JsEvent>
-{
-    friend class JsObjectBase<JsEvent>;
+class JsEvent;
 
-public:
+template <>
+struct JsObjectTraits<JsEvent>
+{
     static constexpr bool HasProto = true;
     static constexpr bool HasGlobalProto = true;
     static constexpr bool IsExtendable = true;
@@ -22,6 +22,27 @@ public:
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
+};
+
+// TODO: rename to Event
+class JsEvent
+    : public JsObjectBase<JsEvent>
+{
+    MOZJS_ENABLE_OBJECT_BASE_ACCESS( JsEvent );
+
+public:
+    struct EventProperties
+    {
+        bool cancelable = false;
+    };
+
+protected:
+    struct EventOptions
+    {
+        bool cancelable = false;
+
+        EventProperties ToDefaultProps() const;
+    };
 
 public:
     ~JsEvent() override;
@@ -50,11 +71,17 @@ public:
     const qwr::u8string& get_Type() const;
 
 protected:
-    JsEvent( JSContext* cx, const qwr::u8string& type, bool isCancelable );
+    // TODO: add cancelable check for all events
+    // TODO: add event traits
+    JsEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props );
+    JsEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options = {} );
     [[nodiscard]] size_t GetInternalSize();
 
+    static EventOptions ExtractOptions( JSContext* cx, JS::HandleValue options );
+
 private:
-    static std::unique_ptr<JsEvent> CreateNative( JSContext* cx, const qwr::u8string& type, bool isCancelable );
+    static std::unique_ptr<JsEvent> CreateNative( JSContext* cx, const qwr::u8string& type, const EventProperties& props );
+    static std::unique_ptr<JsEvent> CreateNative( JSContext* cx, const qwr::u8string& type, const EventOptions& options );
 
 private:
     [[maybe_unused]] JSContext* pJsCtx_ = nullptr;

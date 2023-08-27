@@ -3,18 +3,18 @@
 #include "default_script.h"
 
 #include <resources/resource.h>
+#include <utils/script_resource.h>
 
 namespace smp::config
 {
 
 qwr::u8string GetDefaultScript()
 {
-    puResource puRes = uLoadResource( core_api::get_my_instance(), uMAKEINTRESOURCE( IDR_DEFAULT_SCRIPT ), "SCRIPT" );
-    if ( puRes )
+    try
     {
-        return qwr::u8string{ static_cast<const char*>( puRes->GetPointer() ), puRes->GetSize() };
+        return utils::LoadScriptResource( IDR_DEFAULT_SCRIPT );
     }
-    else
+    catch ( const qwr::QwrException& /*e*/ )
     {
         return qwr::u8string{};
     }

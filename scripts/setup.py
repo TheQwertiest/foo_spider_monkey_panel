@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Union
 
 import call_wrapper
+import configure_lexilla
 import configure_scintilla
 import download_submodules
 import patch_submodules
@@ -47,8 +48,9 @@ def setup( skip_mozjs,
     scripts_path = root_dir/'submodules'/'fb2k_utils'/'scripts'
 
     if (not skip_submodules_download):
-        call_decorator('Downloading submodules')(download_submodules.download)()
+        call_decorator('Downloading submodules')(download_submodules.download)(root_dir)
         call_decorator("Configuring Scintilla")(configure_scintilla.configure)()
+        call_decorator("Configuring Lexilla")(configure_lexilla.configure)()
         if (not skip_mozjs):
             call_decorator("MozJs unpacking")(unpack_mozjs.unpack)()
         if (not skip_submodules_patches):

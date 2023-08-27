@@ -1,5 +1,6 @@
 #pragma once
 
+#include <condition_variable>
 #include <functional>
 #include <map>
 #include <mutex>
@@ -69,9 +70,8 @@ private:
     std::unordered_map<JsContainer*, ContainerData> monitoredContainers_;
 
     std::mutex watcherDataMutex_;
-    std::thread watcherThread_;
-    std::atomic_bool shouldStopThread_ = false;
-    std::condition_variable hasAction_;
+    std::unique_ptr<std::jthread> pWatcherThread_;
+    std::condition_variable_any hasAction_;
     // Contains the same time as slowScriptCheckpoint in monitoredContainers_
     std::unordered_map<JsContainer*, std::chrono::milliseconds> activeContainers_;
     bool isInInterrupt_ = false;

@@ -1,0 +1,44 @@
+diff --git a/mozjs b/mozjs
+new file mode 100644
+--- /dev/null
++++ b/mozjs/qwr_missing_sm_defines.h
+@@ -0,0 +1,13 @@
++#pragma once
++
++// TheQwertiest: SM bug - these are missing macros that were defined during build.
++// This file *must* be included *before* any header from mozjs
++#define JS_CODEGEN_X86 1
++#define JS_STANDALONE 1
++#define XP_WIN 1
++#ifdef _DEBUG
++#   define JS_JITSPEW 1
++#   define JS_MASM_VERBOSE 1
++#   define MOZ_DEBUG 1
++#   define MOZ_DIAGNOSTIC_ASSERT_ENABLED 1
++#endif
+
+--- a/mozjs/Debug/include/jsapi.h
++++ b/mozjs/Debug/include/jsapi.h
+@@ -9,6 +9,9 @@
+ #ifndef jsapi_h
+ #define jsapi_h
+ 
++// TheQwertiest: read comment in the included for more info
++#include "../../qwr_missing_sm_defines.h"
++
+ #include "mozilla/AlreadyAddRefed.h"
+ #include "mozilla/FloatingPoint.h"
+ #include "mozilla/Maybe.h"
+
+--- a/mozjs/Release/include/jsapi.h
++++ b/mozjs/Release/include/jsapi.h
+@@ -9,6 +9,9 @@
+ #ifndef jsapi_h
+ #define jsapi_h
+ 
++// TheQwertiest: read comment in the included for more info
++#include "../../qwr_missing_sm_defines.h"
++
+ #include "mozilla/AlreadyAddRefed.h"
+ #include "mozilla/FloatingPoint.h"
+ #include "mozilla/Maybe.h"

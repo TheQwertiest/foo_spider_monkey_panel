@@ -1,6 +1,6 @@
 #pragma once
 
-#include <com_objects/file_drop_target.h>
+#include <com/objects/file_drop_target.h>
 #include <config/panel_config.h>
 #include <config/smp_package/delayed_package_actions.h>
 #include <config/smp_package/package.h>

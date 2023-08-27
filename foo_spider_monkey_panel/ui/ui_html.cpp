@@ -2,7 +2,7 @@
 
 #include "ui_html.h"
 
-#include <com_objects/dispatch_ptr.h>
+#include <com/objects/dispatch_ptr.h>
 #include <convert/com.h>
 #include <convert/js_to_native.h>
 #include <js_backend/utils/js_error_helper.h>

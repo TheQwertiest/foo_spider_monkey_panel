@@ -8,10 +8,13 @@
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
 #include <fb2k/advanced_config.h>
-#include <js_backend/engine/js_engine.h>
+#include <js_backend/engine/context.h>
 #include <js_backend/engine/js_script_cache.h>
 #include <js_backend/utils/cached_utf8_paths_hack.h>
+#include <js_backend/utils/mozjs_backport.h>
+#include <resources/resource.h>
 #include <utils/logging.h>
+#include <utils/script_resource.h>
 
 #include <component_paths.h>
 
@@ -101,6 +104,7 @@ auto FindSuitableFileForInclude( const fs::path& path, const std::span<const fs:
 /// @throw qwr::QwrException
 auto FindSuitableFileForImport( const qwr::u8string& rawModuleSpecifier, const fs::path& curPath, const std::vector<fs::path>& packageSearchPaths )
 {
+    // TODO: implement it properly
     try
     {
         qwr::QwrException::ExpectTrue( !rawModuleSpecifier.empty(), "import for '{}' failed: empty module specifier", rawModuleSpecifier );
@@ -210,6 +214,7 @@ void ScriptLoader::PrepareForGc()
 
 void ScriptLoader::PopulateImportMeta( JSContext* cx, JS::HandleValue modulePrivate, JS::HandleObject metaObject )
 {
+    // TODO: make it a proper url
     const auto parentScriptPathOpt = convert::to_native::ToValue<std::optional<std::wstring>>( cx, modulePrivate );
     const auto isInMemoryScript = !parentScriptPathOpt || parentScriptPathOpt == L"<main>";
 
@@ -221,30 +226,39 @@ void ScriptLoader::PopulateImportMeta( JSContext* cx, JS::HandleValue modulePriv
 
 JSObject* ScriptLoader::GetResolvedModule( const qwr::u8string& moduleName, JS::HandleValue modulePrivate )
 {
-    if ( resolvedModules_.contains( moduleName ) )
+    if ( !resolvedModules_.contains( moduleName ) )
     {
-        return *resolvedModules_.at( moduleName ).get();
-    }
-
-    const auto parentScriptPathOpt = convert::to_native::ToValue<std::optional<std::wstring>>( pJsCtx_, modulePrivate );
-    const auto curPath = [&] {
-        if ( !parentScriptPathOpt || parentScriptPathOpt == L"<main>" )
+        if ( moduleName.starts_with( "smp:" ) )
         {
-            return qwr::path::Component();
+            const auto moduleIdOpt = ResolveBuiltinModule( moduleName );
+            qwr::QwrException::ExpectTrue( moduleIdOpt.has_value(), "import for '{}' failed: package not found", moduleName );
+
+            JS::RootedObject jsModule( pJsCtx_, GetCompiledInternalModule( *moduleIdOpt ) );
+            resolvedModules_.try_emplace( moduleName, std::make_unique<JS::Heap<JSObject*>>( jsModule ) );
         }
         else
         {
-            return fs::path{ parentScriptPathOpt->substr( std::size( L"file://" ) - 1 ) }.parent_path();
+            const auto parentScriptPathOpt = convert::to_native::ToValue<std::optional<std::wstring>>( pJsCtx_, modulePrivate );
+            const auto curPath = [&] {
+                if ( !parentScriptPathOpt || parentScriptPathOpt == L"<main>" )
+                {
+                    return qwr::path::Component();
+                }
+                else
+                {
+                    return fs::path{ parentScriptPathOpt->substr( std::size( L"file://" ) - 1 ) }.parent_path();
+                }
+            }();
+
+            const std::vector packageSearchPaths{ smp::path::ModulePackages_Profile(), smp::path::ModulePackages_Sample() };
+            const auto scriptPath = FindSuitableFileForImport( moduleName, curPath, packageSearchPaths );
+
+            JS::RootedObject jsModule( pJsCtx_, GetCompiledModule( scriptPath ) );
+            resolvedModules_.try_emplace( moduleName, std::make_unique<JS::Heap<JSObject*>>( jsModule ) );
         }
-    }();
+    }
 
-    const std::vector packageSearchPaths{ smp::path::ModulePackages_Profile(), smp::path::ModulePackages_Sample() };
-    const auto scriptPath = FindSuitableFileForImport( moduleName, curPath, packageSearchPaths );
-
-    JS::RootedObject jsModule( pJsCtx_, GetCompiledModule( scriptPath ) );
-    resolvedModules_.try_emplace( moduleName, std::make_unique<JS::Heap<JSObject*>>( jsModule ) );
-
-    return jsModule;
+    return *resolvedModules_.at( moduleName ).get();
 }
 
 void ScriptLoader::ExecuteTopLevelScript( const qwr::u8string& script, bool isModule )
@@ -274,10 +288,20 @@ void ScriptLoader::ExecuteTopLevelScript( const qwr::u8string& script, bool isMo
             throw JsException();
         }
 
-        JS::RootedValue dummyRval( pJsCtx_ );
-        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &dummyRval ) )
+        JS::RootedValue rval( pJsCtx_ );
+        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &rval ) )
         {
             throw JsException();
+        }
+
+        if ( rval.isObject() )
+        {
+            JS::RootedObject evaluationPromise( pJsCtx_, &rval.toObject() );
+            // TODO: fix top level await
+            if ( !backport::OnModuleEvaluationFailureSync( pJsCtx_, evaluationPromise ) )
+            {
+                throw JsException();
+            }
         }
     }
     else
@@ -305,10 +329,19 @@ void ScriptLoader::ExecuteTopLevelScriptFile( const std::filesystem::path& scrip
             throw JsException();
         }
 
-        JS::RootedValue dummyRval( pJsCtx_ );
-        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &dummyRval ) )
+        JS::RootedValue rval( pJsCtx_ );
+        if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &rval ) )
         {
             throw JsException();
+        }
+
+        if ( rval.isObject() )
+        {
+            JS::RootedObject evaluationPromise( pJsCtx_, &rval.toObject() );
+            if ( !backport::OnModuleEvaluationFailureSync( pJsCtx_, evaluationPromise ) )
+            {
+                throw JsException();
+            }
         }
     }
     else
@@ -371,9 +404,10 @@ JSObject* ScriptLoader::GetCompiledModule( const std::filesystem::path& scriptPa
     JS::CompileOptions opts( pJsCtx_ );
     FillCompileOptions( opts, scriptPath );
 
-    const auto pStencil = JsEngine::GetInstance().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, true );
+    const auto pStencil = ContextInner::Get().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, true );
 
-    JS::RootedObject jsModule( pJsCtx_, JS::InstantiateModuleStencil( pJsCtx_, opts, pStencil ) );
+    JS::InstantiateOptions instOpts{ opts };
+    JS::RootedObject jsModule( pJsCtx_, JS::InstantiateModuleStencil( pJsCtx_, instOpts, pStencil ) );
     JsException::ExpectTrue( jsModule );
 
     std::wstring urlPath = L"file://" + scriptPath.lexically_normal().wstring();
@@ -386,14 +420,52 @@ JSObject* ScriptLoader::GetCompiledModule( const std::filesystem::path& scriptPa
     return jsModule;
 }
 
+JSObject* ScriptLoader::GetCompiledInternalModule( BuiltinModuleId moduleId )
+{
+    const auto script = fmt::format( "let _internalModule = _internalModuleLoad('{:d}');\n"
+                                     "{}",
+                                     static_cast<uint8_t>( moduleId ),
+                                     smp::utils::LoadScriptResource( GetBuiltinModuleResourceId( moduleId ) ) );
+
+    JS::CompileOptions opts( pJsCtx_ );
+    opts.setFileAndLine( "<internal>", 1 );
+
+    JS::SourceText<mozilla::Utf8Unit> source;
+    if ( !source.init( pJsCtx_, script.c_str(), script.length(), JS::SourceOwnership::Borrowed ) )
+    {
+        throw JsException();
+    }
+
+    JS::RootedObject jsModule( pJsCtx_, JS::CompileModule( pJsCtx_, opts, source ) );
+    JsException::ExpectTrue( jsModule );
+
+    JS::RootedValue jsScriptPath( pJsCtx_ );
+    convert::to_js::ToValue( pJsCtx_, qwr::u8string_view{ opts.filename() }, &jsScriptPath );
+    JS::SetModulePrivate( jsModule, jsScriptPath );
+
+    if ( !JS::ModuleInstantiate( pJsCtx_, jsModule ) )
+    {
+        throw JsException();
+    }
+
+    JS::RootedValue dummyRval( pJsCtx_ );
+    if ( !JS::ModuleEvaluate( pJsCtx_, jsModule, &dummyRval ) )
+    {
+        throw JsException();
+    }
+
+    return jsModule;
+}
+
 JSScript* ScriptLoader::GetCompiledScript( const std::filesystem::path& scriptPath )
 {
     JS::CompileOptions opts( pJsCtx_ );
     FillCompileOptions( opts, scriptPath );
 
-    const auto pStencil = JsEngine::GetInstance().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, false );
+    const auto pStencil = ContextInner::Get().GetScriptCache().GetCachedStencil( pJsCtx_, scriptPath, opts, false );
 
-    JS::RootedScript jsScript( pJsCtx_, JS::InstantiateGlobalStencil( pJsCtx_, opts, pStencil ) );
+    JS::InstantiateOptions instOpts{ opts };
+    JS::RootedScript jsScript( pJsCtx_, JS::InstantiateGlobalStencil( pJsCtx_, instOpts, pStencil ) );
     JsException::ExpectTrue( jsScript );
 
     JS::RootedValue jsScriptPath( pJsCtx_ );

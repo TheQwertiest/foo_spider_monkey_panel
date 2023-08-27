@@ -1,11 +1,10 @@
 #pragma once
 
+#include <panel/panel_fwd.h>
 #include <timeout/time_types.h>
 
 namespace smp
 {
-
-class PanelTarget;
 
 class Timer_Native;
 class TimerManager_Native;
@@ -29,7 +28,7 @@ public:
 
     virtual void Fire( uint64_t generation ) = 0;
 
-    virtual [[nodiscard]] PanelTarget& Target() const = 0;
+    virtual [[nodiscard]] not_null_shared<panel::PanelAccessor> Target() const = 0;
     virtual [[nodiscard]] const TimeStamp& When() const = 0;
     virtual [[nodiscard]] uint64_t Generation() const = 0;
 };

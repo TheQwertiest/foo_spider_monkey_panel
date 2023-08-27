@@ -7,6 +7,9 @@
 #define _WIN32_WINNT _WIN32_WINNT_WIN7
 #define WINVER _WIN32_WINNT_WIN7
 
+// Available on Vista+
+#define GDIPVER 0x0110
+
 // Fix std min max conflicts
 #define NOMINMAX
 #include <algorithm>
@@ -86,13 +89,14 @@
 #endif
 
 // 4251: dll interface warning
+// 4244: narrowing conversion 
 #define SMP_MJS_SUPPRESS_WARNINGS_PUSH \
     __pragma( warning( push ) )        \
-    __pragma( warning( disable : 4251 ) ) 
+    __pragma( warning( disable : 4251 ) ) \
+    __pragma( warning( disable : 4244 ) ) 
 
 #define SMP_MJS_SUPPRESS_WARNINGS_POP \
     __pragma( warning( pop ) )
-
 
 // Mozilla SpiderMonkey
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
@@ -127,10 +131,15 @@ namespace qwr
 
 #include <utils/fmt_pfc_adaptor.h>
 
+// Frequently used or heavy STL headers
+#include <ranges>
+
+// Frequently used headers and utilities
 #include <qwr/unicode.h>
 #include <qwr/qwr_exception.h>
 
 #include <utils/js_exception.h>
+#include <utils/not_null.h>
 
 #include <component_defines.h>
 #include <component_guids.h>

@@ -2,12 +2,12 @@
 
 #include "active_x_object_iterator.h"
 
-#include <com_objects/dispatch_ptr.h>
+#include <com/objects/dispatch_ptr.h>
 #include <convert/com.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/active_x_object.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_property_helper.h>
 
 #include <qwr/winapi_error_helpers.h>
@@ -27,13 +27,12 @@ JSClassOps jsOps = {
     JsActiveXObject_Iterator::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 
 JSClass jsClass = {
     "ActiveXObject_Iterator",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE, // COM objects must be finalized in foreground
+    JSCLASS_HAS_RESERVED_SLOTS( 1 ) | JSCLASS_FOREGROUND_FINALIZE, // COM objects must be finalized in foreground
     &jsOps
 };
 
@@ -102,14 +101,16 @@ JSObject* JsActiveXObject_Iterator::Next()
 {
     LoadCurrentElement();
 
+    // TODO: use simplified logic from new iterators
     if ( !jsNextId_ )
     {
         JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
+        smp::JsException::ExpectTrue( jsObject );
 
         JS::RootedValue jsValue( pJsCtx_ );
         convert::com::VariantToJs( pJsCtx_, curElem_, &jsValue );
-        utils::AddProperty( pJsCtx_, jsObject, "value", static_cast<JS::HandleValue>( jsValue ) );
-        utils::AddProperty( pJsCtx_, jsObject, "done", isAtEnd_ );
+        utils::SetProperty( pJsCtx_, jsObject, "value", static_cast<JS::HandleValue>( jsValue ) );
+        utils::SetProperty( pJsCtx_, jsObject, "done", isAtEnd_ );
 
         jsNextId_ = heapHelper_.Store( jsObject );
 

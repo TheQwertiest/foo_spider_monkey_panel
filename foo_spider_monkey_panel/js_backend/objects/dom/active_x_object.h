@@ -4,7 +4,7 @@ SMP_MJS_SUPPRESS_WARNINGS_PUSH
 #include <js/Proxy.h>
 SMP_MJS_SUPPRESS_WARNINGS_POP
 
-#include <com_utils/com_destruction_handler.h>
+#include <com/utils/com_destruction_handler.h>
 
 #include <oleauto.h>
 

@@ -1,24 +1,29 @@
 #pragma once
 
+#include <js_backend/engine/js_event_status.h>
 #include <js_backend/engine/native_to_js_invoker.h>
+#include <panel/panel_fwd.h>
 
 #include <qwr/final_action.h>
 
 #include <filesystem>
 #include <optional>
 
-class HostTimerTask;
-
-namespace smp::panel
+namespace smp
 {
-class PanelWindow;
+class EventBase;
+
+namespace panel
+{
 struct DragActionParams;
-} // namespace smp::panel
+} // namespace panel
+
+} // namespace smp
 
 namespace mozjs
 {
 
-class JsEngine;
+class ContextInner;
 class JsRealmInner;
 class JsGlobalObject;
 class JsGdiGraphics;
@@ -30,10 +35,10 @@ class JsContainer final
     : public std::enable_shared_from_this<JsContainer>
 {
     // To set JS_Context
-    friend class JsEngine;
+    friend class ContextInner;
 
 public:
-    JsContainer( smp::panel::PanelWindow& parentPanel );
+    JsContainer( smp::not_null_shared<smp::panel::PanelAccessor> pHostPanel );
     JsContainer( const JsContainer& ) = delete;
     ~JsContainer();
 
@@ -57,10 +62,10 @@ public:
     [[nodiscard]] bool ExecuteScript( const qwr::u8string& scriptCode, bool isModule );
     [[nodiscard]] bool ExecuteScriptFile( const std::filesystem::path& scriptPath, bool isModule );
 
-    static void RunJobs();
+    static void PerformMicroTaskCheckPoint();
 
 public:
-    smp::panel::PanelWindow& GetParentPanel() const;
+    smp::not_null_shared<smp::panel::PanelAccessor> GetHostPanel() const;
 
 public:
     template <typename ReturnType = std::nullptr_t, typename... ArgTypes>
@@ -82,8 +87,9 @@ public:
 
     [[nodiscard]] bool InvokeOnDragAction( const qwr::u8string& functionName, const POINTL& pt, uint32_t keyState, smp::panel::DragActionParams& actionParams );
     void InvokeOnNotify( const std::wstring& name, JS::HandleValue info );
-    void InvokeOnPaint( Gdiplus::Graphics& gr );
     bool InvokeJsAsyncTask( JsAsyncTask& jsTask );
+
+    EventStatus InvokeJsEvent( smp::EventBase& event );
 
 private:
     void SetJsCtx( JSContext* cx );
@@ -97,8 +103,8 @@ private:
     void OnJsActionEnd();
 
 private:
+    smp::not_null_shared<smp::panel::PanelAccessor> pHostPanel_;
     JSContext* pJsCtx_ = nullptr;
-    smp::panel::PanelWindow* pParentPanel_ = nullptr;
 
     JS::PersistentRootedObject jsGlobal_;
     JS::PersistentRootedObject jsGraphics_;

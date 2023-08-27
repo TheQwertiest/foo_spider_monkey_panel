@@ -4,7 +4,7 @@
 
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 
 #include <qwr/final_action.h>
 #include <qwr/winapi_error_helpers.h>
@@ -24,7 +24,6 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     JsFbTooltip::FinalizeJsObject,
-    nullptr,
     nullptr,
     nullptr,
     nullptr

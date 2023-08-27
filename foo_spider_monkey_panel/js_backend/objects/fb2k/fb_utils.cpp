@@ -2,7 +2,7 @@
 
 #include "fb_utils.h"
 
-#include <com_objects/drop_source_impl.h>
+#include <com/objects/drop_source_impl.h>
 #include <fb2k/mainmenu_dynamic.h>
 #include <fb2k/selection_holder_helper.h>
 #include <fb2k/stats.h>
@@ -16,9 +16,9 @@
 #include <js_backend/objects/fb2k/fb_ui_selection_holder.h>
 #include <js_backend/objects/gdi/gdi_bitmap.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_hwnd_helpers.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_property_helper.h>
+#include <js_backend/utils/panel_from_global.h>
 #include <panel/modal_blocking_scope.h>
 #include <panel/user_message.h>
 #include <utils/art_helpers.h>
@@ -43,7 +43,6 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     JsFbUtils::FinalizeJsObject,
-    nullptr,
     nullptr,
     nullptr,
     nullptr

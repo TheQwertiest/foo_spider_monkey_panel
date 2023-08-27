@@ -2,8 +2,8 @@
 
 #include "art_helpers.h"
 
-#include <events/event_dispatcher.h>
-#include <events/event_js_callback.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_js_callback.h>
 #include <utils/gdi_helpers.h>
 #include <utils/image_helpers.h>
 #include <utils/thread_pool_instance.h>

@@ -1,11 +1,17 @@
 #pragma once
 
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 
 #include <js/Array.h>
 #include <qwr/type_traits.h>
 
 #include <optional>
+
+namespace mozjs
+{
+template <typename T>
+class JsObjectBase;
+}
 
 namespace mozjs::convert::to_native
 {
@@ -24,7 +30,12 @@ namespace mozjs::convert::to_native::internal
 {
 
 template <class T>
-inline constexpr bool IsJsSimpleConvertableImplV = std::disjunction_v<std::is_fundamental<T>, std::is_same<qwr::u8string, T>, std::is_same<std::wstring, T>, std::is_same<pfc::string8_fast, T>>;
+inline constexpr bool IsJsSimpleConvertableImplV = std::disjunction_v<
+    std::is_fundamental<T>,
+    std::is_same<qwr::u8string, T>,
+    std::is_same<std::wstring, T>,
+    std::is_same<pfc::string8_fast, T>,
+    std::is_same<GUID, T>>;
 
 template <class T>
 inline constexpr bool IsJsSimpleConvertableV = IsJsSimpleConvertableImplV<std::remove_cv_t<T>>;
@@ -32,10 +43,22 @@ inline constexpr bool IsJsSimpleConvertableV = IsJsSimpleConvertableImplV<std::r
 template <typename T>
 T ToSimpleValue( JSContext* cx, const JS::HandleObject& jsObject )
 {
-    auto pNative = std::remove_pointer_t<T>::ExtractNative( cx, jsObject );
-    qwr::QwrException::ExpectTrue( pNative, "Object is not of valid type" );
+    if constexpr ( requires { qwr::is_specialization_of_v<T, smp::not_null>&& std::is_pointer_v<typename T::element_type>; } )
+    {
+        using NativeT = std::remove_cvref_t<std::remove_pointer_t<typename T::element_type>>;
 
-    return pNative;
+        auto pNative = mozjs::JsObjectBase<NativeT>::ExtractNative( cx, jsObject );
+        qwr::QwrException::ExpectTrue( pNative, "Object is not of valid type" );
+
+        return pNative;
+    }
+    else
+    {
+        auto pNative = std::remove_pointer_t<T>::ExtractNative( cx, jsObject );
+        qwr::QwrException::ExpectTrue( pNative, "Object is not of valid type" );
+
+        return pNative;
+    }
 }
 
 template <typename T>
@@ -85,10 +108,13 @@ pfc::string8_fast ToSimpleValue<pfc::string8_fast>( JSContext* cx, const JS::Han
 template <>
 std::nullptr_t ToSimpleValue<std::nullptr_t>( JSContext* cx, const JS::HandleValue& jsValue );
 
+template <>
+GUID ToSimpleValue<GUID>( JSContext* cx, const JS::HandleValue& jsValue );
+
 template <typename T>
 std::optional<T> ToOptional( JSContext* cx, const JS::HandleValue& jsValue )
 {
-    if ( jsValue.isNullOrUndefined() )
+    if ( jsValue.isUndefined() )
     {
         return std::nullopt;
     }
@@ -130,16 +156,21 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
     { // Construct and copy
         return to_native::internal::ToOptional<typename T::value_type>( cx, jsValue );
     }
+    else if constexpr ( qwr::is_specialization_of_v<T, smp::not_null> )
+    { // Extract not null native pointer
+        qwr::QwrException::ExpectTrue( jsValue.isObject(), "Value is not a JS object" );
+
+        JS::RootedObject jsObject( cx, &jsValue.toObject() );
+        return to_native::internal::ToSimpleValue<T>( cx, jsObject );
+    }
     else if constexpr ( std::is_pointer_v<T> )
     { // Extract native pointer
         // TODO: think if there is a good way to move this to convert::to_native
-        if ( !jsValue.isObjectOrNull() )
-        {
-            throw qwr::QwrException( "Value is not a JS object" );
-        }
+        qwr::QwrException::ExpectTrue( jsValue.isObject() || jsValue.isUndefined(), "Value is not a JS object" );
 
-        if ( jsValue.isNull() )
-        { // Not an error: null might be a valid argument
+        // TODO: is there a case where null should be accepted?
+        if ( jsValue.isUndefined() )
+        { // Not an error: undefined might be a valid argument)
             return static_cast<T>( nullptr );
         }
 
@@ -154,6 +185,12 @@ T ToValue( JSContext* cx, JS::HandleValue jsValue )
     {
         static_assert( qwr::always_false_v<T>, "Unsupported type" );
     }
+}
+
+template <typename T>
+T ToValue( JSContext* cx, JS::HandleObject jsObject )
+{
+    return to_native::internal::ToSimpleValue<T>( cx, jsObject );
 }
 
 template <typename T>

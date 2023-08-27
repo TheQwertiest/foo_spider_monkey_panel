@@ -2,6 +2,8 @@
 
 #include "js_to_native.h"
 
+#include <utils/guid_helpers.h>
+
 #include <js/Conversions.h>
 
 namespace mozjs::convert::to_native::internal
@@ -129,6 +131,16 @@ std::nullptr_t ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
     (void)cx;
     (void)jsValue;
     return nullptr;
+}
+
+template <>
+GUID ToSimpleValue( JSContext* cx, const JS::HandleValue& jsValue )
+{
+    const auto guidStr = ToSimpleValue<std::wstring>( cx, jsValue );
+    const auto guidOpt = smp::utils::StrToGuid( guidStr );
+    qwr::QwrException::ExpectTrue( guidOpt.has_value(), "Object is not of valid type" );
+
+    return *guidOpt;
 }
 
 } // namespace mozjs::convert::to_native::internal

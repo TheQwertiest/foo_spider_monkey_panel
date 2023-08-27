@@ -13,14 +13,15 @@ namespace impl
 {
 
 template <class T>
-concept SupportedGdiType = qwr::is_any_same_v<T, HDC, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBITMAP>;
+concept SupportedGdiTypeTmp = qwr::is_any_same_v<T, HDC, HPEN, HBRUSH, HRGN, HPALETTE, HFONT, HBITMAP>;
 
 } // namespace impl
 
+// TODO: remove
 template <typename T>
 using unique_gdi_ptr = std::unique_ptr<std::remove_pointer_t<T>, void ( * )( T )>;
 
-template <impl::SupportedGdiType T>
+template <impl::SupportedGdiTypeTmp T>
 [[nodiscard]] unique_gdi_ptr<T> CreateUniquePtr( T pObject )
 {
     return unique_gdi_ptr<T>( pObject, []( auto pObject ) {
@@ -34,26 +35,6 @@ template <impl::SupportedGdiType T>
         }
     } );
 }
-
-template <impl::SupportedGdiType T>
-class ObjectSelector
-{
-public:
-    [[nodiscard]] ObjectSelector( HDC hDc, T pNewObject )
-        : hDc_( hDc )
-        , pOldObject_( SelectObject( hDc, pNewObject ) )
-    {
-    }
-
-    ~ObjectSelector()
-    {
-        (void)SelectObject( hDc_, pOldObject_ );
-    }
-
-private:
-    HDC hDc_ = nullptr;
-    HGDIOBJ pOldObject_ = nullptr;
-};
 
 /// @details Resets last status!
 template <typename T>

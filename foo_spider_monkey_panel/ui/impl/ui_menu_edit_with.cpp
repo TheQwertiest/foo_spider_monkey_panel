@@ -3,6 +3,7 @@
 #include "ui_menu_edit_with.h"
 
 #include <fb2k/config.h>
+#include <graphics/gdi/object_selector.h>
 #include <utils/app_info.h>
 #include <utils/gdi_helpers.h>
 #include <utils/logging.h>
@@ -99,7 +100,7 @@ void CMenuEditWith::InitMenu()
                 const auto iconH = GetSystemMetrics( SM_CYMENUCHECK );
 
                 CBitmap memBmp{ ::CreateCompatibleBitmap( clientDc, iconW, iconH ) };
-                gdi::ObjectSelector autoBmp( memDc, memBmp.m_hBitmap );
+                GdiObjectSelector autoBmp( memDc, memBmp.m_hBitmap );
                 CBrush brush{ ::CreateSolidBrush( GetSysColor( COLOR_MENU ) ) };
 
                 RECT rc{ 0, 0, iconW, iconH };

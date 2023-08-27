@@ -395,7 +395,10 @@ void JsGc::PrepareRealmsForGc( GcLevel gcLevel )
 
 void JsGc::PerformIncrementalGc()
 {
-    const uint32_t sliceBudget = ( isHighFrequency_ ? kHighFreqBudgetMultiplier * gcSliceTimeBudget_ : gcSliceTimeBudget_ );
+    const js::SliceBudget sliceBudget{
+        js::TimeBudget{
+            static_cast<int64_t>( isHighFrequency_ ? kHighFreqBudgetMultiplier * gcSliceTimeBudget_ : gcSliceTimeBudget_ ) }
+    };
 
     if ( !JS::IsIncrementalGCInProgress( pJsCtx_ ) )
     {

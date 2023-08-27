@@ -2,10 +2,10 @@
 
 #include "panel_adaptor_cui.h"
 
-#include <com_objects/drop_target_impl.h>
-#include <events/event_dispatcher.h>
-#include <events/event_js_callback.h>
+#include <com/objects/drop_target_impl.h>
 #include <panel/panel_window.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_js_callback.h>
 #include <utils/colour_helpers.h>
 
 namespace

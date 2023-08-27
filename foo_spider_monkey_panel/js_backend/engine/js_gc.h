@@ -5,6 +5,7 @@
 namespace mozjs
 {
 
+// TODO: remove js_ from all filenames
 class JsGc final
 {
 public:

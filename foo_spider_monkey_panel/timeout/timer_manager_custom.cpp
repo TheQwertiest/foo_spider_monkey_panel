@@ -4,12 +4,13 @@
 
 #include "timer_manager_custom.h"
 
-#include <events/event_dispatcher.h>
-#include <events/event_timer.h>
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_timer.h>
 #include <timeout/timer_custom.h>
 
-#include <qwr/thread_helpers.h>
+#include <qwr/thread_name_setter.h>
 
 using namespace smp;
 
@@ -38,7 +39,7 @@ const TimeDuration& TimerManager_Custom::GetAllowedEarlyFiringTime()
     return earlyDelay;
 }
 
-std::unique_ptr<Timer_Custom> TimerManager_Custom::CreateTimer( std::shared_ptr<PanelTarget> pTarget )
+std::unique_ptr<Timer_Custom> TimerManager_Custom::CreateTimer( not_null_shared<panel::PanelAccessor> pTarget )
 {
     return std::unique_ptr<Timer_Custom>( new Timer_Custom( *this, pTarget ) );
 }
@@ -112,7 +113,7 @@ void TimerManager_Custom::ThreadMain()
             waitUntilOpt.reset();
             RemoveFirstTimerInternal();
 
-            EventDispatcher::Get().PutEvent( pTimer->Target().GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
+            EventDispatcher::Get().PutEvent( pTimer->Target()->GetHwnd(), std::make_unique<Event_Timer>( pTimer, pTimer->Generation() ) );
         }
 
         // spurious wake up guard has a HUUUUGE CPU overhead, hence we don't use it

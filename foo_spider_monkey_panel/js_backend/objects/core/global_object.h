@@ -1,21 +1,43 @@
 #pragma once
 
+#include <js_backend/engine/js_event_status.h>
 #include <js_backend/objects/core/script_loader.h>
+#include <panel/panel_fwd.h>
 
 #include <optional>
+#include <tuple>
 #include <unordered_set>
 
-namespace smp::panel
+namespace smp
 {
-class PanelWindow;
-}
+
+class EventBase;
+
+} // namespace smp
 
 namespace mozjs
 {
 
+class DspManager;
+class GlobalHeapManager;
 class JsContainer;
 class JsWindow;
-class GlobalHeapManager;
+class Library;
+class ModuleCanvas;
+class ModuleTrack;
+class PlaybackControl;
+class PlaybackQueue;
+class PlaylistManager;
+class ReplayGainManager;
+class TrackCustomMetaManager;
+class TrackImageManager;
+class UiSelectionManager;
+class WindowNew;
+
+} // namespace mozjs
+
+namespace mozjs
+{
 
 class JsGlobalObject
 {
@@ -38,12 +60,17 @@ public:
 
     static void PrepareForGc( JSContext* cx, JS::HandleObject self );
 
-    ScriptLoader& GetScriptLoader();
+    [[nodiscard]] ScriptLoader& GetScriptLoader();
 
     /// @remark HWND might be null, if called before fb2k initialization is completed
     [[nodiscard]] HWND GetPanelHwnd() const;
+    [[nodiscard]] smp::not_null_shared<smp::panel::PanelAccessor> GetHostPanel() const;
+
+    [[nodiscard]] EventStatus HandleEvent( smp::EventBase& event );
 
 public:
+    JSObject* InternalLazyLoad( uint8_t moduleIdRaw );
+
     void ClearInterval( uint32_t intervalId );
     void ClearTimeout( uint32_t timeoutId );
 
@@ -75,6 +102,30 @@ private:
     std::unique_ptr<GlobalHeapManager> heapManager_;
 
     ScriptLoader scriptLoader_;
+    std::unordered_map<BuiltinModuleId, std::unique_ptr<JS::Heap<JSObject*>>> loadedObjects_;
+
+    template <typename T>
+    struct LoadedNativeObject
+    {
+        using NativeT = T;
+        NativeT* pNative = nullptr;
+        BuiltinModuleId moduleId = BuiltinModuleId::kCount;
+    };
+
+    std::tuple<
+        LoadedNativeObject<DspManager>,
+        LoadedNativeObject<Library>,
+        LoadedNativeObject<ModuleCanvas>,
+        LoadedNativeObject<ModuleTrack>,
+        LoadedNativeObject<PlaybackControl>,
+        LoadedNativeObject<PlaybackQueue>,
+        LoadedNativeObject<PlaylistManager>,
+        LoadedNativeObject<ReplayGainManager>,
+        LoadedNativeObject<TrackCustomMetaManager>,
+        LoadedNativeObject<TrackImageManager>,
+        LoadedNativeObject<UiSelectionManager>,
+        LoadedNativeObject<WindowNew>>
+        loadedNativeObjects_;
 };
 
 } // namespace mozjs

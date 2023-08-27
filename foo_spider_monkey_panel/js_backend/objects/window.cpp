@@ -2,10 +2,8 @@
 
 #include "window.h"
 
-#include <events/event_basic.h>
-#include <events/event_dispatcher.h>
-#include <events/event_notify_others.h>
-#include <js_backend/engine/js_engine.h>
+#include <js_backend/engine/context.h>
+#include <js_backend/engine/js_gc.h>
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/objects/dom/menu_object.h>
 #include <js_backend/objects/fb2k/fb_properties.h>
@@ -14,9 +12,13 @@
 #include <js_backend/objects/gdi/theme_manager.h>
 #include <js_backend/utils/js_async_task.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_property_helper.h>
 #include <panel/panel_window.h>
+#include <panel/panel_window_graphics.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/event_basic.h>
+#include <tasks/events/event_notify_others.h>
 #include <timeout/timeout_manager.h>
 #include <utils/gdi_helpers.h>
 
@@ -106,7 +108,6 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     JsObjectBase<JsWindow>::FinalizeJsObject,
-    nullptr,
     nullptr,
     nullptr,
     JsWindow::Trace
@@ -227,19 +228,12 @@ const JSClass JsWindow::JsClass = jsClass;
 const JSFunctionSpec* JsWindow::JsFunctions = jsFunctions.data();
 const JSPropertySpec* JsWindow::JsProperties = jsProperties.data();
 
-const JsPrototypeId JsWindow::ParentPrototypeId = JsPrototypeId::EventTarget;
-
 JsWindow::~JsWindow()
 {
 }
 
 JsWindow::JsWindow( JSContext* cx, smp::panel::PanelWindow& parentPanel, std::unique_ptr<FbProperties> fbProperties )
-    :
-#ifdef SMP_V2
-    JsEventTarget( cx )
-    ,
-#endif
-    pJsCtx_( cx )
+    : pJsCtx_( cx )
     , parentPanel_( parentPanel )
     , fbProperties_( std::move( fbProperties ) )
 {
@@ -264,22 +258,20 @@ size_t JsWindow::GetInternalSize()
 
 void JsWindow::Trace( JSTracer* trc, JSObject* obj )
 {
-    auto x = JsObjectBase<JsWindow>::ExtractNativeUnchecked( obj );
-    if ( x && x->fbProperties_ )
+    auto pNative = JsObjectBase<JsWindow>::ExtractNativeUnchecked( obj );
+    if ( !pNative )
     {
-        x->fbProperties_->Trace( trc );
-#ifdef SMP_V2
-        x->JsEventTarget::Trace( trc );
-#endif
+        return;
+    }
+
+    if ( pNative->fbProperties_ )
+    {
+        pNative->fbProperties_->Trace( trc );
     }
 }
 
 void JsWindow::PrepareForGc()
 {
-#ifdef SMP_V2
-    JsEventTarget::PrepareForGc();
-#endif
-
     if ( fbProperties_ )
     {
         fbProperties_->PrepareForGc();
@@ -515,6 +507,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
     {
         return nullptr;
     }
+    const auto& graphics = parentPanel_.GetGraphics();
 
     qwr::QwrException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::CUI, "Can be called only in CUI" );
 
@@ -535,7 +528,7 @@ JSObject* JsWindow::GetFontCUI( uint32_t type, const std::wstring& guidstr )
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont.get() ) );
+    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( graphics.GetHDC(), hFont.get() ) );
     if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
     { // Not an error: font not found
         return nullptr;
@@ -563,6 +556,7 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
     {
         return nullptr;
     }
+    const auto& graphics = parentPanel_.GetGraphics();
 
     qwr::QwrException::ExpectTrue( parentPanel_.GetPanelType() == panel::PanelType::DUI, "Can be called only in DUI" );
 
@@ -572,7 +566,7 @@ JSObject* JsWindow::GetFontDUI( uint32_t type )
         return nullptr;
     }
 
-    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( parentPanel_.GetHDC(), hFont ) );
+    std::unique_ptr<Gdiplus::Font> pGdiFont( new Gdiplus::Font( graphics.GetHDC(), hFont ) );
     if ( !gdi::IsGdiPlusObjectValid( pGdiFont ) )
     { // Not an error: font not found
         return nullptr;
@@ -818,8 +812,9 @@ uint32_t JsWindow::get_Height()
     {
         return 0;
     }
+    const auto& graphics = parentPanel_.GetGraphics();
 
-    return parentPanel_.GetHeight();
+    return graphics.GetHeight();
 }
 
 uint32_t JsWindow::get_ID() const
@@ -869,7 +864,7 @@ JSObject* JsWindow::get_JsMemoryStats()
 
     JS::RootedObject jsGlobal( pJsCtx_, JS::CurrentGlobalOrNull( pJsCtx_ ) );
     utils::AddProperty( pJsCtx_, jsObject, "MemoryUsage", JsGc::GetTotalHeapUsageForGlobal( pJsCtx_, jsGlobal ) );
-    utils::AddProperty( pJsCtx_, jsObject, "TotalMemoryUsage", JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage() );
+    utils::AddProperty( pJsCtx_, jsObject, "TotalMemoryUsage", ContextInner::Get().GetGcEngine().GetTotalHeapUsage() );
     utils::AddProperty( pJsCtx_, jsObject, "TotalMemoryLimit", JsGc::GetMaxHeap() );
 
     return jsObject;
@@ -983,7 +978,7 @@ uint64_t JsWindow::get_TotalMemoryUsage() const
         return 0;
     }
 
-    return JsEngine::GetInstance().GetGcEngine().GetTotalHeapUsage();
+    return ContextInner::Get().GetGcEngine().GetTotalHeapUsage();
 }
 
 JSObject* JsWindow::get_Tooltip()
@@ -997,8 +992,9 @@ uint32_t JsWindow::get_Width()
     {
         return 0;
     }
+    const auto& graphics = parentPanel_.GetGraphics();
 
-    return parentPanel_.GetWidth();
+    return graphics.GetWidth();
 }
 
 void JsWindow::put_DlgCode( uint32_t code )
@@ -1063,14 +1059,8 @@ JsWindow::DefineScriptOptions JsWindow::ParseDefineScriptOptions( JS::HandleValu
         qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
         JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
 
-        if ( const auto propOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "author" ) )
-        {
-            parsedOptions.author = *propOpt;
-        }
-        if ( const auto propOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "version" ) )
-        {
-            parsedOptions.version = *propOpt;
-        }
+        utils::OptionalPropertyTo( pJsCtx_, jsOptions, "author", parsedOptions.author );
+        utils::OptionalPropertyTo( pJsCtx_, jsOptions, "version", parsedOptions.version );
 
         bool hasProperty;
         if ( !JS_HasProperty( pJsCtx_, jsOptions, "features", &hasProperty ) )
@@ -1089,14 +1079,8 @@ JsWindow::DefineScriptOptions JsWindow::ParseDefineScriptOptions( JS::HandleValu
             qwr::QwrException::ExpectTrue( jsFeaturesValue.isObject(), "`features` is not an object" );
 
             JS::RootedObject jsFeatures( pJsCtx_, &jsFeaturesValue.toObject() );
-            if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "drag_n_drop" ) )
-            {
-                parsedOptions.features.dragAndDrop = *propOpt;
-            }
-            if ( const auto propOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "grab_focus" ) )
-            {
-                parsedOptions.features.grabFocus = *propOpt;
-            }
+            utils::OptionalPropertyTo( pJsCtx_, jsOptions, "drag_n_drop", parsedOptions.features.dragAndDrop );
+            utils::OptionalPropertyTo( pJsCtx_, jsOptions, "grab_focus", parsedOptions.features.grabFocus );
         }
     }
 

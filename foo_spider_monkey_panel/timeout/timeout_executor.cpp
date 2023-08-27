@@ -4,9 +4,10 @@
 
 #include "timeout_executor.h"
 
-#include <events/event_dispatcher.h>
 #include <fb2k/advanced_config.h>
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
+#include <tasks/dispatcher/event_dispatcher.h>
 #include <timeout/timeout_manager.h>
 #include <timeout/timer_interface.h>
 #include <timeout/timer_manager_native.h>
@@ -24,7 +25,7 @@ auto GetAllowedEarlyFiringTime()
 namespace smp
 {
 
-TimeoutExecutor::TimeoutExecutor( TimeoutManager& pParent, std::shared_ptr<PanelTarget> pTarget )
+TimeoutExecutor::TimeoutExecutor( TimeoutManager& pParent, not_null_shared<panel::PanelAccessor> pTarget )
     : pParent_( pParent )
     , pTarget_( pTarget )
 {

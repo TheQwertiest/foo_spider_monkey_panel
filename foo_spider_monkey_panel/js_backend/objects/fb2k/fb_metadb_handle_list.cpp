@@ -8,7 +8,7 @@
 #include <js_backend/objects/fb2k/fb_metadb_handle_list_iterator.h>
 #include <js_backend/objects/fb2k/fb_title_format.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <utils/art_helpers.h>
 #include <utils/relative_filepath_trie.h>
 #include <utils/text_helpers.h>
@@ -32,7 +32,6 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     JsFbMetadbHandleList::FinalizeJsObject,
-    nullptr,
     nullptr,
     nullptr,
     nullptr
@@ -187,7 +186,7 @@ bool FbMetadbHandleListProxyHandler::set( JSContext* cx, JS::HandleObject proxy,
         JS::RootedObject jsObject( cx, v.toObjectOrNull() );
         JsFbMetadbHandle* pNativeValue =
             jsObject
-                ? static_cast<JsFbMetadbHandle*>( JS_GetInstancePrivate( cx, jsObject, &JsFbMetadbHandle::JsClass, nullptr ) )
+                ? static_cast<JsFbMetadbHandle*>( mozjs::utils::GetInstanceFromReservedSlot( cx, jsObject, &JsFbMetadbHandle::JsClass, nullptr ) )
                 : nullptr;
 
         try
@@ -517,17 +516,19 @@ void JsFbMetadbHandleList::OrderByRelativePath()
 
 void JsFbMetadbHandleList::RefreshStats()
 {
+    /*
     pfc::list_t<metadb_index_hash> hashes;
     for ( const auto& handle: qwr::pfc_x::Make_Stl_CRef( metadbHandleList_ ) )
     {
         metadb_index_hash hash;
-        if ( stats::HashHandle( handle, hash ) )
+        if ( custom_meta::HashHandle( handle, hash ) )
         {
             hashes.add_item( hash );
         }
     }
 
-    stats::RefreshStats( hashes );
+    custom_meta::CommitData( hashes );
+    */
 }
 
 void JsFbMetadbHandleList::Remove( JsFbMetadbHandle* handle )

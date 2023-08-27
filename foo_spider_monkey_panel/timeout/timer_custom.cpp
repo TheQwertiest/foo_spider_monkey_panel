@@ -5,7 +5,7 @@
 #include <panel/panel_window.h>
 #include <timeout/timer_manager_custom.h>
 
-#include <qwr/thread_helpers.h>
+#include <qwr/thread_name_setter.h>
 
 using namespace smp;
 
@@ -42,7 +42,7 @@ const TimeStamp& TimerHolder::When() const
     return executeAt_;
 }
 
-Timer_Custom::Timer_Custom( TimerManager_Custom& pParent, std::shared_ptr<PanelTarget> pTarget )
+Timer_Custom::Timer_Custom( TimerManager_Custom& pParent, not_null_shared<panel::PanelAccessor> pTarget )
     : pParent_( pParent )
     , pTarget_( pTarget )
 {
@@ -115,10 +115,9 @@ void Timer_Custom::SetHolder( TimerHolder* pHolder )
     pHolder_ = pHolder;
 }
 
-PanelTarget& Timer_Custom::Target() const
+not_null_shared<panel::PanelAccessor> Timer_Custom::Target() const
 {
-    assert( pTarget_ );
-    return *pTarget_;
+    return pTarget_;
 }
 
 const TimeStamp& Timer_Custom::When() const

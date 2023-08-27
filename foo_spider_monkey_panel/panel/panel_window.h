@@ -2,12 +2,13 @@
 
 #include <config/panel_config.h>
 #include <config/resolved_panel_script_settings.h>
-#include <events/event.h>
-#include <events/event_js_executor.h>
 #include <panel/drag_action_params.h>
 #include <panel/panel_adaptor_iface.h>
 #include <panel/user_message.h>
+#include <tasks/events/event.h>
+#include <tasks/events/event_js_executor.h>
 #include <ui/ui_conf.h>
+#include <utils/not_null.h>
 
 #include <queue>
 
@@ -21,6 +22,14 @@ namespace smp
 class TimeoutManager;
 }
 
+namespace smp::panel
+{
+class CallbackData;
+class PanelWindowGraphics;
+class MouseMessageHandler;
+class KeyboardMessageHandler;
+} // namespace smp::panel
+
 namespace mozjs
 {
 class JsContainer;
@@ -29,8 +38,6 @@ class JsAsyncTask;
 
 namespace smp::panel
 {
-
-class CallbackData;
 
 class PanelWindow
     : public uie::container_window_v3
@@ -57,7 +64,7 @@ public:
     void Repaint( bool force = false );
     void RepaintRect( const CRect& rc, bool force = false );
     /// @details Calls Repaint inside
-    void RepaintBackground( const CRect& updateRc );
+    void RepaintBackground();
 
 public: // accessors
     [[nodiscard]] const config::PanelConfig& GetPanelConfig() const;
@@ -65,12 +72,14 @@ public: // accessors
     [[nodiscard]] config::PanelProperties& GetPanelProperties();
     [[nodiscard]] qwr::u8string GetPanelDescription( bool includeVersionAndAuthor = true );
 
-    [[nodiscard]] HDC GetHDC() const;
+    [[nodiscard]] PanelWindowGraphics& GetGraphics();
+
+    /// @remark Do *not* store returned ptr: it's lifetime must be controlled by panel
+    [[nodiscard]] ui_selection_holder::ptr GetSelectionHolder();
+
     [[nodiscard]] HWND GetHWND() const;
     [[nodiscard]] POINT& MaxSize();
     [[nodiscard]] POINT& MinSize();
-    [[nodiscard]] int GetHeight() const;
-    [[nodiscard]] int GetWidth() const;
     // TODO: move to a better place
     [[nodiscard]] TimeoutManager& GetTimeoutManager();
 
@@ -92,6 +101,8 @@ public: // accessors
     [[nodiscard]] bool HasInternalDrag() const;
 
 public: // event handling
+    void ExecuteEvent( EventBase& event );
+
     void ExecuteEvent_JsTask( EventId id, Event_JsExecutor& task );
     bool ExecuteEvent_JsCode( mozjs::JsAsyncTask& task );
     void ExecuteEvent_Basic( EventId id );
@@ -107,7 +118,7 @@ private: // internal event handling
     void GenerateContextMenu( HMENU hMenu, int x, int y, uint32_t id_base );
     void ExecuteContextMenu( uint32_t id, uint32_t id_base );
 
-    void SetCaptureMouseState( bool shouldCapture );
+private:
     /// @throw qwr::QwrException
     void SetDragAndDropStatus( bool isEnabled );
 
@@ -116,9 +127,6 @@ private:
     void LoadScript( bool isFirstLoad );
     void UnloadScript( bool force = false );
     void ReloadScript();
-
-    void CreateDrawContext();
-    void DeleteDrawContext();
 
 private: // callback handling
     void OnProcessingEventStart();
@@ -133,36 +141,27 @@ private: // callback handling
     std::optional<LRESULT> ProcessWindowMessage( const MSG& msg );
     std::optional<LRESULT> ProcessInternalSyncMessage( InternalSyncMessage msg, WPARAM wp, LPARAM lp );
 
-    // Internal callbacks
     void OnContextMenu( int x, int y );
     void OnCreate( HWND hWnd );
     void OnDestroy();
-
-    // JS callbacks
-    void OnPaint( HDC dc, const CRect& updateRc );
-    void OnPaintErrorScreen( HDC memdc );
-    void OnPaintJs( HDC memdc, const CRect& updateRc );
-    void OnSizeDefault( uint32_t w, uint32_t h );
-    void OnSizeUser( uint32_t w, uint32_t h );
+    void OnPaint( EventBase& event );
 
 private:
     const PanelType panelType_;
     IPanelAdaptor& impl_;
 
+    smp::not_null<std::unique_ptr<MouseMessageHandler>> pMouseMessageHandler_;
+    smp::not_null<std::unique_ptr<KeyboardMessageHandler>> pKeyboardMessageHandler_;
+
     config::PanelConfig config_;
     config::ResolvedPanelScriptSettings scriptSettings_;
 
     std::shared_ptr<mozjs::JsContainer> pJsContainer_;
-    std::shared_ptr<PanelTarget> pTarget_;
+    std::shared_ptr<PanelAccessor> pAccessor_;
     std::unique_ptr<TimeoutManager> pTimeoutManager_;
 
     CWindow wnd_;
-    HDC hDc_ = nullptr;
-
-    uint32_t height_ = 0;     // used externally as well
-    uint32_t width_ = 0;      // used externally as well
-    CBitmap bmp_ = nullptr;   // used only internally
-    CBitmap bmpBg_ = nullptr; // used only internally
+    std::unique_ptr<PanelWindowGraphics> pGraphics_;
 
     bool hasFailed_ = false; // // used only internally
 
@@ -183,7 +182,8 @@ private:
 
     bool isPanelIdOverridenByScript_ = false; // used only internally
 
-    size_t dlgCode_ = 0;                   // modified only from external
+    size_t dlgCode_ = 0; // modified only from external
+    // TODO: move to graphics class
     POINT maxSize_ = { INT_MAX, INT_MAX }; // modified only from external
     POINT minSize_ = { 0, 0 };             // modified only from external
 };

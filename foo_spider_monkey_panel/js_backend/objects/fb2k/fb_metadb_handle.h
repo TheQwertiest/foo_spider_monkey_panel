@@ -34,7 +34,7 @@ public:
 
 public: // methods
     void ClearStats();
-    bool Compare( JsFbMetadbHandle* handle );
+    bool Compare( smp::not_null<JsFbMetadbHandle*> handle );
     JSObject* GetFileInfo();
     void RefreshStats();
     void SetFirstPlayed( const qwr::u8string& first_played );

@@ -5,15 +5,16 @@
 #include "js_monitor.h"
 
 #include <fb2k/advanced_config.h>
+#include <js_backend/engine/engine.h>
 #include <js_backend/engine/js_container.h>
-#include <js_backend/engine/js_engine.h>
 #include <panel/modal_blocking_scope.h>
+#include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
 #include <ui/ui_slow_script.h>
 
 #include <qwr/delayed_executor.h>
 #include <qwr/final_action.h>
-#include <qwr/thread_helpers.h>
+#include <qwr/thread_name_setter.h>
 
 using namespace smp;
 
@@ -204,9 +205,17 @@ bool JsMonitor::OnInterrupt()
             {
             case JsContainer::JsStatus::Working:
             {
-                auto& parentPanel = pContainer->GetParentPanel();
-                panelName = parentPanel.GetPanelDescription( false );
-                parentHwnd = parentPanel.GetHWND();
+                auto pPanel = pContainer->GetHostPanel()->GetPanel();
+                if ( pPanel )
+                {
+                    panelName = pPanel->GetPanelDescription( false );
+                    parentHwnd = pPanel->GetHWND();
+                }
+                else
+                { // paranoia check
+                    assert( false );
+                    parentHwnd = GetActiveWindow();
+                }
                 break;
             }
             case JsContainer::JsStatus::Ready:
@@ -244,7 +253,7 @@ bool JsMonitor::OnInterrupt()
             }
 
             smp::ui::CDialogSlowScript dlg( panelName, scriptInfo, dlgData );
-            // TODO: fix dialog centering (that is lack of thereof)
+            // TODO: fix dialog centering (lack of thereof that is)
             (void)dlg.DoModal( parentHwnd );
         }
 
@@ -267,9 +276,8 @@ bool JsMonitor::OnInterrupt()
 
 void JsMonitor::StartMonitorThread()
 {
-    shouldStopThread_ = false;
-    watcherThread_ = std::thread( [&] {
-        while ( !shouldStopThread_ )
+    pWatcherThread_ = std::make_unique<std::jthread>( [&]( std::stop_token token ) {
+        while ( !token.stop_requested() )
         {
             // We want to avoid showing the slow script dialog if the user's laptop
             // goes to sleep in the middle of running a script. To ensure this, we
@@ -289,14 +297,14 @@ void JsMonitor::StartMonitorThread()
 
                 if ( activeContainers_.empty() )
                 {
-                    hasAction_.wait( lock, [&] { return ( shouldStopThread_ || ( !activeContainers_.empty() && !isInInterrupt_ ) ); } );
+                    hasAction_.wait( lock, token, [&] { return ( token.stop_requested() || ( !activeContainers_.empty() && !isInInterrupt_ ) ); } );
                 }
                 else if ( isInInterrupt_ )
                 { // Can't interrupt
                     continue;
                 }
 
-                if ( shouldStopThread_ )
+                if ( token.stop_requested() )
                 {
                     break;
                 }
@@ -325,21 +333,18 @@ void JsMonitor::StartMonitorThread()
             }
         }
     } );
-    qwr::SetThreadName( watcherThread_, "SMP Watcher" );
+    qwr::SetThreadName( *pWatcherThread_, "SMP Watcher" );
 }
 
 void JsMonitor::StopMonitorThread()
 {
+    assert( pWatcherThread_ );
     {
         std::unique_lock<std::mutex> lock( watcherDataMutex_ );
-        shouldStopThread_ = true;
-        hasAction_.notify_one();
+        pWatcherThread_->request_stop();
     }
 
-    if ( watcherThread_.joinable() )
-    {
-        watcherThread_.join();
-    }
+    pWatcherThread_.reset();
 }
 
 bool JsMonitor::HasActivePopup( bool isMainThread ) const

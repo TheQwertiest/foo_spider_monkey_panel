@@ -4,7 +4,7 @@
 
 #include <js_backend/engine/js_to_native_invoker.h>
 #include <js_backend/utils/js_error_helper.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_property_helper.h>
 
 #include <chrono>
@@ -24,7 +24,6 @@ JSClassOps jsOps = {
     nullptr,
     nullptr,
     JsEvent::FinalizeJsObject,
-    nullptr,
     nullptr,
     nullptr,
     nullptr
@@ -76,23 +75,31 @@ constexpr auto jsProperties = std::to_array<JSPropertySpec>( {
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( JsEvent_Constructor, JsEvent::Constructor, JsEvent::ConstructorWithOpt, 1 )
 
+MJS_VERIFY_OBJECT( mozjs::JsEvent );
+
 } // namespace
 
 namespace mozjs
 {
 
-const JSClass JsEvent::JsClass = jsClass;
-const JSFunctionSpec* JsEvent::JsFunctions = jsFunctions.data();
-const JSPropertySpec* JsEvent::JsProperties = jsProperties.data();
-const JsPrototypeId JsEvent::PrototypeId = JsPrototypeId::Event;
-const JSNative JsEvent::JsConstructor = ::JsEvent_Constructor;
+const JSClass JsObjectTraits<JsEvent>::JsClass = jsClass;
+const JSFunctionSpec* JsObjectTraits<JsEvent>::JsFunctions = jsFunctions.data();
+const JSPropertySpec* JsObjectTraits<JsEvent>::JsProperties = jsProperties.data();
+const JsPrototypeId JsObjectTraits<JsEvent>::PrototypeId = JsPrototypeId::Event;
+const JSNative JsObjectTraits<JsEvent>::JsConstructor = ::JsEvent_Constructor;
 
-JsEvent::JsEvent( JSContext* cx, const qwr::u8string& type, bool isCancelable )
+JsEvent::JsEvent( JSContext* cx, const qwr::u8string& type, const EventProperties& props )
     : pJsCtx_( cx )
     , currentTarget_( cx )
-    , isCancelable_( isCancelable )
+    , isCancelable_( props.cancelable )
     , type_( type )
+    // TODO: rewrite timestamp: https://developer.mozilla.org/en-US/docs/Web/API/Event/timeStamp
     , timeStamp_( std::chrono::duration_cast<std::chrono::milliseconds>( std::chrono::system_clock::now().time_since_epoch() ).count() )
+{
+}
+
+JsEvent::JsEvent( JSContext* cx, const qwr::u8string& type, const EventOptions& options )
+    : JsEvent( cx, type, options.ToDefaultProps() )
 {
 }
 
@@ -124,19 +131,7 @@ void JsEvent::ResetPropagationStatus()
 
 JSObject* JsEvent::Constructor( JSContext* cx, const qwr::u8string& type, JS::HandleValue options )
 {
-    bool isCancelable = false;
-    if ( !options.isNullOrUndefined() )
-    {
-        qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
-        JS::RootedObject jsOptions( cx, &options.toObject() );
-
-        if ( const auto propOpt = utils::GetOptionalProperty<bool>( cx, jsOptions, "cancelable" ) )
-        {
-            isCancelable = *propOpt;
-        }
-    }
-
-    return JsEvent::CreateJs( cx, type, isCancelable );
+    return JsEvent::CreateJs( cx, type, ExtractOptions( cx, options ) );
 }
 
 JSObject* JsEvent::ConstructorWithOpt( JSContext* cx, size_t optArgCount, const qwr::u8string& type, JS::HandleValue options )
@@ -206,6 +201,11 @@ bool JsEvent::get_DefaultPrevented() const
 
 uint8_t JsEvent::get_EventPhase() const
 {
+    // https://developer.mozilla.org/en-US/docs/Web/API/Event/eventPhase
+    // Event.NONE (0)
+    // Event.AT_TARGET (2)
+    // other values are ignored, since propagation is not supported
+    // TODO: add constants
     return ( currentTarget_ ? 2 : 0 );
 }
 
@@ -229,10 +229,37 @@ size_t JsEvent::GetInternalSize()
     return type_.size();
 }
 
-std::unique_ptr<mozjs::JsEvent>
-JsEvent::CreateNative( JSContext* cx, const qwr::u8string& type, bool isCancelable )
+JsEvent::EventOptions JsEvent::ExtractOptions( JSContext* cx, JS::HandleValue options )
 {
-    return std::unique_ptr<JsEvent>( new JsEvent( cx, type, isCancelable ) );
+    EventOptions parsedOptions;
+    if ( options.isNullOrUndefined() )
+    {
+        return parsedOptions;
+    }
+
+    qwr::QwrException::ExpectTrue( options.isObject(), "options argument is not an object" );
+    JS::RootedObject jsOptions( cx, &options.toObject() );
+
+    utils::OptionalPropertyTo( cx, jsOptions, "cancelable", parsedOptions.cancelable );
+
+    return parsedOptions;
+}
+
+std::unique_ptr<JsEvent>
+JsEvent::CreateNative( JSContext* cx, const qwr::u8string& type, const EventProperties& props )
+{
+    return std::unique_ptr<JsEvent>( new JsEvent( cx, type, props ) );
+}
+
+std::unique_ptr<mozjs::JsEvent>
+JsEvent::CreateNative( JSContext* cx, const qwr::u8string& type, const EventOptions& options )
+{
+    return std::unique_ptr<JsEvent>( new JsEvent( cx, type, options ) );
+}
+
+JsEvent::EventProperties JsEvent::EventOptions::ToDefaultProps() const
+{
+    return { .cancelable = cancelable };
 }
 
 } // namespace mozjs

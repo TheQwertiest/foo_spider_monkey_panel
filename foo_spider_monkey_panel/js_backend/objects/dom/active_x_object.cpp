@@ -4,17 +4,17 @@
 
 #include "active_x_object.h"
 
-#include <com_objects/com_interface.h>
-#include <com_objects/com_tools.h>
-#include <com_utils/com_error_helpers.h>
+#include <com/objects/com_interface.h>
+#include <com/objects/com_tools.h>
+#include <com/utils/com_error_helpers.h>
 #include <convert/com.h>
 #include <convert/js_to_native.h>
 #include <convert/native_to_js.h>
+#include <js_backend/engine/global_heap_manager.h>
 #include <js_backend/engine/js_to_native_invoker.h>
-#include <js_backend/objects/core/global_heap_manager.h>
 #include <js_backend/objects/core/global_object.h>
 #include <js_backend/objects/dom/active_x_object_iterator.h>
-#include <js_backend/utils/js_object_helper.h>
+#include <js_backend/utils/js_object_constants.h>
 #include <js_backend/utils/js_prototype_helpers.h>
 
 #include <qwr/final_action.h>
@@ -268,13 +268,12 @@ JSClassOps jsOps = {
     JsActiveXObject::FinalizeJsObject,
     nullptr,
     nullptr,
-    nullptr,
     nullptr
 };
 
 JSClass jsClass = {
     "ActiveXObject",
-    JSCLASS_HAS_PRIVATE | JSCLASS_FOREGROUND_FINALIZE, // COM objects must be finalized in foreground
+    JSCLASS_HAS_RESERVED_SLOTS( 1 ) | JSCLASS_FOREGROUND_FINALIZE, // COM objects must be finalized in foreground
     &jsOps
 };
 

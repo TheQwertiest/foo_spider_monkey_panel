@@ -3,6 +3,8 @@
 #include <fb2k/advanced_config.h>
 #include <utils/stacktrace.h>
 
+// TODO: split this file
+
 namespace mozjs::error
 {
 
@@ -60,11 +62,11 @@ template <typename F, typename... Args>
     return true;
 }
 
-class AutoJsReport
+class AutoReportError
 {
 public:
-    explicit [[nodiscard]] AutoJsReport( JSContext* cx );
-    ~AutoJsReport() noexcept;
+    explicit [[nodiscard]] AutoReportError( JSContext* cx );
+    ~AutoReportError() noexcept;
 
     void Disable();
 

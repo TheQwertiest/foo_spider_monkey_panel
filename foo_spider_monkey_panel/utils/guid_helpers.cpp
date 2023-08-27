@@ -12,7 +12,7 @@ GUID GenerateGuid()
     return guid;
 }
 
-std::wstring GuidToStr( const GUID& guid )
+std::wstring GuidToStr( const GUID& guid, bool stripBraces )
 {
     std::wstring guidStr;
 
@@ -20,13 +20,21 @@ std::wstring GuidToStr( const GUID& guid )
     const auto strSizeWithTerminator = StringFromGUID2( guid, guidStr.data(), guidStr.size() );
     guidStr.resize( strSizeWithTerminator - 1 );
 
-    return guidStr;
+    assert( guidStr.size() > 2 );
+    return ( stripBraces ? guidStr.substr( 1, guidStr.size() - 2 ) : guidStr );
 }
 
 std::optional<GUID> StrToGuid( const std::wstring& str )
 {
+    if ( str.size() < 2 )
+    {
+        return std::nullopt;
+    }
+
+    const auto bracedStr = ( str[0] != L'{' ? fmt::format( L"{{{}}}", str ) : str );
+
     GUID guid;
-    HRESULT hr = IIDFromString( str.c_str(), &guid );
+    HRESULT hr = IIDFromString( bracedStr.c_str(), &guid );
     if ( FAILED( hr ) )
     {
         return std::nullopt;
