@@ -25,6 +25,7 @@ class JsWindow;
 class Library;
 class ModuleCanvas;
 class ModuleTrack;
+class OutputManager;
 class PlaybackControl;
 class PlaybackQueue;
 class PlaylistManager;
@@ -117,6 +118,7 @@ private:
         LoadedNativeObject<Library>,
         LoadedNativeObject<ModuleCanvas>,
         LoadedNativeObject<ModuleTrack>,
+        LoadedNativeObject<OutputManager>,
         LoadedNativeObject<PlaybackControl>,
         LoadedNativeObject<PlaybackQueue>,
         LoadedNativeObject<PlaylistManager>,

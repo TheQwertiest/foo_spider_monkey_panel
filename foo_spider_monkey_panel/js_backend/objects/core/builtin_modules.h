@@ -7,19 +7,20 @@ namespace mozjs
 
 enum class BuiltinModuleId : uint8_t
 {
-    kFbPlaybackControl,
-    kFbUiSelectionManager,
+    kDomCanvas,
     kDomWindow,
     kEvents,
-    kDomCanvas,
-    kFbTrack,
-    kFbPlaylistManager,
-    kFbLibrary,
-    kFbTrackImageManager,
-    kFbPlaybackQueue,
-    kFbReplayGainManager,
-    kFbTrackCustomMetaManager,
     kFbDspManager,
+    kFbLibrary,
+    kFbOutputManager,
+    kFbPlaybackControl,
+    kFbPlaybackQueue,
+    kFbPlaylistManager,
+    kFbReplayGainManager,
+    kFbTrack,
+    kFbTrackCustomMetaManager,
+    kFbTrackImageManager,
+    kFbUiSelectionManager,
     kCount
 };
 

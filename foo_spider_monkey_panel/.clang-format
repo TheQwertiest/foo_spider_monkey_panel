@@ -88,7 +88,6 @@ ReflowComments: 'true'
 RequiresClausePosition: OwnLine
 RequiresExpressionIndentation: OuterScope
 SeparateDefinitionBlocks: Always
-SortIncludes: 'false'
 SpaceAfterCStyleCast: 'false'
 SpaceAfterTemplateKeyword : 'true'
 SpaceBeforeAssignmentOperators: 'true'

@@ -24,17 +24,17 @@ std::wstring GuidToStr( const GUID& guid, bool stripBraces )
     return ( stripBraces ? guidStr.substr( 1, guidStr.size() - 2 ) : guidStr );
 }
 
-std::optional<GUID> StrToGuid( const std::wstring& str )
+std::optional<GUID> StrToGuid( std::wstring_view str )
 {
     if ( str.size() < 2 )
     {
         return std::nullopt;
     }
 
-    const auto bracedStr = ( str[0] != L'{' ? fmt::format( L"{{{}}}", str ) : str );
+    const auto bracedStr = ( str[0] != L'{' ? fmt::format( L"{{{}}}", str ) : std::wstring{ str } );
 
     GUID guid;
-    HRESULT hr = IIDFromString( bracedStr.c_str(), &guid );
+    HRESULT hr = IIDFromString( bracedStr.data(), &guid );
     if ( FAILED( hr ) )
     {
         return std::nullopt;

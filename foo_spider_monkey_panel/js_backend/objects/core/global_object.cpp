@@ -22,6 +22,7 @@
 #include <js_backend/objects/fb2k/fb_utils.h>
 #include <js_backend/objects/fb2k/library.h>
 #include <js_backend/objects/fb2k/module_track.h>
+#include <js_backend/objects/fb2k/output_manager.h>
 #include <js_backend/objects/fb2k/playback_control.h>
 #include <js_backend/objects/fb2k/playback_queue.h>
 #include <js_backend/objects/fb2k/playlist_manager.h>
@@ -383,6 +384,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case BuiltinModuleId::kFbDspManager:
             {
                 return initializeLoadedObject.template operator()<DspManager>( moduleId );
+            }
+            case BuiltinModuleId::kFbOutputManager:
+            {
+                return initializeLoadedObject.template operator()<OutputManager>( moduleId );
             }
             // TODO: add event module
             default:

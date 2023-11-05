@@ -174,15 +174,7 @@ auto InvokeNativeCallback_ParseArguments( JSContext* cx, JS::MutableHandleValueV
 }
 
 // TODO: maybe move self arg removal to before InvokeNativeCallback call?
-
-template <bool HasSelfArg, typename... ArgTypes>
-auto InvokeNativeCallback_ParseArguments_RemoveSelfArg( JSContext* cx, JS::MutableHandleValueVector valueVector, const JS::CallArgs& jsArgs )
-{
-    return InvokeNativeCallback_ParseArguments<ArgTypes...>( cx, valueVector, jsArgs );
-}
-
-template <bool HasSelfArg, typename T, typename... ArgTypes>
-    requires( HasSelfArg )
+template <typename T, typename... ArgTypes>
 auto InvokeNativeCallback_ParseArguments_RemoveSelfArg( JSContext* cx, JS::MutableHandleValueVector valueVector, const JS::CallArgs& jsArgs )
 {
     return InvokeNativeCallback_ParseArguments<ArgTypes...>( cx, valueVector, jsArgs );
@@ -302,8 +294,16 @@ void InvokeNativeCallback_Member( JSContext* cx,
     }
 
     JS::RootedValueVector handleValueVector( cx );
-    auto callbackArguments = InvokeNativeCallback_ParseArguments_RemoveSelfArg<HasSelfArg, ArgTypes...>(
-        cx, &handleValueVector, jsArgs );
+    auto callbackArguments = [&] {
+        if constexpr ( HasSelfArg )
+        {
+            return InvokeNativeCallback_ParseArguments_RemoveSelfArg<ArgTypes...>( cx, &handleValueVector, jsArgs );
+        }
+        else
+        {
+            return InvokeNativeCallback_ParseArguments<ArgTypes...>( cx, &handleValueVector, jsArgs );
+        }
+    }();
 
     // May return raw JS pointer! (see below)
     const auto invokeNative = [&]() {

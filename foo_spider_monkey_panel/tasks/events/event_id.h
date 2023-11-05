@@ -114,6 +114,8 @@ enum class EventId
     kNew_FbPreferedSelectionChange,
     /// dsp
     kNew_FbDspCoreSettingsChange,
+    /// output
+    kNew_FbOutputConfigChange,
     // window
     /// graphics
     kNew_WndPaint,

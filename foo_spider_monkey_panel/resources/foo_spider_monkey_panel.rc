@@ -617,6 +617,8 @@ IDR_MODULE_FB_DSP_MANAGER SCRIPT "modules/dsp_manager.js"
 
 IDR_MODULE_FB_LIBRARY   SCRIPT                  "modules/library.js"
 
+IDR_MODULE_FB_OUTPUT_MANAGER SCRIPT "modules/output_manager.js"
+
 IDR_MODULE_FB_PLAYBACK  SCRIPT                  "modules/playback.js"
 
 IDR_MODULE_FB_PLAYBACK_QUEUE SCRIPT              "modules/playback_queue.js"

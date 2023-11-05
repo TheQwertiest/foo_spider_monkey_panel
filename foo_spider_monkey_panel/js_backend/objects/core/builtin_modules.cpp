@@ -57,6 +57,10 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kFbDspManager;
     }
+    if ( moduleName == "smp:fb/output-manager" )
+    {
+        return BuiltinModuleId::kFbOutputManager;
+    }
 
     return std::nullopt;
 }
@@ -89,6 +93,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_FB_TRACK_CUSTOM_META_MANAGER;
     case BuiltinModuleId::kFbDspManager:
         return IDR_MODULE_FB_DSP_MANAGER;
+    case BuiltinModuleId::kFbOutputManager:
+        return IDR_MODULE_FB_OUTPUT_MANAGER;
     default:
         assert( false );
         return 0;

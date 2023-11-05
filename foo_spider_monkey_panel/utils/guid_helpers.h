@@ -7,7 +7,7 @@ namespace smp::utils
 
 [[nodiscard]] GUID GenerateGuid();
 [[nodiscard]] std::wstring GuidToStr( const GUID& guid, bool stripBraces = false );
-[[nodiscard]] std::optional<GUID> StrToGuid( const std::wstring& str );
+[[nodiscard]] std::optional<GUID> StrToGuid( std::wstring_view str );
 
 struct GuidHasher
 {
