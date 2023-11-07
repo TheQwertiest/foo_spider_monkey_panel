@@ -116,6 +116,8 @@ enum class EventId
     kNew_FbDspCoreSettingsChange,
     /// output
     kNew_FbOutputConfigChange,
+    /// process
+    kNew_FbExit,
     // window
     /// graphics
     kNew_WndPaint,

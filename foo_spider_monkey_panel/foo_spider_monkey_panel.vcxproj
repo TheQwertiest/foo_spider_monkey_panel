@@ -181,6 +181,7 @@
     <ClCompile Include="dom\dom_keys.cpp" />
     <ClCompile Include="fb2k\callbacks\config_objects.cpp" />
     <ClCompile Include="fb2k\callbacks\dsp_config.cpp" />
+    <ClCompile Include="fb2k\callbacks\init_quit.cpp" />
     <ClCompile Include="fb2k\callbacks\output.cpp" />
     <ClCompile Include="fb2k\callbacks\playback_queue.cpp" />
     <ClCompile Include="fb2k\callbacks\library.cpp" />
@@ -206,6 +207,7 @@
     <ClCompile Include="js_backend\objects\fb2k\output_manager.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\playback_queue.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\playlist_recycle_bin.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\process.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\replay_gain_manager.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_custom_meta_manager.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\track_image.cpp" />
@@ -247,6 +249,7 @@
     <ClInclude Include="js_backend\objects\fb2k\output_manager.h" />
     <ClInclude Include="js_backend\objects\fb2k\playback_queue.h" />
     <ClInclude Include="js_backend\objects\fb2k\playlist_recycle_bin.h" />
+    <ClInclude Include="js_backend\objects\fb2k\process.h" />
     <ClInclude Include="js_backend\objects\fb2k\replay_gain_manager.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_custom_meta_manager.h" />
     <ClInclude Include="js_backend\objects\fb2k\track_image.h" />
@@ -683,6 +686,7 @@
     <None Include="resources\modules\playback.js" />
     <None Include="resources\modules\playback_queue.js" />
     <None Include="resources\modules\playlist_manager.js" />
+    <None Include="resources\modules\process.js" />
     <None Include="resources\modules\replay_gain_manager.js" />
     <None Include="resources\modules\track_custom_meta_manager.js" />
     <None Include="resources\modules\ui_selection_manager.js" />

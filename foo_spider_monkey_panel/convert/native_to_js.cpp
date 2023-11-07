@@ -37,6 +37,12 @@ void ToValue( JSContext*, JS::HandleValue inValue, JS::MutableHandleValue wrappe
 }
 
 template <>
+void ToValue( JSContext*, JS::HandleBigInt inValue, JS::MutableHandleValue wrappedValue )
+{
+    wrappedValue.setBigInt( inValue );
+}
+
+template <>
 void ToValue( JSContext*, const bool& inValue, JS::MutableHandleValue wrappedValue )
 {
     wrappedValue.setBoolean( inValue );

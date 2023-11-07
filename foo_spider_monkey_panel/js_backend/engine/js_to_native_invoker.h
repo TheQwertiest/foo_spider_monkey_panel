@@ -318,12 +318,16 @@ void InvokeNativeCallback_Member( JSContext* cx,
 
     // Return value
     if constexpr ( std::is_same_v<ReturnType, JSObject*> )
-    { // A raw JS pointer! Be careful when editing this code!
+    { // Unrooted value! Be careful when editing this code!
         jsArgs.rval().setObjectOrNull( invokeNative() );
     }
     else if constexpr ( std::is_same_v<ReturnType, JS::Value> )
-    { // Unrooted JS::Value! Be careful when editing this code!
+    { // Unrooted value! Be careful when editing this code!
         jsArgs.rval().set( invokeNative() );
+    }
+    else if constexpr ( std::is_same_v<ReturnType, JS::BigInt*> )
+    { // Unrooted value! Be careful when editing this code!
+        jsArgs.rval().setBigInt( invokeNative() );
     }
     else if constexpr ( std::is_same_v<ReturnType, void> )
     {
@@ -370,12 +374,16 @@ void InvokeNativeCallback_Static( JSContext* cx,
 
     // Return value
     if constexpr ( std::is_same_v<ReturnType, JSObject*> )
-    { // A raw JS pointer! Be careful when editing this code!
+    { // Unrooted value! Be careful when editing this code!
         jsArgs.rval().setObjectOrNull( invokeNative() );
     }
     else if constexpr ( std::is_same_v<ReturnType, JS::Value> )
-    { // Unrooted JS::Value! Be careful when editing this code!
+    { // Unrooted value! Be careful when editing this code!
         jsArgs.rval().set( invokeNative() );
+    }
+    else if constexpr ( std::is_same_v<ReturnType, JS::BigInt*> )
+    { // Unrooted value! Be careful when editing this code!
+        jsArgs.rval().setBigInt( invokeNative() );
     }
     else if constexpr ( std::is_same_v<ReturnType, void> )
     {

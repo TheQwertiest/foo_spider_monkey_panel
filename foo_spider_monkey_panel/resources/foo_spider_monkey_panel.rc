@@ -625,6 +625,8 @@ IDR_MODULE_FB_PLAYBACK_QUEUE SCRIPT              "modules/playback_queue.js"
 
 IDR_MODULE_FB_PLAYLIST_MANAGER SCRIPT                  "modules/playlist_manager.js"
 
+IDR_MODULE_FB_PROCESS SCRIPT "modules/process.js"
+
 IDR_MODULE_FB_REPLAY_GAIN_MANAGER SCRIPT "modules/replay_gain_manager.js"
 
 IDR_MODULE_FB_TRACK     SCRIPT                  "modules/track.js"

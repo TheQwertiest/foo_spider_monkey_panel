@@ -32,8 +32,6 @@ public:
     void AddWindow( HWND hWnd, smp::not_null_shared<panel::PanelAccessor> pTarget );
     void RemoveWindow( HWND hWnd );
 
-    void NotifyAllAboutExit();
-
 public:
     static [[nodiscard]] bool IsRequestEventMessage( UINT msg );
     bool ProcessNextEvent( HWND hWnd );
@@ -41,6 +39,8 @@ public:
     void OnRequestEventMessageReceived( HWND hWnd );
 
 public: // these can be invoked from worker threads
+    // TODO: rename Put > Post
+
     void PutRunnable( HWND hWnd, std::shared_ptr<Runnable> pRunnable, EventPriority priority = EventPriority::kNormal );
     void PutEvent( HWND hWnd, std::shared_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
 
@@ -53,6 +53,8 @@ public: // these can be invoked from worker threads
     ///         - Event must be cloneable.
     ///         - Clone operation should not be CPU intensive (e.g. don't copy vectors, but rather wrap it in shared_ptr)
     void PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pEvent, EventPriority priority = EventPriority::kNormal );
+
+    void SendEventToAll( std::unique_ptr<EventBase> pEvent );
 
 public:
     // TODO: remove in v2

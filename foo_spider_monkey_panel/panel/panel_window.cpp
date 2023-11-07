@@ -496,6 +496,13 @@ void PanelWindow::ExecuteEvent( EventBase& event )
         execJsEvent();
         break;
     }
+    case EventId::kNew_FbExit:
+    {
+        execJsEvent();
+        // TODO: think about exit vs unload order
+        UnloadScript();
+        break;
+    }
     /*
     case EventId::kMouseDragEnter:
 {
@@ -973,6 +980,7 @@ void PanelWindow::UnloadScript( bool force )
 
     if ( !force )
     { // should not go in JS again when forced to unload (e.g. in case of an error)
+        // TODO: remove
         pJsContainer_->InvokeJsCallback( "on_script_unload" );
     }
 
@@ -1289,11 +1297,6 @@ std::optional<LRESULT> PanelWindow::ProcessInternalSyncMessage( InternalSyncMess
     case InternalSyncMessage::script_fail:
     {
         Fail( *reinterpret_cast<const qwr::u8string*>( lp ) );
-        return 0;
-    }
-    case InternalSyncMessage::prepare_for_exit:
-    {
-        UnloadScript();
         return 0;
     }
     case InternalSyncMessage::ui_script_editor_saved:

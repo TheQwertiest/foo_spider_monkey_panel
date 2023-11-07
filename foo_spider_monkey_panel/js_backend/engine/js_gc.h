@@ -21,6 +21,8 @@ public:
     /// @details Returns last heap size instead of the current size,
     /// but this should be good enough for users
     [[nodiscard]] uint64_t GetTotalHeapUsage() const;
+    [[nodiscard]] uint64_t GetGlobalHeapUsage() const;
+    [[nodiscard]] uint64_t GetExternalHeapUsage() const;
 
     /// @throw qwr::QwrException
     void Initialize( JSContext* pJsCtx );
@@ -42,12 +44,15 @@ private:
     static void UpdateGcConfig();
 
     // GC stats handling
-    [[nodiscard]] bool IsTimeToGc();
-    [[nodiscard]] GcLevel GetRequiredGcLevel();
-    [[nodiscard]] GcLevel GetGcLevelFromHeapSize();
-    [[nodiscard]] GcLevel GetGcLevelFromAllocCount();
-    [[nodiscard]] uint64_t GetCurrentTotalHeapSize();
-    [[nodiscard]] uint64_t GetCurrentTotalAllocCount();
+    [[nodiscard]] bool IsTimeToGc() const;
+    [[nodiscard]] GcLevel GetRequiredGcLevel() const;
+    [[nodiscard]] GcLevel GetGcLevelFromHeapSize() const;
+    [[nodiscard]] GcLevel GetGcLevelFromAllocCount() const;
+    [[nodiscard]] uint64_t GetCurrentGlobalHeapSize() const;
+    [[nodiscard]] uint64_t GetCurrentExternalHeapSize() const;
+    [[nodiscard]] uint64_t GetCurrentTotalHeapSize() const;
+    [[nodiscard]] uint64_t GetCurrentTotalAllocCount() const;
+
     void UpdateGcStats();
 
     // GC implementation
@@ -61,13 +66,14 @@ private:
 private:
     JSContext* pJsCtx_ = nullptr;
 
-    bool isManuallyTriggered_ = false;
+    mutable bool isManuallyTriggered_ = false;
     bool isHighFrequency_ = false;
-    uint32_t lastGcCheckTime_ = 0;
+    mutable uint32_t lastGcCheckTime_ = 0;
     uint32_t lastGcTime_ = 0;
-    uint64_t lastTotalHeapSize_ = 0;
-    uint64_t lastTotalAllocCount_ = 0;
+    mutable uint64_t lastTotalHeapSize_ = 0;
+    mutable uint64_t lastTotalAllocCount_ = 0;
     uint64_t lastGlobalHeapSize_ = 0;
+    mutable uint64_t lastExternalHeapSize_ = 0;
 
     // These values are overwritten by config.
     // Remain here mostly as a reference.

@@ -29,6 +29,7 @@ class OutputManager;
 class PlaybackControl;
 class PlaybackQueue;
 class PlaylistManager;
+class Process;
 class ReplayGainManager;
 class TrackCustomMetaManager;
 class TrackImageManager;
@@ -122,6 +123,7 @@ private:
         LoadedNativeObject<PlaybackControl>,
         LoadedNativeObject<PlaybackQueue>,
         LoadedNativeObject<PlaylistManager>,
+        LoadedNativeObject<Process>,
         LoadedNativeObject<ReplayGainManager>,
         LoadedNativeObject<TrackCustomMetaManager>,
         LoadedNativeObject<TrackImageManager>,

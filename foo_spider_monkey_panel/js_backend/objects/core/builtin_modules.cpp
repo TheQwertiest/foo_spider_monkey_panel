@@ -61,6 +61,10 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kFbOutputManager;
     }
+    if ( moduleName == "smp:fb/process" )
+    {
+        return BuiltinModuleId::kFbProcess;
+    }
 
     return std::nullopt;
 }
@@ -95,6 +99,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_FB_DSP_MANAGER;
     case BuiltinModuleId::kFbOutputManager:
         return IDR_MODULE_FB_OUTPUT_MANAGER;
+    case BuiltinModuleId::kFbProcess:
+        return IDR_MODULE_FB_PROCESS;
     default:
         assert( false );
         return 0;

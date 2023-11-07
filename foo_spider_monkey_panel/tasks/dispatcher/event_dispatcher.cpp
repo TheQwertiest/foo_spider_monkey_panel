@@ -8,6 +8,7 @@
 #include <js_backend/engine/engine.h>
 #include <tasks/micro_tasks/js_target_micro_task.h>
 
+#include <qwr/algorithm.h>
 #include <qwr/final_action.h>
 
 namespace smp
@@ -35,25 +36,6 @@ void EventDispatcher::RemoveWindow( HWND hWnd )
     assert( taskControllerMap_.contains( hWnd ) );
     taskControllerMap_.erase( hWnd );
     nextEventMsgStatusMap_.erase( hWnd );
-}
-
-void EventDispatcher::NotifyAllAboutExit()
-{
-    std::vector<HWND> hWnds;
-    hWnds.reserve( taskControllerMap_.size() );
-
-    {
-        std::scoped_lock sl( taskControllerMapMutex_ );
-        for ( auto& [hLocalWnd, pTaskController]: taskControllerMap_ )
-        {
-            hWnds.emplace_back( hLocalWnd );
-        }
-    }
-
-    for ( const auto& hWnd: hWnds )
-    {
-        SendMessage( hWnd, static_cast<UINT>( smp::InternalSyncMessage::prepare_for_exit ), 0, 0 );
-    }
 }
 
 bool EventDispatcher::IsRequestEventMessage( UINT msg )
@@ -208,6 +190,37 @@ void EventDispatcher::PutEventToOthers( HWND hWnd, std::unique_ptr<EventBase> pE
         pTaskController->AddRunnable( std::move( pClonedEvent ), priority );
 
         RequestNextEventImpl( hLocalWnd, *pTaskController, sl );
+    }
+}
+
+void EventDispatcher::SendEventToAll( std::unique_ptr<EventBase> pEvent )
+{
+    // avoid blocking here as much as possible to prevent dead-locks
+    const auto hWndsToProcess = [&] {
+        std::scoped_lock sl( taskControllerMapMutex_ );
+        return taskControllerMap_ | ranges::views::keys | ranges::to_vector;
+    }();
+
+    for ( auto hWnd: hWndsToProcess )
+    {
+        auto pClonedEvent = pEvent->Clone();
+        if ( !pClonedEvent )
+        {
+            assert( false );
+            return;
+        }
+
+        {
+            std::scoped_lock sl( taskControllerMapMutex_ );
+            auto pTaskController = qwr::FindOrDefault( taskControllerMap_, hWnd, nullptr );
+            if ( !pTaskController )
+            {
+                continue;
+            }
+
+            pClonedEvent->SetTarget( pTaskController->GetTarget() );
+        }
+        pClonedEvent->Run();
     }
 }
 

@@ -3,6 +3,7 @@
 #include <config/smp_package/delayed_package_actions.h>
 #include <js_backend/engine/engine.h>
 #include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/panel_event.h>
 #include <utils/thread_pool_instance.h>
 
 #include <qwr/abort_callback.h>
@@ -171,7 +172,7 @@ public:
     void on_quit() override
     { // Careful when changing invocation order here!
         mozjs::JsEngine::Get().PrepareForExit();
-        smp::EventDispatcher::Get().NotifyAllAboutExit();
+        smp::EventDispatcher::Get().SendEventToAll( std::make_unique<smp::PanelEvent>( smp::EventId::kNew_FbExit ) );
         qwr::GlobalAbortCallback::GetInstance().Abort();
         smp::GetThreadPoolInstance().Finalize();
     }

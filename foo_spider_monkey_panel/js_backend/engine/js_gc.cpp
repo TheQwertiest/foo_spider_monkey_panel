@@ -64,6 +64,16 @@ uint64_t JsGc::GetTotalHeapUsage() const
     return lastTotalHeapSize_;
 }
 
+uint64_t JsGc::GetGlobalHeapUsage() const
+{
+    return lastGlobalHeapSize_;
+}
+
+uint64_t JsGc::GetExternalHeapUsage() const
+{
+    return lastExternalHeapSize_;
+}
+
 void JsGc::Initialize( JSContext* pJsCtx )
 {
     namespace smp_advconf = smp::config::advanced;
@@ -106,6 +116,7 @@ void JsGc::Finalize()
     lastTotalHeapSize_ = 0;
     lastTotalAllocCount_ = 0;
     lastGlobalHeapSize_ = 0;
+    lastExternalHeapSize_ = 0;
 }
 
 bool JsGc::MaybeGc()
@@ -164,7 +175,7 @@ void JsGc::UpdateGcConfig()
     }
 }
 
-bool JsGc::IsTimeToGc()
+bool JsGc::IsTimeToGc() const
 {
     const auto curTime = timeGetTime();
     if ( ( curTime - lastGcCheckTime_ ) < gcCheckDelay_ )
@@ -176,7 +187,7 @@ bool JsGc::IsTimeToGc()
     return true;
 }
 
-JsGc::GcLevel JsGc::GetRequiredGcLevel()
+JsGc::GcLevel JsGc::GetRequiredGcLevel() const
 {
     if ( GcLevel gcLevel = GetGcLevelFromHeapSize();
          gcLevel > GcLevel::None )
@@ -196,7 +207,7 @@ JsGc::GcLevel JsGc::GetRequiredGcLevel()
     }
 }
 
-JsGc::GcLevel JsGc::GetGcLevelFromHeapSize()
+JsGc::GcLevel JsGc::GetGcLevelFromHeapSize() const
 {
     uint64_t curTotalHeapSize = GetCurrentTotalHeapSize();
     if ( !lastTotalHeapSize_
@@ -224,7 +235,7 @@ JsGc::GcLevel JsGc::GetGcLevelFromHeapSize()
     }
 }
 
-JsGc::GcLevel JsGc::GetGcLevelFromAllocCount()
+JsGc::GcLevel JsGc::GetGcLevelFromAllocCount() const
 {
     uint64_t curTotalAllocCount = GetCurrentTotalAllocCount();
     if ( !lastTotalAllocCount_
@@ -245,27 +256,14 @@ JsGc::GcLevel JsGc::GetGcLevelFromAllocCount()
     // since currently it's assumed that method returns `GcLevel::Incremental` at most
 }
 
-void JsGc::UpdateGcStats()
+uint64_t JsGc::GetCurrentGlobalHeapSize() const
 {
-    if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
-    { // update only after current gc cycle is finished
-        return;
-    }
-
-    lastGlobalHeapSize_ = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
-    lastTotalHeapSize_ = GetCurrentTotalHeapSize();
-    lastTotalAllocCount_ = GetCurrentTotalAllocCount();
-
-    const auto curTime = timeGetTime();
-    isHighFrequency_ = ( lastGcTime_
-                             ? curTime < ( lastGcTime_ + kHighFreqTimeLimitMs )
-                             : false );
-    lastGcTime_ = curTime;
+    return JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
 }
 
-uint64_t JsGc::GetCurrentTotalHeapSize()
+uint64_t JsGc::GetCurrentExternalHeapSize() const
 {
-    uint64_t curTotalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
+    uint64_t curTotalHeapSize = 0;
 
     JS::IterateRealms( pJsCtx_, &curTotalHeapSize, []( JSContext*, void* data, JS::Realm* pJsRealm, const JS::AutoRequireNoGC& /*nogc*/ ) {
         auto pCurTotalHeapSize = static_cast<uint64_t*>( data );
@@ -280,7 +278,12 @@ uint64_t JsGc::GetCurrentTotalHeapSize()
     return curTotalHeapSize;
 }
 
-uint64_t JsGc::GetCurrentTotalAllocCount()
+uint64_t JsGc::GetCurrentTotalHeapSize() const
+{
+    return GetCurrentGlobalHeapSize() + GetCurrentExternalHeapSize();
+}
+
+uint64_t JsGc::GetCurrentTotalAllocCount() const
 {
     uint64_t curTotalAllocCount = 0;
     JS::IterateRealms( pJsCtx_, &curTotalAllocCount, []( JSContext*, void* data, JS::Realm* pJsRealm, const JS::AutoRequireNoGC& /*nogc*/ ) {
@@ -294,6 +297,25 @@ uint64_t JsGc::GetCurrentTotalAllocCount()
     } );
 
     return curTotalAllocCount;
+}
+
+void JsGc::UpdateGcStats()
+{
+    if ( JS::IsIncrementalGCInProgress( pJsCtx_ ) )
+    { // update only after current gc cycle is finished
+        return;
+    }
+
+    lastGlobalHeapSize_ = GetCurrentGlobalHeapSize();
+    lastTotalHeapSize_ = GetCurrentTotalHeapSize();
+    lastTotalAllocCount_ = GetCurrentTotalAllocCount();
+    lastExternalHeapSize_ = GetCurrentExternalHeapSize();
+
+    const auto curTime = timeGetTime();
+    isHighFrequency_ = ( lastGcTime_
+                             ? curTime < ( lastGcTime_ + kHighFreqTimeLimitMs )
+                             : false );
+    lastGcTime_ = curTime;
 }
 
 void JsGc::PerformGc( GcLevel gcLevel )
@@ -354,7 +376,7 @@ void JsGc::PrepareRealmsForGc( GcLevel gcLevel )
             allocCountTrigger_ / 2
         };
 
-        if ( uint64_t curGlobalHeapSize = JS_GetGCParameter( pJsCtx_, JSGC_BYTES );
+        if ( uint64_t curGlobalHeapSize = GetCurrentGlobalHeapSize();
              curGlobalHeapSize > ( lastGlobalHeapSize_ + triggers.heapGrowthRateTrigger ) )
         { // mark all, since we don't have any per-realm information about allocated native JS objects
             markAllRealms();

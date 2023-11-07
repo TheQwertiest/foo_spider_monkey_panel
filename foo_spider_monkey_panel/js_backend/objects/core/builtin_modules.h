@@ -16,6 +16,7 @@ enum class BuiltinModuleId : uint8_t
     kFbPlaybackControl,
     kFbPlaybackQueue,
     kFbPlaylistManager,
+    kFbProcess,
     kFbReplayGainManager,
     kFbTrack,
     kFbTrackCustomMetaManager,

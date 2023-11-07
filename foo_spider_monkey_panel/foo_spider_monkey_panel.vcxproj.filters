@@ -721,6 +721,12 @@
     <ClCompile Include="fb2k\callbacks\output.cpp">
       <Filter>fb2k\callbacks</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\process.cpp">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClCompile>
+    <ClCompile Include="fb2k\callbacks\init_quit.cpp">
+      <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1546,6 +1552,9 @@
     <ClInclude Include="js_backend\objects\fb2k\output_manager.h">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\process.h">
+      <Filter>js_backend\objects\fb2k</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1604,6 +1613,9 @@
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\output_manager.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\process.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>
