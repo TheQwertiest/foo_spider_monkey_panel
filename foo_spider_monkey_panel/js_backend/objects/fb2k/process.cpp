@@ -53,11 +53,13 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     } );
 
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_hrtime, Process::get_HrTime )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_launchOptions, Process::get_LaunchOptions )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_version, Process::get_Version )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
         JS_PSG( "hrtime", get_hrtime, kDefaultPropsFlags ),
+        JS_PSG( "launchOptions", get_launchOptions, kDefaultPropsFlags ),
         JS_PSG( "version", get_version, kDefaultPropsFlags ),
         JS_PS_END,
     } );
@@ -101,6 +103,14 @@ size_t Process::GetInternalSize() const
 void Process::Trace( JSTracer* trc, JSObject* obj )
 {
     JsEventTarget::Trace( trc, obj );
+
+    auto pNative = JsObjectBase<Process>::ExtractNativeUnchecked( obj );
+    if ( !pNative )
+    {
+        return;
+    }
+
+    JS::TraceEdge( trc, &pNative->jsLaunchOptions_, "Heap: Process: launch options" );
 }
 
 const std::string& Process::EventIdToType( smp::EventId eventId )
@@ -239,6 +249,21 @@ JS::BigInt* Process::get_HrTime() const
     smp::JsException::ExpectTrue( jsInt );
 
     return jsInt;
+}
+
+JSObject* Process::get_LaunchOptions() const
+{
+    if ( !jsLaunchOptions_ )
+    {
+        JS::RootedObject jsObject( pJsCtx_, JS_NewPlainObject( pJsCtx_ ) );
+        smp::JsException::ExpectTrue( jsObject );
+
+        utils::AddProperty( pJsCtx_, jsObject, "isPortableModeEnabled", core_api::is_portable_mode_enabled() );
+
+        jsLaunchOptions_ = jsObject;
+    }
+
+    return jsLaunchOptions_;
 }
 
 qwr::u8string Process::get_Version() const

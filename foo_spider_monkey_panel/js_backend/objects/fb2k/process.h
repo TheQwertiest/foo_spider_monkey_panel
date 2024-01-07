@@ -54,6 +54,7 @@ public:
 
     // TODO: add env
     JS::BigInt* get_HrTime() const;
+    JSObject* get_LaunchOptions() const;
     qwr::u8string get_Version() const;
 
     // TODO: add component handling
@@ -65,6 +66,8 @@ private:
 
 private:
     JSContext* pJsCtx_ = nullptr;
+
+    mutable JS::Heap<JSObject*> jsLaunchOptions_;
 };
 
 } // namespace mozjs
