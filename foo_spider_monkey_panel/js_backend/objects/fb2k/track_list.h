@@ -19,6 +19,7 @@ struct JsObjectTraits<TrackList>
 
     static const JSClass JsClass;
     static const JSFunctionSpec* JsFunctions;
+    static const JSFunctionSpec* JsStaticFunctions;
     static const JSPropertySpec* JsProperties;
     static const JsPrototypeId PrototypeId;
     static const JSNative JsConstructor;
@@ -65,6 +66,7 @@ public:
     void PullAt( int32_t index );
     void Pull( smp::not_null<Track*> track );
     void Push( smp::not_null<Track*> track );
+    JSObject* SaveToPlaylistFile( const qwr::u8string& path );
     void SortByFormat( const qwr::u8string& query, int8_t direction = 1 );
     void SortByFormatWithOpt( size_t optArgCount, const qwr::u8string& query, int8_t direction );
     void SortByPath();
@@ -76,6 +78,8 @@ public:
     JSObject* Union( smp::not_null<TrackList*> tracks ) const;
 
     JSObject* CreateIterator( JS::HandleObject jsSelf ) const;
+
+    static JSObject* CreateFromPaths( JSContext* cx, const std::vector<qwr::u8string>& paths );
 
     uint32_t get_Length() const;
 

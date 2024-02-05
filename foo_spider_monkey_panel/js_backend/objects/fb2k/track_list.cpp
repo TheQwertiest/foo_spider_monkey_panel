@@ -8,7 +8,13 @@
 #include <js_backend/objects/fb2k/track.h>
 #include <js_backend/objects/fb2k/track_list_iterator.h>
 #include <js_backend/utils/js_object_constants.h>
+#include <tasks/dispatcher/event_dispatcher.h>
+#include <tasks/events/js_promise_event.h>
 #include <utils/relative_filepath_trie.h>
+
+SMP_MJS_SUPPRESS_WARNINGS_PUSH
+#include <js/Promise.h>
+SMP_MJS_SUPPRESS_WARNINGS_POP
 
 using namespace smp;
 
@@ -28,6 +34,116 @@ public:
 };
 
 const TrackListProxyHandler kProxySingleton;
+
+// copied from playlist_loader.cpp
+// TODO: move to a separate file?
+class PlaylistLoaderCallback : public playlist_loader_callback
+{
+public:
+    ~PlaylistLoaderCallback()
+    {
+        m_hints->on_done();
+    }
+
+    void on_progress( const char* p_path ) override
+    {
+    }
+
+    void on_entry( const metadb_handle_ptr& p_item, t_entry_type p_type, const t_filestats& p_stats, bool p_fresh ) override
+    {
+        m_items += p_item;
+    }
+
+    bool want_info( const metadb_handle_ptr& p_item, t_entry_type p_type, const t_filestats& p_stats, bool p_fresh ) override
+    {
+        return p_item->should_reload( p_stats, p_fresh );
+    }
+
+    void on_entry_info( const metadb_handle_ptr& p_item, t_entry_type p_type, const t_filestats& p_stats, const file_info& p_info, bool p_fresh ) override
+    {
+        m_items += p_item;
+        m_hints->add_hint( p_item, p_info, p_stats, p_fresh );
+    }
+
+    void handle_create( metadb_handle_ptr& p_out, const playable_location& p_location ) override
+    {
+        m_metadb->handle_create( p_out, p_location );
+    }
+
+    bool is_path_wanted( const char* path, t_entry_type type ) override
+    {
+        return true;
+    }
+
+    bool want_browse_info( const metadb_handle_ptr& p_item, t_entry_type p_type, t_filetimestamp ts ) override
+    {
+        return true;
+    }
+
+    void on_browse_info( const metadb_handle_ptr& p_item, t_entry_type p_type, const file_info& info, t_filetimestamp ts ) override
+    {
+        metadb_hint_list_v2::ptr v2;
+        if ( v2 &= m_hints )
+            v2->add_hint_browse( p_item, info, ts );
+    }
+
+public:
+    metadb_handle_list m_items;
+
+private:
+    const metadb_hint_list::ptr m_hints = metadb_hint_list::create();
+    const metadb::ptr m_metadb = metadb::get();
+};
+
+class LoadTracksThreadTask
+{
+public:
+    [[nodiscard]] LoadTracksThreadTask( const std::vector<qwr::u8string>& paths,
+                                        JSContext* cx,
+                                        JS::HandleObject jsTarget,
+                                        HWND hPanelWnd );
+
+    ~LoadTracksThreadTask() = default;
+
+    LoadTracksThreadTask( const LoadTracksThreadTask& ) = delete;
+    LoadTracksThreadTask& operator=( const LoadTracksThreadTask& ) = delete;
+
+    void Run();
+
+private:
+    JSContext* pJsCtx_ = nullptr;
+    mozjs::HeapDataHolder_Object heapHolder_;
+
+    HWND hPanelWnd_ = nullptr;
+
+    std::vector<qwr::u8string> paths_;
+};
+
+class SaveTracksToFileThreadTask
+{
+public:
+    [[nodiscard]] SaveTracksToFileThreadTask( metadb_handle_list handles,
+                                              const qwr::u8string& path,
+                                              JSContext* cx,
+                                              JS::HandleObject jsTarget,
+                                              HWND hPanelWnd );
+
+    ~SaveTracksToFileThreadTask() = default;
+
+    SaveTracksToFileThreadTask( const SaveTracksToFileThreadTask& ) = delete;
+    SaveTracksToFileThreadTask& operator=( const SaveTracksToFileThreadTask& ) = delete;
+
+    void Run();
+
+private:
+    JSContext* pJsCtx_ = nullptr;
+    mozjs::HeapDataHolder_Object heapHolder_;
+
+    HWND hPanelWnd_ = nullptr;
+
+    metadb_handle_list handles_;
+    qwr::u8string path_;
+};
 
 } // namespace
 
@@ -89,6 +205,117 @@ bool TrackListProxyHandler::set( JSContext* cx, JS::HandleObject proxy, JS::Hand
     return true;
 }
 
+LoadTracksThreadTask::LoadTracksThreadTask( const std::vector<qwr::u8string>& paths,
+                                            JSContext* cx,
+                                            JS::HandleObject jsTarget,
+                                            HWND hPanelWnd )
+    : pJsCtx_( cx )
+    , heapHolder_( cx, jsTarget )
+    , hPanelWnd_( hPanelWnd )
+    , paths_( paths )
+{
+}
+
+void LoadTracksThreadTask::Run()
+{
+    try
+    {
+        auto cb = fb2k::service_new<PlaylistLoaderCallback>();
+
+        try
+        {
+            for ( const auto& path: paths_ )
+            {
+                playlist_loader::g_process_path_ex( path.c_str(), cb, fb2k::mainAborter(), playlist_loader_callback::entry_user_requested );
+            }
+        }
+        catch ( const foobar2000_io::exception_io& e )
+        {
+            throw qwr::QwrException( "Failed to load tracks: {}", e.what() );
+        }
+
+        const auto promiseResolver = [cx = pJsCtx_, handles = cb->m_items]() -> JS::Value {
+            JS::RootedObject jsResult( cx, mozjs::TrackList::CreateJs( cx, handles ) );
+            JS::RootedValue jsResultValue( cx, JS::ObjectValue( *jsResult ) );
+            return jsResultValue;
+        };
+        smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
+                                              std::make_unique<smp::JsPromiseEvent>(
+                                                  pJsCtx_,
+                                                  std::move( heapHolder_ ),
+                                                  promiseResolver ) );
+    }
+    catch ( const qwr::QwrException& /*e*/ )
+    {
+        smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
+                                              std::make_unique<smp::JsPromiseEvent>(
+                                                  pJsCtx_,
+                                                  std::move( heapHolder_ ),
+                                                  std::current_exception() ) );
+    }
+    catch ( const foobar2000_io::exception_aborted& /*e*/ )
+    {
+        smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
+                                              std::make_unique<smp::JsPromiseEvent>(
+                                                  pJsCtx_,
+                                                  std::move( heapHolder_ ),
+                                                  std::current_exception() ) );
+    }
+}
+
+SaveTracksToFileThreadTask::SaveTracksToFileThreadTask( metadb_handle_list handles,
+                                                        const qwr::u8string& path,
+                                                        JSContext* cx,
+                                                        JS::HandleObject jsTarget,
+                                                        HWND hPanelWnd )
+    : pJsCtx_( cx )
+    , heapHolder_( cx, jsTarget )
+    , hPanelWnd_( hPanelWnd )
+    , handles_( handles )
+    , path_( path )
+{
+}
+
+void SaveTracksToFileThreadTask::Run()
+{
+    try
+    {
+        try
+        {
+            playlist_loader::g_save_playlist( path_.c_str(), handles_, fb2k::mainAborter() );
+        }
+        catch ( const foobar2000_io::exception_io& e )
+        {
+            throw qwr::QwrException( "Failed to save to playlist file: {}", e.what() );
+        }
+
+        const auto promiseResolver = [cx = pJsCtx_]() -> JS::Value {
+            return JS::UndefinedValue();
+        };
+        smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
+                                              std::make_unique<smp::JsPromiseEvent>(
+                                                  pJsCtx_,
+                                                  std::move( heapHolder_ ),
+                                                  promiseResolver ) );
+    }
+    catch ( const qwr::QwrException& /*e*/ )
+    {
+        smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
+                                              std::make_unique<smp::JsPromiseEvent>(
+                                                  pJsCtx_,
+                                                  std::move( heapHolder_ ),
+                                                  std::current_exception() ) );
+    }
+    catch ( const foobar2000_io::exception_aborted& /*e*/ )
+    {
+        smp::EventDispatcher::Get().PutEvent( hPanelWnd_,
+                                              std::make_unique<smp::JsPromiseEvent>(
+                                                  pJsCtx_,
+                                                  std::move( heapHolder_ ),
+                                                  std::current_exception() ) );
+    }
+}
+
 } // namespace
 
 namespace
@@ -124,6 +351,7 @@ MJS_DEFINE_JS_FN_FROM_NATIVE( getTotalSize, TrackList::GetTotalSize );
 MJS_DEFINE_JS_FN_FROM_NATIVE( indexOf, TrackList::IndexOf );
 MJS_DEFINE_JS_FN_FROM_NATIVE( intersection, TrackList::Intersection );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( optimizeForValueSearch, TrackList::OptimizeForValueSearch, TrackList::OptimizeForValueSearchWithOpt, 1 );
+MJS_DEFINE_JS_FN_FROM_NATIVE( saveToPlaylistFile, TrackList::SaveToPlaylistFile );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( sortByFormat, TrackList::SortByFormat, TrackList::SortByFormatWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( sortByPath, TrackList::SortByPath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( sortByRelativePath, TrackList::SortByRelativePath );
@@ -146,6 +374,7 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "indexOf", indexOf, 1, kDefaultPropsFlags ),
         JS_FN( "intersection", intersection, 1, kDefaultPropsFlags ),
         JS_FN( "optimizeForValueSearch", optimizeForValueSearch, 0, kDefaultPropsFlags ),
+        JS_FN( "saveToPlaylistFile", saveToPlaylistFile, 1, kDefaultPropsFlags ),
         JS_FN( "sortByFormat", sortByFormat, 1, kDefaultPropsFlags ),
         JS_FN( "sortByPath", sortByPath, 0, kDefaultPropsFlags ),
         JS_FN( "sortByRelativePath", sortByRelativePath, 0, kDefaultPropsFlags ),
@@ -156,6 +385,15 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
         JS_FN( "toArray", toArray, 0, kDefaultPropsFlags ),
         JS_FN( "union", Union, 1, kDefaultPropsFlags ),
         JS_SYM_FN( iterator, createIterator, 0, kDefaultPropsFlags ),
+        JS_FS_END,
+    } );
+
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_SELF( createFromPaths, TrackList::CreateFromPaths );
+
+constexpr auto jsStaticFunctions = std::to_array<JSFunctionSpec>(
+    {
+        // TODO: move to module instead
+        JS_FN( "createFromPaths", createFromPaths, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -178,6 +416,7 @@ namespace mozjs
 
 const JSClass JsObjectTraits<TrackList>::JsClass = jsClass;
 const JSFunctionSpec* JsObjectTraits<TrackList>::JsFunctions = jsFunctions.data();
+const JSFunctionSpec* JsObjectTraits<TrackList>::JsStaticFunctions = jsStaticFunctions.data();
 const JSPropertySpec* JsObjectTraits<TrackList>::JsProperties = jsProperties.data();
 const JsPrototypeId JsObjectTraits<TrackList>::PrototypeId = JsPrototypeId::New_TrackList;
 const JSNative JsObjectTraits<TrackList>::JsConstructor = ::TrackList_Constructor;
@@ -398,6 +637,21 @@ void TrackList::Push( smp::not_null<Track*> track )
     isSorted_ = false;
 }
 
+JSObject* TrackList::SaveToPlaylistFile( const qwr::u8string& path )
+{
+    JS::RootedObject jsPromise( pJsCtx_, JS::NewPromiseObject( pJsCtx_, nullptr ) );
+    JsException::ExpectTrue( jsPromise );
+
+    const auto pTask = std::make_shared<SaveTracksToFileThreadTask>( metadbHandleList_,
+                                                                     path,
+                                                                     pJsCtx_,
+                                                                     jsPromise,
+                                                                     GetPanelHwndForCurrentGlobal( pJsCtx_ ) );
+    fb2k::inCpuWorkerThread( [pTask] { pTask->Run(); } );
+
+    return jsPromise;
+}
+
 void TrackList::SortByFormat( const qwr::u8string& query, int8_t direction )
 {
     auto pTitleFormat = smp::TitleFormatManager::Get().Load( query );
@@ -548,6 +802,21 @@ JSObject* TrackList::Union( smp::not_null<TrackList*> tracks ) const
 JSObject* TrackList::CreateIterator( JS::HandleObject jsSelf ) const
 {
     return TrackList_Iterator::CreateJs( pJsCtx_, jsSelf );
+}
+
+JSObject* TrackList::CreateFromPaths( JSContext* cx, const std::vector<qwr::u8string>& paths )
+{
+    // TODO: check that array of ints or object is not actually converted and fails
+    JS::RootedObject jsPromise( cx, JS::NewPromiseObject( cx, nullptr ) );
+    JsException::ExpectTrue( jsPromise );
+
+    const auto pTask = std::make_shared<LoadTracksThreadTask>( paths,
+                                                               cx,
+                                                               jsPromise,
+                                                               GetPanelHwndForCurrentGlobal( cx ) );
+    fb2k::inCpuWorkerThread( [pTask] { pTask->Run(); } );
+
+    return jsPromise;
 }
 
 uint32_t TrackList::get_Length() const

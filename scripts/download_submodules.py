@@ -20,10 +20,14 @@ def get_submodules_urls(root_dir):
 def download_submodule(root_dir, submodule_name, submodule_url):
     print(f"Downloading {submodule_name}...") 
        
-    with ureq.urlopen(f'{submodule_url}/info/refs?service=git-upload-pack') as response:
-        _ = response.readline()
-        features = response.readline().decode('utf-8').split(' ')
-        supports_filters = 'filter' in features
+    try:
+        with ureq.urlopen(f'{submodule_url}/info/refs?service=git-upload-pack') as response:
+            _ = response.readline()
+            features = response.readline().decode('utf-8').split(' ')
+            supports_filters = 'filter' in features
+    except urllib.error.URLError:
+        # github is flaky sometimes
+        supports_filters = True
     
     if supports_filters:
         subprocess.check_call(f"git submodule update --init --filter=blob:none -- submodules/{submodule_name}", cwd=root_dir, shell=True)
