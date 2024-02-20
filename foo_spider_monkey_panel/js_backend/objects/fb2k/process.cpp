@@ -8,6 +8,7 @@
 #include <js_backend/utils/js_property_helper.h>
 
 #include <js/BigInt.h>
+#include <qwr/fb2k_paths.h>
 #include <qwr/winapi_error_helpers.h>
 
 using namespace smp;
@@ -38,7 +39,6 @@ JSClass jsClass = {
 
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( cpuUsage, Process::CpuUsage, Process::CpuUsageWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( cwd, Process::Cwd );
-MJS_DEFINE_JS_FN_FROM_NATIVE( execPath, Process::ExecPath );
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_LOG( exitImpl, "exit", Process::Exit );
 MJS_DEFINE_JS_FN_FROM_NATIVE( memoryUsage, Process::MemoryUsage );
 
@@ -46,20 +46,23 @@ constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
         JS_FN( "cpuUsage", cpuUsage, 0, kDefaultPropsFlags ),
         JS_FN( "cwd", cwd, 0, kDefaultPropsFlags ),
-        JS_FN( "execPath", execPath, 0, kDefaultPropsFlags ),
         JS_FN( "exit", exitImpl, 0, kDefaultPropsFlags ),
         JS_FN( "memoryUsage", memoryUsage, 0, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_execPath, Process::get_ExecPath );
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_hrtime, Process::get_HrTime )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_launchOptions, Process::get_LaunchOptions )
+MJS_DEFINE_JS_FN_FROM_NATIVE( get_profilePath, Process::get_ProfilePath )
 MJS_DEFINE_JS_FN_FROM_NATIVE( get_version, Process::get_Version )
 
 constexpr auto jsProperties = std::to_array<JSPropertySpec>(
     {
+        JS_PSG( "execPath", get_execPath, kDefaultPropsFlags ),
         JS_PSG( "hrtime", get_hrtime, kDefaultPropsFlags ),
         JS_PSG( "launchOptions", get_launchOptions, kDefaultPropsFlags ),
+        JS_PSG( "profilePath", get_profilePath, kDefaultPropsFlags ),
         JS_PSG( "version", get_version, kDefaultPropsFlags ),
         JS_PS_END,
     } );
@@ -212,15 +215,6 @@ std::wstring Process::Cwd() const
     return buffer.data();
 }
 
-std::wstring Process::ExecPath() const
-{
-    std::array<wchar_t, MAX_PATH + 1> buffer;
-    auto hr = GetModuleFileName( nullptr, buffer.data(), buffer.size() );
-    qwr::error::CheckWinApi( hr, "GetModuleFileName" );
-
-    return buffer.data();
-}
-
 void Process::Exit() const
 {
     standard_commands::main_exit();
@@ -236,6 +230,15 @@ JSObject* Process::MemoryUsage() const
     utils::AddProperty( pJsCtx_, jsObject, "limit", static_cast<double>( JsGc::GetMaxHeap() ) );
 
     return jsObject;
+}
+
+std::wstring Process::get_ExecPath() const
+{
+    std::array<wchar_t, MAX_PATH + 1> buffer;
+    auto hr = GetModuleFileName( nullptr, buffer.data(), buffer.size() );
+    qwr::error::CheckWinApi( hr, "GetModuleFileName" );
+
+    return buffer.data();
 }
 
 JS::BigInt* Process::get_HrTime() const
@@ -264,6 +267,11 @@ JSObject* Process::get_LaunchOptions() const
     }
 
     return jsLaunchOptions_;
+}
+
+std::wstring Process::get_ProfilePath() const
+{
+    return qwr::path::Profile().wstring();
 }
 
 qwr::u8string Process::get_Version() const

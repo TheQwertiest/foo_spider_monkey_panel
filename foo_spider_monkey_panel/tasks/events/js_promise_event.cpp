@@ -42,6 +42,7 @@ void JsPromiseEvent::RunJs()
     }
     catch ( ... )
     {
+        // TODO: save and restore promise creation stack
         mozjs::error::ExceptionToJsError( pJsCtx_ );
 
         JS::RootedValue jsError( pJsCtx_ );

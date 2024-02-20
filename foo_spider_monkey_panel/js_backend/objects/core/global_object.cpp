@@ -14,6 +14,7 @@
 #include <js_backend/objects/dom/enumerator.h>
 #include <js_backend/objects/dom/event.h>
 #include <js_backend/objects/dom/window/window_new.h>
+#include <js_backend/objects/fb2k/component_manager.h>
 #include <js_backend/objects/fb2k/dsp_manager.h>
 #include <js_backend/objects/fb2k/fb_metadb_handle_list.h>
 #include <js_backend/objects/fb2k/fb_playlist_manager.h>
@@ -393,6 +394,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case BuiltinModuleId::kFbProcess:
             {
                 return initializeLoadedObject.template operator()<Process>( moduleId );
+            }
+            case BuiltinModuleId::kFbComponentManager:
+            {
+                return initializeLoadedObject.template operator()<ComponentManager>( moduleId );
             }
             // TODO: add event module
             default:

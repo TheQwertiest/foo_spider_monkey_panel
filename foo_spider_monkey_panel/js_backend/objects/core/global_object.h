@@ -18,6 +18,7 @@ class EventBase;
 namespace mozjs
 {
 
+class ComponentManager;
 class DspManager;
 class GlobalHeapManager;
 class JsContainer;
@@ -115,6 +116,7 @@ private:
     };
 
     std::tuple<
+        LoadedNativeObject<ComponentManager>,
         LoadedNativeObject<DspManager>,
         LoadedNativeObject<Library>,
         LoadedNativeObject<ModuleCanvas>,

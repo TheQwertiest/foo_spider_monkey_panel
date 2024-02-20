@@ -10,6 +10,7 @@ enum class BuiltinModuleId : uint8_t
     kDomCanvas,
     kDomWindow,
     kEvents,
+    kFbComponentManager,
     kFbDspManager,
     kFbLibrary,
     kFbOutputManager,

@@ -197,6 +197,7 @@
     <ClCompile Include="js_backend\engine\context.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_bitmap.cpp" />
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp" />
+    <ClCompile Include="js_backend\objects\fb2k\component_manager.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\dsp_manager.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\events\library_item_event.cpp" />
     <ClCompile Include="js_backend\objects\fb2k\events\multi_playlist_event.cpp" />
@@ -239,6 +240,7 @@
     <ClInclude Include="js_backend\objects\dom\canvas\image_bitmap.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\image_data.h" />
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h" />
+    <ClInclude Include="js_backend\objects\fb2k\component_manager.h" />
     <ClInclude Include="js_backend\objects\fb2k\dsp_manager.h" />
     <ClInclude Include="js_backend\objects\fb2k\events\library_item_event.h" />
     <ClInclude Include="js_backend\objects\fb2k\events\multi_playlist_event.h" />
@@ -680,6 +682,7 @@
     <None Include="packages.config" />
     <None Include="resources\default_script.js" />
     <None Include="resources\modules\canvas.js" />
+    <None Include="resources\modules\component_manager.js" />
     <None Include="resources\modules\dsp_manager.js" />
     <None Include="resources\modules\library.js" />
     <None Include="resources\modules\output_manager.js" />

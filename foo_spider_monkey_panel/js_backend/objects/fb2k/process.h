@@ -48,13 +48,15 @@ public:
     JSObject* CpuUsage( JS::HandleValue previousValue = JS::UndefinedHandleValue ) const;
     JSObject* CpuUsageWithOpt( size_t optArgCount, JS::HandleValue previousValue ) const;
     std::wstring Cwd() const;
-    std::wstring ExecPath() const;
     void Exit() const;
+    // TODO: move memory usage to SMP module?
     JSObject* MemoryUsage() const;
 
     // TODO: add env
+    std::wstring get_ExecPath() const;
     JS::BigInt* get_HrTime() const;
     JSObject* get_LaunchOptions() const;
+    std::wstring get_ProfilePath() const;
     qwr::u8string get_Version() const;
 
     // TODO: add component handling
