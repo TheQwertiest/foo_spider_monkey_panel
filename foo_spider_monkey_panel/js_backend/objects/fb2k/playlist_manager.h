@@ -50,12 +50,14 @@ public:
 
 public:
     // TODO: add event handling
+    // TODO: move enforceSort to options?
     JSObject* CreateAutoPlaylist( const qwr::u8string& query, const qwr::u8string& sortQuery = "", uint32_t playlistIndex = pfc_infinite, const qwr::u8string& name = "", bool enforceSort = false );
     JSObject* CreateAutoPlaylistWithOpt( size_t optArgCount, const qwr::u8string& query, const qwr::u8string& sortQuery, uint32_t playlistIndex, const qwr::u8string& name, bool enforceSort );
     // TODO: add option to create playlist from tracks
     JSObject* CreatePlaylist( uint32_t playlistIndex = pfc_infinite, const qwr::u8string& name = "" );
     JSObject* CreatePlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, const qwr::u8string& name );
     void DeletePlaylist( uint32_t playlistIndex, bool switchIfActive = true );
+    // TODO: move switchIfActive to options?
     void DeletePlaylistWithOpt( size_t optArgCount, uint32_t playlistIndex, bool switchIfActive );
     uint32_t DuplicatePlaylist( uint32_t playlistIndexFrom, uint32_t playlistIndexTo, const pfc::string8_fast& name = "" );
     uint32_t DuplicatePlaylistWithOpt( size_t optArgCount, uint32_t playlistIndexFrom, uint32_t playlistIndexTo, const pfc::string8_fast& name );

@@ -70,15 +70,21 @@ public:
     uint32_t GetWidth() const final;
 
 public:
+    void Alert( const qwr::u8string& message = "", const qwr::u8string& caption = "Spider Monkey Panel" ) const;
+    void AlertWithOpt( size_t optArgCount, const qwr::u8string& message, const qwr::u8string& caption ) const;
     // TODO: wrap context and disable it while there is not redraw event
     JSObject* GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes = JS::UndefinedHandleValue );
     JSObject* GetContextWithOpt( JS::HandleObject jsSelf, size_t optArgCount, const std::wstring& contextType, JS::HandleValue attributes );
     // TODO: add decode option
     JSObject* LoadImage( JS::HandleValue source );
+    JS::Value Prompt( const qwr::u8string& message = "", const qwr::u8string& defaultValue = "", const qwr::u8string& caption = "Spider Monkey Panel" ) const;
+    JS::Value PromptWithOpt( size_t optArgCount, const qwr::u8string& message, const qwr::u8string& defaultValue, const qwr::u8string& caption ) const;
     void Redraw( bool force = false );
     void RedrawWithOpt( size_t optArgCount, bool force );
     void RedrawRect( uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force = false );
     void RedrawRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, uint32_t w, uint32_t h, bool force );
+    void ShowFb2kPopup( const qwr::u8string& message, const qwr::u8string& caption = "Spider Monkey Panel" ) const;
+    void ShowFb2kPopupWithOpt( size_t optArgCount, const qwr::u8string& message, const qwr::u8string& caption ) const;
 
 public:
     uint32_t get_Height();

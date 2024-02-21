@@ -146,15 +146,24 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,185,41,50,14
 END
 
-IDD_DIALOG_INPUT DIALOGEX 0, 0, 239, 68
+IDD_DIALOG_INPUT DIALOGEX 0, 0, 239, 64
 STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
 CAPTION "InputBox"
 FONT 8, "Tahoma", 400, 0, 0x0
 BEGIN
     LTEXT           "Prompt",IDC_INPUT_PROMPT,7,7,221,11
-    EDITTEXT        IDC_INPUT_VALUE,6,24,225,14,ES_AUTOHSCROLL
-    DEFPUSHBUTTON   "OK",IDOK,125,47,50,14
-    PUSHBUTTON      "Cancel",IDCANCEL,180,47,50,14
+    EDITTEXT        IDC_INPUT_VALUE,6,18,225,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,125,41,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,180,41,50,14
+END
+
+IDD_DIALOG_POPUP DIALOGEX 0, 0, 239, 37
+STYLE DS_SETFONT | WS_POPUP | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME
+CAPTION "Popup"
+FONT 8, "Tahoma", 400, 0, 0x0
+BEGIN
+    LTEXT           "Message",IDC_LTEXT_MESSAGE,9,10,218,11
+    DEFPUSHBUTTON   "OK",IDOK,180,16,50,14
 END
 
 IDD_DIALOG_HTML DIALOGEX 0, 0, 309, 176
@@ -332,6 +341,10 @@ BEGIN
     BEGIN
     END
 
+    IDD_DIALOG_POPUP, DIALOG
+    BEGIN
+    END
+
     IDD_DIALOG_HTML, DIALOG
     BEGIN
         LEFTMARGIN, 7
@@ -503,6 +516,11 @@ BEGIN
     0
 END
 
+IDD_DIALOG_POPUP AFX_DIALOG_LAYOUT
+BEGIN
+    0
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -613,32 +631,31 @@ IDR_MODULE_DOM_CANVAS   SCRIPT                  "modules/canvas.js"
 
 IDR_MODULE_DOM_WINDOW   SCRIPT                  "modules/window.js"
 
-IDR_MODULE_FB_COMPONENT_MANAGER SCRIPT "modules/component_manager.js"
+IDR_MODULE_FB_COMPONENT_MANAGER SCRIPT                  "modules/component_manager.js"
 
-IDR_MODULE_FB_DSP_MANAGER SCRIPT "modules/dsp_manager.js"
+IDR_MODULE_FB_DSP_MANAGER SCRIPT                  "modules/dsp_manager.js"
 
 IDR_MODULE_FB_LIBRARY   SCRIPT                  "modules/library.js"
 
-IDR_MODULE_FB_OUTPUT_MANAGER SCRIPT "modules/output_manager.js"
+IDR_MODULE_FB_OUTPUT_MANAGER SCRIPT                  "modules/output_manager.js"
 
 IDR_MODULE_FB_PLAYBACK  SCRIPT                  "modules/playback.js"
 
-IDR_MODULE_FB_PLAYBACK_QUEUE SCRIPT              "modules/playback_queue.js"
+IDR_MODULE_FB_PLAYBACK_QUEUE SCRIPT                  "modules/playback_queue.js"
 
 IDR_MODULE_FB_PLAYLIST_MANAGER SCRIPT                  "modules/playlist_manager.js"
 
-IDR_MODULE_FB_PROCESS SCRIPT "modules/process.js"
+IDR_MODULE_FB_PROCESS   SCRIPT                  "modules/process.js"
 
-IDR_MODULE_FB_REPLAY_GAIN_MANAGER SCRIPT "modules/replay_gain_manager.js"
+IDR_MODULE_FB_REPLAY_GAIN_MANAGER SCRIPT                  "modules/replay_gain_manager.js"
 
 IDR_MODULE_FB_TRACK     SCRIPT                  "modules/track.js"
 
-IDR_MODULE_FB_TRACK_CUSTOM_META_MANAGER SCRIPT "modules/track_custom_meta_manager.js"
+IDR_MODULE_FB_TRACK_CUSTOM_META_MANAGER SCRIPT                  "modules/track_custom_meta_manager.js"
 
 IDR_MODULE_FB_TRACK_IMAGE_MANAGER SCRIPT                  "modules/track_image_manager.js"
 
 IDR_MODULE_FB_UI_SELECTION_MANAGER SCRIPT                  "modules/ui_selection_manager.js"
-
 
 
 /////////////////////////////////////////////////////////////////////////////

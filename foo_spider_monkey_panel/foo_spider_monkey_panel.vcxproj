@@ -426,6 +426,7 @@
     <ClCompile Include="ui\ui_name_value_edit.cpp" />
     <ClCompile Include="ui\ui_package_manager.cpp" />
     <ClCompile Include="ui\ui_editor_config.cpp" />
+    <ClCompile Include="ui\ui_popup.cpp" />
     <ClCompile Include="ui\ui_slow_script.cpp" />
     <ClCompile Include="utils\app_info.cpp" />
     <ClCompile Include="utils\art_helpers.cpp" />
@@ -645,6 +646,7 @@
     <ClInclude Include="ui\ui_name_value_edit.h" />
     <ClInclude Include="ui\ui_package_manager.h" />
     <ClInclude Include="ui\ui_editor_config.h" />
+    <ClInclude Include="ui\ui_popup.h" />
     <ClInclude Include="ui\ui_slow_script.h" />
     <ClInclude Include="utils\app_info.h" />
     <ClInclude Include="utils\art_helpers.h" />

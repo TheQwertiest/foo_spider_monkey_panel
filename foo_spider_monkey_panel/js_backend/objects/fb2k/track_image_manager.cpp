@@ -474,10 +474,10 @@ JSObject* TrackImageManager::UnembedImage( JS::HandleValue tracks, const qwr::u8
 {
     const auto handles = TrackList::ValueToHandleList( pJsCtx_, tracks );
 
-    qwr::QwrException::ExpectTrue( options.isUndefined() || options.isObject(), "Invalid options imageType" );
+    qwr::QwrException::ExpectTrue( options.isUndefined() || options.isObject(), "Invalid options type" );
 
     const auto pGuid = qwr::FindAsPointer( mozjs::TrackImage::kImageTypeToGuid, imageType );
-    qwr::QwrException::ExpectTrue( pGuid, "Unknown image imageType" );
+    qwr::QwrException::ExpectTrue( pGuid, "Unknown imageType" );
 
     int32_t flags = 0;
     if ( options.isObject() )
@@ -516,7 +516,7 @@ JSObject* TrackImageManager::UnembedAllImages( JS::HandleValue tracks, JS::Handl
 {
     const auto handles = TrackList::ValueToHandleList( pJsCtx_, tracks );
 
-    qwr::QwrException::ExpectTrue( options.isUndefined() || options.isObject(), "Invalid options imageType" );
+    qwr::QwrException::ExpectTrue( options.isUndefined() || options.isObject(), "Invalid options type" );
 
     int32_t flags = 0;
     if ( options.isObject() )

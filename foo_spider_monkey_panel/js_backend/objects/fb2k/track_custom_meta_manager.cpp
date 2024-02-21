@@ -90,7 +90,7 @@ JS::Value TrackCustomMetaManager::GetField( smp::not_null<Track*> track, const q
     }
 
     JS::RootedValue jsValue( pJsCtx_ );
-    std::visit( [&]( const auto& arg ) { return convert::to_js::ToValue( pJsCtx_, arg, &jsValue ); }, *pValue );
+    std::visit( [&]( const auto& arg ) { convert::to_js::ToValue( pJsCtx_, arg, &jsValue ); }, *pValue );
     return jsValue;
 }
 

@@ -11,6 +11,7 @@
 #include <js_backend/objects/dom/window/keyboard_event.h>
 #include <js_backend/objects/dom/window/mouse_event.h>
 #include <js_backend/objects/dom/window/wheel_event.h>
+#include <js_backend/utils/js_property_helper.h>
 #include <js_backend/utils/panel_from_global.h>
 #include <panel/panel_accessor.h>
 #include <panel/panel_window.h>
@@ -18,6 +19,10 @@
 #include <tasks/events/keyboard_event.h>
 #include <tasks/events/mouse_event.h>
 #include <tasks/events/wheel_event.h>
+#include <ui/ui_input_box.h>
+#include <ui/ui_popup.h>
+
+#include <qwr/delayed_executor.h>
 
 using namespace smp;
 
@@ -201,17 +206,23 @@ JSClass jsClass = {
     &jsOps
 };
 
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( alert, WindowNew::Alert, WindowNew::AlertWithOpt, 2 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT_AND_SELF( getContext, WindowNew::GetContext, WindowNew::GetContextWithOpt, 1 );
 MJS_DEFINE_JS_FN_FROM_NATIVE( loadImage, WindowNew::LoadImage )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( prompt, WindowNew::Prompt, WindowNew::PromptWithOpt, 3 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( redraw, WindowNew::Redraw, WindowNew::RedrawWithOpt, 1 )
 MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( redrawRect, WindowNew::RedrawRect, WindowNew::RedrawRectWithOpt, 1 )
+MJS_DEFINE_JS_FN_FROM_NATIVE_WITH_OPT( showFb2kPopup, WindowNew::ShowFb2kPopup, WindowNew::ShowFb2kPopupWithOpt, 1 )
 
 constexpr auto jsFunctions = std::to_array<JSFunctionSpec>(
     {
+        JS_FN( "alert", alert, 0, kDefaultPropsFlags ),
         JS_FN( "getContext", getContext, 1, kDefaultPropsFlags ),
         JS_FN( "loadImage", loadImage, 1, kDefaultPropsFlags ),
+        JS_FN( "prompt", prompt, 0, kDefaultPropsFlags ),
         JS_FN( "redraw", redraw, 0, kDefaultPropsFlags ),
         JS_FN( "redrawRect", redrawRect, 4, kDefaultPropsFlags ),
+        JS_FN( "showFb2kPopup", showFb2kPopup, 1, kDefaultPropsFlags ),
         JS_FS_END,
     } );
 
@@ -374,6 +385,38 @@ uint32_t WindowNew::GetWidth() const
     return pPanel->GetGraphics().GetWidth();
 }
 
+void WindowNew::Alert( const qwr::u8string& message, const qwr::u8string& caption ) const
+{
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    if ( !hPanel )
+    {
+        return;
+    }
+
+    if ( modal_dialog_scope::can_create() )
+    {
+        modal_dialog_scope scope( hPanel );
+
+        smp::ui::CPopup dlg( message.c_str(), caption.c_str() );
+        dlg.DoModal( hPanel );
+    }
+}
+
+void WindowNew::AlertWithOpt( size_t optArgCount, const qwr::u8string& message, const qwr::u8string& caption ) const
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return Alert( message, caption );
+    case 1:
+        return Alert( message );
+    case 2:
+        return Alert();
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
+}
+
 JSObject* WindowNew::GetContext( JS::HandleObject jsSelf, const std::wstring& contextType, JS::HandleValue attributes )
 {
     auto pPanel = pHostPanel_->GetPanel();
@@ -413,6 +456,48 @@ JSObject* WindowNew::LoadImage( JS::HandleValue source )
     return Image::LoadImage( pJsCtx_, source );
 }
 
+JS::Value WindowNew::Prompt( const qwr::u8string& message, const qwr::u8string& defaultValue, const qwr::u8string& caption ) const
+{
+    const HWND hPanel = GetPanelHwndForCurrentGlobal( pJsCtx_ );
+    if ( !hPanel )
+    {
+        return JS::NullValue();
+    }
+
+    if ( modal_dialog_scope::can_create() )
+    {
+        modal_dialog_scope scope( hPanel );
+
+        smp::ui::CInputBox dlg( message.c_str(), caption.c_str(), defaultValue.c_str() );
+        int status = dlg.DoModal( hPanel );
+        if ( status == IDOK )
+        {
+            JS::RootedValue jsValue( pJsCtx_ );
+            convert::to_js::ToValue( pJsCtx_, dlg.GetValue(), &jsValue );
+            return jsValue;
+        }
+    }
+
+    return JS::NullValue();
+}
+
+JS::Value WindowNew::PromptWithOpt( size_t optArgCount, const qwr::u8string& message, const qwr::u8string& defaultValue, const qwr::u8string& caption ) const
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return Prompt( message, defaultValue, caption );
+    case 1:
+        return Prompt( message, defaultValue );
+    case 2:
+        return Prompt( message );
+    case 3:
+        return Prompt();
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
+}
+
 void WindowNew::Redraw( bool force )
 {
     auto pPanel = pHostPanel_->GetPanel();
@@ -450,6 +535,26 @@ void WindowNew::RedrawRectWithOpt( size_t optArgCount, uint32_t x, uint32_t y, u
         return RedrawRect( x, y, w, h, force );
     case 1:
         return RedrawRect( x, y, w, h );
+    default:
+        throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
+    }
+}
+
+void WindowNew::ShowFb2kPopup( const qwr::u8string& message, const qwr::u8string& caption ) const
+{
+    qwr::DelayedExecutor::GetInstance().AddTask( [message, caption] {
+        popup_message::g_show( message.c_str(), caption.c_str() );
+    } );
+}
+
+void WindowNew::ShowFb2kPopupWithOpt( size_t optArgCount, const qwr::u8string& message, const qwr::u8string& caption ) const
+{
+    switch ( optArgCount )
+    {
+    case 0:
+        return ShowFb2kPopup( message, caption );
+    case 1:
+        return ShowFb2kPopup( message );
     default:
         throw qwr::QwrException( "Internal error: invalid number of optional arguments specified: {}", optArgCount );
     }

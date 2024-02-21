@@ -109,6 +109,8 @@
 #define IDC_LTEXT_VERSION                       1126
 #define IDC_LTEXT_AUTHOR                        1127
 #define IDC_LTEXT_DESCRIPTION                   1128
+#define IDD_DIALOG_POPUP                        1129
+#define IDC_LTEXT_MESSAGE                       1130
 #define ID_FILE_IMPORT                          40014
 #define ID_FILE_EXPORT                          40015
 #define ID_EDIT_RESETTODEFAULT                  40016
@@ -130,7 +132,7 @@
 #    ifndef APSTUDIO_READONLY_SYMBOLS
 #        define _APS_NEXT_RESOURCE_VALUE 146
 #        define _APS_NEXT_COMMAND_VALUE  40031
-#        define _APS_NEXT_CONTROL_VALUE  1129
+#        define _APS_NEXT_CONTROL_VALUE  1131
 #        define _APS_NEXT_SYMED_VALUE    101
 #    endif
 #endif

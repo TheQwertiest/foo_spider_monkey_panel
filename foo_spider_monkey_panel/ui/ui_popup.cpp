@@ -1,6 +1,6 @@
 #include <stdafx.h>
 
-#include "ui_input_box.h"
+#include "ui_popup.h"
 
 #include <graphics/gdi/object_selector.h>
 #include <utils/gdi_helpers.h>
@@ -10,41 +10,31 @@
 namespace smp::ui
 {
 
-CInputBox::CInputBox( qwr::u8string_view prompt, qwr::u8string_view caption, qwr::u8string_view value )
-    : prompt_( prompt )
+CPopup::CPopup( qwr::u8string_view message, qwr::u8string_view caption )
+    : message_( message )
     , caption_( caption )
-    , value_( value )
 {
 }
 
-LRESULT CInputBox::OnInitDialog( HWND /*hwndFocus*/, LPARAM /*lParam*/ )
+LRESULT CPopup::OnInitDialog( HWND /*hwndFocus*/, LPARAM /*lParam*/ )
 {
     DlgResize_Init( false );
 
-    AdjustPromptControlToFit();
+    AdjustToFit();
 
     // Disable manual resizing
     SetWindowLong( GWL_STYLE, GetWindowLong( GWL_STYLE ) & ~WS_THICKFRAME );
 
     uSetWindowText( m_hWnd, caption_.c_str() );
-    uSendDlgItemMessageText( m_hWnd, IDC_INPUT_PROMPT, WM_SETTEXT, 0, prompt_.c_str() );
-    uSendDlgItemMessageText( m_hWnd, IDC_INPUT_VALUE, WM_SETTEXT, 0, value_.c_str() );
+    uSendDlgItemMessageText( m_hWnd, IDC_LTEXT_MESSAGE, WM_SETTEXT, 0, message_.c_str() );
 
-    // Select all
-    SendDlgItemMessage( IDC_INPUT_VALUE, EM_SETSEL, 0, -1 );
-    ::SetFocus( GetDlgItem( IDC_INPUT_VALUE ) );
     CenterWindow();
 
     return FALSE;
 }
 
-LRESULT CInputBox::OnCommand( UINT /*codeNotify*/, int id, HWND /*hwndCtl*/ )
+LRESULT CPopup::OnCommand( UINT /*codeNotify*/, int id, HWND /*hwndCtl*/ )
 {
-    if ( id == IDOK )
-    {
-        value_ = qwr::pfc_x::uGetWindowText<char>( GetDlgItem( IDC_INPUT_VALUE ) );
-    }
-
     if ( id == IDOK || id == IDCANCEL )
     {
         EndDialog( id );
@@ -53,19 +43,14 @@ LRESULT CInputBox::OnCommand( UINT /*codeNotify*/, int id, HWND /*hwndCtl*/ )
     return 0;
 }
 
-qwr::u8string CInputBox::GetValue()
+void CPopup::AdjustToFit()
 {
-    return value_;
-}
-
-void CInputBox::AdjustPromptControlToFit()
-{
-    if ( prompt_.empty() )
+    if ( message_.empty() )
     {
         return;
     }
 
-    CStatic promptCtrl( GetDlgItem( IDC_INPUT_PROMPT ) );
+    CStatic promptCtrl( GetDlgItem( IDC_LTEXT_MESSAGE ) );
     CRect promptRc{};
     promptCtrl.GetClientRect( &promptRc );
 
@@ -76,12 +61,15 @@ void CInputBox::AdjustPromptControlToFit()
 
         GdiObjectSelector autoFont( cdc, promptCtrl.GetFont() );
 
-        const auto promptW = qwr::unicode::ToWide( prompt_ );
+        const auto promptW = qwr::unicode::ToWide( message_ );
         cdc.DrawText( const_cast<wchar_t*>( promptW.c_str() ), -1, &newPromptRc, DT_CALCRECT | DT_NOPREFIX | DT_WORDBREAK );
     }
 
-    // add padding
-    newPromptRc.bottom += 7;
+    CButton okCtrl( GetDlgItem( IDOK ) );
+    CRect okRc{};
+    okCtrl.GetClientRect( &okRc );
+
+    newPromptRc.bottom += okRc.Height();
 
     if ( newPromptRc.bottom > promptRc.bottom || newPromptRc.right > promptRc.right )
     {
