@@ -23,6 +23,7 @@ enum class BuiltinModuleId : uint8_t
     kFbTrackCustomMetaManager,
     kFbTrackImageManager,
     kFbUiSelectionManager,
+    kNodeJsFsPromises,
     kCount
 };
 

@@ -20,6 +20,7 @@ namespace mozjs
 
 class ComponentManager;
 class DspManager;
+class FsPromises;
 class GlobalHeapManager;
 class JsContainer;
 class JsWindow;
@@ -118,6 +119,7 @@ private:
     std::tuple<
         LoadedNativeObject<ComponentManager>,
         LoadedNativeObject<DspManager>,
+        LoadedNativeObject<FsPromises>,
         LoadedNativeObject<Library>,
         LoadedNativeObject<ModuleCanvas>,
         LoadedNativeObject<ModuleTrack>,

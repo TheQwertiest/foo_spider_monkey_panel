@@ -481,9 +481,6 @@
     <ClCompile Include="js_backend\objects\dom\canvas\image_data.cpp">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClCompile>
-    <ClCompile Include="js_backend\objects\placeholder.cpp">
-      <Filter>js_backend\objects</Filter>
-    </ClCompile>
     <ClCompile Include="panel\panel_accessor.cpp">
       <Filter>panel</Filter>
     </ClCompile>
@@ -726,6 +723,17 @@
     </ClCompile>
     <ClCompile Include="fb2k\callbacks\init_quit.cpp">
       <Filter>fb2k\callbacks</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\fb2k\component_manager.cpp" />
+    <ClCompile Include="ui\ui_popup.cpp" />
+    <ClCompile Include="js_backend\objects\nodejs\fs_promises.cpp">
+      <Filter>js_backend\objects\nodejs</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\placeholder.cpp">
+      <Filter>js_backend\objects</Filter>
+    </ClCompile>
+    <ClCompile Include="js_backend\objects\nodejs\fs_stats.cpp">
+      <Filter>js_backend\objects\nodejs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -1312,9 +1320,6 @@
     <ClInclude Include="js_backend\objects\dom\canvas\image_data.h">
       <Filter>js_backend\objects\dom\canvas</Filter>
     </ClInclude>
-    <ClInclude Include="js_backend\objects\placeholder.h">
-      <Filter>js_backend\objects</Filter>
-    </ClInclude>
     <ClInclude Include="js_backend\objects\dom\canvas\native\canvas_surface.h">
       <Filter>js_backend\objects\dom\canvas\native</Filter>
     </ClInclude>
@@ -1555,6 +1560,17 @@
     <ClInclude Include="js_backend\objects\fb2k\process.h">
       <Filter>js_backend\objects\fb2k</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\fb2k\component_manager.h" />
+    <ClInclude Include="ui\ui_popup.h" />
+    <ClInclude Include="js_backend\objects\nodejs\fs_promises.h">
+      <Filter>js_backend\objects\nodejs</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\placeholder.h">
+      <Filter>js_backend\objects</Filter>
+    </ClInclude>
+    <ClInclude Include="js_backend\objects\nodejs\fs_stats.h">
+      <Filter>js_backend\objects\nodejs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1616,6 +1632,10 @@
       <Filter>resources\modules</Filter>
     </None>
     <None Include="resources\modules\process.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\component_manager.js" />
+    <None Include="resources\modules\fs_promises.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>
@@ -1748,6 +1768,9 @@
     </Filter>
     <Filter Include="js_backend\objects\fb2k\events">
       <UniqueIdentifier>{7999b300-2385-45ad-a9ab-99d7a34a5145}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="js_backend\objects\nodejs">
+      <UniqueIdentifier>{5aa3ec71-1eeb-48b8-8431-5fdd197d9a63}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

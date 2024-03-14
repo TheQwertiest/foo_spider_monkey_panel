@@ -69,6 +69,10 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kFbComponentManager;
     }
+    if ( moduleName == "smp:fs/promises" )
+    {
+        return BuiltinModuleId::kNodeJsFsPromises;
+    }
 
     return std::nullopt;
 }
@@ -107,6 +111,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_FB_PROCESS;
     case BuiltinModuleId::kFbComponentManager:
         return IDR_MODULE_FB_COMPONENT_MANAGER;
+    case BuiltinModuleId::kNodeJsFsPromises:
+        return IDR_MODULE_NODE_JS_FS_PROMISES;
     default:
         assert( false );
         return 0;
