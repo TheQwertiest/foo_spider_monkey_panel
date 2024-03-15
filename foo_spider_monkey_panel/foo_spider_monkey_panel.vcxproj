@@ -224,6 +224,7 @@
     <ClCompile Include="js_backend\objects\fb2k\track_info_snapshot.cpp" />
     <ClCompile Include="js_backend\objects\nodejs\fs_promises.cpp" />
     <ClCompile Include="js_backend\objects\nodejs\fs_stats.cpp" />
+    <ClCompile Include="js_backend\objects\nodejs\path.cpp" />
     <ClCompile Include="js_backend\objects\placeholder.cpp" />
     <ClCompile Include="js_backend\utils\heap_data_holder.cpp" />
     <ClCompile Include="js_backend\utils\js_heap_helper.cpp" />
@@ -269,6 +270,7 @@
     <ClInclude Include="js_backend\objects\fb2k\track_info_snapshot.h" />
     <ClInclude Include="js_backend\objects\nodejs\fs_promises.h" />
     <ClInclude Include="js_backend\objects\nodejs\fs_stats.h" />
+    <ClInclude Include="js_backend\objects\nodejs\path.h" />
     <ClInclude Include="js_backend\objects\placeholder.h" />
     <ClInclude Include="js_backend\utils\heap_data_holder.h" />
     <ClInclude Include="panel\panel_accessor.h" />
@@ -693,6 +695,7 @@
     <None Include="resources\modules\fs_promises.js" />
     <None Include="resources\modules\library.js" />
     <None Include="resources\modules\output_manager.js" />
+    <None Include="resources\modules\path.js" />
     <None Include="resources\modules\playback.js" />
     <None Include="resources\modules\playback_queue.js" />
     <None Include="resources\modules\playlist_manager.js" />

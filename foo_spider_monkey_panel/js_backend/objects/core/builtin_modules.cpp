@@ -73,6 +73,10 @@ std::optional<BuiltinModuleId> ResolveBuiltinModule( const qwr::u8string& module
     {
         return BuiltinModuleId::kNodeJsFsPromises;
     }
+    if ( moduleName == "smp:path" )
+    {
+        return BuiltinModuleId::kNodeJsPath;
+    }
 
     return std::nullopt;
 }
@@ -113,6 +117,8 @@ int GetBuiltinModuleResourceId( BuiltinModuleId moduleId )
         return IDR_MODULE_FB_COMPONENT_MANAGER;
     case BuiltinModuleId::kNodeJsFsPromises:
         return IDR_MODULE_NODE_JS_FS_PROMISES;
+    case BuiltinModuleId::kNodeJsPath:
+        return IDR_MODULE_NODE_JS_PATH;
     default:
         assert( false );
         return 0;

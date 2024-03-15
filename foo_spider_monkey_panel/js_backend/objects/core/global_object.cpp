@@ -36,6 +36,7 @@
 #include <js_backend/objects/gdi/gdi_font.h>
 #include <js_backend/objects/gdi/gdi_utils.h>
 #include <js_backend/objects/nodejs/fs_promises.h>
+#include <js_backend/objects/nodejs/path.h>
 #include <js_backend/objects/utils.h>
 #include <js_backend/objects/window.h>
 #include <js_backend/utils/js_error_helper.h>
@@ -403,6 +404,10 @@ JSObject* JsGlobalObject::InternalLazyLoad( uint8_t moduleIdRaw )
             case BuiltinModuleId::kNodeJsFsPromises:
             {
                 return initializeLoadedObject.template operator()<FsPromises>( moduleId );
+            }
+            case BuiltinModuleId::kNodeJsPath:
+            {
+                return initializeLoadedObject.template operator()<ModulePath>( moduleId );
             }
             // TODO: add event module
             default:

@@ -659,6 +659,8 @@ IDR_MODULE_FB_UI_SELECTION_MANAGER SCRIPT                  "modules/ui_selection
 
 IDR_MODULE_NODE_JS_FS_PROMISES SCRIPT "modules/fs_promises.js"
 
+IDR_MODULE_NODE_JS_PATH SCRIPT "modules/path.js"
+
 
 /////////////////////////////////////////////////////////////////////////////
 //

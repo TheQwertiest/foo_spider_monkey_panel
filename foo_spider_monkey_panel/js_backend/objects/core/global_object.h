@@ -26,6 +26,7 @@ class JsContainer;
 class JsWindow;
 class Library;
 class ModuleCanvas;
+class ModulePath;
 class ModuleTrack;
 class OutputManager;
 class PlaybackControl;
@@ -122,6 +123,7 @@ private:
         LoadedNativeObject<FsPromises>,
         LoadedNativeObject<Library>,
         LoadedNativeObject<ModuleCanvas>,
+        LoadedNativeObject<ModulePath>,
         LoadedNativeObject<ModuleTrack>,
         LoadedNativeObject<OutputManager>,
         LoadedNativeObject<PlaybackControl>,

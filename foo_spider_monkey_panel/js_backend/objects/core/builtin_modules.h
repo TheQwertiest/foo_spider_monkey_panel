@@ -24,6 +24,7 @@ enum class BuiltinModuleId : uint8_t
     kFbTrackImageManager,
     kFbUiSelectionManager,
     kNodeJsFsPromises,
+    kNodeJsPath,
     kCount
 };
 

@@ -735,6 +735,9 @@
     <ClCompile Include="js_backend\objects\nodejs\fs_stats.cpp">
       <Filter>js_backend\objects\nodejs</Filter>
     </ClCompile>
+    <ClCompile Include="js_backend\objects\nodejs\path.cpp">
+      <Filter>js_backend\objects\nodejs</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="convert\com.h">
@@ -1571,6 +1574,9 @@
     <ClInclude Include="js_backend\objects\nodejs\fs_stats.h">
       <Filter>js_backend\objects\nodejs</Filter>
     </ClInclude>
+    <ClInclude Include="js_backend\objects\nodejs\path.h">
+      <Filter>js_backend\objects\nodejs</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
@@ -1636,6 +1642,9 @@
     </None>
     <None Include="resources\modules\component_manager.js" />
     <None Include="resources\modules\fs_promises.js">
+      <Filter>resources\modules</Filter>
+    </None>
+    <None Include="resources\modules\path.js">
       <Filter>resources\modules</Filter>
     </None>
   </ItemGroup>
