@@ -13,6 +13,20 @@ namespace mozjs::utils
 {
 
 template <typename T>
+struct PropertyValue
+{
+    std::optional<T> valueOpt;
+    bool isNull = false;
+    bool isUndefined = false;
+
+    bool IsNullOrUndefined() const
+    {
+        return ( isNull || isUndefined );
+    }
+};
+
+// TODO: check every call for undefined and null handling and replace with strict wherever needed
+template <typename T>
 std::optional<T> GetOptionalProperty( JSContext* cx, JS::HandleObject jsObject, const std::string& propName )
 {
     bool hasProp;
@@ -33,6 +47,54 @@ std::optional<T> GetOptionalProperty( JSContext* cx, JS::HandleObject jsObject, 
     }
 
     return convert::to_native::ToValue<T>( cx, jsValue );
+};
+
+template <typename T>
+PropertyValue<T> GetOptionalPropertyDetailed( JSContext* cx, JS::HandleObject jsObject, const std::string& propName )
+{
+    bool hasProp;
+    if ( !JS_HasProperty( cx, jsObject, propName.c_str(), &hasProp ) )
+    {
+        throw smp::JsException();
+    }
+
+    if ( !hasProp )
+    {
+        return {
+            .valueOpt = std::nullopt,
+            .isNull = true,
+            .isUndefined = false
+        };
+    }
+
+    JS::RootedValue jsValue( cx );
+    if ( !JS_GetProperty( cx, jsObject, propName.c_str(), &jsValue ) )
+    {
+        throw smp::JsException();
+    }
+
+    if ( jsValue.isNull() )
+    {
+        return {
+            .valueOpt = std::nullopt,
+            .isNull = true,
+            .isUndefined = false
+        };
+    }
+    if ( jsValue.isUndefined() )
+    {
+        return {
+            .valueOpt = std::nullopt,
+            .isNull = false,
+            .isUndefined = true
+        };
+    }
+
+    return {
+        .valueOpt = convert::to_native::ToValue<T>( cx, jsValue ),
+        .isNull = false,
+        .isUndefined = false
+    };
 };
 
 template <typename T>

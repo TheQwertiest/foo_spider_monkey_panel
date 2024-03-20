@@ -12,6 +12,7 @@
 #include <js/experimental/TypedData.h>
 #include <qwr/file_helpers.h>
 #include <qwr/final_action.h>
+#include <qwr/text_helpers.h>
 #include <qwr/winapi_error_helpers.h>
 
 SMP_MJS_SUPPRESS_WARNINGS_PUSH
@@ -20,7 +21,7 @@ SMP_MJS_SUPPRESS_WARNINGS_POP
 
 #include <fcntl.h>
 
-#include <qwr/text_helpers.h>
+#include <cwctype>
 
 using namespace smp;
 namespace fs = std::filesystem;
@@ -208,6 +209,51 @@ CreateFileParams GenerateCreateFileParams( uint32_t flags )
              .attributes = attributes };
 }
 
+qwr::u8string NormalizeEncoding( const qwr::u8string& encodingRaw )
+{
+    auto encoding = encodingRaw;
+    ranges::transform( encoding, encoding.begin(), []( int c ) { return std::tolower( c ); } );
+    if ( encoding == "utf-8" )
+    {
+        encoding = "utf8";
+    }
+    return encoding;
+}
+
+std::optional<qwr::u8string> ExtractEncodingOption( JSContext* cx, JS::HandleValue options )
+{
+    std::optional<qwr::u8string> encodingOpt;
+    if ( options.isObject() )
+    {
+        JS::RootedObject jsOptions( cx, &options.toObject() );
+
+        const auto encodingDetailedValue = mozjs::utils::GetOptionalPropertyDetailed<qwr::u8string>( cx, jsOptions, "encoding" );
+        if ( encodingDetailedValue.valueOpt )
+        {
+            encodingOpt = *encodingDetailedValue.valueOpt;
+        }
+        else if ( encodingDetailedValue.IsNullOrUndefined() )
+        {
+            encodingOpt = "buffer";
+        }
+    }
+    else if ( options.isString() )
+    {
+        encodingOpt = mozjs::convert::to_native::ToValue<qwr::u8string>( cx, options );
+    }
+    else
+    {
+        qwr::QwrException::ExpectTrue( options.isUndefined(), "Invalid options type" );
+    }
+
+    if ( !encodingOpt )
+    {
+        return std::nullopt;
+    }
+
+    return NormalizeEncoding( *encodingOpt );
+}
+
 } // namespace
 
 namespace
@@ -287,31 +333,21 @@ JSObject* FsPromises::ReadDir( JS::HandleValue path, JS::HandleValue options ) c
     fs::path pathFs{ convert::to_native::ToValue<std::wstring>( pJsCtx_, path ) };
 
     bool isRecursive = false;
-    std::optional<qwr::u8string> encodingOpt = "utf8";
-    if ( options.isObject() )
+    qwr::u8string encoding = "utf8";
+    if ( !options.isNullOrUndefined() )
     {
-        JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
-        if ( auto valueOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "recursive" );
-             valueOpt )
+        if ( options.isObject() )
         {
-            isRecursive = *valueOpt;
+            JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
+            if ( auto valueOpt = utils::GetOptionalProperty<bool>( pJsCtx_, jsOptions, "recursive" );
+                 valueOpt )
+            {
+                isRecursive = *valueOpt;
+            }
         }
-
-        if ( auto valueOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "encoding" );
-             valueOpt )
-        {
-            encodingOpt = *valueOpt;
-        }
+        encoding = ExtractEncodingOption( pJsCtx_, options ).value_or( encoding );
+        qwr::QwrException::ExpectTrue( encoding == "utf8", "Unsupported encoding type" );
     }
-    else if ( options.isString() )
-    {
-        encodingOpt = convert::to_native::ToValue<qwr::u8string>( pJsCtx_, options );
-    }
-    else
-    {
-        qwr::QwrException::ExpectTrue( options.isUndefined(), "Invalid options type" );
-    }
-    qwr::QwrException::ExpectTrue( encodingOpt == "utf8", "Unsupported encoding type" );
 
     auto taskFn = [pathFs, isRecursive, cx = pJsCtx_] {
         std::vector<std::wstring> files;
@@ -365,32 +401,26 @@ JSObject* FsPromises::ReadFile( JS::HandleValue path, JS::HandleValue options ) 
     fs::path pathFs{ convert::to_native::ToValue<std::wstring>( pJsCtx_, path ) };
 
     qwr::u8string flagStr = "r";
-    std::optional<qwr::u8string> encodingOpt;
-    if ( options.isObject() )
+    qwr::u8string encoding = "utf8";
+    if ( !options.isNullOrUndefined() )
     {
-        JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
-        if ( auto valueOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "flag" );
-             valueOpt )
+        if ( options.isObject() )
         {
-            flagStr = *valueOpt;
+            JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
+            if ( auto valueOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "flag" );
+                 valueOpt )
+            {
+                flagStr = *valueOpt;
+            }
         }
 
-        encodingOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "encoding" );
+        encoding = ExtractEncodingOption( pJsCtx_, options ).value_or( encoding );
+        qwr::QwrException::ExpectTrue( encoding == "buffer" || encoding == "utf8", "Unsupported encoding type" );
     }
-    else if ( options.isString() )
-    {
-        encodingOpt = convert::to_native::ToValue<qwr::u8string>( pJsCtx_, options );
-    }
-    else
-    {
-        qwr::QwrException::ExpectTrue( options.isUndefined(), "Invalid options type" );
-    }
-    qwr::QwrException::ExpectTrue( !encodingOpt || encodingOpt == "utf8", "Unsupported encoding type" );
-
     const auto flags = ParseFlags( flagStr );
     qwr::QwrException::ExpectTrue( flags != O_WRONLY, "Can't read file in write-only mode" );
 
-    auto taskFn = [pathFs, flags, encodingOpt, cx = pJsCtx_] {
+    auto taskFn = [pathFs, flags, encoding, cx = pJsCtx_] {
         std::vector<char> data;
         {
             const auto createFileParams = GenerateCreateFileParams( flags );
@@ -413,46 +443,13 @@ JSObject* FsPromises::ReadFile( JS::HandleValue path, JS::HandleValue options ) 
             } while ( bytesRead == buffer.size() );
         }
 
-        /*
-        qwr::u8string_view dataView( data.data(), data.size() );
-        const auto detectedCharset = qwr::DetectCharSet( dataView ).value_or( CP_ACP );
-        // TODO: handle encoding
-        auto convertedContent = [&] {
-            if ( detectedCharset == CP_UTF8 )
-            {
-                return qwr::unicode::ToWide( dataView );
-            }
-            // TODO: test this encoding
-            else if (detectedCharset == 1200) // utf16
-            {
-                std::wstring tmp;
-                tmp.resize( dataView.size() >> 1 );
-                // Can't use wstring.assign(), because of potential aliasing issues
-                memcpy( tmp.data(), dataView.data(), dataView.size() );
-                return tmp;
-            }
-            else
-            {
-                std::wstring tmpString;
-                size_t outputSize = pfc::stringcvt::estimate_codepage_to_wide( detectedCharset, dataView.data(), dataView.size() );
-                tmpString.resize( outputSize );
-
-                outputSize = pfc::stringcvt::convert_codepage_to_wide( detectedCharset, tmpString.data(), outputSize, dataView.data(), dataView.size() );
-                tmpString.resize( outputSize );
-
-                return tmpString;
-            }
-        }();
-        */
-
-        return [data = std::move( data ), encodingOpt, cx]() -> JS::Value {
+        return [data = std::move( data ), encoding, cx]() -> JS::Value {
             JS::RootedValue jsValue( cx );
-            if ( !encodingOpt )
+            if ( encoding == "buffer" )
             {
-                qwr::u8string_view dataView( data.data(), data.size() );
-                convert::to_js::ToValue( cx, dataView, &jsValue );
+                std::span<const char> dataView( data.data(), data.size() );
 
-                JS::RootedObject jsArray( cx, JS_NewUint8ClampedArray( cx, data.size() ) );
+                JS::RootedObject jsArray( cx, JS_NewUint8ClampedArray( cx, dataView.size() ) );
                 smp::JsException::ExpectTrue( jsArray );
 
                 size_t arraySize = 0;
@@ -460,7 +457,7 @@ JSObject* FsPromises::ReadFile( JS::HandleValue path, JS::HandleValue options ) 
                 uint8_t* jsArrayData = nullptr;
                 js::GetUint8ClampedArrayLengthAndData( jsArray, &arraySize, &isShared, &jsArrayData );
 
-                memcpy( jsArrayData, data.data(), data.size() );
+                memcpy( jsArrayData, dataView.data(), dataView.size() );
 
                 jsValue.setObjectOrNull( jsArray );
             }
@@ -535,36 +532,43 @@ JSObject* FsPromises::WriteFile( JS::HandleValue path, JS::HandleValue data, JS:
     qwr::QwrException::ExpectTrue( path.isString(), "path argument is not of supported type" );
     fs::path pathFs{ convert::to_native::ToValue<std::wstring>( pJsCtx_, path ) };
 
-    qwr::QwrException::ExpectTrue( data.isString(), "data argument is not of supported type" );
-    const auto content = convert::to_native::ToValue<qwr::u8string>( pJsCtx_, data );
-
-    qwr::u8string flagStr = "w";
-    std::optional<qwr::u8string> encodingOpt = "utf8";
-    if ( options.isObject() )
+    std::vector<char> content;
+    if ( data.isString() )
     {
-        JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
-        if ( auto valueOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "flag" );
-             valueOpt )
-        {
-            flagStr = *valueOpt;
-        }
-
-        if ( auto valueOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "encoding" );
-             valueOpt )
-        {
-            encodingOpt = *valueOpt;
-        }
+        const auto contentStr = convert::to_native::ToValue<qwr::u8string>( pJsCtx_, data );
+        content.assign( contentStr.data(), contentStr.data() + contentStr.size() );
     }
-    else if ( options.isString() )
+    else if ( data.isObject() && JS_IsUint8ClampedArray( &data.toObject() ) )
     {
-        encodingOpt = convert::to_native::ToValue<qwr::u8string>( pJsCtx_, options );
+        size_t arraySize = 0;
+        uint8_t* arrayData = nullptr;
+        bool bDummy = false;
+        js::GetUint8ClampedArrayLengthAndData( &data.toObject(), &arraySize, &bDummy, &arrayData );
+
+        content.assign( arrayData, arrayData + arraySize );
     }
     else
     {
-        qwr::QwrException::ExpectTrue( options.isUndefined(), "Invalid options type" );
+        throw qwr::QwrException( "data argument is not of supported type" );
     }
-    qwr::QwrException::ExpectTrue( !encodingOpt || encodingOpt == "utf8", "Unsupported encoding type" );
 
+    qwr::u8string flagStr = "w";
+    qwr::u8string encoding = "buffer";
+    if ( !options.isNullOrUndefined() )
+    {
+        if ( options.isObject() )
+        {
+            JS::RootedObject jsOptions( pJsCtx_, &options.toObject() );
+            if ( auto valueOpt = utils::GetOptionalProperty<qwr::u8string>( pJsCtx_, jsOptions, "flag" );
+                 valueOpt )
+            {
+                flagStr = *valueOpt;
+            }
+        }
+
+        encoding = ExtractEncodingOption( pJsCtx_, options ).value_or( encoding );
+        qwr::QwrException::ExpectTrue( encoding == "buffer" || encoding == "utf8", "Unsupported encoding type" );
+    }
     const auto flags = ParseFlags( flagStr );
     qwr::QwrException::ExpectTrue( flags != O_RDONLY, "Can't write file in read-only mode" );
 
@@ -577,7 +581,7 @@ JSObject* FsPromises::WriteFile( JS::HandleValue path, JS::HandleValue data, JS:
             CloseHandle( hFile );
         } );
 
-        qwr::u8string_view dataView( content );
+        std::span<const char> dataView( content );
         // TODO: move chunk size to constant
         const size_t chunkSize = 512 * 1024;
         DWORD bytesWritten = 0;
@@ -586,7 +590,7 @@ JSObject* FsPromises::WriteFile( JS::HandleValue path, JS::HandleValue data, JS:
             auto bRet = ::WriteFile( hFile, dataView.data(), std::min( chunkSize, dataView.size() ), &bytesWritten, nullptr );
             qwr::error::CheckWinApi( bRet, "WriteFile" );
 
-            dataView.remove_prefix( bytesWritten );
+            dataView = dataView.subspan( bytesWritten );
         }
 
         return []() -> JS::Value {
